@@ -25,15 +25,15 @@ char* get_extra_desc(const char* name, ExtraDesc* ed);
 extern int extra_desc_count;
 extern int extra_desc_perm_count;
 
-#define ADD_EXTRA_DESC(t, ed)                                                  \
-    if (!t->extra_desc) {                                             \
-        t->extra_desc = ed;                                           \
+#define ADD_EXTRA_DESC(ent, ed)                                                \
+    if (!ent->extra_desc) {                                                    \
+        ent->extra_desc = ed;                                                  \
     }                                                                          \
     else {                                                                     \
-        ExtraDesc* i = t->extra_desc;                                 \
-        while (i->next != NULL)                                                \
-            NEXT_LINK(i);                                                       \
-        i->next = ed;                                                          \
+        ExtraDesc* ed_i = ent->extra_desc;                                     \
+        while (ed_i->next != NULL)                                             \
+            NEXT_LINK(ed_i);                                                   \
+        ed_i->next = ed;                                                       \
     }                                                                          \
     ed->next = NULL;
 

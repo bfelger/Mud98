@@ -1,0 +1,1683 @@
+{
+  "formatVersion": 1,
+  "areadata": {
+    "version": 2,
+    "name": "Graveyard",
+    "builders": "",
+    "vnumRange": [
+      3600,
+      3699
+    ],
+    "credits": "Alfa",
+    "security": 9,
+    "sector": "inside",
+    "lowLevel": 5,
+    "highLevel": 10,
+    "reset": 6,
+    "alwaysReset": false
+  },
+  "storyBeats": [],
+  "checklist": [],
+  "rooms": [
+    {
+      "vnum": 3600,
+      "name": "A Gravel Road in the Graveyard",
+      "description": "You are on a well-kept gravel road that leads north-south through the\n\rgraveyard.  On both sides of the road grow dark evergreen trees.  An iron\n\rgrate is to the north and narrow gravel paths lead east and west.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 3124,
+          "key": 3121,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "description": "Through the solid iron bars you see Elm Street. \n\r",
+          "keyword": "grate"
+        },
+        {
+          "dir": "east",
+          "toVnum": 3650,
+          "description": "The gravel path leads eastwards between the dark evergreen trees.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 3601,
+          "description": "The gravel road continues southwards.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 3606,
+          "description": "The gravel path leads westwards between the dark evergreen trees.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3601,
+      "name": "A Gravel Road in the Graveyard",
+      "description": "You are on a well-kept gravel road that leads north-south through the\n\rgraveyard.  On both sides of the road grow dark evergreen trees.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 3600,
+          "description": "The gravel road continues northwards.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 3602,
+          "description": "The gravel road continues southwards.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3602,
+      "name": "A Gravel Road in the Graveyard",
+      "description": "You are on a well-kept gravel road that leads north-south through the\n\rgraveyard.  On both sides of the road grow dark evergreen trees.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 3601,
+          "description": "The gravel road continues northwards.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 3603,
+          "description": "The gravel road continues southwards.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3603,
+      "name": "A Gravel Road in the Graveyard",
+      "description": "You are on a well-kept gravel road that leads north-south through the\n\rgraveyard.  On both sides of the road grow dark evergreen trees.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 3602,
+          "description": "The gravel road continues northwards.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 3604,
+          "description": "The gravel road continues southwards to an open space before a small\n\rbuilding.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3604,
+      "name": "In front of the Chapel",
+      "description": "You are on an open space before a small chapel.  A gravel road leads north\n\rthrough the graveyard and the chapel entrance is to the south.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 3603,
+          "description": "The gravel road continues northwards.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 3638,
+          "description": "The gravel path leads eastwards between the dark evergreen trees.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 3405,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "The chapel door is made of dark wood.\n\r",
+          "keyword": "door"
+        },
+        {
+          "dir": "west",
+          "toVnum": 3618,
+          "description": "The gravel path leads westwards between the dark evergreen trees.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3606,
+      "name": "A Gravel Path on the Graveyard",
+      "description": "You are on a gravel path winding its way between dark evergreen trees on\n\rthe graveyard.  An old tomb is here.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 3600,
+          "description": "The gravel path continues eastwards towards a gravel road.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 3608,
+          "description": "The gravel path continues southwards.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 3607,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "tomb stone"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "tomb stone",
+          "description": "It is a large rectangular slab of dark grey stone that has been placed face\n\rup in the ground.  The name has been erased by the ravages of time.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3607,
+      "name": "In a dusty Tomb",
+      "description": "You are in a dark burial chamber beneath a large tomb stone.\n\rThe only exit appears to be up.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 3606,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "tomb stone"
+        }
+      ]
+    },
+    {
+      "vnum": 3608,
+      "name": "A Gravel Path on the Graveyard",
+      "description": "You are on a gravel path winding its way between dark evergreen trees on\n\rthe graveyard.  The path leads north and west.  An old tomb is here.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 3606,
+          "description": "The gravel path continues northwards.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 3610,
+          "description": "The gravel path continues westwards.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 3609,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "tomb stone"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "tomb stone",
+          "description": "It is a large rectangular slab of dark grey stone that has been placed face\n\rup in the ground.  The name has been erased by the ravages of time.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3609,
+      "name": "In a dusty Tomb",
+      "description": "You are in a dark burial chamber beneath a large tomb stone.\n\rThe only exit appears to be up.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 3608,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "tomb stone"
+        }
+      ]
+    },
+    {
+      "vnum": 3610,
+      "name": "A Gravel Path on the Graveyard",
+      "description": "You are on a gravel path winding its way between dark evergreen trees on\n\rthe graveyard.  The path leads east and south.  An old tomb is here.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 3608,
+          "description": "The gravel path continues eastwards.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 3612,
+          "description": "The gravel path continues southwards.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 3611,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "tomb stone"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "tomb stone",
+          "description": "It is a large rectangular slab of dark grey stone that has been placed face\n\rup in the ground.  The name has been erased by the ravages of time.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3611,
+      "name": "In a dusty Tomb",
+      "description": "You are in a dark burial chamber beneath a large tomb stone.\n\rThe only exit appears to be up.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 3610,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "tomb stone"
+        }
+      ]
+    },
+    {
+      "vnum": 3612,
+      "name": "A Gravel Path on the Graveyard",
+      "description": "You are on a gravel path winding its way between dark evergreen trees on\n\rthe graveyard.  The path leads north and east.  A small shed is to the west.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 3610,
+          "description": "The gravel path continues northwards.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 3614,
+          "description": "The gravel path continues eastwards.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 3613,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "It is a small black-painted shed with a wooden door.\n\r",
+          "keyword": "door"
+        }
+      ]
+    },
+    {
+      "vnum": 3613,
+      "name": "In a shed on the Graveyard",
+      "description": "You are in a small shed that looks as if it is used to store all sorts of\n\rgardening equipment.  The only exit appears to be through a door to the east.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 3612,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "door"
+        }
+      ]
+    },
+    {
+      "vnum": 3614,
+      "name": "A Gravel Path on the Graveyard",
+      "description": "You are on a gravel path winding its way between dark evergreen trees on\n\rthe graveyard.  The path leads south and west.  An old tomb is here.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 3616,
+          "description": "The gravel path continues southwards.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 3612,
+          "description": "The gravel path continues westwards.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 3615,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "tomb stone"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "tomb stone",
+          "description": "It is a large rectangular slab of dark grey stone that has been placed face\n\rup in the ground.  The name has been erased by the ravages of time.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3615,
+      "name": "In a dusty Tomb",
+      "description": "You are in a dark burial chamber beneath a large tomb stone.\n\rThe only exit appears to be up.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 3614,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "tomb stone"
+        }
+      ]
+    },
+    {
+      "vnum": 3616,
+      "name": "A Gravel Path on the Graveyard",
+      "description": "You are on a gravel path winding its way between dark evergreen trees on\n\rthe graveyard.  The path leads north and south.  An old tomb is here.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 3614,
+          "description": "The gravel path continues northwards.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 3618,
+          "description": "The gravel path continues southwards.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 3617,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "tomb stone"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "tomb stone",
+          "description": "It is a large rectangular slab of dark grey stone that has been placed face\n\rup in the ground.  The name has been erased by the ravages of time.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3617,
+      "name": "In a dusty Tomb",
+      "description": "You are in a dark burial chamber beneath a large tomb stone.\n\rThe only exit appears to be up.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 3616,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "tomb stone"
+        }
+      ]
+    },
+    {
+      "vnum": 3618,
+      "name": "A Gravel Path on the Graveyard",
+      "description": "You are on a gravel path winding its way between dark evergreen trees on\n\rthe graveyard.  The path leads north and east.  An old tomb is here.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 3616,
+          "description": "The gravel path continues northwards.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 3604,
+          "description": "The gravel path continues eastwards towards a building of some sort.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 3619,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "tomb stone"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "tomb stone",
+          "description": "It is a large rectangular slab of dark grey stone that has been placed face\n\rup in the ground.  The name has been erased by the ravages of time.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3619,
+      "name": "In a dusty Tomb",
+      "description": "You are in a dark burial chamber beneath a large tomb stone.\n\rThe only exit appears to be up.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 3618,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "tomb stone"
+        }
+      ]
+    },
+    {
+      "vnum": 3638,
+      "name": "A Gravel Path on the Graveyard",
+      "description": "You are on a gravel path winding its way between dark evergreen trees on\n\rthe graveyard.  The path leads north and west.  An old tomb is here.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 3640,
+          "description": "The gravel path continues northwards.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 3604,
+          "description": "The gravel path continues westwards towards a building of some sort.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 3639,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "tomb stone"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "tomb stone",
+          "description": "It is a large rectangular slab of dark grey stone that has been placed face\n\rup in the ground.  The name has been erased by the ravages of time.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3639,
+      "name": "In a dusty Tomb",
+      "description": "You are in a dark burial chamber beneath a large tomb stone.\n\rThe only exit appears to be up.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 3638,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "tomb stone"
+        }
+      ]
+    },
+    {
+      "vnum": 3640,
+      "name": "A Gravel Path on the Graveyard",
+      "description": "You are on a gravel path winding its way between dark evergreen trees on\n\rthe graveyard.  The path leads north and south.  An old tomb is here.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 3642,
+          "description": "The gravel path continues northwards.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 3638,
+          "description": "The gravel path continues southwards.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 3641,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "tomb stone"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "tomb stone",
+          "description": "It is a large rectangular slab of dark grey stone that has been placed face\n\rup in the ground.  The name has been erased by the ravages of time.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3641,
+      "name": "In a dusty Tomb",
+      "description": "You are in a dark burial chamber beneath a large tomb stone.\n\rThe only exit appears to be up.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 3640,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "tomb stone"
+        }
+      ]
+    },
+    {
+      "vnum": 3642,
+      "name": "A Gravel Path on the Graveyard",
+      "description": "You are on a gravel path winding its way between dark evergreen trees on\n\rthe graveyard.  The path leads east and south.  An old tomb is here.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 3644,
+          "description": "The gravel path continues eastwards.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 3640,
+          "description": "The gravel path continues southwards.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 3643,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "tomb stone"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "tomb stone",
+          "description": "It is a large rectangular slab of dark grey stone that has been placed face\n\rup in the ground.  The name has been erased by the ravages of time.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3643,
+      "name": "In a dusty Tomb",
+      "description": "You are in a dark burial chamber beneath a large tomb stone.\n\rThe only exit appears to be up.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 3642,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "tomb stone"
+        }
+      ]
+    },
+    {
+      "vnum": 3644,
+      "name": "A Gravel Path on the Graveyard",
+      "description": "You are on a gravel path winding its way between dark evergreen trees on\n\rthe graveyard.  The path leads north and west.  An old tomb is here.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 3646,
+          "description": "The gravel path continues northwards.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 3642,
+          "description": "The gravel path continues westwards.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 3645,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "tomb stone"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "tomb stone",
+          "description": "It is a large rectangular slab of dark grey stone that has been placed face\n\rup in the ground.  The name has been erased by the ravages of time.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3645,
+      "name": "In a dusty Tomb",
+      "description": "You are in a dark burial chamber beneath a large tomb stone.\n\rThe only exit appears to be up.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 3644,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "tomb stone"
+        }
+      ]
+    },
+    {
+      "vnum": 3646,
+      "name": "A Gravel Path on the Graveyard",
+      "description": "You are on a gravel path winding its way between dark evergreen trees on\n\rthe graveyard.  The path leads south and west.  An old tomb is here.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 3644,
+          "description": "The gravel path continues southwards.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 3648,
+          "description": "The gravel path continues westwards.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 3647,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "tomb stone"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "tomb stone",
+          "description": "It is a large rectangular slab of dark grey stone that has been placed face\n\rup in the ground.  The name has been erased by the ravages of time.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3647,
+      "name": "In a dusty Tomb",
+      "description": "You are in a dark burial chamber beneath a large tomb stone.\n\rThe only exit appears to be up.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 3646,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "tomb stone"
+        }
+      ]
+    },
+    {
+      "vnum": 3648,
+      "name": "A Gravel Path on the Graveyard",
+      "description": "You are on a gravel path winding its way between dark evergreen trees on\n\rthe graveyard.  The path leads north and east.  An old tomb is here.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 3650,
+          "description": "The gravel path continues northwards.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 3646,
+          "description": "The gravel path continues eastwards.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 3649,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "tomb stone"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "tomb stone",
+          "description": "It is a large rectangular slab of dark grey stone that has been placed face\n\rup in the ground.  The name has been erased by the ravages of time.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3649,
+      "name": "In a dusty Tomb",
+      "description": "You are in a dark burial chamber beneath a large tomb stone.\n\rThe only exit appears to be up.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 3648,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "tomb stone"
+        }
+      ]
+    },
+    {
+      "vnum": 3650,
+      "name": "A Gravel Path on the Graveyard",
+      "description": "You are on a gravel path winding its way between dark evergreen trees on\n\rthe graveyard.  The path leads south and west.  An old tomb is here.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 3648,
+          "description": "The gravel path continues southwards.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 3600,
+          "description": "The gravel path continues westwards towards a gravel road.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 3651,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "tomb stone"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "tomb stone",
+          "description": "It is a large rectangular slab of dark grey stone that has been placed face\n\rup in the ground.  The name has been erased by the ravages of time.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3651,
+      "name": "In a dusty Tomb",
+      "description": "You are in a dark burial chamber beneath a large tomb stone.\n\rThe only exit appears to be up.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 3650,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "tomb stone"
+        }
+      ]
+    }
+  ],
+  "mobiles": [
+    {
+      "vnum": 3600,
+      "name": "oldstyle henry gardener",
+      "shortDescr": "Henry the Gardener",
+      "longDescr": "Henry the Gardener is sitting here, looking drunk.\n\r",
+      "description": "He is a tall but bulky man in his late fifties.  His features are worn with\n\rdecades of hard work and his somewhat crouched expression is one of deep\n\rsorrow and depression.  He is haunted by a memory of a lost paradise.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "stay_area"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 350,
+      "group": 0,
+      "level": 4,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 46
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 5,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 6,
+        "bash": 6,
+        "slash": 6,
+        "exotic": 9
+      },
+      "startPos": "sitting",
+      "defaultPos": "sitting",
+      "sex": "male",
+      "wealth": 2,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 3601,
+      "name": "oldstyle zombie",
+      "shortDescr": "the rotting zombie",
+      "longDescr": "A rotting zombie is staggering towards you with outstretched hands.\n\r",
+      "description": "Maggots crawl all over its decaying body.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -750,
+      "group": 0,
+      "level": 4,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 46
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 5,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 6,
+        "bash": 6,
+        "slash": 6,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 2,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 3602,
+      "name": "oldstyle ghoul",
+      "shortDescr": "the ghastly ghoul",
+      "longDescr": "A ghastly ghoul is here.\n\r",
+      "description": "It is a walking corpse with long fangs and long, sharp nails that most of\n\rresemble claws.  Its eyes are a dark yellow colour and glare hungrily at you.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -750,
+      "group": 0,
+      "level": 6,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 71
+      },
+      "manaDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 7,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 4,
+        "bash": 4,
+        "slash": 4,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 5,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 3603,
+      "name": "oldstyle skeleton",
+      "shortDescr": "a dusty skeleton",
+      "longDescr": "A dusty skeleton lies here.\n\r",
+      "description": "The dusty bones are almost brown.  It must have been buried for a very long\n\rtime.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -750,
+      "group": 0,
+      "level": 3,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 35
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 7,
+        "bash": 7,
+        "slash": 7,
+        "exotic": 10
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 3604,
+      "name": "oldstyle skeleton",
+      "shortDescr": "a dusty skeleton",
+      "longDescr": "A dusty skeleton lies here.\n\r",
+      "description": "The dusty bones are almost brown.  It must have been buried for a very long\n\rtime.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -750,
+      "group": 0,
+      "level": 3,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 35
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 7,
+        "bash": 7,
+        "slash": 7,
+        "exotic": 10
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 3605,
+      "name": "oldstyle zombie",
+      "shortDescr": "the rotting zombie",
+      "longDescr": "A rotting zombie is staggering towards you with outstretched hands.\n\r",
+      "description": "Maggots crawl all over its decaying body.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -750,
+      "group": 0,
+      "level": 4,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 46
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 5,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 6,
+        "bash": 6,
+        "slash": 6,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 5,
+      "size": "medium",
+      "material": "0"
+    }
+  ],
+  "objects": [
+    {
+      "vnum": 3600,
+      "name": "candlestick",
+      "shortDescr": "a candlestick",
+      "description": "A pewter candlestick is standing here.",
+      "material": "oldstyle",
+      "itemType": "light",
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "light": {
+        "hours": 24
+      },
+      "weight": 50,
+      "cost": 10,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "candlestick",
+          "description": "It is a rather old-looking three-armed candlestick made from pewter.  Its\n\rcandles are a yellowish white colour.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3601,
+      "name": "brandy bottle",
+      "shortDescr": "a brandy bottle",
+      "description": "A brandy bottle is lying here.",
+      "material": "oldstyle",
+      "itemType": "drinkcontainer",
+      "wearFlags": [
+        "take"
+      ],
+      "drink": {
+        "capacity": 32,
+        "remaining": 32,
+        "liquid": "whisky"
+      },
+      "weight": 20,
+      "cost": 100,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "brandy bottle",
+          "description": "The bottle is a special 'Dragon Blood' brandy bottle.  Its neck is shaped\n\rlike a small dragon's head.  Bottles like these are often worth a small\n\ramount money, even when empty.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3602,
+      "name": "brandy bottle",
+      "shortDescr": "a brandy bottle",
+      "description": "A brandy bottle is lying here.",
+      "material": "oldstyle",
+      "itemType": "drinkcontainer",
+      "wearFlags": [
+        "take"
+      ],
+      "drink": {
+        "capacity": 32,
+        "liquid": "whisky"
+      },
+      "weight": 20,
+      "cost": 100,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "brandy bottle",
+          "description": "The bottle is a special 'Dragon Blood' brandy bottle.  Its neck is shaped\n\rlike a small dragon's head.  Bottles like these are often worth some money,\n\reven when empty.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3603,
+      "name": "wheelbarrow",
+      "shortDescr": "a wheelbarrow",
+      "description": "A green-painted wheelbarrow is standing here.",
+      "material": "oldstyle",
+      "itemType": "boat",
+      "wearFlags": [
+        "take"
+      ],
+      "weight": 1000,
+      "cost": 50,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "wheelbarrow",
+          "description": "It is a heavy wheelbarrow made from solid oaken planks that have been painted\n\ra dark, green colour.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3604,
+      "name": "shovel",
+      "shortDescr": "a shovel",
+      "description": "A shovel is lying here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "mace",
+        "dice": [
+          1,
+          5
+        ],
+        "damageType": "pound"
+      },
+      "weight": 80,
+      "cost": 169,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "shovel",
+          "description": "It is a large metal shovel with a solid wooden handle.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3605,
+      "name": "rake",
+      "shortDescr": "a rake",
+      "description": "A rake is lying here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "mace",
+        "dice": [
+          1,
+          4
+        ],
+        "damageType": "claw"
+      },
+      "weight": 80,
+      "cost": 140,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "rake",
+          "description": "It is a large metal rake with a solid wooden handle.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3610,
+      "name": "skeleton",
+      "shortDescr": "a dusty skeleton",
+      "description": "A dusty skeleton lies here.",
+      "material": "oldstyle",
+      "itemType": "furniture",
+      "wearFlags": [
+        "take"
+      ],
+      "weight": 150,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "skeleton",
+          "description": "The dusty bones are almost brown.  It must have been buried for a very long\n\rtime.\n\rA dusty skeleton is in an excellent condition.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3611,
+      "name": "amethyst gem",
+      "shortDescr": "a amethyst",
+      "description": "A large, beautifully polished amethyst has been left here.",
+      "material": "oldstyle",
+      "itemType": "warpstone",
+      "extraFlags": [
+        "nolocate"
+      ],
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "weight": 10,
+      "cost": 2500,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "amethyst",
+          "description": "It has a very deep purple colour.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3612,
+      "name": "pendant silver",
+      "shortDescr": "a silver pendant",
+      "description": "A silver pendant has been left here.",
+      "material": "oldstyle",
+      "itemType": "jewelry",
+      "wearFlags": [
+        "take",
+        "neck"
+      ],
+      "level": 7,
+      "weight": 10,
+      "cost": 800,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "pendant silver",
+          "description": "It resembles Thor's hammer and appears to be made of solid silver.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 7,
+          "duration": -1,
+          "modifier": -1
+        },
+        {
+          "where": "object",
+          "location": "strength",
+          "level": 7,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 3613,
+      "name": "dagger silver",
+      "shortDescr": "a silver dagger",
+      "description": "A long silver dagger is lying here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "dagger",
+        "dice": [
+          2,
+          4
+        ],
+        "damageType": "pierce"
+      },
+      "level": 6,
+      "weight": 10,
+      "cost": 430,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "dagger silver",
+          "description": "It has a long, sharp blade that is made entirely from silver.  A small rune\n\rhas been engraved on the blade next to the hilt.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 6,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    }
+  ],
+  "shops": [],
+  "specials": [
+    {
+      "mobVnum": 3601,
+      "spec": "spec_cast_undead"
+    },
+    {
+      "mobVnum": 3602,
+      "spec": "spec_cast_undead"
+    },
+    {
+      "mobVnum": 3603,
+      "spec": "spec_cast_undead"
+    },
+    {
+      "mobVnum": 3604,
+      "spec": "spec_cast_undead"
+    },
+    {
+      "mobVnum": 3605,
+      "spec": "spec_cast_undead"
+    }
+  ],
+  "mobprogs": [],
+  "resets": [
+    {
+      "mobVnum": 3604,
+      "maxInArea": 4,
+      "roomVnum": 3604,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 3604,
+      "maxInArea": 4,
+      "roomVnum": 3606,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3610,
+      "roomVnum": 3607,
+      "commandName": "placeObj"
+    },
+    {
+      "mobVnum": 3603,
+      "maxInArea": 4,
+      "roomVnum": 3609,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 3603,
+      "maxInArea": 4,
+      "roomVnum": 3611,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3613,
+      "roomVnum": 3611,
+      "commandName": "placeObj"
+    },
+    {
+      "mobVnum": 3604,
+      "maxInArea": 4,
+      "roomVnum": 3612,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 3600,
+      "maxInArea": 1,
+      "roomVnum": 3613,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3601,
+      "roomVnum": 3613,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 3602,
+      "roomVnum": 3613,
+      "commandName": "placeObj"
+    },
+    {
+      "objVnum": 3603,
+      "roomVnum": 3613,
+      "commandName": "placeObj"
+    },
+    {
+      "objVnum": 3604,
+      "roomVnum": 3613,
+      "commandName": "placeObj"
+    },
+    {
+      "objVnum": 3605,
+      "roomVnum": 3613,
+      "commandName": "placeObj"
+    },
+    {
+      "objVnum": 3610,
+      "roomVnum": 3615,
+      "commandName": "placeObj"
+    },
+    {
+      "mobVnum": 3602,
+      "maxInArea": 1,
+      "roomVnum": 3617,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3612,
+      "roomVnum": 3617,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 3610,
+      "roomVnum": 3619,
+      "commandName": "placeObj"
+    },
+    {
+      "mobVnum": 3605,
+      "maxInArea": 3,
+      "roomVnum": 3638,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 3603,
+      "maxInArea": 4,
+      "roomVnum": 3639,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 3604,
+      "maxInArea": 4,
+      "roomVnum": 3640,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3610,
+      "roomVnum": 3641,
+      "commandName": "placeObj"
+    },
+    {
+      "objVnum": 3603,
+      "roomVnum": 3643,
+      "commandName": "placeObj"
+    },
+    {
+      "mobVnum": 3605,
+      "maxInArea": 3,
+      "roomVnum": 3644,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 3601,
+      "maxInArea": 1,
+      "roomVnum": 3645,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3611,
+      "roomVnum": 3645,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 3610,
+      "roomVnum": 3647,
+      "commandName": "placeObj"
+    },
+    {
+      "mobVnum": 3603,
+      "maxInArea": 4,
+      "roomVnum": 3649,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 3605,
+      "maxInArea": 3,
+      "roomVnum": 3651,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    }
+  ],
+  "factions": [],
+  "quests": []
+}

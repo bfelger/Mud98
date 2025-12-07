@@ -107,9 +107,9 @@ json_t *json_null(void);
 
 /* do not call JSON_INTERNAL_INCREF or JSON_INTERNAL_DECREF directly */
 #if JSON_HAVE_ATOMIC_BUILTINS
-#define JSON_INTERNAL_INCREF(json)                                                       \
+#define JSON_INTERNAL_INCREF(json)                                             \
     __atomic_add_fetch(&json->refcount, 1, __ATOMIC_ACQUIRE)
-#define JSON_INTERNAL_DECREF(json)                                                       \
+#define JSON_INTERNAL_DECREF(json)                                             \
     __atomic_sub_fetch(&json->refcount, 1, __ATOMIC_RELEASE)
 #elif JSON_HAVE_SYNC_BUILTINS
 #define JSON_INTERNAL_INCREF(json) __sync_add_and_fetch(&json->refcount, 1)

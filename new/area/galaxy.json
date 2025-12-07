@@ -1,0 +1,4666 @@
+{
+  "formatVersion": 1,
+  "areadata": {
+    "version": 2,
+    "name": "Galaxy",
+    "builders": "",
+    "vnumRange": [
+      9300,
+      9399
+    ],
+    "credits": "Doctor",
+    "security": 9,
+    "sector": "inside",
+    "lowLevel": 20,
+    "highLevel": 30,
+    "reset": 6,
+    "alwaysReset": false
+  },
+  "storyBeats": [],
+  "checklist": [],
+  "rooms": [
+    {
+      "vnum": 9301,
+      "name": "Inside a Tavern",
+      "description": "You are inside a dimly-lit room.  The atmosphere makes you feel uncomfortable.\n\rIn front of you stands a mysterious gypsy.  She whispers 'Your fate and\n\rdestiny lie beyond this world.'  You are still wondering what she means when\n\ryou suddenly notice the crystal ball ... it glows fiercely and displays the\n\rUniverse!\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 1306,
+          "description": "The shadows cloud your vision.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 9302
+        }
+      ]
+    },
+    {
+      "vnum": 9302,
+      "name": "Inside the Crystal Ball",
+      "description": "You have touched the crystal ball and find that you have gone inside it:\n\ra world of stars and wonders!  As you look back you figure out there is no\n\rchoice but to go forward.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9303
+        }
+      ]
+    },
+    {
+      "vnum": 9303,
+      "name": "Inside the Galaxy",
+      "description": "You are now inside the galaxy, around you you see stars and nebulae smiling\n\rat your presence, and comets and meteors wandering around you.  You realize\n\rthat this world may not be the true galaxy after all, but just another\n\rfantasy zone.  Exits lie virtually in all directions.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9304
+        },
+        {
+          "dir": "east",
+          "toVnum": 9308
+        },
+        {
+          "dir": "south",
+          "toVnum": 9302
+        },
+        {
+          "dir": "west",
+          "toVnum": 9321
+        }
+      ]
+    },
+    {
+      "vnum": 9304,
+      "name": "On an InterGalactic Walkway",
+      "description": "You are on a well-paved path which seems that it was made deliberately for\n\rvisitors like you.  The walkway continues north and a small exit lies west.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9305
+        },
+        {
+          "dir": "south",
+          "toVnum": 9303
+        },
+        {
+          "dir": "west",
+          "toVnum": 9322
+        }
+      ]
+    },
+    {
+      "vnum": 9305,
+      "name": "End of the InterGalactic Walkway",
+      "description": "You notice the walkway has come to an abrupt end and you wonder why. You see\n\rthat there is still a small path which leads north and one to the west.\n\rTo the east lies a bridge.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9306
+        },
+        {
+          "dir": "east",
+          "toVnum": 9309
+        },
+        {
+          "dir": "south",
+          "toVnum": 9304
+        },
+        {
+          "dir": "west",
+          "toVnum": 9323
+        }
+      ]
+    },
+    {
+      "vnum": 9306,
+      "name": "At the Undeveloped Part of the Galaxy",
+      "description": "This place looks deserted, covered with space debris.  Not a sign of life\n\ris around.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 9305
+        },
+        {
+          "dir": "west",
+          "toVnum": 9324
+        }
+      ]
+    },
+    {
+      "vnum": 9308,
+      "name": "On the Bridge of Stars",
+      "description": "This bridge has been made by the stars to honour their ancestors.  The\n\rbridge itself shines brightly and makes you feel that you are walking on\n\ra path of light.  An entrance to an ancient building lies north and to\n\rthe east lies the Milky Way.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9331
+        },
+        {
+          "dir": "east",
+          "toVnum": 9312
+        },
+        {
+          "dir": "west",
+          "toVnum": 9303
+        }
+      ]
+    },
+    {
+      "vnum": 9309,
+      "name": "On the Bridge of Nebulae",
+      "description": "This bridge, like the other, was made as a memorial.  The nebulae had to\n\rmake one just to show that they are as capable as the stars.  North lies\n\ra throne room.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9310
+        },
+        {
+          "dir": "east",
+          "toVnum": 9314
+        },
+        {
+          "dir": "west",
+          "toVnum": 9305
+        }
+      ]
+    },
+    {
+      "vnum": 9310,
+      "name": "The Throne Room of the Nebula King",
+      "description": "You can only faintly make out that it is a throne room as it is too\n\rdark in here.  In the middle is an empty throne.  You wonder where\n\rthe King has gone, maybe he is hiding from you?\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 9309
+        }
+      ]
+    },
+    {
+      "vnum": 9312,
+      "name": "At the Start of the Milky Way",
+      "description": "It is here that the famous old Milky Way starts flowing.  You are surrounded\n\rby streams of mist the moment you tread on it.  You can't see well in\n\rhere ... luckily you haven't fallen yet!\n\r",
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9313
+        },
+        {
+          "dir": "west",
+          "toVnum": 9308
+        }
+      ]
+    },
+    {
+      "vnum": 9313,
+      "name": "Along the Milky Way",
+      "description": "You are still travelling inside this path of mist.  You notice a small\n\ropening to the east.\n\r",
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9314
+        },
+        {
+          "dir": "east",
+          "toVnum": 9317
+        },
+        {
+          "dir": "south",
+          "toVnum": 9312
+        }
+      ]
+    },
+    {
+      "vnum": 9314,
+      "name": "At the End of the Milky Way",
+      "description": "Just as you started enjoying this journey inside the mist, you have come to\n\rthe end of it.  West leads to a bridge and east leads to somewhere else.\n\r",
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9318
+        },
+        {
+          "dir": "south",
+          "toVnum": 9313
+        },
+        {
+          "dir": "west",
+          "toVnum": 9309
+        }
+      ]
+    },
+    {
+      "vnum": 9317,
+      "name": "A Small Clearing",
+      "description": "You are inside a small clearing.  You can see that there are signs of a\n\rliving creature nearby.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9318
+        },
+        {
+          "dir": "west",
+          "toVnum": 9313
+        }
+      ]
+    },
+    {
+      "vnum": 9318,
+      "name": "An Edge of the Galaxy",
+      "description": "You are on the very edge of the galaxy.  Nothing is here except that there\n\ris a path which leads down.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 9317
+        },
+        {
+          "dir": "west",
+          "toVnum": 9314
+        },
+        {
+          "dir": "down",
+          "toVnum": 9319
+        }
+      ]
+    },
+    {
+      "vnum": 9319,
+      "name": "Very Near to a Gigantic Star",
+      "description": "You are very near to a gigantic red star.  While you are still fascinated\n\rby its beauty, the star keeps on growing ... suddenly you realize that you'd\n\rbetter leave.\n\r",
+      "roomFlags": [
+        "no_mob"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9320
+        },
+        {
+          "dir": "east",
+          "toVnum": 9320
+        },
+        {
+          "dir": "south",
+          "toVnum": 9320
+        },
+        {
+          "dir": "west",
+          "toVnum": 9320
+        }
+      ]
+    },
+    {
+      "vnum": 9320,
+      "name": "Too Bright to Tell",
+      "description": "Indeed it is too bright to tell.  Because what you are witnessing is the\n\rrare event of a Supernova, how a star explodes itself into galactic dust.\n\rYou may find yourself lucky to witness this rare event but even luckier,\n\ryou have finally got out of this galaxy as your body turns into dust.\n\rThat really HURTS!  \n\r",
+      "roomFlags": [
+        "no_mob"
+      ],
+      "roomFlagsValue": 6,
+      "sectorType": "inside"
+    },
+    {
+      "vnum": 9321,
+      "name": "The Star Cluster",
+      "description": "You are inside the home of the stars.  All you can see around you are stars\n\rand nothing else.  You eyes become pretty hurt as you look at them.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9322
+        },
+        {
+          "dir": "east",
+          "toVnum": 9303
+        }
+      ]
+    },
+    {
+      "vnum": 9322,
+      "name": "Another Edge of the Galaxy",
+      "description": "This is another uninhabited place.  Exits lie north, east and south.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9323
+        },
+        {
+          "dir": "east",
+          "toVnum": 9304
+        },
+        {
+          "dir": "south",
+          "toVnum": 9321
+        }
+      ]
+    },
+    {
+      "vnum": 9323,
+      "name": "Corner of the Galaxy",
+      "description": "You wonder why the galaxy is limited.  All you have done in Astronomy\n\rcourses now prove worthless.  Well who told you to take one at the start?  \n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9324
+        },
+        {
+          "dir": "east",
+          "toVnum": 9305
+        },
+        {
+          "dir": "south",
+          "toVnum": 9322
+        }
+      ]
+    },
+    {
+      "vnum": 9324,
+      "name": "Lost in Space",
+      "description": "You are now lost in space.  Compasses don't work here, sorry.  What's more\n\ryou can sense darkness engulfing you.  You'd better get out quick.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9325
+        },
+        {
+          "dir": "east",
+          "toVnum": 9306
+        },
+        {
+          "dir": "south",
+          "toVnum": 9323
+        }
+      ]
+    },
+    {
+      "vnum": 9325,
+      "name": "Black Hole",
+      "description": "Well you have chosen the wrong path, sorry.  Nothing can escape from this\n\rmonster, not even light.\n\rPANIC!  You can't escape!\n\r",
+      "roomFlags": [
+        "dark",
+        "no_mob"
+      ],
+      "roomFlagsValue": 7,
+      "sectorType": "inside"
+    },
+    {
+      "vnum": 9326,
+      "name": "The Homes of the Pleiades",
+      "description": "This is where the famous Seven Sisters live.  You'd better not disturb them.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9329
+        },
+        {
+          "dir": "south",
+          "toVnum": 9327
+        }
+      ]
+    },
+    {
+      "vnum": 9327,
+      "name": "Western Side of the Temple",
+      "description": "You are still wandering around this temple.  You notice exits lie in all\n\rdirections except west.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9326
+        },
+        {
+          "dir": "east",
+          "toVnum": 9330
+        },
+        {
+          "dir": "south",
+          "toVnum": 9328
+        }
+      ]
+    },
+    {
+      "vnum": 9328,
+      "name": "Orion's Hunting Lodge",
+      "description": "This is dedicated to the Great Hunter of all time -- Orion.\n\rScattered on the floor is the famous hunting equipment used by him.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9327
+        },
+        {
+          "dir": "east",
+          "toVnum": 9331
+        }
+      ]
+    },
+    {
+      "vnum": 9329,
+      "name": "Northern Side of the Temple",
+      "description": "You are still wandering around this temple.  You notice exits lie in all\n\rdirections except north.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9332
+        },
+        {
+          "dir": "south",
+          "toVnum": 9330
+        },
+        {
+          "dir": "west",
+          "toVnum": 9326
+        }
+      ]
+    },
+    {
+      "vnum": 9330,
+      "name": "The Offering Chamber",
+      "description": "This is the sacred offering chamber in which sacrifices are made.  You see a\n\ryoung girl here, chained to the wall, as if she is waiting for execution.\n\rYou look up and realize the chains are sent down directly from above.\n\rBelow you recognize the temple of Thalos.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9329
+        },
+        {
+          "dir": "east",
+          "toVnum": 9333
+        },
+        {
+          "dir": "south",
+          "toVnum": 9331
+        },
+        {
+          "dir": "west",
+          "toVnum": 9327
+        },
+        {
+          "dir": "up",
+          "toVnum": 9339
+        },
+        {
+          "dir": "down",
+          "toVnum": 5250
+        }
+      ]
+    },
+    {
+      "vnum": 9331,
+      "name": "The Entrance of the Ancient Temple",
+      "description": "You have entered into this old temple, which was built originally for the gods\n\rin Mount Olympia, but it is now deserted as someone took over this part of the\n\rUniverse.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9330
+        },
+        {
+          "dir": "east",
+          "toVnum": 9334
+        },
+        {
+          "dir": "south",
+          "toVnum": 9308
+        },
+        {
+          "dir": "west",
+          "toVnum": 9328
+        }
+      ]
+    },
+    {
+      "vnum": 9332,
+      "name": "Hercules' Mighty Throne",
+      "description": "You stand before the throne of a long-forgotten hero.  It is full of bounty\n\rthat he got from the Ten Labours. \n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 9333
+        },
+        {
+          "dir": "west",
+          "toVnum": 9329
+        }
+      ]
+    },
+    {
+      "vnum": 9333,
+      "name": "Eastern Side of the Temple",
+      "description": "You are still wandering around this temple.  You notice exits lie in all\n\rdirections except east.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9332
+        },
+        {
+          "dir": "south",
+          "toVnum": 9334
+        },
+        {
+          "dir": "west",
+          "toVnum": 9330
+        }
+      ]
+    },
+    {
+      "vnum": 9334,
+      "name": "Perseus' Chamber",
+      "description": "It is the chamber of the prince, Perseus.  However, he seems not to be here.\n\rMaybe he has gone to get Pegasus to save Andromeda?\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9333
+        },
+        {
+          "dir": "west",
+          "toVnum": 9331
+        }
+      ]
+    },
+    {
+      "vnum": 9339,
+      "name": "On the Mystic Chains",
+      "description": "You are dangling on the chains.  You notice exits lie in all directions.\n\rUp above you see the chains continue upwards.  But a forcefield prevents\n\ryou from going further upwards.\n\r",
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9348
+        },
+        {
+          "dir": "east",
+          "toVnum": 9351
+        },
+        {
+          "dir": "south",
+          "toVnum": 9342
+        },
+        {
+          "dir": "west",
+          "toVnum": 9345
+        },
+        {
+          "dir": "up",
+          "toVnum": 9354,
+          "key": 9324,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "description": "You see the forcefield of Spring.\n\r",
+          "keyword": "forcefield"
+        },
+        {
+          "dir": "down",
+          "toVnum": 9330
+        }
+      ]
+    },
+    {
+      "vnum": 9342,
+      "name": "On a Hill",
+      "description": "Suddenly you find yourself on a hillside.  As you look around, you notice\n\rthat Spring has descended upon you.\n\r",
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9339
+        },
+        {
+          "dir": "east",
+          "toVnum": 9353
+        },
+        {
+          "dir": "west",
+          "toVnum": 9343
+        }
+      ]
+    },
+    {
+      "vnum": 9343,
+      "name": "Inside a Spanish Bull-Ring",
+      "description": "You are inside what used to be a ground for bull fighting.  But you notice\n\rthere are no Matadors around.  Maybe they are all dead?\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9342
+        },
+        {
+          "dir": "west",
+          "toVnum": 9344
+        }
+      ]
+    },
+    {
+      "vnum": 9344,
+      "name": "Inside a study",
+      "description": "This is a strange study. Besides the desks and chairs you also see a large\n\rmirror in the middle.  So, you wonder, is this how you make a Gemini into\n\rtwo Gemini?\n\r",
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9343
+        }
+      ]
+    },
+    {
+      "vnum": 9345,
+      "name": "Along the seashore",
+      "description": "You start to feel the heat of Summer.  Amongst the rocky beach you notice\n\rhidden forms which could be camouflaged crabs. \n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9339
+        },
+        {
+          "dir": "west",
+          "toVnum": 9346
+        }
+      ]
+    },
+    {
+      "vnum": 9346,
+      "name": "Within the Deep Jungle",
+      "description": "Nearby you can hear the roar of an animal.  Peering through the dense\n\rovergrowth you think you glimpse a pair of menacing eyes.\n\r",
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9345
+        }
+      ]
+    },
+    {
+      "vnum": 9347,
+      "name": "Inside a Luxurious Bedroom",
+      "description": "A peaceful feeling overtakes you.  You see a magnificent four-poster bed.\n\rIt's a double bed and there is only room for one more!  Well, what now ... ?\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 9348
+        }
+      ]
+    },
+    {
+      "vnum": 9348,
+      "name": "The Supreme Court",
+      "description": "You are standing inside the dock of a court.  You feel an overwhelming\n\rsense of guilt and you want to protest your innocence!  You fear retribution\n\rand feel yourself exposed, just like the trees in Autumn.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9347
+        },
+        {
+          "dir": "south",
+          "toVnum": 9339
+        },
+        {
+          "dir": "west",
+          "toVnum": 9349
+        }
+      ]
+    },
+    {
+      "vnum": 9349,
+      "name": "In the Dry Desert",
+      "description": "You are confused by the shifting sands around you.  Through the shimmering\n\rheat you see the hazy outline of a giant scorpion ... is this a mirage?\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9348
+        },
+        {
+          "dir": "west",
+          "toVnum": 9350
+        }
+      ]
+    },
+    {
+      "vnum": 9350,
+      "name": "In the Woods",
+      "description": "You find yourself in the center of a Centaurion hunting party.  You'd better\n\rhide yourself before you become the 'center attraction'!\n\r",
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9349
+        }
+      ]
+    },
+    {
+      "vnum": 9351,
+      "name": "On a Mountain Peak",
+      "description": "You are on the highest peak of the Universe.  You look around and notice\n\rclouds below you.  One of the clouds resembles a goat-like form.\n\r",
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9352
+        },
+        {
+          "dir": "west",
+          "toVnum": 9339
+        }
+      ]
+    },
+    {
+      "vnum": 9352,
+      "name": "Inside a Waterfall",
+      "description": "The noise is deafening.  You are about to take a drink when you realize\n\rthat the water is being poured out of a vessel of mind-boggling proportions!\n\r",
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 9351
+        }
+      ]
+    },
+    {
+      "vnum": 9353,
+      "name": "Inside a Gigantic Clam",
+      "description": "You feel uneasy here as if some evil magic is being cast on you.\n\rYou suspect something fishy is going on in here.\n\r",
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 9342
+        }
+      ]
+    },
+    {
+      "vnum": 9354,
+      "name": "End of the Mystic Chains",
+      "description": "You have reached the end of the mystic chains.  Looking up, you notice a\n\rsmall landing on which you can climb.  However, there seems to be another\n\rforcefield blocking your way.  \n\r",
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 9355,
+          "key": 9325,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "description": "You see the forcefield of Summer.\n\r",
+          "keyword": "forcefield"
+        },
+        {
+          "dir": "down",
+          "toVnum": 9339,
+          "key": 9324,
+          "flags": [
+            "door"
+          ],
+          "description": "You see the forcefield of Spring.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9355,
+      "name": "On the Draco",
+      "description": "You realize you are standing on scaly ground.  As you wonder what the ground\n\ris made of, you feel the ground move.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9356
+        },
+        {
+          "dir": "down",
+          "toVnum": 9354,
+          "key": 9325,
+          "flags": [
+            "door"
+          ]
+        }
+      ]
+    },
+    {
+      "vnum": 9356,
+      "name": "Tail of the Draco",
+      "description": "At last you realize that you are on a giant snake-like dragon called the\n\rDraco, the guardian of the inner galaxy.  You realize that the Draco is\n\ractually flying now! \n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9357
+        },
+        {
+          "dir": "south",
+          "toVnum": 9355
+        }
+      ]
+    },
+    {
+      "vnum": 9357,
+      "name": "Path of the Draco",
+      "description": "As you struggle along this scaly creature you realize that the only way\n\ryou can reach to the inner galaxy is by going all the way to the head.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9358
+        },
+        {
+          "dir": "south",
+          "toVnum": 9356
+        }
+      ]
+    },
+    {
+      "vnum": 9358,
+      "name": "Near the Legs of Draco",
+      "description": "You are approaching the leg part of this creature.  You look around and see\n\rthat the surrounding is all dark except for some faint lights from the\n\rdistant stars.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9359
+        },
+        {
+          "dir": "south",
+          "toVnum": 9357
+        }
+      ]
+    },
+    {
+      "vnum": 9359,
+      "name": "On the Back of Draco",
+      "description": "At last you are half way through this long, weary journey. You can see\n\rthe wings are to the east but it seems that another forcefield is in the way.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9360,
+          "key": 9326,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "description": "You see the forcefield of Autumn.\n\r",
+          "keyword": "forcefield"
+        },
+        {
+          "dir": "south",
+          "toVnum": 9358
+        }
+      ]
+    },
+    {
+      "vnum": 9360,
+      "name": "Between the Wings of Draco",
+      "description": "You hear some giant flapping sounds nearby.  You desperately try to get hold\n\rof something as the forceful gusts sweep you away.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9361
+        },
+        {
+          "dir": "west",
+          "toVnum": 9359,
+          "key": 9326,
+          "flags": [
+            "door"
+          ]
+        }
+      ]
+    },
+    {
+      "vnum": 9361,
+      "name": "Near the Arms of Draco",
+      "description": "From above you can faintly make out the gigantic arms which extend far\n\rbeyond into the darkness.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 9362
+        },
+        {
+          "dir": "west",
+          "toVnum": 9360
+        }
+      ]
+    },
+    {
+      "vnum": 9362,
+      "name": "On the Neck of Draco",
+      "description": "Your journey is now approaching the end.  However, this neck seems to be\n\rendless.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9361
+        },
+        {
+          "dir": "west",
+          "toVnum": 9363
+        }
+      ]
+    },
+    {
+      "vnum": 9363,
+      "name": "Approaching the Head of Draco",
+      "description": "You have come to the end of Draco, but you can't find the head!\n\rYou see a forcefield to the south, some distance away, beyond reach.\n\rIf only the head were here ...\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9362
+        },
+        {
+          "dir": "south",
+          "toVnum": 9364,
+          "key": 9327,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "description": "You see the forcefield of Winter.",
+          "keyword": "forcefield"
+        }
+      ]
+    },
+    {
+      "vnum": 9364,
+      "name": "At the Entrance of the Great Dipper",
+      "description": "Now you are in the innermost part of the galaxy.  What you are walking on now\n\ris the path of the Great Dipper or the Plough.  You notice that there are\n\rseven rooms in this zone, representing the seven stars of the Dipper.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9363,
+          "key": 9327,
+          "flags": [
+            "door"
+          ],
+          "description": "You see the forcefield of Winter.",
+          "keyword": "forcefield"
+        },
+        {
+          "dir": "south",
+          "toVnum": 9365
+        },
+        {
+          "dir": "west",
+          "toVnum": 9366
+        }
+      ]
+    },
+    {
+      "vnum": 9365,
+      "name": "Cassiopeia's Throne",
+      "description": "This is the Throne room of the Queen of the Universe.  From here you can see\n\revery star and constellation in the Universe. \n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9364
+        },
+        {
+          "dir": "west",
+          "toVnum": 9367
+        }
+      ]
+    },
+    {
+      "vnum": 9366,
+      "name": "Along the Path of the Dipper",
+      "description": "You see stars around you but nothing of special interest.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9364
+        },
+        {
+          "dir": "south",
+          "toVnum": 9367
+        }
+      ]
+    },
+    {
+      "vnum": 9367,
+      "name": "Cepheus' Throne",
+      "description": "This is the Throne room of the King of the Universe.  From here you can see\n\revery star and constellation in the Universe. \n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9366
+        },
+        {
+          "dir": "east",
+          "toVnum": 9365
+        },
+        {
+          "dir": "south",
+          "toVnum": 9368
+        }
+      ]
+    },
+    {
+      "vnum": 9368,
+      "name": "Along the path of the Dipper",
+      "description": "You see stars around you but nothing of special interest.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9367
+        },
+        {
+          "dir": "west",
+          "toVnum": 9369
+        }
+      ]
+    },
+    {
+      "vnum": 9369,
+      "name": "Along the path of the Dipper",
+      "description": "You see stars around you but nothing of special interest.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9368
+        },
+        {
+          "dir": "south",
+          "toVnum": 9370
+        }
+      ]
+    },
+    {
+      "vnum": 9370,
+      "name": "End of the Dipper",
+      "description": "You have finished the path of the Dipper.  Here, the most prominent feature\n\ris a set of claw-marks.  You also notice a room to the south; it looks as\n\rif Polaris could lie here. \n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9369
+        },
+        {
+          "dir": "south",
+          "toVnum": 9371
+        }
+      ]
+    },
+    {
+      "vnum": 9371,
+      "name": "The Polar Star",
+      "description": "You have entered the private chamber of Polaris.  This is a room of great\n\rsignificance.  You can see a powerful telescope pointing down towards the\n\rUniverse (SNOOPING!).  It is from here that Polaris commands the Universe.\n\rYou feel you have come to end of your search in this galaxy ...\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9370
+        }
+      ]
+    }
+  ],
+  "mobiles": [
+    {
+      "vnum": 9301,
+      "name": "oldstyle poor mudder",
+      "shortDescr": "a poor mudder",
+      "longDescr": "A poor mudder, lost in this place.\n\r",
+      "description": "You will become him if you are not careful.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area",
+        "thief"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden"
+      ],
+      "atkFlags": [
+        "backstab",
+        "disarm",
+        "dodge",
+        "dirt_kick",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 4,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 35
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 7,
+        "bash": 7,
+        "slash": 7,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 5,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9302,
+      "name": "oldstyle star",
+      "shortDescr": "a beautiful star",
+      "longDescr": "A beautiful white star smiles at you.\n\r",
+      "description": "You can't tell what the star looks like, she is too bright!\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "stay_area"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 500,
+      "group": 0,
+      "level": 8,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 96
+      },
+      "manaDice": {
+        "number": 4,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 7,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 3,
+        "bash": 3,
+        "slash": 3,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 25,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9303,
+      "name": "oldstyle nebula young",
+      "shortDescr": "a young nebula",
+      "longDescr": "A young nebula, waiting to become a star.\n\r",
+      "description": "It hasn't got a definite shape, it is just a cloud of mist.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "stay_area"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 200,
+      "group": 0,
+      "level": 10,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 121
+      },
+      "manaDice": {
+        "number": 5,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 4,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 1,
+        "bash": 1,
+        "slash": 1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 50,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9304,
+      "name": "oldstyle comet speedy",
+      "shortDescr": "a speedy comet",
+      "longDescr": "A speedy comet is waiting to crush your head in.\n\r",
+      "description": "You see the offspring of Halley's comet, here just to wipe everything out.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "aggressive",
+        "stay_area"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -500,
+      "group": 0,
+      "level": 10,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 121
+      },
+      "manaDice": {
+        "number": 5,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 4,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 1,
+        "bash": 1,
+        "slash": 1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 75,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9305,
+      "name": "oldstyle red supergiant",
+      "shortDescr": "a red supergiant",
+      "longDescr": "An enormous, red supergiant is forced to protect the galaxy.\n\r",
+      "description": "You notice the giant is not as tough as his name sounds ...\n\rStill he can be very powerful.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "stay_area",
+        "wimpy"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 15,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 208
+      },
+      "manaDice": {
+        "number": 7,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -2,
+        "bash": -2,
+        "slash": -2,
+        "exotic": 7
+      },
+      "startPos": "sleeping",
+      "defaultPos": "sleeping",
+      "sex": "male",
+      "wealth": 100,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9306,
+      "name": "oldstyle white dwarf",
+      "shortDescr": "a white dwarf",
+      "longDescr": "A tiny white dwarf is trying to sneak away from duty. \n\r",
+      "description": "Like the red giant, he is also appointed to stand guard for the galaxy.\n\rBut somehow he manages to escape.  Though tiny, it can take a lot of hits!\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 15,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 208
+      },
+      "manaDice": {
+        "number": 7,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -2,
+        "bash": -2,
+        "slash": -2,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 100,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9307,
+      "name": "oldstyle horsehead nebula",
+      "shortDescr": "a horsehead nebula",
+      "longDescr": "A huge nebula is here, resembling a horsehead.\n\r",
+      "description": "You can only make out its shape from the darkness.  He was cursed to stay in\n\rhere and his face may never be seen by anyone again.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "sneak",
+        "hide"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 18,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 283
+      },
+      "manaDice": {
+        "number": 9,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 4
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -3,
+        "bash": -3,
+        "slash": -3,
+        "exotic": 7
+      },
+      "startPos": "sitting",
+      "defaultPos": "sitting",
+      "sex": "male",
+      "wealth": 300,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9308,
+      "name": "oldstyle andromeda",
+      "shortDescr": "poor Andromeda",
+      "longDescr": "The poor Andromeda is chained to the wall, suffering ...\n\r",
+      "description": "She was once a princess of beauty.  However, her beauty has led to a Goddess's\n\rjealousy and she has to suffer here endlessly until Perseus comes.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "stay_area"
+      ],
+      "actFlagsValue": 83,
+      "affectFlags": [
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 18,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 283
+      },
+      "manaDice": {
+        "number": 9,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 4
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -3,
+        "bash": -3,
+        "slash": -3,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 375,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9309,
+      "name": "oldstyle hercules",
+      "shortDescr": "the mighty Hercules",
+      "longDescr": "The Mighty Hercules is working hard on his extra Labours for the Gods.\n\r",
+      "description": "He has been put to do the Ten Labours -- ten impossible tasks, by Hera, the\n\rqueen goddess, who disliked him.  But he finished them all and at the end was\n\rgranted immortality. He is a very brave and strong fighter.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 19,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 308
+      },
+      "manaDice": {
+        "number": 9,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -4,
+        "bash": -4,
+        "slash": -4,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 375,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9310,
+      "name": "oldstyle pegasus",
+      "shortDescr": "the wild Pegasus",
+      "longDescr": "The wild pegasus is grazing peacefully.\n\r",
+      "description": "It is the legendary horse with wings on its back.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "stay_area",
+        "wimpy"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 300,
+      "group": 0,
+      "level": 17,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 258
+      },
+      "manaDice": {
+        "number": 8,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 3,
+        "type": 4,
+        "bonus": 4
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -3,
+        "bash": -3,
+        "slash": -3,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 250,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9311,
+      "name": "oldstyle orion",
+      "shortDescr": "Orion the hunter",
+      "longDescr": "Orion is still hunting for Scorpio.\n\r",
+      "description": "He is the legendary hunter who almost defeated Taurus the bull, but got\n\rkilled by Scorpio.  The gods put them both up as constellations but one\n\rappears on one side of the sky and the other the other side so they will\n\rnever meet. \n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 300,
+      "group": 0,
+      "level": 19,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 308
+      },
+      "manaDice": {
+        "number": 9,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -4,
+        "bash": -4,
+        "slash": -4,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 375,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9312,
+      "name": "oldstyle pleiades",
+      "shortDescr": "the Pleiades",
+      "longDescr": "The Pleiades are here, weeping for the loss of their sisters.\n\r",
+      "description": "These are the seven sisters of the Myths, and as for why they are here, no\n\rone knows; even the Gods themselves have forgotten.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "stay_area"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 300,
+      "group": 0,
+      "level": 11,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 134
+      },
+      "manaDice": {
+        "number": 5,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 10,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 1,
+        "bash": 1,
+        "slash": 1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 150,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9313,
+      "name": "oldstyle draco head",
+      "shortDescr": "the Head of Draco",
+      "longDescr": "The gigantic Head of Draco lurks out from beneath and prepares to roast you.\n\r",
+      "description": "This evil-looking head is even larger than a giant.  He is the last guardian \n\rbefore entering the inner galaxy.  His neck is flexing in a random fashion so \n\rhitting the head is certainly not easy.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 25,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 550
+      },
+      "manaDice": {
+        "number": 12,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 7
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -7,
+        "bash": -7,
+        "slash": -7,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 750,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9314,
+      "name": "oldstyle draco baby",
+      "shortDescr": "a baby draco",
+      "longDescr": "A baby draco is crawling on the Draco's body.\n\r",
+      "description": "You see a tiny creature which looks like a dragon except that its body\n\rresembles a snake.  Gosh, is this a draco, you wonder, is this the thing\n\rwe are on now?\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area",
+        "wimpy"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -700,
+      "group": 0,
+      "level": 9,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 110
+      },
+      "manaDice": {
+        "number": 4,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 8,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 2,
+        "bash": 2,
+        "slash": 2,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 200,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9315,
+      "name": "oldstyle aries",
+      "shortDescr": "Aries",
+      "longDescr": "Aries is sitting here, welcoming you.\n\r",
+      "description": "You see a white goat here, the first guardian of the Zodiac,\n\ralso the ruler of Spring. He looks as if he is expecting you.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "stay_area",
+        "cleric"
+      ],
+      "affectFlags": [
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "disarm",
+        "kick",
+        "parry",
+        "assist_vnum"
+      ],
+      "alignment": 700,
+      "group": 0,
+      "level": 22,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 400
+      },
+      "manaDice": {
+        "number": 22,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -5,
+        "bash": -5,
+        "slash": -5,
+        "exotic": 5
+      },
+      "startPos": "sitting",
+      "defaultPos": "sitting",
+      "sex": "male",
+      "wealth": 500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9316,
+      "name": "oldstyle taurus",
+      "shortDescr": "Taurus",
+      "longDescr": "Taurus wants to leave, but has been forced to stay as a guardian here.\n\r",
+      "description": "You see a wild-looking bull with a bad temper.  He is well-built and looks like \n\rhe can fight well ... indeed he has fought with Orion before and survived.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive",
+        "stay_area",
+        "cleric"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "disarm",
+        "kick",
+        "parry",
+        "assist_vnum"
+      ],
+      "alignment": -100,
+      "group": 0,
+      "level": 22,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 400
+      },
+      "manaDice": {
+        "number": 22,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -5,
+        "bash": -5,
+        "slash": -5,
+        "exotic": 5
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9317,
+      "name": "oldstyle gemini",
+      "shortDescr": "Gemini",
+      "longDescr": "Gemini is looking for his brother; have you seen him?\n\r",
+      "description": "As soon as you see him you know that he is the most perfect man you have seen.\n\rYou can't find any imperfections on him.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "stay_area",
+        "cleric"
+      ],
+      "affectFlags": [
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "disarm",
+        "kick",
+        "parry",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 22,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 400
+      },
+      "manaDice": {
+        "number": 22,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -5,
+        "bash": -5,
+        "slash": -5,
+        "exotic": 5
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9318,
+      "name": "oldstyle gemini",
+      "shortDescr": "Gemini",
+      "longDescr": "Gemini is hiding from his brother, grinning evilly at you.\n\r",
+      "description": "As soon as you see him you see the most imperfect man you have ever seen.\n\rHow can there be such a contrast?  You wonder ...\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger",
+        "aggressive",
+        "stay_area",
+        "wimpy",
+        "cleric"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "sanctuary",
+        "pass_door"
+      ],
+      "atkFlags": [
+        "disarm",
+        "kick",
+        "parry",
+        "assist_vnum"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 15,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 208
+      },
+      "manaDice": {
+        "number": 15,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 5,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -2,
+        "bash": -2,
+        "slash": -2,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 250,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9319,
+      "name": "oldstyle cancer",
+      "shortDescr": "Cancer",
+      "longDescr": "Cancer the crab is here, hoarding the treasure away from you.\n\r",
+      "description": "You see a gigantic crab (YES, it is bigger than you!) with a crushed shell.\n\rLegend is that he was crushed by Hercules when he was sent by Hera to kill him.\n\rSo Hera made Cancer a constellation for his work. \n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "stay_area",
+        "cleric"
+      ],
+      "affectFlags": [
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "disarm",
+        "kick",
+        "parry",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 22,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 400
+      },
+      "manaDice": {
+        "number": 22,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -5,
+        "bash": -5,
+        "slash": -5,
+        "exotic": 5
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 600,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9320,
+      "name": "oldstyle leo",
+      "shortDescr": "Leo",
+      "longDescr": "Leo the lion is roaring at you, ready for a strike!\n\r",
+      "description": "His metallic skin means that he could be the one which was killed by Hercules\n\rduring his first Labour.  His skin is so weapon-proof that Hercules had to use\n\rhis bare hands to tear the lion into two from its mouth!\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive",
+        "stay_area",
+        "cleric"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "disarm",
+        "kick",
+        "parry",
+        "assist_vnum"
+      ],
+      "alignment": -100,
+      "group": 0,
+      "level": 22,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 400
+      },
+      "manaDice": {
+        "number": 22,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -5,
+        "bash": -5,
+        "slash": -5,
+        "exotic": 5
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9321,
+      "name": "oldstyle virgo",
+      "shortDescr": "Virgo",
+      "longDescr": "Virgo is sitting here, winking at you suggestively ... you are alarmed!\n\r",
+      "description": "From what you have seen, you now realize that legends are legends, and Virgo\n\rmay not be the maid of chastity and purity at all!  But still she looks\n\rgorgeous and is waiting for your first move, whatever it is ...\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "stay_area",
+        "cleric"
+      ],
+      "affectFlags": [
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "disarm",
+        "kick",
+        "parry",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 22,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 400
+      },
+      "manaDice": {
+        "number": 22,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -5,
+        "bash": -5,
+        "slash": -5,
+        "exotic": 5
+      },
+      "startPos": "sitting",
+      "defaultPos": "sitting",
+      "sex": "female",
+      "wealth": 500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9322,
+      "name": "oldstyle libra",
+      "shortDescr": "Libra",
+      "longDescr": "Libra, the fair and just, is staring at you, weighing up the sins of your past.\n\r",
+      "description": "He is a wise old man and can see people's thoughts through their eyes....\n\rNow all he can see from you is greed and bloodshed.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "stay_area",
+        "cleric"
+      ],
+      "affectFlags": [
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "disarm",
+        "kick",
+        "parry",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 22,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 400
+      },
+      "manaDice": {
+        "number": 22,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -5,
+        "bash": -5,
+        "slash": -5,
+        "exotic": 5
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9323,
+      "name": "oldstyle scorpio",
+      "shortDescr": "Scorpio",
+      "longDescr": "Scorpio is moving his tail towards you, waiting to put an end to some mortals.\n\r",
+      "description": "Ever since he killed Orion in the myths, he has been punished by having \n\rSagittarius' arrow aimed at his heart forever.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive",
+        "stay_area",
+        "cleric"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "disarm",
+        "kick",
+        "parry",
+        "assist_vnum"
+      ],
+      "alignment": -200,
+      "group": 0,
+      "level": 22,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 400
+      },
+      "manaDice": {
+        "number": 22,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -5,
+        "bash": -5,
+        "slash": -5,
+        "exotic": 5
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9324,
+      "name": "oldstyle sagittarius",
+      "shortDescr": "Sagittarius",
+      "longDescr": "Sagittarius the centaur is waiting to let go of his well aimed arrow ...\n\r",
+      "description": "He is a centaur and a well trained archer. No one can escape his arrows.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "stay_area",
+        "cleric"
+      ],
+      "affectFlags": [
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "disarm",
+        "kick",
+        "parry",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 22,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 400
+      },
+      "manaDice": {
+        "number": 22,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -5,
+        "bash": -5,
+        "slash": -5,
+        "exotic": 5
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9325,
+      "name": "oldstyle capricorn",
+      "shortDescr": "Capricorn",
+      "longDescr": "Capricorn is here, feeling bored ... he wants a fight!\n\r",
+      "description": "You see a mean-looking ram here.  He used to be a fierce fighter in the ancient\n\rwar but now the gods have decided to put him here, to live out the rest of his \n\rdays in peace.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "stay_area",
+        "cleric"
+      ],
+      "affectFlags": [
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "disarm",
+        "kick",
+        "parry",
+        "assist_vnum"
+      ],
+      "alignment": 700,
+      "group": 0,
+      "level": 22,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 400
+      },
+      "manaDice": {
+        "number": 22,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -5,
+        "bash": -5,
+        "slash": -5,
+        "exotic": 5
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9326,
+      "name": "oldstyle aquarius",
+      "shortDescr": "Aquarius",
+      "longDescr": "The beautiful Aquarius is standing here, holding THE vessel.\n\r",
+      "description": "The pretty Water Bearer is smiling at you, you think you'd better give her a \n\rhand with holding the vessel. \n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "stay_area",
+        "cleric"
+      ],
+      "affectFlags": [
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "disarm",
+        "kick",
+        "parry",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 22,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 400
+      },
+      "manaDice": {
+        "number": 22,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -5,
+        "bash": -5,
+        "slash": -5,
+        "exotic": 5
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9327,
+      "name": "oldstyle pisces mermaid",
+      "shortDescr": "Pisces the mermaid",
+      "longDescr": "Pisces the mermaid is sitting here, waiting for your help.\n\r",
+      "description": "She has been forced to serve her husband, who had been cursed to turn into a\n\rfish and she deserves your pity.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "stay_area",
+        "cleric"
+      ],
+      "affectFlags": [
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "disarm",
+        "kick",
+        "parry",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 22,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 400
+      },
+      "manaDice": {
+        "number": 22,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -5,
+        "bash": -5,
+        "slash": -5,
+        "exotic": 5
+      },
+      "startPos": "sitting",
+      "defaultPos": "sitting",
+      "sex": "female",
+      "wealth": 500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9328,
+      "name": "oldstyle pisces fish",
+      "shortDescr": "Pisces the fish",
+      "longDescr": "Pisces the fish, is jealous of your approach...\n\r",
+      "description": "He was once a very handsome man but now has turned into an ugly big fish.\n\rSo he becomes jealous of any living thing which is more handsome than him.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive",
+        "stay_area",
+        "cleric"
+      ],
+      "affectFlags": [
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "disarm",
+        "kick",
+        "parry",
+        "assist_vnum"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 22,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 400
+      },
+      "manaDice": {
+        "number": 22,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -5,
+        "bash": -5,
+        "slash": -5,
+        "exotic": 5
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9329,
+      "name": "oldstyle bear ursa major",
+      "shortDescr": "Ursa Major the bear",
+      "longDescr": "Ursa Major the bear is the last defense against any intruders.\n\r",
+      "description": "The Huge Bear which resides in the northern skies is here. \n\rYou think you'd better turn back.  At least you have got a chance of survival.\n\r",
+      "race": "bear",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive",
+        "stay_area",
+        "cleric"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "berserk",
+        "disarm",
+        "kick",
+        "parry",
+        "crush",
+        "assist_race"
+      ],
+      "resFlags": [
+        "bash",
+        "cold"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 27,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 650
+      },
+      "manaDice": {
+        "number": 27,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 7
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -8,
+        "bash": -8,
+        "slash": -8,
+        "exotic": 4
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 750,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9330,
+      "name": "oldstyle cassiopeia queen",
+      "shortDescr": "Cassiopeia the Queen",
+      "longDescr": "Cassiopeia, the queen of the Universe, is sitting on her throne.\n\r",
+      "description": "She is the Queen of Dignity; facing her you feel all your dignity has gone.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "stay_area",
+        "mage"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "dodge",
+        "assist_vnum"
+      ],
+      "alignment": 700,
+      "group": 0,
+      "level": 26,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 550
+      },
+      "manaDice": {
+        "number": 26,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 3,
+        "type": 6,
+        "bonus": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -7,
+        "bash": -7,
+        "slash": -7,
+        "exotic": 2
+      },
+      "startPos": "sitting",
+      "defaultPos": "sitting",
+      "sex": "female",
+      "wealth": 600,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9331,
+      "name": "oldstyle cepheus king",
+      "shortDescr": "Cepheus the King",
+      "longDescr": "Cepheus, the king of the Universe, is sitting on his throne.\n\r",
+      "description": "He is the King of Might as well as of the Universe. You suddenly feel very\n\rweak and useless in front of him.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "stay_area",
+        "mage"
+      ],
+      "affectFlags": [
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "dodge",
+        "assist_vnum"
+      ],
+      "alignment": 700,
+      "group": 0,
+      "level": 26,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 550
+      },
+      "manaDice": {
+        "number": 26,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 3,
+        "type": 6,
+        "bonus": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -7,
+        "bash": -7,
+        "slash": -7,
+        "exotic": 2
+      },
+      "startPos": "sitting",
+      "defaultPos": "sitting",
+      "sex": "male",
+      "wealth": 600,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9332,
+      "name": "oldstyle polaris polar star",
+      "shortDescr": "Polaris, the polar star",
+      "longDescr": "Polaris, the polar star, who commands the whole Universe, stands before you!\n\r",
+      "description": "He is the Master of the Universe, (NOT He-Man!), the most powerful!  \n\rEven the King and the Queen obey him.  As you look at him you notice he is \n\ractually a STAR, with dazzling bright light ... maybe you shouldn't have come\n\rhere at all?\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "invisible",
+        "detect_invis",
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 30,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 6,
+        "type": 12,
+        "bonus": 853
+      },
+      "manaDice": {
+        "number": 15,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 6,
+        "bonus": 8
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -9,
+        "bash": -9,
+        "slash": -9,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 1000,
+      "size": "medium",
+      "material": "0"
+    }
+  ],
+  "objects": [
+    {
+      "vnum": 9301,
+      "name": "comet's tail",
+      "shortDescr": "a comet's tail",
+      "description": "A long, slender whip lies here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "glow",
+        "hum"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "whip",
+        "dice": [
+          2,
+          6
+        ],
+        "damageType": "whip"
+      },
+      "level": 10,
+      "weight": 90,
+      "cost": 390,
+      "condition": 100
+    },
+    {
+      "vnum": 9302,
+      "name": "arm hercules",
+      "shortDescr": "the Titanic Arm plates of Hercules",
+      "description": "Arm plates of the Zodiac lie here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "glow",
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "arms"
+      ],
+      "armor": {
+        "acPierce": 6,
+        "acBash": 6,
+        "acSlash": 6
+      },
+      "level": 22,
+      "weight": 100,
+      "cost": 3100,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "arm",
+          "description": "These mighty armors have been worn by this immortal, since the ancient time.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "strength",
+          "level": 22,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 22,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 9304,
+      "name": "belt orion",
+      "shortDescr": "the Titanic Belt of Orion",
+      "description": "A belt of the Zodiac lies here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "glow",
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "waist"
+      ],
+      "armor": {
+        "acPierce": 6,
+        "acBash": 6,
+        "acSlash": 6
+      },
+      "level": 17,
+      "weight": 70,
+      "cost": 3800,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "belt",
+          "description": "You can immediately see that it belongs to Orion, from the three stars\n\rengraved on it.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "constitution",
+          "level": 17,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 9305,
+      "name": "skull draco",
+      "shortDescr": "an ugly skull of Draco",
+      "description": "A massive skull of a dead Draco lies here.",
+      "material": "oldstyle",
+      "itemType": "staff",
+      "extraFlags": [
+        "hum",
+        "magic",
+        "nodrop"
+      ],
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "wand": {
+        "level": 15,
+        "chargesTotal": 5,
+        "spell": "call lightning"
+      },
+      "level": 14,
+      "weight": 200,
+      "cost": 4300,
+      "condition": 100
+    },
+    {
+      "vnum": 9306,
+      "name": "fleece aries",
+      "shortDescr": "the Titanic Fleece of Aries",
+      "description": "A fleece of the Zodiac lies here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "glow",
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "neck"
+      ],
+      "armor": {
+        "acPierce": 7,
+        "acBash": 7,
+        "acSlash": 7
+      },
+      "level": 20,
+      "weight": 90,
+      "cost": 2000,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "fleece",
+          "description": "From a look it resembles the Golden Fleece that exists in the Greek myths.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 20,
+          "duration": -1,
+          "modifier": -2
+        }
+      ]
+    },
+    {
+      "vnum": 9307,
+      "name": "hoof taurus",
+      "shortDescr": "the Titanic Hoof of Taurus",
+      "description": "A hoof of the Zodiac lies here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "glow",
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "feet"
+      ],
+      "armor": {
+        "acPierce": 3,
+        "acBash": 3,
+        "acSlash": 3
+      },
+      "level": 20,
+      "weight": 100,
+      "cost": 1280,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "hoof",
+          "description": "It is with these hooves that Taurus can stand against Orion's attacks.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "move",
+          "level": 20,
+          "duration": -1,
+          "modifier": 20
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 20,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 9308,
+      "name": "mask gemini",
+      "shortDescr": "the Titanic Mask of Gemini",
+      "description": "A mask of the Zodiac lies here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "glow",
+        "magic",
+        "nodrop",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "head"
+      ],
+      "armor": {
+        "acPierce": 2,
+        "acBash": 2,
+        "acSlash": 2
+      },
+      "level": 16,
+      "weight": 70,
+      "cost": 3600,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "mask",
+          "description": "You notice the mask has got two faces, one smiling and the other crying.\n\rYou don't know which way you should wear it.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "strength",
+          "level": 16,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "dexterity",
+          "level": 16,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 9309,
+      "name": "shell cancer",
+      "shortDescr": "the Titanic Shell of Cancer",
+      "description": "A shell of the Zodiac lies here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "glow",
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "body"
+      ],
+      "armor": {
+        "acPierce": 7,
+        "acBash": 7,
+        "acSlash": 7,
+        "acExotic": 3
+      },
+      "level": 20,
+      "weight": 150,
+      "cost": 3800,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "shell",
+          "description": "A shell which is dented in the middle, resulting from the Hercules' mighty\n\rpound when the Crab was still an enemy of Hercules in ancient times.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 20,
+          "duration": -1,
+          "modifier": -2
+        }
+      ]
+    },
+    {
+      "vnum": 9310,
+      "name": "skin leo",
+      "shortDescr": "the Titanic Skin of Leo",
+      "description": "A skin of the Zodiac lies here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "glow",
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "about"
+      ],
+      "armor": {
+        "acPierce": 7,
+        "acBash": 7,
+        "acSlash": 7,
+        "acExotic": 5
+      },
+      "level": 20,
+      "weight": 150,
+      "cost": 1740,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "skin",
+          "description": "A skin made of metal, which was worn by Hercules during his Ten Labours.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9311,
+      "name": "bracelet virgo",
+      "shortDescr": "the Titanic Bracelet of Virgo",
+      "description": "A bracelet of the Zodiac lies here.",
+      "material": "oldstyle",
+      "itemType": "jewelry",
+      "extraFlags": [
+        "glow",
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "wrist"
+      ],
+      "level": 15,
+      "weight": 10,
+      "cost": 2600,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "bracelet",
+          "description": "A bracelet of purity and youth, only worn by selected virgins.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "wisdom",
+          "level": 15,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 9312,
+      "name": "scale libra",
+      "shortDescr": "the Titanic Scale of Libra",
+      "description": "A shield of the Zodiac lies here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "glow",
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "shield"
+      ],
+      "armor": {
+        "acPierce": 8,
+        "acBash": 8,
+        "acSlash": 8
+      },
+      "level": 25,
+      "weight": 150,
+      "cost": 3900,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "scale",
+          "description": "It is a shield of justice, used in the ancient battle against injustice.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 25,
+          "duration": -1,
+          "modifier": -3
+        },
+        {
+          "where": "object",
+          "location": "hp",
+          "level": 25,
+          "duration": -1,
+          "modifier": 5
+        }
+      ]
+    },
+    {
+      "vnum": 9313,
+      "name": "scale libra",
+      "shortDescr": "the Titanic Scale of Libra",
+      "description": "A shield of the Zodiac lies here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "hum",
+        "magic",
+        "nodrop"
+      ],
+      "wearFlags": [
+        "take",
+        "shield"
+      ],
+      "armor": {
+        "acPierce": 1,
+        "acBash": 1,
+        "acSlash": 1
+      },
+      "weight": 150,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "scale",
+          "description": "It is a shield of injustice, it picks on the innocent.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 0,
+          "duration": -1,
+          "modifier": 6
+        },
+        {
+          "where": "object",
+          "location": "hp",
+          "level": 0,
+          "duration": -1,
+          "modifier": -30
+        }
+      ]
+    },
+    {
+      "vnum": 9314,
+      "name": "sting scorpio",
+      "shortDescr": "the Sting of Scorpio",
+      "description": "Sting of the Zodiac lies here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "glow",
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "dice": [
+          4,
+          4
+        ],
+        "damageType": "pierce"
+      },
+      "level": 19,
+      "weight": 70,
+      "cost": 2700,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "sting",
+          "description": "This dreadful weapon put a lot of mortals to death before Scorpio was banished.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 19,
+          "duration": -1,
+          "modifier": 3
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 19,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 9315,
+      "name": "arrow sagittarius",
+      "shortDescr": "the Arrow of Sagittarius",
+      "description": "The Arrow of Sagittarius lies here.",
+      "material": "oldstyle",
+      "itemType": "wand",
+      "extraFlags": [
+        "glow",
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "wand": {
+        "level": 10,
+        "chargesTotal": 10,
+        "spell": "lightning bolt"
+      },
+      "level": 11,
+      "weight": 70,
+      "cost": 3400,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "arrow",
+          "description": "It's an arrow of lightning; it will never miss any target.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9316,
+      "name": "bow sagittarius",
+      "shortDescr": "the Titanic Bow of Sagittarius",
+      "description": "The Titanic Bow of Sagittarius lies here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "glow",
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "dice": [
+          2,
+          9
+        ],
+        "damageType": "blast"
+      },
+      "level": 20,
+      "weight": 200,
+      "cost": 2800,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "bow",
+          "description": "The gigantic bow used by the Archer; it is a very powerful weapon.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 20,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 20,
+          "duration": -1,
+          "modifier": 3
+        }
+      ]
+    },
+    {
+      "vnum": 9317,
+      "name": "horns capricon",
+      "shortDescr": "the Titanic Horns of Capricorn",
+      "description": "A pair of horns of the Zodiac lies here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "glow",
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "hands"
+      ],
+      "armor": {
+        "acPierce": 4,
+        "acBash": 4,
+        "acSlash": 4
+      },
+      "level": 22,
+      "weight": 60,
+      "cost": 3000,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "horn",
+          "description": "These strange horns are the work of gods, shaped to fit on hands.\n\rThey look powerful indeed.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 22,
+          "duration": -1,
+          "modifier": 2
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 22,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 9318,
+      "name": "vessel aquarius",
+      "shortDescr": "the Ancient Vessel of Aquarius",
+      "description": "A vessel of the Zodiac lies here.",
+      "material": "oldstyle",
+      "itemType": "staff",
+      "extraFlags": [
+        "glow",
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "wand": {
+        "level": 10,
+        "chargesTotal": 10,
+        "spell": "create spring"
+      },
+      "level": 12,
+      "weight": 120,
+      "cost": 5900,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "vessel",
+          "description": "This vessel has been carried by the Water Bearer ever since she came to the\n\rZodiac.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9319,
+      "name": "tail pisces",
+      "shortDescr": "the Titanic Tail of Pisces",
+      "description": "A fish tail of the Zodiac lies here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "glow",
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "legs"
+      ],
+      "armor": {
+        "acPierce": 8,
+        "acBash": 8,
+        "acSlash": 8
+      },
+      "level": 21,
+      "weight": 100,
+      "cost": 950,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "tail",
+          "description": "This tail can actually be worn by mortals somehow as leggings ... another\n\rwork of the gods.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 21,
+          "duration": -1,
+          "modifier": -2
+        },
+        {
+          "where": "object",
+          "location": "dexterity",
+          "level": 21,
+          "duration": -1,
+          "modifier": -2
+        }
+      ]
+    },
+    {
+      "vnum": 9320,
+      "name": "ring dignity",
+      "shortDescr": "the Ring of Dignity",
+      "description": "A ring of specialty lies here.",
+      "material": "oldstyle",
+      "itemType": "jewelry",
+      "extraFlags": [
+        "glow",
+        "hum",
+        "invis",
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "finger"
+      ],
+      "level": 26,
+      "weight": 30,
+      "cost": 4200,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "ring",
+          "description": "This ring belongs to Cassiopeia, queen of the Universe.\n\rMortals, do not touch!\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "mana",
+          "level": 26,
+          "duration": -1,
+          "modifier": 25
+        },
+        {
+          "where": "object",
+          "location": "intelligence",
+          "level": 26,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 9321,
+      "name": "sceptre might",
+      "shortDescr": "the Sceptre of Might",
+      "description": "A sceptre of interest lies here.",
+      "material": "oldstyle",
+      "itemType": "light",
+      "extraFlags": [
+        "glow",
+        "hum",
+        "invis",
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "neck",
+        "body",
+        "head",
+        "feet",
+        "hands",
+        "arms",
+        "shield",
+        "about",
+        "waist",
+        "wrist",
+        "wield"
+      ],
+      "light": {
+        "hours": 999
+      },
+      "level": 22,
+      "weight": 40,
+      "cost": 2400,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "sceptre",
+          "description": "You'd better give it back, or the king of the Universe will punish you.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 22,
+          "duration": -1,
+          "modifier": 2
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 22,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 9322,
+      "name": "ring universe",
+      "shortDescr": "the ring of the universe",
+      "description": "Here lies a fortune ... a small ring of power.",
+      "material": "oldstyle",
+      "itemType": "jewelry",
+      "extraFlags": [
+        "glow",
+        "hum",
+        "invis",
+        "magic",
+        "bless"
+      ],
+      "wearFlags": [
+        "take",
+        "finger"
+      ],
+      "level": 30,
+      "weight": 30,
+      "cost": 1690,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "ring",
+          "description": "It conceals the power of the universe.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "mana",
+          "level": 30,
+          "duration": -1,
+          "modifier": 10
+        },
+        {
+          "where": "object",
+          "location": "hp",
+          "level": 30,
+          "duration": -1,
+          "modifier": 30
+        }
+      ]
+    },
+    {
+      "vnum": 9323,
+      "name": "great dipper",
+      "shortDescr": "the Great Dipper of the Skies",
+      "description": "A dazzling white object lies on the ground.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "glow",
+        "hum",
+        "invis",
+        "magic",
+        "bless"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "dice": [
+          4,
+          6
+        ],
+        "damageType": "blast"
+      },
+      "level": 29,
+      "weight": 200,
+      "cost": 4200,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 29,
+          "duration": -1,
+          "modifier": 2
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 29,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 9324,
+      "name": "spring shoot",
+      "shortDescr": "a spring shoot",
+      "description": "A shoot grows here, covered with dew.",
+      "material": "oldstyle",
+      "itemType": "key",
+      "extraFlags": [
+        "glow",
+        "hum"
+      ],
+      "wearFlags": [
+        "take"
+      ],
+      "weight": 20,
+      "condition": 100
+    },
+    {
+      "vnum": 9325,
+      "name": "summer flower",
+      "shortDescr": "a summer flower",
+      "description": "A flower grows here, waiting to be picked up.",
+      "material": "oldstyle",
+      "itemType": "key",
+      "extraFlags": [
+        "glow",
+        "hum"
+      ],
+      "wearFlags": [
+        "take"
+      ],
+      "weight": 20,
+      "condition": 100
+    },
+    {
+      "vnum": 9326,
+      "name": "autumn leaf",
+      "shortDescr": "an autumn leaf",
+      "description": "A leaf lies here, as if just fallen from a tree.",
+      "material": "oldstyle",
+      "itemType": "key",
+      "extraFlags": [
+        "glow",
+        "hum"
+      ],
+      "wearFlags": [
+        "take"
+      ],
+      "weight": 20,
+      "condition": 100
+    },
+    {
+      "vnum": 9327,
+      "name": "winter branch",
+      "shortDescr": "a winter branch",
+      "description": "A branch lies here, still covered with snow.",
+      "material": "oldstyle",
+      "itemType": "key",
+      "extraFlags": [
+        "glow",
+        "hum"
+      ],
+      "wearFlags": [
+        "take"
+      ],
+      "weight": 20,
+      "condition": 100
+    },
+    {
+      "vnum": 9328,
+      "name": "chains andromeda",
+      "shortDescr": "chains of Andromeda",
+      "description": "Some chains lie on the floor.",
+      "material": "oldstyle",
+      "itemType": "trash",
+      "extraFlags": [
+        "glow",
+        "invis"
+      ],
+      "wearFlags": [
+        "take"
+      ],
+      "weight": 500,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "chains",
+          "description": "They certainly look important!\n\r"
+        }
+      ]
+    }
+  ],
+  "shops": [],
+  "specials": [
+    {
+      "mobVnum": 9301,
+      "spec": "spec_thief"
+    },
+    {
+      "mobVnum": 9313,
+      "spec": "spec_breath_fire"
+    },
+    {
+      "mobVnum": 9314,
+      "spec": "spec_breath_fire"
+    },
+    {
+      "mobVnum": 9315,
+      "spec": "spec_cast_cleric"
+    },
+    {
+      "mobVnum": 9316,
+      "spec": "spec_cast_cleric"
+    },
+    {
+      "mobVnum": 9317,
+      "spec": "spec_cast_cleric"
+    },
+    {
+      "mobVnum": 9318,
+      "spec": "spec_cast_cleric"
+    },
+    {
+      "mobVnum": 9319,
+      "spec": "spec_cast_cleric"
+    },
+    {
+      "mobVnum": 9320,
+      "spec": "spec_cast_cleric"
+    },
+    {
+      "mobVnum": 9321,
+      "spec": "spec_cast_cleric"
+    },
+    {
+      "mobVnum": 9322,
+      "spec": "spec_cast_cleric"
+    },
+    {
+      "mobVnum": 9323,
+      "spec": "spec_cast_cleric"
+    },
+    {
+      "mobVnum": 9324,
+      "spec": "spec_cast_cleric"
+    },
+    {
+      "mobVnum": 9325,
+      "spec": "spec_cast_cleric"
+    },
+    {
+      "mobVnum": 9326,
+      "spec": "spec_cast_cleric"
+    },
+    {
+      "mobVnum": 9327,
+      "spec": "spec_cast_cleric"
+    },
+    {
+      "mobVnum": 9328,
+      "spec": "spec_cast_cleric"
+    },
+    {
+      "mobVnum": 9329,
+      "spec": "spec_cast_cleric"
+    },
+    {
+      "mobVnum": 9330,
+      "spec": "spec_cast_mage"
+    },
+    {
+      "mobVnum": 9331,
+      "spec": "spec_cast_mage"
+    },
+    {
+      "mobVnum": 9332,
+      "spec": "spec_breath_acid"
+    }
+  ],
+  "mobprogs": [],
+  "resets": [
+    {
+      "mobVnum": 9302,
+      "maxInArea": 9,
+      "roomVnum": 9304,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9305,
+      "maxInArea": 4,
+      "roomVnum": 9304,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9306,
+      "maxInArea": 3,
+      "roomVnum": 9306,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9302,
+      "maxInArea": 9,
+      "roomVnum": 9308,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9305,
+      "maxInArea": 4,
+      "roomVnum": 9308,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9305,
+      "maxInArea": 4,
+      "roomVnum": 9309,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9303,
+      "maxInArea": 5,
+      "roomVnum": 9310,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9303,
+      "maxInArea": 5,
+      "roomVnum": 9310,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9303,
+      "maxInArea": 5,
+      "roomVnum": 9310,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9307,
+      "maxInArea": 1,
+      "roomVnum": 9310,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9302,
+      "maxInArea": 9,
+      "roomVnum": 9312,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9301,
+      "maxInArea": 3,
+      "roomVnum": 9313,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9305,
+      "maxInArea": 4,
+      "roomVnum": 9313,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9306,
+      "maxInArea": 3,
+      "roomVnum": 9314,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9304,
+      "maxInArea": 4,
+      "roomVnum": 9317,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 9301,
+      "wearLoc": "wielded",
+      "roomVnum": 9317,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 9304,
+      "maxInArea": 4,
+      "roomVnum": 9317,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 9301,
+      "wearLoc": "wielded",
+      "roomVnum": 9317,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 9310,
+      "maxInArea": 1,
+      "roomVnum": 9317,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9303,
+      "maxInArea": 5,
+      "roomVnum": 9318,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9302,
+      "maxInArea": 9,
+      "roomVnum": 9321,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9302,
+      "maxInArea": 9,
+      "roomVnum": 9321,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9302,
+      "maxInArea": 9,
+      "roomVnum": 9321,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9302,
+      "maxInArea": 9,
+      "roomVnum": 9321,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9301,
+      "maxInArea": 3,
+      "roomVnum": 9322,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9303,
+      "maxInArea": 5,
+      "roomVnum": 9322,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9304,
+      "maxInArea": 4,
+      "roomVnum": 9322,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 9301,
+      "wearLoc": "wielded",
+      "roomVnum": 9322,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 9304,
+      "maxInArea": 4,
+      "roomVnum": 9322,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 9301,
+      "wearLoc": "wielded",
+      "roomVnum": 9322,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 9306,
+      "maxInArea": 3,
+      "roomVnum": 9322,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9301,
+      "maxInArea": 3,
+      "roomVnum": 9323,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9312,
+      "maxInArea": 7,
+      "roomVnum": 9326,
+      "maxInRoom": 7,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9312,
+      "maxInArea": 7,
+      "roomVnum": 9326,
+      "maxInRoom": 7,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9312,
+      "maxInArea": 7,
+      "roomVnum": 9326,
+      "maxInRoom": 7,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9312,
+      "maxInArea": 7,
+      "roomVnum": 9326,
+      "maxInRoom": 7,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9312,
+      "maxInArea": 7,
+      "roomVnum": 9326,
+      "maxInRoom": 7,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9312,
+      "maxInArea": 7,
+      "roomVnum": 9326,
+      "maxInRoom": 7,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9312,
+      "maxInArea": 7,
+      "roomVnum": 9326,
+      "maxInRoom": 7,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9311,
+      "maxInArea": 1,
+      "roomVnum": 9328,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 9304,
+      "wearLoc": "around the waist",
+      "roomVnum": 9328,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 9308,
+      "maxInArea": 1,
+      "roomVnum": 9330,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 9328,
+      "wearLoc": "held in the hands",
+      "roomVnum": 9330,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 9309,
+      "maxInArea": 1,
+      "roomVnum": 9332,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 9302,
+      "wearLoc": "on the arms",
+      "roomVnum": 9332,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 9302,
+      "maxInArea": 9,
+      "roomVnum": 9333,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9315,
+      "maxInArea": 1,
+      "roomVnum": 9342,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 9324,
+      "roomVnum": 9342,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 9306,
+      "wearLoc": "around the neck (1)",
+      "roomVnum": 9342,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 9316,
+      "maxInArea": 1,
+      "roomVnum": 9343,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 9307,
+      "wearLoc": "on the feet",
+      "roomVnum": 9343,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 9317,
+      "maxInArea": 1,
+      "roomVnum": 9344,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 9308,
+      "wearLoc": "over the head",
+      "roomVnum": 9344,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 9318,
+      "maxInArea": 1,
+      "roomVnum": 9344,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9319,
+      "maxInArea": 1,
+      "roomVnum": 9345,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 9325,
+      "roomVnum": 9345,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 9309,
+      "wearLoc": "on the body",
+      "roomVnum": 9345,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 9320,
+      "maxInArea": 1,
+      "roomVnum": 9346,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 9310,
+      "wearLoc": "about the shoulders",
+      "roomVnum": 9346,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 9321,
+      "maxInArea": 1,
+      "roomVnum": 9347,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 9311,
+      "wearLoc": "on the left wrist",
+      "roomVnum": 9347,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 9322,
+      "maxInArea": 1,
+      "roomVnum": 9348,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 9326,
+      "roomVnum": 9348,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 9312,
+      "roomVnum": 9348,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 9313,
+      "wearLoc": "as a shield",
+      "roomVnum": 9348,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 9323,
+      "maxInArea": 1,
+      "roomVnum": 9349,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 9314,
+      "wearLoc": "wielded",
+      "roomVnum": 9349,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 9324,
+      "maxInArea": 1,
+      "roomVnum": 9350,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 9315,
+      "wearLoc": "held in the hands",
+      "roomVnum": 9350,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 9316,
+      "wearLoc": "wielded",
+      "roomVnum": 9350,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 9325,
+      "maxInArea": 1,
+      "roomVnum": 9351,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 9327,
+      "roomVnum": 9351,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 9317,
+      "wearLoc": "on the hands",
+      "roomVnum": 9351,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 9326,
+      "maxInArea": 1,
+      "roomVnum": 9352,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 9318,
+      "wearLoc": "held in the hands",
+      "roomVnum": 9352,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 9327,
+      "maxInArea": 1,
+      "roomVnum": 9353,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 9319,
+      "wearLoc": "on the legs",
+      "roomVnum": 9353,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 9328,
+      "maxInArea": 1,
+      "roomVnum": 9353,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9302,
+      "maxInArea": 9,
+      "roomVnum": 9355,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9314,
+      "maxInArea": 2,
+      "roomVnum": 9358,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9314,
+      "maxInArea": 2,
+      "roomVnum": 9360,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9313,
+      "maxInArea": 1,
+      "roomVnum": 9363,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 9305,
+      "roomVnum": 9363,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 9330,
+      "maxInArea": 1,
+      "roomVnum": 9365,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 9320,
+      "wearLoc": "on the left finger",
+      "roomVnum": 9365,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 9331,
+      "maxInArea": 1,
+      "roomVnum": 9367,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 9321,
+      "wearLoc": "as a light",
+      "roomVnum": 9367,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 9329,
+      "maxInArea": 1,
+      "roomVnum": 9370,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9332,
+      "maxInArea": 1,
+      "roomVnum": 9371,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 9322,
+      "wearLoc": "on the right finger",
+      "roomVnum": 9371,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 9323,
+      "wearLoc": "wielded",
+      "roomVnum": 9371,
+      "commandName": "equipObj"
+    }
+  ],
+  "factions": [],
+  "quests": []
+}

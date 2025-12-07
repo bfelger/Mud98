@@ -1237,12 +1237,12 @@ static int test_json_saves_typed_objects()
         .file_name = "out.json",
     };
     PersistResult save_result = AREA_PERSIST_JSON.save(&save_params);
-    ASSERT_OR_GOTO(persist_succeeded(save_result), cleanup);
-    ASSERT_OR_GOTO(buf.data != NULL && buf.len > 0, cleanup);
+    ASSERT_OR_GOTO(persist_succeeded(save_result), cleanup_buf);
+    ASSERT_OR_GOTO(buf.data != NULL && buf.len > 0, cleanup_buf);
 
     json_error_t jerr;
     json_t* root = json_loadb((const char*)buf.data, buf.len, 0, &jerr);
-    ASSERT_OR_GOTO(root != NULL, cleanup);
+    ASSERT_OR_GOTO(root != NULL, cleanup_buf);
     json_t* objects = json_object_get(root, "objects");
     ASSERT_OR_GOTO(json_is_array(objects), cleanup_root);
 
@@ -1276,9 +1276,10 @@ static int test_json_saves_typed_objects()
 cleanup_root:
     if (root)
         json_decref(root);
-cleanup:
+cleanup_buf:
     if (buf.data)
         free(buf.data);
+cleanup:
     if (load_fp)
         fclose(load_fp);
     persist_state_end(&snap);

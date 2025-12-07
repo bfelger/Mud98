@@ -281,7 +281,7 @@ static json_t* build_exit(const RoomExitData* ex)
     if (dir)
         json_object_set_new(obj, "dir", json_string(dir));
     json_object_set_new(obj, "toVnum", json_integer(ex->to_vnum));
-    if (ex->key != -1)
+    if (ex->key > 0)
         json_object_set_new(obj, "key", json_integer(ex->key));
     json_set_flags_if(obj, "flags", ex->exit_reset_flags, exit_flag_table);
     if (ex->description && ex->description[0] != '\0')
@@ -505,7 +505,7 @@ static PersistResult parse_exits(RoomData* room, json_t* exits)
                 room->area_data && room->area_data->file_name ? room->area_data->file_name : "<unknown>");
             ex_data->key = -1;
         }
-        ex_data->exit_reset_flags = flags_from_array(json_object_get(ex, "flags"), exit_flag_table);
+        ex_data->exit_reset_flags = (SHORT_FLAGS)flags_from_array(json_object_get(ex, "flags"), exit_flag_table);
 
         const char* desc = json_string_value(json_object_get(ex, "description"));
         ex_data->description = desc ? str_dup(desc) : &str_empty[0];
@@ -614,9 +614,9 @@ static json_t* build_affect(const Affect* af)
     else if (af->type != -1)
         json_object_set_new(obj, "type", json_integer(af->type));
 
-    const char* where_name = flag_string(apply_types, af->where);
-    if (where_name && where_name[0] != '\0')
-        json_object_set_new(obj, "where", json_string(where_name));
+    const char* where = flag_string(apply_types, af->where);
+    if (where && where[0] != '\0')
+        json_object_set_new(obj, "where", json_string(where));
     const char* loc_name = flag_string(apply_flag_table, af->location);
     if (loc_name && loc_name[0] != '\0')
         json_object_set_new(obj, "location", json_string(loc_name));
@@ -1051,7 +1051,8 @@ static PersistResult parse_shops(json_t* root)
         if (shop_last != NULL)
             shop_last->next = shop;
         shop_last = shop;
-        shop->next = NULL;
+        if (shop)
+            shop->next = NULL;
     }
 
     return (PersistResult){ PERSIST_OK, NULL, -1 };
@@ -1202,7 +1203,7 @@ static json_t* build_wandstaff(const ObjPrototype* obj)
     json_set_int_if(w, "chargesTotal", obj->value[1], 0);
     if (obj->value[2] != obj->value[1])
         json_set_int_if(w, "chargesRemaining", obj->value[2], 0);
-    const char* spell = skill_name_from_sn(obj->value[3]);
+    const char* spell = skill_name_from_sn((SKNUM)obj->value[3]);
     if (spell && obj->value[3] >= 0)
         json_object_set_new(w, "spell", json_string(spell));
     return w;
@@ -1215,7 +1216,7 @@ static json_t* build_scroll_potion_pill(const ObjPrototype* obj)
     int slots = (obj->item_type == ITEM_SCROLL) ? 4 : 3;
     json_t* spells = json_array();
     for (int i = 1; i <= slots; i++) {
-        const char* name = skill_name_from_sn(obj->value[i]);
+        const char* name = skill_name_from_sn((SKNUM)obj->value[i]);
         if (name)
             json_array_append_new(spells, json_string(name));
         else
@@ -1395,7 +1396,7 @@ static json_t* build_objects(const AreaData* area)
     qsort(list, count, sizeof(*list), compare_obj_proto);
 
     for (size_t i = 0; i < count; ++i) {
-        ObjPrototype* obj = list[i];
+        obj = list[i];
 
         json_t* o = json_object();
         json_object_set_new(o, "vnum", json_integer(VNUM_FIELD(obj)));
@@ -1408,8 +1409,8 @@ static json_t* build_objects(const AreaData* area)
         json_set_flags_if(o, "extraFlags", obj->extra_flags, extra_flag_table);
         json_set_flags_if(o, "wearFlags", obj->wear_flags, wear_flag_table);
         bool has_value = false;
-        for (int i = 0; i < 5; i++) {
-            if (obj->value[i] != 0) {
+        for (int j = 0; j < 5; j++) {
+            if (obj->value[j] != 0) {
                 has_value = true;
                 break;
             }
@@ -1826,6 +1827,7 @@ static PersistResult parse_quests(json_t* root, AreaData* area)
         }
 
         quest->vnum = (VNUM)json_int_or_default(q, "vnum", quest->vnum);
+
         ORDERED_INSERT(Quest, quest, area->quests, vnum);
     }
 

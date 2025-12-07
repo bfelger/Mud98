@@ -1,0 +1,2587 @@
+{
+  "formatVersion": 1,
+  "themes": [
+    {
+      "name": "Lope",
+      "banner": "Lope's ColoUr Code 2.0\n\r\n\rColoUr is brought to you by Lope, ant@solace.mh.se\n\r\n\r",
+      "mode": "ansi",
+      "paletteMax": 16,
+      "type": "system",
+      "public": false,
+      "palette": [
+        {
+          "mode": "ansi",
+          "code": [
+            0,
+            7
+          ],
+          "index": 0
+        },
+        {
+          "mode": "ansi",
+          "code": [
+            0,
+            0
+          ],
+          "index": 1
+        },
+        {
+          "mode": "ansi",
+          "code": [
+            1,
+            0
+          ],
+          "index": 2
+        },
+        {
+          "mode": "ansi",
+          "code": [
+            1,
+            7
+          ],
+          "index": 3
+        },
+        {
+          "mode": "ansi",
+          "code": [
+            0,
+            1
+          ],
+          "index": 4
+        },
+        {
+          "mode": "ansi",
+          "code": [
+            1,
+            1
+          ],
+          "index": 5
+        },
+        {
+          "mode": "ansi",
+          "code": [
+            0,
+            2
+          ],
+          "index": 6
+        },
+        {
+          "mode": "ansi",
+          "code": [
+            1,
+            2
+          ],
+          "index": 7
+        },
+        {
+          "mode": "ansi",
+          "code": [
+            0,
+            3
+          ],
+          "index": 8
+        },
+        {
+          "mode": "ansi",
+          "code": [
+            1,
+            3
+          ],
+          "index": 9
+        },
+        {
+          "mode": "ansi",
+          "code": [
+            0,
+            4
+          ],
+          "index": 10
+        },
+        {
+          "mode": "ansi",
+          "code": [
+            1,
+            4
+          ],
+          "index": 11
+        },
+        {
+          "mode": "ansi",
+          "code": [
+            0,
+            5
+          ],
+          "index": 12
+        },
+        {
+          "mode": "ansi",
+          "code": [
+            1,
+            5
+          ],
+          "index": 13
+        },
+        {
+          "mode": "ansi",
+          "code": [
+            0,
+            6
+          ],
+          "index": 14
+        },
+        {
+          "mode": "ansi",
+          "code": [
+            1,
+            6
+          ],
+          "index": 15
+        }
+      ],
+      "channels": {
+        "text": {
+          "mode": "palette",
+          "code": [
+            0
+          ]
+        },
+        "background": {
+          "mode": "palette",
+          "code": [
+            1
+          ]
+        },
+        "title": {
+          "mode": "palette",
+          "code": [
+            3
+          ]
+        },
+        "alt_text": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "alt_text2": {
+          "mode": "palette",
+          "code": [
+            2
+          ]
+        },
+        "decor1": {
+          "mode": "palette",
+          "code": [
+            11
+          ]
+        },
+        "decor2": {
+          "mode": "palette",
+          "code": [
+            9
+          ]
+        },
+        "decor3": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "auction": {
+          "mode": "palette",
+          "code": [
+            9
+          ]
+        },
+        "auction_text": {
+          "mode": "palette",
+          "code": [
+            3
+          ]
+        },
+        "gossip": {
+          "mode": "palette",
+          "code": [
+            12
+          ]
+        },
+        "gossip_text": {
+          "mode": "palette",
+          "code": [
+            13
+          ]
+        },
+        "music": {
+          "mode": "palette",
+          "code": [
+            4
+          ]
+        },
+        "music_text": {
+          "mode": "palette",
+          "code": [
+            5
+          ]
+        },
+        "question": {
+          "mode": "palette",
+          "code": [
+            9
+          ]
+        },
+        "question_text": {
+          "mode": "palette",
+          "code": [
+            3
+          ]
+        },
+        "answer": {
+          "mode": "palette",
+          "code": [
+            9
+          ]
+        },
+        "answer_text": {
+          "mode": "palette",
+          "code": [
+            3
+          ]
+        },
+        "quote": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "quote_text": {
+          "mode": "palette",
+          "code": [
+            7
+          ]
+        },
+        "immtalk_text": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "immtalk_type": {
+          "mode": "palette",
+          "code": [
+            8
+          ]
+        },
+        "info": {
+          "mode": "palette",
+          "code": [
+            8
+          ]
+        },
+        "say": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "say_text": {
+          "mode": "palette",
+          "code": [
+            7
+          ]
+        },
+        "tell": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "tell_text": {
+          "mode": "palette",
+          "code": [
+            7
+          ]
+        },
+        "reply": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "reply_text": {
+          "mode": "palette",
+          "code": [
+            7
+          ]
+        },
+        "gtell_text": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "gtell_type": {
+          "mode": "palette",
+          "code": [
+            4
+          ]
+        },
+        "wiznet": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "room_title": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "room_text": {
+          "mode": "palette",
+          "code": [
+            0
+          ]
+        },
+        "room_exits": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "room_things": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "prompt": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "fight_death": {
+          "mode": "palette",
+          "code": [
+            4
+          ]
+        },
+        "fight_yhit": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "fight_ohit": {
+          "mode": "palette",
+          "code": [
+            8
+          ]
+        },
+        "fight_thit": {
+          "mode": "palette",
+          "code": [
+            4
+          ]
+        },
+        "fight_skill": {
+          "mode": "palette",
+          "code": [
+            0
+          ]
+        },
+        "lox_comment": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "lox_string": {
+          "mode": "palette",
+          "code": [
+            9
+          ]
+        },
+        "lox_operator": {
+          "mode": "palette",
+          "code": [
+            2
+          ]
+        },
+        "lox_literal": {
+          "mode": "palette",
+          "code": [
+            13
+          ]
+        },
+        "lox_keyword": {
+          "mode": "palette",
+          "code": [
+            10
+          ]
+        }
+      }
+    },
+    {
+      "name": "Monorail",
+      "mode": "256",
+      "paletteMax": 16,
+      "type": "system",
+      "public": false,
+      "palette": [
+        {
+          "mode": "256",
+          "code": [
+            15
+          ],
+          "index": 0
+        },
+        {
+          "mode": "256",
+          "code": [
+            0
+          ],
+          "index": 1
+        },
+        {
+          "mode": "256",
+          "code": [
+            244
+          ],
+          "index": 2
+        },
+        {
+          "mode": "256",
+          "code": [
+            242
+          ],
+          "index": 3
+        },
+        {
+          "mode": "256",
+          "code": [
+            246
+          ],
+          "index": 4
+        },
+        {
+          "mode": "256",
+          "code": [
+            240
+          ],
+          "index": 5
+        },
+        {
+          "mode": "256",
+          "code": [
+            248
+          ],
+          "index": 6
+        },
+        {
+          "mode": "256",
+          "code": [
+            238
+          ],
+          "index": 7
+        },
+        {
+          "mode": "256",
+          "code": [
+            250
+          ],
+          "index": 8
+        },
+        {
+          "mode": "256",
+          "code": [
+            236
+          ],
+          "index": 9
+        },
+        {
+          "mode": "256",
+          "code": [
+            252
+          ],
+          "index": 10
+        },
+        {
+          "mode": "256",
+          "code": [
+            234
+          ],
+          "index": 11
+        },
+        {
+          "mode": "256",
+          "code": [
+            254
+          ],
+          "index": 12
+        },
+        {
+          "mode": "256",
+          "code": [
+            233
+          ],
+          "index": 13
+        },
+        {
+          "mode": "256",
+          "code": [
+            255
+          ],
+          "index": 14
+        },
+        {
+          "mode": "256",
+          "code": [
+            232
+          ],
+          "index": 15
+        }
+      ],
+      "channels": {
+        "text": {
+          "mode": "palette",
+          "code": [
+            0
+          ]
+        },
+        "background": {
+          "mode": "palette",
+          "code": [
+            1
+          ]
+        },
+        "title": {
+          "mode": "palette",
+          "code": [
+            3
+          ]
+        },
+        "alt_text": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "alt_text2": {
+          "mode": "palette",
+          "code": [
+            2
+          ]
+        },
+        "decor1": {
+          "mode": "palette",
+          "code": [
+            11
+          ]
+        },
+        "decor2": {
+          "mode": "palette",
+          "code": [
+            9
+          ]
+        },
+        "decor3": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "auction": {
+          "mode": "palette",
+          "code": [
+            9
+          ]
+        },
+        "auction_text": {
+          "mode": "palette",
+          "code": [
+            3
+          ]
+        },
+        "gossip": {
+          "mode": "palette",
+          "code": [
+            12
+          ]
+        },
+        "gossip_text": {
+          "mode": "palette",
+          "code": [
+            13
+          ]
+        },
+        "music": {
+          "mode": "palette",
+          "code": [
+            4
+          ]
+        },
+        "music_text": {
+          "mode": "palette",
+          "code": [
+            5
+          ]
+        },
+        "question": {
+          "mode": "palette",
+          "code": [
+            9
+          ]
+        },
+        "question_text": {
+          "mode": "palette",
+          "code": [
+            3
+          ]
+        },
+        "answer": {
+          "mode": "palette",
+          "code": [
+            9
+          ]
+        },
+        "answer_text": {
+          "mode": "palette",
+          "code": [
+            3
+          ]
+        },
+        "quote": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "quote_text": {
+          "mode": "palette",
+          "code": [
+            7
+          ]
+        },
+        "immtalk_text": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "immtalk_type": {
+          "mode": "palette",
+          "code": [
+            8
+          ]
+        },
+        "info": {
+          "mode": "palette",
+          "code": [
+            8
+          ]
+        },
+        "say": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "say_text": {
+          "mode": "palette",
+          "code": [
+            7
+          ]
+        },
+        "tell": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "tell_text": {
+          "mode": "palette",
+          "code": [
+            7
+          ]
+        },
+        "reply": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "reply_text": {
+          "mode": "palette",
+          "code": [
+            7
+          ]
+        },
+        "gtell_text": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "gtell_type": {
+          "mode": "palette",
+          "code": [
+            4
+          ]
+        },
+        "wiznet": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "room_title": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "room_text": {
+          "mode": "palette",
+          "code": [
+            0
+          ]
+        },
+        "room_exits": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "room_things": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "prompt": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "fight_death": {
+          "mode": "palette",
+          "code": [
+            4
+          ]
+        },
+        "fight_yhit": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "fight_ohit": {
+          "mode": "palette",
+          "code": [
+            8
+          ]
+        },
+        "fight_thit": {
+          "mode": "palette",
+          "code": [
+            4
+          ]
+        },
+        "fight_skill": {
+          "mode": "palette",
+          "code": [
+            0
+          ]
+        },
+        "lox_comment": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "lox_string": {
+          "mode": "palette",
+          "code": [
+            9
+          ]
+        },
+        "lox_operator": {
+          "mode": "palette",
+          "code": [
+            2
+          ]
+        },
+        "lox_literal": {
+          "mode": "palette",
+          "code": [
+            13
+          ]
+        },
+        "lox_keyword": {
+          "mode": "palette",
+          "code": [
+            10
+          ]
+        }
+      }
+    },
+    {
+      "name": "Cool Cat",
+      "banner": "If your MUD client/terminal does not support server-initiated changes to background color, consider manually setting your backround to to #282921 for best results.\n\r\n\r",
+      "mode": "rgb",
+      "paletteMax": 16,
+      "type": "system",
+      "public": false,
+      "palette": [
+        {
+          "mode": "rgb",
+          "code": [
+            247,
+            247,
+            243
+          ],
+          "index": 0
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            40,
+            41,
+            33
+          ],
+          "index": 1
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            117,
+            113,
+            94
+          ],
+          "index": 2
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            117,
+            113,
+            94
+          ],
+          "index": 3
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            250,
+            37,
+            115
+          ],
+          "index": 4
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            255,
+            117,
+            163
+          ],
+          "index": 5
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            165,
+            227,
+            47
+          ],
+          "index": 6
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            197,
+            255,
+            111
+          ],
+          "index": 7
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            253,
+            151,
+            113
+          ],
+          "index": 8
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            255,
+            217,
+            103
+          ],
+          "index": 9
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            101,
+            217,
+            240
+          ],
+          "index": 10
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            154,
+            248,
+            255
+          ],
+          "index": 11
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            160,
+            50,
+            255
+          ],
+          "index": 12
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            175,
+            128,
+            255
+          ],
+          "index": 13
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            101,
+            217,
+            240
+          ],
+          "index": 14
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            154,
+            248,
+            255
+          ],
+          "index": 15
+        }
+      ],
+      "channels": {
+        "text": {
+          "mode": "palette",
+          "code": [
+            0
+          ]
+        },
+        "background": {
+          "mode": "palette",
+          "code": [
+            1
+          ]
+        },
+        "title": {
+          "mode": "palette",
+          "code": [
+            3
+          ]
+        },
+        "alt_text": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "alt_text2": {
+          "mode": "palette",
+          "code": [
+            2
+          ]
+        },
+        "decor1": {
+          "mode": "palette",
+          "code": [
+            11
+          ]
+        },
+        "decor2": {
+          "mode": "palette",
+          "code": [
+            9
+          ]
+        },
+        "decor3": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "auction": {
+          "mode": "palette",
+          "code": [
+            9
+          ]
+        },
+        "auction_text": {
+          "mode": "palette",
+          "code": [
+            3
+          ]
+        },
+        "gossip": {
+          "mode": "palette",
+          "code": [
+            12
+          ]
+        },
+        "gossip_text": {
+          "mode": "palette",
+          "code": [
+            13
+          ]
+        },
+        "music": {
+          "mode": "palette",
+          "code": [
+            4
+          ]
+        },
+        "music_text": {
+          "mode": "palette",
+          "code": [
+            5
+          ]
+        },
+        "question": {
+          "mode": "palette",
+          "code": [
+            9
+          ]
+        },
+        "question_text": {
+          "mode": "palette",
+          "code": [
+            3
+          ]
+        },
+        "answer": {
+          "mode": "palette",
+          "code": [
+            9
+          ]
+        },
+        "answer_text": {
+          "mode": "palette",
+          "code": [
+            3
+          ]
+        },
+        "quote": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "quote_text": {
+          "mode": "palette",
+          "code": [
+            7
+          ]
+        },
+        "immtalk_text": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "immtalk_type": {
+          "mode": "palette",
+          "code": [
+            8
+          ]
+        },
+        "info": {
+          "mode": "palette",
+          "code": [
+            8
+          ]
+        },
+        "say": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "say_text": {
+          "mode": "palette",
+          "code": [
+            7
+          ]
+        },
+        "tell": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "tell_text": {
+          "mode": "palette",
+          "code": [
+            7
+          ]
+        },
+        "reply": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "reply_text": {
+          "mode": "palette",
+          "code": [
+            7
+          ]
+        },
+        "gtell_text": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "gtell_type": {
+          "mode": "palette",
+          "code": [
+            4
+          ]
+        },
+        "wiznet": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "room_title": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "room_text": {
+          "mode": "palette",
+          "code": [
+            0
+          ]
+        },
+        "room_exits": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "room_things": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "prompt": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "fight_death": {
+          "mode": "palette",
+          "code": [
+            4
+          ]
+        },
+        "fight_yhit": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "fight_ohit": {
+          "mode": "palette",
+          "code": [
+            8
+          ]
+        },
+        "fight_thit": {
+          "mode": "palette",
+          "code": [
+            4
+          ]
+        },
+        "fight_skill": {
+          "mode": "palette",
+          "code": [
+            0
+          ]
+        },
+        "lox_comment": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "lox_string": {
+          "mode": "palette",
+          "code": [
+            9
+          ]
+        },
+        "lox_operator": {
+          "mode": "palette",
+          "code": [
+            2
+          ]
+        },
+        "lox_literal": {
+          "mode": "palette",
+          "code": [
+            13
+          ]
+        },
+        "lox_keyword": {
+          "mode": "palette",
+          "code": [
+            10
+          ]
+        }
+      }
+    },
+    {
+      "name": "Glow Pop",
+      "banner": "If your MUD client/terminal does not support server-initiated changes to background color, consider manually setting your backround to to #16171A for best results.\n\r\n\r",
+      "mode": "rgb",
+      "paletteMax": 16,
+      "type": "system",
+      "public": false,
+      "palette": [
+        {
+          "mode": "rgb",
+          "code": [
+            250,
+            253,
+            255
+          ],
+          "index": 0
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            22,
+            23,
+            26
+          ],
+          "index": 1
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            35,
+            73,
+            117
+          ],
+          "index": 2
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            0,
+            120,
+            153
+          ],
+          "index": 3
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            127,
+            6,
+            34
+          ],
+          "index": 4
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            214,
+            36,
+            17
+          ],
+          "index": 5
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            16,
+            210,
+            117
+          ],
+          "index": 6
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            191,
+            255,
+            60
+          ],
+          "index": 7
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            255,
+            132,
+            38
+          ],
+          "index": 8
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            255,
+            209,
+            0
+          ],
+          "index": 9
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            0,
+            40,
+            89
+          ],
+          "index": 10
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            104,
+            174,
+            212
+          ],
+          "index": 11
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            67,
+            0,
+            103
+          ],
+          "index": 12
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            148,
+            33,
+            106
+          ],
+          "index": 13
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            255,
+            38,
+            116
+          ],
+          "index": 14
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            255,
+            128,
+            164
+          ],
+          "index": 15
+        }
+      ],
+      "channels": {
+        "text": {
+          "mode": "palette",
+          "code": [
+            0
+          ]
+        },
+        "background": {
+          "mode": "palette",
+          "code": [
+            1
+          ]
+        },
+        "title": {
+          "mode": "palette",
+          "code": [
+            3
+          ]
+        },
+        "alt_text": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "alt_text2": {
+          "mode": "palette",
+          "code": [
+            2
+          ]
+        },
+        "decor1": {
+          "mode": "palette",
+          "code": [
+            11
+          ]
+        },
+        "decor2": {
+          "mode": "palette",
+          "code": [
+            9
+          ]
+        },
+        "decor3": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "auction": {
+          "mode": "palette",
+          "code": [
+            9
+          ]
+        },
+        "auction_text": {
+          "mode": "palette",
+          "code": [
+            3
+          ]
+        },
+        "gossip": {
+          "mode": "palette",
+          "code": [
+            12
+          ]
+        },
+        "gossip_text": {
+          "mode": "palette",
+          "code": [
+            13
+          ]
+        },
+        "music": {
+          "mode": "palette",
+          "code": [
+            4
+          ]
+        },
+        "music_text": {
+          "mode": "palette",
+          "code": [
+            5
+          ]
+        },
+        "question": {
+          "mode": "palette",
+          "code": [
+            9
+          ]
+        },
+        "question_text": {
+          "mode": "palette",
+          "code": [
+            3
+          ]
+        },
+        "answer": {
+          "mode": "palette",
+          "code": [
+            9
+          ]
+        },
+        "answer_text": {
+          "mode": "palette",
+          "code": [
+            3
+          ]
+        },
+        "quote": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "quote_text": {
+          "mode": "palette",
+          "code": [
+            7
+          ]
+        },
+        "immtalk_text": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "immtalk_type": {
+          "mode": "palette",
+          "code": [
+            8
+          ]
+        },
+        "info": {
+          "mode": "palette",
+          "code": [
+            8
+          ]
+        },
+        "say": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "say_text": {
+          "mode": "palette",
+          "code": [
+            7
+          ]
+        },
+        "tell": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "tell_text": {
+          "mode": "palette",
+          "code": [
+            7
+          ]
+        },
+        "reply": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "reply_text": {
+          "mode": "palette",
+          "code": [
+            7
+          ]
+        },
+        "gtell_text": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "gtell_type": {
+          "mode": "palette",
+          "code": [
+            4
+          ]
+        },
+        "wiznet": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "room_title": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "room_text": {
+          "mode": "palette",
+          "code": [
+            0
+          ]
+        },
+        "room_exits": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "room_things": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "prompt": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "fight_death": {
+          "mode": "palette",
+          "code": [
+            4
+          ]
+        },
+        "fight_yhit": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "fight_ohit": {
+          "mode": "palette",
+          "code": [
+            8
+          ]
+        },
+        "fight_thit": {
+          "mode": "palette",
+          "code": [
+            4
+          ]
+        },
+        "fight_skill": {
+          "mode": "palette",
+          "code": [
+            0
+          ]
+        },
+        "lox_comment": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "lox_string": {
+          "mode": "palette",
+          "code": [
+            9
+          ]
+        },
+        "lox_operator": {
+          "mode": "palette",
+          "code": [
+            2
+          ]
+        },
+        "lox_literal": {
+          "mode": "palette",
+          "code": [
+            13
+          ]
+        },
+        "lox_keyword": {
+          "mode": "palette",
+          "code": [
+            10
+          ]
+        }
+      }
+    },
+    {
+      "name": "Synthwave City",
+      "banner": "If your MUD client/terminal does not support server-initiated changes to background color, consider manually setting your backround to to #1B1E23 for best results.\n\r\n\r",
+      "mode": "rgb",
+      "paletteMax": 16,
+      "type": "system",
+      "public": false,
+      "palette": [
+        {
+          "mode": "rgb",
+          "code": [
+            246,
+            237,
+            219
+          ],
+          "index": 0
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            27,
+            30,
+            35
+          ],
+          "index": 1
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            236,
+            141,
+            117
+          ],
+          "index": 2
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            80,
+            169,
+            207
+          ],
+          "index": 3
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            189,
+            75,
+            100
+          ],
+          "index": 4
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            236,
+            141,
+            117
+          ],
+          "index": 5
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            80,
+            169,
+            207
+          ],
+          "index": 6
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            150,
+            230,
+            194
+          ],
+          "index": 7
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            236,
+            141,
+            117
+          ],
+          "index": 8
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            246,
+            237,
+            219
+          ],
+          "index": 9
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            64,
+            38,
+            92
+          ],
+          "index": 10
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            36,
+            69,
+            132
+          ],
+          "index": 11
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            64,
+            38,
+            92
+          ],
+          "index": 12
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            158,
+            34,
+            129
+          ],
+          "index": 13
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            36,
+            69,
+            132
+          ],
+          "index": 14
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            150,
+            230,
+            194
+          ],
+          "index": 15
+        }
+      ],
+      "channels": {
+        "text": {
+          "mode": "palette",
+          "code": [
+            0
+          ]
+        },
+        "background": {
+          "mode": "palette",
+          "code": [
+            1
+          ]
+        },
+        "title": {
+          "mode": "palette",
+          "code": [
+            3
+          ]
+        },
+        "alt_text": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "alt_text2": {
+          "mode": "palette",
+          "code": [
+            2
+          ]
+        },
+        "decor1": {
+          "mode": "palette",
+          "code": [
+            2
+          ]
+        },
+        "decor2": {
+          "mode": "palette",
+          "code": [
+            3
+          ]
+        },
+        "decor3": {
+          "mode": "palette",
+          "code": [
+            4
+          ]
+        },
+        "auction": {
+          "mode": "palette",
+          "code": [
+            9
+          ]
+        },
+        "auction_text": {
+          "mode": "palette",
+          "code": [
+            3
+          ]
+        },
+        "gossip": {
+          "mode": "palette",
+          "code": [
+            12
+          ]
+        },
+        "gossip_text": {
+          "mode": "palette",
+          "code": [
+            13
+          ]
+        },
+        "music": {
+          "mode": "palette",
+          "code": [
+            4
+          ]
+        },
+        "music_text": {
+          "mode": "palette",
+          "code": [
+            5
+          ]
+        },
+        "question": {
+          "mode": "palette",
+          "code": [
+            9
+          ]
+        },
+        "question_text": {
+          "mode": "palette",
+          "code": [
+            3
+          ]
+        },
+        "answer": {
+          "mode": "palette",
+          "code": [
+            9
+          ]
+        },
+        "answer_text": {
+          "mode": "palette",
+          "code": [
+            3
+          ]
+        },
+        "quote": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "quote_text": {
+          "mode": "palette",
+          "code": [
+            7
+          ]
+        },
+        "immtalk_text": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "immtalk_type": {
+          "mode": "palette",
+          "code": [
+            8
+          ]
+        },
+        "info": {
+          "mode": "palette",
+          "code": [
+            8
+          ]
+        },
+        "say": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "say_text": {
+          "mode": "palette",
+          "code": [
+            7
+          ]
+        },
+        "tell": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "tell_text": {
+          "mode": "palette",
+          "code": [
+            7
+          ]
+        },
+        "reply": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "reply_text": {
+          "mode": "palette",
+          "code": [
+            7
+          ]
+        },
+        "gtell_text": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "gtell_type": {
+          "mode": "palette",
+          "code": [
+            4
+          ]
+        },
+        "wiznet": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "room_title": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "room_text": {
+          "mode": "palette",
+          "code": [
+            0
+          ]
+        },
+        "room_exits": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "room_things": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "prompt": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "fight_death": {
+          "mode": "palette",
+          "code": [
+            4
+          ]
+        },
+        "fight_yhit": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "fight_ohit": {
+          "mode": "palette",
+          "code": [
+            8
+          ]
+        },
+        "fight_thit": {
+          "mode": "palette",
+          "code": [
+            4
+          ]
+        },
+        "fight_skill": {
+          "mode": "palette",
+          "code": [
+            0
+          ]
+        },
+        "lox_comment": {
+          "mode": "palette",
+          "code": [
+            6
+          ]
+        },
+        "lox_string": {
+          "mode": "palette",
+          "code": [
+            9
+          ]
+        },
+        "lox_operator": {
+          "mode": "palette",
+          "code": [
+            2
+          ]
+        },
+        "lox_literal": {
+          "mode": "palette",
+          "code": [
+            13
+          ]
+        },
+        "lox_keyword": {
+          "mode": "palette",
+          "code": [
+            10
+          ]
+        }
+      }
+    },
+    {
+      "name": "Conestoga",
+      "mode": "rgb",
+      "paletteMax": 16,
+      "type": "system",
+      "public": false,
+      "palette": [
+        {
+          "mode": "rgb",
+          "code": [
+            237,
+            230,
+            203
+          ],
+          "index": 0
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            17,
+            18,
+            21
+          ],
+          "index": 1
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            232,
+            178,
+            111
+          ],
+          "index": 2
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            245,
+            216,
+            147
+          ],
+          "index": 3
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            64,
+            35,
+            30
+          ],
+          "index": 4
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            64,
+            35,
+            30
+          ],
+          "index": 5
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            29,
+            50,
+            48
+          ],
+          "index": 6
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            49,
+            78,
+            63
+          ],
+          "index": 7
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            112,
+            77,
+            43
+          ],
+          "index": 8
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            182,
+            131,
+            76
+          ],
+          "index": 9
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            62,
+            112,
+            142
+          ],
+          "index": 10
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            105,
+            159,
+            173
+          ],
+          "index": 11
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            79,
+            93,
+            66
+          ],
+          "index": 12
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            154,
+            159,
+            135
+          ],
+          "index": 13
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            43,
+            69,
+            79
+          ],
+          "index": 14
+        },
+        {
+          "mode": "rgb",
+          "code": [
+            43,
+            69,
+            79
+          ],
+          "index": 15
+        }
+      ],
+      "channels": {
+        "text": {
+          "mode": "palette",
+          "code": [
+            0
+          ]
+        },
+        "background": {
+          "mode": "palette",
+          "code": [
+            1
+          ]
+        },
+        "title": {
+          "mode": "palette",
+          "code": [
+            3
+          ]
+        },
+        "alt_text": {
+          "mode": "palette",
+          "code": [
+            8
+          ]
+        },
+        "alt_text2": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "decor1": {
+          "mode": "palette",
+          "code": [
+            4
+          ]
+        },
+        "decor2": {
+          "mode": "palette",
+          "code": [
+            9
+          ]
+        },
+        "decor3": {
+          "mode": "palette",
+          "code": [
+            13
+          ]
+        },
+        "auction": {
+          "mode": "palette",
+          "code": [
+            5
+          ]
+        },
+        "auction_text": {
+          "mode": "palette",
+          "code": [
+            4
+          ]
+        },
+        "gossip": {
+          "mode": "palette",
+          "code": [
+            3
+          ]
+        },
+        "gossip_text": {
+          "mode": "palette",
+          "code": [
+            2
+          ]
+        },
+        "music": {
+          "mode": "palette",
+          "code": [
+            0
+          ]
+        },
+        "music_text": {
+          "mode": "palette",
+          "code": [
+            0
+          ]
+        },
+        "question": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "question_text": {
+          "mode": "palette",
+          "code": [
+            15
+          ]
+        },
+        "answer": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "answer_text": {
+          "mode": "palette",
+          "code": [
+            15
+          ]
+        },
+        "quote": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "quote_text": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "immtalk_text": {
+          "mode": "palette",
+          "code": [
+            3
+          ]
+        },
+        "immtalk_type": {
+          "mode": "palette",
+          "code": [
+            4
+          ]
+        },
+        "info": {
+          "mode": "palette",
+          "code": [
+            2
+          ]
+        },
+        "say": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        },
+        "say_text": {
+          "mode": "palette",
+          "code": [
+            15
+          ]
+        },
+        "tell": {
+          "mode": "palette",
+          "code": [
+            9
+          ]
+        },
+        "tell_text": {
+          "mode": "palette",
+          "code": [
+            8
+          ]
+        },
+        "reply": {
+          "mode": "palette",
+          "code": [
+            9
+          ]
+        },
+        "reply_text": {
+          "mode": "palette",
+          "code": [
+            8
+          ]
+        },
+        "gtell_text": {
+          "mode": "palette",
+          "code": [
+            0
+          ]
+        },
+        "gtell_type": {
+          "mode": "palette",
+          "code": [
+            2
+          ]
+        },
+        "wiznet": {
+          "mode": "palette",
+          "code": [
+            3
+          ]
+        },
+        "room_title": {
+          "mode": "palette",
+          "code": [
+            3
+          ]
+        },
+        "room_text": {
+          "mode": "palette",
+          "code": [
+            0
+          ]
+        },
+        "room_exits": {
+          "mode": "palette",
+          "code": [
+            0
+          ]
+        },
+        "room_things": {
+          "mode": "palette",
+          "code": [
+            0
+          ]
+        },
+        "prompt": {
+          "mode": "palette",
+          "code": [
+            10
+          ]
+        },
+        "fight_death": {
+          "mode": "rgb",
+          "code": [
+            136,
+            51,
+            34
+          ]
+        },
+        "fight_yhit": {
+          "mode": "palette",
+          "code": [
+            4
+          ]
+        },
+        "fight_ohit": {
+          "mode": "palette",
+          "code": [
+            2
+          ]
+        },
+        "fight_thit": {
+          "mode": "rgb",
+          "code": [
+            176,
+            51,
+            34
+          ]
+        },
+        "fight_skill": {
+          "mode": "palette",
+          "code": [
+            3
+          ]
+        },
+        "lox_comment": {
+          "mode": "palette",
+          "code": [
+            12
+          ]
+        },
+        "lox_string": {
+          "mode": "palette",
+          "code": [
+            3
+          ]
+        },
+        "lox_operator": {
+          "mode": "palette",
+          "code": [
+            8
+          ]
+        },
+        "lox_literal": {
+          "mode": "palette",
+          "code": [
+            10
+          ]
+        },
+        "lox_keyword": {
+          "mode": "palette",
+          "code": [
+            14
+          ]
+        }
+      }
+    }
+  ]
+}

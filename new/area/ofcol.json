@@ -1,0 +1,266 @@
+{
+  "formatVersion": 1,
+  "areadata": {
+    "version": 2,
+    "name": "Ofcol",
+    "builders": "",
+    "vnumRange": [
+      5500,
+      5599
+    ],
+    "credits": "None",
+    "security": 9,
+    "sector": "inside",
+    "lowLevel": 1,
+    "highLevel": 60,
+    "reset": 6,
+    "alwaysReset": false
+  },
+  "storyBeats": [],
+  "checklist": [],
+  "rooms": [
+    {
+      "vnum": 5550,
+      "name": "Village street",
+      "description": "You stand at the small village street in Ofcol.\n\rFrom here you see small houses and only few people.\n\rNorth of here the village street continues up to the small\n\rsquare where some people are gathered as always.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5551,
+          "description": "You look up the village street noticing nothing special at all.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 314,
+          "description": "The wide road leads south here towards the T-crossing.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 5551,
+      "name": "Village street",
+      "description": "You are standing on the village street of Ofcol.\n\rEast from here is a small alley and north you enter the village\n\rsquare. Towards the south you can leave Ofcol.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5552,
+          "description": "The village square is as usual not overcrowded.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 5553,
+          "description": "The small alley looks relative peaceful.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 5550,
+          "description": "You see the village street eventually becoming the wide road.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 5552,
+      "name": "Village square",
+      "description": "The village square is a place where inhabitants of Ofcol gather\n\rto talk, trade and sell items and just have a good time.\n\rYou see a small shop to the west and the local inn to the north.\n\rIf you leave south you go to village street.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5556,
+          "description": "You see a local inn called 'The Ofcol Local Inn'. Looks nice.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 5551,
+          "description": "You see the village street of Ofcol.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 5555,
+          "description": "A small shop with the sign 'Luxan's Mixed goods' hanging in front of it.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 5553,
+      "name": "The small alley",
+      "description": "You are in a small, quiet alley.  From here you see the village street\n\rto the west and a small room lies to the south.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 601,
+          "description": "You see a big intersection.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 5554,
+          "description": "It looks like the future site of a training room.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 5551,
+          "description": "You notice nothing but the village street.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 5554,
+      "name": "The future training room",
+      "description": "This is the future site of a training room.  The only exit is north\n\rleading to the small alley.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5553,
+          "description": "You are able to see the small alley, really not very interesting.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 5555,
+      "name": "Luxan's mixed shop",
+      "description": "You are standing in a small shop, filled with all kinds of goods.\n\rHere you might be able to find just the thing you're looking for.\n\rThe only exit is east to village square.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 5552,
+          "description": "The village square is as usual not overcrowded.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 5556,
+      "name": "The Local Inn",
+      "description": "You are in the local inn, where the peaceful citizens of Ofcol\n\rgather to have a drink or 5 if they have dry throats.\n\rYou can't help thinking that Ofcol is a dry city, when you see the\n\rmany people here.\n\rThe only exit is south to the village square.\n\r",
+      "roomFlags": [
+        "indoors",
+        "recall"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 5552,
+          "description": "The village square is as usual not overcrowded.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 5577,
+      "name": "Ravan's hideout",
+      "description": "This place is a small, cosy place where no one disturbs you all\n\rthe time. The room has little decoration except for some pictures\n\ron the wall.\n\rYou notice that there are no exits from this room.\n\r",
+      "roomFlags": [
+        "no_mob"
+      ],
+      "sectorType": "inside",
+      "extraDescs": [
+        {
+          "keyword": "pictures picture decoration",
+          "description": "These pictures show the friend's and foe's of Ravan.\n\rThey are easy to separate, as most of the foe's have the letters\n\rR.I.P. inscripted underneath them.\n\r"
+        },
+        {
+          "keyword": "foe foes enemies",
+          "description": "There is only one picture yet... Dim.\n\rIt pictures him hanging from a gallow, north of the town.\n\rIt has the letters R.I.P. inscripted underneath.\n\r"
+        },
+        {
+          "keyword": "friend friends",
+          "description": "The list include such prominent names as : God, Lottie, Kurgan,\n\rEzzard, Mike, Sprocket and Stormbringer.\n\r"
+        }
+      ]
+    }
+  ],
+  "mobiles": [],
+  "objects": [],
+  "shops": [],
+  "specials": [],
+  "mobprogs": [],
+  "resets": [
+    {
+      "mobVnum": 303,
+      "maxInArea": 5,
+      "roomVnum": 5550,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 304,
+      "maxInArea": 5,
+      "roomVnum": 5552,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3020,
+      "wearLoc": "wielded",
+      "roomVnum": 5552,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 304,
+      "maxInArea": 5,
+      "roomVnum": 5553,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 306,
+      "maxInArea": 1,
+      "roomVnum": 5555,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 304,
+      "roomVnum": 5555,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 3030,
+      "roomVnum": 5555,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 303,
+      "maxInArea": 5,
+      "roomVnum": 5556,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 308,
+      "maxInArea": 1,
+      "roomVnum": 5556,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3000,
+      "roomVnum": 5556,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 3001,
+      "roomVnum": 5556,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 350,
+      "maxInArea": 1,
+      "roomVnum": 5577,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    }
+  ],
+  "factions": [],
+  "quests": []
+}

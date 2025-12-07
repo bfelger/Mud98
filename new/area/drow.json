@@ -1,0 +1,2798 @@
+{
+  "formatVersion": 1,
+  "areadata": {
+    "version": 2,
+    "name": "Drow City",
+    "builders": "",
+    "vnumRange": [
+      5100,
+      5199
+    ],
+    "credits": "Drkside",
+    "security": 9,
+    "sector": "inside",
+    "lowLevel": 15,
+    "highLevel": 25,
+    "reset": 6,
+    "alwaysReset": false
+  },
+  "storyBeats": [],
+  "checklist": [],
+  "rooms": [
+    {
+      "vnum": 5100,
+      "name": "City Entrance",
+      "description": "You are at the entrance to a small underground city. A great adamantite\n\rgate lies open to the west allowing entrance into the city.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 5101,
+          "description": "A huge gate opens to the west allowing entrance into the city.",
+          "keyword": "gate"
+        },
+        {
+          "dir": "up",
+          "toVnum": 5270,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "A small hole in the ceiling leads up into darkness.",
+          "keyword": "door"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "gate",
+          "description": "A large adamantite gate with giant spider shaped emblems stands here.\n\r"
+        },
+        {
+          "keyword": "hole",
+          "description": "A small hole that looks to have been sealed at one time.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 5101,
+      "name": "City street",
+      "description": "You walk along a highly ornate street going north-south. A large gate\n\rlies to the east while a building lies to the west.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5123
+        },
+        {
+          "dir": "east",
+          "toVnum": 5100
+        },
+        {
+          "dir": "south",
+          "toVnum": 5102
+        },
+        {
+          "dir": "west",
+          "toVnum": 5122
+        }
+      ]
+    },
+    {
+      "vnum": 5102,
+      "name": "City street",
+      "description": "You walk along a highly ornate city street going north and west.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5101
+        },
+        {
+          "dir": "west",
+          "toVnum": 5103
+        }
+      ]
+    },
+    {
+      "vnum": 5103,
+      "name": "City street",
+      "description": "You walk along a highly ornate city street going east-west. A large house\n\rstands to the south.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 5102
+        },
+        {
+          "dir": "south",
+          "toVnum": 5104
+        },
+        {
+          "dir": "west",
+          "toVnum": 5106
+        }
+      ]
+    },
+    {
+      "vnum": 5104,
+      "name": "3rd House",
+      "description": "You stand inside the 3rd house of the city; it is fairly well decorated\n\rby drow standards having a few statues, murals and such. A door leads to the\n\rsouth.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5103
+        },
+        {
+          "dir": "south",
+          "toVnum": 5105,
+          "flags": [
+            "door"
+          ]
+        }
+      ]
+    },
+    {
+      "vnum": 5105,
+      "name": "Throne Room",
+      "description": "The throne room of the 3rd house is about as decorated as the inner\n\rcourtyard except with a blood covered altar in the center of the room.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5104,
+          "flags": [
+            "door"
+          ]
+        }
+      ]
+    },
+    {
+      "vnum": 5106,
+      "name": "City street",
+      "description": "You walk along a highly ornate city street going east-west. To the north\n\ris a large building.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5118
+        },
+        {
+          "dir": "east",
+          "toVnum": 5103
+        },
+        {
+          "dir": "west",
+          "toVnum": 5107
+        }
+      ]
+    },
+    {
+      "vnum": 5107,
+      "name": "City street",
+      "description": "You walk along a highly ornate city street leading north and east. To the\n\rsouth is an extremely large house.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5110
+        },
+        {
+          "dir": "east",
+          "toVnum": 5106
+        },
+        {
+          "dir": "south",
+          "toVnum": 5108
+        }
+      ]
+    },
+    {
+      "vnum": 5108,
+      "name": "2nd House",
+      "description": "You stand inside the 2nd house of the city. The room is highly decorated\n\rwith statues of spiders and murals everywhere.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5107
+        },
+        {
+          "dir": "west",
+          "toVnum": 5109,
+          "flags": [
+            "door"
+          ]
+        }
+      ]
+    },
+    {
+      "vnum": 5109,
+      "name": "Throne Room",
+      "description": "The throne room of the 2nd house is just a little more decorative than\n\rthe inner courtyard having an altar in the center of the room.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 5108,
+          "flags": [
+            "door"
+          ]
+        }
+      ]
+    },
+    {
+      "vnum": 5110,
+      "name": "Main Gate",
+      "description": "You are at the entrance to the 1st house of the city. A large gate, almost\n\ras big and elegant as the one at the entrance to the city, stands here.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5114
+        },
+        {
+          "dir": "south",
+          "toVnum": 5107
+        },
+        {
+          "dir": "west",
+          "toVnum": 5111,
+          "flags": [
+            "door"
+          ],
+          "description": "A large gate lies to the west.",
+          "keyword": "gate"
+        }
+      ]
+    },
+    {
+      "vnum": 5111,
+      "name": "1st House",
+      "description": "You stand in the inner courtyard of the 1st and largest house in the city.\n\rThe room is extremely large and decorative. Mural and paintings hang on the\n\rwalls depicting some battles and a spider queen.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 5110,
+          "flags": [
+            "door"
+          ]
+        },
+        {
+          "dir": "west",
+          "toVnum": 5112
+        }
+      ]
+    },
+    {
+      "vnum": 5112,
+      "name": "Throne Room",
+      "description": "The throne room of the 1st house is in one word...awesome. It is so\n\rhorrifying it is almost beautiful.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5113,
+          "flags": [
+            "door"
+          ]
+        },
+        {
+          "dir": "east",
+          "toVnum": 5111
+        }
+      ]
+    },
+    {
+      "vnum": 5113,
+      "name": "Main Chamber",
+      "description": "This is the council chamber for the Matron Mother herself. A huge table\n\rand chairs surrounding it sits in the center of the room.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 5112,
+          "flags": [
+            "door"
+          ]
+        }
+      ]
+    },
+    {
+      "vnum": 5114,
+      "name": "City street",
+      "description": "You walk along a highly ornate city street leading north-south and east.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5115
+        },
+        {
+          "dir": "east",
+          "toVnum": 5117
+        },
+        {
+          "dir": "south",
+          "toVnum": 5110
+        }
+      ]
+    },
+    {
+      "vnum": 5115,
+      "name": "City street",
+      "description": "You walk along a highly ornate city street leading south. A building is\n\rto the west.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 5114
+        },
+        {
+          "dir": "west",
+          "toVnum": 5116,
+          "flags": [
+            "door"
+          ]
+        }
+      ]
+    },
+    {
+      "vnum": 5116,
+      "name": "Cleric Academy",
+      "description": "This is the most lavish of the academies being that it is for the clerics.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 5115,
+          "flags": [
+            "door"
+          ]
+        }
+      ]
+    },
+    {
+      "vnum": 5117,
+      "name": "City street",
+      "description": "You walk along a highly ornate city street going east-west. To the north\n\ris a giant temple.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5119,
+          "flags": [
+            "door"
+          ],
+          "description": "The entrance to the temple of Lloth."
+        },
+        {
+          "dir": "east",
+          "toVnum": 5121
+        },
+        {
+          "dir": "west",
+          "toVnum": 5114
+        }
+      ]
+    },
+    {
+      "vnum": 5118,
+      "name": "Warrior's Academy",
+      "description": "This looks more like a barracks than a school.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 5106
+        }
+      ]
+    },
+    {
+      "vnum": 5119,
+      "name": "Entrance to the Temple of Lloth",
+      "description": "The temple is the largest building in the city. Even it's doors are beyond\n\rimagination. Inside of the temple entrance, the walls are made of gold and\n\radamantite.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 5117,
+          "flags": [
+            "door"
+          ]
+        },
+        {
+          "dir": "down",
+          "toVnum": 5126
+        }
+      ]
+    },
+    {
+      "vnum": 5120,
+      "name": "Mage's Academy",
+      "description": "The mages academy is fairly well decorated see that the drow prefer magic\n\rover physical power greatly.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 5121,
+          "flags": [
+            "door"
+          ]
+        }
+      ]
+    },
+    {
+      "vnum": 5121,
+      "name": "City street",
+      "description": "You walk along a highly ornate city street going eastward. To the north is\n\ra building.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5120,
+          "flags": [
+            "door"
+          ]
+        },
+        {
+          "dir": "east",
+          "toVnum": 5123
+        },
+        {
+          "dir": "south",
+          "toVnum": 5122
+        },
+        {
+          "dir": "west",
+          "toVnum": 5117
+        }
+      ]
+    },
+    {
+      "vnum": 5122,
+      "name": "Slave Chamber",
+      "description": "The room is in shambles. Straw is strewn all about the room as beds for the\n\runfortunate creatures who have fallen prey to drow imperialism.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5121
+        },
+        {
+          "dir": "east",
+          "toVnum": 5101
+        }
+      ]
+    },
+    {
+      "vnum": 5123,
+      "name": "City street",
+      "description": "You walk along a highly ornate city street leading west and south. To the\n\rnorth is a relatively small house.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5124,
+          "flags": [
+            "door"
+          ]
+        },
+        {
+          "dir": "south",
+          "toVnum": 5101
+        },
+        {
+          "dir": "west",
+          "toVnum": 5121
+        }
+      ]
+    },
+    {
+      "vnum": 5124,
+      "name": "4th house",
+      "description": "You stand inside the 4th house of the city. Its inner courtyard is rather\n\rdull by drow standards and rather small as well.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 5125
+        },
+        {
+          "dir": "south",
+          "toVnum": 5123,
+          "flags": [
+            "door"
+          ]
+        }
+      ]
+    },
+    {
+      "vnum": 5125,
+      "name": "Throne Room",
+      "description": "The throne room is basically similar to the inner courtyard in regards\n\rto decor. there is a small throne behind the altar but that is about it.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 5124
+        }
+      ]
+    },
+    {
+      "vnum": 5126,
+      "name": "Entrance Way",
+      "description": "You stand in the entrance way to the temple which opens up to the north\n\rinto a large hallway going east and west. Small statues of spiders line the\n\rentrance way's walls.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5127
+        },
+        {
+          "dir": "up",
+          "toVnum": 5119
+        }
+      ]
+    },
+    {
+      "vnum": 5127,
+      "name": "Hallway",
+      "description": "You are in a long hallway lined with adamantite. The walls are engraved\n\rwith pictures of elves and spiders. The hallway continues east and west. As you\n\rlook down the hallway you can make out one or two figures moving away from you.\n\rTo the north is a obsidian stairway.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5135
+        },
+        {
+          "dir": "east",
+          "toVnum": 5128
+        },
+        {
+          "dir": "south",
+          "toVnum": 5126
+        },
+        {
+          "dir": "west",
+          "toVnum": 5131
+        }
+      ]
+    },
+    {
+      "vnum": 5128,
+      "name": "Long Hallway",
+      "description": "You are in a long hallway lined with adamantite. The walls are engraved\n\rwith pictures of elves and spiders. The hallway continues east and west. As you\n\rlook down the hallway you can make out one or two figures moving away from you.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 5129
+        },
+        {
+          "dir": "west",
+          "toVnum": 5127
+        }
+      ]
+    },
+    {
+      "vnum": 5129,
+      "name": "Long Hallway",
+      "description": "You are in a long hallway lined with adamantite. The walls are engraved\n\rwith pictures of elves and spiders. The hallway continues east and west. As you\n\rlook down the hallway you can make out one or two figures moving away from you.\n\rTo the north is a door.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5150,
+          "flags": [
+            "door"
+          ]
+        },
+        {
+          "dir": "east",
+          "toVnum": 5130
+        },
+        {
+          "dir": "west",
+          "toVnum": 5128
+        }
+      ]
+    },
+    {
+      "vnum": 5130,
+      "name": "Long Hallway",
+      "description": "You are in a long hallway lined with adamantite. The walls are engraved\n\rwith pictures of elves and spiders. The hallway continues east and west. As you\n\rlook down the hallway you can make out one or two figures moving away from you.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 5134
+        },
+        {
+          "dir": "west",
+          "toVnum": 5129
+        }
+      ]
+    },
+    {
+      "vnum": 5131,
+      "name": "Long Hallway",
+      "description": "You are in a long hallway lined with adamantite. The walls are engraved\n\rwith pictures of elves and spiders. The hallway continues east and west. As you\n\rlook down the hallway you can make out one or two figures moving away from you.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 5127
+        },
+        {
+          "dir": "west",
+          "toVnum": 5132
+        }
+      ]
+    },
+    {
+      "vnum": 5132,
+      "name": "Long Hallway",
+      "description": "You are in a long hallway lined with adamantite. The walls are engraved\n\rwith pictures of elves and spiders. The hallway continues east and west. As you\n\rlook down the hallway you can make out one or two figures moving away from you.\n\rTo the south is a door.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 5131
+        },
+        {
+          "dir": "south",
+          "toVnum": 5133,
+          "flags": [
+            "door"
+          ]
+        },
+        {
+          "dir": "west",
+          "toVnum": 5134
+        }
+      ]
+    },
+    {
+      "vnum": 5133,
+      "name": "Warrior's Barracks",
+      "description": "The room is a complete mess. None of the beds are made, clothes and other\n\ritems have been left all about the room. Well drow warriors never were known\n\rfor neatness.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5132,
+          "flags": [
+            "door"
+          ]
+        }
+      ]
+    },
+    {
+      "vnum": 5134,
+      "name": "Long Hallway",
+      "description": "You are in a long hallway lined with adamantite. The walls are engraved\n\rwith pictures of elves and spiders. The hallway continues east and west. As you\n\rlook down the hallway you can make out one or two figures moving away from you.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 5132
+        },
+        {
+          "dir": "west",
+          "toVnum": 5130
+        }
+      ]
+    },
+    {
+      "vnum": 5135,
+      "name": "Grand Stairway",
+      "description": "You are standing at the bottom of a giant obsidian and adamantite\n\rstairway. The edges are trimmed with gold.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 5127
+        },
+        {
+          "dir": "up",
+          "toVnum": 5136
+        }
+      ]
+    },
+    {
+      "vnum": 5136,
+      "name": "Grand Hallway",
+      "description": "You are standing in the middle of a grand hallway. The walls are\n\rof the purest adamantite with gold trim. Mosaics line the walls.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5138
+        },
+        {
+          "dir": "east",
+          "toVnum": 5137,
+          "flags": [
+            "door"
+          ]
+        },
+        {
+          "dir": "down",
+          "toVnum": 5135
+        }
+      ]
+    },
+    {
+      "vnum": 5137,
+      "name": "Mage's Barracks",
+      "description": "The mage's living quarters is rather clean with the exception of a few\n\rused component containers. It is rather well decorated as well. Cots line the\n\rfloor for the mages to sleep on. the only door is to the west.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 5136,
+          "flags": [
+            "door"
+          ]
+        }
+      ]
+    },
+    {
+      "vnum": 5138,
+      "name": "Grand Hallway",
+      "description": "You are walking down a grand hallway, heavily decorated with adamantite\n\rand gold. To the north the hall goes down a flight of stairs while a door is\n\rtoo the west.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 5136
+        },
+        {
+          "dir": "west",
+          "toVnum": 5139,
+          "flags": [
+            "door"
+          ]
+        },
+        {
+          "dir": "down",
+          "toVnum": 5140
+        }
+      ]
+    },
+    {
+      "vnum": 5139,
+      "name": "Cleric's Barracks",
+      "description": "The bed chamber is brightly decorated with spider shaped statues, murals\n\rand the like. Large beds line the floor making this a comfortable room to live\n\rin.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 5138,
+          "flags": [
+            "door"
+          ]
+        }
+      ]
+    },
+    {
+      "vnum": 5140,
+      "name": "Grand Stairway",
+      "description": "You are climbing a set of obsidian stairs surrounded by adamantite walls.\n\rTo the north are a set of large golden doors.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5141,
+          "flags": [
+            "door"
+          ]
+        },
+        {
+          "dir": "up",
+          "toVnum": 5138
+        }
+      ]
+    },
+    {
+      "vnum": 5141,
+      "name": "Main Chamber",
+      "description": "This is the south side of a large auditorium used for services by the\n\rdrow priestesses. In the center is a large sacrificial pit and beyond that is\n\ran altar.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 5142
+        },
+        {
+          "dir": "south",
+          "toVnum": 5140,
+          "flags": [
+            "door"
+          ]
+        },
+        {
+          "dir": "west",
+          "toVnum": 5144
+        }
+      ]
+    },
+    {
+      "vnum": 5142,
+      "name": "Eastern side of Chamber",
+      "description": "You are on the eastern side of the chamber overlooking the pit. To the east\n\ris a door while to the north is an altar.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5145
+        },
+        {
+          "dir": "east",
+          "toVnum": 5146,
+          "flags": [
+            "door"
+          ]
+        },
+        {
+          "dir": "south",
+          "toVnum": 5141
+        }
+      ]
+    },
+    {
+      "vnum": 5143,
+      "name": "Sacrificial Pit",
+      "description": "A you climb down into the pit thousands of spiders cover you tearing your\n\rbody to shreds.\n\r\n\rLloth thanks you for your sacrifice.\n\r\n\rYou've fallen, and you can't get up!!!\n\r",
+      "roomFlags": [
+        "no_mob",
+        "indoors"
+      ],
+      "sectorType": "inside"
+    },
+    {
+      "vnum": 5144,
+      "name": "Western side of Chamber",
+      "description": "You are on the western side of the main chamber overlooking a sacrificial\n\rpit. To the north is an altar.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5145
+        },
+        {
+          "dir": "south",
+          "toVnum": 5141
+        }
+      ]
+    },
+    {
+      "vnum": 5145,
+      "name": "The Altar",
+      "description": "You are standing in front of a highly and freshly bloodstained altar.\n\rEngraved on the top of the altar is a giant spider with a human head. Looking\n\rdown from the altar you see a large sacrificial pit.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5148
+        },
+        {
+          "dir": "east",
+          "toVnum": 5142
+        },
+        {
+          "dir": "west",
+          "toVnum": 5144
+        },
+        {
+          "dir": "down",
+          "toVnum": 5143
+        }
+      ]
+    },
+    {
+      "vnum": 5146,
+      "name": "Slave Cells",
+      "description": "This is the main room to the cell chambers for the slaves to be\n\rsacrificed. You notice there are no guards around.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5147,
+          "flags": [
+            "door"
+          ]
+        },
+        {
+          "dir": "west",
+          "toVnum": 5142
+        }
+      ]
+    },
+    {
+      "vnum": 5147,
+      "name": "Slave Pen",
+      "description": "Rotten meat and breads lie about the floor while shackles hang from the\n\rwalls. The room wreaks of death. You almost become nauseous and decide to leave\n\rthe room since you were obviously too late to save the slave.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 5146,
+          "flags": [
+            "door"
+          ]
+        }
+      ]
+    },
+    {
+      "vnum": 5148,
+      "name": "Dais",
+      "description": "You stand upon a dais behind the altar. Above you is a enormous illusion\n\rof a female drow turning into a giant spider and back again. There is a door\n\rto the west.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 5145
+        },
+        {
+          "dir": "west",
+          "toVnum": 5149,
+          "flags": [
+            "door"
+          ]
+        }
+      ]
+    },
+    {
+      "vnum": 5149,
+      "name": "The Treasury",
+      "description": "This is obviously only a temporary storage place for the collected\n\rtreasure being rather bare.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 5148,
+          "flags": [
+            "door"
+          ]
+        }
+      ]
+    },
+    {
+      "vnum": 5150,
+      "name": "Weaponsmaster's Chamber",
+      "description": "This one person bedchamber is very elegant. The owner must be held in high\n\rto get this kind of treatment.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 5129,
+          "flags": [
+            "door"
+          ]
+        }
+      ]
+    }
+  ],
+  "mobiles": [
+    {
+      "vnum": 5100,
+      "name": "oldstyle goblin slave",
+      "shortDescr": "the goblin slave",
+      "longDescr": "A goblin slave lies here asleep.\n\r",
+      "description": "The defenseless goblin begs for mercy.\n\r",
+      "race": "goblin",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "wimpy"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "disease"
+      ],
+      "vulnFlags": [
+        "magic"
+      ],
+      "alignment": -450,
+      "group": 0,
+      "level": 1,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 10
+      },
+      "manaDice": {
+        "number": 0,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 4
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 9,
+        "bash": 9,
+        "slash": 9,
+        "exotic": 10
+      },
+      "startPos": "sleeping",
+      "defaultPos": "sleeping",
+      "sex": "male",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 5101,
+      "name": "oldstyle drow commoner",
+      "shortDescr": "the drow commoner",
+      "longDescr": "A drow commoner walks on guard duty.\n\r",
+      "description": "I doubt he is the type to give directions.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "aggressive",
+        "stay_area"
+      ],
+      "actFlagsValue": 105,
+      "affectFlags": [
+        "detect_invis"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 10,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 121
+      },
+      "manaDice": {
+        "number": 5,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 4,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 1,
+        "bash": 1,
+        "slash": 1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 15,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 5102,
+      "name": "oldstyle drow noble warrior",
+      "shortDescr": "the drow warrior noble",
+      "longDescr": "The drow warrior noble stands here guarding his home.\n\r",
+      "description": "He looks pissed off!\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "detect_invis"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 14,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 190
+      },
+      "manaDice": {
+        "number": 7,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 12,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -1,
+        "bash": -1,
+        "slash": -1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 50,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 5103,
+      "name": "oldstyle drow noble mage",
+      "shortDescr": "the drow mage noble",
+      "longDescr": "The drow mage noble is here protecting his home.\n\r",
+      "description": "The mage prepares to cast a spell ... at you!!\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive",
+        "mage"
+      ],
+      "affectFlags": [
+        "detect_invis"
+      ],
+      "atkFlags": [
+        "dodge",
+        "assist_vnum"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 15,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 190
+      },
+      "manaDice": {
+        "number": 15,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 10,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -1,
+        "bash": -1,
+        "slash": -1,
+        "exotic": 5
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 100,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 5104,
+      "name": "oldstyle drow priestess",
+      "shortDescr": "the drow priestess",
+      "longDescr": "The drow priestess is here shouting orders.\n\r",
+      "description": "I wouldn't want go get on her bad side!\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive",
+        "cleric"
+      ],
+      "affectFlags": [
+        "detect_invis"
+      ],
+      "atkFlags": [
+        "disarm",
+        "kick",
+        "parry",
+        "assist_vnum"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 17,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 258
+      },
+      "manaDice": {
+        "number": 17,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 4
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -3,
+        "bash": -3,
+        "slash": -3,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 200,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 5105,
+      "name": "oldstyle drow master",
+      "shortDescr": "The drow master",
+      "longDescr": "The drow master stares at you angrily.\n\r",
+      "description": "The drow master is ALWAYS ready for a fight.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "detect_invis"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 21,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 4,
+        "type": 10,
+        "bonus": 360
+      },
+      "manaDice": {
+        "number": 10,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 4,
+        "bonus": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -5,
+        "bash": -5,
+        "slash": -5,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 5106,
+      "name": "oldstyle drow weapons master",
+      "shortDescr": "The weapons master",
+      "longDescr": "The drow weapons master is here shadow boxing.\n\r",
+      "description": "He definitely knows his way around in combat.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "detect_invis"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 23,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 450
+      },
+      "manaDice": {
+        "number": 11,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 3,
+        "type": 6,
+        "bonus": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -6,
+        "bash": -6,
+        "slash": -6,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 750,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 5107,
+      "name": "oldstyle drow matron mother",
+      "shortDescr": "the matron mother",
+      "longDescr": "The matron mother of the house is standing here.\n\r",
+      "description": "She looks really pissed off!\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "detect_invis"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 24,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 500
+      },
+      "manaDice": {
+        "number": 12,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -6,
+        "bash": -6,
+        "slash": -6,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 1500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 5108,
+      "name": "oldstyle drow matron mother",
+      "shortDescr": "the matron mother",
+      "longDescr": "The matron mother of the 1st house is waiting for you.\n\r",
+      "description": "She looks like she is about to rip your head off and eat it.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive",
+        "cleric"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "disarm",
+        "kick",
+        "parry",
+        "assist_vnum"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 26,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 600
+      },
+      "manaDice": {
+        "number": 26,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 7
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -7,
+        "bash": -7,
+        "slash": -7,
+        "exotic": 5
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 1500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 5109,
+      "name": "oldstyle yochlol",
+      "shortDescr": "the yochlol",
+      "longDescr": "A yochlol forms out of a swirling mist.\n\r",
+      "description": "The yochlol is not in a good mood.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 35,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 10,
+        "type": 10,
+        "bonus": 1300
+      },
+      "manaDice": {
+        "number": 17,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 7,
+        "bonus": 11
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -11,
+        "bash": -11,
+        "slash": -11,
+        "exotic": 5
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 1500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 5110,
+      "name": "oldstyle drow guard",
+      "shortDescr": "the drow guard",
+      "longDescr": "The drow guard is here staring at you ominously.\n\r",
+      "description": "The drow guard blends so well with his environment, you barely see his form.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "infrared",
+        "hide"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 12,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 150
+      },
+      "manaDice": {
+        "number": 6,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 10,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 0,
+        "bash": 0,
+        "slash": 0,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 250,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 5111,
+      "name": "oldstyle drow scout",
+      "shortDescr": "the drow scout",
+      "longDescr": "The drow scout is here sneaking among the shadows.\n\r",
+      "description": "The drow scout blends so well with her environment, you barely see her form.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "aggressive",
+        "wimpy"
+      ],
+      "affectFlags": [
+        "sneak",
+        "hide"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 11,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 134
+      },
+      "manaDice": {
+        "number": 5,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 10,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 1,
+        "bash": 1,
+        "slash": 1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 50,
+      "size": "medium",
+      "material": "0"
+    }
+  ],
+  "objects": [
+    {
+      "vnum": 5100,
+      "name": "longsword commoner",
+      "shortDescr": "a commoner's longsword",
+      "description": "A commoner's longsword made of adamantite has been left here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "sword",
+        "dice": [
+          2,
+          6
+        ],
+        "damageType": "slash"
+      },
+      "level": 11,
+      "weight": 20,
+      "cost": 910,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 11,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 11,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 5101,
+      "name": "longsword noble",
+      "shortDescr": "a noble's longsword",
+      "description": "A drow noble's longsword made of adamantite lies here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "sword",
+        "dice": [
+          2,
+          7
+        ],
+        "damageType": "slash"
+      },
+      "level": 15,
+      "weight": 10,
+      "cost": 1510,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 15,
+          "duration": -1,
+          "modifier": 2
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 15,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 5102,
+      "name": "whip snake two-headed",
+      "shortDescr": "a snake headed whip",
+      "description": "A whip with two snakes heads lies here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "glow",
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "whip",
+        "dice": [
+          2,
+          6
+        ],
+        "damageType": "whip",
+        "flags": [
+          "twohands"
+        ]
+      },
+      "level": 11,
+      "weight": 10,
+      "cost": 920,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 11,
+          "duration": -1,
+          "modifier": 2
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 11,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 5103,
+      "name": "whip snake three-headed",
+      "shortDescr": "a snake headed whip",
+      "description": "A whip with three snake heads has been left here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "glow",
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "whip",
+        "dice": [
+          2,
+          7
+        ],
+        "damageType": "whip"
+      },
+      "level": 15,
+      "weight": 10,
+      "cost": 1020,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 15,
+          "duration": -1,
+          "modifier": 2
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 15,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 5104,
+      "name": "whip snake four-headed",
+      "shortDescr": "a snake headed whip",
+      "description": "A whip with four snake heads has been left here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "glow",
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "whip",
+        "dice": [
+          4,
+          5
+        ],
+        "damageType": "whip"
+      },
+      "level": 24,
+      "weight": 10,
+      "cost": 1530,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 24,
+          "duration": -1,
+          "modifier": 2
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 24,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 5105,
+      "name": "longsword black",
+      "shortDescr": "a black longsword",
+      "description": "A black longsword has been carelessly left here.",
+      "material": "adamantite",
+      "itemType": "weapon",
+      "extraFlags": [
+        "glow",
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "sword",
+        "dice": [
+          3,
+          6
+        ],
+        "damageType": "slash"
+      },
+      "level": 21,
+      "cost": 2100,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 21,
+          "duration": -1,
+          "modifier": 2
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 21,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 5106,
+      "name": "whip snake five-headed",
+      "shortDescr": "a snake headed whip",
+      "description": "A whip with five snake heads is lying here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "glow",
+        "magic",
+        "antigood"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "whip",
+        "dice": [
+          3,
+          6
+        ],
+        "damageType": "whip"
+      },
+      "level": 14,
+      "cost": 10,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "strength",
+          "level": 14,
+          "duration": -1,
+          "modifier": -1
+        },
+        {
+          "where": "object",
+          "location": "intelligence",
+          "level": 14,
+          "duration": -1,
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "vnum": 5107,
+      "name": "whip snake six-headed",
+      "shortDescr": "a snake headed whip",
+      "description": "A whip with six snake heads has been dropped here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "glow",
+        "magic",
+        "antigood"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "whip",
+        "dice": [
+          4,
+          5
+        ],
+        "damageType": "whip"
+      },
+      "level": 13,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "strength",
+          "level": 13,
+          "duration": -1,
+          "modifier": -2
+        },
+        {
+          "where": "object",
+          "location": "intelligence",
+          "level": 13,
+          "duration": -1,
+          "modifier": -2
+        }
+      ]
+    },
+    {
+      "vnum": 5108,
+      "name": "bracer iron",
+      "shortDescr": "an iron bracer",
+      "description": "An iron bracer has been dropped here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "glow",
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "wrist"
+      ],
+      "armor": {
+        "acPierce": 4,
+        "acBash": 7,
+        "acSlash": 7,
+        "acExotic": 2
+      },
+      "level": 15,
+      "weight": 30,
+      "cost": 1150,
+      "condition": 100
+    },
+    {
+      "vnum": 5109,
+      "name": "gauntlets iron",
+      "shortDescr": "a pair of gauntlets",
+      "description": "A pair of gauntlets has been dropped here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "glow"
+      ],
+      "wearFlags": [
+        "take",
+        "hands"
+      ],
+      "armor": {
+        "acPierce": 5,
+        "acBash": 5,
+        "acSlash": 5
+      },
+      "level": 17,
+      "weight": 20,
+      "cost": 3600,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "strength",
+          "level": 17,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 5110,
+      "name": "wand blue silver",
+      "shortDescr": "a silvery blue wand",
+      "description": "A silvery blue wand has been dropped in the dirt.",
+      "material": "oldstyle",
+      "itemType": "wand",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "wand": {
+        "level": 10,
+        "chargesTotal": 3,
+        "spell": "lightning bolt"
+      },
+      "level": 9,
+      "weight": 10,
+      "cost": 1550,
+      "condition": 100
+    },
+    {
+      "vnum": 5111,
+      "name": "helmet helm",
+      "shortDescr": "a small helmet",
+      "description": "A small helmet lies up against a rock.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "head"
+      ],
+      "armor": {
+        "acPierce": 4,
+        "acBash": 4,
+        "acSlash": 4
+      },
+      "level": 16,
+      "weight": 50,
+      "cost": 3300,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "intelligence",
+          "level": 16,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 5112,
+      "name": "ring ruby",
+      "shortDescr": "a small ruby ring",
+      "description": "A small ruby ring lies in the dirt.",
+      "material": "oldstyle",
+      "itemType": "jewelry",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "finger"
+      ],
+      "level": 25,
+      "weight": 10,
+      "cost": 980,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hp",
+          "level": 25,
+          "duration": -1,
+          "modifier": 25
+        }
+      ]
+    },
+    {
+      "vnum": 5113,
+      "name": "dagger sacrificial",
+      "shortDescr": "a spider shaped dagger",
+      "description": "A dagger with spider leg shaped blades lies on the ground.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "magic",
+        "antigood"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "dagger",
+        "dice": [
+          4,
+          6
+        ],
+        "damageType": "stab"
+      },
+      "level": 30,
+      "weight": 20,
+      "cost": 3300,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 30,
+          "duration": -1,
+          "modifier": 3
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 30,
+          "duration": -1,
+          "modifier": 3
+        }
+      ]
+    },
+    {
+      "vnum": 5114,
+      "name": "hat green",
+      "shortDescr": "a small bright green hat",
+      "description": "A small bright green hat lies in the dirt.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "nodrop"
+      ],
+      "wearFlags": [
+        "take",
+        "head"
+      ],
+      "armor": {
+        "acPierce": 4,
+        "acBash": 5,
+        "acSlash": 5
+      },
+      "level": 12,
+      "weight": 10,
+      "cost": 1180,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 12,
+          "duration": -1,
+          "modifier": -2
+        }
+      ]
+    }
+  ],
+  "shops": [],
+  "specials": [
+    {
+      "mobVnum": 5103,
+      "spec": "spec_cast_mage"
+    },
+    {
+      "mobVnum": 5104,
+      "spec": "spec_cast_cleric"
+    },
+    {
+      "mobVnum": 5108,
+      "spec": "spec_cast_cleric"
+    },
+    {
+      "mobVnum": 5109,
+      "spec": "spec_breath_any"
+    }
+  ],
+  "mobprogs": [],
+  "resets": [
+    {
+      "mobVnum": 5106,
+      "maxInArea": 2,
+      "roomVnum": 5101,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 5105,
+      "wearLoc": "wielded",
+      "roomVnum": 5101,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 5102,
+      "maxInArea": 4,
+      "roomVnum": 5104,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 5101,
+      "wearLoc": "wielded",
+      "roomVnum": 5104,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 5103,
+      "maxInArea": 4,
+      "roomVnum": 5104,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 5102,
+      "wearLoc": "wielded",
+      "roomVnum": 5104,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 5104,
+      "maxInArea": 4,
+      "roomVnum": 5104,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 5103,
+      "wearLoc": "wielded",
+      "roomVnum": 5104,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 5107,
+      "maxInArea": 3,
+      "roomVnum": 5105,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 5104,
+      "wearLoc": "wielded",
+      "roomVnum": 5105,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 5111,
+      "wearLoc": "over the head",
+      "roomVnum": 5105,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 5102,
+      "maxInArea": 4,
+      "roomVnum": 5108,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 5101,
+      "wearLoc": "wielded",
+      "roomVnum": 5108,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 5103,
+      "maxInArea": 4,
+      "roomVnum": 5108,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 5102,
+      "wearLoc": "wielded",
+      "roomVnum": 5108,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 5104,
+      "maxInArea": 4,
+      "roomVnum": 5108,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 5103,
+      "wearLoc": "wielded",
+      "roomVnum": 5108,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 5107,
+      "maxInArea": 3,
+      "roomVnum": 5109,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 5104,
+      "wearLoc": "wielded",
+      "roomVnum": 5109,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 5108,
+      "wearLoc": "on the arms",
+      "roomVnum": 5109,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 5102,
+      "maxInArea": 4,
+      "roomVnum": 5111,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 5101,
+      "wearLoc": "wielded",
+      "roomVnum": 5111,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 5103,
+      "maxInArea": 4,
+      "roomVnum": 5111,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 5102,
+      "wearLoc": "wielded",
+      "roomVnum": 5111,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 5104,
+      "maxInArea": 4,
+      "roomVnum": 5111,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 5103,
+      "wearLoc": "wielded",
+      "roomVnum": 5111,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 5108,
+      "maxInArea": 1,
+      "roomVnum": 5113,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 5104,
+      "wearLoc": "wielded",
+      "roomVnum": 5113,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 5112,
+      "wearLoc": "on the left finger",
+      "roomVnum": 5113,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 5105,
+      "maxInArea": 3,
+      "roomVnum": 5116,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 5104,
+      "wearLoc": "wielded",
+      "roomVnum": 5116,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 5110,
+      "wearLoc": "held in the hands",
+      "roomVnum": 5116,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 5101,
+      "maxInArea": 10,
+      "roomVnum": 5118,
+      "maxInRoom": 5,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 5100,
+      "wearLoc": "wielded",
+      "roomVnum": 5118,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 5105,
+      "maxInArea": 3,
+      "roomVnum": 5118,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 5105,
+      "wearLoc": "wielded",
+      "roomVnum": 5118,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 5110,
+      "wearLoc": "held in the hands",
+      "roomVnum": 5118,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 5105,
+      "maxInArea": 3,
+      "roomVnum": 5120,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 5104,
+      "wearLoc": "wielded",
+      "roomVnum": 5120,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 5110,
+      "wearLoc": "held in the hands",
+      "roomVnum": 5120,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 5100,
+      "maxInArea": 15,
+      "roomVnum": 5122,
+      "maxInRoom": 15,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 5102,
+      "maxInArea": 4,
+      "roomVnum": 5124,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 5101,
+      "wearLoc": "wielded",
+      "roomVnum": 5124,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 5103,
+      "maxInArea": 4,
+      "roomVnum": 5124,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 5102,
+      "wearLoc": "wielded",
+      "roomVnum": 5124,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 5104,
+      "maxInArea": 4,
+      "roomVnum": 5124,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 5103,
+      "wearLoc": "wielded",
+      "roomVnum": 5124,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 5107,
+      "maxInArea": 3,
+      "roomVnum": 5125,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 5104,
+      "wearLoc": "wielded",
+      "roomVnum": 5125,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 5114,
+      "roomVnum": 5125,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 5101,
+      "maxInArea": 10,
+      "roomVnum": 5133,
+      "maxInRoom": 5,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 5100,
+      "wearLoc": "wielded",
+      "roomVnum": 5133,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 5109,
+      "maxInArea": 1,
+      "roomVnum": 5148,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 5113,
+      "wearLoc": "wielded",
+      "roomVnum": 5148,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 5106,
+      "maxInArea": 2,
+      "roomVnum": 5150,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 5105,
+      "wearLoc": "wielded",
+      "roomVnum": 5150,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 5109,
+      "wearLoc": "on the hands",
+      "roomVnum": 5150,
+      "commandName": "equipObj"
+    }
+  ],
+  "factions": [],
+  "quests": []
+}

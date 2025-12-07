@@ -1,0 +1,1966 @@
+{
+  "formatVersion": 1,
+  "areadata": {
+    "version": 2,
+    "name": "Plains",
+    "builders": "",
+    "vnumRange": [
+      300,
+      399
+    ],
+    "credits": "Copper",
+    "security": 9,
+    "sector": "inside",
+    "lowLevel": 1,
+    "highLevel": 20,
+    "reset": 6,
+    "alwaysReset": false
+  },
+  "storyBeats": [],
+  "checklist": [],
+  "rooms": [
+    {
+      "vnum": 300,
+      "name": "Path in the plains",
+      "description": "You are walking on a path situated in the rough plains.\n\rYou feel the strong winds blow through your hair as you study\n\rthe beautiful landscaping here. The path continues east, north\n\rand west leads to plains and you see the path towards the north\n\rgate of midgaard to the south.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 315,
+          "description": "You see the grassy plains.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 301,
+          "description": "You notice nothing special, except that the path in the plains continues.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 3904,
+          "description": "Towards the south you notice the north gate of Midgaard.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 316,
+          "description": "You see the grassy plains.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 301,
+      "name": "Path in the plains",
+      "description": "You are walking on a path situated in the rough plains.\n\rYou feel the strong winds blow through your hair as you study\n\rthe beautiful landscaping here. The path continues east and west.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 302,
+          "description": "You notice nothing special, except that the path in the plains continues.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 300,
+          "description": "You notice nothing special, except that the path in the plains continues.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 302,
+      "name": "Path in the plains",
+      "description": "You are walking on a path situated in the rough plains.\n\rYou feel the strong winds blow through your hair as you study\n\rthe beautiful landscaping here. The path continues north and west.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 303,
+          "description": "You notice nothing special, except that the path in the plains continues.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 301,
+          "description": "You notice nothing special, except that the path in the plains continues.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 303,
+      "name": "Path in the plains",
+      "description": "You are walking on a path situated in the rough plains.\n\rYou feel the strong winds blow through your hair as you study\n\rthe beautiful landscaping here. The path leads north and south.\n\rTo the east and the west you have the grassy plains.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 304,
+          "description": "You notice nothing special, except that the path in the plains continues.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 317,
+          "description": "To the east you notice the grassy plains.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 302,
+          "description": "You notice nothing special, except that the path in the plains continues.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 315,
+          "description": "To the west you can see more of the beautiful grassy plains.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 304,
+      "name": "Path in the plains",
+      "description": "You are walking on a path situated in the rough plains.\n\rYou feel the strong winds blow through your hair as you study\n\rthe beautiful landscaping here. The Path leads north and south.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 305,
+          "description": "The path continues north as small foothills begins to appear.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 303,
+          "description": "The path leads south towards the town.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 305,
+      "name": "Path in the plains",
+      "description": "You are walking on a path situated in the rough plains.\n\rYou feel the strong winds blow through your hair as you watch the\n\rbeautiful landscaping here. To the east and west you see the grassy plains.\n\rThe path extends into small foothills to the north and also continues south.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 306,
+          "description": "The path continues into the small foothills.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 321,
+          "description": "You see the grassy plains here.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 304,
+          "description": "The path continues towards Midgaard.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 320,
+          "description": "You see the grassy plains here.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 306,
+      "name": "Path in the foothills",
+      "description": "You are on the path leading through the small foothills.\n\rThe wind blow through your hair as you study the beautiful\n\rlandscaping here. From the north you sense a certain freshness.\n\rThe path continues east and south. You smell freshness from north.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 326,
+          "description": "You see grassy plains and perhaps some crystal clear water.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 307,
+          "description": "The path continues towards east here.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 305,
+          "description": "The path in the plains wind through the small foothills.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 307,
+      "name": "Path in the foothills",
+      "description": "You are walking on a path situated in the small foothills.\n\rThe winds are more than average here but it feels nice. You can follow\n\rthe path east or west.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 308,
+          "description": "The path continues in the foothills\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 306,
+          "description": "To the west the path takes a bend southwards.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 308,
+      "name": "Path in the foothills",
+      "description": "You are walking on a narrow path in the foothills.\n\rYou feel the strong winds blow through your hair as you study\n\rthe beautiful landscaping here. The path goes north and west.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 309,
+          "description": "The narrow path through the foothills turns left here.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 307,
+          "description": "To the west you can see the path continues.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 309,
+      "name": "Path in the foothills",
+      "description": "You are walking on a path situated in foothills.\n\rTo the west you sense a certain freshness and the path continues\n\rsouth and east.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 310,
+          "description": "You see the path continues in the foothills.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 308,
+          "description": "You see the path continues in the foothills.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 326,
+          "description": "You see grassy plains and perhaps some crystal clear water.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 310,
+      "name": "Path in the foothills",
+      "description": "You are walking on a long path in the east-west direction.\n\rThe surroundings are green, vegetated foothills.\n\rYou are able to force your way through some dense plants to the north.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 327,
+          "description": "You can't really see much through the vegetation on the foothills.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 311,
+          "description": "To the east you notice that the path continues towards a T-intersection.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 309,
+          "description": "You just see the path through the foothills.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 311,
+      "name": "Path in the foothills",
+      "description": "You are walking on the long, narrow path through the foothills.\n\rTo your east you see a T-intersection and to the west the path\n\rcontinues far.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 312,
+          "description": "You can go to the T-intersection this way.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 310,
+          "description": "You can see the long path through the plains.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 312,
+      "name": "The path intersection",
+      "description": "You are standing on an intersection between 3 paths.\n\rTo the west you can follow a long, narrow path through the foothills.\n\rTo the north a wide path leads to the Village of Ofcol and an\n\rancient path leads towards the south.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 313,
+          "description": "The wide road to Ofcol runs here.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 332,
+          "description": "Here is a partially hidden, ancient looking path.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 311,
+          "description": "You can see the long narrow path running through the foothills.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 313,
+      "name": "Road to Ofcol",
+      "description": "You are walking on a wide road with trail marks on it.  To the north\n\ryou see the village of Ofcol and to the south there is the T intersection.\n\rYou can enter the foothills west.  The foothills to your east are too\n\rsteep to climb.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 314,
+          "description": "The road continues towards Ofcol.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 312,
+          "description": "You can see the T-intersection in the souther direction.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 327,
+          "description": "You think you can climb these foothills.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 314,
+      "name": "Outside Ofcol",
+      "description": "You are standing outside the village of Ofcol.\n\rThe village looks very small, but still a nice and safe place to stay.\n\rYou may enter the city to the north or journey towards the\n\rT-intersection in the southern direction.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5550,
+          "description": "You notice a sign saying : Stranger we welcome you to the\n\r                           peaceful city of Ofcol.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 313,
+          "description": "Here you see the road go towards the intersection.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 315,
+      "name": "Gallow hill",
+      "description": "You walk in the grassy plains. On this little hill you can see\n\rtwo gallows, with rotting human tissue hanging from the ropes.\n\rThere is a sign here.\n\r",
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 320,
+          "description": "The plains extend far to the north.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 303,
+          "description": "To the east you can see a small path in the plains.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 300,
+          "description": "To the south you can see a small path in the plains.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 318,
+          "description": "The plains extend far to the west.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "sign",
+          "description": "The sign says:\n\r\n\r  Loyal citizens of Midgaard.  These are the earthly remains of the\n\r  two heretics 'Dim' and 'Gamma' of this world. Having forged them-\n\r  selves to immortality, they called upon themselves the anger of the\n\r  implementators.  Let this be a lesson too all .....\n\r\n\r                                    -- the Powers that Be.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 316,
+      "name": "Grassy plains",
+      "description": "You walk in the grassy plains among the herbs which grow here. The wind is\n\rstrong and rough. Far to the north you can see the foothills and further on\n\rmountain peaks are visible.\n\r",
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 318,
+          "description": "The plains extend far to the north.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 300,
+          "description": "When you look to the east you notice at small path.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 317,
+      "name": "Grassy plains",
+      "description": "You walk in the grassy plains among the herbs which grow here. The wind is\n\rstrong and rough. Far to the north you can see the foothills and further on\n\rmountain peaks are visible. City of Midgaard is to the south but so are some\n\rVERY steep slopes.\n\r",
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 338,
+          "description": "The plains extend far to the east.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 345,
+          "description": "Some VERY steep slopes prevent you from going this way, it might kill you.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 303,
+          "description": "A small path is running through the plains.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 318,
+      "name": "Grassy plains",
+      "description": "You walk in the beautiful grassy plains. The wind is strong and rough.\n\rFar to the north you can see the foothills and further on mountain peaks\n\rare visible.\n\r",
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 319,
+          "description": "The plains extend far to the north.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 315,
+          "description": "The plains extend far to the east.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 316,
+          "description": "The plains extend far to the south.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 319,
+      "name": "Grassy plains",
+      "description": "You walk in the grassy plains among the herbs which grow here. The wind is\n\rstrong and rough. To the north you can see the foothills and just behind\n\rmountain peaks are visible.\n\r",
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 330,
+          "description": "To the north, the plains extend into small foothills, behind a small hill\n\ryou notice something ...\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 320,
+          "description": "The plains extend far to the east.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 318,
+          "description": "The plains extend far to the south.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 320,
+      "name": "Grassy plains",
+      "description": "You walk in some grassy plains. The wind is strong and rough. To the\n\rnorth you can see the foothills and further on mountain peaks are visible.\n\r",
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 322,
+          "description": "The plains extend into small foothills to the north.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 305,
+          "description": "East of here you see a winding path in the plains.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 315,
+          "description": "The plains extend far to the south.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 319,
+          "description": "The plains extend far to the west.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 321,
+      "name": "Grassy plains",
+      "description": "You walk in the grassy plains. The wind is fairly strong.\n\r",
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 338,
+          "description": "The plains extend far to the south.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 305,
+          "description": "A small path is running through the plains.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 322,
+      "name": "Grassy foothills",
+      "description": "You walk in the grassy foothills north of the plains. The wind is rough.\n\rTo the north you can see foothills and just behind them mountain peaks\n\rare visible.\n\r",
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 324,
+          "description": "The small foothills extend into foothills far to the north.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 320,
+          "description": "The small foothills extend into plains far to the south.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 330,
+          "description": "The small foothills extend far to the west.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 323,
+      "name": "The steep foothills",
+      "description": "You walk in the steep foothills. It is rather hard to move here.\n\rTo the north you can see a grassy valley with wildflowers.\n\r",
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7800,
+          "description": "You see a path toward the valley.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 324,
+          "description": "The foothills extend far to the east.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 330,
+          "description": "On the horizon you can see the City of Midgaard.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 324,
+      "name": "The steep foothills",
+      "description": "You are walking in the steep foothills. It is rather hard to move here.\n\rTo the north you can see the mountains towering over you.  Pine trees\n\rgrow here.\n\r",
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 901,
+          "description": "The path continues up the mountain.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 325,
+          "description": "The foothills extend far to the east.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 322,
+          "description": "The foothills extend downwards to the south. In the horizon you can\n\rsee the City Of Midgaard.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 323,
+          "description": "The foothills extend far to the west.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "mountains",
+          "description": "The mountains seems dark and all most alive, as they contrast against\n\rthe sky.\n\r"
+        },
+        {
+          "keyword": "pine tree trees pines",
+          "description": "The all too quiet trees suggest that something roams these woods.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 325,
+      "name": "The steep foothills",
+      "description": "You are walking in the steep foothills. It is rather hard to move here.\n\rFurther to the north you can see the mountains towering over you.\n\rSeveral pinetrees grow here.\n\r",
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 326,
+          "description": "The foothills extend into smaller hills far to the east.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 324,
+          "description": "The foothills extend far to the west.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 326,
+      "name": "The pool in the foothills",
+      "description": "You are standing by a pool in the small foothills. It is clear and cold.\n\rA steep slope rises up into the foothills to the north. Behind them ...\n\rthe mountains.\n\r",
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 309,
+          "description": "To the east you notice a small path in the foothills.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 306,
+          "description": "To the south a path winds its way south into the plains.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 325,
+          "description": "The foothills extend far to the west.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "pool",
+          "description": "The pool is crystal clear, but as you look into it you notice that\n\ryou can't see the bottom of it ... it must be pretty deep.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 327,
+      "name": "The foothills",
+      "description": "You are walking in some foothills. It is rather hard to move here.\n\rFurther to the north you can see the mountains towering over you.\n\rSeveral pinetrees grow here.\n\r",
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 313,
+          "description": "To the east you notice a small path in the foothills.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 310,
+          "description": "To the south a steep slope runs down to a small path in the foothills.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 330,
+      "name": "In front of hut in foothills",
+      "description": "You are standing in the foothills. To the west, well hidden among the small\n\rfoothills and pines, you see a small hut. To the north you can see\n\rthe foothills, and some pineforrest. Further on mountain peaks are visible.\n\r",
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 323,
+          "description": "The steep foothills seems hard to climb\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 322,
+          "description": "The foothills extend far to the east.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 319,
+          "description": "To the south the foothills extend into plains far to the south.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 331,
+          "flags": [
+            "door"
+          ],
+          "description": "You see a small crumbled hut here, must be a hermit living here.\n\r",
+          "keyword": "door"
+        }
+      ]
+    },
+    {
+      "vnum": 331,
+      "name": "Hermit's hut",
+      "description": "You are inside the hermit's hut. It is rather old, but serves it purpose.\n\rIt keeps its habitant from the rough winds and dangerous beasts of the\n\rplains and foothills. There is a small fireplace here.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 330,
+          "flags": [
+            "door"
+          ],
+          "description": "Through the door you can see the foothills.\n\r",
+          "keyword": "door"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "fireplace",
+          "description": "The hermit cooks here.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 332,
+      "name": "The ancient path",
+      "description": "You are moving on an ancient path. The path is slightly covered with\n\rleaves and twitches.\n\rTo the north you can see the T-crossing and the path continues south.\n\r",
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 312,
+          "description": "As you look to the north you see a T-intersection.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 333,
+          "description": "The ancient path continues through the plains.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 333,
+      "name": "The ancient path",
+      "description": "You are standing on the ancient path which runs north and south.\n\rThe path is hardly visible here.\n\r",
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 332,
+          "description": "You see the ancient path.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 334,
+          "description": "You trace the path carefully and see no immediate dangers.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 334,
+      "name": "The ancient path",
+      "description": "You are standing on the ancient path which runs north and south.\n\rThe path is hardly visible here.\n\r",
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 333,
+          "description": "You see the ancient path.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 335,
+          "description": "You trace the path carefully and see no immediate dangers.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 335,
+      "name": "The ancient path",
+      "description": "The path runs north and east from here.  You notice some markers placed\n\ralong the side of the path.\n\r",
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 334,
+          "description": "You see the ancient path winding its way north from here. Looks safe.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 336,
+          "description": "Further ahead you see a bridge over a small creak.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "markers",
+          "description": "The markers seems like normal stones, but the way they are\n\rarranged makes you think there is something special about them.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 336,
+      "name": "The wooden bridge",
+      "description": "You have stepped upon a wooden bridge. It looks old but safe to cross.\n\rIt is made of a wood you haven't seen before.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 337,
+          "description": "The path continues, further ahead you notice some rock formations.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 335,
+          "description": "The ancient path leads west and turns north further ahead.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "rock formation formations",
+          "description": "The rock formations are made of 7 huge, monolith like stones, placed\n\rin a symbolic circle.\n\rYou notice it's possible to enter the ring.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 337,
+      "name": "The ancient path",
+      "description": "You find yourself located between the bridge and the rock formations.\n\rAs you approach the formations you begin to realize the true size of\n\rthem, about 15 feet tall and almost perfect rectangular shape.\n\rYou feel impressed with the awesome sight.\n\r",
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 339,
+          "description": "To the east you enter the ring of stones. You wonder if it's safe.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 336,
+          "description": "To the west the ancient path leads across the wooden bridge.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "rock formation formations",
+          "description": "The rock formations are made of seven huge monolith placed in a circle.\n\rYou notice it's possible to enter the ring.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 338,
+      "name": "Grassy plains",
+      "description": "You walk in the grassy plains among the herbs which grow here. The wind is\n\rstrong and rough. Far to the north you can see the foothills and further on\n\rmountain peaks are visible.\n\r",
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 321,
+          "description": "The plains extend far to the north.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 317,
+          "description": "The plains extend far to the east.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 339,
+      "name": "The Stones of G'harne",
+      "description": "You are in the center of 7, 15 ft tall monolith like black stones.\n\rIn the center of the ring formed by the monolith you can't help\n\rnoticing a big sacrifice altar. The ground is covered with dirt, but the\n\raltar shows no sign of such. West of here is the ancient path.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 337,
+          "description": "You see the ancient path and the wooden bridge here.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 340,
+          "description": "You see a tunnel down there.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "stones g'harne monolith",
+          "description": "The stones of G'harne tower fifteen feet over you.\n\rThe giant stones are made of a material you haven't seen before.\n\rIt resembles black marble, but somehow feels different.\n\r"
+        },
+        {
+          "keyword": "altar sacrifice",
+          "description": "You move closer to examine the sacrifice altar of G'harne.\n\rThe altar is about 3 feet high, 10 feet long and 4 feet wide.\n\rIt has engraved pictures of death rituals and horrifying worms.\n\r"
+        },
+        {
+          "keyword": "death rituals worms engraving picture",
+          "description": "The pictures are depicting evil rituals.\n\rYou see druids pouring blood over herbs on an altar like this one.\n\rThere are people calling giant worms into existence with dark spells.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 340,
+      "name": "Dark smelly tunnels",
+      "description": "You are standing in a gloomy tunnel leading south and west, right under\n\rthe altar of G'harne.  The walls are covered with a smelly slime and small\n\rrotting pieces of a meat like substance, fills the air with an unbearable\n\rstench.  You might be able to force your way up into fresh air from here.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "roomFlagsValue": 265,
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 341
+        },
+        {
+          "dir": "west",
+          "toVnum": 342
+        },
+        {
+          "dir": "up",
+          "toVnum": 339,
+          "description": "You welcome the sight of fresh air.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "meat rotting slime substance",
+          "description": "You try to examine the substance closer, but must refrain from this\n\ras all you really want to do is puke.\n\rYou puke.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 341,
+      "name": "Dead end of tunnel",
+      "description": "The tunnel comes to an abrupt end here. It simply looks like it\n\rhasn't been excavated further.  North of here the tunnel makes a turn east.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "roomFlagsValue": 265,
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 340
+        }
+      ]
+    },
+    {
+      "vnum": 342,
+      "name": "Dark smelly tunnels",
+      "description": "You are standing in a gloomy tunnel leading east and west.\n\rThe walls are covered with a smelly slime and small rotting pieces of a\n\rmeat like substance, fills the air with an unbearable stench.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "roomFlagsValue": 265,
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 340,
+          "description": "The tunnel continues in this direction.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 343,
+          "description": "The tunnel continues in this direction.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "meat rotting slime substance",
+          "description": "You try to examine the substance closer, but must refrain from this\n\ras all you really want to do is puke.\n\rYou puke.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 343,
+      "name": "Dark smelly tunnels",
+      "description": "You are standing in a small smelly tunnel under the plains.\n\rThe smell is growing stronger to the west, so is the density of the\n\rslime and other undeterminable substances ...\n\r",
+      "roomFlagsValue": 256,
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 342,
+          "description": "The unbearable stench is less intensive in this direction.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 344,
+          "description": "The tunnel seems to extend into some kind of cave.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "slime substance",
+          "description": "BWADR! ...\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 344,
+      "name": "The Hall of G'harne",
+      "description": "You stand in the hall of G'harne. The walls are dressed with strange\n\rcarving, symbolizing human sacrifice and people worshipping giant worms.\n\rDisgusting slime and gore are also very dominant in your view of this room.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "roomFlagsValue": 265,
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 343,
+          "description": "It looks like a good idea just to run in this direction.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "slime gore",
+          "description": "You puke.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 345,
+      "name": "Steep slope",
+      "description": "You try to climb down the slope.\n\r>\n\rYou slip!\n\rYou fall and tumble.\n\rYou hit your head HARD.\n\rYou die.\n\r\n\rYou've fallen, and you can't get up!\n\r",
+      "roomFlags": [
+        "no_mob"
+      ],
+      "sectorType": "field"
+    }
+  ],
+  "mobiles": [
+    {
+      "vnum": 300,
+      "name": "oldstyle druid Aruncus",
+      "shortDescr": "Aruncus the Druid",
+      "longDescr": "Aruncus the Druid is walking around here, searching for herbs.\n\r",
+      "description": "Aruncus is a tall, skinny druid with a face marked by nature.\n\rHe seems to be in peace with himself and his surroundings.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "stay_area",
+        "wimpy"
+      ],
+      "affectFlags": [
+        "detect_invis"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -500,
+      "group": 0,
+      "level": 13,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 170
+      },
+      "manaDice": {
+        "number": 6,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 5,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -1,
+        "bash": -1,
+        "slash": -1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 25,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 301,
+      "name": "oldstyle hermit sorbus",
+      "shortDescr": "Sorbus the Hermit",
+      "longDescr": "Sorbus the Hermit is sitting here, roasting a rabbit.\n\r",
+      "description": "Sorbus bares the marks of a long, hard life in solitude.\n\rHe is dressed in simple clothing and looks like he has little\n\ror nothing to say.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 4,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 46
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 5,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 6,
+        "bash": 6,
+        "slash": 6,
+        "exotic": 9
+      },
+      "startPos": "sitting",
+      "defaultPos": "sitting",
+      "sex": "male",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 303,
+      "name": "oldstyle citizen",
+      "shortDescr": "the citizen",
+      "longDescr": "There is a citizen of Ofcol here glaring at you ... stranger!\n\r",
+      "description": "He seems like a nice person with no interest in harming you or others.\n\rHe wears normal, light clothing and has an anonymous face.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 6,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 71
+      },
+      "manaDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 7,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 4,
+        "bash": 4,
+        "slash": 4,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 10,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 304,
+      "name": "oldstyle citizen",
+      "shortDescr": "the citizen",
+      "longDescr": "There is a citizen of Ofcol here glaring at you ... stranger!\n\r",
+      "description": "She seems like a nice person with no interest in harming you or others.\n\rShe wears a minimum of clothing and has big ... eyes.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 5,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 60
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 5,
+        "bash": 5,
+        "slash": 5,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 5,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 305,
+      "name": "oldstyle worm Shudde-M'ell",
+      "shortDescr": "Shudde-M'ell",
+      "longDescr": "Shudde-M'ell the Giant worm of G'harne is guarding his treasure.\n\r",
+      "description": "Shudde-M'ell is about 15 ft long and is surrounded by an evil stench,\n\rThe worm is the protector of the treasure of G'harne and has been so\n\rfor as long anyone can remember.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "detect_invis"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 24,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 500
+      },
+      "manaDice": {
+        "number": 12,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -6,
+        "bash": -6,
+        "slash": -6,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 683,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 306,
+      "name": "oldstyle luxan shopkeeper",
+      "shortDescr": "Luxan",
+      "longDescr": "Luxan the Shopkeeper is here, eager to sell you anything.\n\r",
+      "description": "Luxan is dressed in a strange jacket.\n\rHe looks like a mean trader from the outskirts of Midgaard.\n\rHis life is seems to be totally occupied with trading.\n\rHe looks very fit and capable of protecting his goods.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 400,
+      "group": 0,
+      "level": 23,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 450
+      },
+      "manaDice": {
+        "number": 11,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 3,
+        "type": 6,
+        "bonus": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -6,
+        "bash": -6,
+        "slash": -6,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 400,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 308,
+      "name": "oldstyle keeper innkeeper",
+      "shortDescr": "the Innkeeper",
+      "longDescr": "An Innkeeper is here waiting for your order.\n\r",
+      "description": "The Innkeeper looks skilled in brewing different beers and mixing the\n\rwierdest drinks known. He also looks very big.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -100,
+      "group": 0,
+      "level": 23,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 450
+      },
+      "manaDice": {
+        "number": 11,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 3,
+        "type": 6,
+        "bonus": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -6,
+        "bash": -6,
+        "slash": -6,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 5,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 309,
+      "name": "oldstyle rabbit",
+      "shortDescr": "the cute rabbit",
+      "longDescr": "A cute rabbit is here.\n\r",
+      "description": "It is a small, furry creature with long ears and big feet.\n\r",
+      "race": "rabbit",
+      "actFlags": [
+        "npc",
+        "stay_area"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "fast",
+        "trip",
+        "assist_race"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 1,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 10
+      },
+      "manaDice": {
+        "number": 0,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 4
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 9,
+        "bash": 9,
+        "slash": 9,
+        "exotic": 10
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 350,
+      "name": "oldstyle dragon pet",
+      "shortDescr": "the pet dragon",
+      "longDescr": "Ravan's pet dragon is bouncing around here flapping her cute wings.\n\r",
+      "description": "Ravan's pet dragon is about 3 ft. tall with small pointy teeth.\n\rThe small wings are eagerly trying to lift her from the ground,\n\rbut so far they haven't succeeded.\n\r",
+      "race": "dragon",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "wimpy",
+        "mage"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "sanctuary",
+        "infrared",
+        "flying"
+      ],
+      "atkFlags": [
+        "dodge",
+        "assist_race"
+      ],
+      "resFlags": [
+        "charm",
+        "bash",
+        "fire"
+      ],
+      "vulnFlags": [
+        "pierce",
+        "cold"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 10,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 110
+      },
+      "manaDice": {
+        "number": 10,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 8,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 2,
+        "bash": 2,
+        "slash": 2,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    }
+  ],
+  "objects": [
+    {
+      "vnum": 300,
+      "name": "herbs herb timian",
+      "shortDescr": "a small dusk of timian herbs",
+      "description": "Some herbs are lying here, small green leaves and tiny pink flowers.",
+      "material": "oldstyle",
+      "itemType": "food",
+      "wearFlags": [
+        "take"
+      ],
+      "food": {
+        "foodHours": 1,
+        "fullHours": 1
+      },
+      "weight": 10,
+      "cost": 10,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "herbs herb timian",
+          "description": "This herb smells rather spicy; maybe you should try it?\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 301,
+      "name": "herbs herb gyvel",
+      "shortDescr": "a small dusk of black gyvel",
+      "description": "Some black gyvel is lying here, dark green with black leaves and tiny\n\rblood red flowers.",
+      "material": "oldstyle",
+      "itemType": "food",
+      "wearFlags": [
+        "take"
+      ],
+      "food": {
+        "foodHours": 1,
+        "fullHours": 1
+      },
+      "weight": 10,
+      "cost": 10,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "herbs herb gyvel",
+          "description": "This herb smells rather special, but is it poisonous?\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 302,
+      "name": "plant ivy",
+      "shortDescr": "a small dusk of poison ivy",
+      "description": "Some poison ivy is growing here.",
+      "material": "oldstyle",
+      "itemType": "food",
+      "wearFlags": [
+        "take"
+      ],
+      "food": {
+        "foodHours": 1,
+        "fullHours": 1,
+        "poisoned": true
+      },
+      "weight": 10,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "plant ivy",
+          "description": "This plant has dark green juicy leaves.\n\rYou notice some small white thorns on it."
+        }
+      ]
+    },
+    {
+      "vnum": 303,
+      "name": "blood jar",
+      "shortDescr": "a dark red jar",
+      "description": "A small jar in a dark, red colour.",
+      "material": "oldstyle",
+      "itemType": "drinkcontainer",
+      "wearFlags": [
+        "take"
+      ],
+      "drink": {
+        "capacity": 2,
+        "remaining": 2,
+        "liquid": "blood"
+      },
+      "weight": 20,
+      "cost": 20,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "blood jar",
+          "description": "The jar is made of dry clay, covered with markings suggesting its\n\roccult origin.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 304,
+      "name": "wild flowers",
+      "shortDescr": "wild flowers",
+      "description": "A bunch of pretty wild flowers is here.",
+      "material": "oldstyle",
+      "itemType": "trash",
+      "extraFlags": [
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "head",
+        "hold"
+      ],
+      "weight": 10,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "wild flowers",
+          "description": "These wild flowers are really pretty.\n\rJust like the flowers you would wear in your hair."
+        }
+      ]
+    },
+    {
+      "vnum": 307,
+      "name": "amulet",
+      "shortDescr": "a strange amulet",
+      "description": "A strange looking amulet is lying here, half covered with dust.",
+      "material": "oldstyle",
+      "itemType": "jewelry",
+      "extraFlags": [
+        "magic",
+        "nodrop"
+      ],
+      "wearFlags": [
+        "take",
+        "neck"
+      ],
+      "weight": 10,
+      "cost": 1,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "amulet",
+          "description": "Judging from the signs inscripted in the amulet, you gather it must\n\rhave belonged to a druid.  It is weird looking with symbols from nature\n\rdominating it.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "saves",
+          "level": 0,
+          "duration": -1,
+          "modifier": 5
+        }
+      ]
+    },
+    {
+      "vnum": 308,
+      "name": "staff stick",
+      "shortDescr": "a druish staff",
+      "description": "A staff with druidic marks have been left here.",
+      "material": "oldstyle",
+      "itemType": "trash",
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "weight": 40,
+      "cost": 10,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "staff stick",
+          "description": "Then staff is about 5 ft long, engraved with mythical signs and figures.\n\rOtherwise the staff seems of no real interest.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 309,
+      "name": "rabbit roast wabbit",
+      "shortDescr": "a rabbit roast",
+      "description": "You see a deliciously looking rabbit roast.",
+      "material": "oldstyle",
+      "itemType": "food",
+      "wearFlags": [
+        "take"
+      ],
+      "food": {
+        "foodHours": 24,
+        "fullHours": 24
+      },
+      "weight": 50,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "roast rabbit wabbit",
+          "description": "Well the rabbit looks rather dead.\n\rYou guess that this once was a ferocious rabbit who's life now has\n\rchanged to that of a tasty wabbit woast.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 310,
+      "name": "template scroll",
+      "shortDescr": "a strange template",
+      "description": "A strange template made of an exotic green metal is placed here",
+      "material": "oldstyle",
+      "itemType": "scroll",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "spells": {
+        "level": 15,
+        "spells": [
+          "sleep",
+          "blindness",
+          "fireball",
+          ""
+        ]
+      },
+      "level": 13,
+      "weight": 10,
+      "cost": 1870,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "template scroll metal",
+          "description": "The template is made of an exotic green metal and looks\n\rcenturies old.\n\rInscripted upon is the words 'Ep ep fi'hur G'harne\n\r                             G'harne fhtagn Shudde-M'ell hyas Negg'h'\n\rAnd beneath the inscription you see horrifying death scenes depicted.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 311,
+      "name": "potion clear",
+      "shortDescr": "a clear potion",
+      "description": "A clear potion wrapped in leather is unnoticed placed here.",
+      "material": "oldstyle",
+      "itemType": "potion",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take"
+      ],
+      "spells": {
+        "level": 20,
+        "spells": [
+          "detect evil",
+          "detect invis",
+          "detect magic"
+        ]
+      },
+      "weight": 20,
+      "cost": 300,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "potion clear",
+          "description": "As you examine the potion more, you notice the oddities of this\n\rpotion. When you look through it you notice strange things...\n\rThe clear potion is certainly not of this world.\n\r"
+        },
+        {
+          "keyword": "leather",
+          "description": "The leather wrapped around the potion is old and decayed, originating\n\rfrom an, to you, unknown creature."
+        }
+      ]
+    },
+    {
+      "vnum": 312,
+      "name": "scroll jhyfrdow",
+      "shortDescr": "a scroll titled 'jhyfrdow'",
+      "description": "An odd looking scroll is here.",
+      "material": "oldstyle",
+      "itemType": "scroll",
+      "wearFlags": [
+        "take"
+      ],
+      "spells": {
+        "level": 18,
+        "spells": [
+          "protection evil",
+          "",
+          "",
+          ""
+        ]
+      },
+      "level": 2,
+      "weight": 10,
+      "cost": 640,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "scroll jhyfrdow",
+          "description": "The scroll is titled 'jhyfrdow' and looks very old.\n\rAs you examine it closer you notice primitive drawings of\n\rmen doing some kind of a ritual.\n\r"
+        },
+        {
+          "keyword": "ritual men drawings",
+          "description": "The drawing pictures people gathered round giant stone formations,\n\rworshipping a giant worm like creature.\n\rIt seems they are sacrificing some of their own species.\n\r"
+        }
+      ]
+    }
+  ],
+  "shops": [
+    {
+      "keeper": 306,
+      "buyTypes": [
+        1,
+        10,
+        11,
+        19,
+        0
+      ],
+      "profitBuy": 120,
+      "profitSell": 60,
+      "openHour": 0,
+      "closeHour": 23
+    },
+    {
+      "keeper": 308,
+      "buyTypes": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "profitBuy": 110,
+      "profitSell": 100,
+      "openHour": 0,
+      "closeHour": 23
+    }
+  ],
+  "specials": [
+    {
+      "mobVnum": 350,
+      "spec": "spec_cast_mage"
+    }
+  ],
+  "mobprogs": [],
+  "resets": [
+    {
+      "objVnum": 304,
+      "roomVnum": 316,
+      "commandName": "placeObj"
+    },
+    {
+      "mobVnum": 309,
+      "maxInArea": 10,
+      "roomVnum": 318,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 301,
+      "roomVnum": 319,
+      "commandName": "placeObj"
+    },
+    {
+      "objVnum": 304,
+      "roomVnum": 323,
+      "commandName": "placeObj"
+    },
+    {
+      "mobVnum": 300,
+      "maxInArea": 1,
+      "roomVnum": 323,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 308,
+      "wearLoc": "held in the hands",
+      "roomVnum": 323,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 307,
+      "wearLoc": "around the neck (1)",
+      "roomVnum": 323,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 312,
+      "roomVnum": 323,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 302,
+      "roomVnum": 323,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 309,
+      "maxInArea": 10,
+      "roomVnum": 324,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 300,
+      "roomVnum": 327,
+      "commandName": "placeObj"
+    },
+    {
+      "mobVnum": 301,
+      "maxInArea": 1,
+      "roomVnum": 331,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 303,
+      "roomVnum": 331,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 309,
+      "roomVnum": 331,
+      "commandName": "placeObj"
+    },
+    {
+      "mobVnum": 309,
+      "maxInArea": 10,
+      "roomVnum": 334,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 304,
+      "roomVnum": 338,
+      "commandName": "placeObj"
+    },
+    {
+      "mobVnum": 305,
+      "maxInArea": 1,
+      "roomVnum": 344,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 310,
+      "roomVnum": 344,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 311,
+      "roomVnum": 344,
+      "commandName": "giveObj"
+    }
+  ],
+  "factions": [],
+  "quests": []
+}

@@ -1,0 +1,2764 @@
+{
+  "formatVersion": 1,
+  "areadata": {
+    "version": 2,
+    "name": "Nirvana",
+    "builders": "",
+    "vnumRange": [
+      9000,
+      9099
+    ],
+    "credits": "Fstall",
+    "security": 9,
+    "sector": "inside",
+    "lowLevel": 30,
+    "highLevel": 35,
+    "reset": 6,
+    "alwaysReset": false
+  },
+  "storyBeats": [],
+  "checklist": [],
+  "rooms": [
+    {
+      "vnum": 9000,
+      "name": "Entrance to the Plane of Nirvana",
+      "description": "You stand before the entrance to a plane of absolute balance and order.  It is\n\requally hot and cold, equally light and dark, and made of equal parts of solid\n\rand liquid.\n\r \n\rThe plane extends to the west and east, while an exit lies downward.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9001,
+          "description": "To the east, the plane extends for what seems to be forever.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 9002,
+          "description": "To the west, the plane extends for what seems to be forever.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 8905,
+          "description": "Downwards, you see the portal leading back to home.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9001,
+      "name": "The Plane of Nirvana",
+      "description": "You are traveling the Plane of Nirvana.  It has endless boundaries to the east\n\rand west\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9003,
+          "description": "To the east, there seems to be a bend in direction of travel.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 9000,
+          "description": "To the west, the plane seems to extend forever.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9002,
+      "name": "The Plane of Nirvana",
+      "description": "You are on a western strech of the plane.  Boundaries to the east and west seem \n\rnonexistent.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9000,
+          "description": "The plane seems to strech forever to the east\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 9004,
+          "description": "The plane continues to the west where is appears to change direction\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9003,
+      "name": "A Change in Direction",
+      "description": "Here, the plane seems to direct you to the north.  Also, the plane continues \n\rto the west.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9005,
+          "description": "The plane continues to the north with no end in sight\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 9001,
+          "description": "The plane contiues to the west with no end in sight\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9004,
+      "name": "A Change in Direction",
+      "description": "Here, the plane goes to the north and bends to the east\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9006,
+          "description": "The vast plane seems to have no end to the north\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 9002,
+          "description": "To the east, the plane has no visible end\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9005,
+      "name": "A North-South direction of the plane",
+      "description": "The plane continues to the north and south\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9012,
+          "description": "To the north, the plane stretches as far as the eye can see.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 9003,
+          "description": "To the south, the plane stretches as far as the eye can see.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9006,
+      "name": "A North-South stretch of the plane",
+      "description": "The plane continues to the north and the south\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9013,
+          "description": "To the north, the plane stretches as far as the eye can see.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 9004,
+          "description": "To the south, the plane stretches as far as the eye can see.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9007,
+      "name": "In the Tower of Nirvana",
+      "description": "Entering the tower, there seems to be enough light to see by, but no source is \n\rvisible.  The hall continues to the east, while a door lies to the west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9010,
+          "description": "The hall continues east into oblivion.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 9013,
+          "flags": [
+            "door"
+          ],
+          "description": "A great door lies to the west\n\r",
+          "keyword": "door"
+        }
+      ]
+    },
+    {
+      "vnum": 9008,
+      "name": "A hallway in the Tower of Nirvana",
+      "description": "You are in a east-west hallway in the tower.  to the west, the hall continues \n\rand a door lies to the east.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9012,
+          "flags": [
+            "door"
+          ],
+          "description": "A great door lies to the east\n\r",
+          "keyword": "door"
+        },
+        {
+          "dir": "west",
+          "toVnum": 9009,
+          "description": "the hallway continues west into oblivion.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9009,
+      "name": "An east-west hallway in the Tower of Nirvana",
+      "description": "The hallway continues to the east, and stretches to the west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9008,
+          "description": "The hallway continues east into oblivion.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 9011,
+          "description": "The Hallway continues west into oblivion.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9010,
+      "name": "An east-west passage in the Tower of Nirvana",
+      "description": "",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9011,
+          "description": "The Hallway contiues east into oblivion\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 9007,
+          "description": "The Hallway contiues west into oblivion\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9011,
+      "name": "An intersection in the Tower of Nirvana",
+      "description": "You are at an intersection where the east-west passage continues, but a large \n\rpassage leads to the north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9023,
+          "description": "The passage continues to the north where it seems to get wider.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 9009,
+          "description": "The passage ontinues eastward into oblivion.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 9010,
+          "description": "The passage continues westward into oblivion.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9012,
+      "name": "At the door to the Tower of Nirvana",
+      "description": "You stand on the plane where a mighty door lies to the west.\n\rThe plane also continues north and southward.  There is a large sign on the \n\rdoor.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9014,
+          "description": "The plane continues northward as far as the eye can see.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 9005,
+          "description": "The plane continues southward as far as the eye can see.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 9008,
+          "flags": [
+            "door"
+          ],
+          "description": "A mighty door lies to the west\n\r",
+          "keyword": "door"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "sign",
+          "description": "The sign reads:\n\r                     WARNING\n\rOnly those brave of heart and high of level should\n\renter the Tower of Nirvana.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9013,
+      "name": "At the door to the Tower of Nirvana",
+      "description": "The plane continue to the north and south, while a mighty door lies to the \n\reast.  There is a sign on the door.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9015,
+          "description": "The plane stretches to the north as far as the eye can see.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 9007,
+          "flags": [
+            "door"
+          ],
+          "description": "A mighty door sits to the east\n\r",
+          "keyword": "door"
+        },
+        {
+          "dir": "south",
+          "toVnum": 9006,
+          "description": "The plane continues to the south as far as the eye can see\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "sign",
+          "description": "The sign reads:\n\r                  WARNING!\n\rOnly those brave of heart and high of level\n\rshould attempt to enter the Tower of Nirvana.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9014,
+      "name": "A north-south area of the Plane of Nirvana",
+      "description": "The plane continues to the north and southward.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9027,
+          "description": "The plane continues endlessly to the north.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 9012,
+          "description": "The plane continues endlessly to the south.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9015,
+      "name": "A north-south area on the Plane of Nirvana",
+      "description": "the plane continues to the north and south\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9028,
+          "description": "The plane continues endlessly to the north\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 9013,
+          "description": "The plane continues endlessly to the south\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9016,
+      "name": "Dead End",
+      "description": "You stand at a dead end where the only exit appears to be west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 9018,
+          "description": "The passage continue to the west.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9017,
+      "name": "Dead End",
+      "description": "You are at what appears to be a dead end.  The only exit is back east.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9019,
+          "description": "The passage continues to the east.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9018,
+      "name": "A Tertain's lair",
+      "description": "You quite possibly have made a terrible mistake coming in here.\n\rExits lead east and west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9016,
+          "description": "The passage continues to the east\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 9020,
+          "description": "The passage leads west where you can see a bright light ahead.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9019,
+      "name": "A Tertian's lair",
+      "description": "You might have made a terrible mistake coming into here.\n\rExits lead east and west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9020,
+          "description": "The passage continues eastward where you can see a bright light.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 9017,
+          "description": "The passage continues westward into oblivion.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9020,
+      "name": "The Lair of Primus",
+      "description": "You are in a large hall, with a massive pool of what appears to be pure energy \n\rin the center of the room.  Exits lead in all the cardinal directions.  From \n\rthe pool rises the master of the Plane of Nirvana....\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9024,
+          "description": "A passage leads north into the unknown.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 9018,
+          "description": "A passage leads east into the unknown.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 9021,
+          "description": "A passage leads south into the unknown.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 9019,
+          "description": "A passage leads west into the unknown.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9021,
+      "name": "A Tertian's lair",
+      "description": "Maybe coming here wasn't such a hot idea.  You feel very unwelcome here.  \n\rExits lead north and south\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9020,
+          "description": "The passage leads north where you can see a bright light.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 9022,
+          "description": "The passage leads south into the unknown.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9022,
+      "name": "The office of a Quinton",
+      "description": "You have stumbled upon the office of a page to Primus.\n\rScrolls lie about the room along with many strange objects...you can't imagine \n\rwhat kind of creature would use them.  Exits lead in all the cardinal \n\rdirections.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9021,
+          "description": "The passage heads northward where you can see nothing.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 9046,
+          "description": "The passage goes east where you feel it might be bad to go.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 9023,
+          "description": "The passage goes south into oblivion.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 9053,
+          "description": "The passage heads westward into oblivion.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9023,
+      "name": "A wide north-south passageway",
+      "description": "you find yourself in a passage where the exits are north and south\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9022,
+          "description": "To the north, you spy an intersection of tunnels.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 9011,
+          "description": "To the south you can barely make out a junction of passageways.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9024,
+      "name": "A Tertian's lair",
+      "description": "You find yourself in a lair of a Tertian.  Exits lead north and south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9025,
+          "description": "To the north, you can make out a intersection of tunnels.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 9020,
+          "description": "To the south, you can see a bright light.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9025,
+      "name": "A north south tunnel",
+      "description": "You are in a passage where the only exits are north and south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9026,
+          "description": "Far to the north you can see a door.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 9024,
+          "description": "To the south you stare into darkness.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9026,
+      "name": "An intersection of passages",
+      "description": "You stand at an intersection.  Exits lead off to the east and south. \n\rA door lies to the north\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9031,
+          "flags": [
+            "door"
+          ],
+          "description": "you see a massive door\n\r",
+          "keyword": "door"
+        },
+        {
+          "dir": "east",
+          "toVnum": 9032,
+          "description": "To the east, you spy a dark passage\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 9025,
+          "description": "To the south you stare into oblivion.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9027,
+      "name": "A change of direction",
+      "description": "The plane curves from the south to west\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 9014,
+          "description": "looking south, you see the plane extending beyond view.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 9030,
+          "description": "looking west, you can't fathom how far the plane extends.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9028,
+      "name": "A change of direction",
+      "description": "Here, the plane takes a turm from the south to heading east.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9029,
+          "description": "The plane heads east from here. You can't see the end of it.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 9015,
+          "description": "Looking south, you view the plane extending for miles.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9029,
+      "name": "An east-west route on the Plane of Nirvana",
+      "description": "Exits lead east and west.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9031,
+          "description": "looking east, you spy a door far off in the distance.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 9028,
+          "description": "looking west, in the distance you can spy a curve south.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9030,
+      "name": "An east-west route on The Plane of Nirvana",
+      "description": "Exits lead east and west\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9027,
+          "description": "looking east, you can see a bend in the distance.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 9031,
+          "description": "glancing west, you can spy a door far off in the distance.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9031,
+      "name": "A large door in the passage",
+      "description": "The passages goes east and west, with a large door to the south.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9030,
+          "description": "looking east, you see more of the passage.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 9026,
+          "flags": [
+            "door"
+          ],
+          "description": "A large door blocks the way to the south.\n\r",
+          "keyword": "door"
+        },
+        {
+          "dir": "west",
+          "toVnum": 9029,
+          "description": "looking west, you see more of the passage.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9032,
+      "name": "A Junction in the passage",
+      "description": "Here, passages lead off in all cardinal directions.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9033,
+          "description": "Looking north, you spy a small room in the distance\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 9035,
+          "description": "Eastward, the passage continues in the darkness.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 9034,
+          "description": "South of here is a small room.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 9026,
+          "description": "West, you spy an intersection.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9033,
+      "name": "The office of the Octon",
+      "description": "you are in a small room, the only exit is south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 9032,
+          "description": "looking south, you see an intersection.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9034,
+      "name": "A small room",
+      "description": "The only exit is north\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9032,
+          "description": "Looking north, you spy an intersection.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9035,
+      "name": "A passageway",
+      "description": "Exits lead in all cardinal directions.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9036,
+          "description": "Looking north you spy a average sized room.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 9038,
+          "description": "Looking east, you can make out a large room\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 9037,
+          "description": "Looking south, you can see an average room.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 9032,
+          "description": "Looking west, you can see an intersection ahead.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9036,
+      "name": "Lair of a Hexton",
+      "description": "You are in a room that is in complete disrepair.  Items are thrown throughout \n\rthe room making them worthless piles of junk.\n\rThe only exit is back south\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 9035,
+          "description": "Looking south, you can make out a passage.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9037,
+      "name": "Office of a Hexton",
+      "description": "A makeshift desk forms the center of this room.  The only exit is north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9035,
+          "description": "Looking north, you can make out a hallway.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9038,
+      "name": "Office of a Secundus",
+      "description": "You are standing in a office of one of the Viceroys of the Plane of Nirvana.  \n\rThe occupant doesn't look real thrilled with your presence.  The only exits is \n\rwest.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 9035,
+          "description": "Looking west you can see a long hallway\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9039,
+      "name": "A Junction in the hallway",
+      "description": "Your are standing in a junction, exits lead in all the cardinal directions.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9040,
+          "description": "To the north, you spy a small room\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 9025,
+          "description": "To the east, you see a quadruple junction\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 9041,
+          "description": "To the south you see a small room\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 9042,
+          "description": "To the west, the passageway continues\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9040,
+      "name": "Office of an Octon",
+      "description": "You see a messy room with papers scattered everywhere.\n\rThe only exit leads back to the south\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 9039,
+          "description": "To the south you can make out a junction.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9041,
+      "name": "Office of a Septon",
+      "description": "A neat and tidy room, it appear to be inhabited my a neatenss freak.  The only \n\rexit lies to the north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9039,
+          "description": "To the north you see a junction.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9042,
+      "name": "An east-west passage",
+      "description": "In east west passage is here with exits in all of the cardinal directions.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9043,
+          "description": "You can see a room to the north.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 9039,
+          "description": "To the east you can see a junction\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 9044,
+          "description": "To the south you can make out a averaged sized room.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 9045,
+          "description": "To the west you can see what appears to be a cavernous room.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9043,
+      "name": "The Barracks",
+      "description": "A dusty room, with a almost untolerable odor, the barracks are being inspected \n\rby a Hexton and his personal enterage.\n\rThe only exit lies to the south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 9042,
+          "description": "To the south you can see junction\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9044,
+      "name": "The Commander's Post",
+      "description": "You have stumbled on to the office of the Commander of the forces in the Plane \n\rOf Nirvana.  The room is well furnished and a sense of courage and bravery \n\rovertakes you as you enter the room.  The only exit lies to the north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9042,
+          "description": "To the north you can visualize a junction of passages.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9045,
+      "name": "The chamber of the second Secundus",
+      "description": "This huge room is furnished with the finest, and a personal legion guards the \n\rSecundus. the only exit is to the east.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9042,
+          "description": "To the east you can see a junction\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9046,
+      "name": "A Passageway",
+      "description": "You are in a well lit passage.  A sense of forboding danger envelopes you.  \n\rExits lead in all cardinal directions.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9047,
+          "description": "To the north you can see a small chamber\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 9049,
+          "description": "To the east, the passage continues,.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 9048,
+          "description": "To the south, a chamber can be seen\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 9022,
+          "description": "To the west, a large tunnel can be found.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9047,
+      "name": "Chamber of the Octon",
+      "description": "A small room, sparsely furnished, it leaves you with a sense of fear.  The \n\ronly exit is to the south\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 9046,
+          "description": "To the south you can see a passage.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9048,
+      "name": "Chamber of the Nonaton",
+      "description": "You have entered the chamber of the principal law and order overseers.  The \n\ronly exit lies to the north\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9046,
+          "description": "To the north you can see a passageway.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9049,
+      "name": "End of the passageway",
+      "description": "You have reached the end of a long east-west passage.  The passage contiues to \n\rthe west, and rooms lie to the north, south, and east.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9050,
+          "description": "To the north you can see a room\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 9052,
+          "description": "To the east you can make out a large chamber\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 9051,
+          "description": "To the south, a room can be seen.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 9046,
+          "description": "to the west, the passageway continues\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9050,
+      "name": "Chamber of a Hexton",
+      "description": "You have entered the chamber of a Hexton.  Trophies adorn the walls, some of \n\rwhich are human. the only exit is to the south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 9049,
+          "description": "To the south you can see a passageway.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9051,
+      "name": "Chamber of a Hexton",
+      "description": "You have entered a room where you are not very popular. The only exit lies \n\rnorthbound.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9049,
+          "description": "To the north you can see a passage.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9052,
+      "name": "Chamber of the Secudus",
+      "description": "A large canvernous room, this chamber serves as the sleeping quarters for the \n\rthird Secudus, Viceroy to Primus. The only exit lies to the west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 9049,
+          "description": "To the west you can see a passageway.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9053,
+      "name": "A passageway",
+      "description": "You are in a passagway where you may go in any cardinal direction.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9054,
+          "description": "To the north lies a small chamber\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 9022,
+          "description": "To the east, a main passage forms a junction.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 9055,
+          "description": "To the south, you can spot a small room\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 9059,
+          "description": "To the west, the passageway continues\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9054,
+      "name": "A small chamber",
+      "description": "You are in a small cramped chamber.  The only exit lies to the south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 9053,
+          "description": "To the south you can see a passage\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9055,
+      "name": "A cramped room",
+      "description": "You are in a small, crowded room.  The only exit appears to lie to the north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9053,
+          "description": "To the north, you can see a passageway.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9056,
+      "name": "A large room",
+      "description": "You have entered a room where you are not wanted.  The only exit lies to the \n\rsouth.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 9059,
+          "description": "To the south you can visualize a east-west passage.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9057,
+      "name": "A room",
+      "description": "You have entered a room where there was obviously a hurried move going on.  \n\rThe only exit lies to the north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9059,
+          "description": "To the north you can make out a passageway.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9058,
+      "name": "Chamber of The First Secundus",
+      "description": "You have disturbed the rest of the First Viceroy to Primus the Prime, The \n\rSecundus.  He does not look like a happy camper. The only exit lies to the \n\reast.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 9059,
+          "description": "To the east you can spot a hallway\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 9059,
+      "name": "Junction in the hallway",
+      "description": "Exits lead off in all of the cardinal directions\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 9056,
+          "description": "To the north lies a large chamber\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 9053,
+          "description": "To the east , the passage continues.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 9057,
+          "description": "To the south, a small chamber can be found.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 9058,
+          "description": "To the west, lies a monstrous room.\n\r"
+        }
+      ]
+    }
+  ],
+  "mobiles": [
+    {
+      "vnum": 9000,
+      "name": "tridrone",
+      "shortDescr": "the tridrone",
+      "longDescr": "A tridrone is here doing a menial task.\n\r",
+      "description": "You see what appears to be a 3 sided pyramid with spidery arms and legs.\n\r",
+      "race": "modron",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "trip",
+        "assist_align",
+        "assist_race"
+      ],
+      "immFlags": [
+        "charm",
+        "negative",
+        "holy",
+        "mental",
+        "disease"
+      ],
+      "resFlags": [
+        "fire",
+        "cold",
+        "acid"
+      ],
+      "partFlags": [
+        "head",
+        "arms",
+        "legs",
+        "hands",
+        "feet",
+        "fingers",
+        "ear",
+        "eye"
+      ],
+      "alignment": 300,
+      "group": 0,
+      "level": 8,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 20,
+        "bonus": 80
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 5,
+        "bonus": 3
+      },
+      "damType": "pound",
+      "ac": {
+        "pierce": 4,
+        "bash": 3,
+        "slash": 4,
+        "exotic": 5
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9001,
+      "name": "quadrone",
+      "shortDescr": "the quadrone",
+      "longDescr": "A quadrone is here watching for trespassers.\n\r",
+      "description": "A cubic creature, with spiny arms and legs.\n\r",
+      "race": "modron",
+      "actFlags": [
+        "npc",
+        "aggressive",
+        "stay_area",
+        "warrior"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "infrared"
+      ],
+      "atkFlags": [
+        "bash",
+        "disarm",
+        "parry",
+        "assist_align",
+        "assist_race"
+      ],
+      "immFlags": [
+        "charm",
+        "negative",
+        "holy",
+        "mental",
+        "disease"
+      ],
+      "resFlags": [
+        "fire",
+        "cold",
+        "acid"
+      ],
+      "partFlags": [
+        "head",
+        "arms",
+        "legs",
+        "hands",
+        "feet",
+        "fingers",
+        "ear",
+        "eye"
+      ],
+      "alignment": 300,
+      "group": 0,
+      "level": 11,
+      "hitroll": 3,
+      "hitDice": {
+        "number": 14,
+        "type": 10,
+        "bonus": 70
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 3,
+        "type": 4,
+        "bonus": 2
+      },
+      "damType": "beating",
+      "ac": {
+        "pierce": 1,
+        "bash": 0,
+        "slash": 1,
+        "exotic": 2
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9002,
+      "name": "pentadrone",
+      "shortDescr": "the pentadrone",
+      "longDescr": "The pentadrone is here policing the area.\n\r",
+      "description": "A five-armed creature which resembles a starfish on thin stilt-like legs.\n\r",
+      "race": "modron",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive",
+        "stay_area",
+        "warrior"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "infrared"
+      ],
+      "atkFlags": [
+        "bash",
+        "disarm",
+        "dodge",
+        "rescue",
+        "trip",
+        "assist_align",
+        "assist_race"
+      ],
+      "immFlags": [
+        "charm",
+        "negative",
+        "holy",
+        "mental",
+        "disease",
+        "drowning"
+      ],
+      "resFlags": [
+        "fire",
+        "cold",
+        "acid"
+      ],
+      "partFlags": [
+        "head",
+        "arms",
+        "legs",
+        "hands",
+        "feet",
+        "ear",
+        "eye",
+        "tentacles"
+      ],
+      "alignment": 300,
+      "group": 0,
+      "level": 14,
+      "hitroll": 3,
+      "hitDice": {
+        "number": 15,
+        "type": 12,
+        "bonus": 110
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 4,
+        "bonus": 3
+      },
+      "damType": "slap",
+      "ac": {
+        "pierce": -2,
+        "bash": -2,
+        "slash": 0,
+        "exotic": -1
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9003,
+      "name": "decaton",
+      "shortDescr": "the decaton",
+      "longDescr": "A decaton is here overseeing the other modrons.\n\r",
+      "description": "The decaton is a large, ten-tentacled sphere on stumpy legs.\n\r",
+      "race": "modron",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive",
+        "stay_area",
+        "cleric",
+        "warrior"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "infrared"
+      ],
+      "atkFlags": [
+        "area_attack",
+        "bash",
+        "disarm",
+        "parry",
+        "trip",
+        "assist_align",
+        "assist_race"
+      ],
+      "immFlags": [
+        "charm",
+        "negative",
+        "holy",
+        "mental",
+        "disease",
+        "drowning"
+      ],
+      "resFlags": [
+        "fire",
+        "cold",
+        "acid"
+      ],
+      "formFlags": [
+        "sentient",
+        "biped"
+      ],
+      "partFlags": [
+        "head",
+        "arms",
+        "legs",
+        "hands",
+        "feet",
+        "ear",
+        "eye",
+        "tentacles"
+      ],
+      "alignment": 300,
+      "group": 0,
+      "level": 17,
+      "hitroll": 4,
+      "hitDice": {
+        "number": 25,
+        "type": 10,
+        "bonus": 70
+      },
+      "manaDice": {
+        "number": 17,
+        "type": 8,
+        "bonus": 50
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 5,
+        "bonus": 3
+      },
+      "damType": "pound",
+      "ac": {
+        "pierce": -4,
+        "bash": -4,
+        "slash": 0,
+        "exotic": -2
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9004,
+      "name": "nonaton",
+      "shortDescr": "the nonaton",
+      "longDescr": "A nonaton is here preserving law and order.\n\r",
+      "description": "A cylidrical modron with 9 tentacles and stubby legs.\n\r",
+      "race": "modron",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive",
+        "stay_area",
+        "cleric",
+        "warrior"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "sanctuary",
+        "infrared"
+      ],
+      "atkFlags": [
+        "area_attack",
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_align",
+        "assist_race"
+      ],
+      "immFlags": [
+        "charm",
+        "negative",
+        "holy",
+        "mental",
+        "disease",
+        "drowning"
+      ],
+      "resFlags": [
+        "fire",
+        "cold",
+        "acid"
+      ],
+      "vulnFlags": [
+        "slash"
+      ],
+      "formFlags": [
+        "sentient",
+        "biped"
+      ],
+      "partFlags": [
+        "head",
+        "arms",
+        "legs",
+        "hands",
+        "feet",
+        "ear",
+        "eye",
+        "tentacles"
+      ],
+      "alignment": 300,
+      "group": 0,
+      "level": 20,
+      "hitroll": 5,
+      "hitDice": {
+        "number": 11,
+        "type": 8,
+        "bonus": 250
+      },
+      "manaDice": {
+        "number": 20,
+        "type": 8,
+        "bonus": 75
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 6,
+        "bonus": 4
+      },
+      "damType": "pound",
+      "ac": {
+        "pierce": -4,
+        "bash": -4,
+        "slash": -2,
+        "exotic": -3
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 0,
+      "size": "large",
+      "material": "0"
+    },
+    {
+      "vnum": 9005,
+      "name": "octon",
+      "shortDescr": "the octon",
+      "longDescr": "An octon is here governing his ward of responsilbility.\n\r",
+      "description": "The octon has a collar at shoulder level with 8 tentacled arms growing out of\n\rit.\n\r",
+      "race": "modron",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive",
+        "stay_area",
+        "cleric"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "infrared"
+      ],
+      "atkFlags": [
+        "area_attack",
+        "bash",
+        "disarm",
+        "fast",
+        "parry",
+        "assist_align",
+        "assist_race"
+      ],
+      "immFlags": [
+        "charm",
+        "negative",
+        "holy",
+        "mental",
+        "disease",
+        "drowning"
+      ],
+      "resFlags": [
+        "fire",
+        "cold",
+        "acid"
+      ],
+      "vulnFlags": [
+        "slash"
+      ],
+      "formFlags": [
+        "sentient",
+        "biped"
+      ],
+      "partFlags": [
+        "head",
+        "arms",
+        "legs",
+        "hands",
+        "feet",
+        "ear",
+        "eye",
+        "tentacles"
+      ],
+      "alignment": 300,
+      "group": 0,
+      "level": 22,
+      "hitroll": 5,
+      "hitDice": {
+        "number": 25,
+        "type": 10,
+        "bonus": 300
+      },
+      "manaDice": {
+        "number": 18,
+        "type": 10,
+        "bonus": 75
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 6,
+        "bonus": 5
+      },
+      "damType": "crush",
+      "ac": {
+        "pierce": -5,
+        "bash": -5,
+        "slash": -3,
+        "exotic": -4
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 0,
+      "size": "large",
+      "material": "0"
+    },
+    {
+      "vnum": 9006,
+      "name": "septon",
+      "shortDescr": "the septon",
+      "longDescr": "A septon is here preserving order.\n\r",
+      "description": "The septon appears as a human with a large bald head. It has a shoulder collar\n\rwith 7 tentacles coming from it.\n\r",
+      "race": "modron",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive",
+        "stay_area",
+        "cleric",
+        "mage"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "infrared"
+      ],
+      "atkFlags": [
+        "area_attack",
+        "dodge",
+        "parry",
+        "crush",
+        "assist_align",
+        "assist_race"
+      ],
+      "immFlags": [
+        "charm",
+        "negative",
+        "holy",
+        "mental",
+        "disease",
+        "drowning"
+      ],
+      "resFlags": [
+        "fire",
+        "cold",
+        "acid"
+      ],
+      "formFlags": [
+        "sentient",
+        "biped"
+      ],
+      "partFlags": [
+        "head",
+        "arms",
+        "legs",
+        "hands",
+        "feet",
+        "fingers",
+        "ear",
+        "eye",
+        "tentacles"
+      ],
+      "alignment": 300,
+      "group": 0,
+      "level": 24,
+      "hitroll": 5,
+      "hitDice": {
+        "number": 30,
+        "type": 10,
+        "bonus": 350
+      },
+      "manaDice": {
+        "number": 20,
+        "type": 10,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 6,
+        "type": 4,
+        "bonus": 5
+      },
+      "damType": "beating",
+      "ac": {
+        "pierce": -6,
+        "bash": -6,
+        "slash": -6,
+        "exotic": -4
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 9007,
+      "name": "hexton",
+      "shortDescr": "the hexton",
+      "longDescr": "A hexton is here watching over his armies.\n\r",
+      "description": "A hexton appears as a humanoid with 6 arms: 2 large human arms with 6 fingers,\n\rand 4 tentacles below tipped with sharp claws.\n\r",
+      "race": "modron",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive",
+        "stay_area",
+        "cleric",
+        "warrior"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden",
+        "sanctuary",
+        "infrared"
+      ],
+      "atkFlags": [
+        "area_attack",
+        "bash",
+        "disarm",
+        "dodge",
+        "fast",
+        "kick",
+        "parry",
+        "rescue",
+        "trip",
+        "assist_align",
+        "assist_race"
+      ],
+      "immFlags": [
+        "summon",
+        "charm",
+        "negative",
+        "holy",
+        "mental",
+        "disease",
+        "drowning"
+      ],
+      "resFlags": [
+        "magic",
+        "fire",
+        "cold",
+        "acid"
+      ],
+      "formFlags": [
+        "sentient",
+        "biped"
+      ],
+      "partFlags": [
+        "head",
+        "arms",
+        "legs",
+        "hands",
+        "feet",
+        "fingers",
+        "ear",
+        "eye",
+        "tentacles",
+        "wings"
+      ],
+      "alignment": 300,
+      "group": 0,
+      "level": 26,
+      "hitroll": 7,
+      "hitDice": {
+        "number": 35,
+        "type": 20,
+        "bonus": 300
+      },
+      "manaDice": {
+        "number": 20,
+        "type": 10,
+        "bonus": 75
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 8,
+        "bonus": 6
+      },
+      "damType": "slash",
+      "ac": {
+        "pierce": -8,
+        "bash": -8,
+        "slash": -8,
+        "exotic": -4
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 0,
+      "size": "large",
+      "material": "0"
+    },
+    {
+      "vnum": 9008,
+      "name": "quinton",
+      "shortDescr": "the quinton",
+      "longDescr": "A quinton is here keeping records.\n\r",
+      "description": "Quintons look like tall, stocky humanoids with 4 flexible arms jutting from the\n\rshoulders.  A prehensile tail serves as the creature's 5th arm, and they have\n\rfan-like wings attached to their shoulders.\n\r",
+      "race": "modron",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive",
+        "stay_area",
+        "cleric"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "infrared"
+      ],
+      "atkFlags": [
+        "area_attack",
+        "parry",
+        "tail",
+        "crush",
+        "assist_align",
+        "assist_race"
+      ],
+      "immFlags": [
+        "summon",
+        "charm",
+        "negative",
+        "holy",
+        "mental",
+        "disease",
+        "drowning"
+      ],
+      "resFlags": [
+        "fire",
+        "cold",
+        "acid"
+      ],
+      "formFlags": [
+        "sentient",
+        "biped"
+      ],
+      "partFlags": [
+        "head",
+        "arms",
+        "legs",
+        "hands",
+        "feet",
+        "fingers",
+        "ear",
+        "eye",
+        "tentacles",
+        "wings",
+        "tail"
+      ],
+      "alignment": 300,
+      "group": 0,
+      "level": 28,
+      "hitroll": 6,
+      "hitDice": {
+        "number": 10,
+        "type": 100,
+        "bonus": 150
+      },
+      "manaDice": {
+        "number": 20,
+        "type": 12,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 8,
+        "bonus": 7
+      },
+      "damType": "beating",
+      "ac": {
+        "pierce": -7,
+        "bash": -8,
+        "slash": -6,
+        "exotic": -8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 0,
+      "size": "large",
+      "material": "0"
+    },
+    {
+      "vnum": 9009,
+      "name": "tertian",
+      "shortDescr": "the tertian",
+      "longDescr": "A tertian is here administering the law.\n\r",
+      "description": "Tertians look very human, save for their 12 foot size, the horns jutting from\n\rthe sides of their bald heads, and the long prehensile tail ending in a mace-\n\rlike ball.\n\r",
+      "race": "modron",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive",
+        "stay_area",
+        "cleric",
+        "mage",
+        "warrior"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "infrared"
+      ],
+      "atkFlags": [
+        "bash",
+        "disarm",
+        "dodge",
+        "assist_align",
+        "assist_race"
+      ],
+      "immFlags": [
+        "summon",
+        "charm",
+        "negative",
+        "holy",
+        "mental",
+        "disease",
+        "drowning"
+      ],
+      "resFlags": [
+        "magic",
+        "fire",
+        "cold",
+        "acid"
+      ],
+      "formFlags": [
+        "sentient",
+        "biped"
+      ],
+      "partFlags": [
+        "head",
+        "arms",
+        "legs",
+        "hands",
+        "feet",
+        "fingers",
+        "ear",
+        "eye",
+        "horns"
+      ],
+      "alignment": 300,
+      "group": 0,
+      "level": 33,
+      "hitroll": 12,
+      "hitDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 999
+      },
+      "manaDice": {
+        "number": 20,
+        "type": 20,
+        "bonus": 50
+      },
+      "damageDice": {
+        "number": 8,
+        "type": 6,
+        "bonus": 12
+      },
+      "damType": "pound",
+      "ac": {
+        "pierce": -11,
+        "bash": -13,
+        "slash": -10,
+        "exotic": -9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 0,
+      "size": "huge",
+      "material": "0"
+    },
+    {
+      "vnum": 9010,
+      "name": "secundus",
+      "shortDescr": "secundus",
+      "longDescr": "A Secundus, one of the Viceroys of Nirvana, is here.\n\r",
+      "description": "The secundi is an incredibly thin, tall humanoids with long, narrow faces\n\rand deepset eyes. It radiates intense power.\n\r",
+      "race": "modron",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive",
+        "stay_area",
+        "cleric",
+        "mage",
+        "warrior"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden",
+        "sanctuary",
+        "infrared"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "fast",
+        "kick",
+        "parry",
+        "trip",
+        "assist_align",
+        "assist_race"
+      ],
+      "immFlags": [
+        "summon",
+        "charm",
+        "fire",
+        "cold",
+        "acid",
+        "negative",
+        "holy",
+        "mental",
+        "disease",
+        "drowning"
+      ],
+      "resFlags": [
+        "magic",
+        "fire",
+        "cold",
+        "acid"
+      ],
+      "formFlags": [
+        "sentient",
+        "biped"
+      ],
+      "partFlags": [
+        "head",
+        "arms",
+        "legs",
+        "hands",
+        "feet",
+        "fingers",
+        "ear",
+        "eye"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 36,
+      "hitroll": 15,
+      "hitDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 1599
+      },
+      "manaDice": {
+        "number": 40,
+        "type": 20,
+        "bonus": 50
+      },
+      "damageDice": {
+        "number": 7,
+        "type": 8,
+        "bonus": 15
+      },
+      "damType": "punch",
+      "ac": {
+        "pierce": -11,
+        "bash": -14,
+        "slash": -11,
+        "exotic": -12
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 0,
+      "size": "huge",
+      "material": "0"
+    },
+    {
+      "vnum": 9011,
+      "name": "Primus",
+      "shortDescr": "Primus",
+      "longDescr": "Primus, ruler of the Plane of Nirvana, forms out of an energy pool.\n\r",
+      "description": "Primus is a huge being who rises out of the energy pool and glares at you with\n\rviolet eyes. His right hand is wreathed in darkness, his left in light, and\n\rhe looks very displeased to see you.\n\r",
+      "race": "modron",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive",
+        "stay_area",
+        "cleric",
+        "mage",
+        "warrior"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden",
+        "sanctuary",
+        "infrared"
+      ],
+      "atkFlags": [
+        "area_attack",
+        "fast",
+        "assist_align",
+        "assist_race"
+      ],
+      "immFlags": [
+        "summon",
+        "charm",
+        "fire",
+        "cold",
+        "acid",
+        "negative",
+        "holy",
+        "mental",
+        "disease",
+        "drowning",
+        "light"
+      ],
+      "resFlags": [
+        "magic",
+        "fire",
+        "cold",
+        "acid"
+      ],
+      "formFlags": [
+        "sentient",
+        "biped"
+      ],
+      "partFlags": [
+        "head",
+        "arms",
+        "legs",
+        "hands",
+        "feet",
+        "fingers",
+        "ear",
+        "eye"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 40,
+      "hitroll": 20,
+      "hitDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 3999
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 3999
+      },
+      "damageDice": {
+        "number": 6,
+        "type": 10,
+        "bonus": 25
+      },
+      "damType": "wrath",
+      "ac": {
+        "pierce": -15,
+        "bash": -15,
+        "slash": -15,
+        "exotic": -15
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 0,
+      "size": "giant",
+      "material": "0"
+    }
+  ],
+  "objects": [
+    {
+      "vnum": 9000,
+      "name": "sword long the",
+      "shortDescr": "THE long sword",
+      "description": "THE long sword of Primus is here.",
+      "material": "adamantite",
+      "itemType": "weapon",
+      "extraFlags": [
+        "glow",
+        "magic",
+        "antigood",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "sword",
+        "dice": [
+          5,
+          6
+        ],
+        "damageType": "slash",
+        "flags": [
+          "vorpal",
+          "twohands"
+        ]
+      },
+      "level": 39,
+      "weight": 400,
+      "cost": 8800,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "sword long the",
+          "description": "This is an extremely long and heavy sword, with many magical runes inscribed\n\ron it.  It glows with the power of Primus, Lord of the Plane of Nirvana.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 39,
+          "duration": -1,
+          "modifier": 5
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 39,
+          "duration": -1,
+          "modifier": 5
+        }
+      ]
+    },
+    {
+      "vnum": 9001,
+      "name": "moonstone moon stone white",
+      "shortDescr": "a luminescent moonstone",
+      "description": "A softly glowing white stone rests on the floor.",
+      "material": "gem",
+      "itemType": "warpstone",
+      "extraFlags": [
+        "glow",
+        "nolocate"
+      ],
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "values": [
+        24,
+        0,
+        0,
+        0,
+        0
+      ],
+      "cost": 500,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "moonstone moon stone white",
+          "description": "Looking into the smooth surface of this moonstone, you feel strangely at \n\rpeace and balance with the world around you.\n\r"
+        }
+      ]
+    }
+  ],
+  "shops": [],
+  "specials": [],
+  "mobprogs": [],
+  "resets": [
+    {
+      "mobVnum": 9001,
+      "maxInArea": 9,
+      "roomVnum": 9001,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9000,
+      "maxInArea": 10,
+      "roomVnum": 9002,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9000,
+      "maxInArea": 10,
+      "roomVnum": 9003,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9002,
+      "maxInArea": 6,
+      "roomVnum": 9011,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9001,
+      "maxInArea": 9,
+      "roomVnum": 9012,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9000,
+      "maxInArea": 10,
+      "roomVnum": 9013,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9008,
+      "maxInArea": 4,
+      "roomVnum": 9016,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9008,
+      "maxInArea": 4,
+      "roomVnum": 9017,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9009,
+      "maxInArea": 4,
+      "roomVnum": 9018,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9009,
+      "maxInArea": 4,
+      "roomVnum": 9019,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9011,
+      "maxInArea": 1,
+      "roomVnum": 9020,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 9000,
+      "wearLoc": "wielded",
+      "roomVnum": 9020,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 9009,
+      "maxInArea": 4,
+      "roomVnum": 9021,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9008,
+      "maxInArea": 4,
+      "roomVnum": 9022,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9009,
+      "maxInArea": 4,
+      "roomVnum": 9024,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9008,
+      "maxInArea": 4,
+      "roomVnum": 9025,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9000,
+      "maxInArea": 10,
+      "roomVnum": 9027,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9001,
+      "maxInArea": 9,
+      "roomVnum": 9028,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9000,
+      "maxInArea": 10,
+      "roomVnum": 9029,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9002,
+      "maxInArea": 6,
+      "roomVnum": 9031,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9005,
+      "maxInArea": 4,
+      "roomVnum": 9033,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9006,
+      "maxInArea": 2,
+      "roomVnum": 9034,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9007,
+      "maxInArea": 8,
+      "roomVnum": 9036,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9007,
+      "maxInArea": 8,
+      "roomVnum": 9037,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9002,
+      "maxInArea": 6,
+      "roomVnum": 9038,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9010,
+      "maxInArea": 4,
+      "roomVnum": 9038,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9005,
+      "maxInArea": 4,
+      "roomVnum": 9040,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9006,
+      "maxInArea": 2,
+      "roomVnum": 9041,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9007,
+      "maxInArea": 8,
+      "roomVnum": 9043,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9007,
+      "maxInArea": 8,
+      "roomVnum": 9044,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9002,
+      "maxInArea": 6,
+      "roomVnum": 9045,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9010,
+      "maxInArea": 4,
+      "roomVnum": 9045,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9005,
+      "maxInArea": 4,
+      "roomVnum": 9047,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9004,
+      "maxInArea": 1,
+      "roomVnum": 9048,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 9001,
+      "roomVnum": 9048,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 9007,
+      "maxInArea": 8,
+      "roomVnum": 9050,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9007,
+      "maxInArea": 8,
+      "roomVnum": 9051,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9002,
+      "maxInArea": 6,
+      "roomVnum": 9052,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9010,
+      "maxInArea": 4,
+      "roomVnum": 9052,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9005,
+      "maxInArea": 4,
+      "roomVnum": 9054,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9003,
+      "maxInArea": 1,
+      "roomVnum": 9055,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9007,
+      "maxInArea": 8,
+      "roomVnum": 9056,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9007,
+      "maxInArea": 8,
+      "roomVnum": 9057,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9002,
+      "maxInArea": 6,
+      "roomVnum": 9058,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 9010,
+      "maxInArea": 4,
+      "roomVnum": 9058,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    }
+  ],
+  "factions": [],
+  "quests": []
+}

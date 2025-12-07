@@ -1,0 +1,369 @@
+{
+  "formatVersion": 1,
+  "areadata": {
+    "version": 2,
+    "name": "Limbo",
+    "builders": "",
+    "vnumRange": [
+      1,
+      30
+    ],
+    "credits": "Diku",
+    "security": 9,
+    "sector": "inside",
+    "lowLevel": 0,
+    "highLevel": 0,
+    "reset": 6,
+    "alwaysReset": false
+  },
+  "storyBeats": [],
+  "checklist": [],
+  "rooms": [
+    {
+      "vnum": 1,
+      "name": "The Void",
+      "description": "You are floating in nothing.\n\r",
+      "roomFlags": [
+        "no_mob",
+        "indoors"
+      ],
+      "sectorType": "city"
+    },
+    {
+      "vnum": 2,
+      "name": "Limbo",
+      "description": "You are floating in a formless void, detached from all sensation of physical\n\rmatter, surrounded by swirling glowing light, which fades into the relative\n\rdarkness around you without any trace of edges or shadow.\n\r   There is a \"No Tipping\" notice pinned to the darkness.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 3001
+        }
+      ]
+    }
+  ],
+  "mobiles": [],
+  "objects": [
+    {
+      "vnum": 1,
+      "name": "coin silver gcash",
+      "shortDescr": "a silver coin",
+      "description": "One miserable silver coin.",
+      "material": "silver",
+      "itemType": "money",
+      "wearFlags": [
+        "take"
+      ],
+      "money": {
+        "gold": 1
+      },
+      "weight": 10,
+      "condition": 100
+    },
+    {
+      "vnum": 2,
+      "name": "coin gold gcash",
+      "shortDescr": "a gold coin",
+      "description": "One valuable gold coin.",
+      "material": "gold",
+      "itemType": "money",
+      "wearFlags": [
+        "take"
+      ],
+      "money": {
+        "silver": 1
+      },
+      "weight": 10,
+      "condition": 100
+    },
+    {
+      "vnum": 3,
+      "name": "coins gold gcash",
+      "shortDescr": "%d gold coins",
+      "description": "A pile of gold coins.",
+      "material": "gold",
+      "itemType": "money",
+      "wearFlags": [
+        "take"
+      ],
+      "weight": 10,
+      "condition": 100
+    },
+    {
+      "vnum": 4,
+      "name": "coins silver gcash",
+      "shortDescr": "%d silver coins",
+      "description": "A pile of silver coins.",
+      "material": "silver",
+      "itemType": "money",
+      "wearFlags": [
+        "take"
+      ],
+      "weight": 10,
+      "condition": 100
+    },
+    {
+      "vnum": 5,
+      "name": "coins silver gold gcash",
+      "shortDescr": "%d silver coins and %d gold coins",
+      "description": "A pile of coins.",
+      "material": "gold",
+      "itemType": "money",
+      "wearFlags": [
+        "take"
+      ],
+      "weight": 10,
+      "condition": 100
+    },
+    {
+      "vnum": 10,
+      "name": "corpse",
+      "shortDescr": "the corpse of %s",
+      "description": "The corpse of %s is lying here.",
+      "material": "meat",
+      "itemType": "npccorpse",
+      "wearFlags": [
+        "take"
+      ],
+      "values": [
+        0,
+        0,
+        0,
+        1,
+        0
+      ],
+      "weight": 1000,
+      "condition": 25
+    },
+    {
+      "vnum": 11,
+      "name": "corpse",
+      "shortDescr": "the corpse of %s",
+      "description": "The corpse of %s is lying here.",
+      "material": "meat",
+      "itemType": "pc_corpse",
+      "extraFlags": [
+        "nopurge"
+      ],
+      "wearFlags": [
+        "take"
+      ],
+      "values": [
+        0,
+        0,
+        0,
+        1,
+        0
+      ],
+      "weight": 1000,
+      "condition": 25
+    },
+    {
+      "vnum": 12,
+      "name": "head",
+      "shortDescr": "the head of %s",
+      "description": "The severed head of %s is lying here.",
+      "material": "meat",
+      "itemType": "trash",
+      "wearFlags": [
+        "take"
+      ],
+      "weight": 50,
+      "condition": 25
+    },
+    {
+      "vnum": 13,
+      "name": "heart",
+      "shortDescr": "the heart of %s",
+      "description": "The torn-out heart of %s is lying here.",
+      "material": "meat",
+      "itemType": "food",
+      "wearFlags": [
+        "take"
+      ],
+      "food": {
+        "foodHours": 16,
+        "fullHours": 16
+      },
+      "weight": 20,
+      "condition": 25
+    },
+    {
+      "vnum": 14,
+      "name": "arm",
+      "shortDescr": "the arm of %s",
+      "description": "The sliced-off arm of %s is lying here.",
+      "material": "meat",
+      "itemType": "food",
+      "wearFlags": [
+        "take"
+      ],
+      "food": {
+        "foodHours": 20,
+        "fullHours": 20
+      },
+      "weight": 50,
+      "condition": 25
+    },
+    {
+      "vnum": 15,
+      "name": "leg",
+      "shortDescr": "the leg of %s",
+      "description": "The sliced-off leg of %s is lying here.",
+      "material": "meat",
+      "itemType": "food",
+      "wearFlags": [
+        "take"
+      ],
+      "food": {
+        "foodHours": 20,
+        "fullHours": 20
+      },
+      "weight": 50,
+      "condition": 25
+    },
+    {
+      "vnum": 16,
+      "name": "guts entrails",
+      "shortDescr": "the guts of %s",
+      "description": "A steaming pile of %s's entrails is lying here.",
+      "material": "meat",
+      "itemType": "food",
+      "wearFlags": [
+        "take"
+      ],
+      "food": {
+        "foodHours": 5,
+        "fullHours": 5,
+        "poisoned": true
+      },
+      "weight": 20,
+      "condition": 25
+    },
+    {
+      "vnum": 17,
+      "name": "brains brain",
+      "shortDescr": "the brains of %s",
+      "description": "The splattered brains of %s are lying here.",
+      "material": "meat",
+      "itemType": "food",
+      "wearFlags": [
+        "take"
+      ],
+      "food": {
+        "foodHours": 10,
+        "fullHours": 10
+      },
+      "weight": 20,
+      "condition": 25
+    },
+    {
+      "vnum": 20,
+      "name": "mushroom",
+      "shortDescr": "a Magic Mushroom",
+      "description": "A delicious magic mushroom is here.",
+      "material": "food",
+      "itemType": "food",
+      "wearFlags": [
+        "take"
+      ],
+      "food": {
+        "foodHours": 8,
+        "fullHours": 8
+      },
+      "weight": 10,
+      "condition": 100
+    },
+    {
+      "vnum": 21,
+      "name": "ball light",
+      "shortDescr": "a bright ball of light",
+      "description": "A bright ball of light shimmers in the air.",
+      "material": "energy",
+      "itemType": "light",
+      "extraFlags": [
+        "glow"
+      ],
+      "wearFlags": [
+        "take"
+      ],
+      "light": {
+        "hours": 999
+      },
+      "condition": 100
+    },
+    {
+      "vnum": 22,
+      "name": "spring",
+      "shortDescr": "a magical spring",
+      "description": "A magical spring flows from the ground here.",
+      "material": "water",
+      "itemType": "fountain",
+      "extraFlags": [
+        "magic"
+      ],
+      "fountain": {
+        "capacity": 100000,
+        "remaining": 100000
+      },
+      "condition": 100
+    },
+    {
+      "vnum": 23,
+      "name": "disc disk floating black",
+      "shortDescr": "a floating disc",
+      "description": "A floating black disc hangs in the air.",
+      "material": "energy",
+      "itemType": "container",
+      "extraFlags": [
+        "magic",
+        "noremove",
+        "rotdeath",
+        "meltdrop",
+        "burnproof",
+        "nouncurse"
+      ],
+      "wearFlags": [
+        "take",
+        "wearfloat"
+      ],
+      "container": {
+        "flags": [
+          "puton"
+        ]
+      },
+      "condition": 100
+    },
+    {
+      "vnum": 25,
+      "name": "gate portal",
+      "shortDescr": "a shimmering gate",
+      "description": "A shimmering black gate rises from the ground, leading to parts unknown.",
+      "material": "shadow",
+      "itemType": "portal",
+      "extraFlags": [
+        "magic",
+        "nopurge",
+        "nolocate"
+      ],
+      "condition": 100
+    },
+    {
+      "vnum": 30,
+      "name": "dummy object",
+      "shortDescr": "a dummy object",
+      "description": "Dummy object is used for loading non-existent objects",
+      "itemType": "trash",
+      "condition": 100
+    }
+  ],
+  "shops": [],
+  "specials": [],
+  "mobprogs": [],
+  "resets": [],
+  "factions": [],
+  "quests": []
+}

@@ -11,6 +11,10 @@
 
 #include <string.h>
 
+#ifdef _MSC_VER
+#define strcasecmp _stricmp
+#endif
+
 static const char* file_ext(const char* path)
 {
     if (!path)

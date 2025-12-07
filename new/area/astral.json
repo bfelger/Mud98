@@ -1,0 +1,5864 @@
+{
+  "formatVersion": 1,
+  "areadata": {
+    "version": 2,
+    "name": "Astral Plane",
+    "builders": "",
+    "vnumRange": [
+      7700,
+      7799
+    ],
+    "credits": "Andersen",
+    "security": 9,
+    "sector": "inside",
+    "lowLevel": 10,
+    "highLevel": 35,
+    "reset": 6,
+    "alwaysReset": false
+  },
+  "storyBeats": [],
+  "checklist": [],
+  "rooms": [
+    {
+      "vnum": 7700,
+      "name": "The Bottom of the Rainbow",
+      "description": "You are standing before a shimmering rainbow arching high up into the\n\rsky.  You feel somehow separated from the natural world, even though the\n\rtemple spire is only a few meters below you.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 7701,
+          "description": "The rainbow extends above you, fading out of existence only meters away.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 1036,
+          "description": "You can see the Temple of Midgaard below you.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "rainbow",
+          "description": "The rainbow softly glows with beams of light, in colours that defie \n\rdescription.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7701,
+      "name": "On the Rainbow",
+      "description": "You are standing on the rainbow, surrounded by many beams of multicoloured\n\rlight.  Through the bottom of the rainbow you can barely make out the Temple\n\rof Midgaard, which is now quite far away.\n\r",
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 7702,
+          "description": "The rainbow extends far above you, slowly fading into darkness.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7700,
+          "description": "The rainbow extends below you towards Midgaard.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "rainbow",
+          "description": "The rainbow softly glows with beams of light, in colours that defie \n\rdescription.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7702,
+      "name": "On the Rainbow",
+      "description": "You are standing on the rainbow, surrounded by many beams of multicoloured\n\rlight.  Through the bottom of the rainbow you see the City of Midgaard and the \n\rland surrounding it.  It seems to be miles below you.\n\r",
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 7703,
+          "description": "The rainbow extends far above you, slowly fading into darkness.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7701,
+          "description": "The rainbow extends below you towards the land you once knew as home.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "rainbow",
+          "description": "The rainbow softly glows with beams of light, in colours that\n\rdefie description.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7703,
+      "name": "On the Rainbow",
+      "description": "You are standing on the rainbow, surrounded by many beams of multicoloured\n\rlight.  The rainbow extends above and below you as far as you can see.\n\r",
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 7704,
+          "description": "The rainbow extends far above you.  You see a glowing white light at the \n\rrainbow's end.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7702,
+          "description": "The rainbow extends far below you, slowly fading into darkness.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "rainbow",
+          "description": "The rainbow brightly glows with beams of light, in colours that defie any\n\rdescription.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7704,
+      "name": "On the Rainbow",
+      "description": "You are nearing the end of the rainbow.  The beams of multicoloured\n\rlight have begun to merge and solidify.  All around you you see glowing\n\rstarlike motes of dust.  Ahead of you is a bridge.\n\r",
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 7705,
+          "description": "The rainbow extends above you, merging into a brilliant glowing\n\rbridge.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7703,
+          "description": "The rainbow extends far below you, slowly fading into darkness.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "rainbow",
+          "description": "The rainbow brilliantly glows with beams of blinding light, in colours that \n\rsweep together and merge before your eyes.\n\r"
+        },
+        {
+          "keyword": "motes star stars dust",
+          "description": "The star-like motes dance before your eyes.  They are incredibly beautiful yet\n\rintangible -- your hand passes right through them.\n\r"
+        },
+        {
+          "keyword": "bridge",
+          "description": "The colors of the rainbow seem to converge into a glowing bridge that leads\n\rto a massive white gate.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7705,
+      "name": "The Glowing Bridge at the Rainbow's End",
+      "description": "After a long climb you have reached the end of the rainbow.  The brilliant\n\rcolours have twisted and merged into a beautiful glowing bridge that leads\n\rtoward a massive white gate to the north.  All around you is a soft, peaceful \n\rglow interrupted only by the passing of starlike dust motes before your eyes.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7706,
+          "description": "The bridge leads on to a massive white gate.  You see a large grey figure\n\rstanding there.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7704,
+          "description": "The bridge disassociates into a beautiful spectrum of colours that\n\rdrop out of sight below you.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "rainbow",
+          "description": "The rainbow seems to be forming directly from the light of the bridge.  It\n\rdrops out of sight below you.\n\r"
+        },
+        {
+          "keyword": "motes star stars dust",
+          "description": "The star-like motes dance before your eyes.  They are incredibly beautiful yet\n\rintangible -- your hand passes right through them.\n\r"
+        },
+        {
+          "keyword": "bridge",
+          "description": "The bridge glows with an unearthly light.\n\r"
+        },
+        {
+          "keyword": "gate",
+          "description": "The gate towers tens of feet above your heads.  Beyond it is a field of utter\n\rblackness, from which the motes of light seem to issue forth.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7706,
+      "name": "The Astral Gate",
+      "description": "Here the bridge ends before a massive, pearly-coloured gate beyond which\n\ryou can see a field of blackness filled with silvery snake-like tendrils,\n\rstars, and occasional flashes of of light.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7707,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "Through the gate you see a massive field of blackness that extends as far\n\ras you can see.\n\r",
+          "keyword": "gate"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7705,
+          "description": "The bridge extends towards the rainbow, which drops out of sight\n\rbelow you.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "gate",
+          "description": "You see a huge, glowing gate wrought from an incredibly hard translucent \n\rmaterial.  Each of the intricately carved bars of this mighty gate are about \n\ras thick as a man's wrist, rising from the floor to a height of forty feet.  \n\rA plaque is inset into the wall next to one side of the gate.\n\r"
+        },
+        {
+          "keyword": "plaque",
+          "description": "The plaque reads: \n\r\n\rLet this gate stand to protect mortal man for all time against the perils of \n\rthe outer planes of existence and the creatures fair and foul that dwell within.\n\r\n\r(The Astral Plane and Githyanki Keep were written by Andersen.) \n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7707,
+      "name": "Into the Astral Plane",
+      "description": "You step through the gate, and into another reality...\n\r\n\r   You find yourself floating in a field of blackness, filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is very disorienting, although it is not too late to return\n\rthrough the gate to the south.\n\r",
+      "roomFlags": [
+        "no_mob"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7708,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7709,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7706,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "The astral gate leads back to your world.\n\r",
+          "keyword": "gate"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7710,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7711,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7712,
+          "description": "The astral field leads off into infinity.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "gate",
+          "description": ">From here the pearly-coloured gate seems very small and insubstantial.  Through\n\rits bars you can see the Astral Guardian, protecting your world from the perils\n\rof this plane of existence.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7708,
+      "name": "Exploring the Astral Plane",
+      "description": "You find yourself floating in a field of blackness, filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is very disorienting, and it is difficult to maintain your \n\rbearings and sense of direction.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7713,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7710,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7707,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7712,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7714,
+          "description": "The astral field leads off into infinity.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7709,
+      "name": "Exploring the Astral Plane",
+      "description": "You find yourself floating in a field of blackness, filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is very disorienting, and it is difficult to maintain your \n\rbearings and sense of direction.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7714,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7716,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7707,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7710,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7711,
+          "description": "The astral field leads off into infinity.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7710,
+      "name": "Exploring the Astral Plane",
+      "description": "You find yourself floating in a field of blackness, filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is very disorienting, and it is difficult to maintain your \n\rbearings and sense of direction.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7715,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7707,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7708,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7713,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7709,
+          "description": "The astral field leads off into infinity.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7711,
+      "name": "Exploring the Astral Plane",
+      "description": "You find yourself floating in a field of blackness, filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is very disorienting, and it is difficult to maintain your \n\rbearings and sense of direction.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7716,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7712,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7717,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7709,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7707,
+          "description": "The astral field leads off into infinity.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7712,
+      "name": "Exploring the Astral Plane",
+      "description": "You find yourself floating in a field of blackness, filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is very disorienting, and it is difficult to maintain your \n\rbearings and sense of direction.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7717,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7708,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7711,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7707,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7715,
+          "description": "The astral field leads off into infinity.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7713,
+      "name": "Roaming the Astral Plane",
+      "description": "You find yourself floating in a field of blackness, filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is somewhat disorienting.\n\r   All exits lead off into the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7718,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7715,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7708,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7720,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7714,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7710,
+          "description": "The astral field leads off into infinity.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7714,
+      "name": "Roaming the Astral Plane",
+      "description": "You find yourself floating in a field of blackness, filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is somewhat disorienting.\n\r   All exits lead off into the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7719,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7717,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7709,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7718,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7708,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7713,
+          "description": "The astral field leads off into infinity.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7715,
+      "name": "Roaming the Astral Plane",
+      "description": "You find yourself floating in a field of blackness, filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is somewhat disorienting, though your instincts say you are \n\rclose to home.\n\r   All exits lead off into the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7720,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7722,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7710,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7713,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7712,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7716,
+          "description": "The astral field leads off into infinity.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7716,
+      "name": "Roaming the Astral Plane",
+      "description": "You find yourself floating in a field of blackness, filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is somewhat disorienting, though your instincts say you are \n\rclose to home.\n\r   All exits lead off into the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7721,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7719,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7711,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7709,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7715,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7717,
+          "description": "The astral field leads off into infinity.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7717,
+      "name": "Roaming the Astral Plane",
+      "description": "You find yourself floating in a field of blackness, filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is somewhat disorienting, though your instincts say you are \n\rclose to home.\n\r   All exits lead off into the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7722,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7711,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7712,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7714,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7716,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7721,
+          "description": "The astral field leads off into infinity.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7718,
+      "name": "Wandering the Astral Plane",
+      "description": "You find yourself floating in a field of blackness, filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is highly disorienting.  Nearby you see a large silvery\n\rstrand of light.\n\r   Most exits lead off into the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7709,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7714,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7713,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7719,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7733,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7736,
+          "description": "You see a tangible strand of silvery light.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7719,
+      "name": "Wandering the Astral Plane",
+      "description": "You find yourself floating in a field of blackness, filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is highly disorienting.  Nearby you see a large silvery\n\rstrand of light.\n\r   Most exits lead off into the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7710,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7718,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7714,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7716,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7734,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7738,
+          "description": "You see a tangible strand of silvery light.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7720,
+      "name": "Wandering the Astral Plane",
+      "description": "You find yourself floating in a field of blackness, filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is highly disorienting.  Nearby you see a large silvery\n\rstrand of light.\n\r   Most exits lead off into the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7711,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7713,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7715,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7721,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7735,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7740,
+          "description": "You see a tangible strand of silvery light.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7721,
+      "name": "Wandering the Astral Plane",
+      "description": "You find yourself floating in a field of blackness, filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is highly disorienting.  Nearby you see a large silvery\n\rstrand of light.\n\r   Most exits lead off into the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7712,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7720,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7716,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7742,
+          "description": "You see a tangible strand of silvery light.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7717,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7733,
+          "description": "The astral field leads off into infinity.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7722,
+      "name": "Wandering the Astral Plane",
+      "description": "You find yourself floating in a field of blackness, filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is highly disorienting.  Nearby you see a large silvery\n\rstrand of light.\n\r   Most exits lead off into the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7712,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7717,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7715,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7744,
+          "description": "You see a tangible strand of silvery light.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7734,
+          "description": "The astral field leads off into infinity.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7723,
+      "name": "Travelling the Astral Plane",
+      "description": "You find yourself floating in a field of blackness, filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is extremely disorienting.  Nearby you see a large silvery\n\rstrand of light.\n\r   Most exits lead off into the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7724,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7728,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7737,
+          "description": "You see a tangible strand of silvery light.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7726,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7732,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7735,
+          "description": "The astral field leads off into infinity.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7724,
+      "name": "Travelling the Astral Plane",
+      "description": "You find yourself floating in a field of blackness, filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is extremely disorienting.  Nearby you see a large silvery\n\rstrand of light.\n\r   Most exits lead off into the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7725,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7729,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7723,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7733,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7730,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7739,
+          "description": "You see a tangible strand of silvery light.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7725,
+      "name": "Travelling the Astral Plane",
+      "description": "You find yourself floating in a field of blackness, filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is extremely disorienting.  Nearby you see a large silvery\n\rstrand of light.\n\r   Most exits lead off into the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7741,
+          "description": "You see a tangible strand of silvery light.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7727,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7724,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7734,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7728,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7730,
+          "description": "The astral field leads off into infinity.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7726,
+      "name": "Travelling the Astral Plane",
+      "description": "You find yourself floating in a field of blackness, filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is extremely disorienting.  Nearby you see a large silvery\n\rstrand of light.\n\r   Most exits lead off into the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7731,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7723,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7727,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7735,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7743,
+          "description": "You see a tangible strand of silvery light.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7729,
+          "description": "The astral field leads off into infinity.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7727,
+      "name": "Travelling the Astral Plane",
+      "description": "You find yourself floating in a field of blackness, filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is extremely disorienting.  Nearby you see a large silvery\n\rstrand of light.\n\r   Most exits lead off into the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7726,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7732,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7733,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7725,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7731,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7744,
+          "description": "You see a tangible strand of silvery light.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7728,
+      "name": "Traversing the Astral Plane",
+      "description": "You find yourself deep within in a dark field filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is extremely disorienting, and you are having trouble \n\rkeeping your sense of direction.\n\r   All exits lead off into the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7709,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7747,
+          "description": "The astral field leads off into the depths.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7734,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7723,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7745,
+          "description": "The astral field leads off into the depths.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7725,
+          "description": "The astral field leads off into infinity.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7729,
+      "name": "Traversing the Astral Plane",
+      "description": "You find yourself deep within in a dark field filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is extremely disorienting, and you are having trouble \n\rkeeping your sense of direction.\n\r   All exits lead off into the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7730,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7749,
+          "description": "The astral field leads off into the depths.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7735,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7724,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7726,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7746,
+          "description": "The astral field leads off into the depths.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7730,
+      "name": "Traversing the Astral Plane",
+      "description": "You find yourself deep within in a dark field filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is extremely disorienting, and you are having trouble \n\rkeeping your sense of direction.\n\r   All exits lead off into the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7747,
+          "description": "The astral field leads off into the depths.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7733,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7729,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7745,
+          "description": "The astral field leads off into the depths.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7725,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7724,
+          "description": "The astral field leads off into infinity.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7731,
+      "name": "Traversing the Astral Plane",
+      "description": "You find yourself deep within in a dark field filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is extremely disorienting, and you are having trouble \n\rkeeping your sense of direction.\n\r   All exits lead off into the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7732,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7734,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7726,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7748,
+          "description": "The astral field leads off into the depths.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7746,
+          "description": "The astral field leads off into the depths.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7727,
+          "description": "The astral field leads off into infinity.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7732,
+      "name": "Traversing the Astral Plane",
+      "description": "You find yourself deep within in a dark field filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is extremely disorienting, and you are having trouble \n\rkeeping your sense of direction.\n\r   All exits lead off into the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7749,
+          "description": "The astral field leads off into the depths.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7735,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7731,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7727,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7748,
+          "description": "The astral field leads off into the depths.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7723,
+          "description": "The astral field leads off into infinity.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7733,
+      "name": "Lost in the Astral Plane",
+      "description": "You find yourself in in a field of blackness, filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is incredibly disorienting, and you are having trouble \n\rkeeping your senses straight.\n\r   All exits lead off into the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7727,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7724,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7730,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7721,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7718,
+          "description": "The astral field leads off into infinity.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7734,
+      "name": "Lost in the Astral Plane",
+      "description": "You find yourself in in a field of blackness, filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is incredibly disorienting, and you are having trouble \n\rkeeping your senses straight.\n\r   All exits lead off into the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7728,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7725,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7731,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7722,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7719,
+          "description": "The astral field leads off into infinity.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7735,
+      "name": "Lost in the Astral Plane",
+      "description": "You find yourself in in a field of blackness, filled with tiny tendrils\n\rof silvery light and insubstantial shining motes of dust.  The weightlessness\n\rof this environment is incredibly disorienting, and you are having trouble \n\rkeeping your senses straight.\n\r   All exits lead off into the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7729,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7726,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7732,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7723,
+          "description": "The astral field leads off into infinity.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7720,
+          "description": "The astral field leads off into infinity.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7736,
+      "name": "Walking the Silvery Strand",
+      "description": "You are standing atop a silvery strand of light that twists and turns\n\rthrough the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7737,
+          "description": "The strand of light twists and turns out of sight.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7718,
+          "description": "You see the infinite expanse of the astral field.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7737,
+      "name": "Walking the Silvery Strand",
+      "description": "You are standing atop a silvery strand of light that twists and turns\n\rthrough the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7723,
+          "description": "You see the infinite expanse of the astral field.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7736,
+          "description": "The strand of light twists and turns out of sight.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7738,
+      "name": "Walking the Silvery Strand",
+      "description": "You are standing atop a silvery strand of light that twists and turns\n\rthrough the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 7739,
+          "description": "The strand of light twists and turns out of sight.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7719,
+          "description": "You see the infinite expanse of the astral field.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7739,
+      "name": "Walking the Silvery Strand",
+      "description": "You are standing atop a silvery strand of light that twists and turns\n\rthrough the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 7738,
+          "description": "The strand of light twists and turns out of sight.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7724,
+          "description": "You see the infinite expanse of the astral field.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7740,
+      "name": "Walking the Silvery Strand",
+      "description": "You are standing atop a silvery strand of light that twists and turns\n\rthrough the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 7741,
+          "description": "The strand of light twists and turns out of sight.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7720,
+          "description": "You see the infinite expanse of the astral field.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7741,
+      "name": "Walking the Silvery Strand",
+      "description": "You are standing atop a silvery strand of light that twists and turns\n\rthrough the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 7725,
+          "description": "You see the infinite expanse of the astral field.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7740,
+          "description": "The strand of light twists and turns out of sight.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7742,
+      "name": "Walking the Silvery Strand",
+      "description": "You are standing atop a silvery strand of light that twists and turns\n\rthrough the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7743,
+          "description": "The strand of light twists and turns out of sight.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7721,
+          "description": "You see the infinite expanse of the astral field.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7743,
+      "name": "Walking the Silvery Strand",
+      "description": "You are standing atop a silvery strand of light that twists and turns\n\rthrough the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 7742,
+          "description": "The strand of light twists and turns out of sight.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7726,
+          "description": "You see the infinite expanse of the astral field.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7744,
+      "name": "Walking the Silvery Strand",
+      "description": "You are standing atop a silvery strand of light that twists and turns\n\rthrough the astral field.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 7727,
+          "description": "You see the endless expanse of the astral field.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7722,
+          "description": "You see the infinite expanse of the astral field.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7745,
+      "name": "Deep Within the Astral Plane",
+      "description": "You have travelled deep inside the astral field.  Here the fabric of the\n\rfield has become twisted and warped due to the proximity of another plane of\n\rexistence.  Some of the tendrils of light that line the astral field have been\n\rwarped and twisted into portals to other worlds.\n\r   Take care before you step through one -- you might never return.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7746,
+          "description": "The astral field leads on into the depths.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7730,
+          "description": "The astral field leads on into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7749,
+          "description": "The astral field leads on into the depths.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7750,
+          "description": "Through the nexial link you can see a stony keep.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7728,
+          "description": "The astral field leads on into infinity.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7746,
+      "name": "Deep Within the Astral Plane",
+      "description": "You have travelled deep inside the astral field.  Here the fabric of the\n\rfield has become twisted and warped due to the proximity of another plane of\n\rexistence.  Some of the tendrils of light that line the astral field have been\n\rwarped and twisted into portals to other worlds.\n\r   Take care before you step through one -- you might never return.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7733,
+          "description": "The astral field leads on into infinity.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7745,
+          "description": "The astral field leads on into the depths.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7747,
+          "description": "The astral field leads on into the depths.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7729,
+          "description": "The astral field leads on into infinity.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7731,
+          "description": "The astral field leads on into infinity.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7747,
+      "name": "Deep Within the Astral Plane",
+      "description": "You have travelled deep inside the astral field.  Here the fabric of the\n\rfield has become twisted and warped due to the proximity of another plane of\n\rexistence.  Some of the tendrils of light that line the astral field have been\n\rwarped and twisted into portals to other worlds.\n\r   Take care before you step through one -- you might never return.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7734,
+          "description": "The astral field leads on into infinity.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7746,
+          "description": "The astral field leads on into the depths.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7730,
+          "description": "The astral field leads on into infinity.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7728,
+          "description": "The astral field leads on into infinity.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7748,
+          "description": "The astral field leads on into the depths.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7748,
+      "name": "Deep Within the Astral Plane",
+      "description": "You have travelled deep inside the astral field.  Here the fabric of the\n\rfield has become twisted and warped due to the proximity of another plane of\n\rexistence.  Some of the tendrils of light that line the astral field have been\n\rwarped and twisted into portals to other worlds.\n\r   Take care before you step through one -- you might never return.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7735,
+          "description": "The astral field leads on into infinity.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7731,
+          "description": "The astral field leads on into infinity.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7749,
+          "description": "The astral field leads on into the depths.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7747,
+          "description": "The astral field leads on into the depths.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7732,
+          "description": "The astral field leads on into infinity.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7749,
+      "name": "Deep Within the Astral Plane",
+      "description": "You have travelled deep inside the astral field.  Here the fabric of the\n\rfield has become twisted and warped due to the proximity of another plane of\n\rexistence.  Some of the tendrils of light that line the astral field have been\n\rwarped and twisted into portals to other worlds.\n\r   Take care before you step through one -- you might never return.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7748,
+          "description": "The astral field leads on into the depths.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7745,
+          "description": "The astral field leads on into the depths.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7732,
+          "description": "The astral field leads on into the depths.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7729,
+          "description": "The astral field leads on into infinity.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7750,
+      "name": "Inside the Githyanki Keep",
+      "description": "You are standing just inside a nexial portal that leads out onto the\n\rAstral Plane.  It seems that you have found the lair of the Githyanki,\n\rthe once-human followers of Lord Gith.  Ahead of you stands a steel door\n\rleading into the keep hewn from stone.\n\r",
+      "roomFlags": [
+        "no_mob"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7751,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You see a rusty steel door which leads into the keep.\n\r",
+          "keyword": "steel"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7745,
+          "description": "Below you is the nexial portal that leads into the astral plane.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "steel",
+          "description": "The door is made from a set of rusting steel plates set deep into the stone.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7751,
+      "name": "A guard station",
+      "description": "This is a small building just inside the keep.  Doors lead out to the east\n\rand west.  Some small weapons hang on hooks on the walls, for use in defense\n\rof the keep.\n\r   Doors stand in all directions save north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 7761,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You see an iron door which leads out onto a grey stone road.\n\r",
+          "keyword": "door iron"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7750,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You see a rusty steel door which leads out to the nexial link.\n\r",
+          "keyword": "steel"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7752,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You see an iron door which leads out onto a grey stone road.\n\r",
+          "keyword": "door iron"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "steel",
+          "description": "The door is made from a set of rusting steel plates set deep into the stone.\n\r"
+        },
+        {
+          "keyword": "door iron",
+          "description": "The door is made from a set of iron plates set deep into the stone.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7752,
+      "name": "A grey road",
+      "description": "The ground beneath your feet is a uniformly grey cobblestone.  A dull red\n\rsun hangs in an orange sky above your head; you hear none of the sounds you\n\rwould commonly associate with a normal city.\n\r   The cobblestone road turns to the north, ending to the east at an iron door.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7753,
+          "description": "The grey cobblestones continue.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7751,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You see an iron door which leads into a small stone building set into the wall\n\rof the keep.\n\r",
+          "keyword": "door iron"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "door iron",
+          "description": "The door is made from a set of iron plates set deep into the stone.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7753,
+      "name": "A grey road",
+      "description": "The ground beneath your feet is a uniformly grey cobblestone.  A dull red\n\rsun hangs in an orange sky above your head; you hear none of the sounds you\n\rwould commonly associate with a normal city.\n\r   The cobblestone road continues to the north and south.  Doors to the east\n\rand west lead into stone buildings.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7754,
+          "description": "The grey cobblestones continue.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7762,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You see a small stone building with a wooden door.\n\r",
+          "keyword": "door wooden"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7752,
+          "description": "The grey cobblestones continue.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7769,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "An iron door blocks your entrance into a large stone building.\n\r",
+          "keyword": "door iron"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "door wooden",
+          "description": "The door is thick, made from a knotted and twisted greyish wood.\n\r"
+        },
+        {
+          "keyword": "door iron",
+          "description": "The door is fashioned from many iron plates and set deep into the stone wall.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7754,
+      "name": "A grey road",
+      "description": "The ground beneath your feet is a uniformly grey cobblestone.  A dull red\n\rsun hangs in an orange sky above your head; you hear none of the sounds you\n\rwould commonly associate with a normal city.\n\r  The cobblestone road turns to the south and continues on to the east.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 7755,
+          "description": "The grey cobblestones continue.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7753,
+          "description": "The grey cobblestones continue.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7755,
+      "name": "A grey road",
+      "description": "The ground beneath your feet is a uniformly grey cobblestone.  A dull red\n\rsun hangs in an orange sky above your head; you hear none of the sounds you\n\rwould commonly associate with a normal city.\n\r  The cobblestone road continues to the east and west.  To the north you see a \n\rmassive building and a pair of large doors.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7774,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "Looming before you is a forbidding pair of metal doors.\n\r",
+          "keyword": "doors metal"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7756,
+          "description": "The grey cobblestones continue.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7754,
+          "description": "The grey cobblestones continue.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "doors metal",
+          "description": "The doors are formed from a silvery substance that feels very hard yet almost\n\rslippery to the touch.  They are covered in images in bas-relief, depicting\n\rscenes of combat between humans and strange tentacle-mouthed humanoids.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7756,
+      "name": "A grey road",
+      "description": "The ground beneath your feet is a uniformly grey cobblestone.  A dull red\n\rsun hangs in an orange sky above your head; you hear none of the sounds you\n\rwould commonly associate with a normal city.\n\r  The cobblestone road continues to the east and west.  A door to the south\n\rleads into a tall stone building.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 7757,
+          "description": "The grey cobblestones continue.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7764,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You see a tall stone building with a wooden door.\n\r",
+          "keyword": "door wooden"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7755,
+          "description": "The grey cobblestones continue.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "door wooden",
+          "description": "The door is thick, made from a knotted and twisted greyish wood.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7757,
+      "name": "A grey road",
+      "description": "The ground beneath your feet is a uniformly grey cobblestone.  A dull red\n\rsun hangs in an orange sky above your head; you hear none of the sounds you\n\rwould commonly associate with a normal city.\n\r   The cobblestone road turns to the west and continues to the south.  A door\n\rto the north leads into a tall stone building.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7773,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You see a tall stone building with a wooden door.\n\r",
+          "keyword": "door wooden"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7758,
+          "description": "The grey cobblestones continue.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7756,
+          "description": "The grey cobblestones continue.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "door wooden",
+          "description": "The door is thick, made from a knotted and twisted greyish wood.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7758,
+      "name": "A grey road",
+      "description": "The ground beneath your feet is a uniformly grey cobblestone.  A dull red\n\rsun hangs in an orange sky above your head; you hear none of the sounds you\n\rwould commonly associate with a normal city.\n\r   The cobblestone road continues to the north and south.  To the east is a\n\rdoor in a large stone building.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7757,
+          "description": "The grey cobblestones continue.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7767,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "An iron door blocks your entrance into a large stone building.\n\r",
+          "keyword": "door iron"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7759,
+          "description": "The grey cobblestones continue.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "door iron",
+          "description": "The door is made from many hammered iron plates, set deep into the stone wall.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7759,
+      "name": "A grey road",
+      "description": "The ground beneath your feet is a uniformly grey cobblestone.  A dull red\n\rsun hangs in an orange sky above your head; you hear none of the sounds you\n\rwould commonly associate with a normal city.\n\r   The cobblestone road continues to the north and south.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7758,
+          "description": "The grey cobblestones continue.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7760,
+          "description": "The grey cobblestones continue.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7760,
+      "name": "A grey road",
+      "description": "The ground beneath your feet is a uniformly grey cobblestone.  A dull red\n\rsun hangs in an orange sky above your head; you hear none of the sounds you\n\rwould commonly associate with a normal city.\n\r   The cobblestone road turns to the north and continues on to the west.  To\n\rthe east is a door in a large stone building.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7759,
+          "description": "The grey cobblestones continue.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7765,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "An iron door blocks your entrance into a large stone building.\n\r",
+          "keyword": "door iron"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7761,
+          "description": "The grey cobblestones continue.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "door iron",
+          "description": "The door is made from many hammered iron plates, set deep into the stone wall.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7761,
+      "name": "A grey road",
+      "description": "The ground beneath your feet is a uniformly grey cobblestone.  A dull red\n\rsun hangs in an orange sky above your head; you hear none of the sounds you\n\rwould commonly associate with a normal city.\n\r   The cobblestone road goes on to the east, ending to the west at an iron door.\n\rA door to the north leads into a small stone building.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7763,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You see a small stone building with a wooden door.\n\r",
+          "keyword": "door wooden"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7760,
+          "description": "The grey cobblestones continue.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7751,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You see an iron door which leads into a small stone building set into the wall\n\rof the keep.\n\r",
+          "keyword": "door iron"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "door wooden",
+          "description": "The door is thick, made from a knotted and twisted greyish wood.\n\r"
+        },
+        {
+          "keyword": "door iron",
+          "description": "The door is made from a set of iron plates set deep into the stone.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7762,
+      "name": "A small building",
+      "description": "You have stepped inside a dimly lit building, which apparently serves as\n\rliving quarters for several githyanki gish.  The walls are heavy stone blocks, \n\rcovered with panels of strangely knotted and twisted wood.  A couple of candles\n\rburn dimly in sconces here and there.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 7753,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "The wooden door leads back out onto the grey cobblestone road.\n\r",
+          "keyword": "door wooden"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "door wooden",
+          "description": "The door is thick, made from a knotted and twisted greyish wood.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7763,
+      "name": "A small building",
+      "description": "You have stepped inside a dimly lit building, which apparently serves as\n\rliving quarters for several githyanki gish.  The walls are heavy stone blocks, \n\rcovered with panels of strangely knotted and twisted wood.  A couple of candles\n\rburn dimly in sconces here and there.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 7761,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "The wooden door leads back out onto the grey cobblestone road.\n\r",
+          "keyword": "door wooden"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "door wooden",
+          "description": "The door is thick, made from a knotted and twisted greyish wood.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7764,
+      "name": "A large dwelling",
+      "description": "You have stepped inside a dimly lit building with vaulted ceilings and high\n\rwindows.  The walls are heavy stone blocks that rise tens of feet above your\n\rhead, covered with panels of strangely knotted and twisted wood.  On the floor\n\rare charcoal stencils of pentagrams and various other ominous sigils.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7756,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "The wooden door leads back out onto the grey cobblestone road.\n\r",
+          "keyword": "door wooden"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "door wooden",
+          "description": "The door is thick, made from a knotted and twisted greyish wood.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7765,
+      "name": "The Githyanki Weaponry",
+      "description": "A large chamber, full of weapons in various states of completion.  Strange\n\rglowing blocks of silvery metal are being pounded and rolled out into deadly \n\rrazor-sharp knives, daggers, and swords.\n\r   Sounds of hammering and blasts of heat and strange smells come from the open\n\rdoorway to the north.  An iron door stands to the west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7766,
+          "description": "You see a massive forgeroom, lit by a white-hot furnace.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7760,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "The iron door leads back out onto the grey cobblestone road.\n\r",
+          "keyword": "door iron"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "door iron",
+          "description": "The door is made from many hammered iron plates, set deep into the stone wall.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7766,
+      "name": "The Forge",
+      "description": "In the center of the room is a massive furnace which emits great gouts of\n\rheat and a strange smell which comes from the melting of the silvery metal used\n\rby the githyanki.  A large trough of icy water stands to the west, used for \n\rquenching hot metal.\n\r   Doorways stand to the north and south.  The furnace door lies to the east.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7767,
+          "description": "You see the armoury.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7768,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "Through the grille in the furnace door you see only flames.\n\r",
+          "keyword": "door furnace"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7765,
+          "description": "You see the weaponry.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "door furnace",
+          "description": "The entire furnace is glowing white-hot to the touch.\n\rThe furnace door looks too hot to even attempt to open.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7767,
+      "name": "The Githyanki Armoury",
+      "description": "A large chamber, full of suits of armor in various states of completion.  In\n\rthis chamber the hard steels of the githyanki are shaped into ornately fashioned\n\rsuits of mail.\n\r   Sounds of hammering and blasts of heat and strange smells come from the open\n\rdoorway to the south.  An iron door stands to the west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 7766,
+          "description": "You see a massive forgeroom, lit by a white-hot furnace.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7758,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "The iron door leads back out onto the grey cobblestone road.\n\r",
+          "keyword": "door iron"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "door iron",
+          "description": "The door is made from many hammered iron plates, set deep into the stone wall.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7768,
+      "name": "Inside the furnace",
+      "description": "You gasp for breath and choke on toxic sulphur and brimstone.  The sweat\n\ron your forehead is instantly vaporized by the flames that surround you.  You\n\rbegin to feel faint and dizzy from the heat...\n\r\n\r... you'd better leave before you pass out and burn to a cinder!\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7768,
+          "description": "The flames blind you and obscure your vision.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7768,
+          "description": "The flames blind you and obscure your vision.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7766,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "The flames blind you and obscure your vision.\n\r",
+          "keyword": "door furnace"
+        }
+      ]
+    },
+    {
+      "vnum": 7769,
+      "name": "A guard station",
+      "description": "You are standing in a small, fairly empty building that serves as the prison\n\rfor the keep.  The building is small because the githyanki do not make a habit \n\rof taking prisoners, and those that they do capture do not last long.\n\r   The cellblock lies to the west and the grey stone road is to the east.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 7753,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You see an iron door which leads back out onto the grey cobblestone road.\n\r",
+          "keyword": "door iron"
+        },
+        {
+          "dir": "west",
+          "toVnum": 7770,
+          "description": "You see the cellblock.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "door iron",
+          "description": "The door is fashioned from many iron plates and set deep into the stone wall.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7770,
+      "name": "The cellblock",
+      "description": "A torch flickers in the western wall, providing some illumination for this\n\rdim corridor.  Some whips, manacles, and chains hang on the walls -- they seem\n\rto have been used recently.\n\r   Cell doors stand to the north and south.  The guard station is to the east.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7771,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You see a small cell.\n\r",
+          "keyword": "door cell"
+        },
+        {
+          "dir": "east",
+          "toVnum": 7769,
+          "description": "You see the guard station.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7772,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You see a small cell.\n\r",
+          "keyword": "door cell"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "door cell",
+          "description": "The cell door is wooden and about 4' high, with a slot in the bottom to pass\n\rfood underneath to the prisoner.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7771,
+      "name": "A cramped cell",
+      "description": "You are in a tiny, cold, dank cell.\n\r  The only exit is back through the door to the south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 7770,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You see the cellblock.\n\r",
+          "keyword": "door cell"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "door cell",
+          "description": "The cell door is wooden and about 4' high, with a slot in the bottom to pass\n\rfood underneath to the prisoner.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7772,
+      "name": "A tiny cell",
+      "description": "You are in a cold, dank, cramped cell.\n\r   The only exit is back through the door to the north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7770,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You see the cellblock.\n\r",
+          "keyword": "door cell"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "door cell",
+          "description": "The cell door is wooden and about 4' high, with a slot in the bottom to pass\n\rfood underneath to the prisoner.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7773,
+      "name": "A large dwelling",
+      "description": "You have stepped inside a dimly lit building with vaulted ceilings and high\n\rwindows.  The walls are heavy stone blocks that rise tens of feet above your\n\rhead, covered with panels of strangely knotted and twisted wood.  On the floor\n\rare charcoal stencils of pentagrams and various other ominous sigils.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 7757,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "The wooden door leads back out onto the grey cobblestone road.\n\r",
+          "keyword": "door wooden"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "door wooden",
+          "description": "The door is thick, made from a knotted and twisted greyish wood.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7774,
+      "name": "South End of the Hall",
+      "description": "This is a massive stone hall, lit by flaming blue stones set into the walls.\n\rMassive suits of armor line the walls, holding weapons fashioned from a strange\n\rsilvery metal.\n\r   The great hall continues to the north and ends in a pair of huge metal doors\n\rto the south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7775,
+          "description": "The great hall continues to the north.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7755,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "The metal doors lead out onto the grey cobblestone road.\n\r",
+          "keyword": "doors metal"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "armor suits",
+          "description": "The suits of armor are very intricately and ornately fashioned splint mail.\n\r"
+        },
+        {
+          "keyword": "weapons",
+          "description": "Massive pole arms, spears, mighty swords, all kinds of death-dealing devices.\n\r"
+        },
+        {
+          "keyword": "doors metal",
+          "description": "The doors are formed from a silvery substance that feels very hard yet almost\n\rslippery to the touch.  They are covered in images in bas-relief, depicting\n\rscenes of combat between humans and strange tentacle-mouthed humanoids.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7775,
+      "name": "North End of the Hall",
+      "description": "This is a massive stone hall, lit by flaming blue stones set into the walls.\n\rMassive suits of armor line the walls, holding weapons fashioned from a strange\n\rsilvery metal.\n\r   The great hall continues to the south.  An archway leads into a dimly lit\n\rroom to the north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7776,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You think you can see some steps leading up to an altar...\n\r",
+          "keyword": "mist door"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7774,
+          "description": "The great hall continues to the south.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "armor suits",
+          "description": "The suits of armor are very intricately and ornately fashioned splint mail.\n\r"
+        },
+        {
+          "keyword": "weapons",
+          "description": "Massive pole arms, spears, mighty swords, all kinds of death-dealing devices.\n\r"
+        },
+        {
+          "keyword": "arch archway door",
+          "description": "The archway is shrouded in a strange black mist that obscures your vision.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7776,
+      "name": "The Altar Chamber",
+      "description": "Your eyes have trouble adjusting to the dim lighting.  All around you are\n\rcolumnar statues of githyanki turned towards the altar standing at the top\n\rof a series of steps.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 7777,
+          "description": "The steps lead north and up to a massive sacrificial altar.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 7775,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You think you can see the hall.\n\r",
+          "keyword": "mist door"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "arch archway door",
+          "description": "The archway is shrouded in a strange black mist that obscures your vision.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7777,
+      "name": "Before the Altar",
+      "description": "You have climbed the mighty steps of the altar chamber and stand before a\n\rhuge altar use to pay tribute to Lord Gish, long-dead ruler of the githyanki.\n\rThe altar is covered in blood and radiates unspeakable power that is absorbed\n\rby the horrible presence which stands before you.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 7776,
+          "description": "The steps lie to the south, leading back down to the altar chamber floor.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7778,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "The floor of the altar is pockmarked with small holes, draining blood.\n\r",
+          "keyword": "hole"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "altar",
+          "description": "The altar is a huge sacrificial altar covered in bloodstains.\n\r"
+        },
+        {
+          "keyword": "blood bloodstains stains",
+          "description": "The stains of blood run down off the altar towards your feet, oozing quietly.\n\r"
+        },
+        {
+          "keyword": "hole holes",
+          "description": "The holes have passed countless amounts of blood down below the altar.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7778,
+      "name": "A Gateway to the Underworld",
+      "description": "You step through the tiny hole in the altar, and stand before a swirling\n\rfield of blackness.  Through the field you can hear the howls of lost souls\n\rand long-dead beings.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 7777,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You see the altar chamber.\n\r",
+          "keyword": "hole"
+        },
+        {
+          "dir": "down",
+          "toVnum": 7779,
+          "key": 7724,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "description": "You look down into the field of blackness, and feel a tangible wave of evil wash\n\rover you.  Stepping into the field would be a bad idea.\n\r",
+          "keyword": "gateway"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "blood",
+          "description": "The blood drips from above your head and falls through the field...\n\r"
+        },
+        {
+          "keyword": "field gateway",
+          "description": "The field pulses and feeds on the blood dripping from above.\n\r\n\rA tangible wave of hatred washes over you, striking fear into your very soul.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7779,
+      "name": "Utter darkness and despair",
+      "description": "It is pitch black...\n\r\n\r  You are overwhelmed by the sensation of death and horrible pain as a shape\n\rbegins to coalesce before you.\n\r",
+      "roomFlags": [
+        "dark",
+        "no_mob"
+      ],
+      "sectorType": "air"
+    }
+  ],
+  "mobiles": [
+    {
+      "vnum": 7700,
+      "name": "oldstyle astral guardian",
+      "shortDescr": "The Astral Guardian",
+      "longDescr": "A grey figure guards the entrance to the astral plane.\n\r",
+      "description": "You see a slate grey vaguely humanoid shape, devoid of any true features.\n\rIt stands before you with arms folded, seemingly uninterested in you.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "warrior"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden",
+        "sanctuary",
+        "protect_evil"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 37,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 10,
+        "type": 10,
+        "bonus": 1500
+      },
+      "manaDice": {
+        "number": 18,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 3,
+        "type": 10,
+        "bonus": 12
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -12,
+        "bash": -12,
+        "slash": -12,
+        "exotic": 5
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 5000,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 7701,
+      "name": "oldstyle nightmare",
+      "shortDescr": "A pitch-black nightmare",
+      "longDescr": "A nightmare is here, kicking at you with its flaming hooves.\n\r",
+      "description": "The nightmare is a wholly evil being, sent out by the rulers of the lower \n\rplanes to torment mortals.  It vaguely resembles a horse, with a hide blacker\n\rthan the darkest night, and hooves that burn with unholy fires.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc"
+      ],
+      "actFlagsValue": 9,
+      "affectFlags": [
+        "detect_invis",
+        "infrared",
+        "flying"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -950,
+      "group": 0,
+      "level": 18,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 283
+      },
+      "manaDice": {
+        "number": 9,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 4
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -3,
+        "bash": -3,
+        "slash": -3,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 300,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 7702,
+      "name": "oldstyle night hag",
+      "shortDescr": "An evil night hag",
+      "longDescr": "A night hag reaches out to steal your soul.\n\r",
+      "description": "You see a shadowy creature with long talons and an evil grin, whose sole \n\rpurpose is to hunt down and slay mortals in order to obtain souls for her foul\n\rmaster to torment.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "aggressive",
+        "mage"
+      ],
+      "actFlagsValue": 131113,
+      "affectFlags": [
+        "detect_invis",
+        "infrared"
+      ],
+      "atkFlags": [
+        "dodge",
+        "assist_vnum"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 24,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 450
+      },
+      "manaDice": {
+        "number": 24,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 4,
+        "bonus": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -6,
+        "bash": -6,
+        "slash": -6,
+        "exotic": 2
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 625,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 7703,
+      "name": "oldstyle stalker invisible",
+      "shortDescr": "An invisible stalker",
+      "longDescr": "You see a wavy distortion in the air.\n\r",
+      "description": "You see only a wavy distortion in the air.  You reach out to touch it, and\n\rfeel nothing, not even the slightest of motions.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc"
+      ],
+      "actFlagsValue": 9,
+      "affectFlags": [
+        "invisible",
+        "flying"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 200,
+      "group": 0,
+      "level": 17,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 258
+      },
+      "manaDice": {
+        "number": 8,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 3,
+        "type": 4,
+        "bonus": 4
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -3,
+        "bash": -3,
+        "slash": -3,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 50,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 7704,
+      "name": "oldstyle soulless one",
+      "shortDescr": "A poor soulless being",
+      "longDescr": "The soulless one wanders mindlessly.\n\r",
+      "description": "This unfortunate being has had its very soul torn from its body.  It now roams\n\rmindlessly, unaware of its surroundings.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 10,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 121
+      },
+      "manaDice": {
+        "number": 5,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 4,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 1,
+        "bash": 1,
+        "slash": 1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 12,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 7705,
+      "name": "oldstyle githyanki hunter",
+      "shortDescr": "A githyanki hunter",
+      "longDescr": "A githyanki hunter searches for signs of the githzerai.\n\r",
+      "description": "You see a leathery-skinned humanoid creature that stands almost as tall as a\n\rnormal man.  Like all githyanki, his teeth are fanged and his eyes hollow\n\rand sunken.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "thief"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden",
+        "infrared",
+        "sneak"
+      ],
+      "atkFlags": [
+        "backstab",
+        "disarm",
+        "dodge",
+        "dirt_kick",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -500,
+      "group": 0,
+      "level": 11,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 121
+      },
+      "manaDice": {
+        "number": 5,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 4,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 1,
+        "bash": 1,
+        "slash": 1,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 50,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 7706,
+      "name": "oldstyle githyanki warrior",
+      "shortDescr": "A githyanki warrior",
+      "longDescr": "You see a humanoid figure clad in splinted armor.\n\r",
+      "description": "You see a leathery-skinned humanoid creature that stands as tall as a normal\n\rman.  Like all githyanki, his teeth are fanged and his eyes hollow and sunken.\n\rHe is clad in ornately designed splinted armor, and wields a sword that\n\rwhistles through the air as it slices towards your neck.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -500,
+      "group": 0,
+      "level": 15,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 208
+      },
+      "manaDice": {
+        "number": 7,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -2,
+        "bash": -2,
+        "slash": -2,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 125,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 7707,
+      "name": "oldstyle githyanki guardian",
+      "shortDescr": "A githyanki guardian",
+      "longDescr": "A humanoid figure clad in splinted armor blocks your way.\n\r",
+      "description": "You see a leathery-skinned humanoid creature that stands as tall as a normal\n\rman.  Like all githyanki, his teeth are fanged and his eyes hollow and sunken.\n\rHe is clad in ornately designed splinted armor, and wields a sword that\n\rwhistles through the air as it slices towards your neck.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -500,
+      "group": 0,
+      "level": 15,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 208
+      },
+      "manaDice": {
+        "number": 7,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -2,
+        "bash": -2,
+        "slash": -2,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 300,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 7708,
+      "name": "oldstyle githyanki knight",
+      "shortDescr": "A githyanki knight",
+      "longDescr": "A tall figure armored in black observes you quietly.\n\r",
+      "description": "You see a leathery-skinned humanoid creature that stands a full foot taller\n\rthan a normal man.  His features are obscured by a suit of ornately designed\n\rsplinted armor -- you only hear the hissing of his breath and the scraping\n\rof his sword against its scabbard as it is unsheathed.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -500,
+      "group": 0,
+      "level": 25,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 550
+      },
+      "manaDice": {
+        "number": 12,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 7
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -7,
+        "bash": -7,
+        "slash": -7,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 7709,
+      "name": "oldstyle githyanki protector",
+      "shortDescr": "A githyanki protector",
+      "longDescr": "A black knight of the githyanki protects his queen.\n\r",
+      "description": "You see a leathery-skinned humanoid creature that stands a full foot taller\n\rthan a normal man.  His features are obscured by a suit of ornately designed\n\rsplinted armor -- you only hear the hissing of his breath and the scraping\n\rof his sword against its scabbard as it is unsheathed.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -500,
+      "group": 0,
+      "level": 25,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 550
+      },
+      "manaDice": {
+        "number": 12,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 7
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -7,
+        "bash": -7,
+        "slash": -7,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 7710,
+      "name": "oldstyle githyanki gish",
+      "shortDescr": "An evil gish",
+      "longDescr": "A small githyanki laughs at you through fanged teeth.\n\r",
+      "description": "You see a leathery-skinned humanoid creature that stands nearly as tall as a\n\rnormal man.  Like all githyanki, his teeth are fanged and his eyes hollow and\n\rsunken.  The gish are well-versed in the arcane arts, unlike the normal gith\n\rpeople.  You notice this from the blast of lightning headed towards you.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "mage"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "dodge",
+        "assist_vnum"
+      ],
+      "alignment": -500,
+      "group": 0,
+      "level": 11,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 121
+      },
+      "manaDice": {
+        "number": 11,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 7,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 1,
+        "bash": 1,
+        "slash": 1,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 150,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 7711,
+      "name": "oldstyle githyanki gish",
+      "shortDescr": "An evil gish",
+      "longDescr": "A gish laughs as flame leaps from his hands towards your face.\n\r",
+      "description": "You see a leathery-skinned humanoid creature that stands nearly as tall as a\n\rnormal man.  Like all githyanki, his teeth are fanged and his eyes hollow and\n\rsunken.  The gish are well-versed in the arcane arts, unlike the normal gith\n\rpeople.  You notice this from the blast of lightning headed towards you.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "aggressive",
+        "mage"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "dodge",
+        "assist_vnum"
+      ],
+      "alignment": -500,
+      "group": 0,
+      "level": 11,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 121
+      },
+      "manaDice": {
+        "number": 11,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 7,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 1,
+        "bash": 1,
+        "slash": 1,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 150,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 7712,
+      "name": "oldstyle githyanki warlock",
+      "shortDescr": "A warlock of the Gith",
+      "longDescr": "A humanoid figure stands here, holding a silvery sword.\n\r",
+      "description": "You see a leathery-skinned creature, clad all in black and bearing a silvery-\n\rcolored sword.  Like all githyanki, his teeth are fanged and his eyes hollow\n\rand sunken.  As you turn to flee, you feel the impact of a fireball against\n\ryour back.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "aggressive",
+        "mage"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_magic",
+        "infrared"
+      ],
+      "atkFlags": [
+        "dodge",
+        "assist_vnum"
+      ],
+      "alignment": -500,
+      "group": 0,
+      "level": 20,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 308
+      },
+      "manaDice": {
+        "number": 20,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 3,
+        "type": 4,
+        "bonus": 4
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -4,
+        "bash": -4,
+        "slash": -4,
+        "exotic": 3
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 7713,
+      "name": "oldstyle githyanki lich queen",
+      "shortDescr": "The lich-queen",
+      "longDescr": "The evil lich-queen of the Gith reaches out to destroy you.\n\r",
+      "description": "The lich-queen of the githyanki was once human, but no longer.  Her skin has\n\rcompletely shrunken around her skull, held together solely by the force of\n\runholy magic and the powers of this plane of existence.  The cold glare of her\n\rhollow eyes sends you into paroxysms of fright.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_magic",
+        "detect_hidden",
+        "sanctuary",
+        "infrared"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -750,
+      "group": 0,
+      "level": 30,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 6,
+        "type": 12,
+        "bonus": 853
+      },
+      "manaDice": {
+        "number": 15,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 6,
+        "bonus": 8
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -9,
+        "bash": -9,
+        "slash": -9,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 5000,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 7714,
+      "name": "oldstyle lord gith",
+      "shortDescr": "Lord Gith",
+      "longDescr": "Lord Gith suddenly forms from a cloud of blackness.\n\rHe stares right through you with deadly, cold eyes.\n\r",
+      "description": "Lord Gith is the dead savior of the githyanki people, the warrior who led them\n\rto freedom from their former enslavers, the mind flayers.  He has been dead\n\rfor centuries and stands before you now due to an unholy alliance with powers\n\rbeyond mortal ken.\n\r\n\rHe gestures towards you.  You feel your heart tremble and your throat begin\n\rto tighten.  You are about to die.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "invisible",
+        "detect_invis",
+        "detect_hidden",
+        "sanctuary",
+        "infrared"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -900,
+      "group": 0,
+      "level": 35,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 10,
+        "type": 10,
+        "bonus": 1300
+      },
+      "manaDice": {
+        "number": 17,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 7,
+        "bonus": 11
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -11,
+        "bash": -11,
+        "slash": -11,
+        "exotic": 5
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 250,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 7715,
+      "name": "oldstyle ghost",
+      "shortDescr": "An insubstantial ghost",
+      "longDescr": "A ghost wanders here, intent on destroying all life.\n\r",
+      "description": "The ghost makes no sound.  It is a shadowy shell of its former self, cursed\n\rnow to roam forever without rest.  The mind of this creature has been twisted\n\rand destroyed in this torment, and it now envys and intends to destroy all the\n\rtrue living beings it encounters, including you.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc"
+      ],
+      "affectFlags": [
+        "infrared",
+        "flying",
+        "pass_door"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 16,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 233
+      },
+      "manaDice": {
+        "number": 8,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 4
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -2,
+        "bash": -2,
+        "slash": -2,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 50,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 7716,
+      "name": "oldstyle githzerai prisoner",
+      "shortDescr": "An imprisoned githzerai",
+      "longDescr": "A githzerai plots his escape plan.\n\r",
+      "description": "You see a conniving humanoid, a descendant of a race of humans once enslaved\n\rby the mindflayers and related to the githyanki.  Unfortunately, the two races\n\rare bitter enemies, and this one happened to get caught.  He intends to escape.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -250,
+      "group": 0,
+      "level": 10,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 121
+      },
+      "manaDice": {
+        "number": 5,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 4,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 1,
+        "bash": 1,
+        "slash": 1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 7717,
+      "name": "oldstyle mindflayer prisoner",
+      "shortDescr": "A tortured mindflayer prisoner",
+      "longDescr": "A mindflayer lies here, scarred from the torture inflicted by the Gith.\n\r",
+      "description": "You see a formerly tall humanoid creature, with four tentacles hanging from the\n\rmiddle of its head.  It is hunched over, bent and scarred from torture inflicted\n\rby the githyanki.  It cringes as you approach.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "mage"
+      ],
+      "atkFlags": [
+        "dodge",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 8,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 85
+      },
+      "manaDice": {
+        "number": 8,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 4,
+        "bash": 4,
+        "slash": 4,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 7718,
+      "name": "oldstyle dragon red slave",
+      "shortDescr": "The enslaved red dragon",
+      "longDescr": "A giant red dragon is chained here, his breath heating the furnace.\n\r",
+      "description": "The mighty scaled beast has been magically bound and subdued by the residents\n\rof the keep.  Nevertheless, he is still an impressive sight, some twenty feet\n\rin length with an even more massive wingspan.  He watches you, smoke drifting\n\rfrom his open mouth.\n\r",
+      "race": "dragon",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "mage"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "infrared",
+        "flying"
+      ],
+      "atkFlags": [
+        "dodge",
+        "assist_race"
+      ],
+      "resFlags": [
+        "charm",
+        "bash",
+        "fire"
+      ],
+      "vulnFlags": [
+        "pierce",
+        "cold"
+      ],
+      "alignment": -400,
+      "group": 0,
+      "level": 28,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 650
+      },
+      "manaDice": {
+        "number": 28,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 7
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -8,
+        "bash": -8,
+        "slash": -8,
+        "exotic": 1
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 250,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 7719,
+      "name": "oldstyle fire furnace flame",
+      "shortDescr": "A massive blast of fire",
+      "longDescr": "The fires of the furnace burn away at your skin!\n\r",
+      "description": "The fire feeds on your skin like a living being, licking out at your hair.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "actFlagsValue": 43,
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 13,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 170
+      },
+      "manaDice": {
+        "number": 6,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 5,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -1,
+        "bash": -1,
+        "slash": -1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 250,
+      "size": "medium",
+      "material": "0"
+    }
+  ],
+  "objects": [
+    {
+      "vnum": 7700,
+      "name": "hammer sledge grey",
+      "shortDescr": "a massive slate-grey sledgehammer",
+      "description": "The ground cracks under the weight of a grey hammer lying here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "antigood",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "mace",
+        "dice": [
+          4,
+          8
+        ],
+        "damageType": "crush"
+      },
+      "level": 38,
+      "weight": 550,
+      "cost": 5200,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "hammer sledge grey",
+          "description": "This massive hammer is incredibly hard, heavy, and utterly grey and featureless.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "dexterity",
+          "level": 38,
+          "duration": -1,
+          "modifier": -1
+        },
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 38,
+          "duration": -1,
+          "modifier": -2
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 38,
+          "duration": -1,
+          "modifier": 6
+        }
+      ]
+    },
+    {
+      "vnum": 7701,
+      "name": "scroll violet",
+      "shortDescr": "a violet scroll",
+      "description": "A rolled piece of violet parchment lies on the floor.",
+      "material": "oldstyle",
+      "itemType": "scroll",
+      "extraFlags": [
+        "bless"
+      ],
+      "wearFlags": [
+        "take"
+      ],
+      "spells": {
+        "level": 15,
+        "spells": [
+          "armor",
+          "bless",
+          "shield",
+          ""
+        ]
+      },
+      "level": 11,
+      "weight": 10,
+      "cost": 1510,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "scroll violet",
+          "description": "The scroll is written on soft violet parchment that has a pleasing smell to it.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7702,
+      "name": "tablet scroll black",
+      "shortDescr": "a black etched tablet",
+      "description": "Lying on the ground is a jet black stone tablet.",
+      "material": "oldstyle",
+      "itemType": "scroll",
+      "extraFlags": [
+        "evil"
+      ],
+      "wearFlags": [
+        "take"
+      ],
+      "spells": {
+        "level": 30,
+        "spells": [
+          "summon",
+          "charm person",
+          "",
+          ""
+        ]
+      },
+      "level": 12,
+      "weight": 50,
+      "cost": 2100,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "tablet scroll black",
+          "description": "The tablet is an unreflective black rectangular piece of stone, with strange\n\rwritings etched deep into its surface.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7703,
+      "name": "scroll githyanki",
+      "shortDescr": "a scroll with githyanki writings on it",
+      "description": "You see a scroll written in an alien tongue.",
+      "material": "oldstyle",
+      "itemType": "scroll",
+      "wearFlags": [
+        "take"
+      ],
+      "spells": {
+        "level": 24,
+        "spells": [
+          "lightning bolt",
+          "lightning bolt",
+          "",
+          ""
+        ]
+      },
+      "level": 7,
+      "weight": 10,
+      "cost": 1240,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "scroll githyanki",
+          "description": "The scroll has writings on it that you cannot comprehend.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7704,
+      "name": "amulet demon",
+      "shortDescr": "a small demon's amulet",
+      "description": "A small amulet lies here in the dirt.",
+      "material": "oldstyle",
+      "itemType": "wand",
+      "extraFlags": [
+        "evil",
+        "nodrop"
+      ],
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "wand": {
+        "level": 25,
+        "chargesTotal": 5,
+        "spell": "energy drain"
+      },
+      "level": 11,
+      "weight": 50,
+      "cost": 2600,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "amulet demon",
+          "description": "The amulet is a small circular object made from some bizarre metallic alloy.\n\rIt is inscribed with various symbols and raised images of snakes, tortured\n\rvictims, and other things too horrible to describe.\n\r\n\rStenciled in the center is an unpronounceable name which it would behoove you\n\rnot to utter aloud.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "intelligence",
+          "level": 11,
+          "duration": -1,
+          "modifier": -1
+        },
+        {
+          "where": "object",
+          "location": "wisdom",
+          "level": 11,
+          "duration": -1,
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "vnum": 7705,
+      "name": "talisman devilish",
+      "shortDescr": "a devilish talisman",
+      "description": "On the ground is a small talisman which radiates a tangible evil.",
+      "material": "oldstyle",
+      "itemType": "staff",
+      "extraFlags": [
+        "evil",
+        "nodrop"
+      ],
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "wand": {
+        "level": 25,
+        "chargesTotal": 5,
+        "spell": "flamestrike"
+      },
+      "level": 14,
+      "weight": 50,
+      "cost": 5300,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "talisman devilish",
+          "description": "The talisman is a red circular stone object hanging from a metallic chain.  It\n\rseems to pulse with a life of its own, and you feel uncomfortable being anywhere\n\rnear it.\n\r\n\rEngraved in the center is one word.  Merely reading the word induces fright.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "hp",
+          "level": 14,
+          "duration": -1,
+          "modifier": -10
+        }
+      ]
+    },
+    {
+      "vnum": 7706,
+      "name": "knife silvery",
+      "shortDescr": "a silvery knife",
+      "description": "A flat-bladed silvery knife lies here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "dagger",
+        "dice": [
+          2,
+          4
+        ],
+        "damageType": "stab"
+      },
+      "level": 6,
+      "weight": 30,
+      "cost": 480,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "knife silvery",
+          "description": "The knife is forged from a strange silvery metal the likes of which you have\n\rnever seen in your own world.  It is incredibly sharp and hard, yet feels almost\n\rfluid to the touch.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 6,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 6,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 7707,
+      "name": "dagger silvery",
+      "shortDescr": "a silvery dagger",
+      "description": "A sharp-looking silvery dagger lies here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "dagger",
+        "dice": [
+          3,
+          4
+        ],
+        "damageType": "pierce"
+      },
+      "level": 13,
+      "weight": 30,
+      "cost": 980,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "dagger silvery",
+          "description": "The dagger is forged from a strange silvery metal the likes of which you have\n\rnever seen in your own world.  It is incredibly sharp and hard, yet feels almost\n\rfluid to the touch.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 13,
+          "duration": -1,
+          "modifier": 2
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 13,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 7708,
+      "name": "sword thin",
+      "shortDescr": "an extremely sharp and thin sword",
+      "description": "Light glints off the edge of a razor-sharp sword.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "sword",
+        "dice": [
+          4,
+          3
+        ],
+        "damageType": "slice"
+      },
+      "level": 16,
+      "weight": 30,
+      "cost": 2300,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "sword thin",
+          "description": "The sword is forged from a strange silvery metal.  It barely measures an inch\n\racross at its widest point, yet it is totally inflexible and razor-sharp.  It\n\rcould probably cut through stone.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "dexterity",
+          "level": 16,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 16,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 16,
+          "duration": -1,
+          "modifier": 3
+        }
+      ]
+    },
+    {
+      "vnum": 7709,
+      "name": "sword thin two two-handed",
+      "shortDescr": "a thin two-handed sword",
+      "description": "A heavy yet thinly bladed two-handed sword lies here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "sword",
+        "dice": [
+          2,
+          12
+        ],
+        "damageType": "slash",
+        "flags": [
+          "twohands"
+        ]
+      },
+      "level": 24,
+      "weight": 160,
+      "cost": 2600,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "sword thin two two-handed",
+          "description": "The sword is forged from a strange silvery metal.  It barely measures two inches\n\racross at its widest point, yet it is totally inflexible and razor sharp.  It\n\rcould probably cut through stone.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 24,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 24,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 7710,
+      "name": "sword silvery two-handed",
+      "shortDescr": "a silvery sword",
+      "description": "A silvery sword gleams unnaturally with an alien light.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "glow"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "sword",
+        "dice": [
+          4,
+          4
+        ],
+        "damageType": "slash",
+        "flags": [
+          "twohands"
+        ]
+      },
+      "level": 19,
+      "weight": 130,
+      "cost": 4600,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "sword silvery",
+          "description": "The sword is forged from a strange silvery metal the likes of which you have\n\rnever seen in your own world.  It is incredibly sharp and hard, yet feels almost\n\rfluid to the touch.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "dexterity",
+          "level": 19,
+          "duration": -1,
+          "modifier": 2
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 19,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 7711,
+      "name": "flail barbed iron",
+      "shortDescr": "an iron barbed flail",
+      "description": "A rusty iron flail with wicked barbs on it tears at the ground.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "hum",
+        "evil"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "flail",
+        "dice": [
+          5,
+          5
+        ],
+        "damageType": "claw"
+      },
+      "level": 29,
+      "weight": 140,
+      "cost": 2800,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "flail barbed iron",
+          "description": "This hideous weapon has claimed many lives.  You can tell from the bloodstains\n\rdried into the iron and from the residue of flesh that hangs from the many\n\rbarbs on it.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 29,
+          "duration": -1,
+          "modifier": 3
+        }
+      ]
+    },
+    {
+      "vnum": 7712,
+      "name": "sword gith two-handed",
+      "shortDescr": "the unholy sword of the githyanki",
+      "description": "You feel tendrils of evil emanating from a wicked blade.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "evil",
+        "nodrop",
+        "noremove"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "sword",
+        "dice": [
+          9,
+          3
+        ],
+        "damageType": "slash",
+        "flags": [
+          "twohands"
+        ]
+      },
+      "level": 31,
+      "weight": 250,
+      "cost": 5100,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "sword gith",
+          "description": "The blade of this sword is a featureless gray.  As you touch it you feel an\n\revil presence reaching out to consume your soul.\n\r\n\rMaybe picking it up wasn't such a good idea.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "strength",
+          "level": 31,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "intelligence",
+          "level": 31,
+          "duration": -1,
+          "modifier": -1
+        },
+        {
+          "where": "object",
+          "location": "wisdom",
+          "level": 31,
+          "duration": -1,
+          "modifier": -1
+        },
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 31,
+          "duration": -1,
+          "modifier": 4
+        }
+      ]
+    },
+    {
+      "vnum": 7713,
+      "name": "stone flame",
+      "shortDescr": "a brightly flaming stone",
+      "description": "The room is lit by a hot blue flame coming from a small stone.",
+      "material": "oldstyle",
+      "itemType": "light",
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "light": {
+        "hours": 999
+      },
+      "level": 20,
+      "weight": 10,
+      "cost": 1440,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "stone flame",
+          "description": "This stone burns with an flame that emits great heat, yet it can be held with\n\rease.  The flame creates a light that allows you to see for miles.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 20,
+          "duration": -1,
+          "modifier": -2
+        },
+        {
+          "where": "object",
+          "location": "saves",
+          "level": 20,
+          "duration": -1,
+          "modifier": -2
+        }
+      ]
+    },
+    {
+      "vnum": 7714,
+      "name": "powder astral",
+      "shortDescr": "some astral powder",
+      "description": "Twinkling powder floats before your eyes.",
+      "material": "oldstyle",
+      "itemType": "treasure",
+      "wearFlags": [
+        "take"
+      ],
+      "weight": 10,
+      "cost": 100,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "powder astral",
+          "description": "You see the residue of the astral plane.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7715,
+      "name": "vest splint",
+      "shortDescr": "a splint mail vest",
+      "description": "An intricately fashioned splint mail vest lies here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "body"
+      ],
+      "armor": {
+        "acPierce": 6,
+        "acBash": 6,
+        "acSlash": 6
+      },
+      "level": 15,
+      "weight": 450,
+      "cost": 2100,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "vest splint",
+          "description": "This splint mail has been expertly and ornately fashioned from the highest\n\rquality of steels.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7716,
+      "name": "skirt splint",
+      "shortDescr": "a splint mail skirt",
+      "description": "An intricately fashioned splint mail skirt lies here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "legs"
+      ],
+      "armor": {
+        "acPierce": 7,
+        "acBash": 7,
+        "acSlash": 7
+      },
+      "level": 20,
+      "weight": 200,
+      "cost": 1450,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "skirt splint",
+          "description": "This splint mail has been expertly and ornately fashioned from the highest\n\rquality of steels.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7717,
+      "name": "sleeves splint",
+      "shortDescr": "a pair of splint mail sleeves",
+      "description": "A pair of intricately fashioned splint mail sleeves lie here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "arms"
+      ],
+      "armor": {
+        "acPierce": 7,
+        "acBash": 7,
+        "acSlash": 7
+      },
+      "level": 20,
+      "weight": 150,
+      "cost": 1450,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "sleeves splint",
+          "description": "This splint mail has been expertly and ornately fashioned from the highest\n\rquality of steels.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7718,
+      "name": "gauntlets ornate",
+      "shortDescr": "a pair of ornately designed gauntlets",
+      "description": "A pair of painstakingly designed ornate gauntlets lie here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "hands"
+      ],
+      "armor": {
+        "acPierce": 7,
+        "acBash": 7,
+        "acSlash": 7
+      },
+      "level": 20,
+      "weight": 50,
+      "cost": 2700,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "gauntlets ornate",
+          "description": "These gauntlets have been expertly and ornately fashioned from the highest\n\rquality of steels.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "strength",
+          "level": 20,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 20,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 20,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 7719,
+      "name": "vest cracked leather",
+      "shortDescr": "a decaying vest made from cracked leather",
+      "description": "A decaying hunk of cracked leather has been discarded here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "body"
+      ],
+      "armor": {
+        "acPierce": 9,
+        "acBash": 9,
+        "acSlash": 9,
+        "acExotic": 2
+      },
+      "level": 31,
+      "weight": 50,
+      "cost": 8500,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "vest cracked leather",
+          "description": "The ancient vest is barely intact.  All of the leather has cracked and dried\n\rto a husk.  It is covered with stains, burns, scorch marks, and blood.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 31,
+          "duration": -1,
+          "modifier": -6
+        },
+        {
+          "where": "object",
+          "location": "saves",
+          "level": 31,
+          "duration": -1,
+          "modifier": -2
+        }
+      ]
+    },
+    {
+      "vnum": 7720,
+      "name": "potion violet",
+      "shortDescr": "a violet potion",
+      "description": "A tall glass flask holds a translucent violet fluid.",
+      "material": "oldstyle",
+      "itemType": "potion",
+      "wearFlags": [
+        "take"
+      ],
+      "spells": {
+        "level": 18,
+        "spells": [
+          "invisibility",
+          "protection evil",
+          "detect evil"
+        ]
+      },
+      "level": 2,
+      "weight": 20,
+      "cost": 320,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "potion violet",
+          "description": "The violet fluid inside shifts and swirls.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7721,
+      "name": "potion vial murky",
+      "shortDescr": "a vial of murky fluid",
+      "description": "A small vial contains a murky, sludge-like substance.",
+      "material": "oldstyle",
+      "itemType": "potion",
+      "wearFlags": [
+        "take"
+      ],
+      "spells": {
+        "level": 15,
+        "spells": [
+          "blindness",
+          "shield",
+          ""
+        ]
+      },
+      "level": 10,
+      "weight": 10,
+      "cost": 760,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "potion vial murky",
+          "description": "The murky liquid inside this vial looks a lot like sewer water.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7722,
+      "name": "potion silvery",
+      "shortDescr": "a silvery-colored potion",
+      "description": "An octagonal vial holds a silvery-colored fluid that reflects light.",
+      "material": "oldstyle",
+      "itemType": "potion",
+      "wearFlags": [
+        "take"
+      ],
+      "spells": {
+        "level": 20,
+        "spells": [
+          "detect invis",
+          "detect magic",
+          "detect poison"
+        ]
+      },
+      "level": 1,
+      "weight": 20,
+      "cost": 320,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "potion silvery",
+          "description": "The octagonal vial contains a silvery-colored liquid that shimmers in the light.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7723,
+      "name": "mint chocolate",
+      "shortDescr": "a tasty-looking chocolate mint",
+      "description": "Someone has dropped a delicious-looking chocolate mint here.",
+      "material": "oldstyle",
+      "itemType": "pill",
+      "wearFlags": [
+        "take"
+      ],
+      "spells": {
+        "level": 35,
+        "spells": [
+          "refresh",
+          "heal",
+          ""
+        ]
+      },
+      "level": 11,
+      "cost": 990,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "mint chocolate",
+          "description": "This mint is made from the finest of chocolates, surrounding a cool peppermint\n\rinterior that must be savored, not swallowed.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7724,
+      "name": "pentagram",
+      "shortDescr": "a black pentagram",
+      "description": "A small black metal pentagram has been left here.",
+      "material": "oldstyle",
+      "itemType": "key",
+      "extraFlags": [
+        "invis"
+      ],
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "weight": 100,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "pentagram",
+          "description": "The pentagram is a small circular hoop that surrounds a five-pointed star.\n\rInscribed on its exterior loop are markings in an alien tongue.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 7725,
+      "name": "pouch rotting",
+      "shortDescr": "a rotting pouch",
+      "description": "A small pouch rots away on the floor here.",
+      "material": "oldstyle",
+      "itemType": "money",
+      "wearFlags": [
+        "take"
+      ],
+      "money": {
+        "gold": 100
+      },
+      "weight": 10,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "pouch rotting",
+          "description": "You think you see glints of metal through the holes...\n\r"
+        }
+      ]
+    }
+  ],
+  "shops": [],
+  "specials": [
+    {
+      "mobVnum": 7702,
+      "spec": "spec_cast_mage"
+    },
+    {
+      "mobVnum": 7705,
+      "spec": "spec_thief"
+    },
+    {
+      "mobVnum": 7710,
+      "spec": "spec_cast_mage"
+    },
+    {
+      "mobVnum": 7711,
+      "spec": "spec_cast_mage"
+    },
+    {
+      "mobVnum": 7712,
+      "spec": "spec_cast_mage"
+    },
+    {
+      "mobVnum": 7713,
+      "spec": "spec_cast_undead"
+    },
+    {
+      "mobVnum": 7714,
+      "spec": "spec_cast_undead"
+    },
+    {
+      "mobVnum": 7715,
+      "spec": "spec_cast_undead"
+    },
+    {
+      "mobVnum": 7717,
+      "spec": "spec_cast_mage"
+    },
+    {
+      "mobVnum": 7718,
+      "spec": "spec_cast_mage"
+    },
+    {
+      "mobVnum": 7719,
+      "spec": "spec_breath_fire"
+    }
+  ],
+  "mobprogs": [],
+  "resets": [
+    {
+      "mobVnum": 7700,
+      "maxInArea": 1,
+      "roomVnum": 7706,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7700,
+      "wearLoc": "wielded",
+      "roomVnum": 7706,
+      "commandName": "equipObj"
+    },
+    {
+      "roomVnum": 7708,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "roomVnum": 7709,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "roomVnum": 7710,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "roomVnum": 7711,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "roomVnum": 7712,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "roomVnum": 7713,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "mobVnum": 7704,
+      "maxInArea": 10,
+      "roomVnum": 7713,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3022,
+      "wearLoc": "wielded",
+      "roomVnum": 7713,
+      "commandName": "equipObj"
+    },
+    {
+      "roomVnum": 7714,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "mobVnum": 7704,
+      "maxInArea": 10,
+      "roomVnum": 7714,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3022,
+      "wearLoc": "wielded",
+      "roomVnum": 7714,
+      "commandName": "equipObj"
+    },
+    {
+      "roomVnum": 7715,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "mobVnum": 7704,
+      "maxInArea": 10,
+      "roomVnum": 7715,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3022,
+      "wearLoc": "wielded",
+      "roomVnum": 7715,
+      "commandName": "equipObj"
+    },
+    {
+      "roomVnum": 7716,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "mobVnum": 7704,
+      "maxInArea": 10,
+      "roomVnum": 7716,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3022,
+      "wearLoc": "wielded",
+      "roomVnum": 7716,
+      "commandName": "equipObj"
+    },
+    {
+      "roomVnum": 7717,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "mobVnum": 7704,
+      "maxInArea": 10,
+      "roomVnum": 7717,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3022,
+      "wearLoc": "wielded",
+      "roomVnum": 7717,
+      "commandName": "equipObj"
+    },
+    {
+      "roomVnum": 7718,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "mobVnum": 7704,
+      "maxInArea": 10,
+      "roomVnum": 7718,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3022,
+      "wearLoc": "wielded",
+      "roomVnum": 7718,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 7705,
+      "maxInArea": 8,
+      "roomVnum": 7718,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7707,
+      "wearLoc": "wielded",
+      "roomVnum": 7718,
+      "commandName": "equipObj"
+    },
+    {
+      "roomVnum": 7719,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "mobVnum": 7704,
+      "maxInArea": 10,
+      "roomVnum": 7719,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3022,
+      "wearLoc": "wielded",
+      "roomVnum": 7719,
+      "commandName": "equipObj"
+    },
+    {
+      "roomVnum": 7720,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "mobVnum": 7703,
+      "maxInArea": 4,
+      "roomVnum": 7720,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7714,
+      "roomVnum": 7720,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 7704,
+      "maxInArea": 10,
+      "roomVnum": 7720,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3022,
+      "wearLoc": "wielded",
+      "roomVnum": 7720,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 7705,
+      "maxInArea": 8,
+      "roomVnum": 7720,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7707,
+      "wearLoc": "wielded",
+      "roomVnum": 7720,
+      "commandName": "equipObj"
+    },
+    {
+      "roomVnum": 7721,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "mobVnum": 7704,
+      "maxInArea": 10,
+      "roomVnum": 7721,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3022,
+      "wearLoc": "wielded",
+      "roomVnum": 7721,
+      "commandName": "equipObj"
+    },
+    {
+      "roomVnum": 7722,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "mobVnum": 7704,
+      "maxInArea": 10,
+      "roomVnum": 7722,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3022,
+      "wearLoc": "wielded",
+      "roomVnum": 7722,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 7705,
+      "maxInArea": 8,
+      "roomVnum": 7722,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7707,
+      "wearLoc": "wielded",
+      "roomVnum": 7722,
+      "commandName": "equipObj"
+    },
+    {
+      "roomVnum": 7723,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "mobVnum": 7706,
+      "maxInArea": 6,
+      "roomVnum": 7723,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7708,
+      "wearLoc": "wielded",
+      "roomVnum": 7723,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7715,
+      "wearLoc": "on the body",
+      "roomVnum": 7723,
+      "commandName": "equipObj"
+    },
+    {
+      "roomVnum": 7724,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "mobVnum": 7703,
+      "maxInArea": 4,
+      "roomVnum": 7724,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7714,
+      "roomVnum": 7724,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 7705,
+      "maxInArea": 8,
+      "roomVnum": 7724,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7707,
+      "wearLoc": "wielded",
+      "roomVnum": 7724,
+      "commandName": "equipObj"
+    },
+    {
+      "roomVnum": 7725,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "roomVnum": 7726,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "mobVnum": 7703,
+      "maxInArea": 4,
+      "roomVnum": 7726,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7714,
+      "roomVnum": 7726,
+      "commandName": "giveObj"
+    },
+    {
+      "roomVnum": 7727,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "mobVnum": 7706,
+      "maxInArea": 6,
+      "roomVnum": 7727,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7708,
+      "wearLoc": "wielded",
+      "roomVnum": 7727,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7715,
+      "wearLoc": "on the body",
+      "roomVnum": 7727,
+      "commandName": "equipObj"
+    },
+    {
+      "roomVnum": 7728,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "roomVnum": 7729,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "mobVnum": 7710,
+      "maxInArea": 6,
+      "roomVnum": 7729,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7706,
+      "wearLoc": "wielded",
+      "roomVnum": 7729,
+      "commandName": "equipObj"
+    },
+    {
+      "roomVnum": 7730,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "mobVnum": 7703,
+      "maxInArea": 4,
+      "roomVnum": 7730,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7714,
+      "roomVnum": 7730,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 7708,
+      "maxInArea": 3,
+      "roomVnum": 7730,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7709,
+      "wearLoc": "wielded",
+      "roomVnum": 7730,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7715,
+      "wearLoc": "on the body",
+      "roomVnum": 7730,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7716,
+      "wearLoc": "on the legs",
+      "roomVnum": 7730,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7717,
+      "wearLoc": "on the arms",
+      "roomVnum": 7730,
+      "commandName": "equipObj"
+    },
+    {
+      "roomVnum": 7731,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "mobVnum": 7710,
+      "maxInArea": 6,
+      "roomVnum": 7731,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7706,
+      "wearLoc": "wielded",
+      "roomVnum": 7731,
+      "commandName": "equipObj"
+    },
+    {
+      "roomVnum": 7732,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "roomVnum": 7733,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "mobVnum": 7701,
+      "maxInArea": 2,
+      "roomVnum": 7733,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7704,
+      "roomVnum": 7733,
+      "commandName": "giveObj"
+    },
+    {
+      "roomVnum": 7734,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "mobVnum": 7701,
+      "maxInArea": 2,
+      "roomVnum": 7734,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7704,
+      "roomVnum": 7734,
+      "commandName": "giveObj"
+    },
+    {
+      "roomVnum": 7735,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "roomVnum": 7736,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "roomVnum": 7737,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "roomVnum": 7738,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "roomVnum": 7739,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "roomVnum": 7740,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "roomVnum": 7741,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "roomVnum": 7742,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "roomVnum": 7743,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "roomVnum": 7744,
+      "exits": 6,
+      "commandName": "randomizeExits"
+    },
+    {
+      "mobVnum": 7715,
+      "maxInArea": 3,
+      "roomVnum": 7745,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7721,
+      "roomVnum": 7745,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 7702,
+      "maxInArea": 1,
+      "roomVnum": 7746,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7705,
+      "roomVnum": 7746,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 7715,
+      "maxInArea": 3,
+      "roomVnum": 7747,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7721,
+      "roomVnum": 7747,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 7715,
+      "maxInArea": 3,
+      "roomVnum": 7749,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7721,
+      "roomVnum": 7749,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 7707,
+      "maxInArea": 8,
+      "roomVnum": 7751,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7708,
+      "wearLoc": "wielded",
+      "roomVnum": 7751,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7715,
+      "wearLoc": "on the body",
+      "roomVnum": 7751,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 7707,
+      "maxInArea": 8,
+      "roomVnum": 7751,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7708,
+      "wearLoc": "wielded",
+      "roomVnum": 7751,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7715,
+      "wearLoc": "on the body",
+      "roomVnum": 7751,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 7711,
+      "maxInArea": 6,
+      "roomVnum": 7753,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7706,
+      "wearLoc": "wielded",
+      "roomVnum": 7753,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 7708,
+      "maxInArea": 3,
+      "roomVnum": 7755,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7709,
+      "wearLoc": "wielded",
+      "roomVnum": 7755,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7715,
+      "wearLoc": "on the body",
+      "roomVnum": 7755,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7716,
+      "wearLoc": "on the legs",
+      "roomVnum": 7755,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7717,
+      "wearLoc": "on the arms",
+      "roomVnum": 7755,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 7711,
+      "maxInArea": 6,
+      "roomVnum": 7759,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7706,
+      "wearLoc": "wielded",
+      "roomVnum": 7759,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 7711,
+      "maxInArea": 6,
+      "roomVnum": 7762,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7706,
+      "wearLoc": "wielded",
+      "roomVnum": 7762,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 7711,
+      "maxInArea": 6,
+      "roomVnum": 7762,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7706,
+      "wearLoc": "wielded",
+      "roomVnum": 7762,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7722,
+      "roomVnum": 7762,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 7711,
+      "maxInArea": 6,
+      "roomVnum": 7763,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7706,
+      "wearLoc": "wielded",
+      "roomVnum": 7763,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 7711,
+      "maxInArea": 6,
+      "roomVnum": 7763,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7706,
+      "wearLoc": "wielded",
+      "roomVnum": 7763,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7722,
+      "roomVnum": 7763,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 7712,
+      "maxInArea": 4,
+      "roomVnum": 7764,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7710,
+      "wearLoc": "wielded",
+      "roomVnum": 7764,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7703,
+      "roomVnum": 7764,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 7707,
+      "maxInArea": 8,
+      "roomVnum": 7765,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7708,
+      "wearLoc": "wielded",
+      "roomVnum": 7765,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7715,
+      "wearLoc": "on the body",
+      "roomVnum": 7765,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 7707,
+      "maxInArea": 8,
+      "roomVnum": 7765,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7708,
+      "wearLoc": "wielded",
+      "roomVnum": 7765,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7715,
+      "wearLoc": "on the body",
+      "roomVnum": 7765,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 7707,
+      "maxInArea": 8,
+      "roomVnum": 7767,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7708,
+      "wearLoc": "wielded",
+      "roomVnum": 7767,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7715,
+      "wearLoc": "on the body",
+      "roomVnum": 7767,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 7707,
+      "maxInArea": 8,
+      "roomVnum": 7767,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7708,
+      "wearLoc": "wielded",
+      "roomVnum": 7767,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7715,
+      "wearLoc": "on the body",
+      "roomVnum": 7767,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 7718,
+      "maxInArea": 1,
+      "roomVnum": 7768,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7713,
+      "wearLoc": "as a light",
+      "roomVnum": 7768,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 7719,
+      "maxInArea": 6,
+      "roomVnum": 7768,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 7719,
+      "maxInArea": 6,
+      "roomVnum": 7768,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 7719,
+      "maxInArea": 6,
+      "roomVnum": 7768,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 7719,
+      "maxInArea": 6,
+      "roomVnum": 7768,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 7719,
+      "maxInArea": 6,
+      "roomVnum": 7768,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 7719,
+      "maxInArea": 6,
+      "roomVnum": 7768,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 7707,
+      "maxInArea": 8,
+      "roomVnum": 7769,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7708,
+      "wearLoc": "wielded",
+      "roomVnum": 7769,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7715,
+      "wearLoc": "on the body",
+      "roomVnum": 7769,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 7707,
+      "maxInArea": 8,
+      "roomVnum": 7769,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7708,
+      "wearLoc": "wielded",
+      "roomVnum": 7769,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7715,
+      "wearLoc": "on the body",
+      "roomVnum": 7769,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 7717,
+      "maxInArea": 1,
+      "roomVnum": 7771,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 7716,
+      "maxInArea": 1,
+      "roomVnum": 7772,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 7712,
+      "maxInArea": 4,
+      "roomVnum": 7773,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7710,
+      "wearLoc": "wielded",
+      "roomVnum": 7773,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7703,
+      "roomVnum": 7773,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 7712,
+      "maxInArea": 4,
+      "roomVnum": 7774,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7710,
+      "wearLoc": "wielded",
+      "roomVnum": 7774,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7703,
+      "roomVnum": 7774,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 7712,
+      "maxInArea": 4,
+      "roomVnum": 7774,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7710,
+      "wearLoc": "wielded",
+      "roomVnum": 7774,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7703,
+      "roomVnum": 7774,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 7709,
+      "maxInArea": 2,
+      "roomVnum": 7776,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7709,
+      "wearLoc": "wielded",
+      "roomVnum": 7776,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7715,
+      "wearLoc": "on the body",
+      "roomVnum": 7776,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7716,
+      "wearLoc": "on the legs",
+      "roomVnum": 7776,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7717,
+      "wearLoc": "on the arms",
+      "roomVnum": 7776,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7718,
+      "wearLoc": "on the hands",
+      "roomVnum": 7776,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 7709,
+      "maxInArea": 2,
+      "roomVnum": 7776,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7709,
+      "wearLoc": "wielded",
+      "roomVnum": 7776,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7715,
+      "wearLoc": "on the body",
+      "roomVnum": 7776,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7716,
+      "wearLoc": "on the legs",
+      "roomVnum": 7776,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7717,
+      "wearLoc": "on the arms",
+      "roomVnum": 7776,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7718,
+      "wearLoc": "on the hands",
+      "roomVnum": 7776,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 7713,
+      "maxInArea": 1,
+      "roomVnum": 7777,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7711,
+      "wearLoc": "wielded",
+      "roomVnum": 7777,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7724,
+      "wearLoc": "held in the hands",
+      "roomVnum": 7777,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7702,
+      "roomVnum": 7777,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 7714,
+      "maxInArea": 1,
+      "roomVnum": 7779,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 7712,
+      "wearLoc": "wielded",
+      "roomVnum": 7779,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7719,
+      "wearLoc": "on the body",
+      "roomVnum": 7779,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 7725,
+      "roomVnum": 7779,
+      "commandName": "giveObj"
+    }
+  ],
+  "factions": [],
+  "quests": []
+}

@@ -118,6 +118,7 @@ void raedit(Mobile* ch, char* argument)
                 }
             }
         }
+        // When format is forced, always apply the requested extension
 
         if (requested_ext != NULL) {
             size_t base_len = has_ext ? (size_t)(ext - races_file) : strlen(races_file);

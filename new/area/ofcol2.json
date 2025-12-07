@@ -1,0 +1,8012 @@
+{
+  "formatVersion": 1,
+  "areadata": {
+    "version": 2,
+    "name": "New Ofcol",
+    "builders": "",
+    "vnumRange": [
+      600,
+      699
+    ],
+    "credits": "Hatchet",
+    "security": 9,
+    "sector": "inside",
+    "lowLevel": 5,
+    "highLevel": 35,
+    "reset": 6,
+    "alwaysReset": false
+  },
+  "storyBeats": [],
+  "checklist": [],
+  "rooms": [
+    {
+      "vnum": 600,
+      "name": "Granny's Still Room",
+      "description": "You are in Granny Jenkins' still room.  The smell of whiskey is heady, and\n\rthe bottles of it on the floor make your mouth water and your mind swirl.  You\n\ralso see a very large still.  So THIS is why there are so many grain fields!\n\rThe exit is to the east.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 616,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You see the storage shed.\n\r",
+          "keyword": "door"
+        }
+      ]
+    },
+    {
+      "vnum": 601,
+      "name": "The Big Intersection",
+      "description": "You are in the big intersection between Raff Way and Impy Way.  Crowds \n\rof people walk past you as they go on their daily tasks.  Raff Way continues\n\reast and west, and Impy Way runs north and south.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 625,
+          "description": "Impy Way continues north.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 666,
+          "description": "Raff Way continues east.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 602,
+          "description": "Impy Way continues south.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 5553,
+          "description": "Raff Way continues west.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 602,
+      "name": "Impy Way",
+      "description": "You are on Impy Way.  You can see a leather shop east and a blacksmith\n\rwest.  To the north you see a big intersection, and Impy Way continues south.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 601,
+          "description": "You see the big intersection.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 604,
+          "description": "You see the leather shop.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 605,
+          "description": "Impy Way continues south.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 603,
+          "description": "You see the blacksmith.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 603,
+      "name": "The Blacksmith",
+      "description": "You are in a black and smelly room.  Pieces of metal are strewn all over\n\rthe floor, and a wave of heat from a big furnace hits you.  An anvil sits on \n\rone side of the room, and on the other side is a workbench.  The exit is east.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 602,
+          "description": "You see Impy Way.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 604,
+      "name": "The Leather Shop",
+      "description": "You are in a brown and smelly room.  Pieces of leather are strewn all over\n\rthe floor.  The smell of burnt hide assaults your nose.  You can tell by the\n\rlooks that the tanning is done VERY CLOSE to here!   A table is near the\n\rentrance.  The exit is west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 602,
+          "description": "You see Impy Way.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 605,
+      "name": "Impy Way",
+      "description": "You are on Impy Way.  To the east is a meat store, and to the west is a\n\rpawn shop.  Impy Way continues north and south.  People are rushing around you\n\rto go to these stores.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 602,
+          "description": "Impy Way continues North.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 607,
+          "description": "You see the Meat Store.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 608,
+          "description": "Impy Way continues south.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 606,
+          "description": "You see the Pawn Shop.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 606,
+      "name": "The Pawn Shop.",
+      "description": "You are in a little shop filled with a lot of knick knacks and semi-\n\rvaluable goods.  There is a display case full of little treasures that you are\n\rsure that you or any other little kid would like to touch!  The exit is east.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 605,
+          "description": "You see Impy Way.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 607,
+      "name": "The Meat Store",
+      "description": "You are in a meat store.  Hanging on hooks are meats of many kinds of\n\ranimals.  In the background, you can hear the sound of blade against flesh.\n\rIt smells like meat here (which is not a good smell).  The exit is west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 605,
+          "description": "You see Impy Way.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 608,
+      "name": "Impy Way",
+      "description": "You are on Impy Way.  To the east is Farmer's Market, and to the west is\n\rNyles' House of Ale.  Impy Way runs north and ends south of here.  You can hear\n\rthe sound of housewives gossiping at the market.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 605,
+          "description": "Impy Way continues north.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 610,
+          "description": "You see the Farmer's Market.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 611,
+          "description": "You see the end of Impy Way.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 609,
+          "description": "You see Nyles' House of Ale.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 609,
+      "name": "Nyles' House of Ale",
+      "description": "This is a very busy bar, with everyone holding homemade bottles of\n\rale.  You see even the more gentile persons here, laughing along with\n\rNyles, who offers you a quart of ale too.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 608,
+          "description": "You see Impy Way.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 610,
+      "name": "Farmer's Market",
+      "description": "You see many carts filled with fruits and vegetables.  Many farmers are\n\rall trying to sell you their produce, each saying their's is better.  The exit\n\ris west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 608,
+          "description": "You see Impy Way.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 611,
+      "name": "The End of Impy Way",
+      "description": "You are at the end of Impy and of the city part of Ofcol.  To the east is\n\ra dirt road leading toward the farm animals.  West from here are fields.  Impy\n\rWay continues north.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 608,
+          "description": "Impy Way continues north.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 668,
+          "description": "You see the dirt road.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 612,
+          "description": "You see the fields.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 612,
+      "name": "Fields",
+      "description": "You are in a corn field.  You can't see far, since the corn stalks are\n\rtaller than you are.  You remember that the end of Impy Way is east of here, \n\rand you think you see a building to the north.  The field continues south and \n\rwest.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 616,
+          "description": "You think you see a building north of here.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 611,
+          "description": "You remember that the end of Impy Way is east.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 613,
+          "description": "You can make a path to the fields south.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 615,
+          "description": "You can make a path to the fields west.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 613,
+      "name": "Fields",
+      "description": "You are among fruit trees in a field.  You see many apple and orange \n\rtrees.  You can make out the corn fields north and some vegetable patches west.\n\rThe sight of the fruit makes your mouth water.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 612,
+          "description": "You see the corn fields.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 614,
+          "description": "You see the vegetable fields.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 614,
+      "name": "Fields",
+      "description": "You are among the vegetable fields.  You see many cabbage and lettuce\n\rpatches, along with tomato bushes and potato plants.  To the east are some\n\rfruit trees, and north are some wheat fields.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 615,
+          "description": "You see the wheat fields.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 613,
+          "description": "You see the fruit trees.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 615,
+      "name": "Fields",
+      "description": "You are among the wheat fields.  The gentle caress of the wheat and the\n\rcool shadow from the tall stalks and scarecrow lulls you to sleep and dream\n\rof a little girl and little dog from a faraway place.  To the east are the corn\n\rstalks, and south of you are the vegetable patches.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 612,
+          "description": "You see the corn fields.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 614,
+          "description": "You see the vegetable patches.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 616,
+      "name": "The Shed",
+      "description": "You are in the storage shed.  Bales of wheat, corn and hay are piled\n\ragainst the wall, and some vegetables are in carts.  You see a small door\n\rto the west.  The main exit is south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 612,
+          "description": "You see the corn fields.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 600,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You see the door.\n\r",
+          "keyword": "door"
+        }
+      ]
+    },
+    {
+      "vnum": 617,
+      "name": "Slaughterhouse",
+      "description": "You are in the slaughterhouse, where all the animals are slaughtered so\n\rthat they can be sold or their skins be tanned.  The scream of dying animals\n\rmakes your stomach churn.  The exit is to the west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 668,
+          "description": "You see the dirt road.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 618,
+      "name": "Dirt Road",
+      "description": "You are on a dirt road.  To the east is a barn, and you see a big chicken\n\rcoop south of you.  The dirt road continues north and west.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 668,
+          "description": "You see the dirt road.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 620,
+          "description": "You see the barn.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 619,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You see the chicken coop.\n\r",
+          "keyword": "coop"
+        },
+        {
+          "dir": "west",
+          "toVnum": 621,
+          "description": "You see the dirt road.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 619,
+      "name": "Chicken Coop",
+      "description": "You are in the chicken coop.  The smell of chickens and chicken droppings\n\rmakes you gasp.  The exit is north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 618,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You can sense the fresh air.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 620,
+      "name": "Barn",
+      "description": "You are in a barn.  There are some cows here, munching on mounds of hay.\n\rMilk is milked and bottled here.  You see the exit west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 618,
+          "description": "You see the dirt road.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 621,
+      "name": "Dirt Road",
+      "description": "You are on a dirt road.  To the north and south, you see some grass \n\rfields.  There is a pigsty west, and the dirt road continues east.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 622,
+          "description": "You see some grass fields.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 618,
+          "description": "You see the dirt road.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 623,
+          "description": "You see some grass fields.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 624,
+          "description": "You see the pigsty.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 622,
+      "name": "Grass Field",
+      "description": "You are in a grass field.  Fences block the way north, east, and west.\n\rThe dirt road is to the south.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 621,
+          "description": "You see the dirt road.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 623,
+      "name": "Grass Field",
+      "description": "You are in a grass field.  Fences block the way south, east, and west.\n\rThe dirt road is to the north.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 621,
+          "description": "You see the dirt road.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 624,
+      "name": "Pig Sty",
+      "description": "For some reason, you are in a pig sty.  You wonder why you are standing in\n\rmuck.  To realize your senses and notice the dirt road is to the east.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 621,
+          "description": "You see the dry dirt road.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 625,
+      "name": "Impy Way",
+      "description": "You are on Impy Way.  East and west of you are big houses.  Impy Way\n\rcontinues north and reaches a big intersection south.  Children are running to\n\rfrom home to home.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 632,
+          "description": "Impy Way continues north.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 626,
+          "key": 665,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "description": "You see a big house.\n\r",
+          "keyword": "door"
+        },
+        {
+          "dir": "south",
+          "toVnum": 601,
+          "description": "You see a big intersection.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 629,
+          "key": 665,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "description": "You see a big house.\n\r",
+          "keyword": "door"
+        }
+      ]
+    },
+    {
+      "vnum": 626,
+      "name": "Big House",
+      "description": "You are in a big house.  Evidently, the owners of this house are richer\n\rthan the average citizen, since there is more than one room to this house.  A\n\rdoor leads to the kitchen east, and a bedroom is upstairs.  The exit is to the\n\rwest.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 628,
+          "description": "You see the kitchen.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 625,
+          "key": 665,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "description": "You see Impy Way.\n\r",
+          "keyword": "door"
+        },
+        {
+          "dir": "up",
+          "toVnum": 627,
+          "description": "You see the bedroom.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 627,
+      "name": "Bedroom",
+      "description": "You are in the bedroom.  There isn't much of interest except for a bed and\n\ra closet.  The stairs lead back down.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "down",
+          "toVnum": 626,
+          "description": "You see the main room of the house.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 628,
+      "name": "Kitchen",
+      "description": "You are in a kitchen.  There isn't much of interest here.  The main room\n\ris west of here.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 626,
+          "description": "You see the main room of the house.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 629,
+      "name": "Big House",
+      "description": "You are in a big house.  Evidently, the owners of this house are richer\n\rthan the average citizen, since there is more than one room to this house.  A\n\rdoor leads to the kitchen west, and a bedroom is upstairs.  The exit is to the\n\reast.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 625,
+          "key": 665,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "description": "You see Impy Way.\n\r",
+          "keyword": "door"
+        },
+        {
+          "dir": "west",
+          "toVnum": 631,
+          "description": "You see the kitchen.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 630,
+          "description": "You see the bedroom.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 630,
+      "name": "Bedroom",
+      "description": "You are in the bedroom.  There isn't much of interest except for a bed and\n\ra closet.  The stairs lead back down.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "down",
+          "toVnum": 629,
+          "description": "You see the main room of the house.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 631,
+      "name": "Kitchen",
+      "description": "You are in a kitchen.  There isn't much of interest here.  The main room\n\ris east of here.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 629,
+          "description": "You see the main room of the house.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 632,
+      "name": "Impy Way",
+      "description": "You are on Impy Way.  Houses are to the east and west of here.  Impy Way\n\rcontinues north and south.  There are many people walking along the streets.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 637,
+          "description": "Impy Way continues north.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 633,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You see a house.\n\r",
+          "keyword": "door"
+        },
+        {
+          "dir": "south",
+          "toVnum": 625,
+          "description": "Impy Way continues south.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 635,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You see a house.\n\r",
+          "keyword": "door"
+        }
+      ]
+    },
+    {
+      "vnum": 633,
+      "name": "House",
+      "description": "You are in a house.  The living room and kitchen are all bundled into\n\rthis room.  There is a bedroom south of here.  The exit is west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 634,
+          "description": "You see the bedroom.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 632,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You see Impy Way.\n\r",
+          "keyword": "door"
+        }
+      ]
+    },
+    {
+      "vnum": 634,
+      "name": "Bedroom",
+      "description": "You are in a bedroom.  There isn't much of interest here except for a bed\n\rand a dresser.  The main room of the house is north of here.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 633,
+          "description": "You see the main room of the house.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 635,
+      "name": "House",
+      "description": "You are in a house.  The living room and kitchen are all bundled into\n\rthis room.  There is a bedroom south of here.  The exit is east.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 632,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You see Impy Way.\n\r",
+          "keyword": "door"
+        },
+        {
+          "dir": "south",
+          "toVnum": 636,
+          "description": "You see the bedroom.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 636,
+      "name": "Bedroom",
+      "description": "You are in a bedroom.  There isn't much of interest here except for a bed\n\rand a dresser.  The main room of the house is north of here.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 635,
+          "description": "You see the main room of the house.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 637,
+      "name": "Impy Way",
+      "description": "You are on Impy Way.  Houses are to the east and west of here.  Impy Way\n\rcontinues south.  To the north is a big intersection.  There are many people\n\rwalking along the streets.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 642,
+          "description": "You see a big intersection.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 638,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You see a house.\n\r",
+          "keyword": "door"
+        },
+        {
+          "dir": "south",
+          "toVnum": 632,
+          "description": "Impy Way continues south.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 640,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You see a house.\n\r",
+          "keyword": "door"
+        }
+      ]
+    },
+    {
+      "vnum": 638,
+      "name": "House",
+      "description": "You are in a house.  The living room and kitchen are all bundled into\n\rthis room.  There is a bedroom south of here.  The exit is west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 639,
+          "description": "You see the bedroom.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 637,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You see Impy Way.\n\r",
+          "keyword": "door"
+        }
+      ]
+    },
+    {
+      "vnum": 639,
+      "name": "Bedroom",
+      "description": "You are in a bedroom.  There isn't much of interest here except for a bed\n\rand a dresser.  The main room of the house is north of here.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 638,
+          "description": "You see the main room of the house.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 640,
+      "name": "House",
+      "description": "You are in a house.  The living room and kitchen are all bundled into\n\rthis room.  There is a bedroom south of here.  The exit is east.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 637,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "You see Impy Way.\n\r",
+          "keyword": "door"
+        },
+        {
+          "dir": "south",
+          "toVnum": 641,
+          "description": "You see the bedroom.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 641,
+      "name": "Bedroom",
+      "description": "You are in a bedroom.  There isn't much of interest here except for a bed\n\rand a dresser.  The main room of the house is north of here.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 640,
+          "description": "You see the main room of the house.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 642,
+      "name": "The Big Intersection",
+      "description": "You are on the intersection of Impy Way and Swiftest Way.  To the north of\n\ryou is a big house.  Swiftest Way runs east and west, and Impy way continues\n\rsouth.  There are quite a few people on this intersection.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 643,
+          "key": 665,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "description": "You see the big house.\n\r",
+          "keyword": "door"
+        },
+        {
+          "dir": "east",
+          "toVnum": 646,
+          "description": "Swiftest Way continues east.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 637,
+          "description": "Impy Way continues south.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 649,
+          "description": "Swiftest Way continues west.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 643,
+      "name": "Big House",
+      "description": "You are in a big house.  Evidently, the owners of this house are richer\n\rthan the average citizen, since there is more than one room to this house.  A\n\rdoor leads to the kitchen north, and a bedroom is upstairs.  The exit is to \n\rthe south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 645,
+          "description": "You see the kitchen.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 642,
+          "key": 665,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "description": "You see Impy Way.\n\r",
+          "keyword": "door"
+        },
+        {
+          "dir": "up",
+          "toVnum": 644,
+          "description": "You see the bedroom.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 644,
+      "name": "Bedroom",
+      "description": "You are in the bedroom.  There isn't much of interest except for a bed \n\rand a closet.  The stairs lead back down.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "down",
+          "toVnum": 643,
+          "description": "You see the main room of the house.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 645,
+      "name": "Kitchen",
+      "description": "You are in a kitchen.  There isn't much of interest here.  The main room\n\ris east of here.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 643,
+          "description": "You see the main room of the house.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 646,
+      "name": "Swiftest Way",
+      "description": "You are on Swiftest Way, the commoner's residential area.  Small houses\n\rare north and south of you.  Swiftest Way continues east, and west is a big\n\rintersection.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 652,
+          "description": "You see a small house.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 647,
+          "description": "Swiftest Way continues east.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 653,
+          "description": "You see a small house.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 642,
+          "description": "You see a big intersection.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 647,
+      "name": "Swiftest Way",
+      "description": "You are on Swiftest Way, the commoner's residential area.  Small houses\n\rare north and south of you.  Swiftest Way continues east and west.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 654,
+          "description": "You see a small house.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 648,
+          "description": "You see the end of Swiftest Way.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 655,
+          "description": "You see a small house.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 646,
+          "description": "Swiftest Way continues west.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 648,
+      "name": "End of Swiftest Way",
+      "description": "You are on Swiftest Way, the commoner's residential area.  Small houses\n\rare north, south, and east of you.  Swiftest Way continues west.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 656,
+          "description": "You see a small house.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 657,
+          "description": "You see a small house.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 658,
+          "description": "You see a small house.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 647,
+          "description": "Swiftest Way continues west.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 649,
+      "name": "Swiftest Way",
+      "description": "You are on Swiftest Way, the commoner's residential area.  Small houses\n\rare north and south of you.  Swiftest Way continues west, and to the east you\n\rsee a big intersection.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 659,
+          "description": "You see a small house.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 642,
+          "description": "You see the big intersection.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 660,
+          "description": "You see a small house.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 650,
+          "description": "Swiftest Way continues west.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 650,
+      "name": "Swiftest Way",
+      "description": "You are on Swiftest Way, the commoner's residential area.  Small houses\n\rare north and south of you.  Swiftest Way continues east and west.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 661,
+          "description": "You see a small house.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 649,
+          "description": "Swiftest Way continues east.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 662,
+          "description": "You see a small house.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 651,
+          "description": "You see the end of Swiftest Way.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 651,
+      "name": "The end of Swiftest Way",
+      "description": "You are on Swiftest Way, the commoner's residential area.  Small houses\n\rare north, south, and west of you.  Swiftest Way continues east.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 663,
+          "description": "You see a small house.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 650,
+          "description": "Swiftest Way continues east.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 664,
+          "description": "You see a small house.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 665,
+          "description": "You see a small house.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 652,
+      "name": "Small House",
+      "description": "You are in a small house, owned by a commoner of Ofcol.  There isn't much\n\rof value here to you, but you'd bet that the owner really cherishes the pile\n\rof stuff here.  The exit is to the south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 646,
+          "description": "You see Swiftest Way.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 653,
+      "name": "Small House",
+      "description": "You are in a small house, owned by a commoner of Ofcol.  There isn't much\n\rof value here to you, but you'd bet that the owner really cherishes the pile\n\rof stuff here.  The exit is to the north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 646,
+          "description": "You see Swiftest Way.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 654,
+      "name": "Small House",
+      "description": "You are in a small house, owned by a commoner of Ofcol.  There isn't much\n\rof value here to you, but you'd bet that the owner really cherishes the pile\n\rof stuff here.  The exit is to the south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 647,
+          "description": "You see Swiftest Way.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 655,
+      "name": "Small House",
+      "description": "You are in a small house, owned by a commoner of Ofcol.  There isn't much\n\rof value here to you, but you'd bet that the owner really cherishes the pile\n\rof stuff here.  The exit is to the north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 647,
+          "description": "You see Swiftest Way.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 656,
+      "name": "Small House",
+      "description": "You are in a small house, owned by a commoner of Ofcol.  There isn't much\n\rof value here to you, but you'd bet that the owner really cherishes the pile\n\rof stuff here.  The exit is to the south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 648,
+          "description": "You see the end of Swiftest Way.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 657,
+      "name": "Small House",
+      "description": "You are in a small house, owned by a commoner of Ofcol.  There isn't much\n\rof value here to you, but you'd bet that the owner really cherishes the pile\n\rof stuff here.  The exit is to the west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 648,
+          "description": "You see the end of Swiftest Way.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 658,
+      "name": "Small House",
+      "description": "You are in a small house, owned by a commoner of Ofcol.  There isn't much\n\rof value here to you, but you'd bet that the owner really cherishes the pile\n\rof stuff here.  The exit is to the north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 648,
+          "description": "You see the end of Swiftest Way.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 659,
+      "name": "Small House",
+      "description": "You are in a small house, owned by a commoner of Ofcol.  There isn't much\n\rof value here to you, but you'd bet that the owner really cherishes the pile\n\rof stuff here.  The exit is to the south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 649,
+          "description": "You see Swiftest Way.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 660,
+      "name": "Small House",
+      "description": "You are in a small house, owned by a commoner of Ofcol.  There isn't much\n\rof value here to you, but you'd bet that the owner really cherishes the pile\n\rof stuff here.  The exit is to the north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 649,
+          "description": "You see Swiftest Way.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 661,
+      "name": "Small House",
+      "description": "You are in a small house, owned by a commoner of Ofcol.  There isn't much\n\rof value here to you, but you'd bet that the owner really cherishes the pile\n\rof stuff here.  The exit is to the south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 650,
+          "description": "You see Swiftest Way.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 662,
+      "name": "Small House",
+      "description": "You are in a small house, owned by a commoner of Ofcol.  There isn't much\n\rof value here to you, but you'd bet that the owner really cherishes the pile\n\rof stuff here.  The exit is to the north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 650,
+          "description": "You see Swiftest Way.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 663,
+      "name": "Small House",
+      "description": "You are in a small house, owned by a commoner of Ofcol.  There isn't much\n\rof value here to you, but you'd bet that the owner really cherishes the pile\n\rof stuff here.  The exit is to the south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 651,
+          "description": "You see the end of Swiftest Way.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 664,
+      "name": "Small House",
+      "description": "You are in a small house, owned by a commoner of Ofcol.  There isn't much\n\rof value here to you, but you'd bet that the owner really cherishes the pile\n\rof stuff here.  The exit is to the north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 651,
+          "description": "You see the end of Swiftest Way.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 665,
+      "name": "Small House",
+      "description": "You are in a small house, owned by a commoner of Ofcol.  There isn't much\n\rof value here to you, but you'd bet that the owner really cherishes the pile\n\rof stuff here.  The exit is to the east.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 651,
+          "description": "You see the end of Swiftest Way.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 666,
+      "name": "Raff Way",
+      "description": "You are on Raff Way.  To the west, you can see a big intersection.  To \n\rthe east, you see Raff Way continue toward the Golden Citadel.  There are \n\rbeautiful flowers growing along the road here, making this more of a garden\n\rthan a road.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 667,
+          "description": "Raff Way continues east.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 601,
+          "description": "You see the big intersection.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 667,
+      "name": "Raff Way",
+      "description": "You are on Raff Way.  Raff Way continues west to the city of Ofcol.  To \n\rthe east, you see Raff Way continue toward the Golden Citadel.  There are \n\rbeautiful flowers growing along the road here, making this more of a garden\n\rthan a road.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 699,
+          "description": "You see the entrance of the Golden Citadel.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 666,
+          "description": "Raff Way continues west.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 668,
+      "name": "Dirt Road",
+      "description": "You are on a dirt road.  To the east is a large building with a bad smell\n\remanating from it.  To the west is the end of Impy Way, and this road continues\n\rsouth.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 617,
+          "description": "You see the large building with the bad smell.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 618,
+          "description": "The dirt road continues south.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 611,
+          "description": "You see the end of Impy Way.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 669,
+      "name": "The Temple of Ofcol",
+      "description": "You are in the Temple of Ofcol.  Golden tiles cover the floor, and solid\n\rgold columns reach the twelve foot ceiling of this vast chamber.  Servants in\n\rgolden livery wander this place, making even the raggiest messenger boy look\n\rricher than you are.  Exits lead to the anterooms in the cardinal directions.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 670
+        },
+        {
+          "dir": "east",
+          "toVnum": 672
+        },
+        {
+          "dir": "south",
+          "toVnum": 673
+        },
+        {
+          "dir": "west",
+          "toVnum": 671
+        }
+      ]
+    },
+    {
+      "vnum": 670,
+      "name": "The Anteroom to the Temple of Ofcol",
+      "description": "You are in an anteroom to the Temple of Ofcol.  Gold tiles cover the\n\rfloor, and servants in golden livery pass you by peaceably.  The temple is to\n\rthe south, and to the north is a hallway.  A stairways leads up.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 675
+        },
+        {
+          "dir": "south",
+          "toVnum": 669
+        },
+        {
+          "dir": "up",
+          "toVnum": 686
+        }
+      ]
+    },
+    {
+      "vnum": 671,
+      "name": "The Anteroom to the Temple of Ofcol",
+      "description": "You are in an anteroom to the Temple of Ofcol.  Gold tiles cover the\n\rfloor, and servants in golden livery pass you by peaceably.  The temple is to\n\rthe east, and to the west is a hallway.  A stairways leads up.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 669
+        },
+        {
+          "dir": "west",
+          "toVnum": 679
+        },
+        {
+          "dir": "up",
+          "toVnum": 687
+        }
+      ]
+    },
+    {
+      "vnum": 672,
+      "name": "The Anteroom to the Temple of Ofcol",
+      "description": "You are in an anteroom to the Temple of Ofcol.  Gold tiles cover the\n\rfloor, and servants in golden livery pass you by peaceably.  The temple is to\n\rthe west, and to the east is a hallway.  A stairways leads up.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 680
+        },
+        {
+          "dir": "west",
+          "toVnum": 669
+        },
+        {
+          "dir": "up",
+          "toVnum": 689
+        }
+      ]
+    },
+    {
+      "vnum": 673,
+      "name": "The Anteroom to the Temple of Ofcol",
+      "description": "You are in an anteroom to the Temple of Ofcol.  Gold tiles cover the\n\rfloor, and servants in golden livery pass you by peaceably.  The temple is to\n\rthe north, and to the south is a hallway.  A stairways leads up.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 669
+        },
+        {
+          "dir": "south",
+          "toVnum": 684
+        },
+        {
+          "dir": "up",
+          "toVnum": 690
+        }
+      ]
+    },
+    {
+      "vnum": 674,
+      "name": "A Hallway of the Golden Citadel",
+      "description": "You are in a hallway of the Golden Citadel.  Gold tiles cover the floors,\n\rand rich golden tapestries drape the walls.  Servants in golden livery pass you\n\rby peaceably.  Exits lead east and south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 675
+        },
+        {
+          "dir": "south",
+          "toVnum": 677
+        }
+      ]
+    },
+    {
+      "vnum": 675,
+      "name": "A Hallway of the Golden Citadel",
+      "description": "You are in a hallway of the Golden Citadel.  Gold tiles cover the floors,\n\rand rich golden tapestries drape the walls.  Servants in golden livery pass you\n\rby peaceably.  Exits lead east, west, and south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 676
+        },
+        {
+          "dir": "south",
+          "toVnum": 670
+        },
+        {
+          "dir": "west",
+          "toVnum": 674
+        }
+      ]
+    },
+    {
+      "vnum": 676,
+      "name": "A Hallway of the Golden Citadel",
+      "description": "You are in a hallway of the Golden Citadel.  Gold tiles cover the floors,\n\rand rich golden tapestries drape the walls.  Servants in golden livery pass you\n\rby peaceably.  Exits lead west and south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 678
+        },
+        {
+          "dir": "west",
+          "toVnum": 675
+        }
+      ]
+    },
+    {
+      "vnum": 677,
+      "name": "A Hallway of the Golden Citadel",
+      "description": "You are in a hallway of the Golden Citadel.  Gold tiles cover the floors,\n\rand rich golden tapestries drape the walls.  Servants in golden livery pass you\n\rby peaceably.  Exits lead north and south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 674
+        },
+        {
+          "dir": "south",
+          "toVnum": 679
+        }
+      ]
+    },
+    {
+      "vnum": 678,
+      "name": "A Hallway of the Golden Citadel",
+      "description": "You are in a hallway of the Golden Citadel.  Gold tiles cover the floors,\n\rand rich golden tapestries drape the walls.  Servants in golden livery pass you\n\rby peaceably.  Exits lead north and south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 676
+        },
+        {
+          "dir": "south",
+          "toVnum": 680
+        }
+      ]
+    },
+    {
+      "vnum": 679,
+      "name": "A Hallway of the Golden Citadel",
+      "description": "You are in a hallway of the Golden Citadel.  Gold tiles cover the floors,\n\rand rich golden tapestries drape the walls.  Servants in golden livery pass you\n\rby peaceably.  Exits lead to the cardinal directions, with the east leading\n\rtoward the Temple of Ofcol, and west leading toward the City of Ofcol.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 677
+        },
+        {
+          "dir": "east",
+          "toVnum": 671
+        },
+        {
+          "dir": "south",
+          "toVnum": 681
+        },
+        {
+          "dir": "west",
+          "toVnum": 698
+        }
+      ]
+    },
+    {
+      "vnum": 680,
+      "name": "A Hallway of the Golden Citadel",
+      "description": "You are in a hallway of the Golden Citadel.  Gold tiles cover the floors,\n\rand rich golden tapestries drape the walls.  Servants in golden livery pass you\n\rby peaceably.  Exits lead west, north and south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 678
+        },
+        {
+          "dir": "south",
+          "toVnum": 682
+        },
+        {
+          "dir": "west",
+          "toVnum": 672
+        }
+      ]
+    },
+    {
+      "vnum": 681,
+      "name": "A Hallway of the Golden Citadel",
+      "description": "You are in a hallway of the Golden Citadel.  Gold tiles cover the floors,\n\rand rich golden tapestries drape the walls.  Servants in golden livery pass you\n\rby peaceably.  Exits lead north and south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 679
+        },
+        {
+          "dir": "south",
+          "toVnum": 683
+        }
+      ]
+    },
+    {
+      "vnum": 682,
+      "name": "A Hallway of the Golden Citadel",
+      "description": "You are in a hallway of the Golden Citadel.  Gold tiles cover the floors,\n\rand rich golden tapestries drape the walls.  Servants in golden livery pass you\n\rby peaceably.  Exits lead north and south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 680
+        },
+        {
+          "dir": "south",
+          "toVnum": 685
+        }
+      ]
+    },
+    {
+      "vnum": 683,
+      "name": "A Hallway of the Golden Citadel",
+      "description": "You are in a hallway of the Golden Citadel.  Gold tiles cover the floors,\n\rand rich golden tapestries drape the walls.  Servants in golden livery pass you\n\rby peaceably.  Exits lead north and east.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 681
+        },
+        {
+          "dir": "east",
+          "toVnum": 684
+        }
+      ]
+    },
+    {
+      "vnum": 684,
+      "name": "A Hallway of the Golden Citadel",
+      "description": "You are in a hallway of the Golden Citadel.  Gold tiles cover the floors,\n\rand rich golden tapestries drape the walls.  Servants in golden livery pass you\n\rby peaceably.  Exits lead east, west, and north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 673
+        },
+        {
+          "dir": "east",
+          "toVnum": 685
+        },
+        {
+          "dir": "west",
+          "toVnum": 683
+        }
+      ]
+    },
+    {
+      "vnum": 685,
+      "name": "A Hallway of the Golden Citadel",
+      "description": "You are in a hallway of the Golden Citadel.  Gold tiles cover the floors,\n\rand rich golden tapestries drape the walls.  Servants in golden livery pass you\n\rby peaceably.  Exits lead west and north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 682
+        },
+        {
+          "dir": "west",
+          "toVnum": 684
+        }
+      ]
+    },
+    {
+      "vnum": 686,
+      "name": "An Upper Chamber of the Golden Citadel",
+      "description": "You are in one of the upper chambers of the Golden Citadel.  The decora-\n\rtions of this place surpass even those of the first floor.  Gold tiles etched\n\rwith platinum cover the floor, walls and the ceiling.  The lights from numerous\n\rtorches reflect from these shimmering planes, giving the illusion that you are\n\rstanding in a gem.  Stairways lead up and down, and the hall leads south. \n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 688
+        },
+        {
+          "dir": "up",
+          "toVnum": 691
+        },
+        {
+          "dir": "down",
+          "toVnum": 670
+        }
+      ]
+    },
+    {
+      "vnum": 687,
+      "name": "An Upper Chamber of the Golden Citadel",
+      "description": "You are in one of the upper chambers of the Golden Citadel.  The decora-\n\rtions of this place surpass even those of the first floor.  Gold tiles etched\n\rwith platinum cover the floor, walls and the ceiling.  The lights from numerous\n\rtorches reflect from these shimmering planes, giving the illusion that you are\n\rstanding in a gem.  Stairways lead up and down, and the hall leads east. \n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 688
+        },
+        {
+          "dir": "up",
+          "toVnum": 692
+        },
+        {
+          "dir": "down",
+          "toVnum": 671
+        }
+      ]
+    },
+    {
+      "vnum": 688,
+      "name": "The Hall of the DragonLords",
+      "description": "You are in a vast hall, filled with the commanders of the Golden Citadel.\n\rGolden tiles etched with platinum cover the floors, and weapons of all types\n\rare mounted on the walls of this meeting hall.  Surrounding a solid gold table\n\rare four sons of the Keeper of the Golden Citadel.  They smile at you and ask \n\ryou to join them in lunch.  Exits lead to the cardinal directions. \n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 686
+        },
+        {
+          "dir": "east",
+          "toVnum": 689
+        },
+        {
+          "dir": "south",
+          "toVnum": 690
+        },
+        {
+          "dir": "west",
+          "toVnum": 687
+        }
+      ]
+    },
+    {
+      "vnum": 689,
+      "name": "An Upper Chamber of the Golden Citadel",
+      "description": "You are in one of the upper chambers of the Golden Citadel.  The decora-\n\rtions of this place surpass even those of the first floor.  Gold tiles etched\n\rwith platinum cover the floor, walls and the ceiling.  The lights from numerous\n\rtorches reflect from these shimmering planes, giving the illusion that you are\n\rstanding in a gem.  Stairways lead up and down, and the hall leads west. \n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 688
+        },
+        {
+          "dir": "up",
+          "toVnum": 694
+        },
+        {
+          "dir": "down",
+          "toVnum": 672
+        }
+      ]
+    },
+    {
+      "vnum": 690,
+      "name": "An Upper Chamber of the Golden Citadel",
+      "description": "You are in one of the upper chambers of the Golden Citadel.  The decora-\n\rtions of this place surpass even those of the first floor.  Gold tiles etched\n\rwith platinum cover the floor, walls and the ceiling.  The lights from numerous\n\rtorches reflect from these shimmering planes, giving the illusion that you are\n\rstanding in a gem.  Stairways lead up and down, and the hall leads north. \n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 688
+        },
+        {
+          "dir": "up",
+          "toVnum": 695
+        },
+        {
+          "dir": "down",
+          "toVnum": 673
+        }
+      ]
+    },
+    {
+      "vnum": 691,
+      "name": "A Top Chamber of the Golden Citadel",
+      "description": "You are in one of the top chambers of the Golden Citadel.  The decorations\n\rof this room looks like a dragon's hoard.  The whole room is carved out of pure\n\rgold, and gems of all types glitter from the walls, ceiling, even the floor.\n\rIt is obvious that this room was not meant for you to intrude upon.  A stair-\n\rcase leads back down, and a doorway leads south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 693
+        },
+        {
+          "dir": "down",
+          "toVnum": 686
+        }
+      ]
+    },
+    {
+      "vnum": 692,
+      "name": "A Top Chamber of the Golden Citadel",
+      "description": "You are in one of the top chambers of the Golden Citadel.  The decorations\n\rof this room looks like a dragon's hoard.  The whole room is carved out of pure\n\rgold, and gems of all types glitter from the walls, ceiling, even the floor.\n\rIt is obvious that this room was not meant for you to intrude upon.  A stair-\n\rcase leads back down, and a doorway leads east.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 693
+        },
+        {
+          "dir": "down",
+          "toVnum": 687
+        }
+      ]
+    },
+    {
+      "vnum": 693,
+      "name": "The Dragon Chamber",
+      "description": "You are in a vast chamber carved from gold and platinum.  Gems the size of\n\ra man's fist protrude from the walls, ceiling, and the floor, making your step\n\rpainful.  A vast open sky-light lets fresh air come in from the top.  In the\n\rcenter of this chamber, you see a great wealth of coins, and on top of that\n\rpile of coins, you see a golden dragon squinting at you.  Exits lead to the\n\rcardinal directions to the anterooms.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 691
+        },
+        {
+          "dir": "east",
+          "toVnum": 694
+        },
+        {
+          "dir": "south",
+          "toVnum": 695
+        },
+        {
+          "dir": "west",
+          "toVnum": 692
+        },
+        {
+          "dir": "up",
+          "toVnum": 696
+        }
+      ]
+    },
+    {
+      "vnum": 694,
+      "name": "A Top Chamber of the Golden Citadel",
+      "description": "You are in one of the top chambers of the Golden Citadel.  The decorations\n\rof this room looks like a dragon's hoard.  The whole room is carved out of pure\n\rgold, and gems of all types glitter from the walls, ceiling, even the floor.\n\rIt is obvious that this room was not meant for you to intrude upon.  A stair-\n\rcase leads back down, and a doorway leads west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 693
+        },
+        {
+          "dir": "down",
+          "toVnum": 689
+        }
+      ]
+    },
+    {
+      "vnum": 695,
+      "name": "A Top Chamber of the Golden Citadel",
+      "description": "You are in one of the top chambers of the Golden Citadel.  The decorations\n\rof this room looks like a dragon's hoard.  The whole room is carved out of pure\n\rgold, and gems of all types glitter from the walls, ceiling, even the floor.\n\rIt is obvious that this room was not meant for you to intrude upon.  A stair-\n\rcase leads back down, and a doorway leads north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 693
+        },
+        {
+          "dir": "down",
+          "toVnum": 690
+        }
+      ]
+    },
+    {
+      "vnum": 696,
+      "name": "Above the Dragon Chamber",
+      "description": "You are above the Dragon Chamber.  You curiously note that this shaft that\n\rconnects the chamber to the sky is wide enough that even a dragon can fit\n\rthrough.  This shaft leads up and down.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 697
+        },
+        {
+          "dir": "down",
+          "toVnum": 693
+        }
+      ]
+    },
+    {
+      "vnum": 697,
+      "name": "In the Shaft from the Dragon Chamber",
+      "description": "You are in the shaft leading from the Dragon Chamber.  Below you lies the\n\rDragon Chamber of the Golden Citadel.  Above you, you see the sky, but \n\rcurrently, the way out is sealed by a layer of diamond that looks impenetrable.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "down",
+          "toVnum": 696
+        }
+      ]
+    },
+    {
+      "vnum": 698,
+      "name": "Inside the Entrance to the Golden Citadel",
+      "description": "You are inside the entrance to the Golden Citadel.  Rich golden tapestries\n\rline the walls, and golden tiles cover the floors.  The exit to this citadel is\n\rto the west, while the citadel itself is to the east.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 679
+        },
+        {
+          "dir": "west",
+          "toVnum": 699,
+          "key": 651,
+          "flags": [
+            "door"
+          ],
+          "keyword": "gate"
+        }
+      ]
+    },
+    {
+      "vnum": 699,
+      "name": "Outside the Entrance to the Golden Citadel",
+      "description": "You are outside the entrance to the Golden Citadel.  A great gate is to\n\rto the east, marking the entranceway into the citadel.  The road also leads\n\rback west to Raff Way.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 698,
+          "key": 651,
+          "flags": [
+            "door"
+          ]
+        },
+        {
+          "dir": "west",
+          "toVnum": 667
+        }
+      ]
+    }
+  ],
+  "mobiles": [
+    {
+      "vnum": 600,
+      "name": "oldstyle cityguard guard",
+      "shortDescr": "the Ofcol cityguard",
+      "longDescr": "An Ofcol cityguard is standing here, making sure there is no trouble.\n\r",
+      "description": "This guard is surely a trained and skilled fighter.  He is fully armed and\n\rarmored, and he uses his equipment with a practiced precision.  Luckily for \n\ryou, this guard will only use his deadly skills for the good of the citizens of\n\rOfcol.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "warrior"
+      ],
+      "affectFlags": [
+        "protect_evil"
+      ],
+      "atkFlags": [
+        "bash",
+        "berserk",
+        "disarm",
+        "kick",
+        "parry",
+        "rescue",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 19,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 333
+      },
+      "manaDice": {
+        "number": 9,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -4,
+        "bash": -4,
+        "slash": -4,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 50,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 601,
+      "name": "oldstyle marshall diana",
+      "shortDescr": "Marshall Diana",
+      "longDescr": "Diana, the Marshall of Ofcol, stands here proudly.\n\r",
+      "description": "Diana is a beautiful, powerfully built woman.  She wears platinum armor for\n\rthree reasons.  The first is to show she is strong enough to withstand the\n\rweight.  The second is to show her rank of office.  The third is that platinum\n\ris the hardest metal she can find.  She is willing to defend Ofcol to her \n\rdeath.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "cleric"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "sanctuary",
+        "protect_evil"
+      ],
+      "atkFlags": [
+        "disarm",
+        "kick",
+        "parry",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 33,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 10,
+        "type": 10,
+        "bonus": 1100
+      },
+      "manaDice": {
+        "number": 33,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 6,
+        "bonus": 10
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -11,
+        "bash": -11,
+        "slash": -11,
+        "exotic": 3
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 250,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 602,
+      "name": "oldstyle derrick captain guard cityguard",
+      "shortDescr": "Captain Derrick",
+      "longDescr": "Derrick, Captain of the Guard, is here disciplining his guards.\n\r",
+      "description": "Derrick is a very big man.  He has acquired this station, not by brains or\n\rcharm, but by brute strength.  He had fought in three orc wars and is a\n\rdescendent of a surviving cityguard of old Thalos.  He believes that everything\n\rhas to be hard won to be kept, and that laxity is for the weak.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "stay_area",
+        "cleric"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "sanctuary",
+        "protect_evil"
+      ],
+      "atkFlags": [
+        "disarm",
+        "kick",
+        "parry",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 27,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 650
+      },
+      "manaDice": {
+        "number": 27,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 7
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -8,
+        "bash": -8,
+        "slash": -8,
+        "exotic": 4
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 250,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 603,
+      "name": "oldstyle jacklyn captain guard cityguard",
+      "shortDescr": "Captain Jacklyn",
+      "longDescr": "Jacklyn, Captain of the Citadel Guard, is here raising morale.\n\r",
+      "description": "Jacklyn is pale and wiry, but then, so are most other witches.  The fact that\n\rJacklyn is a mage and a warrior makes her the perfect captain of the citadel\n\rguards.  Jacklyn is very beautiful, but whether it is due to her pale softness\n\ror her magic, no one has ever found out.  She isn't very strong physically, but\n\rshe need not be.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "mage"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "protect_evil"
+      ],
+      "atkFlags": [
+        "dodge",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 27,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 600
+      },
+      "manaDice": {
+        "number": 27,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -7,
+        "bash": -7,
+        "slash": -7,
+        "exotic": 2
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 250,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 604,
+      "name": "oldstyle jim blacksmith",
+      "shortDescr": "Jim the Blacksmith",
+      "longDescr": "Jim the Blacksmith is here, selling his latest works of metal.\n\r",
+      "description": "Jim is big and brawny, just like what you'd expect of a blacksmith.  He is\n\rsmiling a very big smile, as he looks at your coins.  You wonder if he likes\n\rthe metals or the value of the coins.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "affectFlags": [
+        "protect_evil"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 30,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 6,
+        "type": 12,
+        "bonus": 853
+      },
+      "manaDice": {
+        "number": 15,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 6,
+        "bonus": 8
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -9,
+        "bash": -9,
+        "slash": -9,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 3750,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 605,
+      "name": "oldstyle sam",
+      "shortDescr": "Sam",
+      "longDescr": "Sam is here, selling his leather works.\n\r",
+      "description": "Sam is a middle-aged workman.  He looks tired, but never too tired to get that\n\rlast sale from you.  He grins at you slightly.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "affectFlags": [
+        "protect_evil"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 30,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 6,
+        "type": 12,
+        "bonus": 853
+      },
+      "manaDice": {
+        "number": 15,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 6,
+        "bonus": 8
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -9,
+        "bash": -9,
+        "slash": -9,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 750,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 606,
+      "name": "oldstyle madam tracy",
+      "shortDescr": "Madam Tracy",
+      "longDescr": "Madam Tracy is here, selling and buying little treasures.\n\r",
+      "description": "Madam Tracy is a bit old, but not to the point of senility.  Besides, she knows\n\rthe hard ways of this world and is ready for it.  She spends her time at the\n\rshop, trading little things (for a wee bit of profit).\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "affectFlags": [
+        "protect_evil"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 20,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 333
+      },
+      "manaDice": {
+        "number": 10,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -4,
+        "bash": -4,
+        "slash": -4,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 1250,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 607,
+      "name": "oldstyle marty",
+      "shortDescr": "Marty",
+      "longDescr": "Marty the meat store owner is here, selling you his choice meats.\n\r",
+      "description": "Marty is a big man.  He used to hunt the animals he sells, but now he lets his\n\rson, Jim, raise and slaughter the animals for him.  Marty still knows how to\n\rkill, though.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "affectFlags": [
+        "protect_evil"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 30,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 6,
+        "type": 12,
+        "bonus": 853
+      },
+      "manaDice": {
+        "number": 15,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 6,
+        "bonus": 8
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -9,
+        "bash": -9,
+        "slash": -9,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 250,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 608,
+      "name": "oldstyle elizabeth farmer",
+      "shortDescr": "Farmer Elizabeth",
+      "longDescr": "Farmer Elizabeth is here, selling the latest crop.\n\r",
+      "description": "Elizabeth is a very happy woman.  She can't believe the nice weather here in\n\rOfcol, and the great vegetables this land produces is unbelievable to her too.\n\rFarmer Elizabeth smiles at you nicely, but you bet she is doing that just to\n\rget a good price off of you!\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "affectFlags": [
+        "protect_evil"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 20,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 333
+      },
+      "manaDice": {
+        "number": 10,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -4,
+        "bash": -4,
+        "slash": -4,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 250,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 609,
+      "name": "oldstyle granny jenkins",
+      "shortDescr": "Granny Jenkins",
+      "longDescr": "Granny Jenkins is here, running the still.\n\r",
+      "description": "Granny Jenkins is a feeble woman, but she knows her brew.  She might be very\n\rold, but she is still in charge of the still.  She cackles lightly at herself\n\revery time she tastes her whiskey, which is quite often!\n\rGranny Jenkins cackles again.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "affectFlags": [
+        "protect_evil"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 500,
+      "group": 0,
+      "level": 6,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 71
+      },
+      "manaDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 7,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 4,
+        "bash": 4,
+        "slash": 4,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 5,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 610,
+      "name": "oldstyle jack",
+      "shortDescr": "Jack",
+      "longDescr": "Jack is here slaughtering away at the animals.\n\r",
+      "description": "Jack is the son of Marty, and you can see the family resemblance (especially in\n\rtheir shared affinity for slaughtering animals.)  Jack leers at you as you\n\renter.  \"Came by to watch, eh?\", he asks.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive",
+        "wimpy"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 200,
+      "group": 0,
+      "level": 12,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 150
+      },
+      "manaDice": {
+        "number": 6,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 10,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 0,
+        "bash": 0,
+        "slash": 0,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 5,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 611,
+      "name": "oldstyle Sarah farmer",
+      "shortDescr": "Farmer Sara",
+      "longDescr": "Farmer Sara is here, milking the cows.\n\r",
+      "description": "Farmer Sara is all covered with bits of straw and grime, but underneath all\n\rthat, she doesn't look that bad.  She smiles at you demurely, and goes back to\n\rher work.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "wimpy"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 800,
+      "group": 0,
+      "level": 5,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 60
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 5,
+        "bash": 5,
+        "slash": 5,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 5,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 612,
+      "name": "oldstyle chicken hen",
+      "shortDescr": "a hen",
+      "longDescr": "A hen is here, squawking at your intrusion.\n\r",
+      "description": "The hen has yellow feathers and small wings.  It looks like a chicken, if\n\ryou've ever seen one.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "wimpy",
+        "pet"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 1,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 10
+      },
+      "manaDice": {
+        "number": 0,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 4
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 9,
+        "bash": 9,
+        "slash": 9,
+        "exotic": 10
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 613,
+      "name": "oldstyle cow",
+      "shortDescr": "the cow",
+      "longDescr": "A cow is here, munching on grass.\n\r",
+      "description": "The cow is here happily grazing.  It moos at you and goes back to grazing.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "pet"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 5,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 60
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 5,
+        "bash": 5,
+        "slash": 5,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 614,
+      "name": "oldstyle cow",
+      "shortDescr": "the cow",
+      "longDescr": "A cow is here, waiting to be milked.\n\r",
+      "description": "The cow is just standing here.  She moos at you and otherwise ignores you.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "pet"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 5,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 60
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 5,
+        "bash": 5,
+        "slash": 5,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 615,
+      "name": "oldstyle horse young",
+      "shortDescr": "the young horse",
+      "longDescr": "A young horse is here, grazing.\n\r",
+      "description": "The horse whinnies at you, then runs around you a few times, then just goes\n\rback to grazing.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "aggressive",
+        "wimpy",
+        "pet"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 6,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 71
+      },
+      "manaDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 7,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 4,
+        "bash": 4,
+        "slash": 4,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 616,
+      "name": "oldstyle pig",
+      "shortDescr": "the pig",
+      "longDescr": "A pig is playing here, getting itself and you dirty.\n\r",
+      "description": "The pig looks dirty.  It snorts and sniffs at you, then goes back to its slop.\n\r",
+      "race": "pig",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "pet"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 4,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 46
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 5,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 6,
+        "bash": 6,
+        "slash": 6,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 617,
+      "name": "oldstyle citizen man",
+      "shortDescr": "the citizen",
+      "longDescr": "A citizen is here, smiling at you.\n\r",
+      "description": "The citizen smiles at you.  He is having a great day, and he wishes the same\n\rfor you.  He looks at you strangely, though, wondering why you are so armed and\n\rarmored.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "wimpy"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 500,
+      "group": 0,
+      "level": 5,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 60
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 5,
+        "bash": 5,
+        "slash": 5,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 5,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 618,
+      "name": "oldstyle citizen woman",
+      "shortDescr": "the citizen",
+      "longDescr": "A citizen is here, smiling at you.\n\r",
+      "description": "The citizen smiles at you.  She is having a great day, and she wishes the same\n\rfor you.  She looks at you strangely, though, wondering why you are so armed\n\rand armored.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "wimpy"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 500,
+      "group": 0,
+      "level": 5,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 60
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 5,
+        "bash": 5,
+        "slash": 5,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 5,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 619,
+      "name": "oldstyle child boy",
+      "shortDescr": "the boy",
+      "longDescr": "A boy is here, playing tag and other kids' games.\n\r",
+      "description": "The little boy looks up at you and says, 'Hi.  Can I have a piece of candy?'\n\rHe then smiles and runs away, remembering his game.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "wimpy"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 500,
+      "group": 0,
+      "level": 3,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 35
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 7,
+        "bash": 7,
+        "slash": 7,
+        "exotic": 10
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 620,
+      "name": "oldstyle child girl",
+      "shortDescr": "the girl",
+      "longDescr": "A girl is here, playing jump jacks and other kids' games.\n\r",
+      "description": "The little girl looks up at you and says, 'Hi.  Can I have a pretty little\n\rcoin?'  She then smiles and runs away, remembering her game.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "wimpy"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 500,
+      "group": 0,
+      "level": 3,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 35
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 7,
+        "bash": 7,
+        "slash": 7,
+        "exotic": 10
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 621,
+      "name": "oldstyle maid woman",
+      "shortDescr": "the maid",
+      "longDescr": "A maid is here, cleaning the house and preparing the next meal.\n\r",
+      "description": "The maid startles at your presence.  'You are ruining my floors!  Wait till\n\rMaster and Mistress come back.  You will get me in trouble!  Shoo!', she says.\n\rShe hits you with her broom.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "wimpy"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 500,
+      "group": 0,
+      "level": 5,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 60
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 5,
+        "bash": 5,
+        "slash": 5,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 2,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 622,
+      "name": "oldstyle Nyles",
+      "shortDescr": "Nyles the Bartender",
+      "longDescr": "Nyles the Bartender is here, ready to serve you up a good brew.\n\r",
+      "description": "Nyles is a hefty guy, who looks like he's waiting for the next bar fight to\n\rjoin in.  He keeps an eye on you and his glasses, making sure you don't steal\n\rany.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 30,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 6,
+        "type": 12,
+        "bonus": 853
+      },
+      "manaDice": {
+        "number": 15,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 6,
+        "bonus": 8
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -9,
+        "bash": -9,
+        "slash": -9,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 50,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 623,
+      "name": "oldstyle cityguard guard",
+      "shortDescr": "the Ofcol cityguard",
+      "longDescr": "An Ofcol cityguard is posted here to guard the gate.\n\r",
+      "description": "This guard is surely a trained and skilled fighter.  He is fully armed and\n\rarmored, and he uses his equipment with a practiced precision.  Luckily for \n\ryou, this guard will only use his deadly skills for the good of the citizens of\n\rOfcol.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "warrior"
+      ],
+      "affectFlags": [
+        "protect_evil"
+      ],
+      "atkFlags": [
+        "bash",
+        "berserk",
+        "disarm",
+        "kick",
+        "parry",
+        "rescue",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 19,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 333
+      },
+      "manaDice": {
+        "number": 9,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -4,
+        "bash": -4,
+        "slash": -4,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 50,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 624,
+      "name": "oldstyle bard",
+      "shortDescr": "a bard",
+      "longDescr": "A bard is here, singing of the glories of Ofcol.\n\r",
+      "description": "After years of traveling around the world, this bard has decided to stay in the\n\rpeaceful city of Ofcol, and to sing of its unmatched glories.  He smiles at\n\ryou, hinting toward a tip from you in ever a subtle way.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "affectFlags": [
+        "protect_evil"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 800,
+      "group": 0,
+      "level": 13,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 170
+      },
+      "manaDice": {
+        "number": 6,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 5,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -1,
+        "bash": -1,
+        "slash": -1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 50,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 625,
+      "name": "oldstyle servant",
+      "shortDescr": "a servant",
+      "longDescr": "A servant is here, carrying the duties of the Keeper of the Golden Citadel.\n\r",
+      "description": "The servant smiles good-naturedly at you, then goes on his duties.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "protect_evil"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 6,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 71
+      },
+      "manaDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 7,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 4,
+        "bash": 4,
+        "slash": 4,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 5,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 626,
+      "name": "oldstyle squire",
+      "shortDescr": "a squire",
+      "longDescr": "A squire is here, scurrying from duty to duty.\n\r",
+      "description": "This young man smiles at you, but is too busy to chat.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "protect_evil"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 7,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 85
+      },
+      "manaDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 8,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 4,
+        "bash": 4,
+        "slash": 4,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 5,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 627,
+      "name": "oldstyle page",
+      "shortDescr": "a page",
+      "longDescr": "A page is here, sending a message to his knight.\n\r",
+      "description": "The page smiles for you, asking if he can do you a favor too.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "protect_evil"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 5,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 60
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 5,
+        "bash": 5,
+        "slash": 5,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 5,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 628,
+      "name": "oldstyle priestess",
+      "shortDescr": "the Priestess of Ofcol",
+      "longDescr": "The Priestess of Ofcol is here, blessing you \n\rwith her beatific smile.\n\r",
+      "description": "The Priestess of Ofcol is an old woman, perfectly at peace with herself and \n\rwith the world.  She devotes all her time to help teach you the ways of her\n\rgod, Bahamut.  The dragon symbol around her neck looks almost alive.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "affectFlags": [
+        "invisible",
+        "sanctuary",
+        "protect_evil"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 30,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 6,
+        "type": 12,
+        "bonus": 853
+      },
+      "manaDice": {
+        "number": 15,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 6,
+        "bonus": 8
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -9,
+        "bash": -9,
+        "slash": -9,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 50,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 629,
+      "name": "oldstyle chaplain Jerrold",
+      "shortDescr": "Chaplain Jerrold",
+      "longDescr": "Jerrold, the chaplain of this Citadel, is here \n\rdirecting the activities of the people around here.\n\r",
+      "description": "He smiles at you, with the enthusiasm of a little kid.  \"What're you doing just\n\rSTANDING here, young man?  Go help that other squire there!\", he yells.  He\n\rturns to you and with a consipatory tone, whispers, \"Kids!\"\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "stay_area",
+        "warrior"
+      ],
+      "affectFlags": [
+        "invisible",
+        "sanctuary",
+        "protect_evil"
+      ],
+      "atkFlags": [
+        "bash",
+        "berserk",
+        "disarm",
+        "kick",
+        "parry",
+        "rescue",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 20,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 4,
+        "type": 10,
+        "bonus": 360
+      },
+      "manaDice": {
+        "number": 10,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -4,
+        "bash": -4,
+        "slash": -4,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 50,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 630,
+      "name": "oldstyle dragonlord lord dragon",
+      "shortDescr": "a Dragonlord",
+      "longDescr": "A knight wearing the scales of a dragon stands here.\n\r",
+      "description": "This person looks almost like a dragon itself.  His golden scales gleam with\n\rpower.  He smiles at you with a vicious grin.  You're happy that he doesn't\n\rlook upset at your presence. \n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "affectFlags": [
+        "invisible",
+        "sanctuary",
+        "protect_evil"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 29,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 6,
+        "type": 12,
+        "bonus": 778
+      },
+      "manaDice": {
+        "number": 14,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 12,
+        "bonus": 8
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -9,
+        "bash": -9,
+        "slash": -9,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 50,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 631,
+      "name": "oldstyle dragon gold",
+      "shortDescr": "The Ancient Gold Dragon",
+      "longDescr": "An old dragon shimmering with the colors of this \n\rcavern peers at you sleepily.\n\r",
+      "description": "This dragon's head is taller than you.  He is annoyed at your disturbance, but\n\rrealizing that you're no danger to him, he ignores you.  He waves to one of\n\rhis attendants to escort you away.\n\r",
+      "race": "dragon",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger"
+      ],
+      "affectFlags": [
+        "invisible",
+        "sanctuary",
+        "infrared",
+        "protect_evil",
+        "flying"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "charm",
+        "bash",
+        "fire"
+      ],
+      "vulnFlags": [
+        "pierce",
+        "cold"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 42,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 25,
+        "type": 10,
+        "bonus": 2250
+      },
+      "manaDice": {
+        "number": 21,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 3,
+        "type": 12,
+        "bonus": 14
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -14,
+        "bash": -14,
+        "slash": -14,
+        "exotic": 4
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 5000,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 632,
+      "name": "oldstyle attendant",
+      "shortDescr": "an attendant of the dragon",
+      "longDescr": "A person robed in gold is attending to the Keeper of the Citadel.\n\r",
+      "description": "This elder servant to the Gold Dragon is very loyal to him, willing to risk\n\rhis life for his liege.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "mage"
+      ],
+      "affectFlags": [
+        "invisible",
+        "protect_evil"
+      ],
+      "atkFlags": [
+        "dodge",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 21,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 333
+      },
+      "manaDice": {
+        "number": 21,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 4
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -4,
+        "bash": -4,
+        "slash": -4,
+        "exotic": 3
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 250,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 633,
+      "name": "oldstyle dragonknight knight dragon",
+      "shortDescr": "a Dragonknight",
+      "longDescr": "A person dressed in the scales of a gold dragon \n\rstands here, guarding the Golden Citadel.\n\r",
+      "description": "This person looks like a dragon itself.  His golden scales gleam with power.\n\rHe smiles at you, showing very sharp teeth.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "invisible",
+        "protect_evil"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 21,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 4,
+        "type": 10,
+        "bonus": 360
+      },
+      "manaDice": {
+        "number": 10,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 4,
+        "bonus": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -5,
+        "bash": -5,
+        "slash": -5,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 250,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 634,
+      "name": "oldstyle cityguard guard",
+      "shortDescr": "the Ofcol cityguard",
+      "longDescr": "An Ofcol cityguard is posted here to guard the gate.\n\r",
+      "description": "This guard is surely a trained and skilled fighter.  He is fully armed and\n\rarmored, and he uses his equipment with a practiced precision.  Luckily for \n\ryou, this guard will only use his deadly skills for the good of the citizens of\n\rOfcol.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "warrior"
+      ],
+      "affectFlags": [
+        "protect_evil"
+      ],
+      "atkFlags": [
+        "bash",
+        "berserk",
+        "disarm",
+        "kick",
+        "parry",
+        "rescue",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 19,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 333
+      },
+      "manaDice": {
+        "number": 9,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -4,
+        "bash": -4,
+        "slash": -4,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 50,
+      "size": "medium",
+      "material": "0"
+    }
+  ],
+  "objects": [
+    {
+      "vnum": 600,
+      "name": "axe hand",
+      "shortDescr": "a hand axe",
+      "description": "A hand axe is on the floor here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "axe",
+        "dice": [
+          1,
+          8
+        ],
+        "damageType": "chop"
+      },
+      "level": 4,
+      "weight": 100,
+      "cost": 420,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "handaxe hand axe",
+          "description": "You see a finely made axe.  Iron, with a nice wooden shaft, this axe can\n\rwithstand years of use.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 601,
+      "name": "meat cleaver",
+      "shortDescr": "a meat cleaver",
+      "description": "A sharp meat cleaver is just lying on the floor here!",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "dagger",
+        "dice": [
+          2,
+          5
+        ],
+        "damageType": "chop"
+      },
+      "level": 8,
+      "weight": 50,
+      "cost": 530,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "meat cleaver",
+          "description": "This meat cleaver is made of good steel.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 8,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 602,
+      "name": "side meat beef",
+      "shortDescr": "a side of beef",
+      "description": "A side of beef is here on the floor.",
+      "material": "oldstyle",
+      "itemType": "food",
+      "wearFlags": [
+        "take"
+      ],
+      "food": {
+        "foodHours": 24,
+        "fullHours": 24
+      },
+      "weight": 100,
+      "cost": 50,
+      "condition": 100
+    },
+    {
+      "vnum": 603,
+      "name": "side meat pork",
+      "shortDescr": "a side of pork",
+      "description": "A side of pork is here on the floor.",
+      "material": "oldstyle",
+      "itemType": "food",
+      "wearFlags": [
+        "take"
+      ],
+      "food": {
+        "foodHours": 23,
+        "fullHours": 23
+      },
+      "weight": 100,
+      "cost": 42,
+      "condition": 100
+    },
+    {
+      "vnum": 604,
+      "name": "side meat horse",
+      "shortDescr": "a side of horse",
+      "description": "A side of horse is here on the floor.",
+      "material": "oldstyle",
+      "itemType": "food",
+      "wearFlags": [
+        "take"
+      ],
+      "food": {
+        "foodHours": 30,
+        "fullHours": 30
+      },
+      "weight": 120,
+      "cost": 21,
+      "condition": 100
+    },
+    {
+      "vnum": 605,
+      "name": "meat chicken",
+      "shortDescr": "a defeathered chicken",
+      "description": "A defeathered chicken is here on the floor.",
+      "material": "oldstyle",
+      "itemType": "food",
+      "wearFlags": [
+        "take"
+      ],
+      "food": {
+        "foodHours": 16,
+        "fullHours": 16
+      },
+      "weight": 50,
+      "cost": 10,
+      "condition": 100
+    },
+    {
+      "vnum": 606,
+      "name": "emerald ring",
+      "shortDescr": "an emerald ring",
+      "description": "An emerald ring is on the floor, gathering dust.",
+      "material": "oldstyle",
+      "itemType": "jewelry",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "finger"
+      ],
+      "weight": 10,
+      "cost": 1000,
+      "condition": 100
+    },
+    {
+      "vnum": 607,
+      "name": "glass trinket",
+      "shortDescr": "a glass trinket",
+      "description": "A glass trinket is on the floor, gathering dust.",
+      "material": "oldstyle",
+      "itemType": "gem",
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "weight": 10,
+      "cost": 150,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "saves",
+          "level": 0,
+          "duration": -1,
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "vnum": 608,
+      "name": "golden necklace",
+      "shortDescr": "a golden necklace",
+      "description": "A golden necklace is on the floor, gathering dust.",
+      "material": "oldstyle",
+      "itemType": "jewelry",
+      "wearFlags": [
+        "take",
+        "neck"
+      ],
+      "weight": 20,
+      "cost": 500,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "wisdom",
+          "level": 0,
+          "duration": -1,
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "vnum": 609,
+      "name": "cabbage",
+      "shortDescr": "a head of cabbage",
+      "description": "Some fresh cabbage is here, get it while it lasts!",
+      "material": "oldstyle",
+      "itemType": "food",
+      "wearFlags": [
+        "take"
+      ],
+      "food": {
+        "foodHours": 12,
+        "fullHours": 12
+      },
+      "weight": 20,
+      "cost": 2,
+      "condition": 100
+    },
+    {
+      "vnum": 610,
+      "name": "lettuce",
+      "shortDescr": "a head of lettuce",
+      "description": "Some fresh lettuce is here, get it while it lasts!",
+      "material": "oldstyle",
+      "itemType": "food",
+      "wearFlags": [
+        "take"
+      ],
+      "food": {
+        "foodHours": 12,
+        "fullHours": 12
+      },
+      "weight": 20,
+      "cost": 2,
+      "condition": 100
+    },
+    {
+      "vnum": 611,
+      "name": "milk bottle",
+      "shortDescr": "a bottle of milk",
+      "description": "A glass bottle of milk is on a shelf here, fresh from the cow.",
+      "material": "oldstyle",
+      "itemType": "drinkcontainer",
+      "wearFlags": [
+        "take"
+      ],
+      "drink": {
+        "capacity": 20,
+        "remaining": 20,
+        "liquid": "milk"
+      },
+      "weight": 50,
+      "cost": 3,
+      "condition": 100
+    },
+    {
+      "vnum": 612,
+      "name": "apple",
+      "shortDescr": "an apple",
+      "description": "An apple is on the ground.",
+      "material": "oldstyle",
+      "itemType": "food",
+      "wearFlags": [
+        "take"
+      ],
+      "food": {
+        "foodHours": 8,
+        "fullHours": 8
+      },
+      "weight": 10,
+      "cost": 1,
+      "condition": 100
+    },
+    {
+      "vnum": 613,
+      "name": "corn",
+      "shortDescr": "an ear of corn",
+      "description": "An ear of corn is on the ground.",
+      "material": "oldstyle",
+      "itemType": "food",
+      "wearFlags": [
+        "take"
+      ],
+      "food": {
+        "foodHours": 8,
+        "fullHours": 8
+      },
+      "weight": 10,
+      "cost": 3,
+      "condition": 100
+    },
+    {
+      "vnum": 614,
+      "name": "hay pile",
+      "shortDescr": "a pile of hay",
+      "description": "There is a big pile of hay here.",
+      "material": "oldstyle",
+      "itemType": "trash",
+      "wearFlags": [
+        "take"
+      ],
+      "weight": 200,
+      "condition": 100
+    },
+    {
+      "vnum": 615,
+      "name": "pitchfork fork",
+      "shortDescr": "a pitchfork",
+      "description": "A pitchfork is on the floor.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "spear",
+        "dice": [
+          3,
+          3
+        ],
+        "damageType": "stab"
+      },
+      "level": 7,
+      "weight": 100,
+      "cost": 122,
+      "condition": 100
+    },
+    {
+      "vnum": 616,
+      "name": "vest",
+      "shortDescr": "a leather vest",
+      "description": "A leather vest is on the floor.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "body"
+      ],
+      "armor": {
+        "acPierce": 1,
+        "acBash": 2,
+        "acSlash": 2
+      },
+      "weight": 100,
+      "cost": 270,
+      "condition": 100
+    },
+    {
+      "vnum": 617,
+      "name": "sleeves",
+      "shortDescr": "some leather sleeves",
+      "description": "Some leather sleeves are on the floor.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "arms"
+      ],
+      "armor": {
+        "acPierce": 1,
+        "acBash": 2,
+        "acSlash": 2
+      },
+      "weight": 50,
+      "cost": 136,
+      "condition": 100
+    },
+    {
+      "vnum": 618,
+      "name": "leggings",
+      "shortDescr": "some leather leggings",
+      "description": "Some leather leggings are on the floor.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "legs"
+      ],
+      "armor": {
+        "acPierce": 1,
+        "acBash": 2,
+        "acSlash": 2
+      },
+      "weight": 50,
+      "cost": 136,
+      "condition": 100
+    },
+    {
+      "vnum": 619,
+      "name": "boots",
+      "shortDescr": "some leather boots",
+      "description": "Some leather boots are on the floor.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "feet"
+      ],
+      "armor": {
+        "acPierce": 1,
+        "acBash": 2,
+        "acSlash": 2
+      },
+      "weight": 50,
+      "cost": 136,
+      "condition": 100
+    },
+    {
+      "vnum": 620,
+      "name": "signet ring",
+      "shortDescr": "an Ofcol signet ring",
+      "description": "A shiny ring of gold is in the dirt.",
+      "material": "oldstyle",
+      "itemType": "jewelry",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "finger"
+      ],
+      "level": 10,
+      "weight": 10,
+      "cost": 730,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "saves",
+          "level": 10,
+          "duration": -1,
+          "modifier": -1
+        },
+        {
+          "where": "object",
+          "location": "hp",
+          "level": 10,
+          "duration": -1,
+          "modifier": 5
+        },
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 10,
+          "duration": -1,
+          "modifier": -2
+        }
+      ]
+    },
+    {
+      "vnum": 621,
+      "name": "plate brass",
+      "shortDescr": "brass plate",
+      "description": "A pile of brass plates is against the wall here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "body"
+      ],
+      "armor": {
+        "acPierce": 6,
+        "acBash": 5,
+        "acSlash": 6,
+        "acExotic": 1
+      },
+      "level": 16,
+      "weight": 100,
+      "cost": 2400,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "saves",
+          "level": 16,
+          "duration": -1,
+          "modifier": -1
+        },
+        {
+          "where": "object",
+          "location": "hp",
+          "level": 16,
+          "duration": -1,
+          "modifier": 10
+        }
+      ]
+    },
+    {
+      "vnum": 622,
+      "name": "helm brass",
+      "shortDescr": "a brass helm",
+      "description": "A brass helm is against the wall here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "head"
+      ],
+      "armor": {
+        "acPierce": 6,
+        "acBash": 5,
+        "acSlash": 6,
+        "acExotic": 1
+      },
+      "level": 16,
+      "weight": 100,
+      "cost": 1280,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "saves",
+          "level": 16,
+          "duration": -1,
+          "modifier": -1
+        },
+        {
+          "where": "object",
+          "location": "hp",
+          "level": 16,
+          "duration": -1,
+          "modifier": 5
+        }
+      ]
+    },
+    {
+      "vnum": 623,
+      "name": "leggings brass",
+      "shortDescr": "brass leggings",
+      "description": "A pile of brass plates is against the wall here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "legs"
+      ],
+      "armor": {
+        "acPierce": 6,
+        "acBash": 5,
+        "acSlash": 6,
+        "acExotic": 1
+      },
+      "level": 16,
+      "weight": 100,
+      "cost": 1280,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "saves",
+          "level": 16,
+          "duration": -1,
+          "modifier": -1
+        },
+        {
+          "where": "object",
+          "location": "hp",
+          "level": 16,
+          "duration": -1,
+          "modifier": 5
+        }
+      ]
+    },
+    {
+      "vnum": 624,
+      "name": "boots brass",
+      "shortDescr": "brass boots",
+      "description": "Some brass boots are against the wall here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "feet"
+      ],
+      "armor": {
+        "acPierce": 6,
+        "acBash": 5,
+        "acSlash": 6,
+        "acExotic": 1
+      },
+      "level": 16,
+      "weight": 100,
+      "cost": 1280,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "saves",
+          "level": 16,
+          "duration": -1,
+          "modifier": -1
+        },
+        {
+          "where": "object",
+          "location": "hp",
+          "level": 16,
+          "duration": -1,
+          "modifier": 5
+        }
+      ]
+    },
+    {
+      "vnum": 625,
+      "name": "gauntlets brass",
+      "shortDescr": "brass gauntlets",
+      "description": "Some brass gauntlets are against the wall here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "hands"
+      ],
+      "armor": {
+        "acPierce": 6,
+        "acBash": 5,
+        "acSlash": 6,
+        "acExotic": 1
+      },
+      "level": 16,
+      "weight": 100,
+      "cost": 1280,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "saves",
+          "level": 16,
+          "duration": -1,
+          "modifier": -1
+        },
+        {
+          "where": "object",
+          "location": "hp",
+          "level": 16,
+          "duration": -1,
+          "modifier": 5
+        }
+      ]
+    },
+    {
+      "vnum": 626,
+      "name": "sleeves brass",
+      "shortDescr": "brass sleeves",
+      "description": "A pile of brass plates is against the wall here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "arms"
+      ],
+      "armor": {
+        "acPierce": 6,
+        "acBash": 5,
+        "acSlash": 6,
+        "acExotic": 1
+      },
+      "level": 16,
+      "weight": 100,
+      "cost": 1280,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "saves",
+          "level": 16,
+          "duration": -1,
+          "modifier": -1
+        },
+        {
+          "where": "object",
+          "location": "hp",
+          "level": 16,
+          "duration": -1,
+          "modifier": 5
+        }
+      ]
+    },
+    {
+      "vnum": 627,
+      "name": "shield brass",
+      "shortDescr": "a brass shield",
+      "description": "A big plate of brass is against the wall here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "shield"
+      ],
+      "armor": {
+        "acPierce": 6,
+        "acBash": 5,
+        "acSlash": 6,
+        "acExotic": 2
+      },
+      "level": 16,
+      "weight": 100,
+      "cost": 1850,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "saves",
+          "level": 16,
+          "duration": -1,
+          "modifier": -1
+        },
+        {
+          "where": "object",
+          "location": "hp",
+          "level": 16,
+          "duration": -1,
+          "modifier": 5
+        }
+      ]
+    },
+    {
+      "vnum": 628,
+      "name": "girth brass",
+      "shortDescr": "a brass girth",
+      "description": "A brass girth is against the wall here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "waist"
+      ],
+      "armor": {
+        "acPierce": 6,
+        "acBash": 5,
+        "acSlash": 6,
+        "acExotic": 1
+      },
+      "level": 16,
+      "weight": 100,
+      "cost": 1280,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "saves",
+          "level": 16,
+          "duration": -1,
+          "modifier": -1
+        },
+        {
+          "where": "object",
+          "location": "hp",
+          "level": 16,
+          "duration": -1,
+          "modifier": 5
+        }
+      ]
+    },
+    {
+      "vnum": 629,
+      "name": "bracer brass",
+      "shortDescr": "a brass bracer",
+      "description": "A brass bracer is against the wall here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "wrist"
+      ],
+      "armor": {
+        "acPierce": 4,
+        "acBash": 5,
+        "acSlash": 6,
+        "acExotic": 1
+      },
+      "level": 12,
+      "weight": 100,
+      "cost": 1040,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "saves",
+          "level": 12,
+          "duration": -1,
+          "modifier": -1
+        },
+        {
+          "where": "object",
+          "location": "hp",
+          "level": 12,
+          "duration": -1,
+          "modifier": 5
+        }
+      ]
+    },
+    {
+      "vnum": 630,
+      "name": "claymore sword",
+      "shortDescr": "a claymore",
+      "description": "A VERY big sword is against the wall here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "sword",
+        "dice": [
+          4,
+          4
+        ],
+        "damageType": "cleave",
+        "flags": [
+          "twohands"
+        ]
+      },
+      "level": 19,
+      "weight": 160,
+      "cost": 3100,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 19,
+          "duration": -1,
+          "modifier": -2
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 19,
+          "duration": -1,
+          "modifier": 5
+        }
+      ]
+    },
+    {
+      "vnum": 631,
+      "name": "plate silver",
+      "shortDescr": "silver plate",
+      "description": "A pile of silver plating and chain is on the floor.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "body"
+      ],
+      "armor": {
+        "acPierce": 8,
+        "acBash": 8,
+        "acSlash": 8,
+        "acExotic": 2
+      },
+      "level": 25,
+      "weight": 200,
+      "cost": 5000,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "mana",
+          "level": 25,
+          "duration": -1,
+          "modifier": 10
+        },
+        {
+          "where": "object",
+          "location": "strength",
+          "level": 25,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 632,
+      "name": "helm silver",
+      "shortDescr": "a silver helm",
+      "description": "A shiny helm is on the floor.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "head"
+      ],
+      "armor": {
+        "acPierce": 8,
+        "acBash": 8,
+        "acSlash": 8,
+        "acExotic": 2
+      },
+      "level": 25,
+      "weight": 200,
+      "cost": 2900,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "mana",
+          "level": 25,
+          "duration": -1,
+          "modifier": 5
+        },
+        {
+          "where": "object",
+          "location": "dexterity",
+          "level": 25,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 633,
+      "name": "leggings silver",
+      "shortDescr": "silver leggings",
+      "description": "Some shiny leggings are on the floor.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "legs"
+      ],
+      "armor": {
+        "acPierce": 8,
+        "acBash": 8,
+        "acSlash": 8,
+        "acExotic": 2
+      },
+      "level": 25,
+      "weight": 200,
+      "cost": 2900,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "mana",
+          "level": 25,
+          "duration": -1,
+          "modifier": 5
+        },
+        {
+          "where": "object",
+          "location": "intelligence",
+          "level": 25,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 634,
+      "name": "boots silver",
+      "shortDescr": "silver boots",
+      "description": "Some shiny boots are on the floor.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "feet"
+      ],
+      "armor": {
+        "acPierce": 8,
+        "acBash": 8,
+        "acSlash": 8,
+        "acExotic": 2
+      },
+      "level": 25,
+      "weight": 200,
+      "cost": 2900,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "mana",
+          "level": 25,
+          "duration": -1,
+          "modifier": 5
+        },
+        {
+          "where": "object",
+          "location": "wisdom",
+          "level": 25,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 635,
+      "name": "gauntlets silver",
+      "shortDescr": "silver gauntlets",
+      "description": "Some shiny gauntlets are on the floor.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "hands"
+      ],
+      "armor": {
+        "acPierce": 8,
+        "acBash": 8,
+        "acSlash": 8,
+        "acExotic": 2
+      },
+      "level": 25,
+      "weight": 200,
+      "cost": 2900,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "mana",
+          "level": 25,
+          "duration": -1,
+          "modifier": 5
+        },
+        {
+          "where": "object",
+          "location": "constitution",
+          "level": 25,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 636,
+      "name": "sleeves silver",
+      "shortDescr": "silver sleeves",
+      "description": "Some shiny sleeves are on the floor.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "arms"
+      ],
+      "armor": {
+        "acPierce": 8,
+        "acBash": 8,
+        "acSlash": 8,
+        "acExotic": 2
+      },
+      "level": 25,
+      "weight": 200,
+      "cost": 2400,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "mana",
+          "level": 25,
+          "duration": -1,
+          "modifier": 5
+        },
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 25,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 637,
+      "name": "shield silver",
+      "shortDescr": "the silver shield",
+      "description": "A shiny shield is on the floor.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "shield"
+      ],
+      "armor": {
+        "acPierce": 8,
+        "acBash": 8,
+        "acSlash": 8,
+        "acExotic": 3
+      },
+      "level": 25,
+      "weight": 200,
+      "cost": 4200,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "mana",
+          "level": 25,
+          "duration": -1,
+          "modifier": 5
+        },
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 25,
+          "duration": -1,
+          "modifier": -3
+        }
+      ]
+    },
+    {
+      "vnum": 638,
+      "name": "girth silver",
+      "shortDescr": "the silver girth",
+      "description": "A shiny girth is on the floor.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "waist"
+      ],
+      "armor": {
+        "acPierce": 8,
+        "acBash": 8,
+        "acSlash": 8,
+        "acExotic": 2
+      },
+      "level": 25,
+      "weight": 200,
+      "cost": 2400,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "mana",
+          "level": 25,
+          "duration": -1,
+          "modifier": 5
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 25,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 639,
+      "name": "plate platinum",
+      "shortDescr": "platinum plate",
+      "description": "A pile of silvery metal is on the floor.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "body"
+      ],
+      "armor": {
+        "acPierce": 9,
+        "acBash": 9,
+        "acSlash": 9,
+        "acExotic": 3
+      },
+      "level": 30,
+      "weight": 500,
+      "cost": 9200,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hp",
+          "level": 30,
+          "duration": -1,
+          "modifier": 15
+        },
+        {
+          "where": "object",
+          "location": "constitution",
+          "level": 30,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 640,
+      "name": "helmet platinum",
+      "shortDescr": "the platinum helmet",
+      "description": "A silvery helmet is on the floor.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "head"
+      ],
+      "armor": {
+        "acPierce": 9,
+        "acBash": 9,
+        "acSlash": 9,
+        "acExotic": 3
+      },
+      "level": 30,
+      "weight": 300,
+      "cost": 6300,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "mana",
+          "level": 30,
+          "duration": -1,
+          "modifier": 10
+        },
+        {
+          "where": "object",
+          "location": "wisdom",
+          "level": 30,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 641,
+      "name": "leggings platinum",
+      "shortDescr": "platinum leggings",
+      "description": "Some silvery leggings are on the floor.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "legs"
+      ],
+      "armor": {
+        "acPierce": 9,
+        "acBash": 9,
+        "acSlash": 9,
+        "acExotic": 3
+      },
+      "level": 30,
+      "weight": 400,
+      "cost": 6300,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hp",
+          "level": 30,
+          "duration": -1,
+          "modifier": 10
+        },
+        {
+          "where": "object",
+          "location": "dexterity",
+          "level": 30,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 642,
+      "name": "boots platinum",
+      "shortDescr": "platinum boots",
+      "description": "Some silvery boots are on the floor.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "feet"
+      ],
+      "armor": {
+        "acPierce": 9,
+        "acBash": 9,
+        "acSlash": 9,
+        "acExotic": 3
+      },
+      "level": 32,
+      "weight": 400,
+      "cost": 4100,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hp",
+          "level": 32,
+          "duration": -1,
+          "modifier": 10
+        },
+        {
+          "where": "object",
+          "location": "move",
+          "level": 32,
+          "duration": -1,
+          "modifier": 25
+        }
+      ]
+    },
+    {
+      "vnum": 643,
+      "name": "gauntlets platinum",
+      "shortDescr": "platinum gauntlets",
+      "description": "A pair of silvery gauntlets are on the floor.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "hands"
+      ],
+      "armor": {
+        "acPierce": 9,
+        "acBash": 9,
+        "acSlash": 9,
+        "acExotic": 3
+      },
+      "level": 31,
+      "weight": 400,
+      "cost": 4300,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hp",
+          "level": 31,
+          "duration": -1,
+          "modifier": 10
+        },
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 31,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 644,
+      "name": "sleeves platinum",
+      "shortDescr": "platinum sleeves",
+      "description": "A pair of silvery sleeves are on the floor.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "arms"
+      ],
+      "armor": {
+        "acPierce": 9,
+        "acBash": 9,
+        "acSlash": 9,
+        "acExotic": 3
+      },
+      "level": 30,
+      "weight": 400,
+      "cost": 6300,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hp",
+          "level": 30,
+          "duration": -1,
+          "modifier": 10
+        },
+        {
+          "where": "object",
+          "location": "strength",
+          "level": 30,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 645,
+      "name": "shield spiked platinum",
+      "shortDescr": "the platinum spiked shield",
+      "description": "A jagged, silvery shield is on the floor.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "shield"
+      ],
+      "armor": {
+        "acPierce": 9,
+        "acBash": 9,
+        "acSlash": 9,
+        "acExotic": 5
+      },
+      "level": 31,
+      "weight": 400,
+      "cost": 6000,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hp",
+          "level": 31,
+          "duration": -1,
+          "modifier": 10
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 31,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 646,
+      "name": "girth platinum",
+      "shortDescr": "the platinum girth",
+      "description": "A silvery girth is on the floor.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "waist"
+      ],
+      "armor": {
+        "acPierce": 9,
+        "acBash": 9,
+        "acSlash": 9,
+        "acExotic": 3
+      },
+      "level": 31,
+      "weight": 400,
+      "cost": 4000,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hp",
+          "level": 31,
+          "duration": -1,
+          "modifier": 10
+        },
+        {
+          "where": "object",
+          "location": "saves",
+          "level": 31,
+          "duration": -1,
+          "modifier": -2
+        }
+      ]
+    },
+    {
+      "vnum": 647,
+      "name": "avenger holy sword",
+      "shortDescr": "holy Avenger",
+      "description": "A glowing silvery sword is hovering here, ready to possess an owner.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "sword",
+        "dice": [
+          4,
+          6
+        ],
+        "damageType": "slice"
+      },
+      "level": 32,
+      "weight": 250,
+      "cost": 5700,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 32,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 32,
+          "duration": -1,
+          "modifier": 6
+        }
+      ]
+    },
+    {
+      "vnum": 648,
+      "name": "whiskey shot",
+      "shortDescr": "a shot of whiskey",
+      "description": "A shot of whiskey is on the table.",
+      "material": "oldstyle",
+      "itemType": "drinkcontainer",
+      "wearFlags": [
+        "take"
+      ],
+      "drink": {
+        "capacity": 2,
+        "remaining": 2,
+        "liquid": "whisky"
+      },
+      "weight": 10,
+      "cost": 12,
+      "condition": 100
+    },
+    {
+      "vnum": 649,
+      "name": "ale quart",
+      "shortDescr": "a quart of ale",
+      "description": "A quart of ale is on the table.",
+      "material": "oldstyle",
+      "itemType": "drinkcontainer",
+      "wearFlags": [
+        "take"
+      ],
+      "drink": {
+        "capacity": 32,
+        "remaining": 32,
+        "liquid": "ale"
+      },
+      "weight": 20,
+      "cost": 10,
+      "condition": 100
+    },
+    {
+      "vnum": 650,
+      "name": "port brew quart",
+      "shortDescr": "a quart of port brew",
+      "description": "A quart of port brew is on the table.",
+      "material": "oldstyle",
+      "itemType": "drinkcontainer",
+      "wearFlags": [
+        "take"
+      ],
+      "drink": {
+        "capacity": 32,
+        "remaining": 32,
+        "liquid": "dark ale"
+      },
+      "weight": 20,
+      "cost": 18,
+      "condition": 100
+    },
+    {
+      "vnum": 651,
+      "name": "key citadel",
+      "shortDescr": "the citadel key",
+      "description": "A key is on the floor.",
+      "material": "oldstyle",
+      "itemType": "key",
+      "wearFlags": [
+        "take"
+      ],
+      "weight": 10,
+      "condition": 100
+    },
+    {
+      "vnum": 652,
+      "name": "symbol holy",
+      "shortDescr": "the Holy Symbol of Bahamut",
+      "description": "A very shiny symbol is on the floor.",
+      "material": "oldstyle",
+      "itemType": "jewelry",
+      "extraFlags": [
+        "magic",
+        "bless",
+        "antievil",
+        "antineutral"
+      ],
+      "wearFlags": [
+        "take",
+        "neck"
+      ],
+      "level": 17,
+      "weight": 50,
+      "cost": 3700,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 17,
+          "duration": -1,
+          "modifier": -3
+        },
+        {
+          "where": "object",
+          "location": "mana",
+          "level": 17,
+          "duration": -1,
+          "modifier": 10
+        },
+        {
+          "where": "object",
+          "location": "wisdom",
+          "level": 17,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 653,
+      "name": "ranseur polearm",
+      "shortDescr": "a ranseur",
+      "description": "A heavy polearm is against the wall here, ready to inflict damage.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "polearm",
+        "dice": [
+          4,
+          6
+        ],
+        "damageType": "thrust",
+        "flags": [
+          "twohands"
+        ]
+      },
+      "level": 24,
+      "weight": 200,
+      "cost": 1460,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 24,
+          "duration": -1,
+          "modifier": 3
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 24,
+          "duration": -1,
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "vnum": 654,
+      "name": "torso dragonscale golden",
+      "shortDescr": "a golden dragonscale torso",
+      "description": "A golden dragonscale torso is on the floor!",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "body"
+      ],
+      "armor": {
+        "acPierce": 7,
+        "acBash": 7,
+        "acSlash": 7,
+        "acExotic": 3
+      },
+      "level": 24,
+      "weight": 250,
+      "cost": 6200,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 24,
+          "duration": -1,
+          "modifier": -5
+        },
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 24,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 655,
+      "name": "dragonhelm golden",
+      "shortDescr": "a golden dragonhelm",
+      "description": "A golden dragonhelm is on the floor!",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "head"
+      ],
+      "armor": {
+        "acPierce": 7,
+        "acBash": 7,
+        "acSlash": 7,
+        "acExotic": 3
+      },
+      "level": 21,
+      "weight": 100,
+      "cost": 2800,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 21,
+          "duration": -1,
+          "modifier": -3
+        },
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 21,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 656,
+      "name": "leggings golden",
+      "shortDescr": "golden dragonscale leggings",
+      "description": "Some golden dragonscale leggings are on the floor!",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "legs"
+      ],
+      "armor": {
+        "acPierce": 7,
+        "acBash": 7,
+        "acSlash": 7,
+        "acExotic": 3
+      },
+      "level": 21,
+      "weight": 100,
+      "cost": 2800,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 21,
+          "duration": -1,
+          "modifier": -3
+        },
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 21,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 657,
+      "name": "boots golden",
+      "shortDescr": "golden dragonscale boots",
+      "description": "Some golden dragonscale boots are on the floor!",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "feet"
+      ],
+      "armor": {
+        "acPierce": 7,
+        "acBash": 7,
+        "acSlash": 7,
+        "acExotic": 3
+      },
+      "level": 21,
+      "weight": 100,
+      "cost": 2800,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 21,
+          "duration": -1,
+          "modifier": -3
+        },
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 21,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 658,
+      "name": "gauntlets golden",
+      "shortDescr": "golden dragonscale gauntlets",
+      "description": "Some golden dragonscale gauntlets are on the floor!",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "hands"
+      ],
+      "armor": {
+        "acPierce": 7,
+        "acBash": 7,
+        "acSlash": 7,
+        "acExotic": 3
+      },
+      "level": 21,
+      "weight": 100,
+      "cost": 2800,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 21,
+          "duration": -1,
+          "modifier": -3
+        },
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 21,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 659,
+      "name": "sleeves golden",
+      "shortDescr": "golden dragonscale sleeves",
+      "description": "Some golden dragonscale sleeves are on the floor!",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "arms"
+      ],
+      "armor": {
+        "acPierce": 7,
+        "acBash": 7,
+        "acSlash": 7,
+        "acExotic": 3
+      },
+      "level": 21,
+      "weight": 100,
+      "cost": 2800,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 21,
+          "duration": -1,
+          "modifier": -3
+        },
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 21,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 660,
+      "name": "shield golden",
+      "shortDescr": "a golden dragonscale shield",
+      "description": "A golden dragonscale shield is on the floor!",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "shield"
+      ],
+      "armor": {
+        "acPierce": 7,
+        "acBash": 7,
+        "acSlash": 7,
+        "acExotic": 4
+      },
+      "level": 21,
+      "weight": 100,
+      "cost": 3700,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 21,
+          "duration": -1,
+          "modifier": -3
+        },
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 21,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 661,
+      "name": "girth golden",
+      "shortDescr": "a golden dragonscale girth",
+      "description": "A golden dragonscale girth is on the floor!",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "waist"
+      ],
+      "armor": {
+        "acPierce": 7,
+        "acBash": 7,
+        "acSlash": 7,
+        "acExotic": 3
+      },
+      "level": 21,
+      "weight": 100,
+      "cost": 2800,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 21,
+          "duration": -1,
+          "modifier": -3
+        },
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 21,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 662,
+      "name": "claw golden",
+      "shortDescr": "the golden claw",
+      "description": "A small golden claw is on the floor",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "dice": [
+          2,
+          10
+        ],
+        "damageType": "claw"
+      },
+      "level": 21,
+      "weight": 100,
+      "cost": 2600,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 21,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 663,
+      "name": "orb dragonorb",
+      "shortDescr": "the Gold Dragon Orb",
+      "description": "A very large pearl-like sphere is in the center of this room.",
+      "material": "oldstyle",
+      "itemType": "staff",
+      "extraFlags": [
+        "magic",
+        "antievil",
+        "antineutral"
+      ],
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "wand": {
+        "level": 14,
+        "chargesTotal": 4,
+        "spell": "heal"
+      },
+      "level": 17,
+      "weight": 300,
+      "cost": 9000,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "intelligence",
+          "level": 17,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "wisdom",
+          "level": 17,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 664,
+      "name": "robe golden",
+      "shortDescr": "a golden robe",
+      "description": "A golden robe is on the floor.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "about"
+      ],
+      "armor": {
+        "acPierce": 6,
+        "acBash": 6,
+        "acSlash": 5,
+        "acExotic": 2
+      },
+      "level": 17,
+      "weight": 100,
+      "cost": 3800,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "intelligence",
+          "level": 17,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 665,
+      "name": "house key",
+      "shortDescr": "a house key",
+      "description": "A house key is on the floor.",
+      "material": "oldstyle",
+      "itemType": "key",
+      "wearFlags": [
+        "take"
+      ],
+      "weight": 10,
+      "condition": 100
+    },
+    {
+      "vnum": 666,
+      "name": "broom",
+      "shortDescr": "a broom",
+      "description": "A broom is against the wall here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "dice": [
+          2,
+          3
+        ],
+        "damageType": "beating"
+      },
+      "level": 1,
+      "weight": 80,
+      "cost": 760,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 1,
+          "duration": -1,
+          "modifier": 3
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 1,
+          "duration": -1,
+          "modifier": -3
+        }
+      ]
+    },
+    {
+      "vnum": 667,
+      "name": "chest",
+      "shortDescr": "a chest",
+      "description": "A chest is on the floor here.",
+      "material": "oldstyle",
+      "itemType": "container",
+      "wearFlags": [
+        "take"
+      ],
+      "container": {
+        "capacity": 100,
+        "maxWeight": 10,
+        "weightMult": 100
+      },
+      "weight": 100,
+      "cost": 100,
+      "condition": 100
+    },
+    {
+      "vnum": 668,
+      "name": "claw golden",
+      "shortDescr": "the Golden Claw",
+      "description": "A huge golden claw is on the floor",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "dice": [
+          6,
+          5
+        ],
+        "damageType": "claw"
+      },
+      "level": 39,
+      "weight": 200,
+      "cost": 7200,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 39,
+          "duration": -1,
+          "modifier": 4
+        }
+      ]
+    },
+    {
+      "vnum": 669,
+      "name": "claw golden",
+      "shortDescr": "the golden claw",
+      "description": "A large golden claw is on the floor",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "dice": [
+          3,
+          8
+        ],
+        "damageType": "claw"
+      },
+      "level": 28,
+      "weight": 150,
+      "cost": 4100,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 28,
+          "duration": -1,
+          "modifier": 3
+        }
+      ]
+    }
+  ],
+  "shops": [
+    {
+      "keeper": 604,
+      "buyTypes": [
+        5,
+        9,
+        15,
+        0,
+        0
+      ],
+      "profitBuy": 120,
+      "profitSell": 80,
+      "openHour": 0,
+      "closeHour": 23
+    },
+    {
+      "keeper": 605,
+      "buyTypes": [
+        9,
+        0,
+        0,
+        0,
+        0
+      ],
+      "profitBuy": 120,
+      "profitSell": 80,
+      "openHour": 0,
+      "closeHour": 23
+    },
+    {
+      "keeper": 606,
+      "buyTypes": [
+        8,
+        12,
+        13,
+        0,
+        0
+      ],
+      "profitBuy": 120,
+      "profitSell": 80,
+      "openHour": 0,
+      "closeHour": 23
+    },
+    {
+      "keeper": 607,
+      "buyTypes": [
+        0,
+        19,
+        0,
+        0,
+        0
+      ],
+      "profitBuy": 120,
+      "profitSell": 10,
+      "openHour": 0,
+      "closeHour": 23
+    },
+    {
+      "keeper": 608,
+      "buyTypes": [
+        0,
+        17,
+        19,
+        0,
+        0
+      ],
+      "profitBuy": 120,
+      "profitSell": 10,
+      "openHour": 0,
+      "closeHour": 23
+    },
+    {
+      "keeper": 622,
+      "buyTypes": [
+        0,
+        17,
+        0,
+        0,
+        0
+      ],
+      "profitBuy": 120,
+      "profitSell": 10,
+      "openHour": 0,
+      "closeHour": 23
+    }
+  ],
+  "specials": [
+    {
+      "mobVnum": 600,
+      "spec": "spec_guard"
+    },
+    {
+      "mobVnum": 601,
+      "spec": "spec_cast_cleric"
+    },
+    {
+      "mobVnum": 602,
+      "spec": "spec_cast_cleric"
+    },
+    {
+      "mobVnum": 603,
+      "spec": "spec_cast_mage"
+    },
+    {
+      "mobVnum": 621,
+      "spec": "spec_janitor"
+    },
+    {
+      "mobVnum": 623,
+      "spec": "spec_guard"
+    },
+    {
+      "mobVnum": 628,
+      "spec": "spec_cast_adept"
+    },
+    {
+      "mobVnum": 629,
+      "spec": "spec_guard"
+    },
+    {
+      "mobVnum": 630,
+      "spec": "spec_breath_any"
+    },
+    {
+      "mobVnum": 631,
+      "spec": "spec_breath_any"
+    },
+    {
+      "mobVnum": 632,
+      "spec": "spec_cast_mage"
+    },
+    {
+      "mobVnum": 633,
+      "spec": "spec_breath_any"
+    },
+    {
+      "mobVnum": 634,
+      "spec": "spec_guard"
+    }
+  ],
+  "mobprogs": [],
+  "resets": [
+    {
+      "mobVnum": 609,
+      "maxInArea": 1,
+      "roomVnum": 600,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 649,
+      "roomVnum": 600,
+      "commandName": "placeObj"
+    },
+    {
+      "mobVnum": 600,
+      "maxInArea": 8,
+      "roomVnum": 601,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 620,
+      "wearLoc": "on the left finger",
+      "roomVnum": 601,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 621,
+      "wearLoc": "on the body",
+      "roomVnum": 601,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 630,
+      "wearLoc": "wielded",
+      "roomVnum": 601,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 624,
+      "wearLoc": "on the feet",
+      "roomVnum": 601,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 601,
+      "maxInArea": 1,
+      "roomVnum": 601,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 620,
+      "wearLoc": "on the left finger",
+      "roomVnum": 601,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 639,
+      "wearLoc": "on the body",
+      "roomVnum": 601,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 640,
+      "wearLoc": "over the head",
+      "roomVnum": 601,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 641,
+      "wearLoc": "on the legs",
+      "roomVnum": 601,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 642,
+      "wearLoc": "on the feet",
+      "roomVnum": 601,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 643,
+      "wearLoc": "on the hands",
+      "roomVnum": 601,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 644,
+      "wearLoc": "on the arms",
+      "roomVnum": 601,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 645,
+      "wearLoc": "as a shield",
+      "roomVnum": 601,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 646,
+      "wearLoc": "around the waist",
+      "roomVnum": 601,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 647,
+      "wearLoc": "wielded",
+      "roomVnum": 601,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 617,
+      "maxInArea": 3,
+      "roomVnum": 601,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 604,
+      "maxInArea": 1,
+      "roomVnum": 603,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 600,
+      "roomVnum": 603,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 601,
+      "roomVnum": 603,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 615,
+      "roomVnum": 603,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 667,
+      "roomVnum": 603,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 600,
+      "maxInArea": 8,
+      "roomVnum": 604,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 620,
+      "wearLoc": "on the left finger",
+      "roomVnum": 604,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 621,
+      "wearLoc": "on the body",
+      "roomVnum": 604,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 630,
+      "wearLoc": "wielded",
+      "roomVnum": 604,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 623,
+      "wearLoc": "on the legs",
+      "roomVnum": 604,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 605,
+      "maxInArea": 1,
+      "roomVnum": 604,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 616,
+      "roomVnum": 604,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 617,
+      "roomVnum": 604,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 618,
+      "roomVnum": 604,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 619,
+      "roomVnum": 604,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 606,
+      "maxInArea": 1,
+      "roomVnum": 606,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 606,
+      "roomVnum": 606,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 607,
+      "roomVnum": 606,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 608,
+      "roomVnum": 606,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 607,
+      "maxInArea": 1,
+      "roomVnum": 607,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 602,
+      "roomVnum": 607,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 603,
+      "roomVnum": 607,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 604,
+      "roomVnum": 607,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 605,
+      "roomVnum": 607,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 600,
+      "maxInArea": 8,
+      "roomVnum": 608,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 620,
+      "wearLoc": "on the left finger",
+      "roomVnum": 608,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 621,
+      "wearLoc": "on the body",
+      "roomVnum": 608,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 630,
+      "wearLoc": "wielded",
+      "roomVnum": 608,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 622,
+      "wearLoc": "over the head",
+      "roomVnum": 608,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 622,
+      "maxInArea": 1,
+      "roomVnum": 609,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 648,
+      "roomVnum": 609,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 649,
+      "roomVnum": 609,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 650,
+      "roomVnum": 609,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 624,
+      "maxInArea": 1,
+      "roomVnum": 609,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 608,
+      "maxInArea": 1,
+      "roomVnum": 610,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 609,
+      "roomVnum": 610,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 610,
+      "roomVnum": 610,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 611,
+      "roomVnum": 610,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 612,
+      "roomVnum": 610,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 613,
+      "roomVnum": 610,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 618,
+      "maxInArea": 3,
+      "roomVnum": 611,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 610,
+      "maxInArea": 1,
+      "roomVnum": 617,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 601,
+      "wearLoc": "wielded",
+      "roomVnum": 617,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 612,
+      "maxInArea": 4,
+      "roomVnum": 619,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 612,
+      "maxInArea": 4,
+      "roomVnum": 619,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 612,
+      "maxInArea": 4,
+      "roomVnum": 619,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 612,
+      "maxInArea": 4,
+      "roomVnum": 619,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 611,
+      "maxInArea": 1,
+      "roomVnum": 620,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 615,
+      "wearLoc": "wielded",
+      "roomVnum": 620,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 614,
+      "roomVnum": 620,
+      "commandName": "placeObj"
+    },
+    {
+      "objVnum": 611,
+      "roomVnum": 620,
+      "commandName": "placeObj"
+    },
+    {
+      "mobVnum": 614,
+      "maxInArea": 2,
+      "roomVnum": 620,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 614,
+      "maxInArea": 2,
+      "roomVnum": 620,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 615,
+      "maxInArea": 4,
+      "roomVnum": 622,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 615,
+      "maxInArea": 4,
+      "roomVnum": 622,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 615,
+      "maxInArea": 4,
+      "roomVnum": 622,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 615,
+      "maxInArea": 4,
+      "roomVnum": 622,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 613,
+      "maxInArea": 3,
+      "roomVnum": 623,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 613,
+      "maxInArea": 3,
+      "roomVnum": 623,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 613,
+      "maxInArea": 3,
+      "roomVnum": 623,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 616,
+      "maxInArea": 4,
+      "roomVnum": 624,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 616,
+      "maxInArea": 4,
+      "roomVnum": 624,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 616,
+      "maxInArea": 4,
+      "roomVnum": 624,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 616,
+      "maxInArea": 4,
+      "roomVnum": 624,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 621,
+      "maxInArea": 3,
+      "roomVnum": 627,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 665,
+      "roomVnum": 627,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 666,
+      "wearLoc": "wielded",
+      "roomVnum": 627,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 621,
+      "maxInArea": 3,
+      "roomVnum": 629,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 665,
+      "roomVnum": 629,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 666,
+      "wearLoc": "wielded",
+      "roomVnum": 629,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 620,
+      "maxInArea": 2,
+      "roomVnum": 635,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 600,
+      "maxInArea": 8,
+      "roomVnum": 637,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 620,
+      "wearLoc": "on the left finger",
+      "roomVnum": 637,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 621,
+      "wearLoc": "on the body",
+      "roomVnum": 637,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 630,
+      "wearLoc": "wielded",
+      "roomVnum": 637,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 629,
+      "wearLoc": "on the left wrist",
+      "roomVnum": 637,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 618,
+      "maxInArea": 3,
+      "roomVnum": 637,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 600,
+      "maxInArea": 8,
+      "roomVnum": 642,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 620,
+      "wearLoc": "on the left finger",
+      "roomVnum": 642,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 621,
+      "wearLoc": "on the body",
+      "roomVnum": 642,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 630,
+      "wearLoc": "wielded",
+      "roomVnum": 642,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 626,
+      "wearLoc": "on the arms",
+      "roomVnum": 642,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 621,
+      "maxInArea": 3,
+      "roomVnum": 643,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 665,
+      "roomVnum": 643,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 666,
+      "wearLoc": "wielded",
+      "roomVnum": 643,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 600,
+      "maxInArea": 8,
+      "roomVnum": 647,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 620,
+      "wearLoc": "on the left finger",
+      "roomVnum": 647,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 621,
+      "wearLoc": "on the body",
+      "roomVnum": 647,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 630,
+      "wearLoc": "wielded",
+      "roomVnum": 647,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 627,
+      "wearLoc": "as a shield",
+      "roomVnum": 647,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 617,
+      "maxInArea": 3,
+      "roomVnum": 648,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 600,
+      "maxInArea": 8,
+      "roomVnum": 650,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 620,
+      "wearLoc": "on the left finger",
+      "roomVnum": 650,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 621,
+      "wearLoc": "on the body",
+      "roomVnum": 650,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 630,
+      "wearLoc": "wielded",
+      "roomVnum": 650,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 625,
+      "wearLoc": "on the hands",
+      "roomVnum": 650,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 617,
+      "maxInArea": 3,
+      "roomVnum": 650,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 620,
+      "maxInArea": 2,
+      "roomVnum": 652,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 619,
+      "maxInArea": 2,
+      "roomVnum": 655,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 619,
+      "maxInArea": 2,
+      "roomVnum": 661,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 618,
+      "maxInArea": 3,
+      "roomVnum": 666,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 600,
+      "maxInArea": 8,
+      "roomVnum": 667,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 620,
+      "wearLoc": "on the left finger",
+      "roomVnum": 667,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 621,
+      "wearLoc": "on the body",
+      "roomVnum": 667,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 630,
+      "wearLoc": "wielded",
+      "roomVnum": 667,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 628,
+      "wearLoc": "around the waist",
+      "roomVnum": 667,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 602,
+      "maxInArea": 1,
+      "roomVnum": 669,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 620,
+      "wearLoc": "on the left finger",
+      "roomVnum": 669,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 631,
+      "wearLoc": "on the body",
+      "roomVnum": 669,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 653,
+      "wearLoc": "wielded",
+      "roomVnum": 669,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 632,
+      "wearLoc": "over the head",
+      "roomVnum": 669,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 633,
+      "wearLoc": "on the legs",
+      "roomVnum": 669,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 634,
+      "wearLoc": "on the feet",
+      "roomVnum": 669,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 635,
+      "wearLoc": "on the hands",
+      "roomVnum": 669,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 626,
+      "wearLoc": "on the arms",
+      "roomVnum": 669,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 627,
+      "wearLoc": "as a shield",
+      "roomVnum": 669,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 628,
+      "wearLoc": "around the waist",
+      "roomVnum": 669,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 628,
+      "maxInArea": 1,
+      "roomVnum": 669,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 620,
+      "wearLoc": "on the left finger",
+      "roomVnum": 669,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 664,
+      "wearLoc": "about the shoulders",
+      "roomVnum": 669,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 652,
+      "wearLoc": "around the neck (1)",
+      "roomVnum": 669,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 625,
+      "maxInArea": 2,
+      "roomVnum": 673,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 625,
+      "maxInArea": 2,
+      "roomVnum": 674,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 633,
+      "maxInArea": 3,
+      "roomVnum": 676,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 620,
+      "wearLoc": "on the left finger",
+      "roomVnum": 676,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 654,
+      "wearLoc": "on the body",
+      "roomVnum": 676,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 660,
+      "wearLoc": "as a shield",
+      "roomVnum": 676,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 662,
+      "wearLoc": "wielded",
+      "roomVnum": 676,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 627,
+      "maxInArea": 1,
+      "roomVnum": 678,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 633,
+      "maxInArea": 3,
+      "roomVnum": 681,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 620,
+      "wearLoc": "on the left finger",
+      "roomVnum": 681,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 654,
+      "wearLoc": "on the body",
+      "roomVnum": 681,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 660,
+      "wearLoc": "as a shield",
+      "roomVnum": 681,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 662,
+      "wearLoc": "wielded",
+      "roomVnum": 681,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 626,
+      "maxInArea": 2,
+      "roomVnum": 682,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 626,
+      "maxInArea": 2,
+      "roomVnum": 683,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 629,
+      "maxInArea": 1,
+      "roomVnum": 688,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 664,
+      "wearLoc": "about the shoulders",
+      "roomVnum": 688,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 630,
+      "maxInArea": 3,
+      "roomVnum": 688,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 620,
+      "wearLoc": "on the left finger",
+      "roomVnum": 688,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 654,
+      "wearLoc": "on the body",
+      "roomVnum": 688,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 660,
+      "wearLoc": "as a shield",
+      "roomVnum": 688,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 669,
+      "wearLoc": "wielded",
+      "roomVnum": 688,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 656,
+      "wearLoc": "over the head",
+      "roomVnum": 688,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 657,
+      "wearLoc": "on the legs",
+      "roomVnum": 688,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 630,
+      "maxInArea": 3,
+      "roomVnum": 688,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 620,
+      "wearLoc": "on the left finger",
+      "roomVnum": 688,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 654,
+      "wearLoc": "on the body",
+      "roomVnum": 688,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 660,
+      "wearLoc": "as a shield",
+      "roomVnum": 688,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 669,
+      "wearLoc": "wielded",
+      "roomVnum": 688,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 657,
+      "wearLoc": "on the feet",
+      "roomVnum": 688,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 658,
+      "wearLoc": "on the hands",
+      "roomVnum": 688,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 630,
+      "maxInArea": 3,
+      "roomVnum": 688,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 620,
+      "wearLoc": "on the left finger",
+      "roomVnum": 688,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 654,
+      "wearLoc": "on the body",
+      "roomVnum": 688,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 660,
+      "wearLoc": "as a shield",
+      "roomVnum": 688,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 669,
+      "wearLoc": "wielded",
+      "roomVnum": 688,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 659,
+      "wearLoc": "on the arms",
+      "roomVnum": 688,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 661,
+      "wearLoc": "around the waist",
+      "roomVnum": 688,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 633,
+      "maxInArea": 3,
+      "roomVnum": 690,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 620,
+      "wearLoc": "on the left finger",
+      "roomVnum": 690,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 654,
+      "wearLoc": "on the body",
+      "roomVnum": 690,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 660,
+      "wearLoc": "as a shield",
+      "roomVnum": 690,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 662,
+      "wearLoc": "wielded",
+      "roomVnum": 690,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 631,
+      "maxInArea": 1,
+      "roomVnum": 693,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 620,
+      "wearLoc": "on the left finger",
+      "roomVnum": 693,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 668,
+      "wearLoc": "wielded",
+      "roomVnum": 693,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 663,
+      "wearLoc": "held in the hands",
+      "roomVnum": 693,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 632,
+      "maxInArea": 2,
+      "roomVnum": 693,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 620,
+      "wearLoc": "on the left finger",
+      "roomVnum": 693,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 664,
+      "wearLoc": "about the shoulders",
+      "roomVnum": 693,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 632,
+      "maxInArea": 2,
+      "roomVnum": 693,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 620,
+      "wearLoc": "on the left finger",
+      "roomVnum": 693,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 664,
+      "wearLoc": "about the shoulders",
+      "roomVnum": 693,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 634,
+      "maxInArea": 3,
+      "roomVnum": 698,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 620,
+      "wearLoc": "on the left finger",
+      "roomVnum": 698,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 621,
+      "wearLoc": "on the body",
+      "roomVnum": 698,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 630,
+      "wearLoc": "wielded",
+      "roomVnum": 698,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 627,
+      "wearLoc": "as a shield",
+      "roomVnum": 698,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 651,
+      "roomVnum": 698,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 634,
+      "maxInArea": 3,
+      "roomVnum": 698,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 620,
+      "wearLoc": "on the left finger",
+      "roomVnum": 698,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 621,
+      "wearLoc": "on the body",
+      "roomVnum": 698,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 630,
+      "wearLoc": "wielded",
+      "roomVnum": 698,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 627,
+      "wearLoc": "as a shield",
+      "roomVnum": 698,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 651,
+      "roomVnum": 698,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 634,
+      "maxInArea": 3,
+      "roomVnum": 698,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 620,
+      "wearLoc": "on the left finger",
+      "roomVnum": 698,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 621,
+      "wearLoc": "on the body",
+      "roomVnum": 698,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 630,
+      "wearLoc": "wielded",
+      "roomVnum": 698,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 627,
+      "wearLoc": "as a shield",
+      "roomVnum": 698,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 651,
+      "roomVnum": 698,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 603,
+      "maxInArea": 1,
+      "roomVnum": 699,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 620,
+      "wearLoc": "on the left finger",
+      "roomVnum": 699,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 631,
+      "wearLoc": "on the body",
+      "roomVnum": 699,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 653,
+      "wearLoc": "wielded",
+      "roomVnum": 699,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 632,
+      "wearLoc": "over the head",
+      "roomVnum": 699,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 623,
+      "wearLoc": "on the legs",
+      "roomVnum": 699,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 624,
+      "wearLoc": "on the feet",
+      "roomVnum": 699,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 625,
+      "wearLoc": "on the hands",
+      "roomVnum": 699,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 636,
+      "wearLoc": "on the arms",
+      "roomVnum": 699,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 637,
+      "wearLoc": "as a shield",
+      "roomVnum": 699,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 638,
+      "wearLoc": "around the waist",
+      "roomVnum": 699,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 623,
+      "maxInArea": 3,
+      "roomVnum": 699,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 620,
+      "wearLoc": "on the left finger",
+      "roomVnum": 699,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 621,
+      "wearLoc": "on the body",
+      "roomVnum": 699,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 630,
+      "wearLoc": "wielded",
+      "roomVnum": 699,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 627,
+      "wearLoc": "as a shield",
+      "roomVnum": 699,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 651,
+      "roomVnum": 699,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 623,
+      "maxInArea": 3,
+      "roomVnum": 699,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 620,
+      "wearLoc": "on the left finger",
+      "roomVnum": 699,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 621,
+      "wearLoc": "on the body",
+      "roomVnum": 699,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 630,
+      "wearLoc": "wielded",
+      "roomVnum": 699,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 627,
+      "wearLoc": "as a shield",
+      "roomVnum": 699,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 651,
+      "roomVnum": 699,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 623,
+      "maxInArea": 3,
+      "roomVnum": 699,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 620,
+      "wearLoc": "on the left finger",
+      "roomVnum": 699,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 621,
+      "wearLoc": "on the body",
+      "roomVnum": 699,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 630,
+      "wearLoc": "wielded",
+      "roomVnum": 699,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 627,
+      "wearLoc": "as a shield",
+      "roomVnum": 699,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 651,
+      "roomVnum": 699,
+      "commandName": "giveObj"
+    }
+  ],
+  "factions": [],
+  "quests": []
+}

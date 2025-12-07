@@ -1,0 +1,4433 @@
+{
+  "formatVersion": 1,
+  "areadata": {
+    "version": 2,
+    "name": "Shire",
+    "builders": "",
+    "vnumRange": [
+      1100,
+      1199
+    ],
+    "credits": "Poohb",
+    "security": 9,
+    "sector": "inside",
+    "lowLevel": 5,
+    "highLevel": 35,
+    "reset": 6,
+    "alwaysReset": false
+  },
+  "storyBeats": [],
+  "checklist": [],
+  "rooms": [
+    {
+      "vnum": 1100,
+      "name": "A dimly lit path",
+      "description": "You tread through the deep, dark forest on a dimly lit path.  Up ahead you\n\rcan hear the faint sounds of a village.\n\r",
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1101,
+          "description": "The dimly lit path leads north through the dense forest.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 6000,
+          "description": "The dimly lit path leads south through the light forest.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1101,
+      "name": "A dimly lit path",
+      "description": "You tread through the deep, dark forest on a dimly lit path.  Up ahead you\n\rcan hear the faint sounds of a village.\n\r",
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1102,
+          "description": "The dimly lit path leads north through the dense forest.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1100,
+          "description": "The dimly lit path leads south through the dense forest.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1102,
+      "name": "A dimly lit path",
+      "description": "You tread through the deep, dark forest on a dimly lit path.  The forest\n\rhere seems less dense than to the south.  Northward you see the faint outline\n\rof a village.\n\r",
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1103,
+          "description": "The dimly lit path leads to a village.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1101,
+          "description": "The dimly lit path leads south through the dense forest.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1103,
+      "name": "Entrance to the Shire",
+      "description": "You stand at the entrance to the Shire.  You see halflings, no more than\n\rwee tall, every which way you look. Bywater Road leads east and west.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 1104,
+          "description": "To the east runs Bywater Road.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1102,
+          "description": "To the south you see a dimly lit path which leads to a dense forest.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1118,
+          "description": "To the west runs Bywater Road.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1104,
+      "name": "Bywater Road",
+      "description": "You stand on Bywater Road, the busiest street in all of Shiredom.  The road\n\rcontinues to the east and west while to the north lies the general store.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1105,
+          "description": "The general store lies to the north.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1106,
+          "description": "To the east runs Bywater Road.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1103,
+          "description": "To the west you see the entrance to the Shire.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1105,
+      "name": "The General Store",
+      "description": "You are inside the general store.  All sorts of goodies are stacked on the\n\rmany shelves.  Your local friendly shopkeeper is smiling patiently, waiting to \n\rserve you to the best of his abilities.  The only exit is to the south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 1104,
+          "description": "The only exit lies to the south.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1106,
+      "name": "Bywater Road",
+      "description": "You stand on Bywater Road, the busiest street in all of Shiredom.  The road\n\rcontinues to the east and west.  To the north, steps lead to a friendly looking\n\rweaponry/armory while a nursery lies to the south.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1107,
+          "description": "Steps lead to a friendly looking weaponry and armory.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1109,
+          "description": "To the east runs Bywater Road.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1108,
+          "description": "To the south lies Kid'n Keep, the local nursery.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1104,
+          "description": "To the west runs Bywater Road.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1107,
+      "name": "The House of Arms",
+      "description": "You are inside the finest weapons and armour shop in all of Shiredom.  The\n\rshopkeeper proudly displays his fine wares and humbly offers the best daggers\n\rthat you have ever laid eyes on.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 1106,
+          "description": "The only exit lies to the south.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1108,
+      "name": "Kid'n Keep",
+      "description": "You are inside Kid'n Keep, the convenient one-stop nursery that maintains\n\rthe youth of the Shire.  Toddlers run every which way while their nursemaids\n\rsigh in exasperation.  The only exit lies to the north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1106,
+          "description": "The only exit lies to the north.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1109,
+      "name": "A bend in the road",
+      "description": "Bywater Road continues west and south.  A large, imposing building lies\n\rto the east.  Farther to the south, you can see an Inn of some sort.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 1110,
+          "description": "A large, imposing building lies to the east.  A sign reads 'Shiriff Post'.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1112,
+          "description": "To the south runs Bywater Road.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1106,
+          "description": "To the west runs Bywater Road.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1110,
+      "name": "Shiriff Post of the Eastern Shire",
+      "description": "You are in the Shiriff Post which acts as the nucleus for the three shiriffs\n\rof the Eastern Shire.  As you examine the shiriffs on duty, you come to realize\n\rthat the halflings of the Shire are not to be reckoned with.  You cower with \n\rawe.  A door offers passage to the east.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 1111,
+          "flags": [
+            "door"
+          ],
+          "description": "A door offers passage to the office of the Thain.\n\r",
+          "keyword": "door"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1109,
+          "description": "To the west you can see Bywater Road.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1111,
+      "name": "Thain's Office",
+      "description": "You stand inside the office of the Thain, the police protectorate of the\n\rgreat Shire.  The Thain has sworn to protect the Shire from all thieves and\n\rmurderers with his life, and so eyes you suspiciously.  A door to the west\n\rleads to the Shiriff Post.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 1110,
+          "flags": [
+            "door"
+          ],
+          "description": "A door offers passage to the Shiriff Post.\n\r",
+          "keyword": "door"
+        }
+      ]
+    },
+    {
+      "vnum": 1112,
+      "name": "Bywater Road",
+      "description": "You stand on Bywater Road, the busiest street in all of Shiredom.  The road\n\rcontinues to the north and south.  To the east you spy the training grounds for\n\rshiriffs in training.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1109,
+          "description": "To the north runs Bywater Road.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1117,
+          "description": "The Shiriff Training Grounds lies to the east.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1113,
+          "description": "To the south runs Bywater Road.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1113,
+      "name": "Bywater Road",
+      "description": "You stand on Bywater Road, the busiest street in all of Shiredom.  The road\n\rcontinues to the north.  The private residences of Shire inhabitants are to\n\rthe east and west while to the south lies the Ivy Bush, second only to the\n\rGreen Dragon for its hospitality and service.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1112,
+          "description": "To the north runs Bywater Road.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1115,
+          "description": "You spy the private dwelling of a Shire folk to the east.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1116,
+          "description": "To the south you see the Ivy Bush, a favorite haunt of Shire urbanites and\n\rseasoned travelers.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1114,
+          "description": "You spy the private dwelling of a Shire folk to the west.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1114,
+      "name": "A smial",
+      "description": "You are inside a smial, a hole in the ground which serves as the proper\n\rdwelling place for halflings.  As you look around this private abode, you feel\n\ras if you were intruding and so quickly cover your eyes.  The only exit lies\n\rto the east.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 1113,
+          "description": "The only exit lies to the east.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1115,
+      "name": "A smial",
+      "description": "You are inside a smial, a hole in the ground which serves as the proper\n\rdwelling place for halflings.  As you look around this private abode, you feel\n\ras if you were intruding and so quickly cover your eyes.  The only exit lies\n\rto the west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 1113,
+          "description": "The only exit lies to the west.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1116,
+      "name": "The Ivy Bush",
+      "description": "You are in the Ivy Bush, one of the most famous inns in all of Shiredom.\n\rChique Shire urbanites and seasoned travelers fill the confines of the room\n\rwith gay and lively talk.  A jovial innkeeper stops all that he is doing to\n\rawait your command.  The only exit lies to the north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1113,
+          "description": "The only exit lies to the north.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1117,
+      "name": "Shiriff Training Grounds",
+      "description": "The sounds of mock battle and feigned death cries fill your ears.  Every\n\rwhich way you turn you see halfling trainees at the prime of their youth.  A\n\rwizened old battle instructor meets your gaze and asks if he may be of \n\rservice.  The only exit lies to the west.\n\r",
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 1112,
+          "description": "The only exit lies to the west.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1118,
+      "name": "Bywater Road",
+      "description": "You stand on Bywater Road, the busiest street in all of Shiredom.  The road\n\rcontinues to the east and west.  A large, imposing building lies to the south.\n\rYou catch a glimpse of the Brandywine River to the north.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 1103,
+          "description": "To the east you see the entrance to the Shire.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1119,
+          "description": "A large, imposing building lies to the south.  A sign reads 'Shiriff Post'.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1120,
+          "description": "To the west runs Bywater Road.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1119,
+      "name": "Shiriff Post of the Bridge",
+      "description": "You are in the Shiriff Post which acts as the nucleus for the three shiriffs\n\rof the Bridge.  As you examine the shiriffs on duty, you come to realize that\n\rthe halflings of the Shire are not to be reckoned with.  You cower with awe.\n\rThe only exit is to the north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1118,
+          "description": "The only exit is to the north.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1120,
+      "name": "Bywater Road",
+      "description": "You stand on Bywater Road, the busiest street in all of Shiredom.  The road\n\rcontinues to the east and west.  To the south you spy the Grocer's Delight,\n\rthe premium grocer's shop in all the realm while to the north lies Brandywine\n\rBridge.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1131,
+          "description": "Brandywine Bridge offers safe passage across the tumultuous river.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1118,
+          "description": "To the east runs Bywater Road.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1121,
+          "description": "You see the Grocer's Delight to the south.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1122,
+          "description": "To the west runs Bywater Road.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1121,
+      "name": "The Grocer's Delight",
+      "description": "You tremble with ecstasy as the tempting odors of freshly made pipeweed\n\rbread fill your lungs.  Rumor has it that the pipeweed bread sold here can\n\rrestore vitality.  You look around but find no one to take your order.  \n\rYou then peep over the counter and discover a friendly grocer who is too \n\rshort to be seen over the counter.  The only exit is to the north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1120,
+          "description": "The only exit is to the north.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1122,
+      "name": "Bywater Road",
+      "description": "You stand on Bywater Road, the busiest street in all of Shiredom.  The road\n\rcontinues to the east.  A small hill lies to the west while you can see a\n\rwatermill to the far south.  You catch a glimpse of the Brandywine River to\n\rthe north.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 1120,
+          "description": "To the east runs Bywater Road.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1123,
+          "description": "An entrance to the watermill lies to the south.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1126,
+          "description": "A small hill to the west blocks your view.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1123,
+      "name": "Entrance to Watermill",
+      "description": "You stand at the entrance to a watermill.  You hear the bustle of busy\n\rworkers and the sound of a creaking mill.  Bywater Road is to the north while\n\rthe watermill continues to the south.\n\r",
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1122,
+          "description": "You see Bywater Road to the north.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1124,
+          "description": "A watermill meets your gaze.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1124,
+      "name": "The Watermill",
+      "description": "Halfling workers are scattered everywhere, busy at work.  You see the river\n\rto the west and get a compelling urge to grab the nearest worker and to toss\n\rhim into the river.  The entrance stands to the north while a door offers\n\rpassage to the south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1123,
+          "description": "You see the entrance.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1125,
+          "flags": [
+            "door"
+          ],
+          "description": "A wooden door leads to the rear of the watermill.\n\r",
+          "keyword": "door"
+        }
+      ]
+    },
+    {
+      "vnum": 1125,
+      "name": "Rear of watermill",
+      "description": "You stand in a damp, dimly lit room.  Mildew clings to the walls and it\n\rappears as if you were the first person to enter the room in ages.  A barely\n\rvisible portal in the ground catches your eye.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1124,
+          "description": "A watermill meets your gaze.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 1146,
+          "description": "A hidden portal reveals a passageway down.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1126,
+      "name": "Took Hill",
+      "description": "You stand on top of Took Hill, named after the legendary Bandobras Took.\n\rYou feel honored to be standing on a hill named after your hero.  From this\n\rvantage point you can see all of shiredom.  You get the feeling that with\n\rone stomp you could eliminate their great city.  You can see the outline of\n\rMidgaard to the far east.  Sounds of joyful celebration are heard from the\n\rfields west of here.  The Brandywine flows by lazily nearby.\n\r",
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 1122,
+          "description": "To the east runs Bywater Road.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1128,
+          "description": "You see a grassy field to the west.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1127,
+      "name": "Northern end of grassy field",
+      "description": "You stand in a grassy field--nothing to get too excited about.  The field\n\rextends toward the south and the west.  To the east you see Took Hill.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 1128,
+          "description": "You see a grassy field.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1128,
+      "name": "A grassy field",
+      "description": "You stand in the center of a grassy field.  A great birthday party appears\n\rto be taking place.  Great tables of food are spread out and a young halfling\n\rbeauty offers you welcome.  You are enticed by her generosity and suggestive\n\rwinks.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1127,
+          "description": "You see a grassy field.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1126,
+          "description": "A small hill to the east blocks your view.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1129,
+          "description": "You see a grassy field.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1130,
+          "description": "You see a grassy field.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1129,
+      "name": "Southern end of grassy field",
+      "description": "You stand in a grassy field--nothing to get too excited about.  The field\n\rextends toward the north and the west.  To the east you see Took Hill.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1128,
+          "description": "You see a grassy field.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1130,
+      "name": "Western end of grassy field",
+      "description": "You stand in a grassy field--nothing to get too excited about.  The field\n\rextends every which way but west.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 1128,
+          "description": "You see a grassy field.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1131,
+      "name": "Brandywine Bridge",
+      "description": "You stand on a solidly built bridge.  As you look down you spy gaily\n\rcolored fish swimming with the current of Brandywine River.  The cool water\n\rlooks invitingly refreshing and you get a sudden urge to strip and bathe in\n\rthe river, but you hear the laughter of women nearby and so resist the urge.\n\rDelving Lane extends to the north while Bywater Road can be seen to the south.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1132,
+          "description": "You see Delving Lane.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1120,
+          "description": "To the south runs Bywater Road.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1132,
+      "name": "Delving Lane",
+      "description": "Delving Lane runs north and south in this small borough of the Shire.  To \n\rthe south stands Brandywine Bridge.  The Green Dragon, the undisputed leader\n\rin the art of innkeeping, offers rest and comfort to the east.  You hear the\n\rbray of horses from the west.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1133,
+          "description": "You see Delving Lane.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1144,
+          "description": "The Green Dragon offers food, drink, and above all hospitality for mere gold.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1131,
+          "description": "Brandywine Bridge offers safe passage across the tumultuous river.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1133,
+      "name": "Delving Lane",
+      "description": "Delving Lane runs north and south in this small borough of the Shire.  A \n\rlarge, imposing building lies to the east.  You hear the bray of horses from\n\rthe west.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1134,
+          "description": "You see Delving Lane.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1145,
+          "description": "A large, imposing building lies to the east.  A sign reads 'Shiriff Post'.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1132,
+          "description": "You see Delving Lane.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1138,
+          "description": "You see a grassy field.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1134,
+      "name": "Delving Lane",
+      "description": "Delving Lane runs north and south in this small borough of the Shire. There\n\ris a small house to the west, nothing to the east, and up ahead you see a round\n\rdoor which leads to a rather impressive abode.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1135,
+          "flags": [
+            "door"
+          ],
+          "description": "A large, magnificent house meets your steady gaze.  Above the round door a\n\rsign reads 'Bag End'.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1133,
+          "description": "You see Delving Lane.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1135,
+      "name": "Bag End",
+      "description": "You stand in a comfortably well-equipped house, a palace by humble halfling\n\rstandards.  On the wall you see a banner which reads \"Home Sweet Home\".\n\rA solid oak door to the east leads to a pantry while you see a cozy bedroom\n\rto the west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 1137,
+          "flags": [
+            "door"
+          ],
+          "description": "Through the keyhole you see what looks like a well stocked pantry.\n\r",
+          "keyword": "door"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1134,
+          "description": "You see Delving Lane.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1136,
+          "description": "You see a bedroom.  It looks like the beds have recently been slept in.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1136,
+      "name": "Bedroom",
+      "description": "You stand in the private bedroom of Bag End.  There are two beds to the\n\rside, neither of which are made.  Portraits of halflings hang on the wall,\n\rand as you gaze upon them you come to the conclusion that the owner of\n\rBag End comes from a long line of distinguished halflings.  A cozy fire\n\rin the fireplace keeps the room warm and comfortable.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 1135,
+          "description": "Through the doorway you see the main room of Bag End.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1137,
+      "name": "Pantry",
+      "description": "You are inside the pantry.  Shelves filled with food and drink surround\n\ryou on all sides.  You wonder why a halfling would need so much to eat.\n\rThe presence of something unseen chills you to your bones.  On the floor\n\ryou spy a trapdoor.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 1135,
+          "flags": [
+            "door"
+          ],
+          "description": "Beyond the door you see the main room of Bag End.\n\r",
+          "keyword": "door"
+        },
+        {
+          "dir": "down",
+          "toVnum": 1156,
+          "description": "It's anyone's guess as to where the trapdoor leads.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1138,
+      "name": "A grassy field",
+      "description": "You stand upon a grassy field.  A bull stands grazing not far away and\n\rout of the corner of your eye you can see him considering you.  The sound\n\rof animals fill the air from the north.  To the south you see a pig pen.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1142,
+          "description": "You see a large barn.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1133,
+          "description": "You see Delving Lane.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1139,
+          "description": "A rather large pig pen is to the south.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1139,
+      "name": "Pig pen",
+      "description": "You feel your boots sinking into the mud.  Numerous pigs roam about,\n\roblivious to your company.  A grassy field is to the north while you see\n\ra small path winding to the west.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1138,
+          "description": "You see a grassy field.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1140,
+          "description": "A small path winds its way eastward.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1140,
+      "name": "A stony path",
+      "description": "You walk on a stony path which leads to a small residence to the north.\n\rFrom the east you hear the noisy din of pigs.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1141,
+          "description": "To the north you see a modest house.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1139,
+          "description": "A rather large pig pen is to the east.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1141,
+      "name": "Gamgee Residence",
+      "description": "You stand inside a modest home.  You deduce that this is indeed the home\n\rof whomever owns the surrounding lands.  The air is somewhat musty and \n\rthe smell reminds you of a stable.  As you look around disdainfully, you\n\rthink to yourself that this is more of a shack than a proper residence and\n\ryou long for the urban riches of the Shire proper.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 1140,
+          "description": "You see a small path winding its way southward.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1142,
+      "name": "A barn",
+      "description": "Animals of every sort fill the small barn.  You feel the hot breath of\n\rhorses and cows on your neck and you feel the sudden need for fresh air.\n\rOther than that, you feel cozy and protected and don't mind staying for a\n\rbit longer.  All the warmth and good vibes remind you of the days when your\n\rmother would hold you in her arms and sing you to sleep.  You find yourself\n\rwanting to cradle all the animals.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1143,
+          "description": "You see a chicken coop to the north.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1138,
+          "description": "You see a grassy field.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1143,
+      "name": "A chicken coop",
+      "description": "You stand inside a rather crowded chicken coop.  The cackle of hens fill\n\rthe air.  The only exit is to the south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 1142,
+          "description": "You see a large barn.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1144,
+      "name": "The Green Dragon",
+      "description": "Welcome to the Green Dragon, the undisputed leader in the art of\n\rinnkeeping.  A rather charming and friendly hostess stands to the side,\n\rready to offer you food and drink.  While most of the patrons are halfling\n\rlocals, you spy an occasional human or two.  As you listen more closely\n\rto the conversations that fill the inn, you hear the tales of great and\n\rseasoned adventurers as well as the usual gossip.  You feel as if you've\n\rfound your second home in the Green Dragon.  You see a stairway leading\n\rupwards.\n\r",
+      "roomFlags": [
+        "indoors",
+        "recall"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 1132,
+          "description": "You see Delving Lane.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 1157,
+          "description": "You see the reception.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1145,
+      "name": "Shiriff Post of Delving Lane",
+      "description": "You are in the Shiriff Post which acts as the nucleus for the three shiriffs\n\rof Delving Lane.  As you examine the shiriffs on duty, you come to realize\n\rthat the halflings of the Shire are not to be reckoned with.  You cower with\n\rawe.  The only exit is to the west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 1133,
+          "description": "You see Delving Lane.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1146,
+      "name": "A dark tunnel",
+      "description": "You stand inside a small underground tunnel.  The ceiling is so low that\n\ryou must crouch to avoid hitting your head.  You see light from a small\n\rhole in the ceiling while to the east you see nothing but darkness.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 1147,
+          "description": "You see a dark tunnel.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 1125,
+          "description": "You see a portal which leads to a small room.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1147,
+      "name": "A dark tunnel",
+      "description": "You stand inside a small underground tunnel.  The ceiling is so low that\n\ryou must crouch to avoid hitting your head.  The tunnel continues east and\n\rwest.  All you can see is darkness.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 1148,
+          "description": "You see a dark tunnel.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1146,
+          "description": "You see a dark tunnel.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1148,
+      "name": "A dark tunnel",
+      "description": "You stand inside a small underground tunnel.  The ceiling is so low that\n\ryou must crouch to avoid hitting your head.  The tunnel continues east and\n\rwest.  All you can see is darkness.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 1149,
+          "description": "You see a dark tunnel.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1147,
+          "description": "You see a dark tunnel.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1149,
+      "name": "A three way intersection",
+      "description": "You stand at an intersection.  The tunnel continues east and west while\n\rto the north you can barely make out a smaller trail.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1151,
+          "description": "You see a dark tunnel.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1150,
+          "description": "You see a dark tunnel.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1148,
+          "description": "You see a dark tunnel.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1150,
+      "name": "End of a dark tunnel",
+      "description": "You stand at the end of a dark tunnel.  The underground tunnel continues\n\rto the west.  From a trapdoor in the ceiling you can hear the din of\n\radventurers.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 1149,
+          "description": "You see a dark tunnel.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 3001,
+          "description": "You hear the din of adventurers.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1151,
+      "name": "A dark tunnel",
+      "description": "You stand inside a small underground tunnel.  The ceiling is so low that\n\ryou must crouch to avoid hitting your head.  The tunnel continues north and\n\rsouth.  To the west you see a Shirriff Post while to the east lies a small\n\rhome.  All you can see is darkness.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1152,
+          "description": "You see a dark tunnel.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1154,
+          "description": "You see a halfling hole.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1149,
+          "description": "You see a dark tunnel.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1153,
+          "description": "Above a great oak door you see a sign which reads 'Shirriff Post'.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1152,
+      "name": "A dark tunnel",
+      "description": "You stand inside a small underground tunnel.  The ceiling is so low that \n\ryou must crouch to avoid hitting your head.  The tunnel continues north and\n\rsouth.  To the west lies a small home.  All you can see is darkness.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1156,
+          "description": "You see a dark tunnel.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1151,
+          "description": "You see a dark tunnel.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1155,
+          "description": "You see a halfling hole.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1153,
+      "name": "Shiriff Post of the Lower Shire",
+      "description": "You are in the shiriff Post which acts as the nucleus for the three shiriffs \n\rof the Lower Shire.  As you examine the shiriffs on duty, you come to realize\n\rthat the halflings of the Shire are not to be reckoned with.  You cower with\n\rawe.  The only exit is to the east.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 1151,
+          "description": "You see a dark tunnel.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1154,
+      "name": "A halfling hole",
+      "description": "You stand inside a rather crudely built halfling hole.  The many passageways\n\rand winding paths remind you of a rodent's lair.  The air is musty and damp\n\rand you feel the need for fresh air.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 1151,
+          "description": "You see a dark tunnel.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1155,
+      "name": "A halfling hole",
+      "description": "You stand inside a rather crudely built halfling hole.  The many passageways\n\rand winding paths remind you of a rodent's lair.  The air is musty and damp\n\rand you feel the need for fresh air.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 1152,
+          "description": "You see a dark tunnel.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1156,
+      "name": "End of a dark tunnel",
+      "description": "You are at one end of a dark tunnel.  The tunnel continues to the south\n\rwhile on the ceiling you can make out a trapdoor.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 1152,
+          "description": "You see a dark tunnel.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 1137,
+          "description": "A trapdoor on the ceiling reveals a passageway.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1157,
+      "name": "The Inn of the Green Dragon",
+      "description": "You are standing in the Inn of the Green dragon.  Large paintings of \n\rhalflings at work, and halflings at play adorn the walls.  Comfortable \n\rbenches and seats line the walls.  A stairway leads down.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "roomFlagsValue": 24,
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "down",
+          "toVnum": 1144
+        }
+      ]
+    }
+  ],
+  "mobiles": [
+    {
+      "vnum": 1100,
+      "name": "oldstyle elven wizard",
+      "shortDescr": "the Elven Wizard",
+      "longDescr": "An Elven Wizard is here, creating fireworks for the festivities.\n\r",
+      "description": "The Elven Wizard looks at you in a solemn sort of way.  His gaze seems to\n\rpenetrate through your innermost being.  He is wearing a silvery cloak\n\rand holding a multi-colored staff.  Although he appears to be older\n\rthan the oldest man, he seems to have an inner strength which most mortals\n\rcannot overcome.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "stay_area",
+        "mage"
+      ],
+      "affectFlags": [
+        "detect_invis"
+      ],
+      "atkFlags": [
+        "dodge",
+        "assist_vnum"
+      ],
+      "alignment": 500,
+      "group": 0,
+      "level": 18,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 258
+      },
+      "manaDice": {
+        "number": 18,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -3,
+        "bash": -3,
+        "slash": -3,
+        "exotic": 4
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 105,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1101,
+      "name": "oldstyle ring keeper",
+      "shortDescr": "the Keeper of the Ring",
+      "longDescr": "The Keeper of the Ring is here, guarding his treasure jealously.\n\r",
+      "description": "The Ring Keeper is a rather big but short halfling.  His short stature and\n\rbulbous nose belie his true nature.  An elven sword that glows with a blue\n\rlight hangs from his belt, and on his finger you see the One Ring.  Although\n\rusually a halfling of peace, he will fight you to the death if you attempt\n\rto take away that which belongs to him.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "stay_area",
+        "thief"
+      ],
+      "affectFlags": [
+        "invisible",
+        "detect_invis",
+        "detect_hidden"
+      ],
+      "atkFlags": [
+        "backstab",
+        "disarm",
+        "dodge",
+        "dirt_kick",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 20,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 308
+      },
+      "manaDice": {
+        "number": 10,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -4,
+        "bash": -4,
+        "slash": -4,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 61,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1102,
+      "name": "oldstyle farmer gamgee",
+      "shortDescr": "Farmer Gamgee",
+      "longDescr": "Farmer Gamgee sniffs the air, wondering if harvest time is near.\n\r",
+      "description": "Farmer Gamgee is a short, stout halfling of thirty years.  His skin has\n\rbeen tanned from working the fields night and day.  He's quite a jolly\n\rchap, always ready to befriend an injured bunny rabbit.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "wimpy"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 350,
+      "group": 0,
+      "level": 7,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 85
+      },
+      "manaDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 8,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 4,
+        "bash": 4,
+        "slash": 4,
+        "exotic": 9
+      },
+      "startPos": "resting",
+      "defaultPos": "resting",
+      "sex": "male",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1103,
+      "name": "oldstyle toddler",
+      "shortDescr": "a toddler",
+      "longDescr": "A toddler crawls about, looking for something to chew on.\n\r",
+      "description": "The toddler is dressed in nothing but his birthday suit.  He crawls about\n\rfor he hasn't learned to walk yet.  He peers up at you and asks \"da da?\"\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "wimpy"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 100,
+      "group": 0,
+      "level": 2,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 21
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 8,
+        "bash": 8,
+        "slash": 8,
+        "exotic": 10
+      },
+      "startPos": "sitting",
+      "defaultPos": "sitting",
+      "sex": "male",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1104,
+      "name": "oldstyle nursemaid",
+      "shortDescr": "a nursemaid",
+      "longDescr": "A nursemaid wanders about, trying to keep track of all the toddlers.\n\r",
+      "description": "The nursemaid looks rather tired and worn out.  Taking care of so many\n\rtoddlers for too long has evidently taken its toll.  She looks to you and\n\rin her eyes you can see her longing for a better life.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 100,
+      "group": 0,
+      "level": 5,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 60
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 5,
+        "bash": 5,
+        "slash": 5,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 1,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1105,
+      "name": "oldstyle cow",
+      "shortDescr": "a cow",
+      "longDescr": "A cow is here, chewing her cud.\n\r",
+      "description": "The cow looks like it hasn't been milked in quite some time.  Although she\n\ris past her prime, you see that she still has a lot of years left, and that\n\rif provoked, her rear kick can be quite deadly.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "stay_area",
+        "pet"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 4,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 46
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 5,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 6,
+        "bash": 6,
+        "slash": 6,
+        "exotic": 9
+      },
+      "startPos": "resting",
+      "defaultPos": "resting",
+      "sex": "none",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1106,
+      "name": "oldstyle pig",
+      "shortDescr": "a pig",
+      "longDescr": "A pig wallows in the mud and oinks in contentment.\n\r",
+      "description": "The pig appears quite happy to be a pig.  He is oblivious to your presence\n\rand cares only for the care-free life that he leads.  It is enormously fat\n\rand consequently cannot move around very quickly.\n\r",
+      "race": "pig",
+      "actFlags": [
+        "npc",
+        "stay_area",
+        "pet"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 3,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 35
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 7,
+        "bash": 7,
+        "slash": 7,
+        "exotic": 10
+      },
+      "startPos": "resting",
+      "defaultPos": "resting",
+      "sex": "none",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1107,
+      "name": "oldstyle chicken",
+      "shortDescr": "a chicken",
+      "longDescr": "A chicken sits on her nest.\n\r",
+      "description": "The chicken is bright and healthy.  She has no weapons but her beak.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "stay_area",
+        "pet"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 2,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 21
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 8,
+        "bash": 8,
+        "slash": 8,
+        "exotic": 10
+      },
+      "startPos": "sitting",
+      "defaultPos": "sitting",
+      "sex": "female",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1108,
+      "name": "oldstyle bull",
+      "shortDescr": "a bull",
+      "longDescr": "A bull scratches at the ground and lowers his head.\n\r",
+      "description": "The bull is in top condition.  He looks like quite a fighter, nothing to be\n\rreckoned with.  With his horns and his hooves he can attack just about\n\ranything.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 6,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 71
+      },
+      "manaDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 7,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 4,
+        "bash": 4,
+        "slash": 4,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1109,
+      "name": "oldstyle horse",
+      "shortDescr": "a horse",
+      "longDescr": "A horse becomes frightened by your presence.\n\r",
+      "description": "The horse looks at you and turns away.  You can tell that it is afraid of you.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "stay_area",
+        "pet"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 4,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 46
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 5,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 6,
+        "bash": 6,
+        "slash": 6,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1110,
+      "name": "oldstyle shiriff",
+      "shortDescr": "a shiriff",
+      "longDescr": "A shiriff of the Shire looks for signs of trouble.\n\r",
+      "description": "The shiriff is over waist high, quite tall for a halfling.  His eyes are\n\rever roaming, looking for signs of trouble from riff-raff like you.  In\n\rhis belt is a thin dagger, and on his body he wears a suit of leather armor.\n\rThis is one halfling you don't want to mess with.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area",
+        "warrior"
+      ],
+      "atkFlags": [
+        "bash",
+        "berserk",
+        "disarm",
+        "kick",
+        "parry",
+        "rescue",
+        "assist_vnum"
+      ],
+      "alignment": 150,
+      "group": 0,
+      "level": 8,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 110
+      },
+      "manaDice": {
+        "number": 4,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 7,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 3,
+        "bash": 3,
+        "slash": 3,
+        "exotic": 9
+      },
+      "startPos": "sitting",
+      "defaultPos": "sitting",
+      "sex": "male",
+      "wealth": 2,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1111,
+      "name": "oldstyle shiriff",
+      "shortDescr": "a shiriff",
+      "longDescr": "A shiriff of the Shire looks for signs of trouble.\n\r",
+      "description": "The shiriff is over waist high, quite tall for a halfling.  His eyes are\n\rever roaming, looking for signs of trouble from riff raff like you.  In\n\rhis belt is a thin dagger, and on his body he wears a suit of leather armor.\n\rThis is one halfling you don't want to mess with.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area",
+        "warrior"
+      ],
+      "atkFlags": [
+        "bash",
+        "berserk",
+        "disarm",
+        "kick",
+        "parry",
+        "rescue",
+        "assist_vnum"
+      ],
+      "alignment": 150,
+      "group": 0,
+      "level": 8,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 110
+      },
+      "manaDice": {
+        "number": 4,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 7,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 3,
+        "bash": 3,
+        "slash": 3,
+        "exotic": 9
+      },
+      "startPos": "sitting",
+      "defaultPos": "sitting",
+      "sex": "male",
+      "wealth": 2,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1112,
+      "name": "oldstyle thain",
+      "shortDescr": "the Thain",
+      "longDescr": "The Thain commands respect from all Shire folk.\n\r",
+      "description": "A personable yet serious halfling, the Thain looks at you and yells a\n\rdeep 'Hullo'.  He walks about comfortably, secure in the knowledge that\n\ras long as he's in office, the Shire will always remain a safe haven for\n\rShire folk.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "stay_area",
+        "warrior"
+      ],
+      "atkFlags": [
+        "bash",
+        "berserk",
+        "disarm",
+        "kick",
+        "parry",
+        "rescue",
+        "assist_vnum"
+      ],
+      "alignment": 400,
+      "group": 0,
+      "level": 14,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 208
+      },
+      "manaDice": {
+        "number": 7,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 12,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -1,
+        "bash": -1,
+        "slash": -1,
+        "exotic": 8
+      },
+      "startPos": "sitting",
+      "defaultPos": "sitting",
+      "sex": "male",
+      "wealth": 25,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1113,
+      "name": "oldstyle innkeeper",
+      "shortDescr": "the Innkeeper",
+      "longDescr": "The Innkeeper stands here awaiting your order.\n\r",
+      "description": "The Innkeeper is a jolly old halfling who spends his days eavesdropping on\n\rlocal gossip.  In his younger days, he was quite a seasoned traveller.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "stay_area"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 200,
+      "group": 0,
+      "level": 12,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 150
+      },
+      "manaDice": {
+        "number": 6,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 10,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 0,
+        "bash": 0,
+        "slash": 0,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 35,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1114,
+      "name": "oldstyle miller",
+      "shortDescr": "the Miller",
+      "longDescr": "The Miller is here, overseeing his busy mill workers.\n\r",
+      "description": "The Miller is an impatient young halfling, always trying to command more\n\rrespect from his workers than he can get.  He looks like the type of person\n\rwho deserves a spanking but never got one.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area",
+        "wimpy"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 50,
+      "group": 0,
+      "level": 6,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 71
+      },
+      "manaDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 7,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 4,
+        "bash": 4,
+        "slash": 4,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 10,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1115,
+      "name": "oldstyle mill worker",
+      "shortDescr": "the mill worker",
+      "longDescr": "The mill worker runs to and fro.\n\r",
+      "description": "The mill worker is in fine shape from the hard labor that he does at the\n\rmill.  He doesn't notice your presence, but he looks like he could break you\n\rin two without thinking about it.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 5,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 60
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 5,
+        "bash": 5,
+        "slash": 5,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 2,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1116,
+      "name": "oldstyle elven warrior",
+      "shortDescr": "the elven warrior",
+      "longDescr": "The elven warrior watches you solemnly.\n\r",
+      "description": "The tall elven warrior is light and fair-skinned.  The expression that he wears\n\ron his countenance is solemn and tragic.  He cares not for this world any\n\rlonger and wearies of it.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "mage"
+      ],
+      "atkFlags": [
+        "dodge",
+        "assist_vnum"
+      ],
+      "alignment": 600,
+      "group": 0,
+      "level": 17,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 233
+      },
+      "manaDice": {
+        "number": 17,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 12,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -2,
+        "bash": -2,
+        "slash": -2,
+        "exotic": 4
+      },
+      "startPos": "sitting",
+      "defaultPos": "sitting",
+      "sex": "male",
+      "wealth": 25,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1117,
+      "name": "oldstyle dwarven prince",
+      "shortDescr": "the dwarven prince",
+      "longDescr": "The dwarven prince sits here patiently for the return of his king.\n\r",
+      "description": "Grim and cold, the dwarven prince is quite strong and bulky, even for the\n\rdwarves of his land.  His glowing eyes peer out of his bushy face and stare\n\rbeyond your gaze.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "cleric"
+      ],
+      "atkFlags": [
+        "disarm",
+        "kick",
+        "parry",
+        "assist_vnum"
+      ],
+      "alignment": 200,
+      "group": 0,
+      "level": 17,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 258
+      },
+      "manaDice": {
+        "number": 17,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 4
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -3,
+        "bash": -3,
+        "slash": -3,
+        "exotic": 6
+      },
+      "startPos": "sitting",
+      "defaultPos": "sitting",
+      "sex": "male",
+      "wealth": 35,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1118,
+      "name": "oldstyle shopkeeper",
+      "shortDescr": "the shopkeeper",
+      "longDescr": "The shopkeeper smiles and patiently waits for you to buy something.\n\r",
+      "description": "The shopkeeper will fight like a madman to protect his store from riff-raff\n\rlike you.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 600,
+      "group": 0,
+      "level": 21,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 4,
+        "type": 10,
+        "bonus": 360
+      },
+      "manaDice": {
+        "number": 10,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 4,
+        "bonus": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -5,
+        "bash": -5,
+        "slash": -5,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 600,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1119,
+      "name": "oldstyle grocer",
+      "shortDescr": "the grocer",
+      "longDescr": "The grocer offers you the finest breads in all the land.\n\r",
+      "description": "The grocer is a large, jovial halfling who knows how to enjoy his pipeweed.\n\rHowever, he also knows that it's worth protecting and so will do everything\n\rin his power to prevent riff-raff like you from stealing it.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 600,
+      "group": 0,
+      "level": 21,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 4,
+        "type": 10,
+        "bonus": 360
+      },
+      "manaDice": {
+        "number": 10,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 4,
+        "bonus": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -5,
+        "bash": -5,
+        "slash": -5,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 75,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1120,
+      "name": "oldstyle blacksmith",
+      "shortDescr": "the blacksmith",
+      "longDescr": "The blacksmith bids you welcome to his humble store.\n\r",
+      "description": "The blacksmith is a lean and mean fighting machine.  His knowledge of weapons\n\rand armour would certainly help him in any fight against riff-raff like you.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 600,
+      "group": 0,
+      "level": 50,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 50,
+        "type": 10,
+        "bonus": 4500
+      },
+      "manaDice": {
+        "number": 25,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 5,
+        "type": 8,
+        "bonus": 19
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -20,
+        "bash": -20,
+        "slash": -20,
+        "exotic": 3
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 900,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1121,
+      "name": "oldstyle battle master",
+      "shortDescr": "the battle master",
+      "longDescr": "The battle master offers you the services of his fine trainees.\n\r",
+      "description": "The battle master is a wizened fighter, with many scars to prove his worth.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "warrior"
+      ],
+      "atkFlags": [
+        "bash",
+        "berserk",
+        "disarm",
+        "kick",
+        "parry",
+        "rescue",
+        "assist_vnum"
+      ],
+      "alignment": 350,
+      "group": 0,
+      "level": 25,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 600
+      },
+      "manaDice": {
+        "number": 12,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 7
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -7,
+        "bash": -7,
+        "slash": -7,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 75,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1122,
+      "name": "oldstyle halfling youth",
+      "shortDescr": "a halfling youth",
+      "longDescr": "A halfling youth stands here, waiting for nothing in particular.\n\r",
+      "description": "The halfling youth is not yet quite in the prime of his youth.  He's knee\n\rhigh and you get the sudden urge to step on him.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "stay_area",
+        "wimpy",
+        "thief"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden"
+      ],
+      "atkFlags": [
+        "backstab",
+        "disarm",
+        "dodge",
+        "dirt_kick",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 3,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 21
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 8,
+        "bash": 8,
+        "slash": 8,
+        "exotic": 10
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1123,
+      "name": "oldstyle seasoned adventurer",
+      "shortDescr": "a seasoned adventurer",
+      "longDescr": "A seasoned adventurer sits here, telling tales of fame and fortune.\n\r",
+      "description": "The seasoned adventurer has seen his share of glory days.  Although he is\n\rpast his prime, he still looks like he could put up more than his share of\n\ra good fight.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 100,
+      "group": 0,
+      "level": 8,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 96
+      },
+      "manaDice": {
+        "number": 4,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 7,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 3,
+        "bash": 3,
+        "slash": 3,
+        "exotic": 9
+      },
+      "startPos": "sitting",
+      "defaultPos": "sitting",
+      "sex": "male",
+      "wealth": 8,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1124,
+      "name": "oldstyle local gossip",
+      "shortDescr": "a local gossip",
+      "longDescr": "A local gossip asks you, \"Have you heard the latest?\"\n\r",
+      "description": "The gossip is all talk and no action.  You're transfixed by her ability to\n\rtalk so much so quickly.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "wimpy"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 4,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 46
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 5,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 6,
+        "bash": 6,
+        "slash": 6,
+        "exotic": 9
+      },
+      "startPos": "sitting",
+      "defaultPos": "sitting",
+      "sex": "female",
+      "wealth": 1,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1125,
+      "name": "oldstyle halfling beauty",
+      "shortDescr": "a halfling beauty",
+      "longDescr": "A halfling beauty stares dreamily into your eyes.\n\r",
+      "description": "She is the most beautiful creature you've seen in quite some time.  As you\n\rstare at her, thoughts of all else vanish.  You get the sudden urge to grovel\n\rat her feet, hoping she'll take you in like a lost puppy.  You wouldn't dare\n\rharm a hair on her precious little head.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 6,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 71
+      },
+      "manaDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 7,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 4,
+        "bash": 4,
+        "slash": 4,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 3,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1126,
+      "name": "oldstyle trainee",
+      "shortDescr": "a trainee",
+      "longDescr": "A trainee screams a death cry as he delivers the fatal blow to a dummy.\n\r",
+      "description": "The trainee smiles smugly, aware of your interest in him.  He's a little\n\rfresh, but his enthusiasm and desire to please more than make up for what\n\rhe lacks in skill.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 5,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 60
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 5,
+        "bash": 5,
+        "slash": 5,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1127,
+      "name": "oldstyle chic urbanite",
+      "shortDescr": "a chic urbanite",
+      "longDescr": "A chic urbanite sits here, enjoying his class status.\n\r",
+      "description": "The urbanite seems very much at home in his surroundings.  His clothes are\n\rall of the latest fashions and his manners impeccable.  He offers you some\n\rcoins if you'd be so good as to order a drink for him.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "wimpy"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 4,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 46
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 5,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 6,
+        "bash": 6,
+        "slash": 6,
+        "exotic": 9
+      },
+      "startPos": "sitting",
+      "defaultPos": "sitting",
+      "sex": "male",
+      "wealth": 5,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1128,
+      "name": "oldstyle country bumpkin",
+      "shortDescr": "a country bumpkin",
+      "longDescr": "A country bumpkin dreams of pipeweed and its many uses.\n\r",
+      "description": "The country bumpkin snores noisily.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 5,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 60
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 5,
+        "bash": 5,
+        "slash": 5,
+        "exotic": 9
+      },
+      "startPos": "sleeping",
+      "defaultPos": "sleeping",
+      "sex": "male",
+      "wealth": 3,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1130,
+      "name": "oldstyle innkeeper",
+      "shortDescr": "the Innkeeper",
+      "longDescr": "The Innkeeper stands here awaiting your order.\n\r",
+      "description": "The Innkeeper is a jolly old halfling who spends his days eavesdropping on\n\rlocal gossip.  In his younger days, he was quite a seasoned traveller.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 200,
+      "group": 0,
+      "level": 12,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 150
+      },
+      "manaDice": {
+        "number": 6,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 10,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 0,
+        "bash": 0,
+        "slash": 0,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 50,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1131,
+      "name": "oldstyle receptionist",
+      "shortDescr": "the receptionist",
+      "longDescr": "The receptionist sits here, signing forms.\n\r",
+      "description": "He is a very professional looking type.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 200,
+      "group": 0,
+      "level": 12,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 150
+      },
+      "manaDice": {
+        "number": 6,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 10,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 0,
+        "bash": 0,
+        "slash": 0,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 3,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1132,
+      "name": "oldstyle shiriff",
+      "shortDescr": "a shiriff",
+      "longDescr": "A shiriff of the Shire looks for the lost halfling youth.\n\r",
+      "description": "The shiriff is over waist high, quite tall for a halfling.\n\rHe looks at you, smiles and asks you if you have seen a halfling youth\n\rsomewhere outside the shire.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "warrior"
+      ],
+      "atkFlags": [
+        "bash",
+        "berserk",
+        "disarm",
+        "kick",
+        "parry",
+        "rescue",
+        "assist_vnum"
+      ],
+      "alignment": 150,
+      "group": 0,
+      "level": 8,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 110
+      },
+      "manaDice": {
+        "number": 4,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 7,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 3,
+        "bash": 3,
+        "slash": 3,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 2,
+      "size": "medium",
+      "material": "0"
+    }
+  ],
+  "objects": [
+    {
+      "vnum": 1100,
+      "name": "rainbow staff",
+      "shortDescr": "the rainbow staff",
+      "description": "The rainbow staff lies here.",
+      "material": "oldstyle",
+      "itemType": "light",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take"
+      ],
+      "light": {
+        "hours": 999
+      },
+      "level": 5,
+      "weight": 80,
+      "cost": 550,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "wisdom",
+          "level": 5,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 1101,
+      "name": "sting",
+      "shortDescr": "sting",
+      "description": "Sting lies here.",
+      "material": "mithril",
+      "itemType": "weapon",
+      "extraFlags": [
+        "glow",
+        "hum",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "dagger",
+        "dice": [
+          2,
+          7
+        ],
+        "damageType": "bite"
+      },
+      "level": 17,
+      "weight": 10,
+      "cost": 3500,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "dexterity",
+          "level": 17,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 1102,
+      "name": "sign",
+      "shortDescr": "a sign",
+      "description": "A sign demands your attention.",
+      "material": "oldstyle",
+      "itemType": "furniture",
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "sign",
+          "description": "Welcome to the Shire.  As you enter the Shire from Haon-Dor you come under\n\rthe jurisdiction of the Thain, the peacekeeper of the Shire.  Consequently,\n\rby entering these lands you agree to obey our laws.  If you break these laws,\n\ryou will be severely punished.  We do not like riff raff in our peaceful\n\rtown.\n\r\n\r\t\t\t\t\tThe Thain\n\r\t\t\t\t\tPeacekeeper of the Shire\n\r\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1103,
+      "name": "pipeweed bread",
+      "shortDescr": "a pipeweed bread",
+      "description": "A loaf of pipeweed bread arouses your hunger.",
+      "material": "oldstyle",
+      "itemType": "food",
+      "wearFlags": [
+        "take"
+      ],
+      "food": {
+        "foodHours": 30,
+        "fullHours": 24
+      },
+      "weight": 10,
+      "cost": 15,
+      "condition": 100
+    },
+    {
+      "vnum": 1104,
+      "name": "silvery cloak",
+      "shortDescr": "a silvery cloak",
+      "description": "A silvery cloak lies here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "about"
+      ],
+      "armor": {
+        "acPierce": 6,
+        "acBash": 6,
+        "acSlash": 6,
+        "acExotic": 2
+      },
+      "level": 15,
+      "weight": 30,
+      "cost": 1320,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "saves",
+          "level": 15,
+          "duration": -1,
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "vnum": 1105,
+      "name": "one ring",
+      "shortDescr": "the One Ring",
+      "description": "The One Ring is here.",
+      "material": "oldstyle",
+      "itemType": "jewelry",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "finger"
+      ],
+      "level": 20,
+      "weight": 30,
+      "cost": 1660,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "strength",
+          "level": 20,
+          "duration": -1,
+          "modifier": -1
+        },
+        {
+          "where": "affects",
+          "location": "none",
+          "level": 20,
+          "duration": -1,
+          "modifier": 0,
+          "bitvector": [
+            "invisible"
+          ]
+        }
+      ]
+    },
+    {
+      "vnum": 1106,
+      "name": "elven spear",
+      "shortDescr": "an elven spear",
+      "description": "An elven spear lies here.",
+      "material": "wood",
+      "itemType": "weapon",
+      "extraFlags": [
+        "hum",
+        "magic",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "spear",
+        "dice": [
+          2,
+          8
+        ],
+        "damageType": "thrust"
+      },
+      "level": 16,
+      "weight": 50,
+      "cost": 500,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 16,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 1107,
+      "name": "mithril axe",
+      "shortDescr": "a mithril axe",
+      "description": "A mithril axe lies here.",
+      "material": "mithril",
+      "itemType": "weapon",
+      "extraFlags": [
+        "glow",
+        "dark",
+        "noremove",
+        "nopurge"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "axe",
+        "dice": [
+          2,
+          8
+        ],
+        "damageType": "chop"
+      },
+      "level": 17,
+      "weight": 120,
+      "cost": 1440,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 17,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 1108,
+      "name": "thain girth",
+      "shortDescr": "the thain girth",
+      "description": "The girth of the thain lies here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "waist"
+      ],
+      "armor": {
+        "acPierce": 5,
+        "acBash": 5,
+        "acSlash": 5
+      },
+      "level": 17,
+      "weight": 40,
+      "cost": 3600,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "wisdom",
+          "level": 17,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 1109,
+      "name": "tiny dagger",
+      "shortDescr": "a tiny dagger",
+      "description": "A tiny dagger lies here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "dagger",
+        "dice": [
+          1,
+          6
+        ],
+        "damageType": "pierce"
+      },
+      "level": 1,
+      "weight": 30,
+      "cost": 230,
+      "condition": 100
+    },
+    {
+      "vnum": 1110,
+      "name": "egg",
+      "shortDescr": "an egg",
+      "description": "An egg lies here.",
+      "material": "oldstyle",
+      "itemType": "food",
+      "wearFlags": [
+        "take"
+      ],
+      "food": {
+        "foodHours": 12,
+        "fullHours": 12
+      },
+      "weight": 10,
+      "cost": 2,
+      "condition": 100
+    },
+    {
+      "vnum": 1111,
+      "name": "bag",
+      "shortDescr": "a bag",
+      "description": "A bag is on the floor.",
+      "material": "oldstyle",
+      "itemType": "container",
+      "wearFlags": [
+        "take"
+      ],
+      "container": {
+        "capacity": 50,
+        "maxWeight": 5,
+        "weightMult": 100
+      },
+      "weight": 10,
+      "cost": 11,
+      "condition": 100
+    },
+    {
+      "vnum": 1112,
+      "name": "lantern",
+      "shortDescr": "a lantern",
+      "description": "A lantern is on the floor.",
+      "material": "oldstyle",
+      "itemType": "light",
+      "wearFlags": [
+        "take"
+      ],
+      "light": {
+        "hours": 200
+      },
+      "weight": 40,
+      "cost": 60,
+      "condition": 100
+    },
+    {
+      "vnum": 1113,
+      "name": "bardiche",
+      "shortDescr": "a bardiche",
+      "description": "A long weapon with a sharp end is on the floor.",
+      "material": "wood",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "polearm",
+        "dice": [
+          2,
+          11
+        ],
+        "damageType": "cleave",
+        "flags": [
+          "twohands"
+        ]
+      },
+      "level": 21,
+      "weight": 100,
+      "cost": 1810,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 21,
+          "duration": -1,
+          "modifier": 4
+        }
+      ]
+    },
+    {
+      "vnum": 1114,
+      "name": "flail",
+      "shortDescr": "a flail",
+      "description": "A flail is on the floor.",
+      "material": "iron",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "flail",
+        "dice": [
+          2,
+          4
+        ],
+        "damageType": "smash"
+      },
+      "level": 5,
+      "weight": 80,
+      "cost": 390,
+      "condition": 100
+    },
+    {
+      "vnum": 1115,
+      "name": "wooden bardiche",
+      "shortDescr": "a wooden bardiche",
+      "description": "A long weapon with a wooden blade is on the floor.",
+      "material": "wood",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "polearm",
+        "dice": [
+          2,
+          3
+        ],
+        "damageType": "pound",
+        "flags": [
+          "twohands"
+        ]
+      },
+      "level": 3,
+      "weight": 100,
+      "cost": 980,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 3,
+          "duration": -1,
+          "modifier": 4
+        }
+      ]
+    },
+    {
+      "vnum": 1116,
+      "name": "dagger shiriff",
+      "shortDescr": "a shiriff's dagger",
+      "description": "A tiny but very sharp dagger lies here.",
+      "material": "steel",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "dagger",
+        "dice": [
+          2,
+          4
+        ],
+        "damageType": "pierce"
+      },
+      "level": 6,
+      "weight": 10,
+      "cost": 480,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 6,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 6,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 1117,
+      "name": "club heavy",
+      "shortDescr": "the Thain's club",
+      "description": "You see see a heavy club. Looks just right for whomping heads.",
+      "material": "wood",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "mace",
+        "dice": [
+          2,
+          7
+        ],
+        "damageType": "pound"
+      },
+      "level": 12,
+      "weight": 30,
+      "cost": 620,
+      "condition": 100
+    }
+  ],
+  "shops": [
+    {
+      "keeper": 1113,
+      "buyTypes": [
+        17,
+        0,
+        0,
+        0,
+        0
+      ],
+      "profitBuy": 150,
+      "profitSell": 50,
+      "openHour": 0,
+      "closeHour": 23
+    },
+    {
+      "keeper": 1118,
+      "buyTypes": [
+        13,
+        5,
+        15,
+        1,
+        17
+      ],
+      "profitBuy": 150,
+      "profitSell": 50,
+      "openHour": 0,
+      "closeHour": 23
+    },
+    {
+      "keeper": 1119,
+      "buyTypes": [
+        13,
+        5,
+        15,
+        1,
+        17
+      ],
+      "profitBuy": 150,
+      "profitSell": 50,
+      "openHour": 0,
+      "closeHour": 23
+    },
+    {
+      "keeper": 1120,
+      "buyTypes": [
+        9,
+        5,
+        0,
+        0,
+        0
+      ],
+      "profitBuy": 150,
+      "profitSell": 50,
+      "openHour": 0,
+      "closeHour": 23
+    },
+    {
+      "keeper": 1130,
+      "buyTypes": [
+        17,
+        0,
+        0,
+        0,
+        0
+      ],
+      "profitBuy": 150,
+      "profitSell": 50,
+      "openHour": 0,
+      "closeHour": 23
+    }
+  ],
+  "specials": [
+    {
+      "mobVnum": 1100,
+      "spec": "spec_cast_mage"
+    },
+    {
+      "mobVnum": 1101,
+      "spec": "spec_thief"
+    },
+    {
+      "mobVnum": 1110,
+      "spec": "spec_guard"
+    },
+    {
+      "mobVnum": 1111,
+      "spec": "spec_guard"
+    },
+    {
+      "mobVnum": 1112,
+      "spec": "spec_guard"
+    },
+    {
+      "mobVnum": 1116,
+      "spec": "spec_cast_mage"
+    },
+    {
+      "mobVnum": 1117,
+      "spec": "spec_cast_cleric"
+    },
+    {
+      "mobVnum": 1121,
+      "spec": "spec_guard"
+    },
+    {
+      "mobVnum": 1122,
+      "spec": "spec_thief"
+    },
+    {
+      "mobVnum": 1132,
+      "spec": "spec_guard"
+    }
+  ],
+  "mobprogs": [],
+  "resets": [
+    {
+      "objVnum": 1102,
+      "roomVnum": 1103,
+      "commandName": "placeObj"
+    },
+    {
+      "mobVnum": 1118,
+      "maxInArea": 1,
+      "roomVnum": 1105,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 1111,
+      "roomVnum": 1105,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 1112,
+      "roomVnum": 1105,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 1120,
+      "maxInArea": 1,
+      "roomVnum": 1107,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1104,
+      "maxInArea": 2,
+      "roomVnum": 1108,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1104,
+      "maxInArea": 2,
+      "roomVnum": 1108,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1103,
+      "maxInArea": 6,
+      "roomVnum": 1108,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1103,
+      "maxInArea": 6,
+      "roomVnum": 1108,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1103,
+      "maxInArea": 6,
+      "roomVnum": 1108,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1103,
+      "maxInArea": 6,
+      "roomVnum": 1108,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1103,
+      "maxInArea": 6,
+      "roomVnum": 1108,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1103,
+      "maxInArea": 6,
+      "roomVnum": 1108,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1110,
+      "maxInArea": 8,
+      "roomVnum": 1110,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 1116,
+      "wearLoc": "wielded",
+      "roomVnum": 1110,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 616,
+      "wearLoc": "on the body",
+      "roomVnum": 1110,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 1110,
+      "maxInArea": 8,
+      "roomVnum": 1110,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 616,
+      "wearLoc": "on the body",
+      "roomVnum": 1110,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 1111,
+      "maxInArea": 4,
+      "roomVnum": 1110,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 616,
+      "wearLoc": "on the body",
+      "roomVnum": 1110,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 1112,
+      "maxInArea": 1,
+      "roomVnum": 1111,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 1117,
+      "wearLoc": "wielded",
+      "roomVnum": 1111,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 616,
+      "wearLoc": "on the body",
+      "roomVnum": 1111,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 1108,
+      "wearLoc": "around the waist",
+      "roomVnum": 1111,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 1128,
+      "maxInArea": 4,
+      "roomVnum": 1114,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 1103,
+      "roomVnum": 1114,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 1128,
+      "maxInArea": 4,
+      "roomVnum": 1115,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 1103,
+      "roomVnum": 1115,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 1113,
+      "maxInArea": 1,
+      "roomVnum": 1116,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 1110,
+      "roomVnum": 1116,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 648,
+      "roomVnum": 1116,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 649,
+      "roomVnum": 1116,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 650,
+      "roomVnum": 1116,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 1123,
+      "maxInArea": 5,
+      "roomVnum": 1116,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1123,
+      "maxInArea": 5,
+      "roomVnum": 1116,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1124,
+      "maxInArea": 2,
+      "roomVnum": 1116,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1124,
+      "maxInArea": 2,
+      "roomVnum": 1116,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1127,
+      "maxInArea": 7,
+      "roomVnum": 1116,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1127,
+      "maxInArea": 7,
+      "roomVnum": 1116,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1127,
+      "maxInArea": 7,
+      "roomVnum": 1116,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3200,
+      "roomVnum": 1116,
+      "commandName": "placeObj"
+    },
+    {
+      "mobVnum": 1121,
+      "maxInArea": 1,
+      "roomVnum": 1117,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 1113,
+      "wearLoc": "wielded",
+      "roomVnum": 1117,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 1126,
+      "maxInArea": 3,
+      "roomVnum": 1117,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 1115,
+      "wearLoc": "wielded",
+      "roomVnum": 1117,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 1126,
+      "maxInArea": 3,
+      "roomVnum": 1117,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 1115,
+      "wearLoc": "wielded",
+      "roomVnum": 1117,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 1126,
+      "maxInArea": 3,
+      "roomVnum": 1117,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 1115,
+      "wearLoc": "wielded",
+      "roomVnum": 1117,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 1110,
+      "maxInArea": 8,
+      "roomVnum": 1119,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 1116,
+      "wearLoc": "wielded",
+      "roomVnum": 1119,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 616,
+      "wearLoc": "on the body",
+      "roomVnum": 1119,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 1110,
+      "maxInArea": 8,
+      "roomVnum": 1119,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 616,
+      "wearLoc": "on the body",
+      "roomVnum": 1119,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 1111,
+      "maxInArea": 4,
+      "roomVnum": 1119,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 616,
+      "wearLoc": "on the body",
+      "roomVnum": 1119,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 1119,
+      "maxInArea": 1,
+      "roomVnum": 1121,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 1103,
+      "roomVnum": 1121,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 1115,
+      "maxInArea": 6,
+      "roomVnum": 1123,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1115,
+      "maxInArea": 6,
+      "roomVnum": 1123,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1115,
+      "maxInArea": 6,
+      "roomVnum": 1124,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1115,
+      "maxInArea": 6,
+      "roomVnum": 1124,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1115,
+      "maxInArea": 6,
+      "roomVnum": 1124,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1114,
+      "maxInArea": 1,
+      "roomVnum": 1124,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1115,
+      "maxInArea": 6,
+      "roomVnum": 1125,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1122,
+      "maxInArea": 9,
+      "roomVnum": 1127,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1122,
+      "maxInArea": 9,
+      "roomVnum": 1127,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1122,
+      "maxInArea": 9,
+      "roomVnum": 1127,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1125,
+      "maxInArea": 1,
+      "roomVnum": 1128,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1100,
+      "maxInArea": 1,
+      "roomVnum": 1128,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 1104,
+      "wearLoc": "about the shoulders",
+      "roomVnum": 1128,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 1100,
+      "wearLoc": "as a light",
+      "roomVnum": 1128,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 1122,
+      "maxInArea": 9,
+      "roomVnum": 1129,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1122,
+      "maxInArea": 9,
+      "roomVnum": 1129,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1122,
+      "maxInArea": 9,
+      "roomVnum": 1129,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1122,
+      "maxInArea": 9,
+      "roomVnum": 1130,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1122,
+      "maxInArea": 9,
+      "roomVnum": 1130,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1122,
+      "maxInArea": 9,
+      "roomVnum": 1130,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1116,
+      "maxInArea": 1,
+      "roomVnum": 1136,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 1106,
+      "wearLoc": "wielded",
+      "roomVnum": 1136,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 622,
+      "wearLoc": "over the head",
+      "roomVnum": 1136,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 1117,
+      "maxInArea": 1,
+      "roomVnum": 1136,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 1107,
+      "wearLoc": "wielded",
+      "roomVnum": 1136,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 621,
+      "wearLoc": "on the body",
+      "roomVnum": 1136,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 1101,
+      "maxInArea": 1,
+      "roomVnum": 1137,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 1101,
+      "wearLoc": "wielded",
+      "roomVnum": 1137,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 1105,
+      "wearLoc": "on the left finger",
+      "roomVnum": 1137,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 623,
+      "wearLoc": "on the legs",
+      "roomVnum": 1137,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 1108,
+      "maxInArea": 1,
+      "roomVnum": 1138,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1106,
+      "maxInArea": 5,
+      "roomVnum": 1139,
+      "maxInRoom": 5,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1106,
+      "maxInArea": 5,
+      "roomVnum": 1139,
+      "maxInRoom": 5,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1106,
+      "maxInArea": 5,
+      "roomVnum": 1139,
+      "maxInRoom": 5,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1106,
+      "maxInArea": 5,
+      "roomVnum": 1139,
+      "maxInRoom": 5,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1106,
+      "maxInArea": 5,
+      "roomVnum": 1139,
+      "maxInRoom": 5,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1102,
+      "maxInArea": 1,
+      "roomVnum": 1141,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1105,
+      "maxInArea": 3,
+      "roomVnum": 1142,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1105,
+      "maxInArea": 3,
+      "roomVnum": 1142,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1105,
+      "maxInArea": 3,
+      "roomVnum": 1142,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1109,
+      "maxInArea": 4,
+      "roomVnum": 1142,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1109,
+      "maxInArea": 4,
+      "roomVnum": 1142,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1109,
+      "maxInArea": 4,
+      "roomVnum": 1142,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1109,
+      "maxInArea": 4,
+      "roomVnum": 1142,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1107,
+      "maxInArea": 6,
+      "roomVnum": 1143,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 1110,
+      "roomVnum": 1143,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 1107,
+      "maxInArea": 6,
+      "roomVnum": 1143,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 1110,
+      "roomVnum": 1143,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 1107,
+      "maxInArea": 6,
+      "roomVnum": 1143,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 1110,
+      "roomVnum": 1143,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 1107,
+      "maxInArea": 6,
+      "roomVnum": 1143,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 1110,
+      "roomVnum": 1143,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 1107,
+      "maxInArea": 6,
+      "roomVnum": 1143,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 1110,
+      "roomVnum": 1143,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 1107,
+      "maxInArea": 6,
+      "roomVnum": 1143,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 1110,
+      "roomVnum": 1143,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 1130,
+      "maxInArea": 1,
+      "roomVnum": 1144,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 1110,
+      "roomVnum": 1144,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 648,
+      "roomVnum": 1144,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 649,
+      "roomVnum": 1144,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 650,
+      "roomVnum": 1144,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 1123,
+      "maxInArea": 5,
+      "roomVnum": 1144,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1123,
+      "maxInArea": 5,
+      "roomVnum": 1144,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1123,
+      "maxInArea": 5,
+      "roomVnum": 1144,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1127,
+      "maxInArea": 7,
+      "roomVnum": 1144,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1127,
+      "maxInArea": 7,
+      "roomVnum": 1144,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1127,
+      "maxInArea": 7,
+      "roomVnum": 1144,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1127,
+      "maxInArea": 7,
+      "roomVnum": 1144,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3200,
+      "roomVnum": 1144,
+      "commandName": "placeObj"
+    },
+    {
+      "mobVnum": 1110,
+      "maxInArea": 8,
+      "roomVnum": 1145,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 1116,
+      "wearLoc": "wielded",
+      "roomVnum": 1145,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 616,
+      "wearLoc": "on the body",
+      "roomVnum": 1145,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 1110,
+      "maxInArea": 8,
+      "roomVnum": 1145,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 616,
+      "wearLoc": "on the body",
+      "roomVnum": 1145,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 1111,
+      "maxInArea": 4,
+      "roomVnum": 1145,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 616,
+      "wearLoc": "on the body",
+      "roomVnum": 1145,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 1110,
+      "maxInArea": 8,
+      "roomVnum": 1153,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 1116,
+      "wearLoc": "wielded",
+      "roomVnum": 1153,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 616,
+      "wearLoc": "on the body",
+      "roomVnum": 1153,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 1110,
+      "maxInArea": 8,
+      "roomVnum": 1153,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 616,
+      "wearLoc": "on the body",
+      "roomVnum": 1153,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 1111,
+      "maxInArea": 4,
+      "roomVnum": 1153,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 616,
+      "wearLoc": "on the body",
+      "roomVnum": 1153,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 1128,
+      "maxInArea": 4,
+      "roomVnum": 1154,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1128,
+      "maxInArea": 4,
+      "roomVnum": 1155,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1131,
+      "maxInArea": 1,
+      "roomVnum": 1157,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    }
+  ],
+  "factions": [],
+  "quests": []
+}

@@ -1,0 +1,3944 @@
+{
+  "formatVersion": 1,
+  "areadata": {
+    "version": 2,
+    "name": "Gangland",
+    "builders": "",
+    "vnumRange": [
+      2100,
+      2199
+    ],
+    "credits": "Raff",
+    "security": 9,
+    "sector": "inside",
+    "lowLevel": 5,
+    "highLevel": 15,
+    "reset": 6,
+    "alwaysReset": false
+  },
+  "storyBeats": [],
+  "checklist": [],
+  "rooms": [
+    {
+      "vnum": 2101,
+      "name": "A Dark Alleyway",
+      "description": "The walls of the alleyway have been spray-painted over many times\n\rover the years.  One section of graffiti actually looks legible,\n\rit says:    This section has been designed for levels 5 through 10\n\r            If you are above level 15 please don't expect much fun.\n\r            If you are below level 5 enter at your own risk.\n\rAnother section of graffiti says \"Raff Rules!\"\n\rThere is a boulevard to the east and Emerald Avenue is visible to the west.\n\r",
+      "roomFlags": [
+        "dark",
+        "no_mob"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2102
+        },
+        {
+          "dir": "west",
+          "toVnum": 3119,
+          "description": "You can see Emerald Avenue, a much nicer place to be.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2102,
+      "name": "Beginning of White Dragon Boulevard",
+      "description": "This section of town has been overrun by the Troll gang.  Even the\n\rpolice stay out of here for fear of being brutalized.  This was once\n\ra nice lower-middleclass neighborhood, but know the gangs run the\n\rstreets.  All the shops and homes have been boarded up and abandoned.\n\rAn alleyway is to the west and the street continues east.  An over-\n\rgrown lot is to the south.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2103
+        },
+        {
+          "dir": "south",
+          "toVnum": 2109
+        },
+        {
+          "dir": "west",
+          "toVnum": 2101
+        }
+      ]
+    },
+    {
+      "vnum": 2103,
+      "name": "Along White Dragon Boulevard",
+      "description": "Everywhere you look you see signs of recent violence.  Patches of blood\n\rlie everywhere and broken sticks and abandoned knifes are strewn here\n\rand there.  An over-grown lot is to the south.  White Dragon Boulevard leads\n\reast and west.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2104
+        },
+        {
+          "dir": "south",
+          "toVnum": 2110
+        },
+        {
+          "dir": "west",
+          "toVnum": 2102
+        }
+      ]
+    },
+    {
+      "vnum": 2104,
+      "name": "White Dragon Boulevard at Armory",
+      "description": "Only gang members dare wander the streets here.\n\rWhat used to be the armory lies to the south.  White Dragon Boulevard\n\rleads east and west.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2105
+        },
+        {
+          "dir": "south",
+          "toVnum": 2111
+        },
+        {
+          "dir": "west",
+          "toVnum": 2103
+        }
+      ]
+    },
+    {
+      "vnum": 2105,
+      "name": "White Dragon Blvd.",
+      "description": "Black Dragon Avenue used to run south from here but the way has been\n\rblocked by the toppling of a building into the street.  White Dragon\n\rboulevard continues east and west.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2106
+        },
+        {
+          "dir": "west",
+          "toVnum": 2104
+        }
+      ]
+    },
+    {
+      "vnum": 2106,
+      "name": "Corner of Ice and White Dragon",
+      "description": "Ice Dragon Way leads south from here.  It used to run the whole length\n\rof the neighborhood and way lined with beautiful crystal sculptures.\n\rWhite Dragon boulevard leads east and west from here.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2107
+        },
+        {
+          "dir": "south",
+          "toVnum": 2113
+        },
+        {
+          "dir": "west",
+          "toVnum": 2105
+        }
+      ]
+    },
+    {
+      "vnum": 2107,
+      "name": "White Dragon Boulevard",
+      "description": "A once majestic inn with a white marble facade lies to the south.\n\rUnfortunately, it has fallen into disrepair and decay.  You can continue\n\reast or west.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2108
+        },
+        {
+          "dir": "west",
+          "toVnum": 2106
+        }
+      ]
+    },
+    {
+      "vnum": 2108,
+      "name": "Corner of Bronze and White Dragon",
+      "description": "This is the north-east corner of the neighborhood. White Dragon\n\rboulevard heads west and Bronze Dragon street heads south.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 2115
+        },
+        {
+          "dir": "west",
+          "toVnum": 2107
+        }
+      ]
+    },
+    {
+      "vnum": 2109,
+      "name": "An over-grown lot",
+      "description": "A huge building was going to be built here, but they gave the\n\rproject up when violence took over the town.  Now it is just a\n\rweed-strewn plot of land.  The lot continues east and there is a road north.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2102
+        },
+        {
+          "dir": "east",
+          "toVnum": 2110
+        }
+      ]
+    },
+    {
+      "vnum": 2110,
+      "name": "East end of an over-grown plot of land",
+      "description": "This was planned to be a park, but the developer was scared out\n\rof town by the gang.  Now it is just a dusty square of land. The\n\rpark was started to the south.  The lot continues west and there\n\ris a street to the north.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2103
+        },
+        {
+          "dir": "south",
+          "toVnum": 2116
+        },
+        {
+          "dir": "west",
+          "toVnum": 2109
+        }
+      ]
+    },
+    {
+      "vnum": 2111,
+      "name": "Armory",
+      "description": "Well actually, this is what USED to be the armory.  The equipment has\n\rall been stolen or broken beyond repair. The back wall of the\n\rbuilding has been bashed down, allowing you to go south.  White\n\rDragon Boulevard is north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2104
+        },
+        {
+          "dir": "south",
+          "toVnum": 2117
+        }
+      ]
+    },
+    {
+      "vnum": 2112,
+      "name": "A Bend in the Way",
+      "description": "Ice Dragon Way bends east and south from here.  You notice a lot of\n\rblood dried into the dirt here.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2113
+        },
+        {
+          "dir": "south",
+          "toVnum": 2118
+        }
+      ]
+    },
+    {
+      "vnum": 2113,
+      "name": "Ice Dragon Bend",
+      "description": "Ice Dragon Way bends to the north and west here.  There are footprints\n\rhere.  They seem to indicate a large struggle took place here\n\rrecently.  What used to be the town Magic shop is to the east.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2106
+        },
+        {
+          "dir": "east",
+          "toVnum": 2114
+        },
+        {
+          "dir": "west",
+          "toVnum": 2112
+        }
+      ]
+    },
+    {
+      "vnum": 2114,
+      "name": "The remains of the magic shop",
+      "description": "The wizard was tough but he couldn't take on 50 of them at once.  So he\n\rdied and they took all his stuff and used it on their fellowmen.\n\rThe front door leads west back out to the street.  There is a back\n\rdoor leading to another street to the east.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2115
+        },
+        {
+          "dir": "west",
+          "toVnum": 2113
+        }
+      ]
+    },
+    {
+      "vnum": 2115,
+      "name": "Bronze Dragon Street at wizard's back door",
+      "description": "Bronze Dragon street goes north and south.  The back door to what\n\rremains of the magic shop is west.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2108
+        },
+        {
+          "dir": "south",
+          "toVnum": 2120
+        },
+        {
+          "dir": "west",
+          "toVnum": 2114
+        }
+      ]
+    },
+    {
+      "vnum": 2116,
+      "name": "Dracolich Plaza",
+      "description": "They began construction of a pleasant plaza here, though you wouldn't\n\rhave known it if I hadn't told you.  It has been renamed in honor\n\rof the Dragon gang's idol, the Dracolich.  It has become sort of a\n\rtraining ground.  There is a short cut to the east and an overgrown\n\rlot of land to the north.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2110
+        },
+        {
+          "dir": "east",
+          "toVnum": 2117
+        }
+      ]
+    },
+    {
+      "vnum": 2117,
+      "name": "Shortcut",
+      "description": "This is a shortcut between Dracolich Plaza and the center of town.\n\rDracolich Plaza is to the west and the shortcut continues south.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2111
+        },
+        {
+          "dir": "south",
+          "toVnum": 2121
+        },
+        {
+          "dir": "west",
+          "toVnum": 2116
+        }
+      ]
+    },
+    {
+      "vnum": 2118,
+      "name": "Ice Dragon Way",
+      "description": "Several smashed crystal statues line the Way here.  You begin to wonder\n\rwho smashed them, and with what.  The Way bends out of sight to the north\n\rand continues south.  To the east is a courtyard.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2112
+        },
+        {
+          "dir": "east",
+          "toVnum": 2119
+        },
+        {
+          "dir": "south",
+          "toVnum": 2122
+        }
+      ]
+    },
+    {
+      "vnum": 2119,
+      "name": "Courtyard North",
+      "description": "Once it was the courtyard of a beautiful building complex.  But alas,\n\rsomeone forgot to water the plants and they all died.  Then again,\n\ryou wonder how many people have died here too.  The courtyard extends\n\rto the south and there is a road to the west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 2123
+        },
+        {
+          "dir": "west",
+          "toVnum": 2118
+        }
+      ]
+    },
+    {
+      "vnum": 2120,
+      "name": "Bronze Dragon Street",
+      "description": "There used to be a gate out to the east here which led to the rest of Midgaard.\n\rThe gate has rusted permanently shut.  The street goes north and south.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2115
+        },
+        {
+          "dir": "south",
+          "toVnum": 2125
+        }
+      ]
+    },
+    {
+      "vnum": 2121,
+      "name": "Shortcut",
+      "description": "The shortcut extends north.  There is a street to the east.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2117
+        },
+        {
+          "dir": "east",
+          "toVnum": 2122
+        }
+      ]
+    },
+    {
+      "vnum": 2122,
+      "name": "Ice Dragon Way",
+      "description": "The Way continues north and intersects with Yellow Dragon Avenue\n\rto the south.  For some reason, you somehow realize that there is a\n\rshortcut to the west that leads to Dracolich Plaza.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2118
+        },
+        {
+          "dir": "south",
+          "toVnum": 2127
+        },
+        {
+          "dir": "west",
+          "toVnum": 2121
+        }
+      ]
+    },
+    {
+      "vnum": 2123,
+      "name": "Courtyard South",
+      "description": "Once full of lush green plants, it is now barren of growth.  A set of\n\rstairs used to extend up to a suite of rooms but the set is missing\n\rstairs 3-15.  The courtyard extends north and there is a street to\n\rthe south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2119
+        },
+        {
+          "dir": "south",
+          "toVnum": 2128
+        }
+      ]
+    },
+    {
+      "vnum": 2124,
+      "name": "Old Abandoned Warehouse",
+      "description": "Once the center of a lucrative storage business, it has fallen to\n\rdisrepair like everything else.  It is now the hideout of the\n\rDragon gang.  The gang leader runs his reign of terror from here.\n\rThere is a wooden door barely on the hinges to the east.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2125,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "wooden door east"
+        }
+      ]
+    },
+    {
+      "vnum": 2125,
+      "name": "Bronze Dragon Street at Warehouse",
+      "description": "The street runs north and south.  There is an old wooden door leading\n\rto a warehouse to the west.  The warehouse LOOKS abandoned. . .\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2120
+        },
+        {
+          "dir": "south",
+          "toVnum": 2130
+        },
+        {
+          "dir": "west",
+          "toVnum": 2124,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "wooden door west"
+        }
+      ]
+    },
+    {
+      "vnum": 2126,
+      "name": "Yellow Dragon Road",
+      "description": "Yellow Dragon Road is the southern boundary of Troll Territory.  The\n\rroad extends east.  You enter \"no-man's land\" to the south.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2127
+        },
+        {
+          "dir": "south",
+          "toVnum": 2131
+        }
+      ]
+    },
+    {
+      "vnum": 2127,
+      "name": "Yellow Dragon Road",
+      "description": "The road runs east and west.  Ice Dragon Way leads north from here.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2122
+        },
+        {
+          "dir": "east",
+          "toVnum": 2128
+        },
+        {
+          "dir": "west",
+          "toVnum": 2126
+        }
+      ]
+    },
+    {
+      "vnum": 2128,
+      "name": "Yellow Dragon Road",
+      "description": "The roads continues east and west.  There is a courtyard to the north.\n\rYou enter \"no man's land\" to the south.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2123
+        },
+        {
+          "dir": "east",
+          "toVnum": 2129
+        },
+        {
+          "dir": "south",
+          "toVnum": 2133
+        },
+        {
+          "dir": "west",
+          "toVnum": 2127
+        }
+      ]
+    },
+    {
+      "vnum": 2129,
+      "name": "Yellow Dragon Road",
+      "description": "There is a barred window to the north.  There appears to be a light\n\rcoming from the cracks around it.  The road extends east and west\n\rfrom here.  Or you can enter \"no man's land\" south from here.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2130
+        },
+        {
+          "dir": "south",
+          "toVnum": 2134
+        },
+        {
+          "dir": "west",
+          "toVnum": 2128
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "window",
+          "description": "Looking through the window, you see a gang leader plotting the demise of\n\rthe ogres.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2130,
+      "name": "Yellow Dragon Road",
+      "description": "Bronze Dragon Street intersects here and runs north.  Yellow Dragon ends\n\rhere but continues to the west.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2125
+        },
+        {
+          "dir": "west",
+          "toVnum": 2129
+        }
+      ]
+    },
+    {
+      "vnum": 2131,
+      "name": "NO MAN'S LAND",
+      "description": "This is the section of town between the two gang's territories.  This\n\ris usually where the violence starts.  No Man's land continues south\n\rand east; or there is a street to the north.\n\r",
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2126
+        },
+        {
+          "dir": "east",
+          "toVnum": 2132
+        },
+        {
+          "dir": "south",
+          "toVnum": 2136
+        }
+      ]
+    },
+    {
+      "vnum": 2132,
+      "name": "NO MAN'S LAND",
+      "description": "This is the section of town between the two gang's territories.  This\n\ris usually where the violence starts.  No Man's land continues south\n\reast and west.\n\r",
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2133
+        },
+        {
+          "dir": "south",
+          "toVnum": 2137
+        },
+        {
+          "dir": "west",
+          "toVnum": 2131
+        }
+      ]
+    },
+    {
+      "vnum": 2133,
+      "name": "NO MAN'S LAND",
+      "description": "This is the section of town between the two gang's territories.  This\n\ris usually where the violence starts.  No Man's land continues south,\n\reast and west; or there is a street to the north.\n\r",
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2128
+        },
+        {
+          "dir": "east",
+          "toVnum": 2134
+        },
+        {
+          "dir": "south",
+          "toVnum": 2138
+        },
+        {
+          "dir": "west",
+          "toVnum": 2132
+        }
+      ]
+    },
+    {
+      "vnum": 2134,
+      "name": "NO MAN'S LAND",
+      "description": "This is the section of town between the two gang's territories.  This\n\ris usually where the violence starts.  No Man's land continues south,\n\reast, and west; or there is a street to the north.\n\r",
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2129
+        },
+        {
+          "dir": "east",
+          "toVnum": 2135
+        },
+        {
+          "dir": "south",
+          "toVnum": 2139
+        },
+        {
+          "dir": "west",
+          "toVnum": 2133
+        }
+      ]
+    },
+    {
+      "vnum": 2135,
+      "name": "NO MAN'S LAND",
+      "description": "This is the section of town between the two gang's territories.  This\n\ris usually where the violence starts.  No Man's land continues south\n\rand west.\n\r",
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 2140
+        },
+        {
+          "dir": "west",
+          "toVnum": 2134
+        }
+      ]
+    },
+    {
+      "vnum": 2136,
+      "name": "NO MAN'S LAND",
+      "description": "This is the section of town between the two gang's territories.  This\n\ris usually where the violence starts.  No Man's land continues north\n\rand east; or there is a street to the south.\n\r",
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2131
+        },
+        {
+          "dir": "east",
+          "toVnum": 2137
+        },
+        {
+          "dir": "south",
+          "toVnum": 2141
+        }
+      ]
+    },
+    {
+      "vnum": 2137,
+      "name": "NO MAN'S LAND",
+      "description": "This is the section of town between the two gang's territories.  This\n\ris usually where the violence starts.  No Man's land continues north,\n\reast and west.\n\r",
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2132
+        },
+        {
+          "dir": "east",
+          "toVnum": 2138
+        },
+        {
+          "dir": "west",
+          "toVnum": 2136
+        }
+      ]
+    },
+    {
+      "vnum": 2138,
+      "name": "NO MAN'S LAND",
+      "description": "This is the section of town between the two gang's territories.  This\n\ris usually where the violence starts.  No Man's land continues north,\n\reast, and west; or there is a street to the south.\n\r",
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2133
+        },
+        {
+          "dir": "east",
+          "toVnum": 2139
+        },
+        {
+          "dir": "south",
+          "toVnum": 2143
+        },
+        {
+          "dir": "west",
+          "toVnum": 2137
+        }
+      ]
+    },
+    {
+      "vnum": 2139,
+      "name": "NO MAN'S LAND",
+      "description": "This is the section of town between the two gang's territories.  This\n\ris usually where the violence starts.  No Man's land continues north,\n\reast, and west.\n\r",
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2134
+        },
+        {
+          "dir": "east",
+          "toVnum": 2140
+        },
+        {
+          "dir": "west",
+          "toVnum": 2138
+        }
+      ]
+    },
+    {
+      "vnum": 2140,
+      "name": "NO MAN'S LAND",
+      "description": "This is the section of town between the two gang's territories.  This\n\ris usually where the violence starts.  No Man's land continues south\n\rand west; or there is a street to the south.\n\r",
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2135
+        },
+        {
+          "dir": "south",
+          "toVnum": 2145
+        },
+        {
+          "dir": "west",
+          "toVnum": 2139
+        }
+      ]
+    },
+    {
+      "vnum": 2141,
+      "name": "Bend in Hector Street",
+      "description": "Hector street bends to the east and the south here.  \"No Man's Land\"\n\rentrance is to the north.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2136
+        },
+        {
+          "dir": "east",
+          "toVnum": 2142
+        },
+        {
+          "dir": "south",
+          "toVnum": 2146
+        }
+      ]
+    },
+    {
+      "vnum": 2142,
+      "name": "Hector Street at Bakery",
+      "description": "Hector street runs east and west.  The Bakery used to be to the south\n\rbut the entrance is sealed off.  Probably just a bunch of stale pies in\n\rthere anyways.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2143
+        },
+        {
+          "dir": "west",
+          "toVnum": 2141
+        }
+      ]
+    },
+    {
+      "vnum": 2143,
+      "name": "Another corner of Hector and Achilles streets",
+      "description": "Achilles street heads to the south and Hector runs east and west.\n\rThere is an entrance to \"No Man's Land\" to the north.  On the\n\rsouthwest corner of this intersection, it looks like a building\n\rwas recently burned down.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2138
+        },
+        {
+          "dir": "east",
+          "toVnum": 2144
+        },
+        {
+          "dir": "south",
+          "toVnum": 2147
+        },
+        {
+          "dir": "west",
+          "toVnum": 2142
+        }
+      ]
+    },
+    {
+      "vnum": 2144,
+      "name": "Hector Street at Jeweler",
+      "description": "Once a bright spot in the town, it now looks like one of the\n\rhardest hit by the violence.  The building could collapse at any\n\rmoment.  The street continues east and west.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2145
+        },
+        {
+          "dir": "west",
+          "toVnum": 2143
+        }
+      ]
+    },
+    {
+      "vnum": 2145,
+      "name": "Corner of Ajax and Hector",
+      "description": "There is a grand fountain to the east but the water doesn't\n\rlook good to drink.  Ajax street heads south and Hector\n\rgoes back west.  \"No Man's Land\" is to the north.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2140
+        },
+        {
+          "dir": "south",
+          "toVnum": 2149
+        },
+        {
+          "dir": "west",
+          "toVnum": 2144
+        }
+      ]
+    },
+    {
+      "vnum": 2146,
+      "name": "Hector Street",
+      "description": "The street is full of garbage here.  An odd building lies to the west,\n\rbut you don't seem to be able to find a way into it.  The street\n\rruns north and south here.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2141
+        },
+        {
+          "dir": "south",
+          "toVnum": 2150
+        }
+      ]
+    },
+    {
+      "vnum": 2147,
+      "name": "Achilles Avenue",
+      "description": "The town bards sang of the victory parades that used to pass along this\n\rroute.  It was once a major way through the center of town.  The street\n\rgoes south to a bend and north to an intersection.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2143
+        },
+        {
+          "dir": "south",
+          "toVnum": 2152
+        }
+      ]
+    },
+    {
+      "vnum": 2148,
+      "name": "A small ruined chapel",
+      "description": "This was a small temple built to honor the minor gods and goddesses.\n\rIt is now desecrated by graffiti and vandalism.  Perhaps its worst\n\rdefilement is that it is the hangout of the Ogre gang.  There is a street to\n\rthe east through a rusty metal door.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2149,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "rusted door metal"
+        }
+      ]
+    },
+    {
+      "vnum": 2149,
+      "name": "Ajax Avenue at chapel",
+      "description": "The temple to honor the minor gods is through a rusty metal door\n\rto the west.  The street continues north and south.  You hear the\n\rmuffled sounds of screams coming from the chapel.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2145
+        },
+        {
+          "dir": "south",
+          "toVnum": 2154
+        },
+        {
+          "dir": "west",
+          "toVnum": 2148,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "rusted door metal"
+        }
+      ]
+    },
+    {
+      "vnum": 2150,
+      "name": "First intersection of Hector and Achilles",
+      "description": "There is a large statue here depicting a battle between two\n\rgreat warriors.  You think it's odd that it has not been defiled,\n\rbut then you sense a aura protecting it.  Achilles runs east\n\rand south, while Hector heads out to the north.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2146
+        },
+        {
+          "dir": "east",
+          "toVnum": 2151
+        },
+        {
+          "dir": "south",
+          "toVnum": 2156
+        }
+      ]
+    },
+    {
+      "vnum": 2151,
+      "name": "Achilles Avenue",
+      "description": "A large open space, possibly a cemetery, lies to the south.\n\rThere is a large wrought-iron fence with spikes on top\n\rwhich prevents you from entering the area.  The street\n\rcontinues east and west.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2152
+        },
+        {
+          "dir": "west",
+          "toVnum": 2150
+        }
+      ]
+    },
+    {
+      "vnum": 2152,
+      "name": "A bend in the road",
+      "description": "Achilles Avenue bends to the north and west here.  There\n\ris also a narrow alley to the south.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2147
+        },
+        {
+          "dir": "south",
+          "toVnum": 2157
+        },
+        {
+          "dir": "west",
+          "toVnum": 2151
+        }
+      ]
+    },
+    {
+      "vnum": 2153,
+      "name": "What is left of the weaponshop",
+      "description": "It doesn't even look like those punks gave the weaponsmith a\n\rproper burial.  But what a going away present he seems to have\n\rreceived!  Blood is splattered and dried all over the walls here.\n\rIt looks like a great deal of carnage happened here.  The way\n\rout to the east leads out onto a street.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2154
+        }
+      ]
+    },
+    {
+      "vnum": 2154,
+      "name": "Ajax street at Weaponshop (or whats left of it)",
+      "description": "The street goes north and south.  The stables used to be to the\n\reast, but I bet all the horses are dead or gone.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2149
+        },
+        {
+          "dir": "south",
+          "toVnum": 2159
+        },
+        {
+          "dir": "west",
+          "toVnum": 2153
+        }
+      ]
+    },
+    {
+      "vnum": 2155,
+      "name": "Khan Park",
+      "description": "Not really a \"park\" as you and i would think of it but\n\rit seems queerly peaceful here in comparison to the rest of\n\rthe area.  There seems to be some kind of memorial to the\n\rgreat Mongol warrior Khan being crudely constructed here.\n\rThere is a street to the east and another to the south.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2156
+        },
+        {
+          "dir": "south",
+          "toVnum": 2162
+        }
+      ]
+    },
+    {
+      "vnum": 2156,
+      "name": "Achilles avenue at entrance to park",
+      "description": "A ... park?! lies to the west.  The street runs south to an\n\rintersection and curves to the north.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2150
+        },
+        {
+          "dir": "south",
+          "toVnum": 2163
+        },
+        {
+          "dir": "west",
+          "toVnum": 2155
+        }
+      ]
+    },
+    {
+      "vnum": 2157,
+      "name": "A bend in Ajax",
+      "description": "The roads bends south and east here.  You barely notice\n\ra small alley leading north.  Some kind of tunnel entrance\n\ris to the west but it has been crushed under its own weight.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2152
+        },
+        {
+          "dir": "east",
+          "toVnum": 2158
+        },
+        {
+          "dir": "south",
+          "toVnum": 2164
+        }
+      ]
+    },
+    {
+      "vnum": 2158,
+      "name": "Ajax street",
+      "description": "A once prideful guildhouse was on the northeast corner of\n\rthis intersection.  Most of the walls and ceiling have long since\n\rbeen demolished.  An inn/pub is to the south.  The street bends\n\rto the east or west.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2159
+        },
+        {
+          "dir": "south",
+          "toVnum": 2165
+        },
+        {
+          "dir": "west",
+          "toVnum": 2157
+        }
+      ]
+    },
+    {
+      "vnum": 2159,
+      "name": "Curve in the road",
+      "description": "The street goes north or west from here.  A narrow street once\n\rheaded southeast from here.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2154
+        },
+        {
+          "dir": "west",
+          "toVnum": 2158
+        }
+      ]
+    },
+    {
+      "vnum": 2160,
+      "name": "A wide alleyway",
+      "description": "The sides of the alleyway have been vandalized many times.\n\rOne patch of graffiti actually looks readable:\n\r            This section has been designed for levels 5 through 10\n\r            If you are above level 10 please don't expect much.\n\r            If you are below level 5 enter at your own risk.\n\rIn another spot it says \"now entering Ogre territory...\"\n\rA street lies to the west and a major road to the east.\n\r",
+      "roomFlags": [
+        "dark",
+        "no_mob"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2161
+        },
+        {
+          "dir": "west",
+          "toVnum": 3144,
+          "description": "You see the end of Elm street. Looks much safer.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2161,
+      "name": "Alexander Road",
+      "description": "You see many gang members walking around looking for\n\rfights to pick and things to break.  It seems as if all of the\n\rother citizens have been run out of town.  All the former\n\rhomes are boarded up and uninhabitable.  The road continues\n\reast and west.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2162
+        },
+        {
+          "dir": "west",
+          "toVnum": 2160
+        }
+      ]
+    },
+    {
+      "vnum": 2162,
+      "name": "Alexander Street at park entrance",
+      "description": "A park-looking area lies to the north and a passage between\n\rtwo buildings leads to another street to the south.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2155
+        },
+        {
+          "dir": "south",
+          "toVnum": 2166
+        },
+        {
+          "dir": "west",
+          "toVnum": 2161
+        }
+      ]
+    },
+    {
+      "vnum": 2163,
+      "name": "Achilles Avenue",
+      "description": "The Avenue Runs north and south.  You sense you are deep within\n\rOgre gang territory, and a chill goes up your spine.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2156
+        },
+        {
+          "dir": "south",
+          "toVnum": 2167
+        }
+      ]
+    },
+    {
+      "vnum": 2164,
+      "name": "Ajax Street",
+      "description": "You can see a sinister black wrought-iron fence to the west.\n\rYou wonder if it's keeping you out, or the ghouls in?\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2157
+        },
+        {
+          "dir": "south",
+          "toVnum": 2169
+        }
+      ]
+    },
+    {
+      "vnum": 2165,
+      "name": "The inn/pub",
+      "description": "The inn actually looks fairly functional despite its lack\n\rof repair.  The boys come here to hoot it up and drink them selves\n\rinto oblivion sometimes.  It looks as if the beer is still on tap!!!\n\rA hallway leads south and you spy a street through the doorway\n\rto the north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2158
+        },
+        {
+          "dir": "south",
+          "toVnum": 2170
+        }
+      ]
+    },
+    {
+      "vnum": 2166,
+      "name": "Solomon Street",
+      "description": "This street forms the southern boundary of Ogre territory.  The\n\rstreet extends far to the east.  There is also a pathway between\n\rbuildings which leads to another street to the north.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2162
+        },
+        {
+          "dir": "east",
+          "toVnum": 2167
+        }
+      ]
+    },
+    {
+      "vnum": 2167,
+      "name": "Intersection of Achilles and Solomon",
+      "description": "Solomon street is to the east and west.  The other part of the\n\rT is Achilles Avenue, starting here and winding to the north.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2163
+        },
+        {
+          "dir": "east",
+          "toVnum": 2168
+        },
+        {
+          "dir": "west",
+          "toVnum": 2166
+        }
+      ]
+    },
+    {
+      "vnum": 2168,
+      "name": "Solomon Street",
+      "description": "A wrought-iron fence blocks off what used to be an entrance to the\n\rcemetery here to the north.  The evil just seems too strong to\n\rto consider entering.  You feel you should stick with the \"lesser\"\n\revils along the road to the east and west.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2169
+        },
+        {
+          "dir": "west",
+          "toVnum": 2167
+        }
+      ]
+    },
+    {
+      "vnum": 2169,
+      "name": "Intersection of Ajax and Solomon",
+      "description": "The two roads meet at a corner here.  Ajax runs north and\n\rSolomon heads west.  An inn/pub is through a back doorway\n\rto the east.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2164
+        },
+        {
+          "dir": "east",
+          "toVnum": 2170
+        },
+        {
+          "dir": "west",
+          "toVnum": 2168
+        }
+      ]
+    },
+    {
+      "vnum": 2170,
+      "name": "Hallway",
+      "description": "The hallway heads back north to the main part of the inn/pub.\n\rThe stairs leading up to the guest rooms here do not seem\n\radvisable to climb.  A doorway empties out into Solomon\n\rstreet to the west.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2165
+        },
+        {
+          "dir": "west",
+          "toVnum": 2169
+        }
+      ]
+    }
+  ],
+  "mobiles": [
+    {
+      "vnum": 2101,
+      "name": "troll gang member",
+      "shortDescr": "a troll gang member",
+      "longDescr": "A member of the Trolls wanders about here.\n\r",
+      "description": "He's lived a life of violence ever since he was little.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area"
+      ],
+      "actFlagsValue": 85,
+      "atkFlags": [
+        "berserk",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -100,
+      "group": 2100,
+      "level": 5,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 60
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6,
+        "bonus": 1
+      },
+      "damType": "punch",
+      "ac": {
+        "pierce": 5,
+        "bash": 5,
+        "slash": 5,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 10,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2102,
+      "name": "ogre gang member",
+      "shortDescr": "an ogre gang member",
+      "longDescr": "A member of the Ogres wanders about here.\n\r",
+      "description": "He wants to rid the world of every last Troll gang member.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area"
+      ],
+      "actFlagsValue": 85,
+      "atkFlags": [
+        "dodge",
+        "dirt_kick",
+        "trip",
+        "assist_race"
+      ],
+      "alignment": 100,
+      "group": 2101,
+      "level": 5,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 60
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6,
+        "bonus": 1
+      },
+      "damType": "punch",
+      "ac": {
+        "pierce": 5,
+        "bash": 5,
+        "slash": 5,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 10,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2103,
+      "name": "gang leader troll",
+      "shortDescr": "the Troll gang leader",
+      "longDescr": "The gang leader is not pleased you found his hideout!\n\r",
+      "description": "He's risen to be leader through brute force and cunning leadership, you'd\n\rguess mostly brute force from the size of his muscles.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive",
+        "stay_area",
+        "warrior"
+      ],
+      "atkFlags": [
+        "bash",
+        "berserk",
+        "disarm",
+        "parry",
+        "assist_vnum"
+      ],
+      "resFlags": [
+        "bash"
+      ],
+      "alignment": 0,
+      "group": 2100,
+      "level": 13,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 20,
+        "bonus": 170
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 5,
+        "bonus": 5
+      },
+      "damType": "punch",
+      "ac": {
+        "pierce": -1,
+        "bash": -1,
+        "slash": -1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 100,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2104,
+      "name": "bruiser troll",
+      "shortDescr": "a bruiser",
+      "longDescr": "A big, mean bruiser is looking for limbs to break.\n\r",
+      "description": "He's 6'6\" 245 pounds and enough muscle to bash your head in. How like a Troll.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "aggressive",
+        "stay_area",
+        "wimpy",
+        "warrior"
+      ],
+      "affectFlags": [
+        "detect_invis"
+      ],
+      "atkFlags": [
+        "bash",
+        "berserk",
+        "parry",
+        "assist_vnum"
+      ],
+      "resFlags": [
+        "magic"
+      ],
+      "alignment": -333,
+      "group": 2100,
+      "level": 11,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 4,
+        "type": 8,
+        "bonus": 134
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 10,
+        "bonus": 3
+      },
+      "damType": "punch",
+      "ac": {
+        "pierce": 1,
+        "bash": 1,
+        "slash": 1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 75,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2105,
+      "name": "gang doll",
+      "shortDescr": "a doll",
+      "longDescr": "A gang doll looks naughty and nice.\n\r",
+      "description": "She's a beauty (ok in RELATIVE terms) but you better not touch!\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area",
+        "wimpy",
+        "thief"
+      ],
+      "atkFlags": [
+        "dodge",
+        "fast",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 7,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 85
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 8,
+        "bonus": 1
+      },
+      "damType": "slap",
+      "ac": {
+        "pierce": 4,
+        "bash": 4,
+        "slash": 4,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 50,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2106,
+      "name": "patrolman patrol man",
+      "shortDescr": "a patrolman",
+      "longDescr": "A patrolman is trying to keep the peace.\n\r",
+      "description": "He'd rather be at the local pub then out here with these nasty kids.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "stay_area",
+        "warrior"
+      ],
+      "atkFlags": [
+        "bash",
+        "parry",
+        "rescue",
+        "assist_vnum"
+      ],
+      "alignment": 700,
+      "group": 0,
+      "level": 8,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 115
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 7,
+        "bonus": 2
+      },
+      "damType": "punch",
+      "ac": {
+        "pierce": 3,
+        "bash": 3,
+        "slash": 3,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 350,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2107,
+      "name": "vandal ogre",
+      "shortDescr": "a vandal",
+      "longDescr": "A vandal is spray painting pro-gang slogans on the wall here.\n\r",
+      "description": "He has a wary eye and a fine hand for art.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "stay_area",
+        "wimpy",
+        "thief"
+      ],
+      "affectFlags": [
+        "sneak"
+      ],
+      "atkFlags": [
+        "dodge",
+        "fast",
+        "dirt_kick",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -400,
+      "group": 2101,
+      "level": 10,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 121
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 4,
+        "bonus": 2
+      },
+      "damType": "punch",
+      "ac": {
+        "pierce": 1,
+        "bash": 1,
+        "slash": 1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 25,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2108,
+      "name": "dog pit bull pitbull",
+      "shortDescr": "a pitbull",
+      "longDescr": "A vicious pitbull is foaming at the mouth in rabid anticipation.\n\r",
+      "description": "You get a nice close look at him while he's tearing at your throat.\n\rHis fangs are blood-stained from hearty meals of ... steak?!\n\r",
+      "race": "dog",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "hide"
+      ],
+      "atkFlags": [
+        "bash",
+        "disarm",
+        "fade",
+        "fast",
+        "assist_align",
+        "assist_race"
+      ],
+      "alignment": -100,
+      "group": 0,
+      "level": 5,
+      "hitroll": 2,
+      "hitDice": {
+        "number": 4,
+        "type": 6,
+        "bonus": 60
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 8,
+        "bonus": 1
+      },
+      "damType": "bite",
+      "ac": {
+        "pierce": 5,
+        "bash": 5,
+        "slash": 5,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 0,
+      "size": "small",
+      "material": "0"
+    },
+    {
+      "vnum": 2109,
+      "name": "punk troll",
+      "shortDescr": "a punk",
+      "longDescr": "A punk is here, carving his initials into a wall.\n\r",
+      "description": "He's a sterling example of rehabilitation at work.  Not nice.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "aggressive",
+        "wimpy",
+        "thief"
+      ],
+      "affectFlags": [
+        "sneak"
+      ],
+      "atkFlags": [
+        "bash",
+        "berserk",
+        "dodge",
+        "dirt_kick",
+        "assist_vnum"
+      ],
+      "alignment": -400,
+      "group": 2100,
+      "level": 10,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 121
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 4,
+        "bonus": 2
+      },
+      "damType": "punch",
+      "ac": {
+        "pierce": 1,
+        "bash": 1,
+        "slash": 1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 25,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2110,
+      "name": "gang leader ogre",
+      "shortDescr": "the Ogre gang leader",
+      "longDescr": "The Ogre gang leader snaps out his stiletto. \"Care to dance?\"\n\r",
+      "description": "He's smaller, but undoubtably smarter, than the Troll's leader. \n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive",
+        "stay_area",
+        "thief"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "fast",
+        "dirt_kick",
+        "parry",
+        "trip",
+        "assist_vnum"
+      ],
+      "resFlags": [
+        "slash"
+      ],
+      "alignment": 0,
+      "group": 2101,
+      "level": 13,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 160
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 5,
+        "bonus": 3
+      },
+      "damType": "punch",
+      "ac": {
+        "pierce": -1,
+        "bash": -1,
+        "slash": -1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 100,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2111,
+      "name": "thug",
+      "shortDescr": "a thug",
+      "longDescr": "An ugly, scarred thug is here, looking for dogs to kick.\n\r",
+      "description": "The thug isn't quite as big as the Troll's bruisers, but you can tell he loves\n\rbreaking heads for the Ogres.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "aggressive",
+        "stay_area",
+        "wimpy",
+        "warrior"
+      ],
+      "affectFlags": [
+        "detect_invis"
+      ],
+      "atkFlags": [
+        "dirt_kick",
+        "parry",
+        "trip",
+        "assist_vnum"
+      ],
+      "resFlags": [
+        "magic"
+      ],
+      "alignment": -333,
+      "group": 2101,
+      "level": 11,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 134
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 10,
+        "bonus": 2
+      },
+      "damType": "punch",
+      "ac": {
+        "pierce": 1,
+        "bash": 1,
+        "slash": 1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 75,
+      "size": "medium",
+      "material": "0"
+    }
+  ],
+  "objects": [
+    {
+      "vnum": 2101,
+      "name": "troll jacket",
+      "shortDescr": "a Troll gang jacket",
+      "description": "A Troll gang jacket has been carelessly tossed here.",
+      "material": "leather",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "body"
+      ],
+      "armor": {
+        "acPierce": 3,
+        "acBash": 5,
+        "acSlash": 4
+      },
+      "level": 5,
+      "weight": 20,
+      "cost": 970,
+      "condition": 75
+    },
+    {
+      "vnum": 2102,
+      "name": "ogre jacket",
+      "shortDescr": "an Ogre gang jacket",
+      "description": "An Ogre gang jacket has been carelessly tossed here.",
+      "material": "leather",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "body"
+      ],
+      "armor": {
+        "acPierce": 5,
+        "acBash": 4,
+        "acSlash": 3
+      },
+      "level": 5,
+      "weight": 20,
+      "cost": 970,
+      "condition": 75
+    },
+    {
+      "vnum": 2103,
+      "name": "chain",
+      "shortDescr": "a hefty length of chain",
+      "description": "A hefty length of chain lies in a heap here on the floor.",
+      "material": "iron",
+      "itemType": "weapon",
+      "extraFlags": [
+        "glow"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "whip",
+        "dice": [
+          2,
+          6
+        ],
+        "damageType": "whip"
+      },
+      "level": 12,
+      "weight": 100,
+      "cost": 960,
+      "condition": 75,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 12,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 12,
+          "duration": -1,
+          "modifier": -2
+        }
+      ]
+    },
+    {
+      "vnum": 2104,
+      "name": "metal cover shield",
+      "shortDescr": "a metal shield",
+      "description": "A garbage can lid has been dropped on the floor.",
+      "material": "steel",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "shield"
+      ],
+      "armor": {
+        "acPierce": 3,
+        "acBash": 3,
+        "acSlash": 3,
+        "acExotic": 1
+      },
+      "level": 3,
+      "weight": 30,
+      "cost": 500,
+      "condition": 75
+    },
+    {
+      "vnum": 2105,
+      "name": "spray paint can",
+      "shortDescr": "a spray paint can",
+      "description": "A can of spray paint has been discarded here.",
+      "material": "aluminum",
+      "itemType": "wand",
+      "extraFlags": [
+        "hum"
+      ],
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "wand": {
+        "level": 11,
+        "chargesTotal": 2,
+        "spell": "colour spray"
+      },
+      "level": 12,
+      "weight": 10,
+      "cost": 2200,
+      "condition": 90
+    },
+    {
+      "vnum": 2106,
+      "name": "stiletto",
+      "shortDescr": "a stiletto",
+      "description": "A killer stiletto has been forgotten here.",
+      "material": "steel",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "dagger",
+        "dice": [
+          5,
+          2
+        ],
+        "damageType": "pierce"
+      },
+      "level": 9,
+      "weight": 20,
+      "cost": 1090,
+      "condition": 90,
+      "affects": [
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 9,
+          "duration": -1,
+          "modifier": 2
+        },
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 9,
+          "duration": -1,
+          "modifier": 4
+        }
+      ]
+    },
+    {
+      "vnum": 2107,
+      "name": "spiked heel boots",
+      "shortDescr": "spiked heeled boots",
+      "description": "A pair of black leather boots with 6 inch spikes have been left here.",
+      "material": "leather",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "feet"
+      ],
+      "armor": {
+        "acPierce": 3,
+        "acBash": 3,
+        "acSlash": 3
+      },
+      "level": 5,
+      "weight": 40,
+      "cost": 260,
+      "condition": 90,
+      "affects": [
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 5,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "dexterity",
+          "level": 5,
+          "duration": -1,
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "vnum": 2108,
+      "name": "mirror",
+      "shortDescr": "a mirror",
+      "description": "A small mirror has been left here.",
+      "material": "glass",
+      "itemType": "wand",
+      "extraFlags": [
+        "glow",
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "wand": {
+        "level": 20,
+        "chargesTotal": 10,
+        "spell": "blindness"
+      },
+      "level": 8,
+      "weight": 10,
+      "cost": 1910,
+      "condition": 100
+    },
+    {
+      "vnum": 2109,
+      "name": "gloves",
+      "shortDescr": "comfortable leather gloves",
+      "description": "A pair of soft lined leather gloves lie here.",
+      "material": "leather",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "hands"
+      ],
+      "armor": {
+        "acPierce": 4,
+        "acBash": 3,
+        "acSlash": 4
+      },
+      "level": 7,
+      "weight": 20,
+      "cost": 1010,
+      "condition": 90,
+      "affects": [
+        {
+          "where": "object",
+          "location": "strength",
+          "level": 7,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 2110,
+      "name": "patrol club",
+      "shortDescr": "a patrol club",
+      "description": "A patrolman's club has carelessly been forgotten here.",
+      "material": "wood",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "mace",
+        "dice": [
+          1,
+          10
+        ],
+        "damageType": "pound"
+      },
+      "level": 9,
+      "weight": 10,
+      "cost": 980,
+      "condition": 90,
+      "affects": [
+        {
+          "where": "object",
+          "location": "move",
+          "level": 9,
+          "duration": -1,
+          "modifier": 5
+        },
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 9,
+          "duration": -1,
+          "modifier": 3
+        }
+      ]
+    },
+    {
+      "vnum": 2111,
+      "name": "signet ring",
+      "shortDescr": "a troll signet ring",
+      "description": "A signet ring bearing the crest of a troll lies in the dust here.",
+      "material": "bronze",
+      "itemType": "jewelry",
+      "wearFlags": [
+        "take",
+        "finger"
+      ],
+      "level": 10,
+      "weight": 10,
+      "cost": 1090,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "strength",
+          "level": 10,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 10,
+          "duration": -1,
+          "modifier": -2
+        }
+      ]
+    },
+    {
+      "vnum": 2112,
+      "name": "knuckles brass",
+      "shortDescr": "brass knuckles",
+      "description": "A set of brass knuckles left from a fight are here on the ground.",
+      "material": "brass",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "hands"
+      ],
+      "armor": {
+        "acPierce": 1,
+        "acBash": 1,
+        "acSlash": 1
+      },
+      "level": 5,
+      "weight": 10,
+      "cost": 300,
+      "condition": 75,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 5,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 2113,
+      "name": "pipe lead length",
+      "shortDescr": "a lead pipe",
+      "description": "A length of lead pipe sits here, just right for bashing heads.",
+      "material": "lead",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "mace",
+        "dice": [
+          2,
+          6
+        ],
+        "damageType": "pound"
+      },
+      "level": 11,
+      "weight": 60,
+      "condition": 75,
+      "affects": [
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 11,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 11,
+          "duration": -1,
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "vnum": 2114,
+      "name": "troll jacket studded",
+      "shortDescr": "a studded Troll gang jacket",
+      "description": "A Troll gang jacket with sewn-in metal studs waits for an owner.",
+      "material": "leather",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "body"
+      ],
+      "armor": {
+        "acPierce": 4,
+        "acBash": 6,
+        "acSlash": 5
+      },
+      "level": 10,
+      "weight": 30,
+      "cost": 1470,
+      "condition": 90
+    },
+    {
+      "vnum": 2115,
+      "name": "ogre jacket studded",
+      "shortDescr": "a studded Ogre gang jacket",
+      "description": "An Ogre gang jacket with sewn-in metal studs waits for an owner.",
+      "material": "leather",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "body"
+      ],
+      "armor": {
+        "acPierce": 6,
+        "acBash": 5,
+        "acSlash": 4
+      },
+      "level": 10,
+      "weight": 30,
+      "cost": 1470,
+      "condition": 100
+    },
+    {
+      "vnum": 2116,
+      "name": "whistle steel police",
+      "shortDescr": "a police whistle",
+      "description": "You spot a steel whistle on a fine silver chain here.",
+      "material": "steel",
+      "itemType": "clothing",
+      "wearFlags": [
+        "take",
+        "neck"
+      ],
+      "weight": 2,
+      "cost": 100,
+      "condition": 90
+    },
+    {
+      "vnum": 2117,
+      "name": "pants black leather",
+      "shortDescr": "a pair of black leather pants",
+      "description": "You see some tight-fitting leather pants sitting on the ground.",
+      "material": "leather",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "legs"
+      ],
+      "armor": {
+        "acPierce": 3,
+        "acBash": 4,
+        "acSlash": 4
+      },
+      "level": 5,
+      "cost": 420,
+      "condition": 90,
+      "extraDescs": [
+        {
+          "keyword": "pants black leather",
+          "description": "They're worn, but they look suprisingly tough.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2118,
+      "name": "switchblade knife",
+      "shortDescr": "a switchblade",
+      "description": "A strange looking knife is here.",
+      "material": "steel",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "dagger",
+        "dice": [
+          1,
+          12
+        ],
+        "damageType": "stab"
+      },
+      "level": 9,
+      "weight": 5,
+      "cost": 760,
+      "condition": 90,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 9,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 2119,
+      "name": "bottle broken",
+      "shortDescr": "a broken bottle",
+      "description": "Yowch! You cut your foot on a broken bottle.",
+      "material": "glass",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "dagger",
+        "dice": [
+          2,
+          7
+        ],
+        "damageType": "slash"
+      },
+      "level": 11,
+      "weight": 10,
+      "condition": 50,
+      "extraDescs": [
+        {
+          "keyword": "bottle broken",
+          "description": "It appears to be a broken wine bottle, but what do you know about brewing?\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 11,
+          "duration": -1,
+          "modifier": -2
+        }
+      ]
+    }
+  ],
+  "shops": [],
+  "specials": [
+    {
+      "mobVnum": 2101,
+      "spec": "spec_troll_member"
+    },
+    {
+      "mobVnum": 2102,
+      "spec": "spec_ogre_member"
+    },
+    {
+      "mobVnum": 2103,
+      "spec": "spec_troll_member"
+    },
+    {
+      "mobVnum": 2104,
+      "spec": "spec_troll_member"
+    },
+    {
+      "mobVnum": 2106,
+      "spec": "spec_patrolman"
+    },
+    {
+      "mobVnum": 2107,
+      "spec": "spec_ogre_member"
+    },
+    {
+      "mobVnum": 2109,
+      "spec": "spec_troll_member"
+    },
+    {
+      "mobVnum": 2110,
+      "spec": "spec_ogre_member"
+    },
+    {
+      "mobVnum": 2111,
+      "spec": "spec_ogre_member"
+    }
+  ],
+  "mobprogs": [],
+  "resets": [
+    {
+      "mobVnum": 2109,
+      "maxInArea": 3,
+      "roomVnum": 2102,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2105,
+      "wearLoc": "held in the hands",
+      "roomVnum": 2102,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2114,
+      "wearLoc": "on the body",
+      "roomVnum": 2102,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2101,
+      "maxInArea": 25,
+      "roomVnum": 2102,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2101,
+      "wearLoc": "on the body",
+      "roomVnum": 2102,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2101,
+      "maxInArea": 25,
+      "roomVnum": 2103,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2101,
+      "wearLoc": "on the body",
+      "roomVnum": 2103,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2101,
+      "maxInArea": 25,
+      "roomVnum": 2104,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2101,
+      "wearLoc": "on the body",
+      "roomVnum": 2104,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2101,
+      "maxInArea": 25,
+      "roomVnum": 2105,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2101,
+      "wearLoc": "on the body",
+      "roomVnum": 2105,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2101,
+      "maxInArea": 25,
+      "roomVnum": 2106,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2101,
+      "wearLoc": "on the body",
+      "roomVnum": 2106,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2101,
+      "maxInArea": 25,
+      "roomVnum": 2107,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2101,
+      "wearLoc": "on the body",
+      "roomVnum": 2107,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2104,
+      "maxInArea": 5,
+      "roomVnum": 2108,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2114,
+      "wearLoc": "on the body",
+      "roomVnum": 2108,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2109,
+      "wearLoc": "on the hands",
+      "roomVnum": 2108,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2113,
+      "wearLoc": "wielded",
+      "roomVnum": 2108,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2101,
+      "maxInArea": 25,
+      "roomVnum": 2108,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2101,
+      "wearLoc": "on the body",
+      "roomVnum": 2108,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2101,
+      "maxInArea": 25,
+      "roomVnum": 2109,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2101,
+      "wearLoc": "on the body",
+      "roomVnum": 2109,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2101,
+      "maxInArea": 25,
+      "roomVnum": 2110,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2101,
+      "wearLoc": "on the body",
+      "roomVnum": 2110,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2101,
+      "maxInArea": 25,
+      "roomVnum": 2111,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2101,
+      "wearLoc": "on the body",
+      "roomVnum": 2111,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2101,
+      "maxInArea": 25,
+      "roomVnum": 2112,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2101,
+      "wearLoc": "on the body",
+      "roomVnum": 2112,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2101,
+      "maxInArea": 25,
+      "roomVnum": 2113,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2101,
+      "wearLoc": "on the body",
+      "roomVnum": 2113,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2104,
+      "maxInArea": 5,
+      "roomVnum": 2114,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2114,
+      "wearLoc": "on the body",
+      "roomVnum": 2114,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2111,
+      "wearLoc": "on the left finger",
+      "roomVnum": 2114,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2103,
+      "wearLoc": "wielded",
+      "roomVnum": 2114,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2109,
+      "maxInArea": 3,
+      "roomVnum": 2114,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2114,
+      "wearLoc": "on the body",
+      "roomVnum": 2114,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2118,
+      "wearLoc": "wielded",
+      "roomVnum": 2114,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2101,
+      "maxInArea": 25,
+      "roomVnum": 2114,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2101,
+      "wearLoc": "on the body",
+      "roomVnum": 2114,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2101,
+      "maxInArea": 25,
+      "roomVnum": 2115,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2101,
+      "wearLoc": "on the body",
+      "roomVnum": 2115,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2104,
+      "maxInArea": 5,
+      "roomVnum": 2116,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2114,
+      "wearLoc": "on the body",
+      "roomVnum": 2116,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2104,
+      "wearLoc": "as a shield",
+      "roomVnum": 2116,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2103,
+      "wearLoc": "wielded",
+      "roomVnum": 2116,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2101,
+      "maxInArea": 25,
+      "roomVnum": 2116,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2101,
+      "wearLoc": "on the body",
+      "roomVnum": 2116,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2101,
+      "maxInArea": 25,
+      "roomVnum": 2117,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2101,
+      "wearLoc": "on the body",
+      "roomVnum": 2117,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2101,
+      "maxInArea": 25,
+      "roomVnum": 2118,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2101,
+      "wearLoc": "on the body",
+      "roomVnum": 2118,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2101,
+      "maxInArea": 25,
+      "roomVnum": 2119,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2101,
+      "wearLoc": "on the body",
+      "roomVnum": 2119,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2101,
+      "maxInArea": 25,
+      "roomVnum": 2120,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2101,
+      "wearLoc": "on the body",
+      "roomVnum": 2120,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2101,
+      "maxInArea": 25,
+      "roomVnum": 2121,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2101,
+      "wearLoc": "on the body",
+      "roomVnum": 2121,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2101,
+      "maxInArea": 25,
+      "roomVnum": 2122,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2101,
+      "wearLoc": "on the body",
+      "roomVnum": 2122,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2104,
+      "maxInArea": 5,
+      "roomVnum": 2123,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2114,
+      "wearLoc": "on the body",
+      "roomVnum": 2123,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2113,
+      "wearLoc": "wielded",
+      "roomVnum": 2123,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2117,
+      "wearLoc": "on the legs",
+      "roomVnum": 2123,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2105,
+      "maxInArea": 10,
+      "roomVnum": 2123,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2108,
+      "wearLoc": "held in the hands",
+      "roomVnum": 2123,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2103,
+      "maxInArea": 1,
+      "roomVnum": 2124,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2119,
+      "wearLoc": "wielded",
+      "roomVnum": 2124,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2111,
+      "wearLoc": "on the left finger",
+      "roomVnum": 2124,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2114,
+      "wearLoc": "on the body",
+      "roomVnum": 2124,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2108,
+      "maxInArea": 12,
+      "roomVnum": 2124,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2108,
+      "maxInArea": 12,
+      "roomVnum": 2124,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2108,
+      "maxInArea": 12,
+      "roomVnum": 2124,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2108,
+      "maxInArea": 12,
+      "roomVnum": 2124,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2105,
+      "maxInArea": 10,
+      "roomVnum": 2125,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2108,
+      "wearLoc": "held in the hands",
+      "roomVnum": 2125,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2107,
+      "wearLoc": "on the feet",
+      "roomVnum": 2125,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2109,
+      "maxInArea": 3,
+      "roomVnum": 2128,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2114,
+      "wearLoc": "on the body",
+      "roomVnum": 2128,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2105,
+      "wearLoc": "held in the hands",
+      "roomVnum": 2128,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2118,
+      "wearLoc": "wielded",
+      "roomVnum": 2128,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2101,
+      "maxInArea": 25,
+      "roomVnum": 2128,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2101,
+      "wearLoc": "on the body",
+      "roomVnum": 2128,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2101,
+      "maxInArea": 25,
+      "roomVnum": 2130,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2101,
+      "wearLoc": "on the body",
+      "roomVnum": 2130,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2101,
+      "maxInArea": 25,
+      "roomVnum": 2131,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2101,
+      "wearLoc": "on the body",
+      "roomVnum": 2131,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2106,
+      "maxInArea": 10,
+      "roomVnum": 2131,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2110,
+      "wearLoc": "wielded",
+      "roomVnum": 2131,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2116,
+      "wearLoc": "around the neck (1)",
+      "roomVnum": 2131,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2105,
+      "maxInArea": 10,
+      "roomVnum": 2132,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2107,
+      "wearLoc": "on the feet",
+      "roomVnum": 2132,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2106,
+      "maxInArea": 10,
+      "roomVnum": 2132,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2110,
+      "wearLoc": "wielded",
+      "roomVnum": 2132,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2106,
+      "maxInArea": 10,
+      "roomVnum": 2133,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2110,
+      "wearLoc": "wielded",
+      "roomVnum": 2133,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2116,
+      "wearLoc": "around the neck (1)",
+      "roomVnum": 2133,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2101,
+      "maxInArea": 25,
+      "roomVnum": 2134,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2101,
+      "wearLoc": "on the body",
+      "roomVnum": 2134,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2106,
+      "maxInArea": 10,
+      "roomVnum": 2134,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2110,
+      "wearLoc": "wielded",
+      "roomVnum": 2134,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2104,
+      "maxInArea": 5,
+      "roomVnum": 2135,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2114,
+      "wearLoc": "on the body",
+      "roomVnum": 2135,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2104,
+      "wearLoc": "as a shield",
+      "roomVnum": 2135,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2111,
+      "wearLoc": "on the left finger",
+      "roomVnum": 2135,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2106,
+      "maxInArea": 10,
+      "roomVnum": 2135,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2110,
+      "wearLoc": "wielded",
+      "roomVnum": 2135,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2106,
+      "maxInArea": 10,
+      "roomVnum": 2136,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2110,
+      "wearLoc": "wielded",
+      "roomVnum": 2136,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2116,
+      "wearLoc": "around the neck (1)",
+      "roomVnum": 2136,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2102,
+      "maxInArea": 25,
+      "roomVnum": 2137,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2102,
+      "wearLoc": "on the body",
+      "roomVnum": 2137,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2106,
+      "maxInArea": 10,
+      "roomVnum": 2137,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2110,
+      "wearLoc": "wielded",
+      "roomVnum": 2137,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2111,
+      "maxInArea": 5,
+      "roomVnum": 2138,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2115,
+      "wearLoc": "on the body",
+      "roomVnum": 2138,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2103,
+      "wearLoc": "wielded",
+      "roomVnum": 2138,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2109,
+      "wearLoc": "on the hands",
+      "roomVnum": 2138,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2106,
+      "maxInArea": 10,
+      "roomVnum": 2138,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2110,
+      "wearLoc": "wielded",
+      "roomVnum": 2138,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2116,
+      "wearLoc": "around the neck (1)",
+      "roomVnum": 2138,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2106,
+      "maxInArea": 10,
+      "roomVnum": 2139,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2110,
+      "wearLoc": "wielded",
+      "roomVnum": 2139,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2116,
+      "wearLoc": "around the neck (1)",
+      "roomVnum": 2139,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2102,
+      "maxInArea": 25,
+      "roomVnum": 2140,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2106,
+      "maxInArea": 10,
+      "roomVnum": 2140,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2110,
+      "wearLoc": "wielded",
+      "roomVnum": 2140,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2102,
+      "maxInArea": 25,
+      "roomVnum": 2142,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2102,
+      "wearLoc": "on the body",
+      "roomVnum": 2142,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2107,
+      "maxInArea": 3,
+      "roomVnum": 2143,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2118,
+      "wearLoc": "wielded",
+      "roomVnum": 2143,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2115,
+      "wearLoc": "on the body",
+      "roomVnum": 2143,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2102,
+      "maxInArea": 25,
+      "roomVnum": 2145,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2102,
+      "wearLoc": "on the body",
+      "roomVnum": 2145,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2102,
+      "maxInArea": 25,
+      "roomVnum": 2146,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2102,
+      "wearLoc": "on the body",
+      "roomVnum": 2146,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2111,
+      "maxInArea": 5,
+      "roomVnum": 2147,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2115,
+      "wearLoc": "on the body",
+      "roomVnum": 2147,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2103,
+      "wearLoc": "wielded",
+      "roomVnum": 2147,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2112,
+      "wearLoc": "on the hands",
+      "roomVnum": 2147,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2110,
+      "maxInArea": 1,
+      "roomVnum": 2148,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2115,
+      "wearLoc": "on the body",
+      "roomVnum": 2148,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2106,
+      "wearLoc": "wielded",
+      "roomVnum": 2148,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2112,
+      "wearLoc": "on the hands",
+      "roomVnum": 2148,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2108,
+      "maxInArea": 12,
+      "roomVnum": 2148,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2108,
+      "maxInArea": 12,
+      "roomVnum": 2148,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2108,
+      "maxInArea": 12,
+      "roomVnum": 2148,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2108,
+      "maxInArea": 12,
+      "roomVnum": 2148,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2105,
+      "maxInArea": 10,
+      "roomVnum": 2149,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2107,
+      "wearLoc": "on the feet",
+      "roomVnum": 2149,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2108,
+      "wearLoc": "held in the hands",
+      "roomVnum": 2149,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2102,
+      "maxInArea": 25,
+      "roomVnum": 2150,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2102,
+      "wearLoc": "on the body",
+      "roomVnum": 2150,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2102,
+      "maxInArea": 25,
+      "roomVnum": 2151,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2102,
+      "wearLoc": "on the body",
+      "roomVnum": 2151,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2102,
+      "maxInArea": 25,
+      "roomVnum": 2152,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2102,
+      "wearLoc": "on the body",
+      "roomVnum": 2152,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2105,
+      "maxInArea": 10,
+      "roomVnum": 2152,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2108,
+      "wearLoc": "held in the hands",
+      "roomVnum": 2152,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2111,
+      "maxInArea": 5,
+      "roomVnum": 2153,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2115,
+      "wearLoc": "on the body",
+      "roomVnum": 2153,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2113,
+      "wearLoc": "wielded",
+      "roomVnum": 2153,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2117,
+      "wearLoc": "on the legs",
+      "roomVnum": 2153,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2102,
+      "maxInArea": 25,
+      "roomVnum": 2153,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2102,
+      "wearLoc": "on the body",
+      "roomVnum": 2153,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2102,
+      "maxInArea": 25,
+      "roomVnum": 2154,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2102,
+      "wearLoc": "on the body",
+      "roomVnum": 2154,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2111,
+      "maxInArea": 5,
+      "roomVnum": 2155,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2115,
+      "wearLoc": "on the body",
+      "roomVnum": 2155,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2104,
+      "wearLoc": "as a shield",
+      "roomVnum": 2155,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2109,
+      "wearLoc": "on the hands",
+      "roomVnum": 2155,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2102,
+      "maxInArea": 25,
+      "roomVnum": 2155,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2102,
+      "wearLoc": "on the body",
+      "roomVnum": 2155,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2102,
+      "maxInArea": 25,
+      "roomVnum": 2156,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2102,
+      "wearLoc": "on the body",
+      "roomVnum": 2156,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2102,
+      "maxInArea": 25,
+      "roomVnum": 2157,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2102,
+      "wearLoc": "on the body",
+      "roomVnum": 2157,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2102,
+      "maxInArea": 25,
+      "roomVnum": 2158,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2102,
+      "wearLoc": "on the body",
+      "roomVnum": 2158,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2102,
+      "maxInArea": 25,
+      "roomVnum": 2159,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2102,
+      "wearLoc": "on the body",
+      "roomVnum": 2159,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2102,
+      "maxInArea": 25,
+      "roomVnum": 2160,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2102,
+      "wearLoc": "on the body",
+      "roomVnum": 2160,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2107,
+      "maxInArea": 3,
+      "roomVnum": 2161,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2105,
+      "wearLoc": "held in the hands",
+      "roomVnum": 2161,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2115,
+      "wearLoc": "on the body",
+      "roomVnum": 2161,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2102,
+      "maxInArea": 25,
+      "roomVnum": 2161,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2102,
+      "wearLoc": "on the body",
+      "roomVnum": 2161,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2102,
+      "maxInArea": 25,
+      "roomVnum": 2162,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2102,
+      "wearLoc": "on the body",
+      "roomVnum": 2162,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2102,
+      "maxInArea": 25,
+      "roomVnum": 2163,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2102,
+      "wearLoc": "on the body",
+      "roomVnum": 2163,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2102,
+      "maxInArea": 25,
+      "roomVnum": 2164,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2102,
+      "wearLoc": "on the body",
+      "roomVnum": 2164,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2107,
+      "maxInArea": 3,
+      "roomVnum": 2165,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2105,
+      "wearLoc": "held in the hands",
+      "roomVnum": 2165,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2118,
+      "wearLoc": "wielded",
+      "roomVnum": 2165,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2115,
+      "wearLoc": "on the body",
+      "roomVnum": 2165,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2102,
+      "maxInArea": 25,
+      "roomVnum": 2165,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2102,
+      "wearLoc": "on the body",
+      "roomVnum": 2165,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2102,
+      "maxInArea": 25,
+      "roomVnum": 2166,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2102,
+      "wearLoc": "on the body",
+      "roomVnum": 2166,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2102,
+      "maxInArea": 25,
+      "roomVnum": 2167,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2102,
+      "wearLoc": "on the body",
+      "roomVnum": 2167,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2102,
+      "maxInArea": 25,
+      "roomVnum": 2169,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2102,
+      "wearLoc": "on the body",
+      "roomVnum": 2169,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2111,
+      "maxInArea": 5,
+      "roomVnum": 2170,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2115,
+      "wearLoc": "on the body",
+      "roomVnum": 2170,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2104,
+      "wearLoc": "as a shield",
+      "roomVnum": 2170,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2117,
+      "wearLoc": "on the legs",
+      "roomVnum": 2170,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2102,
+      "maxInArea": 25,
+      "roomVnum": 2170,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2102,
+      "wearLoc": "on the body",
+      "roomVnum": 2170,
+      "commandName": "equipObj"
+    }
+  ],
+  "factions": [],
+  "quests": []
+}

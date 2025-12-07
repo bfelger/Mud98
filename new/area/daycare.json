@@ -1,0 +1,1644 @@
+{
+  "formatVersion": 1,
+  "areadata": {
+    "version": 2,
+    "name": "Day Care",
+    "builders": "",
+    "vnumRange": [
+      6600,
+      6699
+    ],
+    "credits": "Sandman",
+    "security": 9,
+    "sector": "inside",
+    "lowLevel": 1,
+    "highLevel": 5,
+    "reset": 6,
+    "alwaysReset": false
+  },
+  "storyBeats": [],
+  "checklist": [],
+  "rooms": [
+    {
+      "vnum": 6601,
+      "name": "The Dwarven Drop Off",
+      "description": "This is where the dwarven mommies and daddies come to drop off their\n\rannoying little brats.  You have the urge to leave.  There is a sign here.\n\r",
+      "roomFlags": [
+        "no_mob",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6500
+        },
+        {
+          "dir": "south",
+          "toVnum": 6602,
+          "flags": [
+            "door"
+          ],
+          "description": "You see a large room full of noisy brats.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "sign",
+          "description": "This is an area for newbies, so have fun.  -- Sandman\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6602,
+      "name": "Day Care Center",
+      "description": "You are in the north-east corner of the main part of the center.  Toys and\n\rtoddlers are all over the room.  There is a kitchen to the east.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6601,
+          "description": "You see the drop off.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 6626,
+          "description": "You see an extremely messy kitchen.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 6604,
+          "description": "You see a large room full of noisy brats.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 6603,
+          "description": "You see a large room full of noisy brats.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6603,
+      "name": "Day Care Center",
+      "description": "You are in the north-west corner of the main part of the center.  Toys and\n\rtoddlers are all over the room.  There is a bathroom to the west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6602,
+          "description": "You see a large room full of noisy brats.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 6605,
+          "description": "You see a large room full of noisy brats.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 6606,
+          "description": "You see a messy bathroom.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6604,
+      "name": "Day Care Center",
+      "description": "You are in the south-east corner of the main part of the center.  Toys and\n\rtoddlers are all over the room.  There is a playground to the east.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6602,
+          "description": "You see a large room full of noisy brats.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 6610,
+          "description": "You see the playground.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 6605,
+          "description": "You see a large room full of noisy brats.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6605,
+      "name": "Day Care Center",
+      "description": "You are in the south-west corner of the main part of the center.  Toys and\n\rtoddlers are all over the room.  There is a staircase to the west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6603,
+          "description": "You see a large room full of noisy brats.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 6604,
+          "description": "You see a large room full of noisy brats.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 6607,
+          "description": "You see a staircase leading down.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6606,
+      "name": "The Messy Bathroom",
+      "description": "You hold your nose as you realize you have made the worst mistake of your\n\rlife.  The air is rancid and the walls are stained.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6603,
+          "description": "You see a large room full of noisy brats.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6607,
+      "name": "The Staircase",
+      "description": "You stand on top of a staircase leading down, and wonder what mystery could\n\rlie down under.  Beware!\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6605,
+          "description": "You see a large room full of noisy brats.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 6612,
+          "description": "You see the entrance to something.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6608,
+      "name": "The Playground",
+      "description": "You are in the north-west corner of the playground.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6609,
+          "description": "You see the playground.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 6610,
+          "description": "You see the playground.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6609,
+      "name": "The Playground",
+      "description": "You are in the north-east corner of the playground.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 6611,
+          "description": "You see the playground.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 6608,
+          "description": "You see the playground.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6610,
+      "name": "The Playground",
+      "description": "You are in the south-west corner of the playground.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6608,
+          "description": "You see the playground.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 6611,
+          "description": "You see the playground.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 6604,
+          "description": "You see a large room full of noisy brats.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6611,
+      "name": "The Playground",
+      "description": "You are in the south-east corner of the playground.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6609,
+          "description": "You see the playground.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 6610,
+          "description": "You see the playground.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6612,
+      "name": "Entrance to the Mini-Maze",
+      "description": "You stand in the entrance to a small, but confusing maze.  You really hope\n\rthat you don't get lost.\n\r",
+      "roomFlags": [
+        "dark",
+        "no_mob",
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6613
+        },
+        {
+          "dir": "up",
+          "toVnum": 6607,
+          "description": "You see some stairs.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6613,
+      "name": "Mini-Maze",
+      "description": "You are in a small passage that looks just like every other one.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6614
+        },
+        {
+          "dir": "south",
+          "toVnum": 6615
+        },
+        {
+          "dir": "west",
+          "toVnum": 6612
+        }
+      ]
+    },
+    {
+      "vnum": 6614,
+      "name": "Mini-Maze",
+      "description": "You are in a small passage that looks just like every other one.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 6616
+        },
+        {
+          "dir": "west",
+          "toVnum": 6613
+        }
+      ]
+    },
+    {
+      "vnum": 6615,
+      "name": "Mini-Maze",
+      "description": "You are in a small passage that looks just like every other one.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6613
+        },
+        {
+          "dir": "east",
+          "toVnum": 6616
+        }
+      ]
+    },
+    {
+      "vnum": 6616,
+      "name": "Mini-Maze",
+      "description": "You are in a small passage that looks just like every other one.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6614
+        },
+        {
+          "dir": "south",
+          "toVnum": 6624
+        },
+        {
+          "dir": "west",
+          "toVnum": 6615
+        }
+      ]
+    },
+    {
+      "vnum": 6624,
+      "name": "End of the Mini-Maze",
+      "description": "You stand at the end of your journey.  There is a big sign here and you had\n\rbetter read it!\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6616
+        },
+        {
+          "dir": "south",
+          "toVnum": 6631
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "sign",
+          "description": "If you are not level 6 or above, then don't go south!!!!  It is a dangerous\n\rarea, but congrats for getting this far - Sandman\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6626,
+      "name": "Messy Kitchen",
+      "description": "You stand in the kitchen and eating area of the day care center.  Pots and\n\rpans are everywhere, while the toddlers continue to create chaos.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 6602,
+          "description": "You see a large room full of noisy brats.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6631,
+      "name": "The End?",
+      "description": "You have reached the final lair.  It is dominated by a huge five headed\n\rdragon (actually an overgrown brat with a Halloween mask).\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6624
+        }
+      ]
+    }
+  ],
+  "mobiles": [
+    {
+      "vnum": 6600,
+      "name": "youth dwarven dwarf",
+      "shortDescr": "the dwarven youth",
+      "longDescr": "A young dwarf plays with a toy axe.\n\r",
+      "description": "This is a young but not totally harmless creature.\n\r",
+      "race": "dwarf",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area",
+        "warrior"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "berserk",
+        "dirt_kick",
+        "assist_race"
+      ],
+      "resFlags": [
+        "poison",
+        "disease"
+      ],
+      "vulnFlags": [
+        "drowning"
+      ],
+      "alignment": -5,
+      "group": 0,
+      "level": 3,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 1,
+        "type": 4,
+        "bonus": 30
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 4,
+        "bonus": 2
+      },
+      "damType": "beating",
+      "ac": {
+        "pierce": 7,
+        "bash": 6,
+        "slash": 7,
+        "exotic": 10
+      },
+      "startPos": "sitting",
+      "defaultPos": "standing",
+      "sex": "either",
+      "wealth": 10,
+      "size": "small",
+      "material": "0"
+    },
+    {
+      "vnum": 6601,
+      "name": "teddy bear",
+      "shortDescr": "a teddy bear",
+      "longDescr": "A cute and fuzzy teddy bear stands here.\n\r",
+      "description": "This is a tiny little bear with a heart on his chest.\n\r",
+      "race": "doll",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area"
+      ],
+      "atkFlags": [
+        "trip",
+        "assist_race"
+      ],
+      "immFlags": [
+        "cold",
+        "poison",
+        "negative",
+        "holy",
+        "mental",
+        "disease",
+        "drowning"
+      ],
+      "resFlags": [
+        "bash",
+        "light"
+      ],
+      "vulnFlags": [
+        "slash",
+        "fire",
+        "lightning",
+        "acid",
+        "energy"
+      ],
+      "alignment": 500,
+      "group": 0,
+      "level": 1,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 1,
+        "type": 10,
+        "bonus": 10
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 4
+      },
+      "damType": "beating",
+      "ac": {
+        "pierce": 8,
+        "bash": 5,
+        "slash": 9,
+        "exotic": 10
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 0,
+      "size": "small",
+      "material": "cloth"
+    },
+    {
+      "vnum": 6602,
+      "name": "doll raggedy anne",
+      "shortDescr": "a raggedy anne doll",
+      "longDescr": "A raggedy anne doll is sitting here.\n\r",
+      "description": "You see a small little cute rag doll.\n\r",
+      "race": "doll",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area"
+      ],
+      "atkFlags": [
+        "dodge",
+        "fast",
+        "assist_race"
+      ],
+      "immFlags": [
+        "cold",
+        "poison",
+        "negative",
+        "holy",
+        "mental",
+        "disease",
+        "drowning"
+      ],
+      "resFlags": [
+        "bash",
+        "light"
+      ],
+      "vulnFlags": [
+        "slash",
+        "fire",
+        "lightning",
+        "acid",
+        "energy"
+      ],
+      "alignment": 300,
+      "group": 0,
+      "level": 2,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 5,
+        "bonus": 19
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 5
+      },
+      "damType": "beating",
+      "ac": {
+        "pierce": 7,
+        "bash": 4,
+        "slash": 8,
+        "exotic": 10
+      },
+      "startPos": "sitting",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 0,
+      "size": "small",
+      "material": "cloth"
+    },
+    {
+      "vnum": 6603,
+      "name": "soldier toy",
+      "shortDescr": "a toy soldier",
+      "longDescr": "A toy soldier is standing here.\n\r",
+      "description": "The toy is looking for target practice.\n\r",
+      "race": "doll",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area",
+        "warrior"
+      ],
+      "atkFlags": [
+        "kick",
+        "assist_race"
+      ],
+      "immFlags": [
+        "cold",
+        "poison",
+        "negative",
+        "holy",
+        "mental",
+        "disease",
+        "drowning"
+      ],
+      "resFlags": [
+        "bash",
+        "slash",
+        "light"
+      ],
+      "vulnFlags": [
+        "bash",
+        "slash",
+        "fire",
+        "lightning",
+        "acid",
+        "energy"
+      ],
+      "alignment": -300,
+      "group": 0,
+      "level": 3,
+      "hitroll": 1,
+      "hitDice": {
+        "number": 3,
+        "type": 5,
+        "bonus": 36
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 4,
+        "bonus": 3
+      },
+      "damType": "punch",
+      "ac": {
+        "pierce": 6,
+        "bash": 7,
+        "slash": 6,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 0,
+      "size": "small",
+      "material": "tin"
+    },
+    {
+      "vnum": 6604,
+      "name": "bear ugly",
+      "shortDescr": "the ugly bear",
+      "longDescr": "An ugly stuffed bear stands here.\n\r",
+      "description": "This is obviously a reject from the factory.\n\rHe snarls and growls at you.\n\r",
+      "race": "doll",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "aggressive"
+      ],
+      "atkFlags": [
+        "berserk",
+        "dirt_kick",
+        "trip",
+        "assist_race"
+      ],
+      "immFlags": [
+        "cold",
+        "poison",
+        "negative",
+        "holy",
+        "mental",
+        "disease",
+        "drowning"
+      ],
+      "resFlags": [
+        "bash",
+        "light"
+      ],
+      "vulnFlags": [
+        "slash",
+        "fire",
+        "lightning",
+        "acid",
+        "energy"
+      ],
+      "alignment": -400,
+      "group": 0,
+      "level": 3,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 4,
+        "bonus": 29
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6,
+        "bonus": 1
+      },
+      "damType": "chomp",
+      "ac": {
+        "pierce": 6,
+        "bash": 3,
+        "slash": 7,
+        "exotic": 10
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 5,
+      "size": "small",
+      "material": "cloth"
+    },
+    {
+      "vnum": 6605,
+      "name": "doll old",
+      "shortDescr": "an old doll",
+      "longDescr": "An abused and old doll is here.\n\r",
+      "description": "This doll has been hugged and played with until there is almost nothing left.\n\r",
+      "race": "doll",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area"
+      ],
+      "atkFlags": [
+        "assist_race"
+      ],
+      "immFlags": [
+        "cold",
+        "poison",
+        "negative",
+        "holy",
+        "mental",
+        "disease",
+        "drowning"
+      ],
+      "resFlags": [
+        "bash",
+        "light"
+      ],
+      "vulnFlags": [
+        "slash",
+        "fire",
+        "lightning",
+        "acid",
+        "energy"
+      ],
+      "alignment": -2,
+      "group": 0,
+      "level": 1,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 1,
+        "type": 10,
+        "bonus": 1
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 4
+      },
+      "damType": "beating",
+      "ac": {
+        "pierce": 8,
+        "bash": 5,
+        "slash": 9,
+        "exotic": 10
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 0,
+      "size": "small",
+      "material": "cloth"
+    },
+    {
+      "vnum": 6606,
+      "name": "nanny",
+      "shortDescr": "the nanny",
+      "longDescr": "An old wrinkled nanny stands here, looking over the little ones.\n\r",
+      "description": "You see an old dwarven lady who has been hunched over with age.  However, it\n\rappears that there is still some fight left in her.\n\r",
+      "race": "dwarf",
+      "actFlags": [
+        "npc",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "bash",
+        "berserk",
+        "assist_race"
+      ],
+      "resFlags": [
+        "poison",
+        "disease"
+      ],
+      "vulnFlags": [
+        "drowning"
+      ],
+      "alignment": 10,
+      "group": 0,
+      "level": 5,
+      "hitroll": 1,
+      "hitDice": {
+        "number": 4,
+        "type": 4,
+        "bonus": 50
+      },
+      "manaDice": {
+        "number": 5,
+        "type": 4,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6,
+        "bonus": 1
+      },
+      "damType": "slap",
+      "ac": {
+        "pierce": 5,
+        "bash": 5,
+        "slash": 5,
+        "exotic": 10
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 50,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6607,
+      "name": "guard",
+      "shortDescr": "the armed guard",
+      "longDescr": "An armed guard stands here looking lost.\n\r",
+      "description": "This is a big mean bully who is tired of being lost in this maze.\n\rYou suddenly think that you had better flee.\n\r",
+      "race": "dwarf",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger",
+        "warrior"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "infrared"
+      ],
+      "atkFlags": [
+        "bash",
+        "berserk",
+        "dirt_kick",
+        "assist_race"
+      ],
+      "resFlags": [
+        "poison",
+        "disease"
+      ],
+      "vulnFlags": [
+        "drowning"
+      ],
+      "alignment": -800,
+      "group": 0,
+      "level": 8,
+      "hitroll": 1,
+      "hitDice": {
+        "number": 3,
+        "type": 10,
+        "bonus": 100
+      },
+      "manaDice": {
+        "number": 8,
+        "type": 4,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 7,
+        "bonus": 3
+      },
+      "damType": "punch",
+      "ac": {
+        "pierce": 3,
+        "bash": 2,
+        "slash": 3,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 120,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6608,
+      "name": "brat spoiled",
+      "shortDescr": "the spoiled brat",
+      "longDescr": "A spoiled brat is crying here.\n\r",
+      "description": "You see a little tyke who has always gotten what he wanted.  You have the\n\rbiggest urge to put him out of his misery.\n\r",
+      "race": "dwarf",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "kick",
+        "dirt_kick",
+        "trip"
+      ],
+      "resFlags": [
+        "poison",
+        "disease"
+      ],
+      "vulnFlags": [
+        "drowning"
+      ],
+      "alignment": -400,
+      "group": 0,
+      "level": 1,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 4,
+        "bonus": 15
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 199
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 2,
+        "bonus": 1
+      },
+      "damType": "beating",
+      "ac": {
+        "pierce": 8,
+        "bash": 8,
+        "slash": 8,
+        "exotic": 10
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 50,
+      "size": "small",
+      "material": "0"
+    }
+  ],
+  "objects": [
+    {
+      "vnum": 6600,
+      "name": "axe toy",
+      "shortDescr": "a toy axe",
+      "description": "An axe made of wood lies here.",
+      "material": "wood",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "axe",
+        "dice": [
+          1,
+          5
+        ],
+        "damageType": "chop"
+      },
+      "weight": 30,
+      "cost": 250,
+      "condition": 90,
+      "extraDescs": [
+        {
+          "keyword": "axe toy",
+          "description": "A small label says 'made in Taiwan'.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6601,
+      "name": "ring pink ice",
+      "shortDescr": "a pink ice ring",
+      "description": "A pink ice ring draws your eye.",
+      "material": "ice",
+      "itemType": "treasure",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "finger"
+      ],
+      "level": 3,
+      "weight": 10,
+      "cost": 620,
+      "condition": 90,
+      "extraDescs": [
+        {
+          "keyword": "ring pink ice",
+          "description": "How strange...it's made of ice, but it doesn't melt. It feels pleasantly \n\rcool to the touch.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "strength",
+          "level": 3,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "hp",
+          "level": 3,
+          "duration": -1,
+          "modifier": 4
+        }
+      ]
+    },
+    {
+      "vnum": 6621,
+      "name": "robe linen",
+      "shortDescr": "a linen robe",
+      "description": "A linen robe is crumpled into a ball here.",
+      "material": "cloth",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "about"
+      ],
+      "armor": {
+        "acPierce": 1,
+        "acBash": 2,
+        "acSlash": 1,
+        "acExotic": 1
+      },
+      "level": 7,
+      "weight": 50,
+      "cost": 780,
+      "condition": 90,
+      "extraDescs": [
+        {
+          "keyword": "robe linen",
+          "description": "It radiates an aura of peace and wisdom.  The perfect garb for a teacher.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "wisdom",
+          "level": 7,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "mana",
+          "level": 7,
+          "duration": -1,
+          "modifier": 5
+        }
+      ]
+    },
+    {
+      "vnum": 6622,
+      "name": "broom",
+      "shortDescr": "a broom",
+      "description": "A stout straw broom lies on the floor.",
+      "material": "wood",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "spear",
+        "dice": [
+          2,
+          3
+        ],
+        "damageType": "pound",
+        "flags": [
+          "twohands"
+        ]
+      },
+      "level": 4,
+      "weight": 30,
+      "cost": 270,
+      "condition": 50,
+      "extraDescs": [
+        {
+          "keyword": "broom",
+          "description": "It's worn and tired, probably from swatting too many children.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 4,
+          "duration": -1,
+          "modifier": -1
+        },
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 4,
+          "duration": -1,
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "vnum": 6644,
+      "name": "meat steak",
+      "shortDescr": "a juicy steak",
+      "description": "A juicy steak sits on a plate here.",
+      "material": "meat",
+      "itemType": "food",
+      "wearFlags": [
+        "take"
+      ],
+      "food": {
+        "foodHours": 25,
+        "fullHours": 25
+      },
+      "weight": 20,
+      "condition": 100
+    },
+    {
+      "vnum": 6645,
+      "name": "steak rotten",
+      "shortDescr": "a rotten steak",
+      "description": "A dry steak lies on the floor.",
+      "material": "meat",
+      "itemType": "food",
+      "wearFlags": [
+        "take"
+      ],
+      "food": {
+        "foodHours": 4,
+        "fullHours": 4,
+        "poisoned": true
+      },
+      "weight": 20,
+      "condition": 50
+    },
+    {
+      "vnum": 6646,
+      "name": "potion amber",
+      "shortDescr": "an amber potion",
+      "description": "An amber potion sits in a corner.",
+      "material": "glass",
+      "itemType": "potion",
+      "wearFlags": [
+        "take"
+      ],
+      "spells": {
+        "level": 5,
+        "spells": [
+          "cure light",
+          "armor",
+          ""
+        ]
+      },
+      "weight": 10,
+      "cost": 150,
+      "condition": 90,
+      "extraDescs": [
+        {
+          "keyword": "potion",
+          "description": "It's a tight-stoppered glass bottle with a thick amber liquid inside. It\n\rtastes kind of like whiskey.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6647,
+      "name": "gun toy",
+      "shortDescr": "a toy gun",
+      "description": "A toy gun with a sharp bayonet lies here.",
+      "material": "wood",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "spear",
+        "dice": [
+          2,
+          3
+        ],
+        "damageType": "stab",
+        "flags": [
+          "twohands"
+        ]
+      },
+      "level": 4,
+      "weight": 20,
+      "cost": 300,
+      "condition": 90,
+      "extraDescs": [
+        {
+          "keyword": "gun toy",
+          "description": "It's just a toy...but the point looks kind of sharp.\n\rYou'll put your eye out, kid!\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 4,
+          "duration": -1,
+          "modifier": -1
+        }
+      ]
+    }
+  ],
+  "shops": [],
+  "specials": [
+    {
+      "mobVnum": 6600,
+      "spec": "spec_thief"
+    },
+    {
+      "mobVnum": 6604,
+      "spec": "spec_thief"
+    },
+    {
+      "mobVnum": 6606,
+      "spec": "spec_cast_cleric"
+    },
+    {
+      "mobVnum": 6608,
+      "spec": "spec_thief"
+    }
+  ],
+  "mobprogs": [],
+  "resets": [
+    {
+      "mobVnum": 6600,
+      "maxInArea": 7,
+      "roomVnum": 6602,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6600,
+      "wearLoc": "wielded",
+      "roomVnum": 6602,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 6601,
+      "maxInArea": 2,
+      "roomVnum": 6602,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6606,
+      "maxInArea": 2,
+      "roomVnum": 6602,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6646,
+      "roomVnum": 6602,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 6644,
+      "roomVnum": 6602,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 6621,
+      "wearLoc": "about the shoulders",
+      "roomVnum": 6602,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 6600,
+      "maxInArea": 7,
+      "roomVnum": 6603,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6600,
+      "wearLoc": "wielded",
+      "roomVnum": 6603,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 6600,
+      "maxInArea": 7,
+      "roomVnum": 6604,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6600,
+      "wearLoc": "wielded",
+      "roomVnum": 6604,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 6602,
+      "maxInArea": 2,
+      "roomVnum": 6604,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6606,
+      "maxInArea": 2,
+      "roomVnum": 6604,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6646,
+      "roomVnum": 6604,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 6622,
+      "wearLoc": "wielded",
+      "roomVnum": 6604,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 6600,
+      "maxInArea": 7,
+      "roomVnum": 6605,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6600,
+      "wearLoc": "wielded",
+      "roomVnum": 6605,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 6602,
+      "maxInArea": 2,
+      "roomVnum": 6605,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6645,
+      "roomVnum": 6605,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 6605,
+      "maxInArea": 3,
+      "roomVnum": 6605,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6601,
+      "wearLoc": "on the left finger",
+      "roomVnum": 6605,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 6605,
+      "maxInArea": 3,
+      "roomVnum": 6606,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6601,
+      "maxInArea": 2,
+      "roomVnum": 6606,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6600,
+      "maxInArea": 7,
+      "roomVnum": 6608,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6600,
+      "wearLoc": "wielded",
+      "roomVnum": 6608,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 6603,
+      "maxInArea": 4,
+      "roomVnum": 6608,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6647,
+      "wearLoc": "wielded",
+      "roomVnum": 6608,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 6600,
+      "maxInArea": 7,
+      "roomVnum": 6609,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6600,
+      "wearLoc": "wielded",
+      "roomVnum": 6609,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 6604,
+      "maxInArea": 2,
+      "roomVnum": 6609,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6603,
+      "maxInArea": 3,
+      "roomVnum": 6609,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6647,
+      "wearLoc": "wielded",
+      "roomVnum": 6609,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 6603,
+      "maxInArea": 4,
+      "roomVnum": 6609,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6647,
+      "wearLoc": "wielded",
+      "roomVnum": 6609,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 6600,
+      "maxInArea": 7,
+      "roomVnum": 6610,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6600,
+      "wearLoc": "wielded",
+      "roomVnum": 6610,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 6603,
+      "maxInArea": 4,
+      "roomVnum": 6610,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6647,
+      "wearLoc": "wielded",
+      "roomVnum": 6610,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 6605,
+      "maxInArea": 3,
+      "roomVnum": 6610,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6604,
+      "maxInArea": 2,
+      "roomVnum": 6611,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6603,
+      "maxInArea": 4,
+      "roomVnum": 6611,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6647,
+      "wearLoc": "wielded",
+      "roomVnum": 6611,
+      "commandName": "equipObj"
+    },
+    {
+      "roomVnum": 6613,
+      "exits": 4,
+      "commandName": "randomizeExits"
+    },
+    {
+      "roomVnum": 6614,
+      "exits": 4,
+      "commandName": "randomizeExits"
+    },
+    {
+      "roomVnum": 6615,
+      "exits": 4,
+      "commandName": "randomizeExits"
+    },
+    {
+      "roomVnum": 6616,
+      "exits": 4,
+      "commandName": "randomizeExits"
+    },
+    {
+      "mobVnum": 6607,
+      "maxInArea": 1,
+      "roomVnum": 6624,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3023,
+      "wearLoc": "wielded",
+      "roomVnum": 6624,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 6608,
+      "maxInArea": 1,
+      "roomVnum": 6631,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    }
+  ],
+  "factions": [],
+  "quests": []
+}

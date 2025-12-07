@@ -1,0 +1,778 @@
+{
+  "formatVersion": 1,
+  "races": [
+    {
+      "name": "unique",
+      "size": "tiny",
+      "stats": {
+        "str": 13,
+        "int": 13,
+        "wis": 13,
+        "dex": 13,
+        "con": 13
+      },
+      "maxStats": {
+        "str": 18,
+        "int": 18,
+        "wis": 18,
+        "dex": 18,
+        "con": 18
+      },
+      "classMult": {
+        "mage": 100,
+        "cleric": 100,
+        "thief": 100,
+        "warrior": 100
+      }
+    },
+    {
+      "name": "human",
+      "whoName": "Human",
+      "pc": true,
+      "size": "medium",
+      "stats": {
+        "str": 13,
+        "int": 13,
+        "wis": 13,
+        "dex": 13,
+        "con": 13
+      },
+      "maxStats": {
+        "str": 18,
+        "int": 18,
+        "wis": 18,
+        "dex": 18,
+        "con": 18
+      },
+      "formFlags": [
+        "humanoidDefault"
+      ],
+      "partFlags": [
+        "humanoidDefault"
+      ],
+      "classMult": {
+        "mage": 100,
+        "cleric": 100,
+        "thief": 100,
+        "warrior": 100
+      }
+    },
+    {
+      "name": "elf",
+      "whoName": "Elf ",
+      "pc": true,
+      "points": 5,
+      "size": "small",
+      "stats": {
+        "str": 12,
+        "int": 14,
+        "wis": 13,
+        "dex": 15,
+        "con": 11
+      },
+      "maxStats": {
+        "str": 16,
+        "int": 20,
+        "wis": 18,
+        "dex": 21,
+        "con": 15
+      },
+      "affectFlags": [
+        "infrared"
+      ],
+      "resFlags": [
+        "charm"
+      ],
+      "vulnFlags": [
+        "iron"
+      ],
+      "formFlags": [
+        "humanoidDefault"
+      ],
+      "partFlags": [
+        "humanoidDefault"
+      ],
+      "classMult": {
+        "mage": 100,
+        "cleric": 125,
+        "thief": 100,
+        "warrior": 120
+      },
+      "startLoc": 12000,
+      "skills": [
+        "sneak",
+        "hide"
+      ]
+    },
+    {
+      "name": "dwarf",
+      "whoName": "Dwarf",
+      "pc": true,
+      "points": 8,
+      "size": "medium",
+      "stats": {
+        "str": 14,
+        "int": 12,
+        "wis": 14,
+        "dex": 10,
+        "con": 15
+      },
+      "maxStats": {
+        "str": 20,
+        "int": 16,
+        "wis": 19,
+        "dex": 14,
+        "con": 21
+      },
+      "affectFlags": [
+        "infrared"
+      ],
+      "resFlags": [
+        "poison",
+        "disease"
+      ],
+      "vulnFlags": [
+        "drowning"
+      ],
+      "formFlags": [
+        "humanoidDefault"
+      ],
+      "partFlags": [
+        "humanoidDefault"
+      ],
+      "classMult": {
+        "mage": 150,
+        "cleric": 100,
+        "thief": 125,
+        "warrior": 100
+      },
+      "skills": [
+        "berserk"
+      ]
+    },
+    {
+      "name": "giant",
+      "whoName": "Giant",
+      "pc": true,
+      "points": 6,
+      "size": "large",
+      "stats": {
+        "str": 16,
+        "int": 11,
+        "wis": 13,
+        "dex": 11,
+        "con": 14
+      },
+      "maxStats": {
+        "str": 22,
+        "int": 15,
+        "wis": 18,
+        "dex": 15,
+        "con": 20
+      },
+      "resFlags": [
+        "fire",
+        "cold"
+      ],
+      "vulnFlags": [
+        "lightning",
+        "mental"
+      ],
+      "formFlags": [
+        "humanoidDefault"
+      ],
+      "partFlags": [
+        "humanoidDefault"
+      ],
+      "classMult": {
+        "mage": 200,
+        "cleric": 150,
+        "thief": 150,
+        "warrior": 105
+      },
+      "skills": [
+        "bash",
+        "fast healing"
+      ]
+    },
+    {
+      "name": "bat",
+      "size": "tiny",
+      "affectFlags": [
+        "flying",
+        "dark_vision"
+      ],
+      "offFlags": [
+        "dodge",
+        "fast"
+      ],
+      "vulnFlags": [
+        "light"
+      ],
+      "formFlags": [
+        "animalDefault",
+        "mammal"
+      ],
+      "partFlags": [
+        "animalDefault",
+        "feet",
+        "wings"
+      ]
+    },
+    {
+      "name": "bear",
+      "size": "tiny",
+      "offFlags": [
+        "berserk",
+        "disarm",
+        "crush"
+      ],
+      "resFlags": [
+        "bash",
+        "cold"
+      ],
+      "formFlags": [
+        "animalDefault",
+        "mammal"
+      ],
+      "partFlags": [
+        "animalDefault",
+        "arms",
+        "feet",
+        "claws",
+        "fangs"
+      ]
+    },
+    {
+      "name": "cat",
+      "size": "tiny",
+      "affectFlags": [
+        "dark_vision"
+      ],
+      "offFlags": [
+        "dodge",
+        "fast"
+      ],
+      "formFlags": [
+        "animalDefault",
+        "mammal"
+      ],
+      "partFlags": [
+        "animalDefault",
+        "feet",
+        "tail",
+        "claws",
+        "fangs"
+      ]
+    },
+    {
+      "name": "centipede",
+      "size": "tiny",
+      "affectFlags": [
+        "dark_vision"
+      ],
+      "resFlags": [
+        "pierce",
+        "cold"
+      ],
+      "vulnFlags": [
+        "bash"
+      ],
+      "formFlags": [
+        "animalDefault",
+        "poison",
+        "insect"
+      ],
+      "partFlags": [
+        "head",
+        "legs",
+        "eye"
+      ]
+    },
+    {
+      "name": "dog",
+      "size": "tiny",
+      "offFlags": [
+        "fast"
+      ],
+      "formFlags": [
+        "animalDefault",
+        "mammal"
+      ],
+      "partFlags": [
+        "animalDefault",
+        "feet",
+        "claws",
+        "fangs"
+      ]
+    },
+    {
+      "name": "doll",
+      "size": "tiny",
+      "immFlags": [
+        "cold",
+        "poison",
+        "negative",
+        "holy",
+        "mental",
+        "disease",
+        "drowning"
+      ],
+      "resFlags": [
+        "bash",
+        "light"
+      ],
+      "vulnFlags": [
+        "slash",
+        "fire",
+        "lightning",
+        "acid",
+        "energy"
+      ],
+      "formFlags": [
+        "other",
+        "construct",
+        "biped",
+        "cold_blood"
+      ],
+      "partFlags": [
+        "head",
+        "arms",
+        "legs",
+        "hands",
+        "feet",
+        "eye"
+      ]
+    },
+    {
+      "name": "dragon",
+      "size": "tiny",
+      "affectFlags": [
+        "infrared",
+        "flying"
+      ],
+      "resFlags": [
+        "charm",
+        "bash",
+        "fire"
+      ],
+      "vulnFlags": [
+        "pierce",
+        "cold"
+      ],
+      "formFlags": [
+        "edible",
+        "sentient",
+        "dragon"
+      ],
+      "partFlags": [
+        "animalDefault",
+        "hands",
+        "feet",
+        "fingers",
+        "wings",
+        "tail",
+        "claws",
+        "fangs",
+        "scales"
+      ]
+    },
+    {
+      "name": "fido",
+      "size": "tiny",
+      "offFlags": [
+        "dodge",
+        "assist_race"
+      ],
+      "vulnFlags": [
+        "magic"
+      ],
+      "formFlags": [
+        "animalDefault",
+        "poison",
+        "mammal"
+      ],
+      "partFlags": [
+        "animalDefault",
+        "feet",
+        "tail",
+        "fangs"
+      ]
+    },
+    {
+      "name": "fox",
+      "size": "tiny",
+      "affectFlags": [
+        "dark_vision"
+      ],
+      "offFlags": [
+        "dodge",
+        "fast"
+      ],
+      "formFlags": [
+        "animalDefault",
+        "mammal"
+      ],
+      "partFlags": [
+        "animalDefault",
+        "feet",
+        "tail",
+        "fangs"
+      ]
+    },
+    {
+      "name": "goblin",
+      "size": "tiny",
+      "affectFlags": [
+        "infrared"
+      ],
+      "resFlags": [
+        "disease"
+      ],
+      "vulnFlags": [
+        "magic"
+      ],
+      "formFlags": [
+        "humanoidDefault"
+      ],
+      "partFlags": [
+        "humanoidDefault"
+      ]
+    },
+    {
+      "name": "hobgoblin",
+      "size": "tiny",
+      "affectFlags": [
+        "infrared"
+      ],
+      "resFlags": [
+        "poison",
+        "disease"
+      ],
+      "formFlags": [
+        "humanoidDefault"
+      ],
+      "partFlags": [
+        "humanoidDefault",
+        "tusks"
+      ]
+    },
+    {
+      "name": "kobold",
+      "size": "tiny",
+      "affectFlags": [
+        "infrared"
+      ],
+      "resFlags": [
+        "poison"
+      ],
+      "vulnFlags": [
+        "magic"
+      ],
+      "formFlags": [
+        "humanoidDefault",
+        "poison"
+      ],
+      "partFlags": [
+        "humanoidDefault",
+        "tail"
+      ]
+    },
+    {
+      "name": "lizard",
+      "size": "tiny",
+      "resFlags": [
+        "poison"
+      ],
+      "vulnFlags": [
+        "cold"
+      ],
+      "formFlags": [
+        "animalDefault",
+        "reptile",
+        "cold_blood"
+      ],
+      "partFlags": [
+        "head",
+        "legs",
+        "heart",
+        "brains",
+        "guts",
+        "feet",
+        "eye",
+        "tail",
+        "fangs"
+      ]
+    },
+    {
+      "name": "modron",
+      "size": "tiny",
+      "affectFlags": [
+        "infrared"
+      ],
+      "offFlags": [
+        "assist_align",
+        "assist_race"
+      ],
+      "immFlags": [
+        "charm",
+        "negative",
+        "holy",
+        "mental",
+        "disease"
+      ],
+      "resFlags": [
+        "fire",
+        "cold",
+        "acid"
+      ],
+      "formFlags": [
+        "sentient"
+      ],
+      "partFlags": [
+        "head",
+        "arms",
+        "legs",
+        "hands",
+        "feet",
+        "ear",
+        "eye"
+      ]
+    },
+    {
+      "name": "orc",
+      "size": "tiny",
+      "affectFlags": [
+        "infrared"
+      ],
+      "resFlags": [
+        "disease"
+      ],
+      "vulnFlags": [
+        "light"
+      ],
+      "formFlags": [
+        "humanoidDefault"
+      ],
+      "partFlags": [
+        "humanoidDefault"
+      ]
+    },
+    {
+      "name": "pig",
+      "size": "tiny",
+      "formFlags": [
+        "animalDefault",
+        "mammal"
+      ],
+      "partFlags": [
+        "animalDefault",
+        "feet"
+      ]
+    },
+    {
+      "name": "rabbit",
+      "size": "tiny",
+      "offFlags": [
+        "dodge",
+        "fast"
+      ],
+      "formFlags": [
+        "animalDefault",
+        "mammal"
+      ],
+      "partFlags": [
+        "animalDefault",
+        "feet"
+      ]
+    },
+    {
+      "name": "school monster",
+      "size": "tiny",
+      "actFlags": [
+        "noalign"
+      ],
+      "immFlags": [
+        "summon",
+        "charm"
+      ],
+      "vulnFlags": [
+        "magic"
+      ],
+      "formFlags": [
+        "edible",
+        "biped",
+        "mammal"
+      ],
+      "partFlags": [
+        "animalDefault",
+        "arms",
+        "feet",
+        "tail",
+        "claws"
+      ]
+    },
+    {
+      "name": "snake",
+      "size": "tiny",
+      "resFlags": [
+        "poison"
+      ],
+      "vulnFlags": [
+        "cold"
+      ],
+      "formFlags": [
+        "animalDefault",
+        "reptile",
+        "snake",
+        "cold_blood"
+      ],
+      "partFlags": [
+        "head",
+        "heart",
+        "brains",
+        "guts",
+        "eye",
+        "long_tongue",
+        "tail",
+        "fangs",
+        "scales"
+      ]
+    },
+    {
+      "name": "song bird",
+      "size": "tiny",
+      "affectFlags": [
+        "flying"
+      ],
+      "offFlags": [
+        "dodge",
+        "fast"
+      ],
+      "formFlags": [
+        "animalDefault",
+        "bird"
+      ],
+      "partFlags": [
+        "head",
+        "legs",
+        "heart",
+        "brains",
+        "guts",
+        "feet",
+        "eye",
+        "wings"
+      ]
+    },
+    {
+      "name": "troll",
+      "size": "tiny",
+      "affectFlags": [
+        "detect_hidden",
+        "infrared",
+        "regeneration"
+      ],
+      "offFlags": [
+        "berserk"
+      ],
+      "resFlags": [
+        "charm",
+        "bash"
+      ],
+      "vulnFlags": [
+        "fire",
+        "acid"
+      ],
+      "formFlags": [
+        "humanoidDefault",
+        "poison"
+      ],
+      "partFlags": [
+        "humanoidDefault",
+        "claws",
+        "fangs"
+      ]
+    },
+    {
+      "name": "water fowl",
+      "size": "tiny",
+      "affectFlags": [
+        "flying",
+        "swim"
+      ],
+      "resFlags": [
+        "drowning"
+      ],
+      "formFlags": [
+        "animalDefault",
+        "bird"
+      ],
+      "partFlags": [
+        "head",
+        "legs",
+        "heart",
+        "brains",
+        "guts",
+        "feet",
+        "eye",
+        "wings"
+      ]
+    },
+    {
+      "name": "wolf",
+      "size": "tiny",
+      "affectFlags": [
+        "dark_vision"
+      ],
+      "offFlags": [
+        "dodge",
+        "fast"
+      ],
+      "formFlags": [
+        "animalDefault",
+        "mammal"
+      ],
+      "partFlags": [
+        "animalDefault",
+        "tail",
+        "fangs"
+      ]
+    },
+    {
+      "name": "wyvern",
+      "size": "tiny",
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden",
+        "flying"
+      ],
+      "offFlags": [
+        "bash",
+        "dodge",
+        "fast"
+      ],
+      "immFlags": [
+        "poison"
+      ],
+      "vulnFlags": [
+        "light"
+      ],
+      "formFlags": [
+        "animalDefault",
+        "poison",
+        "dragon"
+      ],
+      "partFlags": [
+        "animalDefault",
+        "feet",
+        "tail",
+        "fangs",
+        "scales"
+      ]
+    },
+    {
+      "name": "unique",
+      "size": "tiny"
+    }
+  ]
+}

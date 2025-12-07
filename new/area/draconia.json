@@ -1,0 +1,4027 @@
+{
+  "formatVersion": 1,
+  "areadata": {
+    "version": 2,
+    "name": "Dragon Tower",
+    "builders": "",
+    "vnumRange": [
+      2200,
+      2299
+    ],
+    "credits": "Wench",
+    "security": 9,
+    "sector": "inside",
+    "lowLevel": 5,
+    "highLevel": 30,
+    "reset": 6,
+    "alwaysReset": false
+  },
+  "storyBeats": [],
+  "checklist": [],
+  "rooms": [
+    {
+      "vnum": 2201,
+      "name": "The Tower Gates",
+      "description": "You are at the entrance to a tall tower.  Lightning flashes periodically and\n\rit is raining.  You think it might be a good idea to turn back into the grove.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2202,
+          "key": 2231,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "description": "You see a large steel gate.  Beyond is the Foyer of the Tower.\n\r",
+          "keyword": "gate steel"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1304,
+          "description": "The shadows cloud your vision.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "gate",
+          "description": "The gate is tall and secure.  Whoever built it values privacy.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2202,
+      "name": "The Foyer",
+      "description": "This is the entrance to the Tower.  The hallway continues to the north,\n\rleading towards a staircase.  You notice a grim painting on the wall,  and \n\rquickly look away.\n\r",
+      "roomFlags": [
+        "no_mob",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2203,
+          "description": "You see a long hallway. \n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 2201,
+          "description": "You see the gate. \n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "painting",
+          "description": "This painting depicts the grisly death of a foolish human.  You hope you do \n\rnot share his fate.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2203,
+      "name": "Hallway",
+      "description": "This hallway seems to stretch on forever.  You notice a stairway in  \n\rthe distance. \n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2204,
+          "description": "The hall continues. \n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 2202,
+          "description": "You see the foyer. \n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2204,
+      "name": "Hallway",
+      "description": "You trudge down the hallway.  You notice doors to the east and west. \n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2207,
+          "description": "The hall continues. \n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 2205,
+          "flags": [
+            "door"
+          ],
+          "description": "You see a door.  You notice a sign. \n\r",
+          "keyword": "door"
+        },
+        {
+          "dir": "south",
+          "toVnum": 2203,
+          "description": "The hall continues.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 2206,
+          "flags": [
+            "door"
+          ],
+          "description": "You see an oak door.  There is an inscription on it. \n\r",
+          "keyword": "oak"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "sign",
+          "description": "The sign says \"NURSERY\" in bold letters.     \n\r"
+        },
+        {
+          "keyword": "inscription",
+          "description": "It says \"STORAGE\"\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2205,
+      "name": "Nursery",
+      "description": "It looks like a tornado has been through here.  Toys are scattered everywhere,\n\rand a small group of dragon hatchlings are fighting over a bone. \n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2223,
+          "key": 2297,
+          "flags": [
+            "door"
+          ],
+          "description": "You see a large stone door.\n\r",
+          "keyword": "door stone"
+        },
+        {
+          "dir": "west",
+          "toVnum": 2204,
+          "flags": [
+            "door"
+          ],
+          "description": "You see the hallway. \n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2206,
+      "name": "Storage Room",
+      "description": "This room is covered with dust, it looks as if no one has been here in ages.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2204,
+          "flags": [
+            "door"
+          ],
+          "description": "You see the hallway. \n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 2208,
+          "flags": [
+            "door"
+          ],
+          "description": "You see nothing special. \n\r",
+          "keyword": "trapdoor"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "dust",
+          "description": "As you look closely at the dust, you notice the outline of a trapdoor!       \n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2207,
+      "name": "End of the Hallway",
+      "description": "You have finally reached the end of the hallway.  A huge staircase leads up.\n\rYou see a sign at the base of the staircase. \n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 2204,
+          "description": "The hall continues. \n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 2210,
+          "description": "The second floor.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "sign",
+          "description": "The sign reads:\n\r    This area is kind of tough.  You probably shouldn't go up these stairs \n\r    alone if you are under 18th level, or at all if you under 14th level.  \n\r    Have fun! -- Wench\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2208,
+      "name": "Guardian's Room",
+      "description": "You climb down the rickety stairs and find yourself face to face with a \n\rgargantuan hydra.  How fast can you climb UP stairs? \n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 2209,
+          "key": 2234,
+          "flags": [
+            "door"
+          ],
+          "description": "A large grey door.\n\r",
+          "keyword": "grey"
+        },
+        {
+          "dir": "up",
+          "toVnum": 2206,
+          "flags": [
+            "door"
+          ],
+          "description": "You see the storage room. \n\r",
+          "keyword": "door trap trapdoor"
+        }
+      ]
+    },
+    {
+      "vnum": 2209,
+      "name": "The Treasure Room",
+      "description": "You have made it past the hydra into the vault.  You are astounded by \n\rthe treasure here.  Not only are you now rich, you can probably rest here\n\rsafely.  The west wall seems to have a large door made entirely of ruby.\n\r",
+      "roomFlags": [
+        "no_mob",
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2208,
+          "key": 2234,
+          "flags": [
+            "door"
+          ],
+          "description": "You see nothing special. \n\r",
+          "keyword": "grey"
+        },
+        {
+          "dir": "west",
+          "toVnum": 2218,
+          "key": 2232,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "description": "You see a ruby door!\n\r",
+          "keyword": "door ruby"
+        }
+      ]
+    },
+    {
+      "vnum": 2210,
+      "name": "The Second Floor",
+      "description": "You have made it up to the second floor.  You hear hissing and see several\n\rdragon men rushing you.  You wonder how long you will be staying here.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 2211,
+          "key": 1,
+          "description": "You see the court.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 2207,
+          "description": "You see the first floor.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2211,
+      "name": "The Court",
+      "description": "You have entered what seems to be a large court.  The people guarding it\n\rdon't seem happy to see you ...\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2210,
+          "description": "You see nothing special.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 2212,
+          "flags": [
+            "door"
+          ],
+          "description": "You see a wooden door. \n\r",
+          "keyword": "door wooden"
+        },
+        {
+          "dir": "south",
+          "toVnum": 2213,
+          "description": "You see the court.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2212,
+      "name": "Hall O' Pleasure",
+      "description": "You stop dead in your tracks as you enter this ornately decorated room - it\n\ris populated with the king's harem.  \n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 2211,
+          "description": "You see the Court.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2213,
+      "name": "The Court",
+      "description": "You are continuing down the hall.  To the east and west you see ornate doors.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2211,
+          "description": "You see the court.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 2214,
+          "key": 2240,
+          "flags": [
+            "door"
+          ],
+          "description": "You see a black door.\n\r",
+          "keyword": "door black"
+        },
+        {
+          "dir": "south",
+          "toVnum": 2216,
+          "description": "You see the court.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 2215,
+          "key": 2233,
+          "flags": [
+            "door"
+          ],
+          "description": "You see a white door.\n\r",
+          "keyword": "door white"
+        }
+      ]
+    },
+    {
+      "vnum": 2214,
+      "name": "The Library",
+      "description": "You have entered a huge room, filled with books.  A peaceful man is\n\rsitting at a table, studying.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 2213,
+          "key": 2240,
+          "flags": [
+            "door"
+          ],
+          "description": "You see the court.\n\r",
+          "keyword": "door black"
+        }
+      ]
+    },
+    {
+      "vnum": 2215,
+      "name": "The Sanctum",
+      "description": "This small room is modestly decorated with small dragon icons.  Its sole\n\roccupant is deep in thought.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2213,
+          "key": 2233,
+          "flags": [
+            "door"
+          ],
+          "description": "You see the Court.\n\r",
+          "keyword": "door white"
+        }
+      ]
+    },
+    {
+      "vnum": 2216,
+      "name": "The Court Ends",
+      "description": "You have reached the end of the court.  A huge Draconian is sitting in a\n\rchair here.  As you enter, he motions with his hand and you are rushed by three\n\rof his bodyguards.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2213,
+          "description": "You see the court.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 2217,
+          "description": "You see a private chamber.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2217,
+      "name": "bedroom",
+      "description": "This is the personal room of the draconian king.  It is not empty.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 2216,
+          "description": "You see Court.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2218,
+      "name": "Entrance to the Crypt",
+      "description": "You have entered a large room which smells heavily of reptile.  You wonder\n\rwhat awaits you here.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2209,
+          "key": 2232,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "description": "You see the Treasure Vault.\n\r",
+          "keyword": "door ruby"
+        },
+        {
+          "dir": "west",
+          "toVnum": 2219,
+          "description": "You see the Crypt.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2219,
+      "name": "Crypt",
+      "description": "You are in a large room which continues to the west.  You notice many\n\rcoffins here.  Open coffins reveal remains of something other than man.  \n\rThe smell of reptile is very strong here.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2218,
+          "description": "You see the entrance.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 2222,
+          "description": "You see nothing special.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2220,
+      "name": "The Lair",
+      "description": "You have entered a large room dominated by a great white dragon.  It growls\n\rat you before it attacks.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 2235,
+          "description": "You the cave opening.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2221,
+      "name": "A Lair",
+      "description": "You have entered a large room dominated by a great black dragon.  It looks\n\ras though it is amused by your presence.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2241,
+          "description": "You the cave opening.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2222,
+      "name": "The Crypt Ends",
+      "description": "You have come to the end of the Crypt.  It seems deserted.  There is a \n\rstrange coffin lying against the wall.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2219,
+          "description": "You see the Crypt.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 2232,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "keyword": "coffin"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "coffin",
+          "description": "A coffin lies a against the east wall.  It is closed.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2223,
+      "name": "Entrance to the Great Hall",
+      "description": "You have entered a huge hall.  It has been carefully decorated with\n\rbeautiful tapestries depicting a great battle between dragons and men.  The\n\rdragons appear to be the victors.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2224,
+          "description": "The Hall continues.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 2205,
+          "key": 2297,
+          "flags": [
+            "door"
+          ],
+          "description": "You see the Nursery.\n\r",
+          "keyword": "door stone"
+        }
+      ]
+    },
+    {
+      "vnum": 2224,
+      "name": "The Great Hall",
+      "description": "You are working your way down the Hall.  To the north, you notice a smaller\n\rpassageway, while the main hall continues to the east.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2225,
+          "description": "You see a narrow passageway.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 2229,
+          "description": "You see the Hall.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2225,
+      "name": "A Narrow Passageway",
+      "description": "This Passageway branches off from the main hall and leads somewhere ... where?\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2226,
+          "description": "You see a large Lair.  It looks dangerous.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 2224,
+          "description": "You see the great hall.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2226,
+      "name": "Lair",
+      "description": "You have entered a large lair with bones strewn about the ground.  You\n\rnotice the source of these as you come face to face with a rather large red\n\rdragon.  You notice a trap door in the floor.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 2225,
+          "description": "The narrow passageway.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 2227,
+          "flags": [
+            "door"
+          ],
+          "description": "You see a trap door.\n\r",
+          "keyword": "door trap trapdoor"
+        }
+      ]
+    },
+    {
+      "vnum": 2227,
+      "name": "Underground Tunnel",
+      "description": "You have entered an underground tunnel.  It is dark and dirty, and you find\n\ryourself wishing you were back in Midgaard.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2228,
+          "description": "You see the tunnel.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 2226,
+          "flags": [
+            "door"
+          ],
+          "description": "You see the red dragon's lair.\n\r",
+          "keyword": "door trap trapdoor"
+        }
+      ]
+    },
+    {
+      "vnum": 2228,
+      "name": "Underground Tunnel",
+      "description": "This tunnel has come to a dead end.  You feel nervous about being trapped here.\n\r",
+      "roomFlags": [
+        "dark",
+        "no_mob",
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 2227,
+          "description": "You see the tunnel.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2229,
+      "name": "The Great Hall Ends.",
+      "description": "You have come to the end of the great hall.  You see before you a huge\n\rgolden door, it must be at least twenty feet tall!  It has beautiful etchings\n\rof dragons.  You see a sign on the door.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2230,
+          "key": 2299,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "description": "You see a great golden door.\n\r",
+          "keyword": "door great golden"
+        },
+        {
+          "dir": "west",
+          "toVnum": 2224,
+          "description": "You see the hall.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "sign",
+          "description": "Congratulations on making it this far!  Watch out, it gets a little\n\r    nasty here... :) - Wench\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2230,
+      "name": "THE Lair",
+      "description": "You have entered a huge lair.  You feel that something big lives here or at least did.  The golden door lies back to the west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 2229,
+          "key": 2299,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "description": "You see a great golden door.\n\r",
+          "keyword": "door golden great"
+        }
+      ]
+    },
+    {
+      "vnum": 2231,
+      "name": "The End...",
+      "description": "You have reached the final lair.  It is dominated by a huge five headed\n\rdragon.  You suddenly realize that you have SERIOUS problems...\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 2243,
+          "key": 2241,
+          "flags": [
+            "door"
+          ],
+          "description": "You see the top of the mountain.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2232,
+      "name": "Stairwell",
+      "description": "This is an old decrepit stairwell that leads to the wine cellar.  It looks\n\rlike it hasn't been used for decades.  Well, at least not by anything living.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2222,
+          "description": "The crypt"
+        },
+        {
+          "dir": "down",
+          "toVnum": 2233,
+          "description": "A wine cellar"
+        }
+      ]
+    },
+    {
+      "vnum": 2233,
+      "name": "Wine cellar",
+      "description": "This is the old wine cellar of the Dragon Tower.  The shelves are empty.\n\rNothing living has been in here for a long time.  You see a tunnel leading\n\roff to the east and boy does it smell bad.  Kinda of like rotting flesh.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2234,
+          "description": "A tunnel\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 2232,
+          "description": "The stairwell\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2234,
+      "name": "Tunnel",
+      "description": "This tunnel seems to stretch for miles.  You try to distinguish the end but\n\ryour eyes soon tire from the strain.  The smell here has increased two fold.\n\rThe tunnel continues to go to the east.  The wine cellar lies back to the \n\rwest.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "roomFlagsValue": 257,
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2235,
+          "description": "A cave opening\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 2236,
+          "description": "A tunnel\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 2233,
+          "description": "A tunnel\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2235,
+      "name": "A cave opening",
+      "description": "You stand at the opening of a giant cave.  There are many bones strewn across\n\rthe room.  Some human, some indistinguishable.  It smells very bad in here.\n\rYou can hear movement in the cave to the north.  The tunnel goes back to the\n\rsouth.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "roomFlagsValue": 257,
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2220,
+          "description": "The lair\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 2234,
+          "description": "The tunnel\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2236,
+      "name": "The End of the tunnel",
+      "description": "You have finally come to the end of the tunnel.  Back to the west lies\n\rthe miles of tunnels you have walked through.  You see the faint outline of\n\ra trapdoor above you.  A bridge over an underground river lies to the south.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "roomFlagsValue": 257,
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 2237,
+          "description": "bridge\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 2234,
+          "description": "The tunnel\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 2202,
+          "description": "trapdoor\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2237,
+      "name": "The Bridge",
+      "description": "You are walking along an old wooden bridge.  Its not that secure.  You \n\rmight want to hurry along.  To the south, on the other side of the bridge,\n\rlies a small opening.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2236,
+          "description": "The tunnel end\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 2238,
+          "description": "A small opening\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2238,
+      "name": "A small opening",
+      "description": "You are standing in a small opening.  To the north lies the old wooden\n\rbridge.  To your south the you can see a clearing.  You can see sunlight\n\ragain.  What a welcome relief!\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2237,
+          "description": "bridge\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 2239,
+          "description": "clearing\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2239,
+      "name": "Clearing",
+      "description": "You stand out in a clearing.  Mountains are all around you.  There is a \n\rwell in the middle of the clearing.  Lying against the well is a sign.  A\n\rpath leads up the mountain.  The small opening is back to the north.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2238,
+          "description": "the small opening\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 2240,
+          "description": "A path\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 2244,
+          "description": "The well\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "well",
+          "description": "You peer over the side of the well.  It looks VERY, VERY deep.  It appears\n\rto be ENDLESS.\n\r"
+        },
+        {
+          "keyword": "sign",
+          "description": "The sign reads:\n\r         This is a bottomless pit cleverly disguised as a well.  People have\n\rfallen in and never been heard from again.  Trust me, you don't want to go \n\rdown there.\n\r                        The All Powerful Well Keeper\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2240,
+      "name": "A path",
+      "description": "This path leads up the side of the mountain.  A clearing lies below you.\n\rThere is a cave opening to the west.  The path continues up the mountain.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 2241,
+          "description": "cave opening\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 2242,
+          "description": "the path continues\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 2239,
+          "description": "clearing\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2241,
+      "name": "A cave opening",
+      "description": "You stand before a huge cave opening.  You hearing heavy breathing from\n\rwithin the cave.  There are a few skeletons lying about.  The cave lies to \n\rthe south.  The path is back to the east.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2240,
+          "description": "the path\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 2221,
+          "description": "A lair\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2242,
+      "name": "The path continues",
+      "description": "The path continues up the mountain to the top.  The path also goes down.\n\rThats it, nothing more to see.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 2243,
+          "description": "top of the mountain\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 2240,
+          "description": "path\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2243,
+      "name": "The top of the mountain",
+      "description": "You are standing at the top of the mountain.  It feels more like the top of\n\rthe world.  To your north lies a huge platinum door.  You hear very pronounced\n\rgrumbling from behind the doors.  It sounds like something huge and hungry.\n\rBut if you don't have the key you don't have to worry because you can't get in.\n\rIf you do have the key I would suggest not going in.  Some believe the Five\n\rHeaded dragon Tiamat was imprisoned here by the gods.  But who believes in \n\rfairy tales.  Well, if you're scared, you can always go down the mountain.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2231,
+          "key": 2241,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "description": "The platinum door\n\r",
+          "keyword": "door platinum"
+        },
+        {
+          "dir": "down",
+          "toVnum": 2242,
+          "description": "The path continues\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "door platinum",
+          "description": "A huge platinum door separates you from harm"
+        }
+      ]
+    },
+    {
+      "vnum": 2244,
+      "name": "Well",
+      "description": "O\n\r h\n\r   !\n\r\n\r     N\n\r      o\n\r       !\n\r\n\r   I warned you!  You have fallen into the bottomless pit.  You life flashes\n\rright before your eyes.  Pretty pathetic isn't it?  Next time you'll know\n\rto listen to the God of Laughs.\n\r",
+      "roomFlags": [
+        "no_mob"
+      ],
+      "roomFlagsValue": 6,
+      "sectorType": "inside"
+    }
+  ],
+  "mobiles": [
+    {
+      "vnum": 2200,
+      "name": "oldstyle hatchling dragon baby",
+      "shortDescr": "the dragon hatchling",
+      "longDescr": "A dragon hatchling is here, chewing on a bone.\n\r",
+      "description": "This small dragon hisses at you as you enter the room.  Although it is only a\n\rfew feet long, its sharp teeth make you think twice about petting it.\n\r",
+      "race": "dragon",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "infrared",
+        "flying"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "resFlags": [
+        "charm",
+        "bash"
+      ],
+      "vulnFlags": [
+        "pierce"
+      ],
+      "alignment": -900,
+      "group": 0,
+      "level": 7,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 85
+      },
+      "manaDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 8,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 4,
+        "bash": 4,
+        "slash": 4,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 100,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2201,
+      "name": "oldstyle draconian",
+      "shortDescr": "the Draconian",
+      "longDescr": "The Draconian is standing here.\n\r",
+      "description": "This horrible creature is a bizarre cross between a man and a dragon.  He \n\rhas black scales and a seven foot wingspan.  He scowls at you and hefts his \n\rspear as you enter the room.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "detect_invis"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -900,
+      "group": 0,
+      "level": 13,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 170
+      },
+      "manaDice": {
+        "number": 6,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 5,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -1,
+        "bash": -1,
+        "slash": -1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 100,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2202,
+      "name": "oldstyle lord crypt master",
+      "shortDescr": "the dragon master",
+      "longDescr": "The lord of this crypt is here.\n\r",
+      "description": "He doesn't look happy to see you.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "flying"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 27,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 650
+      },
+      "manaDice": {
+        "number": 13,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 5,
+        "type": 4,
+        "bonus": 7
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -8,
+        "bash": -8,
+        "slash": -8,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 1750,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2203,
+      "name": "oldstyle man mage wizard",
+      "shortDescr": "a powerful mage",
+      "longDescr": "A man is here, studying some books.\n\r",
+      "description": "A powerful looking mage is standing in this room studying his spells.  You are\n\rsurprised at the fact that he is human, and realize that he must be very\n\rpowerful to have been accepted by the creatures which live here.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "mage"
+      ],
+      "affectFlags": [
+        "invisible",
+        "detect_invis",
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "dodge",
+        "assist_vnum"
+      ],
+      "alignment": -900,
+      "group": 0,
+      "level": 22,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 4,
+        "type": 10,
+        "bonus": 360
+      },
+      "manaDice": {
+        "number": 22,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -5,
+        "bash": -5,
+        "slash": -5,
+        "exotic": 3
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 30,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2204,
+      "name": "oldstyle cleric draconian",
+      "shortDescr": "the holy Draconian",
+      "longDescr": "A Draconian is here, deep in thought.          \n\r",
+      "description": "A Draconian stands here, dressed in simple robes.  Around his neck you \n\rnotice a golden medallion in the shape of a five headed dragon.  \n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger",
+        "aggressive",
+        "cleric"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "disarm",
+        "kick",
+        "parry",
+        "assist_vnum"
+      ],
+      "alignment": -900,
+      "group": 0,
+      "level": 22,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 400
+      },
+      "manaDice": {
+        "number": 22,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -5,
+        "bash": -5,
+        "slash": -5,
+        "exotic": 5
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 20,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2205,
+      "name": "oldstyle king draconian",
+      "shortDescr": "the Draconian King",
+      "longDescr": "A Draconian wearing fine clothes is here, pondering his greatness.          \n\r",
+      "description": "The king of the draconians sits here on a golden throne.  He looks as \n\rthough he could crush your head with a single blow.  Yet you sense that he \n\ris controlled by a greater power. \n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -900,
+      "group": 0,
+      "level": 26,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 600
+      },
+      "manaDice": {
+        "number": 13,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 3,
+        "type": 7,
+        "bonus": 7
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -7,
+        "bash": -7,
+        "slash": -7,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 40,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2206,
+      "name": "oldstyle concubine draconian",
+      "shortDescr": "a concubine",
+      "longDescr": "A concubine is resting here. \n\r",
+      "description": "This is a concubine of the king.  She is lounging here, wearing nothing at \n\rall.  You find yourself strangely repulsed as she draws a knife and \n\rprepares to defend herself. \n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -500,
+      "group": 0,
+      "level": 6,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 71
+      },
+      "manaDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 7,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 4,
+        "bash": 4,
+        "slash": 4,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 5,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2207,
+      "name": "oldstyle bodyguard draconian",
+      "shortDescr": "A bodyguard",
+      "longDescr": "A bodyguard is here, staring at you menacingly. \n\r",
+      "description": "This creature has devoted its life to defending the king.  Your intrusion has\n\rnot pleased it.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "detect_evil",
+        "detect_invis",
+        "detect_hidden"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -800,
+      "group": 0,
+      "level": 18,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 283
+      },
+      "manaDice": {
+        "number": 9,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 4
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -3,
+        "bash": -3,
+        "slash": -3,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 250,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2220,
+      "name": "oldstyle tiamat dragon",
+      "shortDescr": "Tiamat",
+      "longDescr": "A five headed dragon hisses at you as you enter this room.\n\r",
+      "description": "You see before you the master of this Tower, Tiamat.  She frowns at you as she\n\rprepares to make you pay for your insolence ... with your lives!\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden",
+        "flying",
+        "haste"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "immFlags": [
+        "summon",
+        "charm"
+      ],
+      "resFlags": [
+        "magic",
+        "weapon"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 52,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 50,
+        "type": 10,
+        "bonus": 5500
+      },
+      "manaDice": {
+        "number": 26,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 6,
+        "type": 7,
+        "bonus": 20
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -22,
+        "bash": -22,
+        "slash": -22,
+        "exotic": 2
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 2500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2221,
+      "name": "oldstyle dragon red",
+      "shortDescr": "the Great Red Dragon",
+      "longDescr": "A red dragon is here, contemplating your existence. \n\r",
+      "description": "This huge red dragon dominates the chamber.  As you turn to flee, he grins at\n\ryou and invites you to stay ... forever! \n\r",
+      "race": "dragon",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden",
+        "infrared",
+        "flying"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "immFlags": [
+        "fire"
+      ],
+      "resFlags": [
+        "charm",
+        "bash"
+      ],
+      "vulnFlags": [
+        "pierce",
+        "cold"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 45,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 25,
+        "type": 10,
+        "bonus": 3000
+      },
+      "manaDice": {
+        "number": 22,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 8,
+        "type": 4,
+        "bonus": 16
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -15,
+        "bash": -15,
+        "slash": -15,
+        "exotic": 4
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2222,
+      "name": "oldstyle dragon black",
+      "shortDescr": "the Great Black Dragon",
+      "longDescr": "A black dragon is here, laughing at your insolence. \n\r",
+      "description": "This huge black wyrm laughs at your puny weapons.  You realize that he is not\n\rgoing to roll over and die for you.\n\r",
+      "race": "dragon",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden",
+        "infrared",
+        "flying"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "immFlags": [
+        "acid"
+      ],
+      "resFlags": [
+        "charm",
+        "bash"
+      ],
+      "vulnFlags": [
+        "pierce",
+        "lightning"
+      ],
+      "alignment": -900,
+      "group": 0,
+      "level": 39,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 15,
+        "type": 10,
+        "bonus": 1700
+      },
+      "manaDice": {
+        "number": 19,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 5,
+        "type": 6,
+        "bonus": 13
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -13,
+        "bash": -13,
+        "slash": -13,
+        "exotic": 5
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 1000,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2223,
+      "name": "oldstyle dragon white",
+      "shortDescr": "the Great White Dragon",
+      "longDescr": "A white dragon is here, waiting for you. \n\r",
+      "description": "This dragon towers over you.  Recalling your previous experiences with white\n\rdragons, you are not afraid.  She smiles at you and says 'I think you will find\n\rme a greater challenge than my offspring.'\n\r",
+      "race": "dragon",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden",
+        "infrared",
+        "flying"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "immFlags": [
+        "cold"
+      ],
+      "resFlags": [
+        "charm",
+        "bash"
+      ],
+      "vulnFlags": [
+        "pierce",
+        "fire"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 37,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 10,
+        "type": 10,
+        "bonus": 1500
+      },
+      "manaDice": {
+        "number": 18,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 3,
+        "type": 10,
+        "bonus": 12
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -12,
+        "bash": -12,
+        "slash": -12,
+        "exotic": 5
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 1750,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2225,
+      "name": "oldstyle dragon green",
+      "shortDescr": "the Ancient Green Dragon",
+      "longDescr": "A green dragon is here, looking distraught. \n\r",
+      "description": "This huge beast appears to be the most directly related to the draconians. \n\rShe looks at you with sorrow in her eyes and says 'You have slaughtered my \n\rchildren.  Prepare to die.'\n\r",
+      "race": "dragon",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden",
+        "infrared",
+        "flying"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "immFlags": [
+        "poison"
+      ],
+      "resFlags": [
+        "charm",
+        "bash"
+      ],
+      "vulnFlags": [
+        "pierce",
+        "mental"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 41,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 25,
+        "type": 10,
+        "bonus": 2000
+      },
+      "manaDice": {
+        "number": 20,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 8,
+        "bonus": 14
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -14,
+        "bash": -14,
+        "slash": -14,
+        "exotic": 4
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 1000,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2226,
+      "name": "oldstyle hydra",
+      "shortDescr": "a large hydra",
+      "longDescr": "A hydra is here, blocking the doorway. \n\r",
+      "description": "A hydra is here, guarding the entrance to a sealed vault.  You have the feeling\n\rit isn't happy to see you.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -800,
+      "group": 0,
+      "level": 18,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 283
+      },
+      "manaDice": {
+        "number": 9,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 4
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -3,
+        "bash": -3,
+        "slash": -3,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 250,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2227,
+      "name": "oldstyle slave human",
+      "shortDescr": "A human slave",
+      "longDescr": "A Human slave is here, hard at work.          \n\r",
+      "description": "He looks like he's under a lot of stress.  He would probably like it if you\n\rleft him alone.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "thief"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden"
+      ],
+      "atkFlags": [
+        "backstab",
+        "disarm",
+        "dodge",
+        "dirt_kick",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 5,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 46
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 5,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 6,
+        "bash": 6,
+        "slash": 6,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 5,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2240,
+      "name": "oldstyle zombie draconian",
+      "shortDescr": "a Draconian zombie",
+      "longDescr": "A Draconian zombie is here, staring at nothing in particular.\n\r",
+      "description": "This used to be one of the warriors of this tribe.  He was denied his final\n\rrest, however, and now guards this corridor tirelessly as a zombie.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -400,
+      "group": 0,
+      "level": 9,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 110
+      },
+      "manaDice": {
+        "number": 4,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 8,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 2,
+        "bash": 2,
+        "slash": 2,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 75,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2241,
+      "name": "oldstyle dragon phase",
+      "shortDescr": "the phase dragon",
+      "longDescr": "A Phase Dragon is darting around the room.          \n\r",
+      "description": "This small dragon looks like he's up to no good. \n\r",
+      "race": "dragon",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "aggressive",
+        "stay_area",
+        "wimpy"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden",
+        "infrared",
+        "flying"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "charm",
+        "bash",
+        "fire"
+      ],
+      "vulnFlags": [
+        "pierce",
+        "cold"
+      ],
+      "alignment": -300,
+      "group": 0,
+      "level": 10,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 121
+      },
+      "manaDice": {
+        "number": 5,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 4,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 1,
+        "bash": 1,
+        "slash": 1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 250,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2242,
+      "name": "oldstyle fool draconian",
+      "shortDescr": "the draconian fool",
+      "longDescr": "A Fool is here, making fun of you.          \n\r",
+      "description": "This dragon man looks VERY foolish, dressed in a green and blue striped \n\rsuit.  As you enter the room, he points at you and laughs. \n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "stay_area",
+        "wimpy",
+        "thief"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden"
+      ],
+      "atkFlags": [
+        "backstab",
+        "disarm",
+        "dodge",
+        "dirt_kick",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 5,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 46
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 5,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 6,
+        "bash": 6,
+        "slash": 6,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 25,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2243,
+      "name": "oldstyle queen draconian",
+      "shortDescr": "the Draconian Queen",
+      "longDescr": "A Female Draconian sits, here, looking very important.          \n\r",
+      "description": "This draconian looks VERY busy as she orders her slaves around.  You think \n\rit might be a good idea to leave her alone. \n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden",
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -600,
+      "group": 0,
+      "level": 20,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 333
+      },
+      "manaDice": {
+        "number": 10,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -4,
+        "bash": -4,
+        "slash": -4,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 500,
+      "size": "medium",
+      "material": "0"
+    }
+  ],
+  "objects": [
+    {
+      "vnum": 2200,
+      "name": "spear jagged",
+      "shortDescr": "a jagged spear",
+      "description": "A jagged spear has been left here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "spear",
+        "dice": [
+          2,
+          6
+        ],
+        "damageType": "thrust"
+      },
+      "level": 10,
+      "weight": 150,
+      "cost": 153,
+      "condition": 100
+    },
+    {
+      "vnum": 2201,
+      "name": "dagger silver",
+      "shortDescr": "a silver dagger",
+      "description": "A silver dagger is lying here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "dagger",
+        "dice": [
+          3,
+          6
+        ],
+        "damageType": "pierce"
+      },
+      "level": 22,
+      "weight": 10,
+      "cost": 2000,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "saves",
+          "level": 22,
+          "duration": -1,
+          "modifier": -2
+        }
+      ]
+    },
+    {
+      "vnum": 2202,
+      "name": "knife tooth dragon",
+      "shortDescr": "a dragon's tooth knife",
+      "description": "A dangerous looking knife made from a dragon's tooth has been left here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "dagger",
+        "dice": [
+          5,
+          5
+        ],
+        "damageType": "pierce"
+      },
+      "level": 30,
+      "weight": 80,
+      "cost": 3200,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "dexterity",
+          "level": 30,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 30,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 2203,
+      "name": "bracelet dragon",
+      "shortDescr": "a dragon skin bracelet",
+      "description": "A scaly bracelet lies on the ground.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "wrist"
+      ],
+      "armor": {
+        "acPierce": 6,
+        "acBash": 6,
+        "acSlash": 6,
+        "acExotic": 3
+      },
+      "level": 15,
+      "weight": 100,
+      "cost": 1170,
+      "condition": 100
+    },
+    {
+      "vnum": 2204,
+      "name": "belt silk black",
+      "shortDescr": "a black silk belt",
+      "description": "A black belt made of the finest silk is hanging here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "waist"
+      ],
+      "armor": {
+        "acPierce": 6,
+        "acBash": 6,
+        "acSlash": 6,
+        "acExotic": 2
+      },
+      "level": 17,
+      "weight": 250,
+      "cost": 3900,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "constitution",
+          "level": 17,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 2210,
+      "name": "belt silk white",
+      "shortDescr": "a white silk belt",
+      "description": "A white belt made of the finest silk is hanging here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "waist"
+      ],
+      "armor": {
+        "acPierce": 6,
+        "acBash": 6,
+        "acSlash": 6,
+        "acExotic": 2
+      },
+      "level": 17,
+      "weight": 250,
+      "cost": 3900,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "strength",
+          "level": 17,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 2211,
+      "name": "bracelet platinum",
+      "shortDescr": "a platinum bracelet.",
+      "description": "A tarnished platinum bracelet has been dropped here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "glow"
+      ],
+      "wearFlags": [
+        "take",
+        "wrist"
+      ],
+      "armor": {
+        "acPierce": 7,
+        "acBash": 7,
+        "acSlash": 7
+      },
+      "level": 20,
+      "weight": 50,
+      "cost": 1450,
+      "condition": 100
+    },
+    {
+      "vnum": 2220,
+      "name": "symbol holy",
+      "shortDescr": "a holy symbol",
+      "description": "A golden holy symbol is here.",
+      "material": "oldstyle",
+      "itemType": "jewelry",
+      "extraFlags": [
+        "glow"
+      ],
+      "wearFlags": [
+        "take",
+        "neck",
+        "hold"
+      ],
+      "level": 10,
+      "weight": 20,
+      "cost": 270,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "mana",
+          "level": 10,
+          "duration": -1,
+          "modifier": 15
+        }
+      ]
+    },
+    {
+      "vnum": 2221,
+      "name": "robe black",
+      "shortDescr": "a plain black robe",
+      "description": "A black robe is hanging on a hook on the wall.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "about"
+      ],
+      "armor": {
+        "acPierce": 5,
+        "acBash": 5,
+        "acSlash": 5
+      },
+      "level": 21,
+      "weight": 30,
+      "cost": 2000,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 21,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 2222,
+      "name": "sword emerald",
+      "shortDescr": "an emerald sword",
+      "description": "An emerald long sword is leaning against the wall.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "sword",
+        "dice": [
+          4,
+          6
+        ],
+        "damageType": "slash",
+        "flags": [
+          "sharp"
+        ]
+      },
+      "level": 28,
+      "weight": 240,
+      "cost": 2300,
+      "condition": 100
+    },
+    {
+      "vnum": 2223,
+      "name": "club stone",
+      "shortDescr": "a stone club",
+      "description": "A heavy looking stone club is here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "mace",
+        "dice": [
+          3,
+          6
+        ],
+        "damageType": "crush"
+      },
+      "level": 18,
+      "weight": 180,
+      "cost": 940,
+      "condition": 100
+    },
+    {
+      "vnum": 2224,
+      "name": "ring diamond",
+      "shortDescr": "a diamond ring",
+      "description": "A diamond ring lies gleaming on the ground.",
+      "material": "oldstyle",
+      "itemType": "jewelry",
+      "wearFlags": [
+        "take",
+        "finger"
+      ],
+      "level": 37,
+      "weight": 60,
+      "cost": 6800,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 37,
+          "duration": -1,
+          "modifier": 3
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 37,
+          "duration": -1,
+          "modifier": 3
+        }
+      ]
+    },
+    {
+      "vnum": 2230,
+      "name": "ring copper",
+      "shortDescr": "a copper ring",
+      "description": "A copper ring is here.",
+      "material": "oldstyle",
+      "itemType": "jewelry",
+      "wearFlags": [
+        "take",
+        "finger"
+      ],
+      "level": 15,
+      "weight": 10,
+      "cost": 2600,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "wisdom",
+          "level": 15,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 2231,
+      "name": "key steel",
+      "shortDescr": "a steel key",
+      "description": "A steel key.",
+      "material": "oldstyle",
+      "itemType": "key",
+      "wearFlags": [
+        "take"
+      ],
+      "weight": 10,
+      "condition": 100
+    },
+    {
+      "vnum": 2232,
+      "name": "key ruby",
+      "shortDescr": "a ruby key",
+      "description": "A ruby key.",
+      "material": "oldstyle",
+      "itemType": "key",
+      "wearFlags": [
+        "take"
+      ],
+      "weight": 10,
+      "condition": 100
+    },
+    {
+      "vnum": 2233,
+      "name": "key white",
+      "shortDescr": "a white key",
+      "description": "A white key.",
+      "material": "oldstyle",
+      "itemType": "key",
+      "wearFlags": [
+        "take"
+      ],
+      "weight": 10,
+      "condition": 100
+    },
+    {
+      "vnum": 2234,
+      "name": "key grey",
+      "shortDescr": "a grey key",
+      "description": "A grey key is resting on the ground here.",
+      "material": "oldstyle",
+      "itemType": "key",
+      "wearFlags": [
+        "take"
+      ],
+      "weight": 10,
+      "condition": 100
+    },
+    {
+      "vnum": 2237,
+      "name": "key stone",
+      "shortDescr": "a stone key",
+      "description": "A stone key.",
+      "material": "oldstyle",
+      "itemType": "key",
+      "wearFlags": [
+        "take"
+      ],
+      "weight": 10,
+      "condition": 100
+    },
+    {
+      "vnum": 2240,
+      "name": "key black",
+      "shortDescr": "a black key",
+      "description": "A black key.",
+      "material": "oldstyle",
+      "itemType": "key",
+      "wearFlags": [
+        "take"
+      ],
+      "weight": 10,
+      "condition": 100
+    },
+    {
+      "vnum": 2241,
+      "name": "key platinum",
+      "shortDescr": "a platinum key",
+      "description": "A platinum key.",
+      "material": "oldstyle",
+      "itemType": "key",
+      "wearFlags": [
+        "take"
+      ],
+      "weight": 10,
+      "condition": 100
+    },
+    {
+      "vnum": 2242,
+      "name": "shield crested",
+      "shortDescr": "a crested shield",
+      "description": "A large crested shield draws your attention.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "shield"
+      ],
+      "armor": {
+        "acPierce": 8,
+        "acBash": 8,
+        "acSlash": 8,
+        "acExotic": 3
+      },
+      "level": 25,
+      "weight": 200,
+      "cost": 3900,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "constitution",
+          "level": 25,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 2243,
+      "name": "wand golden",
+      "shortDescr": "a golden wand",
+      "description": "A golden wand has been dropped here.",
+      "material": "oldstyle",
+      "itemType": "wand",
+      "extraFlags": [
+        "glow"
+      ],
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "wand": {
+        "level": 25,
+        "chargesTotal": 10,
+        "spell": "dispel magic"
+      },
+      "level": 14,
+      "weight": 50,
+      "cost": 5500,
+      "condition": 100
+    },
+    {
+      "vnum": 2244,
+      "name": "staff silver",
+      "shortDescr": "a silver staff",
+      "description": "A silver staff.",
+      "material": "oldstyle",
+      "itemType": "staff",
+      "extraFlags": [
+        "glow",
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "wand": {
+        "level": 25,
+        "chargesTotal": 20,
+        "spell": "faerie fog"
+      },
+      "level": 14,
+      "weight": 50,
+      "cost": 11700,
+      "condition": 100
+    },
+    {
+      "vnum": 2245,
+      "name": "staff dragon",
+      "shortDescr": "the staff of the dragon",
+      "description": "A powerful oak staff has been left here.",
+      "material": "oldstyle",
+      "itemType": "staff",
+      "extraFlags": [
+        "glow",
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "wand": {
+        "level": 25,
+        "chargesTotal": 10,
+        "spell": "call lightning"
+      },
+      "level": 15,
+      "weight": 50,
+      "cost": 10200,
+      "condition": 100
+    },
+    {
+      "vnum": 2246,
+      "name": "mail scale",
+      "shortDescr": "scale mail",
+      "description": "A set of scale mail has been abandoned here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "glow"
+      ],
+      "wearFlags": [
+        "take",
+        "body"
+      ],
+      "armor": {
+        "acPierce": 8,
+        "acBash": 8,
+        "acSlash": 8
+      },
+      "level": 25,
+      "weight": 200,
+      "cost": 3900,
+      "condition": 100
+    },
+    {
+      "vnum": 2250,
+      "name": "staff black",
+      "shortDescr": "a black staff",
+      "description": "You notice the faint outline of a staff.",
+      "material": "oldstyle",
+      "itemType": "staff",
+      "extraFlags": [
+        "glow",
+        "antigood"
+      ],
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "wand": {
+        "level": 30,
+        "chargesTotal": 3,
+        "spell": "energy drain"
+      },
+      "level": 14,
+      "weight": 250,
+      "cost": 5300,
+      "condition": 100
+    },
+    {
+      "vnum": 2251,
+      "name": "potion cyan",
+      "shortDescr": "a cyan potion",
+      "description": "A small cyan potion has been left here.",
+      "material": "oldstyle",
+      "itemType": "potion",
+      "wearFlags": [
+        "take"
+      ],
+      "spells": {
+        "level": 30,
+        "spells": [
+          "blindness",
+          "harm",
+          ""
+        ]
+      },
+      "level": 9,
+      "weight": 10,
+      "cost": 1060,
+      "condition": 100
+    },
+    {
+      "vnum": 2252,
+      "name": "potion magenta",
+      "shortDescr": "a magenta potion",
+      "description": "A magenta potion.",
+      "material": "oldstyle",
+      "itemType": "potion",
+      "extraFlags": [
+        "nodrop"
+      ],
+      "wearFlags": [
+        "take"
+      ],
+      "spells": {
+        "level": 30,
+        "spells": [
+          "cure critical",
+          "protection evil",
+          ""
+        ]
+      },
+      "level": 7,
+      "weight": 10,
+      "cost": 600,
+      "condition": 100
+    },
+    {
+      "vnum": 2254,
+      "name": "gauntlets spiked",
+      "shortDescr": "a pair of spiked gauntlets",
+      "description": "A pair of spiked gauntlets.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "glow",
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "hands"
+      ],
+      "armor": {
+        "acPierce": 4,
+        "acBash": 4,
+        "acSlash": 4
+      },
+      "level": 20,
+      "weight": 100,
+      "cost": 2500,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 20,
+          "duration": -1,
+          "modifier": 2
+        },
+        {
+          "where": "object",
+          "location": "strength",
+          "level": 20,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 2260,
+      "name": "scimitar golden",
+      "shortDescr": "a golden scimitar",
+      "description": "A golden scimitar.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "glow"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "sword",
+        "dice": [
+          3,
+          5
+        ],
+        "damageType": "slash"
+      },
+      "level": 16,
+      "weight": 100,
+      "cost": 2500,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "intelligence",
+          "level": 16,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "wisdom",
+          "level": 16,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 2261,
+      "name": "brooch diamond",
+      "shortDescr": "a diamond brooch",
+      "description": "A diamond brooch.",
+      "material": "oldstyle",
+      "itemType": "jewelry",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "neck"
+      ],
+      "level": 25,
+      "weight": 20,
+      "cost": 980,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "mana",
+          "level": 25,
+          "duration": -1,
+          "modifier": 25
+        }
+      ]
+    },
+    {
+      "vnum": 2270,
+      "name": "scroll",
+      "shortDescr": "a runed scroll",
+      "description": "A runed scroll.",
+      "material": "oldstyle",
+      "itemType": "scroll",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "spells": {
+        "level": 30,
+        "spells": [
+          "armor",
+          "protection evil",
+          "shield",
+          ""
+        ]
+      },
+      "level": 12,
+      "weight": 10,
+      "cost": 1960,
+      "condition": 100
+    },
+    {
+      "vnum": 2271,
+      "name": "gloves dragon",
+      "shortDescr": "a pair of dragon skin gloves",
+      "description": "A pair of dragon skin gloves are lying on the ground.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "hands"
+      ],
+      "armor": {
+        "acPierce": 6,
+        "acBash": 6,
+        "acSlash": 6,
+        "acExotic": 3
+      },
+      "level": 17,
+      "weight": 50,
+      "cost": 4000,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "dexterity",
+          "level": 17,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 2275,
+      "name": "helm dragon",
+      "shortDescr": "a helm of dragon kind",
+      "description": "A helm made of a dragon's skull is lying on the ground.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "head"
+      ],
+      "armor": {
+        "acPierce": 10,
+        "acBash": 10,
+        "acSlash": 10,
+        "acExotic": 5
+      },
+      "level": 35,
+      "weight": 150,
+      "cost": 4100,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hp",
+          "level": 35,
+          "duration": -1,
+          "modifier": 15
+        }
+      ]
+    },
+    {
+      "vnum": 2276,
+      "name": "fur cloak",
+      "shortDescr": "a fur cloak",
+      "description": "A large mound of fur is lying here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "about"
+      ],
+      "armor": {
+        "acPierce": 6,
+        "acBash": 6,
+        "acSlash": 6,
+        "acExotic": 1
+      },
+      "level": 16,
+      "weight": 100,
+      "cost": 1910,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "strength",
+          "level": 16,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "hp",
+          "level": 16,
+          "duration": -1,
+          "modifier": 10
+        }
+      ]
+    },
+    {
+      "vnum": 2280,
+      "name": "leggings dragon scale",
+      "shortDescr": "a pair of dragon scale leggings",
+      "description": "A pair of dragon scale leggings is lying on the ground.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "legs"
+      ],
+      "armor": {
+        "acPierce": 7,
+        "acBash": 7,
+        "acSlash": 7,
+        "acExotic": 3
+      },
+      "level": 20,
+      "weight": 150,
+      "cost": 1590,
+      "condition": 100
+    },
+    {
+      "vnum": 2281,
+      "name": "sleeves dragon scale",
+      "shortDescr": "a set of dragon scale sleeves",
+      "description": "A set of dragon scale sleeves is lying on the ground.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "arms"
+      ],
+      "armor": {
+        "acPierce": 7,
+        "acBash": 7,
+        "acSlash": 7,
+        "acExotic": 3
+      },
+      "level": 20,
+      "weight": 120,
+      "cost": 1590,
+      "condition": 100
+    },
+    {
+      "vnum": 2285,
+      "name": "whip dragon tail",
+      "shortDescr": "a dragon tailed whip",
+      "description": "A dragon tailed whip is lying on the ground.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "hum",
+        "antigood"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "whip",
+        "dice": [
+          4,
+          5
+        ],
+        "damageType": "whip"
+      },
+      "level": 24,
+      "weight": 140,
+      "cost": 1530,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 24,
+          "duration": -1,
+          "modifier": 2
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 24,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 2286,
+      "name": "hammer copper",
+      "shortDescr": "a copper hammer",
+      "description": "A copper hammer is lying on the ground.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "mace",
+        "dice": [
+          3,
+          5
+        ],
+        "damageType": "crush"
+      },
+      "level": 15,
+      "weight": 120,
+      "cost": 750,
+      "condition": 100
+    },
+    {
+      "vnum": 2287,
+      "name": "dagger silver",
+      "shortDescr": "a silver dagger",
+      "description": "A silver dagger is lying here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "dagger",
+        "dice": [
+          2,
+          4
+        ],
+        "damageType": "pierce"
+      },
+      "level": 5,
+      "weight": 10,
+      "cost": 360,
+      "condition": 100
+    },
+    {
+      "vnum": 2299,
+      "name": "key gold tarnished",
+      "shortDescr": "a tarnished gold key",
+      "description": "A tarnished gold key lies here.",
+      "material": "oldstyle",
+      "itemType": "key",
+      "wearFlags": [
+        "take"
+      ],
+      "weight": 10,
+      "condition": 100
+    }
+  ],
+  "shops": [],
+  "specials": [
+    {
+      "mobVnum": 2200,
+      "spec": "spec_breath_any"
+    },
+    {
+      "mobVnum": 2203,
+      "spec": "spec_cast_mage"
+    },
+    {
+      "mobVnum": 2204,
+      "spec": "spec_cast_cleric"
+    },
+    {
+      "mobVnum": 2205,
+      "spec": "spec_breath_any"
+    },
+    {
+      "mobVnum": 2220,
+      "spec": "spec_breath_any"
+    },
+    {
+      "mobVnum": 2221,
+      "spec": "spec_breath_fire"
+    },
+    {
+      "mobVnum": 2222,
+      "spec": "spec_breath_acid"
+    },
+    {
+      "mobVnum": 2223,
+      "spec": "spec_breath_frost"
+    },
+    {
+      "mobVnum": 2225,
+      "spec": "spec_breath_gas"
+    },
+    {
+      "mobVnum": 2226,
+      "spec": "spec_poison"
+    },
+    {
+      "mobVnum": 2227,
+      "spec": "spec_thief"
+    },
+    {
+      "mobVnum": 2240,
+      "spec": "spec_cast_undead"
+    },
+    {
+      "mobVnum": 2241,
+      "spec": "spec_breath_gas"
+    },
+    {
+      "mobVnum": 2242,
+      "spec": "spec_thief"
+    },
+    {
+      "mobVnum": 2243,
+      "spec": "spec_breath_any"
+    }
+  ],
+  "mobprogs": [],
+  "resets": [
+    {
+      "mobVnum": 2200,
+      "maxInArea": 12,
+      "roomVnum": 2201,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2231,
+      "roomVnum": 2201,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 2200,
+      "maxInArea": 12,
+      "roomVnum": 2202,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2200,
+      "maxInArea": 12,
+      "roomVnum": 2203,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2200,
+      "maxInArea": 12,
+      "roomVnum": 2203,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2201,
+      "maxInArea": 7,
+      "roomVnum": 2203,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2200,
+      "wearLoc": "wielded",
+      "roomVnum": 2203,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2201,
+      "maxInArea": 7,
+      "roomVnum": 2204,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2200,
+      "wearLoc": "wielded",
+      "roomVnum": 2204,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2201,
+      "maxInArea": 7,
+      "roomVnum": 2204,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2200,
+      "wearLoc": "wielded",
+      "roomVnum": 2204,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2201,
+      "maxInArea": 7,
+      "roomVnum": 2204,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2200,
+      "wearLoc": "wielded",
+      "roomVnum": 2204,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2200,
+      "maxInArea": 12,
+      "roomVnum": 2205,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2200,
+      "maxInArea": 12,
+      "roomVnum": 2205,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2200,
+      "maxInArea": 12,
+      "roomVnum": 2205,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2200,
+      "maxInArea": 12,
+      "roomVnum": 2205,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2200,
+      "maxInArea": 12,
+      "roomVnum": 2206,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2200,
+      "maxInArea": 12,
+      "roomVnum": 2207,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2227,
+      "maxInArea": 5,
+      "roomVnum": 2207,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2226,
+      "maxInArea": 1,
+      "roomVnum": 2208,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2234,
+      "roomVnum": 2208,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 2243,
+      "roomVnum": 2208,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 2223,
+      "roomVnum": 2208,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 2244,
+      "wearLoc": "held in the hands",
+      "roomVnum": 2208,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2201,
+      "maxInArea": 7,
+      "roomVnum": 2210,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2200,
+      "wearLoc": "wielded",
+      "roomVnum": 2210,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2207,
+      "maxInArea": 20,
+      "roomVnum": 2210,
+      "maxInRoom": 5,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2286,
+      "wearLoc": "wielded",
+      "roomVnum": 2210,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2207,
+      "maxInArea": 20,
+      "roomVnum": 2211,
+      "maxInRoom": 5,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2286,
+      "wearLoc": "wielded",
+      "roomVnum": 2211,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2207,
+      "maxInArea": 20,
+      "roomVnum": 2211,
+      "maxInRoom": 5,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2260,
+      "wearLoc": "wielded",
+      "roomVnum": 2211,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2206,
+      "maxInArea": 5,
+      "roomVnum": 2212,
+      "maxInRoom": 5,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2287,
+      "wearLoc": "wielded",
+      "roomVnum": 2212,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2206,
+      "maxInArea": 5,
+      "roomVnum": 2212,
+      "maxInRoom": 5,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2233,
+      "roomVnum": 2212,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 2287,
+      "wearLoc": "wielded",
+      "roomVnum": 2212,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2206,
+      "maxInArea": 5,
+      "roomVnum": 2212,
+      "maxInRoom": 5,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2240,
+      "roomVnum": 2212,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 2287,
+      "wearLoc": "wielded",
+      "roomVnum": 2212,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2206,
+      "maxInArea": 5,
+      "roomVnum": 2212,
+      "maxInRoom": 5,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2287,
+      "wearLoc": "wielded",
+      "roomVnum": 2212,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2203,
+      "maxInArea": 1,
+      "roomVnum": 2214,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2223,
+      "wearLoc": "about the shoulders",
+      "roomVnum": 2214,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2250,
+      "wearLoc": "held in the hands",
+      "roomVnum": 2214,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2251,
+      "roomVnum": 2214,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 2261,
+      "wearLoc": "around the neck (1)",
+      "roomVnum": 2214,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2242,
+      "maxInArea": 5,
+      "roomVnum": 2214,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2204,
+      "maxInArea": 1,
+      "roomVnum": 2214,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2220,
+      "wearLoc": "around the neck (1)",
+      "roomVnum": 2214,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2211,
+      "wearLoc": "on the left wrist",
+      "roomVnum": 2214,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2210,
+      "wearLoc": "around the waist",
+      "roomVnum": 2214,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2270,
+      "roomVnum": 2214,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 2252,
+      "roomVnum": 2214,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 2205,
+      "maxInArea": 1,
+      "roomVnum": 2216,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2222,
+      "wearLoc": "wielded",
+      "roomVnum": 2216,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2276,
+      "wearLoc": "about the shoulders",
+      "roomVnum": 2216,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2242,
+      "wearLoc": "as a shield",
+      "roomVnum": 2216,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2254,
+      "wearLoc": "on the hands",
+      "roomVnum": 2216,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2232,
+      "roomVnum": 2216,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 2207,
+      "maxInArea": 20,
+      "roomVnum": 2216,
+      "maxInRoom": 5,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2207,
+      "maxInArea": 20,
+      "roomVnum": 2216,
+      "maxInRoom": 5,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2207,
+      "maxInArea": 20,
+      "roomVnum": 2216,
+      "maxInRoom": 5,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2242,
+      "maxInArea": 5,
+      "roomVnum": 2216,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2242,
+      "maxInArea": 5,
+      "roomVnum": 2216,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2243,
+      "maxInArea": 1,
+      "roomVnum": 2217,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2203,
+      "wearLoc": "on the left wrist",
+      "roomVnum": 2217,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2204,
+      "wearLoc": "around the waist",
+      "roomVnum": 2217,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2201,
+      "wearLoc": "wielded",
+      "roomVnum": 2217,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2227,
+      "maxInArea": 5,
+      "roomVnum": 2217,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2227,
+      "maxInArea": 5,
+      "roomVnum": 2217,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2241,
+      "maxInArea": 2,
+      "roomVnum": 2217,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2240,
+      "maxInArea": 8,
+      "roomVnum": 2218,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2240,
+      "maxInArea": 8,
+      "roomVnum": 2218,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2240,
+      "maxInArea": 8,
+      "roomVnum": 2219,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2240,
+      "maxInArea": 8,
+      "roomVnum": 2219,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2223,
+      "maxInArea": 1,
+      "roomVnum": 2220,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2246,
+      "wearLoc": "on the body",
+      "roomVnum": 2220,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2222,
+      "maxInArea": 1,
+      "roomVnum": 2221,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2280,
+      "wearLoc": "on the legs",
+      "roomVnum": 2221,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2202,
+      "maxInArea": 1,
+      "roomVnum": 2222,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2202,
+      "wearLoc": "wielded",
+      "roomVnum": 2222,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2281,
+      "wearLoc": "on the arms",
+      "roomVnum": 2222,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2271,
+      "wearLoc": "on the hands",
+      "roomVnum": 2222,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2221,
+      "maxInArea": 1,
+      "roomVnum": 2226,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2275,
+      "wearLoc": "over the head",
+      "roomVnum": 2226,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2245,
+      "wearLoc": "held in the hands",
+      "roomVnum": 2226,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2299,
+      "roomVnum": 2226,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 2225,
+      "maxInArea": 1,
+      "roomVnum": 2230,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2241,
+      "roomVnum": 2230,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 2285,
+      "roomVnum": 2230,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 2261,
+      "wearLoc": "around the neck (1)",
+      "roomVnum": 2230,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2220,
+      "maxInArea": 1,
+      "roomVnum": 2231,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2240,
+      "maxInArea": 8,
+      "roomVnum": 2232,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2240,
+      "maxInArea": 8,
+      "roomVnum": 2233,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2240,
+      "maxInArea": 8,
+      "roomVnum": 2234,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2240,
+      "maxInArea": 8,
+      "roomVnum": 2236,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2200,
+      "maxInArea": 12,
+      "roomVnum": 2239,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2200,
+      "maxInArea": 12,
+      "roomVnum": 2241,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    }
+  ],
+  "factions": [],
+  "quests": []
+}

@@ -34,7 +34,9 @@ Mud98 Lox uses tagged values. Primitive categories:
 Runtime type helpers (`is_obj`, `is_room`, etc.) are exposed as native methods (see [API Reference](api.md)).
 
 ## Expressions
-- **Arithmetic / comparison / logical**: standard precedence, includes `and`, `or`, unary `-`, `!`.
+- **Arithmetic / comparison / logical**: standard precedence, includes `and`, `or`, unary `-`, `!`.  
+  > **Important**: Lox uses the keywords `and` / `or` rather than C-style `&&` / `||`.  
+  > Builders switching between C and Lox should double-check new scripts for the correct logical keywords; the scanner treats `&&` / `||` as unexpected characters.
 - **Assignment**: `var a = 2; a += 1;`.
 - **Call expressions**: `foo(1, 2)`, chained calls `obj.method(args).other()`.
 - **Property access**: `object.field`, method dispatch `object.method(args)`.

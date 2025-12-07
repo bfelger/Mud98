@@ -1,0 +1,2094 @@
+{
+  "formatVersion": 1,
+  "areadata": {
+    "version": 2,
+    "name": "Marsh",
+    "builders": "",
+    "vnumRange": [
+      8300,
+      8399
+    ],
+    "credits": "Generic",
+    "security": 9,
+    "sector": "inside",
+    "lowLevel": 15,
+    "highLevel": 25,
+    "reset": 6,
+    "alwaysReset": false
+  },
+  "storyBeats": [],
+  "checklist": [],
+  "rooms": [
+    {
+      "vnum": 8301,
+      "name": "Muddy Path",
+      "description": "This section of the path is slowly being drowned by the nearby swamp to the\n\rsouth, which is creeping slowly inland.  Several caved-in buildings sprawl\n\rhere, torn apart both by battle and the elements.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6125,
+          "description": "The path looks drier here.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 8302,
+          "description": "A broken road leading southward into the marsh.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "swamp",
+          "description": "The swamp to the south even reaches as far as this point ... it makes the\n\rground and air about you moist and fetid.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8302,
+      "name": "Swamp's Edge",
+      "description": "Briars and marsh plants stick to your boots and clothes, and clouds cover the\n\rskies above the murky marsh, leaving the path before you dark and sinister.\n\rYou see some disturbances in the marsh, but after a few strangled screams,\n\rthe sounds stop.\n\r",
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 8301
+        },
+        {
+          "dir": "east",
+          "toVnum": 8303,
+          "description": "To the east lies a series of bogs and shallows that look rather threatening.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 8304,
+          "description": "You notice a large hill rising out of the marsh to the south.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8303,
+      "name": "Marshy Forest",
+      "description": "This area is by no means a forest, but for those who dwell in these sparse\n\rtrees it is one.  Occasionally you see a whole humanoid form floating face down\n\rin the water, but mostly you only find pieces.  You hear a loud bellow in the\n\rdistance.  And feel fear creep into your heart.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 8305,
+          "description": "Eastward is the thick bog of ooze...\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 8302,
+          "description": "Westward lies the remanents of a broken and shattered roadway being swallowed\n\rby the marsh.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "humanoid corpse",
+          "description": "He looks mangled and shredded.  You see one large gash mark that looks\n\rlike it came from the claw of some huge beast.\n\r"
+        },
+        {
+          "keyword": "pieces",
+          "description": "You see severed limbs and spongy intestines.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8304,
+      "name": "On a hill.",
+      "description": "You stand atop a hill on the northwestern side of the evil swamp. Dark\n\rclouds whip around you and the wind raises its voice and assails you.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 8302,
+          "description": "To the north lies a damp broken roadway.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 8309,
+          "description": "A dark pool congeals to the east.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 8310,
+          "description": "A gloomy path leads down the hill into the swamp.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8305,
+      "name": "An Oozing Bog",
+      "description": "You stand in an oozing quagmire.  A creaking beat fills the air, \n\raccompanied by groans and soughing of the air.  Several large winged\n\rbeasts flap over you and send chilling glares your way.  You feel out\n\rof place, and feel that the occupants of this realm will soon \n\rhave you for a feast.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 8306,
+          "description": "Eastward lies a horde of disgusting looking monsters.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 8303,
+          "description": "Westward lies a marshy area.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "beasts",
+          "description": "You see a large creature, possibly a demon, flapping heavily above you.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8306,
+      "name": "An Oozing Bog",
+      "description": "The ground here is soft and oozing.  You feel slimy water seeping into your\n\rboots.  Better stop and check for leeches when you get out of here.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 8305,
+          "flags": [
+            "door"
+          ],
+          "description": "You see a large tree limb that looks easily moved.\n\r",
+          "keyword": "limb"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "limb",
+          "description": "The limb looks like it is attached to a trap door in the ground.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8307,
+      "name": "Swamp Thing's Lair",
+      "description": "A horrible swamp thing resides here.  Mutilated corpses suffuse the air with\n\rthe overwhelming stench of putrid flesh.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "swim",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 8308,
+          "description": "A pool of quick sand lies to the west.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "corpses",
+          "description": "You notice a note on one of the corpses reading:  'Best ye forget the temple,\n\rit is not for the likes of you...'\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8308,
+      "name": "Pool of Quick Sand",
+      "description": "You stand by a large oozing pool of quick sand.  Luckily only a complete\n\rklutz could not avoid it.  Dancing lights fly about you and one seems to\n\rbe taunting you towards the pool.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "swim",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 8307,
+          "description": "The swamp thing's lair.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 8314,
+          "description": "A murky bog.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 8309,
+          "description": "A dark pool lies to the west.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "lights",
+          "description": "From the stories you have heard, you recognize them as will-o-wisps.\n\r"
+        },
+        {
+          "keyword": "quicksand",
+          "description": "It looks deadly to the foolish.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8309,
+      "name": "A Dark Pool.",
+      "description": "You stand beside a large dark pond.  The water boils not with heat, but with\n\rmotion, as if it is alive.  A creaking beat pulses through the air, leaving\n\ryou with a cold sweat and fear in your heart.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "swim",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 8308,
+          "description": "A large pool of quicksand lies to the east.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 8311,
+          "description": "You see a cloud of darkness to the south.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 8304,
+          "description": "A hill rises out of the swamp to the east.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "pond",
+          "description": "It looks ALIVE ...\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8310,
+      "name": "Gloomy Path Through the Marsh.",
+      "description": "To the north lies a hill, shrouded in dark clouds, and to the south lies\n\ra huge patch of vegetation.  You sense an evil presence and notice \n\ra beast flying overhead to the south east, towards what looks to be a \n\rhuge fortress, half buried in the marsh.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "swim",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 8304,
+          "description": "To the north a hill protrudes from the marshes.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 8312,
+          "description": "To the south a huge mass of vegetation seems to quiver with life.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "clouds",
+          "description": "The clouds look dark and foreboding.\n\r"
+        },
+        {
+          "keyword": "beast",
+          "description": "It looks to be a demon of some foul breed.\n\r"
+        },
+        {
+          "keyword": "fortress",
+          "description": "It is surrounded by walls nearly 20 meters high.  In a tall tower on the\n\rnortheast side, a window glows blue with magical energy.\n\r"
+        },
+        {
+          "keyword": "vegetation",
+          "description": "It looks sentient.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8311,
+      "name": "Cloud of Darkness.",
+      "description": "As you travel through this cloud of darkness, a fear such as you have never\n\rknown before assails you.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "swim",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 8309,
+          "description": "A dark pool lies to the north.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 8313,
+          "description": "An obelisk lies to the south.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8312,
+      "name": "Near Vegetation from Hell.",
+      "description": "You stand near some of the strangest plant life you have ever seen, a mixture\n\rof tumescent vegetables, evil-smelling fruit trees, and malignant ferns.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "swim",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 8310,
+          "description": "To the north is a gloomy path through the marsh.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 8313,
+          "description": "Eastward is a large, black stone monolith.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "plant plants",
+          "description": "They look rather violent, and snap at you when you come near.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8313,
+      "name": "By the Monolith.",
+      "description": "You are standing near a monolith which protrudes some 20 feet from the\n\rmarsh into the air.  Its black obsidian surface shines darkly in the \n\rstrange, almost unearthly light that enters through the clouds above.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 8311,
+          "description": "To the north is a cloud of darkest evil.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 8314,
+          "description": "Eastward lies a murky bog.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 8312,
+          "description": "Near Vegetation from Hell.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "monolith",
+          "description": "This huge monolith resembles nothing you have ever seen before.\n\rYou have a strong feeling not to go within.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8314,
+      "name": "Murky Bog.",
+      "description": "A murky bog surrounds you.  To the east a black monolith juts forth from the\n\rground.  Far to the north lies a huge pool of quicksand.  Snarls can be heard\n\rechoing as if from a great distance.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 8308,
+          "description": "To the north lies a huge pool of quicksand.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 8315,
+          "description": "To the east the marsh turns into a small lake.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 8313,
+          "description": "Westward a large monolith awaits adventurers.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "monolith",
+          "description": "This is a huge obsidian stone block stuck in the marsh.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8315,
+      "name": "Northern Lake Side.",
+      "description": "Floating on this boiling lake is not what you would consider an enjoyable \n\rexperience.  Many a creature bumps the bottom of your boat, and glares \n\rat you through unblinking eyes from the waters below.  The southern \n\rportion of the lake looks calm and serene compared to this wild place.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "noswim",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 8316,
+          "description": "The southern portion of the lake lies to the south.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 8314,
+          "description": "To the west lies a murky bog.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8316,
+      "name": "Southern Lake Side.",
+      "description": "You are floating on a calm section of blue crystal water.  You feel much more\n\rat ease then you were before in this area.  Then a wave of fear passes over\n\ryou.  You are not alone.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "noswim",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 8315,
+          "description": "Northern lake side.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 8317,
+          "description": "To the west is a beach where your boat can land.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "north",
+          "description": "The way to the north seems to be impassable, due to the rough water and\n\rstrange wild life.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8317,
+      "name": "Beach",
+      "description": "You are on a sandy shore.  Marsh life creeps across the surface.  To the west\n\rlies an evil fortress.  You see figures walking along the battlements.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 8316,
+          "description": "To the east lies the southern portion of a small lake.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 8318,
+          "description": "The great gates.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "fortress",
+          "description": "It is hewn of black stone and heavily fortified.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8318,
+      "name": "Before the Great Gates.",
+      "description": "You stand before the gates of a huge fortress.  The drawbridge is up, the\n\rgates closed, and the portcullis down.  This place looks very dangerous,\n\rand you decide not to continue onward.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 8317,
+          "description": "To the east is a marshy beach.\n\r"
+        }
+      ]
+    }
+  ],
+  "mobiles": [
+    {
+      "vnum": 8301,
+      "name": "oldstyle troll",
+      "shortDescr": "a swamp troll",
+      "longDescr": "A swamp troll charges towards you.\n\r",
+      "description": "This huge behemoth towers to a height of 15 feet.  He sneers at you \n\ras he approaches and raises two black taloned claws to strike you.\n\r",
+      "race": "troll",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger",
+        "aggressive",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "detect_hidden",
+        "infrared",
+        "regeneration"
+      ],
+      "atkFlags": [
+        "berserk",
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "charm",
+        "bash"
+      ],
+      "vulnFlags": [
+        "fire",
+        "acid"
+      ],
+      "alignment": -600,
+      "group": 0,
+      "level": 16,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 233
+      },
+      "manaDice": {
+        "number": 8,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 4
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -2,
+        "bash": -2,
+        "slash": -2,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "resting",
+      "sex": "male",
+      "wealth": 500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 8302,
+      "name": "oldstyle troll",
+      "shortDescr": "a green troll",
+      "longDescr": "A green troll attempts to get a hold on you.\n\r",
+      "description": "This big troll towers several feet over you.  He has a large spear\n\rwhich he seems to ply with utmost prowess.  He jabs his spear at you\n\rand cackles with glee.\n\r",
+      "race": "troll",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "aggressive",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "detect_hidden",
+        "infrared",
+        "regeneration"
+      ],
+      "atkFlags": [
+        "berserk",
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "charm",
+        "bash"
+      ],
+      "vulnFlags": [
+        "fire",
+        "acid"
+      ],
+      "alignment": -400,
+      "group": 0,
+      "level": 14,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 190
+      },
+      "manaDice": {
+        "number": 7,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 12,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -1,
+        "bash": -1,
+        "slash": -1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 400,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 8303,
+      "name": "oldstyle ogre",
+      "shortDescr": "an ogre",
+      "longDescr": "An ogre stands here getting ready to beat in your face.\n\r",
+      "description": "This mean bastard looks like he could tear you limb from limb.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "aggressive",
+        "stay_area"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -500,
+      "group": 0,
+      "level": 20,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 333
+      },
+      "manaDice": {
+        "number": 10,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -4,
+        "bash": -4,
+        "slash": -4,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 8304,
+      "name": "oldstyle thing",
+      "shortDescr": "the Swamp Thing",
+      "longDescr": "The Swamp Thing shambles about here.  It seems hungry.\n\r",
+      "description": "The Swamp Thing has huge fists, which look like they could pound you flat.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "aggressive",
+        "stay_area"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -700,
+      "group": 0,
+      "level": 24,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 500
+      },
+      "manaDice": {
+        "number": 12,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -6,
+        "bash": -6,
+        "slash": -6,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "resting",
+      "sex": "none",
+      "wealth": 1250,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 8305,
+      "name": "oldstyle gnoll",
+      "shortDescr": "a gnoll",
+      "longDescr": "There is a mean looking gnoll here.\n\r",
+      "description": "The Gnoll seems annoyed at your presence.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 30,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 6,
+        "type": 12,
+        "bonus": 853
+      },
+      "manaDice": {
+        "number": 15,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 6,
+        "bonus": 8
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -9,
+        "bash": -9,
+        "slash": -9,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 1250,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 8306,
+      "name": "oldstyle beast",
+      "shortDescr": "a huge hairy beast",
+      "longDescr": "A huge hairy beast shambles towards you with death in his eyes.\n\r",
+      "description": "This huge beast stands about 20 feet in height and has huge green clawed\n\rappendages. \n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "aggressive",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -450,
+      "group": 0,
+      "level": 21,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 4,
+        "type": 10,
+        "bonus": 360
+      },
+      "manaDice": {
+        "number": 10,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 4,
+        "bonus": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -5,
+        "bash": -5,
+        "slash": -5,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 8307,
+      "name": "oldstyle beast",
+      "shortDescr": "a rather small beast",
+      "longDescr": "A rather small beast cringes in terror as it notices you.\n\r",
+      "description": "This rather small beast looks like you could take it out with a single\n\rsword blow.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area",
+        "wimpy"
+      ],
+      "affectFlags": [
+        "sneak"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 3,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 35
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 7,
+        "bash": 7,
+        "slash": 7,
+        "exotic": 10
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 25,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 8308,
+      "name": "oldstyle will will-o-wisp",
+      "shortDescr": "the Will-O-Wisp",
+      "longDescr": "A Will-O-Wisp darts hear and there, making fun of you.\n\r",
+      "description": "This strange little creature seems very hard to keep your eyes on.\n\rYou stare as hard as you can at the glowing ball of floating light and\n\rare just able to notice a small pair of glowing eyes.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area",
+        "wimpy"
+      ],
+      "affectFlags": [
+        "sneak"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 10,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 121
+      },
+      "manaDice": {
+        "number": 5,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 4,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 1,
+        "bash": 1,
+        "slash": 1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 150,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 8309,
+      "name": "oldstyle snake anaconda",
+      "shortDescr": "the monstrous snake",
+      "longDescr": "A monstrous snake slithers towards you, thinking 'breakfast'.\n\r",
+      "description": "This 10 meter anaconda looks rather hungry.\n\r",
+      "race": "snake",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "aggressive",
+        "stay_area",
+        "wimpy"
+      ],
+      "affectFlags": [
+        "sneak",
+        "hide"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "poison"
+      ],
+      "vulnFlags": [
+        "cold"
+      ],
+      "alignment": -100,
+      "group": 0,
+      "level": 16,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 233
+      },
+      "manaDice": {
+        "number": 8,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 4
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -2,
+        "bash": -2,
+        "slash": -2,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 8310,
+      "name": "oldstyle snake python",
+      "shortDescr": "a large snake",
+      "longDescr": "A rather large python rests in a coil here.\n\r",
+      "description": "It's the largest Amazon python you have ever seen.\n\r",
+      "race": "snake",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "aggressive",
+        "stay_area",
+        "wimpy"
+      ],
+      "affectFlags": [
+        "sneak",
+        "hide"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "poison"
+      ],
+      "vulnFlags": [
+        "cold"
+      ],
+      "alignment": -100,
+      "group": 0,
+      "level": 11,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 134
+      },
+      "manaDice": {
+        "number": 5,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 10,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 1,
+        "bash": 1,
+        "slash": 1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 8312,
+      "name": "oldstyle hag",
+      "shortDescr": "the Marsh Hag",
+      "longDescr": "A Marsh Hag is here.\n\r",
+      "description": "Yech!  She manages to make even Smurfette look attractive.  That's ok,\n\rbecause she thinks you stink too, and she's about to do something about it.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area",
+        "thief"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden"
+      ],
+      "atkFlags": [
+        "backstab",
+        "disarm",
+        "dodge",
+        "dirt_kick",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -200,
+      "group": 0,
+      "level": 9,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 96
+      },
+      "manaDice": {
+        "number": 4,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 7,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 3,
+        "bash": 3,
+        "slash": 3,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 50,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 8313,
+      "name": "oldstyle slaad",
+      "shortDescr": "a Death Slaad",
+      "longDescr": "A Death Slaad is standing here distraught.  He seems lost.\n\r",
+      "description": "This dark apparition stands a meager 13 feet in height.  Even in the dim\n\rswamp light, the blade of his scythe gleams.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -200,
+      "group": 0,
+      "level": 20,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 333
+      },
+      "manaDice": {
+        "number": 10,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -4,
+        "bash": -4,
+        "slash": -4,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 700,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 8314,
+      "name": "oldstyle wolf",
+      "shortDescr": "a marsh wolf",
+      "longDescr": "A marsh wolf sniffs the ground has followed your scent.\n\r",
+      "description": "This wolf looks plump.  She probably ate a friend or two of yours who came\n\rinto the marsh.\n\r",
+      "race": "wolf",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "aggressive",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "dark_vision"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "fast",
+        "trip",
+        "assist_race"
+      ],
+      "alignment": -200,
+      "group": 0,
+      "level": 8,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 96
+      },
+      "manaDice": {
+        "number": 4,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 7,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 3,
+        "bash": 3,
+        "slash": 3,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 8318,
+      "name": "oldstyle mound shambling",
+      "shortDescr": "a shambling mound",
+      "longDescr": "A heap of garbage shambles towards you.\n\r",
+      "description": "This grotesque pile of plant matter fills you with utmost horror.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "hide"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -100,
+      "group": 0,
+      "level": 13,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 170
+      },
+      "manaDice": {
+        "number": 6,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 5,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -1,
+        "bash": -1,
+        "slash": -1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 8319,
+      "name": "oldstyle shaman orc",
+      "shortDescr": "the orc shaman",
+      "longDescr": "An orc shaman stands before you holding a staff and wearing robes.\n\r",
+      "description": "This old orc has an array of bones stuck in his hair and strange symbols\n\rpainted on his face and hands.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger",
+        "aggressive",
+        "stay_area",
+        "cleric"
+      ],
+      "actFlagsValue": 65647,
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden"
+      ],
+      "atkFlags": [
+        "disarm",
+        "kick",
+        "parry",
+        "assist_vnum"
+      ],
+      "alignment": -100,
+      "group": 0,
+      "level": 12,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 150
+      },
+      "manaDice": {
+        "number": 12,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 4,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 0,
+        "bash": 0,
+        "slash": 0,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 17,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 8320,
+      "name": "oldstyle giant",
+      "shortDescr": "a marsh giant",
+      "longDescr": "A marsh giant stomps towards you.\n\r",
+      "description": "This huge monster of a man has green gnarly teeth and a BIG stick.\n\r",
+      "race": "giant",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger",
+        "aggressive",
+        "stay_area"
+      ],
+      "actFlagsValue": 111,
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "fire",
+        "cold"
+      ],
+      "vulnFlags": [
+        "lightning",
+        "mental"
+      ],
+      "alignment": -100,
+      "group": 0,
+      "level": 15,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 208
+      },
+      "manaDice": {
+        "number": 7,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -2,
+        "bash": -2,
+        "slash": -2,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 600,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 8321,
+      "name": "oldstyle gargoyle",
+      "shortDescr": "a gargoyle",
+      "longDescr": "A large gargoyle lands next to you, baring his fangs at you.\n\r",
+      "description": "This creepy fellow looks like he could use you as a meal.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger",
+        "aggressive",
+        "stay_area"
+      ],
+      "actFlagsValue": 111,
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -100,
+      "group": 0,
+      "level": 12,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 150
+      },
+      "manaDice": {
+        "number": 6,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 10,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 0,
+        "bash": 0,
+        "slash": 0,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 100,
+      "size": "medium",
+      "material": "0"
+    }
+  ],
+  "objects": [
+    {
+      "vnum": 8301,
+      "name": "spear long two-handed",
+      "shortDescr": "a long spear",
+      "description": "A strange spear lies here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "antigood"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "spear",
+        "dice": [
+          1,
+          12
+        ],
+        "damageType": "stab",
+        "flags": [
+          "twohands"
+        ]
+      },
+      "level": 11,
+      "weight": 100,
+      "cost": 1330,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 11,
+          "duration": -1,
+          "modifier": 3
+        },
+        {
+          "where": "object",
+          "location": "dexterity",
+          "level": 11,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 8302,
+      "name": "horned helmet",
+      "shortDescr": "a dark horned helmet",
+      "description": "A wicked looking horned helmet lies here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "antigood"
+      ],
+      "wearFlags": [
+        "take",
+        "head"
+      ],
+      "armor": {
+        "acPierce": 6,
+        "acBash": 6,
+        "acSlash": 5,
+        "acExotic": 2
+      },
+      "level": 10,
+      "weight": 50,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "horns horn",
+          "description": "These horns appear to be made of adamantite."
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 10,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "intelligence",
+          "level": 10,
+          "duration": -1,
+          "modifier": -3
+        }
+      ]
+    },
+    {
+      "vnum": 8303,
+      "name": "chain mail chainmail",
+      "shortDescr": "a suit of chainmail",
+      "description": "An old suit of chainmail lies here, corroded by the marsh.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "antigood"
+      ],
+      "wearFlags": [
+        "take",
+        "body"
+      ],
+      "armor": {
+        "acPierce": 5,
+        "acBash": 8,
+        "acSlash": 7
+      },
+      "level": 20,
+      "weight": 200,
+      "cost": 2700,
+      "condition": 100
+    },
+    {
+      "vnum": 8306,
+      "name": "scythe",
+      "shortDescr": "a huge, wicked-looking scythe",
+      "description": "An evil, wicked-looking scythe lies in the shadows.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "nodrop",
+        "antigood"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "polearm",
+        "dice": [
+          4,
+          4
+        ],
+        "damageType": "slice",
+        "flags": [
+          "twohands"
+        ]
+      },
+      "level": 19,
+      "weight": 160,
+      "cost": 1770,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 19,
+          "duration": -1,
+          "modifier": 3
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 19,
+          "duration": -1,
+          "modifier": 3
+        }
+      ]
+    },
+    {
+      "vnum": 8307,
+      "name": "green potion",
+      "shortDescr": "a murky green potion",
+      "description": "A murky green potion lies here in the mud.",
+      "material": "oldstyle",
+      "itemType": "potion",
+      "extraFlags": [
+        "glow",
+        "hum"
+      ],
+      "wearFlags": [
+        "take"
+      ],
+      "spells": {
+        "level": 43,
+        "spells": [
+          "cure critical",
+          "",
+          ""
+        ]
+      },
+      "level": 5,
+      "weight": 10,
+      "cost": 690,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "potion",
+          "description": "It looks really disgusting and doesn't smell very nice either."
+        }
+      ]
+    },
+    {
+      "vnum": 8308,
+      "name": "claymore rusty sword",
+      "shortDescr": "a rusty claymore",
+      "description": "A huge rusted sword lies in a pool of water.",
+      "material": "iron",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "sword",
+        "dice": [
+          4,
+          7
+        ],
+        "damageType": "cleave",
+        "flags": [
+          "twohands"
+        ]
+      },
+      "level": 28,
+      "weight": 100,
+      "cost": 3000,
+      "condition": 100
+    }
+  ],
+  "shops": [],
+  "specials": [
+    {
+      "mobVnum": 8309,
+      "spec": "spec_poison"
+    },
+    {
+      "mobVnum": 8310,
+      "spec": "spec_poison"
+    },
+    {
+      "mobVnum": 8312,
+      "spec": "spec_thief"
+    },
+    {
+      "mobVnum": 8313,
+      "spec": "spec_cast_undead"
+    },
+    {
+      "mobVnum": 8319,
+      "spec": "spec_cast_cleric"
+    }
+  ],
+  "mobprogs": [],
+  "resets": [
+    {
+      "mobVnum": 8301,
+      "maxInArea": 2,
+      "roomVnum": 8303,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8302,
+      "maxInArea": 6,
+      "roomVnum": 8303,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8307,
+      "roomVnum": 8303,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 8303,
+      "maxInArea": 3,
+      "roomVnum": 8303,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8302,
+      "maxInArea": 6,
+      "roomVnum": 8304,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8307,
+      "roomVnum": 8304,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 8306,
+      "maxInArea": 2,
+      "roomVnum": 8304,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8310,
+      "maxInArea": 2,
+      "roomVnum": 8304,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8314,
+      "maxInArea": 6,
+      "roomVnum": 8304,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8307,
+      "maxInArea": 2,
+      "roomVnum": 8305,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8309,
+      "maxInArea": 2,
+      "roomVnum": 8305,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8310,
+      "maxInArea": 2,
+      "roomVnum": 8305,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8314,
+      "maxInArea": 6,
+      "roomVnum": 8305,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8302,
+      "maxInArea": 6,
+      "roomVnum": 8306,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8305,
+      "maxInArea": 2,
+      "roomVnum": 8306,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8303,
+      "wearLoc": "on the body",
+      "roomVnum": 8306,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 8308,
+      "wearLoc": "wielded",
+      "roomVnum": 8306,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 8314,
+      "maxInArea": 6,
+      "roomVnum": 8306,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8303,
+      "maxInArea": 3,
+      "roomVnum": 8307,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8304,
+      "maxInArea": 1,
+      "roomVnum": 8307,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8314,
+      "maxInArea": 6,
+      "roomVnum": 8307,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8320,
+      "maxInArea": 5,
+      "roomVnum": 8307,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8301,
+      "roomVnum": 8307,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 8301,
+      "maxInArea": 2,
+      "roomVnum": 8308,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8308,
+      "maxInArea": 1,
+      "roomVnum": 8308,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8314,
+      "maxInArea": 6,
+      "roomVnum": 8308,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8312,
+      "maxInArea": 2,
+      "roomVnum": 8309,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8314,
+      "maxInArea": 6,
+      "roomVnum": 8309,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8320,
+      "maxInArea": 5,
+      "roomVnum": 8309,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8301,
+      "roomVnum": 8309,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 8306,
+      "maxInArea": 2,
+      "roomVnum": 8310,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8312,
+      "maxInArea": 2,
+      "roomVnum": 8310,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8313,
+      "maxInArea": 1,
+      "roomVnum": 8310,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8306,
+      "wearLoc": "wielded",
+      "roomVnum": 8310,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 8302,
+      "wearLoc": "over the head",
+      "roomVnum": 8310,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 8309,
+      "maxInArea": 2,
+      "roomVnum": 8311,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8320,
+      "maxInArea": 5,
+      "roomVnum": 8311,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8301,
+      "roomVnum": 8311,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 8318,
+      "maxInArea": 2,
+      "roomVnum": 8312,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8307,
+      "roomVnum": 8312,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 8318,
+      "maxInArea": 2,
+      "roomVnum": 8312,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8307,
+      "roomVnum": 8312,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 8303,
+      "maxInArea": 3,
+      "roomVnum": 8313,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8307,
+      "maxInArea": 2,
+      "roomVnum": 8313,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8320,
+      "maxInArea": 5,
+      "roomVnum": 8313,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8301,
+      "roomVnum": 8313,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 8307,
+      "roomVnum": 8313,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 8320,
+      "maxInArea": 5,
+      "roomVnum": 8315,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8301,
+      "roomVnum": 8315,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 8302,
+      "wearLoc": "over the head",
+      "roomVnum": 8315,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 8321,
+      "maxInArea": 2,
+      "roomVnum": 8318,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8321,
+      "maxInArea": 2,
+      "roomVnum": 8318,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    }
+  ],
+  "factions": [],
+  "quests": []
+}

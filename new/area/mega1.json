@@ -1,0 +1,2279 @@
+{
+  "formatVersion": 1,
+  "areadata": {
+    "version": 2,
+    "name": "Mega City One",
+    "builders": "",
+    "vnumRange": [
+      8000,
+      8099
+    ],
+    "credits": "Glop",
+    "security": 9,
+    "sector": "inside",
+    "lowLevel": 5,
+    "highLevel": 35,
+    "reset": 6,
+    "alwaysReset": false
+  },
+  "storyBeats": [],
+  "checklist": [],
+  "rooms": [
+    {
+      "vnum": 8001,
+      "name": "Entrance to Mega-City One",
+      "description": "A road begins here in the glowing sands.  You follow it through a gate\n\rin a Plasteen wall onto the Megway of Mega-City One.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 5062,
+          "description": "You see the glowing sand of the badlands.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 8002,
+          "description": "The Megway continues in this direction.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8002,
+      "name": "Mahmount Allesh Megway",
+      "description": "You are on one mile of over 13 and a half billion kilometers of\n\rroadway in Mega-City One.  The Megway continues north and south.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 8001,
+          "description": "The entrance to Mega-City One is in this direction.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 8003,
+          "description": "There is an intersection ahead.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8003,
+      "name": "Intersection of Junket Way and Megway",
+      "description": "The Megway intersects with Junket Way here.  Junket Way is to the east,\n\rthe Megway continues north and south, and the Pustule Palace Cafe is\n\rto the west.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 8002,
+          "description": "The Megway continues in this direction.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 8010,
+          "description": "Junket way continues in this direction.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 8004,
+          "description": "The Megway continues in this direction.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 8021,
+          "description": "The Pustule Palace Cafe is in this direction.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8004,
+      "name": "Mahmount Allesh Megway",
+      "description": "The traffic here is really congested due in part to the over 11 million\n\rpeople driving Mo-Pads, the mobile homes which are constantly on the\n\rmove until their owners can find an apartment in one of the City-blocks.\n\rThe Megway continues north and south.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 8003,
+          "description": "An intersection lies in this direction.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 8005,
+          "description": "The Megway continues in this direction.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8005,
+      "name": "Mahmount Allesh Megway",
+      "description": "The Megway continues north and south.  On the off-ramps here you see\n\rmany of the citizens of Mega-City One doing nothing.  You see of\n\revery hundred citizens, it can be guaranteed that 87 of them will\n\rbe totally unemployed, and that a further five will not work more\n\rthan ten hours a week.  To the east there is a dark alley and to the\n\rwest is Rietzik's Shuggy Hall.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 8004,
+          "description": "The Megway continues in this direction.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 8011,
+          "description": "A dark alley lies to the east.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 8006,
+          "description": "A large plaza is in this direction.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 8022,
+          "description": "A building is in this direction.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8006,
+      "name": "Central Plaza",
+      "description": "You are at the Central Plaza of the downtown district.  There are a couple\n\rof juves Boingging (tm) in the air above you.  Max Jaffa Boulevard goes\n\reast, the Megway continues north and south, and Bazza's Home for the\n\rTerminally Sarky is to the west.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 8005,
+          "description": "The Megway continues in this direction.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 8012,
+          "description": "Max Jaffa Boulevard goes in this direction.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 8007,
+          "description": "The Megway continues in this direction.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 8023,
+          "description": "A home for Sarky people is to the west.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8007,
+      "name": "Corner of Ed Hilldreth Memorial Parkway and Megway",
+      "description": "Another major intersection which is being negotiated by vehicles that\n\rare bound to minimum speed limits.  Many Slow Driving offenses are being\n\rhanded out by the Judges.  The Megway goes north and south, a Parkway\n\rgoes east, and Nu Phisog Parlour is west.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 8006,
+          "description": "A plaza is to the north.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 8013,
+          "description": "Ed Hilldreth Mem. Parkwy is to the east.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 8008,
+          "description": "The Megway continues in this direction.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 8024,
+          "description": "A City Block lies to the west.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8008,
+      "name": "Mahmount Allesh Megway",
+      "description": "As you travel the Megway you notice many citizens participating in their\n\rfavorite hobbies such as spot welding and metalwork, scratch building\n\rfashion Kneepads, giving blood, or just looking out the window.  The\n\rMegway continues north and south.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 8007,
+          "description": "The Megway continues in this direction.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 8009,
+          "description": "The Megway continues in this direction.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8009,
+      "name": "Mahmount Allesh Megway",
+      "description": "The Megway ends here.  To the west is Ziggi Piggi's Home for the\n\rSemi-Stiff, to the east and south are construction areas, and the\n\rMegway goes north.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 8008,
+          "description": "The Megway is ahead.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 8014,
+          "description": "There is construction this way.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 8020,
+          "description": "There is construction ahead.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 8025,
+          "description": "Ziggi Piggi's Home the Semi-Stiff is ahead.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8010,
+      "name": "Junket Way",
+      "description": "Junket Way a small Skedway continues east and west.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 8015,
+          "description": "An intersection is ahead.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 8003,
+          "description": "An intersection is ahead.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8011,
+      "name": "Davies Alley",
+      "description": "You are in a very dark and seedy alley.  This is just the right place for\n\ra bite fight.  Bite fighting is an illegal activity where both combatants\n\rcan only use their sharpened teeth as weapons.\n\r",
+      "roomFlags": [
+        "dark"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 8017,
+          "description": "An intersection is ahead.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 8005,
+          "description": "An intersection is ahead.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8012,
+      "name": "Max Jaffa Boulevard",
+      "description": "Max Jaffa Boulevard continues east and west.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 8018,
+          "description": "An intersection is ahead.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 8006,
+          "description": "A large plaza is to the west.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8013,
+      "name": "Ed Hilldreth Memorial Parkway",
+      "description": "The Parkway goes east and west.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 8019,
+          "description": "An intersection is ahead.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 8007,
+          "description": "An intersection is ahead.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8014,
+      "name": "Construction site of the Harold Finkelbaum Block.",
+      "description": "A Mega-City One City Block is being constructed at this site.  A\n\rtypical block is from 100 to 1000 stories high with hundreds of\n\rthousands inhabitants.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 8009,
+          "description": "An intersection is ahead.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8015,
+      "name": "Corner of Junket Way and Threep Lane",
+      "description": "There is a second-hand kneepad stall is doing a brisk business with a\n\rgroup of juves on their way to school.  Junket Way goes west and Threep\n\rLane travels south.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 8016,
+          "description": "Threep Lane continues ahead.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 8010,
+          "description": "Junket Way is ahead.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8016,
+      "name": "Threep Lane",
+      "description": "Threep Lane continues north and south.  There is a building to the east\n\rwith a sign next to the door.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 8015,
+          "description": "An intersection is ahead.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 8026,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "description": "A door to the east bodes ill.\n\r",
+          "keyword": "door"
+        },
+        {
+          "dir": "south",
+          "toVnum": 8017,
+          "description": "Threep Lane continues south.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "sign",
+          "description": "Throt and Gleep's Megger Store est. 2107\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8017,
+      "name": "Threep Lane",
+      "description": "Threep Lane continues north and south.  There is a dark alley to the west.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 8016,
+          "description": "Threep Lane continues north.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 8018,
+          "description": "An intersection is ahead.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 8011,
+          "description": "A dark alley is west.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8018,
+      "name": "Corner of Max Jaffa Blvd and Threep Way",
+      "description": "A proprietor of Uncle Sumpty's Ugly Emporium meanders by.  Threep Lane\n\rcontinues north and south while Max Jaffa Boulevard goes west.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 8017,
+          "description": "Threep Lane continues north.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 8019,
+          "description": "Threep Lane continues south.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 8012,
+          "description": "Max Jaffa Blvd continues west\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8019,
+      "name": "Corner of Ed Hilldreth Mem. Prkwy and Threep Lane",
+      "description": "Threep Lane goes north from here while Ed Hilldreth Memorial Parkway goes\n\rwest.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 8018,
+          "description": "Threep Lane continues north.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 8013,
+          "description": "Ed Hilldreth continues west.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8020,
+      "name": "Construction Site for the Brit-Cit One tunnel.",
+      "description": "Construction is under way for the Black Atlantic Tunnel to connect\n\rMega-City One and Brit-Cit One.\n\r",
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 8009,
+          "description": "An intersection lies north.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8021,
+      "name": "Pustule Palace Cafe",
+      "description": "A scabrous hole.  Run by Ernie Ramirez, an ex-perp, it is a meeting place\n\rfor the low-life in the area.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 8003,
+          "description": "An intersection lies east.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8022,
+      "name": "Rietzik's Shuggy Hall",
+      "description": "A sleazy dive and the meeting place of a lot of perps.  Shuggy is a\n\rtwenty-second Century version of pool, played on a hilly table, usually\n\rwith large side bets.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 8005,
+          "description": "An intersection lies east.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8023,
+      "name": "Bazza's Home for the Terminally Sarky",
+      "description": "This is an experimental psychiatric home.  Named after a 20th Century\n\rvid-critic, the home attempts, by various methods, to readjust the\n\rsocially unacceptable attitudes of the inmates.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 8006,
+          "description": "A large plaza lies east.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8024,
+      "name": "Nu Phisog Parlour",
+      "description": "Opened as a direct rival to the New You Face Parlour chain to offer quick\n\rand cheap face-changing facilities to the general public.  However,\n\rsince the closure of Sump's Ugly clinics, the craze for face-changing has\n\rdied down.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 8007,
+          "description": "An intersection lies east.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8025,
+      "name": "Ziggi Piggi's Home for the Semi-Stiff",
+      "description": "The only suspended animation parlour in the area.  It has a high turnover\n\rrate.  It is rumored that the patrons are being used in body sharking and\n\rorgan legging activities.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 8009,
+          "description": "An intersection lies east.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8026,
+      "name": "Throt & Gleep's Megger Store",
+      "description": "This place promises to provide everything that the citizens don't need,\n\rwith the utmost discourtesy.  Of course, something as crazy as this was\n\rbound to succeed.  There is a door to the north with a slot next to it.\n\rThere is also a sign next to the slot.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 8027,
+          "key": 8013,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "keyword": "door"
+        },
+        {
+          "dir": "west",
+          "toVnum": 8016,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "door"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "sign",
+          "description": "To open insert card.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8027,
+      "name": "Stockroom of Throt & Gleep's Megger Store",
+      "description": "Many useless items stock the shelves of this stockroom.  A door leads\n\rsouth and large vault door is to the north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 8028,
+          "key": 8012,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "keyword": "vault door"
+        },
+        {
+          "dir": "south",
+          "toVnum": 8026,
+          "key": 8013,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "keyword": "door"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "vault door",
+          "description": "This vault seems impervious to breaking.  There is a keyhole in the lock\n\rhowever.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8028,
+      "name": "Throt & Gleep's Vault",
+      "description": "The vault is musty with a slight smell of ozone in the air.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 8027,
+          "key": 8012,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "keyword": "vault door"
+        }
+      ]
+    }
+  ],
+  "mobiles": [
+    {
+      "vnum": 8000,
+      "name": "oldstyle juve",
+      "shortDescr": "a juve",
+      "longDescr": "A juve is standing here plotting mischief.\n\r",
+      "description": "He is a tall, thin boy.  He is looking for his gang mates.  He and his\n\rmates have cost city authorities many millions of creds a week in\n\rvandalism repairs.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -400,
+      "group": 0,
+      "level": 5,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 60
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 5,
+        "bash": 5,
+        "slash": 5,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 8001,
+      "name": "oldstyle punk",
+      "shortDescr": "a punk",
+      "longDescr": "A punk is here plotting a crime wave.\n\r",
+      "description": "This punk is from one of the rowdiest, scruffiest, and definitely most\n\rfashionable of all gangs -- the Grunge Mongers.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -500,
+      "group": 0,
+      "level": 10,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 121
+      },
+      "manaDice": {
+        "number": 5,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 4,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 1,
+        "bash": 1,
+        "slash": 1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 8002,
+      "name": "oldstyle Futsie",
+      "shortDescr": "a Futsie",
+      "longDescr": "A Futsie is here reciting Monty Python sketches.\n\r",
+      "description": "A sad victim of Future Shock, this man is immensely dangerous and will\n\rnot be stopped by anyone who tries to deter him from revenge upon the\n\rJustice Department.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "detect_invis"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 10,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 121
+      },
+      "manaDice": {
+        "number": 10,
+        "type": 11,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 4,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 1,
+        "bash": 1,
+        "slash": 1,
+        "exotic": 4
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 8003,
+      "name": "oldstyle Citi-Def Militiaman",
+      "shortDescr": "a Citi-Def Militiaman",
+      "longDescr": "A Citi-Def Militiaman is here contemplating a Block War.\n\r",
+      "description": "A member of a local Block's Citi-Def militia, this man is well-armed\n\rand undersupervised.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 16,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 233
+      },
+      "manaDice": {
+        "number": 8,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 4
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -2,
+        "bash": -2,
+        "slash": -2,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 8004,
+      "name": "oldstyle dunk",
+      "shortDescr": "a dunk",
+      "longDescr": "A dunk is here blending into the crowd.\n\r",
+      "description": "He blends into the crowd as his hand travels into another citizen's pocket.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area",
+        "wimpy",
+        "thief"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden"
+      ],
+      "atkFlags": [
+        "backstab",
+        "disarm",
+        "dodge",
+        "dirt_kick",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -150,
+      "group": 0,
+      "level": 10,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 110
+      },
+      "manaDice": {
+        "number": 5,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 8,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 2,
+        "bash": 2,
+        "slash": 2,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 8005,
+      "name": "oldstyle tap",
+      "shortDescr": "a tap",
+      "longDescr": "A tap is here eyeing your belongings.\n\r",
+      "description": "A practitioner in Mega-City One's largest growth industry, mugging, is\n\rlooking you over for a possible business transaction.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -400,
+      "group": 0,
+      "level": 14,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 190
+      },
+      "manaDice": {
+        "number": 7,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 12,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -1,
+        "bash": -1,
+        "slash": -1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 8006,
+      "name": "oldstyle rookie judge",
+      "shortDescr": "a rookie judge",
+      "longDescr": "A Rookie judge is on his first beat here.\n\r",
+      "description": "A member of Mega-City One's Justice Department is here considering what\n\rcrimes you have committed.  Being a rookie he will probably be easier on\n\ryou though.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 300,
+      "group": 0,
+      "level": 20,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 333
+      },
+      "manaDice": {
+        "number": 10,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -4,
+        "bash": -4,
+        "slash": -4,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 8007,
+      "name": "oldstyle Wallaby Gleep",
+      "shortDescr": "Wallaby Gleep",
+      "longDescr": "Mr. Gleep is here wanting to know what you want.\n\r",
+      "description": "Wallaby Gleep is a heavy-set man who gives you the impression that he is\n\runintelligent and unimaginative, but looks can be deceiving.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden",
+        "infrared"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -600,
+      "group": 0,
+      "level": 22,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 400
+      },
+      "manaDice": {
+        "number": 11,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 4,
+        "bonus": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -5,
+        "bash": -5,
+        "slash": -5,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 8008,
+      "name": "oldstyle Pinkerton Throt",
+      "shortDescr": "Pinkerton Throt",
+      "longDescr": "Pinky Throt is here Wringing his hands.\n\r",
+      "description": "He is a thin angular crook, pretty close to everyone's idea of Ebeneezer\n\rScrooge.  Indeed, the only thing guaranteed to bring a spark to his dead\n\reyes is the mention of money.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -900,
+      "group": 0,
+      "level": 25,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 550
+      },
+      "manaDice": {
+        "number": 12,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 7
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -7,
+        "bash": -7,
+        "slash": -7,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 8009,
+      "name": "oldstyle Ernie Ramirez",
+      "shortDescr": "Ernie Ramirez",
+      "longDescr": "Ernie Ramirez is here collecting for the mob.\n\r",
+      "description": "Ramirez is a dour man who knows that he's never going to get a better\n\rdeal out of life.  He is content to run the bite fights for Throt and\n\rGleep.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -400,
+      "group": 0,
+      "level": 19,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 308
+      },
+      "manaDice": {
+        "number": 9,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -4,
+        "bash": -4,
+        "slash": -4,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 8010,
+      "name": "oldstyle Judge Eckersely",
+      "shortDescr": "Judge Eckersely",
+      "longDescr": "Judge Eckersely is here shaking down a Perp.\n\r",
+      "description": "He is a dedicated, if somewhat pessimistic Judge.  He is the Senior Judge\n\rof the Downtown Quadrant.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden",
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 300,
+      "group": 0,
+      "level": 30,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 6,
+        "type": 12,
+        "bonus": 853
+      },
+      "manaDice": {
+        "number": 15,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 6,
+        "bonus": 8
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -9,
+        "bash": -9,
+        "slash": -9,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 8011,
+      "name": "oldstyle Judge Beddows",
+      "shortDescr": "Judge Beddows",
+      "longDescr": "Judge Beddows is here calling Resyk.\n\r",
+      "description": "Beddows is a clone from the same stock as the ex-Chief Judge McGruder.\n\rShe is fanatically dedicated to her job and has no ambitions other than\n\rto enforce the LAW.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 500,
+      "group": 0,
+      "level": 25,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 550
+      },
+      "manaDice": {
+        "number": 12,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 7
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -7,
+        "bash": -7,
+        "slash": -7,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 8012,
+      "name": "oldstyle bite fighter",
+      "shortDescr": "a bite fighter",
+      "longDescr": "A bite fighter is here sharpening his teeth.\n\r",
+      "description": "A bite fighter is here with sharpened teeth and a bad attitude.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -400,
+      "group": 0,
+      "level": 20,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 333
+      },
+      "manaDice": {
+        "number": 10,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -4,
+        "bash": -4,
+        "slash": -4,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    }
+  ],
+  "objects": [
+    {
+      "vnum": 8000,
+      "name": "spitgun spit gun",
+      "shortDescr": "a spit gun",
+      "description": "There is a spit gun laying here.",
+      "material": "oldstyle",
+      "itemType": "wand",
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "wand": {
+        "level": 20,
+        "chargesTotal": 10,
+        "spell": "general purpose"
+      },
+      "level": 17,
+      "weight": 20,
+      "cost": 48900,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "spit gun",
+          "description": "A standard weapon in Mega-City One.  It uses general\n\rpurpose ammunition.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8001,
+      "name": "knee pads",
+      "shortDescr": "a set of knee pads",
+      "description": "There are some knee pads laying here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "legs"
+      ],
+      "armor": {
+        "acPierce": 4,
+        "acBash": 4,
+        "acSlash": 4
+      },
+      "level": 5,
+      "weight": 30,
+      "cost": 480,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "knee pads",
+          "description": "It is a set of Grak Brothers knee pads.  They are currently\n\rpopular with the juve and punk gangs.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8002,
+      "name": "stooky gland",
+      "shortDescr": "a stooky gland",
+      "description": "There is a stooky gland laying here.",
+      "material": "oldstyle",
+      "itemType": "pill",
+      "wearFlags": [
+        "take"
+      ],
+      "spells": {
+        "level": 20,
+        "spells": [
+          "",
+          "cure poison",
+          "heal"
+        ]
+      },
+      "level": 13,
+      "weight": 10,
+      "cost": 1000,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "stooky gland",
+          "description": "Stooky glands are known for the restorative properties.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8003,
+      "name": "lawgiver",
+      "shortDescr": "a lawgiver",
+      "description": "There is a lawgiver laying here.",
+      "material": "oldstyle",
+      "itemType": "wand",
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "wand": {
+        "level": 30,
+        "chargesTotal": 10,
+        "spell": "high explosive"
+      },
+      "level": 27,
+      "weight": 20,
+      "cost": 58000,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "lawgiver gun",
+          "description": "The standard weapon for the city's Judges.  It uses general\n\rhigh explosive ammunition.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8004,
+      "name": "safe",
+      "shortDescr": "the magnetically shielded safe",
+      "description": "A indestructible, immobile safe is here.",
+      "material": "oldstyle",
+      "itemType": "container",
+      "extraFlags": [
+        "hum"
+      ],
+      "container": {
+        "capacity": 1005,
+        "flags": [
+          "closeable",
+          "closed",
+          "locked"
+        ],
+        "keyVnum": 8005,
+        "maxWeight": 200,
+        "weightMult": 100
+      },
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "safe",
+          "description": "This safe looks like not even a Sov-Cit Nuke could open it.\n\rYou better find the code box.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8005,
+      "name": "code box",
+      "shortDescr": "a code box",
+      "description": "A code box of indeterminate use is here.",
+      "material": "oldstyle",
+      "itemType": "key",
+      "extraFlags": [
+        "hum"
+      ],
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "weight": 10,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "code box",
+          "description": "The box looks like some kind of access device.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8006,
+      "name": "bashball bat two-handed",
+      "shortDescr": "a bashball bat",
+      "description": "A bashball bat is laying here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "mace",
+        "dice": [
+          3,
+          5
+        ],
+        "damageType": "pound",
+        "flags": [
+          "twohands"
+        ]
+      },
+      "level": 14,
+      "weight": 30,
+      "cost": 870,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "bashball bat",
+          "description": "This is the same type of bat used by the little spuggers\n\rto play bashball.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 14,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 8007,
+      "name": "vibroblade",
+      "shortDescr": "the vibroblade",
+      "description": "The vibroblade is here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "glow",
+        "hum",
+        "invis"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "dagger",
+        "dice": [
+          3,
+          5
+        ],
+        "damageType": "slash"
+      },
+      "level": 18,
+      "weight": 20,
+      "cost": 2800,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "vibroblade",
+          "description": "Obviously of alien manufacture, this blade enhances fighting\n\rand survival skills.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 18,
+          "duration": -1,
+          "modifier": 2
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 18,
+          "duration": -1,
+          "modifier": 2
+        },
+        {
+          "where": "object",
+          "location": "constitution",
+          "level": 18,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "dexterity",
+          "level": 18,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 8008,
+      "name": "vacuum cleaner two-handed",
+      "shortDescr": "a Hoover vacuum cleaner",
+      "description": "A Hoover vacuum cleaner is here idling.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "hum"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "dice": [
+          4,
+          5
+        ],
+        "damageType": "suction",
+        "flags": [
+          "twohands"
+        ]
+      },
+      "level": 13,
+      "weight": 100,
+      "cost": 2100,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "vacuum cleaner",
+          "description": "This vacuum looks well built and will last you many years of\n\rcleaning pleasure.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8009,
+      "name": "knife",
+      "shortDescr": "a knife",
+      "description": "A knife is sitting here...contemplating life.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "dagger",
+        "dice": [
+          2,
+          4
+        ],
+        "damageType": "slice"
+      },
+      "level": 5,
+      "weight": 10,
+      "cost": 360,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "knife",
+          "description": "It is a knife. 'Nuff said. (Marvel joke).\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8010,
+      "name": "wet noodle",
+      "shortDescr": "a wet noodle",
+      "description": "A wet noodle is laying here with clam sauce on it.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "whip",
+        "dice": [
+          1,
+          4
+        ],
+        "damageType": "whip"
+      },
+      "level": 5,
+      "weight": 10,
+      "cost": 670,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "noodle",
+          "description": "It looks like a noodle freshly made at the Olive Garden.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "intelligence",
+          "level": 5,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 8011,
+      "name": "judge club",
+      "shortDescr": "a Judge's club",
+      "description": "A Judge's club is resting here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "mace",
+        "dice": [
+          2,
+          8
+        ],
+        "damageType": "pound"
+      },
+      "level": 17,
+      "weight": 30,
+      "cost": 1050,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "judge club",
+          "description": "It is a standard Justice Hall issue club.  Many a Perp's\n\rhead has been bashed with this baby.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 17,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 8012,
+      "name": "vault key",
+      "shortDescr": "a vault key",
+      "description": "A vault key is here.",
+      "material": "oldstyle",
+      "itemType": "key",
+      "extraFlags": [
+        "hum"
+      ],
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "weight": 10,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "vault key",
+          "description": "The key looks like it could be useful.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8013,
+      "name": "key card",
+      "shortDescr": "a key card",
+      "description": "A key card is laying here.",
+      "material": "oldstyle",
+      "itemType": "key",
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "weight": 10,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "key card",
+          "description": "It looks like it fits a slot somewhere.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 8014,
+      "name": "judge club",
+      "shortDescr": "a Judge's club",
+      "description": "A Judge's club is resting here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "mace",
+        "dice": [
+          2,
+          12
+        ],
+        "damageType": "pound"
+      },
+      "level": 26,
+      "weight": 30,
+      "cost": 1700,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "judge club",
+          "description": "It is a head judge Justice Hall issue club.  Many a Perp's\n\rhead has been bashed with this baby.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 26,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 8015,
+      "name": "club electric shock",
+      "shortDescr": "a shock club",
+      "description": "A sparking electric club is here.",
+      "material": "steel",
+      "itemType": "weapon",
+      "extraFlags": [
+        "glow"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "mace",
+        "dice": [
+          3,
+          5
+        ],
+        "damageType": "shock"
+      },
+      "level": 15,
+      "weight": 30,
+      "cost": 750,
+      "condition": 100
+    },
+    {
+      "vnum": 8016,
+      "name": "stunner police stick",
+      "shortDescr": "a police stun stick",
+      "description": "A police issue stunner is here, must be stolen.",
+      "material": "rubber",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "mace",
+        "dice": [
+          2,
+          11
+        ],
+        "damageType": "pound",
+        "flags": [
+          "shocking"
+        ]
+      },
+      "level": 23,
+      "weight": 20,
+      "cost": 1160,
+      "condition": 100
+    }
+  ],
+  "shops": [],
+  "specials": [
+    {
+      "mobVnum": 8003,
+      "spec": "spec_cast_judge"
+    },
+    {
+      "mobVnum": 8004,
+      "spec": "spec_thief"
+    },
+    {
+      "mobVnum": 8006,
+      "spec": "spec_cast_judge"
+    },
+    {
+      "mobVnum": 8010,
+      "spec": "spec_cast_judge"
+    },
+    {
+      "mobVnum": 8011,
+      "spec": "spec_cast_judge"
+    }
+  ],
+  "mobprogs": [],
+  "resets": [
+    {
+      "mobVnum": 8004,
+      "maxInArea": 3,
+      "roomVnum": 8003,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8000,
+      "maxInArea": 4,
+      "roomVnum": 8004,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8009,
+      "wearLoc": "wielded",
+      "roomVnum": 8004,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 8000,
+      "maxInArea": 4,
+      "roomVnum": 8004,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8009,
+      "wearLoc": "wielded",
+      "roomVnum": 8004,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 8004,
+      "maxInArea": 3,
+      "roomVnum": 8005,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8000,
+      "maxInArea": 4,
+      "roomVnum": 8006,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8009,
+      "wearLoc": "wielded",
+      "roomVnum": 8006,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 8001,
+      "maxInArea": 5,
+      "roomVnum": 8006,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8009,
+      "wearLoc": "wielded",
+      "roomVnum": 8006,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 8004,
+      "maxInArea": 3,
+      "roomVnum": 8006,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8010,
+      "maxInArea": 1,
+      "roomVnum": 8007,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8014,
+      "wearLoc": "wielded",
+      "roomVnum": 8007,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 8003,
+      "roomVnum": 8007,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 8001,
+      "maxInArea": 5,
+      "roomVnum": 8009,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8009,
+      "wearLoc": "wielded",
+      "roomVnum": 8009,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 8001,
+      "wearLoc": "on the legs",
+      "roomVnum": 8009,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 8011,
+      "maxInArea": 1,
+      "roomVnum": 8009,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8014,
+      "wearLoc": "wielded",
+      "roomVnum": 8009,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 8003,
+      "roomVnum": 8009,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 8005,
+      "maxInArea": 3,
+      "roomVnum": 8010,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8006,
+      "wearLoc": "wielded",
+      "roomVnum": 8010,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 8001,
+      "maxInArea": 5,
+      "roomVnum": 8011,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8009,
+      "wearLoc": "wielded",
+      "roomVnum": 8011,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 8012,
+      "maxInArea": 2,
+      "roomVnum": 8011,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8012,
+      "maxInArea": 2,
+      "roomVnum": 8011,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8006,
+      "maxInArea": 3,
+      "roomVnum": 8012,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8011,
+      "wearLoc": "wielded",
+      "roomVnum": 8012,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 8003,
+      "maxInArea": 4,
+      "roomVnum": 8013,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8001,
+      "wearLoc": "on the legs",
+      "roomVnum": 8013,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 8003,
+      "maxInArea": 4,
+      "roomVnum": 8014,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8000,
+      "roomVnum": 8014,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 8000,
+      "maxInArea": 4,
+      "roomVnum": 8015,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8009,
+      "wearLoc": "wielded",
+      "roomVnum": 8015,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 8001,
+      "wearLoc": "on the legs",
+      "roomVnum": 8015,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 8005,
+      "maxInArea": 3,
+      "roomVnum": 8017,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8015,
+      "wearLoc": "wielded",
+      "roomVnum": 8017,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 8006,
+      "maxInArea": 3,
+      "roomVnum": 8018,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8011,
+      "wearLoc": "wielded",
+      "roomVnum": 8018,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 8005,
+      "maxInArea": 3,
+      "roomVnum": 8019,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 8009,
+      "maxInArea": 1,
+      "roomVnum": 8021,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8006,
+      "wearLoc": "wielded",
+      "roomVnum": 8021,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 8002,
+      "roomVnum": 8021,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 8013,
+      "roomVnum": 8021,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 8002,
+      "maxInArea": 4,
+      "roomVnum": 8023,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8008,
+      "wearLoc": "wielded",
+      "roomVnum": 8023,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 8002,
+      "maxInArea": 4,
+      "roomVnum": 8024,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8010,
+      "wearLoc": "wielded",
+      "roomVnum": 8024,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 8006,
+      "maxInArea": 3,
+      "roomVnum": 8025,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8011,
+      "wearLoc": "wielded",
+      "roomVnum": 8025,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 8007,
+      "maxInArea": 1,
+      "roomVnum": 8027,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8016,
+      "wearLoc": "wielded",
+      "roomVnum": 8027,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 8012,
+      "roomVnum": 8027,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 8004,
+      "roomVnum": 8028,
+      "commandName": "placeObj"
+    },
+    {
+      "mobVnum": 8008,
+      "maxInArea": 1,
+      "roomVnum": 8028,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 8016,
+      "wearLoc": "wielded",
+      "roomVnum": 8028,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 8005,
+      "roomVnum": 8028,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 8007,
+      "count": 10,
+      "containerVnum": 8004,
+      "maxInContainer": 1,
+      "roomVnum": 8028,
+      "commandName": "putObj"
+    }
+  ],
+  "factions": [],
+  "quests": []
+}

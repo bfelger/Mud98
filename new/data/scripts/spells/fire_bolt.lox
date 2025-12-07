@@ -1,0 +1,10 @@
+#SPELL fire_bolt~
+fun spell_fire_bolt(sn, level, ch, victim)
+{
+    var dam = dice(level, 10);
+    if (saves_spell(level, victim, DamageType.Fire))
+        dam = 0;
+    damage(ch, victim, dam, sn, DamageType.Fire, true);
+}
+#~
+#END

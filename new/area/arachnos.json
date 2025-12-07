@@ -1,0 +1,2395 @@
+{
+  "formatVersion": 1,
+  "areadata": {
+    "version": 2,
+    "name": "Arachnos",
+    "builders": "",
+    "vnumRange": [
+      6200,
+      6399
+    ],
+    "credits": "Mahatma",
+    "security": 9,
+    "sector": "inside",
+    "lowLevel": 5,
+    "highLevel": 20,
+    "reset": 6,
+    "alwaysReset": false
+  },
+  "storyBeats": [],
+  "checklist": [],
+  "rooms": [
+    {
+      "vnum": 6200,
+      "name": "On the spider web",
+      "description": "You are balancing carefully on the giant sticky threads that holds the giant\n\rweb in place.  To the south leads a strand to a cave-like structure made from\n\rmany layers of a spider web.  Another silky strand continues to the north.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "swim",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6203
+        },
+        {
+          "dir": "south",
+          "toVnum": 6133
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "web",
+          "description": "The immense spider web moves softly.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6201,
+      "name": "On the spider web",
+      "description": "You are balancing carefully on the giant sticky threads that holds the giant\n\rweb in place.  To the north leads a strand to a cave-like structure made from\n\rmany layers of a spider web.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "swim",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6134
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "web",
+          "description": "The immense spider web moves softly.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6202,
+      "name": "On the spider web",
+      "description": "You are balancing carefully on the giant sticky threads that holds the giant\n\rweb in place.  To the east leads a strand to a cave-like structure made from\n\rmany layers of a spider web.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "swim",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6134
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "web",
+          "description": "The immense spider web moves softly.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6203,
+      "name": "On the spider web",
+      "description": "You are balancing carefully on the giant sticky threads that holds the giant\n\rweb in place. A single silky strand lead to the south, while another leads\n\roff into the northern direction.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "swim",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6301
+        },
+        {
+          "dir": "south",
+          "toVnum": 6200
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "web",
+          "description": "The immense spider web moves softly.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6301,
+      "name": "Webbed Entrance",
+      "description": "Sticky, sticky, sticky!  The ground is cluttered with leaves, decayed\n\rremains of webbed crickets, beetle, rats, dogs (?), and even humans.\n\rYou begin to wonder about what lies ahead.  The air is damp here,\n\rand even the little light that shines through the canopy seems\n\rabsorbed into the webbing.\n\r",
+      "roomFlags": [
+        "no_mob"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6302
+        },
+        {
+          "dir": "south",
+          "toVnum": 6203
+        }
+      ]
+    },
+    {
+      "vnum": 6302,
+      "name": "Webby Passage",
+      "description": "You find that footing here is very good, almost too good.  The\n\rlimbs are coated with cobwebs and seem unusually strong for tree\n\rbranches.  Paths lead in four directions.  The eastward path goes\n\rdown a bit.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6304
+        },
+        {
+          "dir": "east",
+          "toVnum": 6305
+        },
+        {
+          "dir": "south",
+          "toVnum": 6301
+        },
+        {
+          "dir": "west",
+          "toVnum": 6303
+        }
+      ]
+    },
+    {
+      "vnum": 6303,
+      "name": "Wasp Hive",
+      "description": "Drones scuttle about in this room.  The cells on the walls\n\rare honeycomb in shape and many of the maggots and wasps you see\n\rhave fang-marks on there bodies.  You sense some order in their markings.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6302
+        }
+      ]
+    },
+    {
+      "vnum": 6304,
+      "name": "Webby Passage",
+      "description": "Another webby passage, all sticky and wet.  Tiny ballooning\n\rspiders fill the air.  It seems that these young ones are newborns.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 6302
+        }
+      ]
+    },
+    {
+      "vnum": 6305,
+      "name": "Beneath the Busy Path",
+      "description": "You hear the sounds of crawling arachnids above.  The rhythms of\n\rthe footsteps suggest a primitive order in their movement.  The light\n\rseems brighter upwards.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 6302
+        },
+        {
+          "dir": "up",
+          "toVnum": 6306
+        }
+      ]
+    },
+    {
+      "vnum": 6306,
+      "name": "On the Busy Path",
+      "description": "Spiders, spiders, everywhere!  It is almost ant-like in efficiency\n\rwith one big difference.  The spiders here are carrying ant-corpses,\n\ras well as rats, wolves, and humans.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 6307
+        },
+        {
+          "dir": "down",
+          "toVnum": 6305
+        }
+      ]
+    },
+    {
+      "vnum": 6307,
+      "name": "On the Busy Path",
+      "description": "Spiders, spiders, everywhere!  It is almost ant-like in efficiency\n\rwith one big difference.  The spiders here are carrying ant-corpses,\n\ras well as cats, wolves, and humans.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6306
+        },
+        {
+          "dir": "east",
+          "toVnum": 6308
+        }
+      ]
+    },
+    {
+      "vnum": 6308,
+      "name": "On the Busy Path",
+      "description": "Spiders, spiders, everywhere!  It is almost ant-like in efficiency\n\rwith one big difference.  The spiders here are carrying ant-corpses,\n\ras well as cats, dogs, and humans.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6309
+        },
+        {
+          "dir": "west",
+          "toVnum": 6307
+        }
+      ]
+    },
+    {
+      "vnum": 6309,
+      "name": "A Split in the Path",
+      "description": "As always, there is a split in the road.  One road is strewn\n\rwith cricket feelers.  The other is well-kept and suitable for smooth\n\rtravelling.  The webbing that was prevalent in earlier rooms is almost\n\rnon-existent now.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6310
+        },
+        {
+          "dir": "south",
+          "toVnum": 6320
+        },
+        {
+          "dir": "west",
+          "toVnum": 6308
+        }
+      ]
+    },
+    {
+      "vnum": 6310,
+      "name": "Fuzzy Tree Limb",
+      "description": "You are on a \"fuzzy\" tree limb.  Interesting, since the branches\n\rseem to have \"hairs\" sprouting from its bark.  As you look\n\rcloser you see millions of aphids covering each limb.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 6309
+        },
+        {
+          "dir": "west",
+          "toVnum": 6311
+        }
+      ]
+    },
+    {
+      "vnum": 6311,
+      "name": "Tree Trunk",
+      "description": "You feel that you can rest here safely.  There is evidence of\n\rwebbing here, but it is of a finer quality.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6310
+        },
+        {
+          "dir": "south",
+          "toVnum": 6312
+        }
+      ]
+    },
+    {
+      "vnum": 6312,
+      "name": "Tree Lair Entrance",
+      "description": "It seems the inhabitant of this place does not web her\n\rvictims, as evidenced by the remains before you.  The area\n\ris cluttered with desiccated corpses, apparently bitten\n\rbut unwebbed, and drained of their life juices.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6311
+        },
+        {
+          "dir": "west",
+          "toVnum": 6313
+        }
+      ]
+    },
+    {
+      "vnum": 6313,
+      "name": "Wolf Spider Lair",
+      "description": "Very dark, as all lairs of spiders are.  Not much of furnishings\n\rsave an exit.  The wolf spider keeps no corpses here, but rather\n\rthrows them out at her leisure.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6312
+        }
+      ]
+    },
+    {
+      "vnum": 6320,
+      "name": "The Webless Path",
+      "description": "Strange.  No webbing here.  In fact, no sounds whatsoever.\n\rThe path continues northward, where you find that you may have to\n\rtightrope your way across a ravine.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6309
+        },
+        {
+          "dir": "west",
+          "toVnum": 6321
+        }
+      ]
+    },
+    {
+      "vnum": 6321,
+      "name": "Above the Ravine",
+      "description": "Stranger still.  Your feet get a real firm grip on the spiderline.\n\rYou are above a deep ravine.  This line connects you between two trees.\n\rBelow you can see a prismatic web with lots of animal bones caught in it:\n\rsome bear and small deer bones in fact.  No human skeletons are visible\n\r(yet).\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6320
+        },
+        {
+          "dir": "south",
+          "toVnum": 6323
+        },
+        {
+          "dir": "down",
+          "toVnum": 6322
+        }
+      ]
+    },
+    {
+      "vnum": 6322,
+      "name": "The Rainbow Web",
+      "description": "This is the rainbow web--each strand, each link, a hue of violently\n\rsharp colors and contrasts.  The resident here seems to have a command\n\rof light as well.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 6321
+        }
+      ]
+    },
+    {
+      "vnum": 6323,
+      "name": "The Web Forest",
+      "description": "The trees here take on a different appearance--they are not trees\n\ranymore, but disjointed make-shift silken made shafts, sticky to the touch,\n\rand webby in texture.  This is another world it would appear.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6321
+        },
+        {
+          "dir": "down",
+          "toVnum": 6324
+        }
+      ]
+    },
+    {
+      "vnum": 6324,
+      "name": "The Slave Pit",
+      "description": "You have entered the slave pit.  A voice blares in the distance,\n\r\"Get back to work, maggots!\"  Rails upon rails of mined gold and silver\n\rclutter the trail beneath you.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6325
+        },
+        {
+          "dir": "up",
+          "toVnum": 6323
+        }
+      ]
+    },
+    {
+      "vnum": 6325,
+      "name": "The Tether Path",
+      "description": "Another tether path just like the rest of them.  Surprisingly well\n\r-lit by the golden orbs that hang from the sides, you can see the paths\n\rbecome finer and finer in quality.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6326
+        },
+        {
+          "dir": "west",
+          "toVnum": 6324
+        }
+      ]
+    },
+    {
+      "vnum": 6326,
+      "name": "A Road Crossing",
+      "description": "Another shifty little strand of webs, almost ethereal in nature.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 6325
+        },
+        {
+          "dir": "up",
+          "toVnum": 6327
+        }
+      ]
+    },
+    {
+      "vnum": 6327,
+      "name": "A Leader Strand",
+      "description": "This strand is weightier, more sturdy.  It shimmers as you step on\n\rit.  You are definitely not in the Midgaardian realms anymore.  Just\n\rwhere you are you can't tell.  It feels like you're moving through\n\rether.  You can still get back down to more surer lands.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6328
+        },
+        {
+          "dir": "down",
+          "toVnum": 6326
+        }
+      ]
+    },
+    {
+      "vnum": 6328,
+      "name": "The Entrance of the Ethereal Web",
+      "description": "You are at the entrance to ethereal web.  Flickering in and out,\n\rin and out, each strand reveals a different hue from black to green\n\rto blue.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 6327
+        },
+        {
+          "dir": "down",
+          "toVnum": 6331
+        }
+      ]
+    },
+    {
+      "vnum": 6330,
+      "name": "The Young Wormkin's Crib",
+      "description": "A playpen of sorts, with maggots of wasps and other baby vermin\n\rlying about.  You feel that humans have been played with here too,\n\rand eaten later.  You sense that the maker of this place has\n\ran appetite for dragon meat, and uses this room as a breeding\n\rarea.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 6331
+        }
+      ]
+    },
+    {
+      "vnum": 6331,
+      "name": "The Base of the Web",
+      "description": "Large strands connect at this point.  The node shimmers and\n\rflickers within the ether.  You see many flying creatures--\n\rinsects, pegasi, and dragon wormkins--navigate the dangerous\n\rpassages of the web.  Exits go in many directions.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6330
+        },
+        {
+          "dir": "east",
+          "toVnum": 6332
+        },
+        {
+          "dir": "south",
+          "toVnum": 6333
+        }
+      ]
+    },
+    {
+      "vnum": 6332,
+      "name": "Through the Trees",
+      "description": "This part of the web intersects through the branches of some\n\rtrees.  Various leaves and other debris that the many drones\n\rhave not picked up yet lie here.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 6331
+        }
+      ]
+    },
+    {
+      "vnum": 6333,
+      "name": "Above the Clouds",
+      "description": "You can see all of Midgaard in this ethereal web.  Many\n\rof the larger dragons that do wish to fly seem to fly\n\raway from the sticky strands of the web.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6331
+        },
+        {
+          "dir": "south",
+          "toVnum": 6334
+        },
+        {
+          "dir": "west",
+          "toVnum": 6335
+        }
+      ]
+    },
+    {
+      "vnum": 6334,
+      "name": "On A Cloud",
+      "description": "Rather thick in consistency.  You realize this is not\n\ra typical cloud, but it might be the nest of an aerial creature.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6333
+        }
+      ]
+    },
+    {
+      "vnum": 6335,
+      "name": "A Link in the Ethereal Web",
+      "description": "This is another link in the ethereal web.  Various creatures\n\rseem to get caught (or hypnotized) by its sticky strands.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6333
+        },
+        {
+          "dir": "west",
+          "toVnum": 6336
+        }
+      ]
+    },
+    {
+      "vnum": 6336,
+      "name": "The Tenuous Strand",
+      "description": "Very windy here since it goes up into the sky somewhat.\n\rStill, it's safe enough to move around.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6335
+        },
+        {
+          "dir": "south",
+          "toVnum": 6340
+        },
+        {
+          "dir": "west",
+          "toVnum": 6341
+        }
+      ]
+    },
+    {
+      "vnum": 6340,
+      "name": "The Elder Wormkin's Room",
+      "description": "A more mature wormkin it seems resides here.  Various tomes of\n\rarcane lore clutter the area, along with shards of armor and weaponry.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6336
+        }
+      ]
+    },
+    {
+      "vnum": 6341,
+      "name": "Another Tree Limb",
+      "description": "Once again the web crosses another tree limb.  To the side you\n\rsee the possible entrance to another creatures lair.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6336
+        },
+        {
+          "dir": "south",
+          "toVnum": 6342
+        },
+        {
+          "dir": "west",
+          "toVnum": 6345
+        }
+      ]
+    },
+    {
+      "vnum": 6342,
+      "name": "The Bird Spider's Lair",
+      "description": "This is a big game hunter among most spiders.  Crush jewels\n\rand other weapons suggest the inhabitant must have powerful jaws.\n\rBeware!\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6341
+        }
+      ]
+    },
+    {
+      "vnum": 6345,
+      "name": "A Link in the Ethereal Web",
+      "description": "This is another link in the ethereal web.  Various creatures\n\rseem to get caught (or hypnotized) by its sticky strands.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6341
+        },
+        {
+          "dir": "south",
+          "toVnum": 6350
+        },
+        {
+          "dir": "west",
+          "toVnum": 6346
+        }
+      ]
+    },
+    {
+      "vnum": 6346,
+      "name": "The Quiet Tree Top",
+      "description": "Here is a quiet tree top.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6345
+        },
+        {
+          "dir": "west",
+          "toVnum": 6347
+        }
+      ]
+    },
+    {
+      "vnum": 6347,
+      "name": "On The Web",
+      "description": "RRRRRRRRRRROOOOOOOOOOOOOAAAAAAAAAAAAAARR!  You hear the roar\n\rof a powerful beast.  Dragon, you think.  You shiver in your boots\n\ras you tiptoe on this section of the web.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6346
+        },
+        {
+          "dir": "south",
+          "toVnum": 6355
+        }
+      ]
+    },
+    {
+      "vnum": 6350,
+      "name": "The Ki-Rin Chamber",
+      "description": "A wise ki-rin was entrapped here many years ago.  It is from her\n\rthat the ruler of this realm steals his magical strength.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6345
+        }
+      ]
+    },
+    {
+      "vnum": 6355,
+      "name": "A Link in the Ethereal Web",
+      "description": "This is another link in the ethereal web.  Various creatures\n\rseem to get caught (or hypnotized) by its sticky strands.  To\n\rthe north you sense the heavy breathing of a fiery animal.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6347
+        },
+        {
+          "dir": "west",
+          "toVnum": 6360
+        },
+        {
+          "dir": "up",
+          "toVnum": 6365
+        }
+      ]
+    },
+    {
+      "vnum": 6360,
+      "name": "Yevaud's Lair",
+      "description": "Yevaud, the Usurper of Midgaard, resides here.  A voice cries\n\rout, \"BEWARE, the Usurper of Midgaard lives here!  FLEE while you can!\"\n\rBut even Yevaud has his master...or so you deduce.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6355
+        }
+      ]
+    },
+    {
+      "vnum": 6365,
+      "name": "A Link in the Ethereal Web",
+      "description": "This is another link in the ethereal web.  Various creatures\n\rseem to get caught (or hypnotized) by its sticky strands.  A single\n\rspider line lies to the north, while ghastly seemings are due\n\rsouthward.  The grim entrance of Arachnos' Lair is downward.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6371
+        },
+        {
+          "dir": "south",
+          "toVnum": 6366
+        },
+        {
+          "dir": "up",
+          "toVnum": 6390
+        },
+        {
+          "dir": "down",
+          "toVnum": 6355
+        }
+      ]
+    },
+    {
+      "vnum": 6366,
+      "name": "Entrance to the Donjonkeep",
+      "description": "A dark path at the end of the web strand, you see ahead\n\ra torch lit chamber where the souls of unavenged adventurers\n\rcome and gnash their teeth.  The howls and screams of many echo\n\rthrough the hall ways.  You see one definite path ahead.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6367
+        }
+      ]
+    },
+    {
+      "vnum": 6367,
+      "name": "The Guardian's Room",
+      "description": "A chair sits here for a tireless guardian who ensures that no\n\rsoul escapes.  The room is undecorated.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6368
+        },
+        {
+          "dir": "west",
+          "toVnum": 6366
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "chair",
+          "description": "An ordinary chair, well used, glued to the ground by spiderweb.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6368,
+      "name": "Realm of the Hopeless",
+      "description": "Here you see many misguided souls who think they still live.\n\rThey search for those who killed them without warrant, and seek the\n\rfree souls of living beings to inhabit and perhaps adventure once\n\rmore.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6369
+        },
+        {
+          "dir": "west",
+          "toVnum": 6367
+        }
+      ]
+    },
+    {
+      "vnum": 6369,
+      "name": "Realm of the Hopeless",
+      "description": "Here you see many misguided souls who think they still live.\n\rThey search for those who killed them without warrant, and seek the\n\rfree souls of living beings to inhabit and perhaps adventure once\n\rmore.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6370
+        },
+        {
+          "dir": "west",
+          "toVnum": 6368
+        }
+      ]
+    },
+    {
+      "vnum": 6370,
+      "name": "The Donjonkeep",
+      "description": "No souls have ever lived in this place.  The wails of slaves\n\rand the howls of wolves are the only way you can describe the sounds\n\ryou hear.  The walls are thin and wispy.  The only light you receive\n\ris the shimmering from the strand of the ethereal web you used to get\n\rhere.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6371
+        },
+        {
+          "dir": "west",
+          "toVnum": 6369
+        }
+      ]
+    },
+    {
+      "vnum": 6371,
+      "name": "The Single Spider Line",
+      "description": "A single spider line supports you once more.  As you look\n\racross the ether you seen a single shack up ahead with a light in\n\rthe window.  You sense a great evil coming from the east and feel\n\rinclined to go back on the ethereal web and take your chances there.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6372
+        },
+        {
+          "dir": "west",
+          "toVnum": 6370
+        }
+      ]
+    },
+    {
+      "vnum": 6372,
+      "name": "The Single Spider Line",
+      "description": "A single spider line supports you once more.  The shack comes\n\rcloser into view and you are even more inclined to go back now.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6373
+        },
+        {
+          "dir": "west",
+          "toVnum": 6371
+        }
+      ]
+    },
+    {
+      "vnum": 6373,
+      "name": "The Hermit's Corner",
+      "description": "Here you see evidence of a vagrant's abode.  The shack is to the\n\reast, if you dare enter it.  You get the sneaking feeling you should\n\rgo back now.  The skies above you darken and roar with the laughter\n\rof thunder.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6380
+        },
+        {
+          "dir": "west",
+          "toVnum": 6372
+        }
+      ]
+    },
+    {
+      "vnum": 6380,
+      "name": "Mahatma's Inescapable Trap",
+      "description": "Mahatma, that silly thief, is here, and he steals everything you\n\rhave.  He says, 'Here, have a quick trip to the Temple of Midgaard.'\n\rHe plunges a black dagger into your back ...\n\r",
+      "roomFlags": [
+        "no_mob"
+      ],
+      "sectorType": "inside"
+    },
+    {
+      "vnum": 6390,
+      "name": "The Entrance to the Arachnos' Lair",
+      "description": "All strands inevitably lead here, the center of the web, the\n\rentrance to Arachnos' Lair.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6391
+        },
+        {
+          "dir": "down",
+          "toVnum": 6365
+        }
+      ]
+    },
+    {
+      "vnum": 6391,
+      "name": "The Sticky Chamber",
+      "description": "You can still bail out since your knees are shaking from the\n\ranticipation (or is it fear?).  The sky is clear on this strand of\n\rweb, surprisingly unsticky.  The strand does not vibrate like the\n\rothers.  A few ballooning spiders pass by, cackling \"You're gonna\n\rdie, you're gonna fry.  Good bye!\"\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6392
+        },
+        {
+          "dir": "south",
+          "toVnum": 6390
+        }
+      ]
+    },
+    {
+      "vnum": 6392,
+      "name": "The Great Door",
+      "description": "Before you you see a large, web-like door.  Various designs\n\rof ancient runes and names of Midgaard heroes are etched into\n\rthe webwork.  Perhaps lists of victims?  You can't tell.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6399,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "door north"
+        },
+        {
+          "dir": "south",
+          "toVnum": 6391
+        }
+      ]
+    },
+    {
+      "vnum": 6399,
+      "name": "The Lair of Arachnos",
+      "description": "This is the lair of the Empress Spider, Arachnos.  A lavishly\n\radorned rainbow web, her lair allows her to move to any universe\n\rshe wishes by using her magical strands to the Prime Material Plane.\n\rCoffers upon coffers of gold, magical jewels and gems await.  Unfor-\n\rtunately Arachnos is a baggy spider too, and webs all her treasures\n\rto her beautiful silken body.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 6392,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "door south"
+        }
+      ]
+    }
+  ],
+  "mobiles": [
+    {
+      "vnum": 6301,
+      "name": "oldstyle spider young",
+      "shortDescr": "the young spider",
+      "longDescr": "The young spider is ballooning by you.\n\r",
+      "description": "He looks freshly hatched and sprightly.  His young fangs are just\n\rgrowing in as of late.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "detect_invis"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 5,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 60
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 5,
+        "bash": 5,
+        "slash": 5,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 5,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6302,
+      "name": "oldstyle dragon Yevaud",
+      "shortDescr": "Yevaud",
+      "longDescr": "Yevaud the Usurper of Midgaard is here, grinning evilly at you.\n\r",
+      "description": "Old, scaly, but still with a lot of bite in him left.\n\r",
+      "race": "dragon",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "infrared",
+        "flying"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "charm",
+        "bash",
+        "fire"
+      ],
+      "vulnFlags": [
+        "pierce",
+        "cold"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 24,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 500
+      },
+      "manaDice": {
+        "number": 12,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -6,
+        "bash": -6,
+        "slash": -6,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6303,
+      "name": "oldstyle spider wolf",
+      "shortDescr": "the Wolf Spider",
+      "longDescr": "The Wolf Spider is here, licking its bloody fangs.\n\r",
+      "description": "The Wolf Spider is hairy, very hairy.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -300,
+      "group": 0,
+      "level": 6,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 71
+      },
+      "manaDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 7,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 4,
+        "bash": 4,
+        "slash": 4,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 62,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6304,
+      "name": "oldstyle orc",
+      "shortDescr": "the orc",
+      "longDescr": "The orc is stuck in the web and he can't get out.\n\r",
+      "description": "You notice an evil look in his eyes.\n\r",
+      "race": "orc",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "disease"
+      ],
+      "vulnFlags": [
+        "light"
+      ],
+      "alignment": -400,
+      "group": 0,
+      "level": 5,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 60
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 5,
+        "bash": 5,
+        "slash": 5,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 5,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6305,
+      "name": "oldstyle wasp queen",
+      "shortDescr": "the Queen Wasp",
+      "longDescr": "The Queen Wasp is here, thinking that you would make a tasty offering\n\rto her master.\n\r",
+      "description": "You notice a glazed look in her eyes.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -800,
+      "group": 0,
+      "level": 12,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 150
+      },
+      "manaDice": {
+        "number": 6,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 10,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 0,
+        "bash": 0,
+        "slash": 0,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 75,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6306,
+      "name": "oldstyle spider drone",
+      "shortDescr": "the drone spider",
+      "longDescr": "The drone spider walks around doing her master's bidding.\n\r",
+      "description": "An ordinary drone spider.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -300,
+      "group": 0,
+      "level": 6,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 71
+      },
+      "manaDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 7,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 4,
+        "bash": 4,
+        "slash": 4,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 10,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6307,
+      "name": "oldstyle spider ethereal",
+      "shortDescr": "the ethereal spider",
+      "longDescr": "The ethereal spider strides here, traveling to different worlds.\n\r",
+      "description": "She winks in and out.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 10,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 121
+      },
+      "manaDice": {
+        "number": 5,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 4,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 1,
+        "bash": 1,
+        "slash": 1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 62,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6308,
+      "name": "oldstyle slave human",
+      "shortDescr": "the slave of Arachnos",
+      "longDescr": "The slave works here relentlessly.\n\r",
+      "description": "The slave does not mind you, but will fight like a warrior if attacked.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 8,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 96
+      },
+      "manaDice": {
+        "number": 4,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 7,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 3,
+        "bash": 3,
+        "slash": 3,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 25,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6309,
+      "name": "oldstyle quasit",
+      "shortDescr": "the quasit",
+      "longDescr": "The quasit blinks in and out, grinning at you.\n\r",
+      "description": "Demoniac in nature, but more mischievous.  He twiddles his thumbs\n\rand creates a magical treasure!\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "wimpy"
+      ],
+      "actFlagsValue": 149,
+      "affectFlags": [
+        "invisible",
+        "detect_invis",
+        "sneak"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 10,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 121
+      },
+      "manaDice": {
+        "number": 5,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 4,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 1,
+        "bash": 1,
+        "slash": 1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 50,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6310,
+      "name": "oldstyle spider bird",
+      "shortDescr": "the Bird Spider",
+      "longDescr": "The Bird Spider snaps its powerful jaws.\n\r",
+      "description": "The Bird Spider has very powerful jaws.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -800,
+      "group": 0,
+      "level": 14,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 190
+      },
+      "manaDice": {
+        "number": 7,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 12,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -1,
+        "bash": -1,
+        "slash": -1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 87,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6311,
+      "name": "oldstyle hermit",
+      "shortDescr": "the Hermit",
+      "longDescr": "The Hermit sits here and warns, \"Go back before it's too late!\"\n\r",
+      "description": "A dishevelled veteran warrior in disguise is what he is, but he\n\rmeans well.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger"
+      ],
+      "affectFlags": [
+        "detect_invis"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -400,
+      "group": 0,
+      "level": 7,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 85
+      },
+      "manaDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 8,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 4,
+        "bash": 4,
+        "slash": 4,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 37,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6312,
+      "name": "oldstyle donjonkeeper",
+      "shortDescr": "the Donjonkeeper",
+      "longDescr": "The Donjonkeeper eyes you and wonders how pure your soul is.\n\r",
+      "description": "He delves deeper into you as you stare at him.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger"
+      ],
+      "affectFlags": [
+        "detect_invis"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 25,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 550
+      },
+      "manaDice": {
+        "number": 12,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 7
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -7,
+        "bash": -7,
+        "slash": -7,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 300,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6313,
+      "name": "oldstyle guardian",
+      "shortDescr": "The guardian",
+      "longDescr": "The guardian is obviously not doing his job.\n\r",
+      "description": "He looks like a lazy bum who sleeps half the time.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "aggressive",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "sneak"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 250,
+      "group": 0,
+      "level": 17,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 258
+      },
+      "manaDice": {
+        "number": 8,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 3,
+        "type": 4,
+        "bonus": 4
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -3,
+        "bash": -3,
+        "slash": -3,
+        "exotic": 7
+      },
+      "startPos": "sleeping",
+      "defaultPos": "sleeping",
+      "sex": "male",
+      "wealth": 80,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6314,
+      "name": "oldstyle spider empress arachnos",
+      "shortDescr": "Arachnos",
+      "longDescr": "Arachnos the Empress of Spiders welcomes you with an evil smile.\n\r",
+      "description": "She is a very attractive spider with an ornate gown.  She tempts you\n\rinto being one of her many slaves.  She does not possess the venomous\n\rfangs of normal spiders, but then, as you realize, she does not need\n\rthem.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "invisible",
+        "detect_invis"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 26,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 600
+      },
+      "manaDice": {
+        "number": 13,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 3,
+        "type": 7,
+        "bonus": 7
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -7,
+        "bash": -7,
+        "slash": -7,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6315,
+      "name": "oldstyle ki-rin",
+      "shortDescr": "the Ki-Rin",
+      "longDescr": "The Ki-Rin smiles good-naturedly to you.\n\r",
+      "description": "She is the last bastion of good in this realm.  Her mission is to\n\rsomeday free the slaves of the Empress.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger"
+      ],
+      "affectFlags": [
+        "detect_invis"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 26,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 600
+      },
+      "manaDice": {
+        "number": 13,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 3,
+        "type": 7,
+        "bonus": 7
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -7,
+        "bash": -7,
+        "slash": -7,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 750,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6316,
+      "name": "oldstyle dragon wormkin young",
+      "shortDescr": "the young dragon wormkin",
+      "longDescr": "A wormkin with no teeth plays here.\n\r",
+      "description": "Rather small, you almost feel sad in killing it.\n\r",
+      "race": "dragon",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "infrared",
+        "flying"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "charm",
+        "bash",
+        "fire"
+      ],
+      "vulnFlags": [
+        "pierce",
+        "cold"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 10,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 121
+      },
+      "manaDice": {
+        "number": 5,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 4,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 1,
+        "bash": 1,
+        "slash": 1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 50,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6317,
+      "name": "oldstyle dragon wormkin medium",
+      "shortDescr": "the medium dragon wormkin",
+      "longDescr": "A wormkin that has grown a bit stares at you inquisitively.\n\r",
+      "description": "A medium-sized dragon--seems it hasn't killed anything yet by itself.\n\r",
+      "race": "dragon",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "infrared",
+        "flying"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "charm",
+        "bash",
+        "fire"
+      ],
+      "vulnFlags": [
+        "pierce",
+        "cold"
+      ],
+      "alignment": 100,
+      "group": 0,
+      "level": 13,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 170
+      },
+      "manaDice": {
+        "number": 6,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 5,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -1,
+        "bash": -1,
+        "slash": -1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 250,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6318,
+      "name": "oldstyle spider poisonous",
+      "shortDescr": "the huge, poisonous spider",
+      "longDescr": "A huge, poisonous spider is here.\n\r",
+      "description": "This disgusting creature is at the size of a human crawling on all four.  It\n\rhas eight hairy legs that gives it a tremendous speed on almost any surface and\n\rsharp poisonous fangs to paralyze or kill its prey.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "stay_area"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -350,
+      "group": 0,
+      "level": 8,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 96
+      },
+      "manaDice": {
+        "number": 4,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 7,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 3,
+        "bash": 3,
+        "slash": 3,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6319,
+      "name": "oldstyle queen spider",
+      "shortDescr": "the Queen Spider",
+      "longDescr": "The huge, bulky Queen Spider is here.\n\r",
+      "description": "This disgusting creature is at the size of a small elephant.  It has eight\n\rhuge, hairy legs that would give it a tremendous speed on almost any surface\n\rif it wasn't so immensely fat.  Its large, bulbous eyes stare back at you.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "detect_invis"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 15,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 208
+      },
+      "manaDice": {
+        "number": 7,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -2,
+        "bash": -2,
+        "slash": -2,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    }
+  ],
+  "objects": [
+    {
+      "vnum": 6303,
+      "name": "headdress pontiff's",
+      "shortDescr": "a pontiff's headdress",
+      "description": "A white cone-shaped head ornament with religious symbols lies here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "invis",
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "head"
+      ],
+      "armor": {
+        "acPierce": 6,
+        "acBash": 6,
+        "acSlash": 6,
+        "acExotic": 3
+      },
+      "level": 18,
+      "weight": 50,
+      "cost": 4600,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "wisdom",
+          "level": 18,
+          "duration": -1,
+          "modifier": 2
+        },
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 18,
+          "duration": -1,
+          "modifier": -2
+        }
+      ]
+    },
+    {
+      "vnum": 6304,
+      "name": "visor black knight's",
+      "shortDescr": "a black knight's visor",
+      "description": "A black visor sits here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "invis",
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "head"
+      ],
+      "armor": {
+        "acPierce": 6,
+        "acBash": 6,
+        "acSlash": 6,
+        "acExotic": 2
+      },
+      "level": 17,
+      "weight": 50,
+      "cost": 4600,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "strength",
+          "level": 17,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "constitution",
+          "level": 17,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 6308,
+      "name": "coins silver gold",
+      "shortDescr": "a big pile of coins",
+      "description": "A big pile of coins is lying here.",
+      "material": "oldstyle",
+      "itemType": "money",
+      "wearFlags": [
+        "take"
+      ],
+      "money": {
+        "gold": 500,
+        "silver": 20
+      },
+      "condition": 100
+    },
+    {
+      "vnum": 6309,
+      "name": "potion blue",
+      "shortDescr": "a blue potion",
+      "description": "A blue potion has been left here.",
+      "material": "oldstyle",
+      "itemType": "potion",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take"
+      ],
+      "spells": {
+        "level": 15,
+        "spells": [
+          "cure poison",
+          "cure critical",
+          "cure critical"
+        ]
+      },
+      "level": 10,
+      "weight": 20,
+      "cost": 700,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "potion blue",
+          "description": "It has a nice sky blue colour and a smell like peppermint.\n\r"
+        }
+      ]
+    }
+  ],
+  "shops": [],
+  "specials": [
+    {
+      "mobVnum": 6302,
+      "spec": "spec_breath_gas"
+    },
+    {
+      "mobVnum": 6314,
+      "spec": "spec_breath_gas"
+    },
+    {
+      "mobVnum": 6316,
+      "spec": "spec_breath_gas"
+    },
+    {
+      "mobVnum": 6317,
+      "spec": "spec_breath_gas"
+    },
+    {
+      "mobVnum": 6318,
+      "spec": "spec_poison"
+    },
+    {
+      "mobVnum": 6319,
+      "spec": "spec_poison"
+    }
+  ],
+  "mobprogs": [],
+  "resets": [
+    {
+      "mobVnum": 6301,
+      "maxInArea": 8,
+      "roomVnum": 6301,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6305,
+      "maxInArea": 1,
+      "roomVnum": 6303,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6301,
+      "maxInArea": 8,
+      "roomVnum": 6304,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6301,
+      "maxInArea": 8,
+      "roomVnum": 6306,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6301,
+      "maxInArea": 8,
+      "roomVnum": 6306,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6308,
+      "maxInArea": 5,
+      "roomVnum": 6308,
+      "maxInRoom": 5,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6308,
+      "maxInArea": 5,
+      "roomVnum": 6308,
+      "maxInRoom": 5,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6308,
+      "maxInArea": 5,
+      "roomVnum": 6308,
+      "maxInRoom": 5,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6308,
+      "maxInArea": 5,
+      "roomVnum": 6308,
+      "maxInRoom": 5,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6308,
+      "maxInArea": 5,
+      "roomVnum": 6308,
+      "maxInRoom": 5,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6303,
+      "maxInArea": 1,
+      "roomVnum": 6313,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6306,
+      "maxInArea": 3,
+      "roomVnum": 6321,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6309,
+      "maxInArea": 2,
+      "roomVnum": 6327,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6306,
+      "maxInArea": 3,
+      "roomVnum": 6330,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6316,
+      "maxInArea": 1,
+      "roomVnum": 6330,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6306,
+      "maxInArea": 3,
+      "roomVnum": 6331,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6304,
+      "maxInArea": 1,
+      "roomVnum": 6332,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6307,
+      "maxInArea": 4,
+      "roomVnum": 6333,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6307,
+      "maxInArea": 4,
+      "roomVnum": 6335,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6317,
+      "maxInArea": 1,
+      "roomVnum": 6340,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6310,
+      "maxInArea": 1,
+      "roomVnum": 6342,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6315,
+      "maxInArea": 1,
+      "roomVnum": 6350,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6309,
+      "roomVnum": 6350,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 6309,
+      "roomVnum": 6350,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 6302,
+      "maxInArea": 1,
+      "roomVnum": 6360,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6304,
+      "roomVnum": 6360,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 6313,
+      "maxInArea": 1,
+      "roomVnum": 6367,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6312,
+      "maxInArea": 1,
+      "roomVnum": 6370,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6309,
+      "roomVnum": 6370,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 6311,
+      "maxInArea": 1,
+      "roomVnum": 6373,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6314,
+      "maxInArea": 1,
+      "roomVnum": 6399,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6303,
+      "roomVnum": 6399,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 6304,
+      "roomVnum": 6399,
+      "commandName": "giveObj"
+    }
+  ],
+  "factions": [],
+  "quests": []
+}

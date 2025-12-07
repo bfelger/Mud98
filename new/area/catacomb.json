@@ -1,0 +1,3808 @@
+{
+  "formatVersion": 1,
+  "areadata": {
+    "version": 2,
+    "name": "Catacombs",
+    "builders": "",
+    "vnumRange": [
+      2000,
+      2099
+    ],
+    "credits": "Raff",
+    "security": 9,
+    "sector": "inside",
+    "lowLevel": 10,
+    "highLevel": 20,
+    "reset": 6,
+    "alwaysReset": false
+  },
+  "storyBeats": [],
+  "checklist": [],
+  "rooms": [
+    {
+      "vnum": 2001,
+      "name": "North entrance to the catacombs",
+      "description": "You are almost surprised to see a tunnel leading off to the south\n\rinto utter darkness.  The floorboards above you haven't been moved\n\rin a long time, yet there is life down here.  A beam of light from\n\rthe opening above you falls upon a message scrawled on the wall here.\n\r\n\rThe message reads:\n\r     Adventure for the strong yet calculating\n\r     Death for the weak and shallow\n\r     Treasure for the smart and lucky\n\r     Death for the stupid and accursed\n\r\n\rAn ancient Glyph above the entrance keeps monsters from wandering up\n\rfrom the catacombs.\n\r",
+      "roomFlags": [
+        "no_mob"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 2002
+        },
+        {
+          "dir": "up",
+          "toVnum": 6524,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "floorboard board"
+        }
+      ]
+    },
+    {
+      "vnum": 2002,
+      "name": "North/south tunnel",
+      "description": "This part of the catacombs looked roughly hewn and man-made. There is\n\ra large cross painted on the floor of the tunnel.To the south it seems\n\rmaybe a bit lighter for some odd reason.  To the north a ray of light\n\rcomes in from a hole in the ceiling.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "roomFlagsValue": 264,
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2001
+        },
+        {
+          "dir": "south",
+          "toVnum": 2007
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "cross paint floor",
+          "description": "The cross is a Templar's cross. It seems to have had a fresh coat of\n\rpaint recently."
+        }
+      ]
+    },
+    {
+      "vnum": 2003,
+      "name": "Weapon training area",
+      "description": "This is a place to keep up on there weapon skills.  Much of the\n\requipment looks old and worn but upon further inspection seems quite\n\rsturdy in fact.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "roomFlagsValue": 264,
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2004
+        },
+        {
+          "dir": "south",
+          "toVnum": 2008
+        }
+      ]
+    },
+    {
+      "vnum": 2004,
+      "name": "Prayer training area",
+      "description": "The templar's curious mix of religion and fighting is evident here.\n\rA central painting depicts a cross composed of swords.  The elders\n\rteach the ancient art of prayer to the young pages.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "roomFlagsValue": 264,
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2005
+        },
+        {
+          "dir": "west",
+          "toVnum": 2003
+        }
+      ]
+    },
+    {
+      "vnum": 2005,
+      "name": "Junction of hallways",
+      "description": "Training facilities are evident to the west. To the south lies a hallway\n\rwhich has doors every couple of feet, looks like living quarters of some\n\rsort.  To the east the tunnel leads back into the natural catacombs.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "roomFlagsValue": 264,
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2006
+        },
+        {
+          "dir": "south",
+          "toVnum": 2010
+        },
+        {
+          "dir": "west",
+          "toVnum": 2004
+        }
+      ]
+    },
+    {
+      "vnum": 2006,
+      "name": "Hallway",
+      "description": "The hallway takes on a more indoor look to the west.  To the east it\n\rlooks awfully dark.\n\r",
+      "roomFlags": [
+        "no_mob",
+        "indoors"
+      ],
+      "roomFlagsValue": 268,
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2007
+        },
+        {
+          "dir": "west",
+          "toVnum": 2005
+        }
+      ]
+    },
+    {
+      "vnum": 2007,
+      "name": "Intersection",
+      "description": "The tunnel continues to the north and the south, becoming less hewn and\n\rmore natural to the south.  A passageway lined with paneling leads west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "roomFlagsValue": 264,
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2002
+        },
+        {
+          "dir": "south",
+          "toVnum": 2012
+        },
+        {
+          "dir": "west",
+          "toVnum": 2006
+        }
+      ]
+    },
+    {
+      "vnum": 2008,
+      "name": "Pages' sleeping quarters",
+      "description": "Several bunk beds are lined up across the room.  It looks rather spartan\n\rand there is little evidence of toys or games.  Most of the desks are\n\rfilled with books and papers of little interest.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "roomFlagsValue": 264,
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2003
+        },
+        {
+          "dir": "east",
+          "toVnum": 2009
+        }
+      ]
+    },
+    {
+      "vnum": 2009,
+      "name": "Templar Knights sleeping quarters",
+      "description": "This is a huge room which is filled wall to wall with beds. Apparently\n\rall the low level knights all sleep in this one room.  A door on the\n\rsouth wall is labelled \"Elders only!\".\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "roomFlagsValue": 264,
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 2013
+        },
+        {
+          "dir": "west",
+          "toVnum": 2008
+        }
+      ]
+    },
+    {
+      "vnum": 2010,
+      "name": "N/S hallway",
+      "description": "The hallway leads north an south.  A door leads to a templar's room to\n\rthe east.  The decoration looks rather sparse here.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "roomFlagsValue": 264,
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2005
+        },
+        {
+          "dir": "east",
+          "toVnum": 2011
+        },
+        {
+          "dir": "south",
+          "toVnum": 2014
+        }
+      ]
+    },
+    {
+      "vnum": 2011,
+      "name": "A Middle-aged templar's room",
+      "description": "This is a room furnished in a room becoming a low level templar scribe.\n\rNo real amenities but better than a communal sleeping quarters. As far\n\ras you can tell he would be a rank equivalent to a Sargeant.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "roomFlagsValue": 264,
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 2010
+        }
+      ]
+    },
+    {
+      "vnum": 2012,
+      "name": "Humid, damp tunnel",
+      "description": "As the tunnel leads south it gets more humid and damp.  Moss covers the\n\rwalls and ferns even grow in the cracks here and there.  To the north it\n\rseems much more sterile.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "roomFlagsValue": 265,
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2007
+        },
+        {
+          "dir": "south",
+          "toVnum": 2019
+        }
+      ]
+    },
+    {
+      "vnum": 2013,
+      "name": "Administration room",
+      "description": "The elders gather here to discuss training strategies and count their\n\rloot.  You notice papers which look like important secret documents\n\rlying around. An escape passage leads west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "roomFlagsValue": 264,
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2009
+        },
+        {
+          "dir": "south",
+          "toVnum": 2016
+        },
+        {
+          "dir": "west",
+          "toVnum": 2069
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "papers documents secrets",
+          "description": "It seems that the loot comes from raids on the towns in the surrounding\n\rareas above ground.  From the documents it seems that the pages and\n\rtrainees are kidnapped from the villages too!\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2014,
+      "name": "N/S hallway",
+      "description": "The hallway continues to become more important-looking as you wander\n\rsouth.  A room to the east looks rather more pleasant that some of the\n\rothers.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "roomFlagsValue": 264,
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2010
+        },
+        {
+          "dir": "east",
+          "toVnum": 2015
+        },
+        {
+          "dir": "south",
+          "toVnum": 2017
+        }
+      ]
+    },
+    {
+      "vnum": 2015,
+      "name": "Mid-level leader's room",
+      "description": "A rather nice looking room considering the drab conditions down here.\n\rThrough all the signs of decoration you can still see evidence of water\n\rleaks.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "roomFlagsValue": 264,
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 2014
+        }
+      ]
+    },
+    {
+      "vnum": 2016,
+      "name": "Mess hall",
+      "description": "The a huge table with an immaculate white table cloth stretches way off\n\rto the south.  The room is kept immaculately clean by the nights\n\rthemselves.  They truly belive that cleanliness is next to godliness.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "roomFlagsValue": 264,
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2013
+        },
+        {
+          "dir": "south",
+          "toVnum": 2023
+        }
+      ]
+    },
+    {
+      "vnum": 2017,
+      "name": "N/S hallway",
+      "description": "The hallway continues north and south.  A peculiar kind of glow seems\n\rto come from somewhere further along the hallway to the south. The room\n\rto the east looks like the lap of luxury.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "roomFlagsValue": 264,
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2014
+        },
+        {
+          "dir": "east",
+          "toVnum": 2018
+        },
+        {
+          "dir": "south",
+          "toVnum": 2024
+        }
+      ]
+    },
+    {
+      "vnum": 2018,
+      "name": "High officer's room",
+      "description": "First thing you notice in this room is the pleasant aroma of cedar.  All\n\rthe paneling in the room is made of fine cedar.  A painting of an\n\relegant knight hangs on the wall.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "roomFlagsValue": 264,
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 2017
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "painting elegant knight",
+          "description": "Something oddly familiar about the knight.  He carries a glowing sword\n\rwith a silvery blade.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2019,
+      "name": "Mossy intersection",
+      "description": "There is a turn off to the passage here.  The main passage leads north\n\rand south. To the south it seems to get impossibly darker.  To the east\n\ryou hear... birds?  A small rivulet of water seeps in from the passage\n\reast.  The air is very humid and damp here.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "roomFlagsValue": 265,
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2012
+        },
+        {
+          "dir": "east",
+          "toVnum": 2020
+        },
+        {
+          "dir": "south",
+          "toVnum": 2026
+        }
+      ]
+    },
+    {
+      "vnum": 2020,
+      "name": "The holy grove",
+      "description": "A small grove of birches grow seem to grow from solid rock.  You hear\n\rbirds singing but try as you might you cant see any.  A strange glow\n\remanates from a place somewhere to the southeast in the grove.\n\r",
+      "roomFlags": [
+        "indoors",
+        "private"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2021
+        },
+        {
+          "dir": "west",
+          "toVnum": 2019
+        }
+      ]
+    },
+    {
+      "vnum": 2021,
+      "name": "The holy grove",
+      "description": "The trees seem real enough even though they take root in solid rock.\n\rYou hear other small animals scampering through the light undergrowth\n\ryet you see nothing. The grove continues south, east and west. An out of\n\rplace passage way for some reason heads north.\n\r",
+      "roomFlags": [
+        "indoors",
+        "private"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2068
+        },
+        {
+          "dir": "east",
+          "toVnum": 2022
+        },
+        {
+          "dir": "south",
+          "toVnum": 2027
+        },
+        {
+          "dir": "west",
+          "toVnum": 2020
+        }
+      ]
+    },
+    {
+      "vnum": 2022,
+      "name": "The holy grove",
+      "description": "The grove continues west and south.  The glow is roughly to the south\n\rsomewhere.\n\r",
+      "roomFlags": [
+        "indoors",
+        "private"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 2028
+        },
+        {
+          "dir": "west",
+          "toVnum": 2021
+        }
+      ]
+    },
+    {
+      "vnum": 2023,
+      "name": "Mess hall",
+      "description": "\"mess\" isn't exactly the best word to describe this room.  On the\n\rcontrary, it is immaculately clean.  A very long table stretches way off\n\rto the north. A hallway is to the east.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "roomFlagsValue": 264,
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2016
+        },
+        {
+          "dir": "east",
+          "toVnum": 2024
+        }
+      ]
+    },
+    {
+      "vnum": 2024,
+      "name": "End of a hallway",
+      "description": "You hear voices coming from a room to the west.  the hallway goes north.\n\rTo the east lies a room which seems to glow with power and piety.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "roomFlagsValue": 264,
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2017
+        },
+        {
+          "dir": "east",
+          "toVnum": 2025
+        },
+        {
+          "dir": "west",
+          "toVnum": 2023
+        }
+      ]
+    },
+    {
+      "vnum": 2025,
+      "name": "Grand Templar's room",
+      "description": "All the items in this room look ancient yet strangely very powerful and\n\rrich.  There is an aura of great holiness about the room.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "roomFlagsValue": 264,
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 2024
+        }
+      ]
+    },
+    {
+      "vnum": 2026,
+      "name": "Very dark passage",
+      "description": "This room is so dark that even powerful magic lights seems to barely\n\rilluminate the ground in front of you.  If its possible it seems even\n\rdarker to the south.  The passage also leads back north.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "roomFlagsValue": 265,
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2019
+        },
+        {
+          "dir": "south",
+          "toVnum": 2030
+        }
+      ]
+    },
+    {
+      "vnum": 2027,
+      "name": "The holy grove",
+      "description": "The grove continues north and east.  To the east a strange humming can\n\rbarely be heard.\n\r",
+      "roomFlags": [
+        "indoors",
+        "private"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2021
+        },
+        {
+          "dir": "east",
+          "toVnum": 2028
+        }
+      ]
+    },
+    {
+      "vnum": 2028,
+      "name": "The holy grove",
+      "description": "All of a sudden all the mysterious sounds of the grove stop. Or perhaps\n\rits just the strange humming and glowing from a clearing to the south\n\rdrowning out everything else. There is a sort of magical forcefield door\n\rto the south.\n\r",
+      "roomFlags": [
+        "indoors",
+        "private"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2022
+        },
+        {
+          "dir": "south",
+          "toVnum": 2032,
+          "key": 2001,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "description": "a glowing forcefield with a small circular hole in it.\n\r",
+          "keyword": "glow glowing field forcefield door"
+        },
+        {
+          "dir": "west",
+          "toVnum": 2027
+        }
+      ]
+    },
+    {
+      "vnum": 2029,
+      "name": "Very dark caveway",
+      "description": "This room is so very dark that no one is quite sure whats in it, so\n\rthere's nothing really to describe except maybe the powerful sense of\n\revil coming from the east and the almost overcoming urge to run to the\n\rwest.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "roomFlagsValue": 265,
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2030
+        },
+        {
+          "dir": "west",
+          "toVnum": 2033
+        }
+      ]
+    },
+    {
+      "vnum": 2030,
+      "name": "Deep within the catacombs",
+      "description": "It stinks like a lair in here.  A rotten smell of humanoid flesh\n\rlingers.  You stumble over what you think are corpses in the utter\n\rdarkness. You sense a evil growl from somewhere in the room. maybe\n\reverywhere in the room. . ..\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2026
+        },
+        {
+          "dir": "east",
+          "toVnum": 2031
+        },
+        {
+          "dir": "west",
+          "toVnum": 2029
+        }
+      ]
+    },
+    {
+      "vnum": 2031,
+      "name": "Very dark cavern",
+      "description": "The cavern is hard to describe due to the extreme magical darkness.\n\rProbing with a light source seems to reveal nothing but more darkness.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 2034
+        },
+        {
+          "dir": "west",
+          "toVnum": 2030
+        }
+      ]
+    },
+    {
+      "vnum": 2032,
+      "name": "The holy place",
+      "description": "A glowing stone lies in the center of the clearing.  You recognize it as\n\rthe stone of the Excalibur.  The strange humming glowing makes it\n\rdifficult to see if the Excalibur is there or not. Might want to take a\n\rcloser look if possible.\n\r",
+      "roomFlags": [
+        "indoors",
+        "private"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2028,
+          "key": 2001,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "description": "a glowing forcefield with a small circular hole in it.\n\r",
+          "keyword": "glow glowing field forcefield door"
+        }
+      ]
+    },
+    {
+      "vnum": 2033,
+      "name": "Misty passageway",
+      "description": "Warm mist swirl about you making you feel threatened as well as\n\rprotected at the same time.  The swirling mist makes it tough to tell\n\rdirections quite clearly, but you seem to be able to go north or south.\n\rThe mist gets denser to the south.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "roomFlagsValue": 265,
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2029
+        },
+        {
+          "dir": "south",
+          "toVnum": 2042
+        }
+      ]
+    },
+    {
+      "vnum": 2034,
+      "name": "Intersection of caverns",
+      "description": "Caverns head north, south and east from this peculiar spot. Medium\n\rsized caverns from the east and the north join to form a huge cavern\n\rheading south.  The walls of the cavern are made of a bizarre mixture\n\rof many shiny crystals.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2031
+        },
+        {
+          "dir": "east",
+          "toVnum": 2035
+        },
+        {
+          "dir": "south",
+          "toVnum": 2044
+        }
+      ]
+    },
+    {
+      "vnum": 2035,
+      "name": "Entrance to the burial grounds",
+      "description": "You have entered what appears to be a burial ground of sorts. The\n\rtemplars buried their dead here.  Chills go down your spine as you feel\n\rsomething watching you.  You hear the random groan of a ghost, the howl\n\rof a wraith, and the dry clanking of bones.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2036
+        },
+        {
+          "dir": "west",
+          "toVnum": 2034
+        }
+      ]
+    },
+    {
+      "vnum": 2036,
+      "name": "The burial grounds",
+      "description": "Random tombs to unknown warriors were lain in rows as far as the eye\n\rcan see.  To your horror many of the graves are empty and desecrated.\n\rA gap in the rows of tombs leads south and there are more graves to the\n\reast and west.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2037
+        },
+        {
+          "dir": "south",
+          "toVnum": 2045
+        },
+        {
+          "dir": "west",
+          "toVnum": 2035
+        }
+      ]
+    },
+    {
+      "vnum": 2037,
+      "name": "The burial grounds",
+      "description": "It seems as if many of the warriors could not stop fighting even in\n\rdeath.  They fight amongst each other and flail at any living being\n\rthat would wander near.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2038
+        },
+        {
+          "dir": "west",
+          "toVnum": 2036
+        }
+      ]
+    },
+    {
+      "vnum": 2038,
+      "name": "The burial grounds",
+      "description": "Legions of skeletal warriors wander by and battle the enemy even in\n\rdeath.  Old battlelines have been forgotten and new ones made. Its a\n\rgruesome scene.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2039
+        },
+        {
+          "dir": "west",
+          "toVnum": 2037
+        }
+      ]
+    },
+    {
+      "vnum": 2039,
+      "name": "New graves",
+      "description": "The tombs in this section seem somewhat more recent.  Rotting zombie\n\rwarriors groan and wail with blank stares.  You hear sounds of digging\n\roff a bit to the south.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 2047
+        },
+        {
+          "dir": "west",
+          "toVnum": 2038
+        }
+      ]
+    },
+    {
+      "vnum": 2040,
+      "name": "Misty cavern",
+      "description": "A chilling icy mist swirl about you.  The dampness and warmth has become\n\rbitter cold.  The walls of the cavern are several feet thick with ice\n\rhere.  An icy wind blows from the south.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "roomFlagsValue": 265,
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2041
+        },
+        {
+          "dir": "south",
+          "toVnum": 2048
+        }
+      ]
+    },
+    {
+      "vnum": 2041,
+      "name": "Misty cavern",
+      "description": "The temperature is a pleasant and mild here.  This is due to a warm wind\n\rblowing in from the east and a chilly breeze blowing in from the west.\n\rThe updrafts create bizarre icy-steamy mists which dance along the\n\rwalls.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "roomFlagsValue": 265,
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2042
+        },
+        {
+          "dir": "west",
+          "toVnum": 2040
+        }
+      ]
+    },
+    {
+      "vnum": 2042,
+      "name": "Mist cavern",
+      "description": "A warm wind blows in from the east.  The air is still stifling hot in\n\rhere despite the breeze.  The mist seems thick enough to be alive. . .\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "roomFlagsValue": 265,
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2033
+        },
+        {
+          "dir": "east",
+          "toVnum": 2043
+        },
+        {
+          "dir": "west",
+          "toVnum": 2041
+        }
+      ]
+    },
+    {
+      "vnum": 2043,
+      "name": "Waterfall of mist",
+      "description": "River of hot mist pour down in a cascade from a hole in the cavern.  It\n\rfalls like water down from the heights like a waterfall and creates\n\rbeautiful swirls.  It causes a hot wind to flow west.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "roomFlagsValue": 265,
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 2042
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "hole height waterfall cascade",
+          "description": "The hole is much too high up for you to reach.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2044,
+      "name": "Huge multicolored tunnel",
+      "description": "The tunnel leads north and south.  To the south there is an odd\n\rtwinkling phenomenon.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "roomFlagsValue": 265,
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2034
+        },
+        {
+          "dir": "south",
+          "toVnum": 2050
+        }
+      ]
+    },
+    {
+      "vnum": 2045,
+      "name": "Desolate ruins",
+      "description": "Several mausoleums used to grace the way here but these have been\n\rdefiled. And most have been torn down and burned by looters. Some still\n\rseem to be intact to the south.  To the northwest is a seeming field of\n\rtombs of soldiers, now a battleground for the undead.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 2051
+        }
+      ]
+    },
+    {
+      "vnum": 2046,
+      "name": "Curators place",
+      "description": "The undertaker, the historian and the curator used to be here. Now they\n\rtoo have joined the legions of the undead.  From the looks of the place\n\rthey seem to have starved to death.  Rickety stairs head down into a\n\rsort of basement.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2047
+        },
+        {
+          "dir": "down",
+          "toVnum": 2052
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "stairs basement",
+          "description": "Surprisingly the stairs look sturdy enough.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 2047,
+      "name": "Fresh graves",
+      "description": "Graves of recent casualties lie here.  Even the most recent don't seem to\n\rhave been left undisturbed.  You hear sounds of digging in progress\n\rfurther to the south.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2039
+        },
+        {
+          "dir": "south",
+          "toVnum": 2053
+        },
+        {
+          "dir": "west",
+          "toVnum": 2046
+        }
+      ]
+    },
+    {
+      "vnum": 2048,
+      "name": "Twisty cavern",
+      "description": "The way twist this way and that and its all you can do to keep your head\n\rfrom spinning.  The air is very cold here and layers of ice on the wall.\n\rThe sounds of metal on ice echo through the cavern. A side passage leads\n\reast and the main passage goes north and south.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "roomFlagsValue": 265,
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2040
+        },
+        {
+          "dir": "east",
+          "toVnum": 2049
+        },
+        {
+          "dir": "south",
+          "toVnum": 2056
+        }
+      ]
+    },
+    {
+      "vnum": 2049,
+      "name": "Striped tunnel",
+      "description": "The walls of the tunnels have many brilliant colors in them from the\n\rvarious veins of crystals running in them.  An odd twinkling comes from\n\rthe east.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "roomFlagsValue": 265,
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2050
+        },
+        {
+          "dir": "west",
+          "toVnum": 2048
+        }
+      ]
+    },
+    {
+      "vnum": 2050,
+      "name": "Prism cave",
+      "description": "The roof of this cave peaks over a hundred feet high making it one of\n\rthe biggest in the catacombs.  Crystals of every color cast prismatic\n\rsprays of light everywhere.  The light from your lamp causes almost a\n\rblinding flare of brilliance as more light is added to the multi-colored\n\rtwinkling phenomenon that exists here.  This is also the lair of the\n\rfabled and feared Prism Dragon.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2044
+        },
+        {
+          "dir": "east",
+          "toVnum": 2058
+        },
+        {
+          "dir": "south",
+          "toVnum": 2057
+        },
+        {
+          "dir": "west",
+          "toVnum": 2049
+        }
+      ]
+    },
+    {
+      "vnum": 2051,
+      "name": "Ruined monument",
+      "description": "A monument to a famous king once stood here. Not much is left to even\n\rsignify that is was here at all.  A building of some sort can be entered\n\rthrough a basement to the east.  The southern gate of the grounds is to\n\rthe south.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2045
+        },
+        {
+          "dir": "east",
+          "toVnum": 2052
+        },
+        {
+          "dir": "south",
+          "toVnum": 2054
+        }
+      ]
+    },
+    {
+      "vnum": 2052,
+      "name": "Basement",
+      "description": "Its dark and it smells like. ...BATS down here!  All you see is a swirl\n\rof the darkness and lots of scratching bats madly flailing around. A set\n\rof stairs go up into the building and a broken window leads west.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 2051
+        },
+        {
+          "dir": "up",
+          "toVnum": 2046
+        }
+      ]
+    },
+    {
+      "vnum": 2053,
+      "name": "Fresh graves",
+      "description": "The graves here seem very recent.  You notice many signs of digging and\n\rdefilement.  There are piles of fresh bodies here awaiting burial.  A\n\rstrange sense of evil magic from the south makes the hairs on the back\n\rof your neck to stand on end!\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2047
+        },
+        {
+          "dir": "south",
+          "toVnum": 2055
+        }
+      ]
+    },
+    {
+      "vnum": 2054,
+      "name": "Southern gate",
+      "description": "A rusty gate here no longer keeps anyone out or in.  You see a lonely\n\rE/W passage to the south.  A little used trail winds east through a\n\rcrack in the wall.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2051
+        },
+        {
+          "dir": "east",
+          "toVnum": 2066
+        },
+        {
+          "dir": "south",
+          "toVnum": 2059
+        }
+      ]
+    },
+    {
+      "vnum": 2055,
+      "name": "Scene of ghastly horror",
+      "description": "An army of undead creatures of all types are lined up patiently. Their\n\rleader is an evil demonoid necromancer.  His plans to use his army of\n\rundead to take over the world seem about ready to get underway.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2053
+        },
+        {
+          "dir": "south",
+          "toVnum": 2062
+        }
+      ]
+    },
+    {
+      "vnum": 2056,
+      "name": "Twisty passage",
+      "description": "The passage bends north and east here.  To the east your not certain\n\rwhat lies ahead due to all the twists and turns you've made.  To the\n\rnorth is seems cold.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "roomFlagsValue": 265,
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2048
+        },
+        {
+          "dir": "east",
+          "toVnum": 2057
+        }
+      ]
+    },
+    {
+      "vnum": 2057,
+      "name": "Cross of caverns",
+      "description": "A little-used cavern enters from the south. A passage twists away to\n\rthe west.  An odd twinkling comes from the cave to the north.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "roomFlagsValue": 265,
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2050
+        },
+        {
+          "dir": "south",
+          "toVnum": 2066
+        },
+        {
+          "dir": "west",
+          "toVnum": 2056
+        }
+      ]
+    },
+    {
+      "vnum": 2058,
+      "name": "Lonely tunnel",
+      "description": "Something indescribable makes you feel lonesome and sad here. Its just\n\ra feeling you get from this tunnel.  The tunnel east and west.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "roomFlagsValue": 265,
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2059
+        },
+        {
+          "dir": "west",
+          "toVnum": 2050
+        }
+      ]
+    },
+    {
+      "vnum": 2059,
+      "name": "Lonely tunnel",
+      "description": "Something indescribable makes you feel lonesome and sad here. You see a\n\rgate to a burial ground to the north.  This lonesome tunnel sighs along\n\rwest and east.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "roomFlagsValue": 265,
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2054
+        },
+        {
+          "dir": "east",
+          "toVnum": 2060
+        },
+        {
+          "dir": "west",
+          "toVnum": 2058
+        }
+      ]
+    },
+    {
+      "vnum": 2060,
+      "name": "Bend in the lonely tunnel",
+      "description": "Something indescribable makes you feel lonesome and sad here. The\n\rtunnel bends west and south.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "roomFlagsValue": 265,
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 2061
+        },
+        {
+          "dir": "west",
+          "toVnum": 2059
+        }
+      ]
+    },
+    {
+      "vnum": 2061,
+      "name": "Lonely tunnel",
+      "description": "Something indescribable makes you feel lonesome and sad here. The very\n\rwalls of the tunnel seems to groan.  to the north the tunnel bends and\n\reast is an intersection.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "roomFlagsValue": 265,
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2060
+        },
+        {
+          "dir": "east",
+          "toVnum": 2062
+        }
+      ]
+    },
+    {
+      "vnum": 2062,
+      "name": "Intersection",
+      "description": "To the north you enter the burial grounds.  a trail of blood leads that\n\rdirection.  Also you feel an ominous sense of evil magic from there.\n\rThe tunnel to the west creaks and sighs as if alive.  To the south you\n\rsmell a hint of fresh air.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "roomFlagsValue": 265,
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2055
+        },
+        {
+          "dir": "south",
+          "toVnum": 2063
+        },
+        {
+          "dir": "west",
+          "toVnum": 2061
+        }
+      ]
+    },
+    {
+      "vnum": 2063,
+      "name": "Tunnel",
+      "description": "The tunnel heads north and south.  North you see an intersection and\n\rfar to the south you sense light and smell a fresh breeze.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "roomFlagsValue": 265,
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2062
+        },
+        {
+          "dir": "south",
+          "toVnum": 2064
+        }
+      ]
+    },
+    {
+      "vnum": 2064,
+      "name": "Tunnel",
+      "description": "The tunnel slopes noticeably down to the north and you sense the surface\n\rcould be reached to the south.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "roomFlagsValue": 265,
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2063
+        },
+        {
+          "dir": "south",
+          "toVnum": 2065
+        }
+      ]
+    },
+    {
+      "vnum": 2065,
+      "name": "Southern entrance to the catacombs",
+      "description": "Through a trapdoor above you streams light.  Through a doorway to\n\rthe south streams darkness.  A message has been scrawled upon the wall\n\rhere.  The message reads:\n\r     Adventure for the strong yet calculating\n\r     Death for the weak and shallow\n\r     Treasure for the smart and lucky\n\r     Death for the stupid and accursed\n\rAn ancient Glyph above the entrance keeps monsters from wandering up\n\rfrom the catacombs.\n\r",
+      "roomFlags": [
+        "no_mob"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2064
+        },
+        {
+          "dir": "up",
+          "toVnum": 6527,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "floorboard board"
+        }
+      ]
+    },
+    {
+      "vnum": 2066,
+      "name": "Unknown passage",
+      "description": "Oh dear you seem to have lost your way.  You look back from whence you\n\rcame but there's no exit there anymore.  There are exits in other\n\rdirections but you have a feeling that you are hopelessly lost.\n\r",
+      "roomFlags": [
+        "dark",
+        "no_mob",
+        "indoors"
+      ],
+      "roomFlagsValue": 269,
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 2067
+        },
+        {
+          "dir": "south",
+          "toVnum": 2068
+        }
+      ]
+    },
+    {
+      "vnum": 2067,
+      "name": "Unknown passage",
+      "description": "Oh dear you seem to have lost your way.  You look back from whence you\n\rcame but there's no exit there anymore.  There are exits in other\n\rdirections but you have a feeling that you are hopelessly lost.\n\r",
+      "roomFlags": [
+        "dark",
+        "no_mob",
+        "indoors"
+      ],
+      "roomFlagsValue": 269,
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 2069
+        },
+        {
+          "dir": "west",
+          "toVnum": 2066
+        }
+      ]
+    },
+    {
+      "vnum": 2068,
+      "name": "Unknown passage",
+      "description": "Oh dear you seem to have lost your way.  You look back from whence you\n\rcame but there's no exit there anymore.  There are exits in other\n\rdirections but you have a feeling that you are hopelessly lost.\n\r",
+      "roomFlags": [
+        "dark",
+        "no_mob",
+        "indoors"
+      ],
+      "roomFlagsValue": 269,
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2066
+        },
+        {
+          "dir": "east",
+          "toVnum": 2069
+        }
+      ]
+    },
+    {
+      "vnum": 2069,
+      "name": "Unknown passage",
+      "description": "Oh dear you seem to have lost your way.  You look back from whence you\n\rcame but there's no exit there anymore.  There are exits in other\n\rdirections but you have a feeling that you are hopelessly lost.\n\r",
+      "roomFlags": [
+        "dark",
+        "no_mob",
+        "indoors"
+      ],
+      "roomFlagsValue": 269,
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 2067
+        },
+        {
+          "dir": "west",
+          "toVnum": 2068
+        }
+      ]
+    }
+  ],
+  "mobiles": [
+    {
+      "vnum": 2001,
+      "name": "oldstyle bat",
+      "shortDescr": "a bat",
+      "longDescr": "A bat flaps wildly at you!\n\r",
+      "description": "Your typical smelly, blind flying mammal.\n\r",
+      "race": "bat",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "detect_hidden",
+        "flying",
+        "dark_vision"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "fast",
+        "trip",
+        "assist_race"
+      ],
+      "vulnFlags": [
+        "light"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 5,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 60
+      },
+      "manaDice": {
+        "number": 2,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 5,
+        "bash": 5,
+        "slash": 5,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2002,
+      "name": "oldstyle page templar",
+      "shortDescr": "a templar page",
+      "longDescr": "A templar page in training is here looking mildly confused.\n\r",
+      "description": "He has lost his family and everything of his former life.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "wimpy"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 200,
+      "group": 0,
+      "level": 7,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 85
+      },
+      "manaDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 8,
+        "bonus": 1
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 4,
+        "bash": 4,
+        "slash": 4,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 30,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2003,
+      "name": "oldstyle spelunker explorer",
+      "shortDescr": "a spelunker",
+      "longDescr": "A spelunker knows his way around these tunnels.\n\r",
+      "description": "He recently discovered these catacombs and wants to see where they lead.\n\rHe just hopes he doesn't get killed in the process.  He carries only\n\ressential exploration gear; if there IS anything down here, he\n\rprobably won't last long.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "wimpy"
+      ],
+      "affectFlags": [
+        "detect_hidden"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 100,
+      "group": 0,
+      "level": 8,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 96
+      },
+      "manaDice": {
+        "number": 4,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 7,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 3,
+        "bash": 3,
+        "slash": 3,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 40,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2004,
+      "name": "oldstyle gravedigger digger robber graverobber",
+      "shortDescr": "a graverobber",
+      "longDescr": "A graverobber uncovers dead bodies.\n\r",
+      "description": "Working for an evil necromancer isn't the greatest thing in the world.\n\rThey seem like little more than zombie servants themselves.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "aggressive"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -500,
+      "group": 0,
+      "level": 9,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 110
+      },
+      "manaDice": {
+        "number": 4,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 8,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 2,
+        "bash": 2,
+        "slash": 2,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 5,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2005,
+      "name": "oldstyle mist swirling",
+      "shortDescr": "some mist",
+      "longDescr": "Some mist swirls about you here ... it seems ALIVE!\n\r",
+      "description": "In fact it IS alive in a magical sort of sense.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc"
+      ],
+      "affectFlags": [
+        "sanctuary",
+        "sneak",
+        "pass_door"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 10,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 121
+      },
+      "manaDice": {
+        "number": 5,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 4,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 1,
+        "bash": 1,
+        "slash": 1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 10,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2006,
+      "name": "oldstyle",
+      "shortDescr": "It",
+      "longDescr": "",
+      "description": "",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "aggressive"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 10,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 121
+      },
+      "manaDice": {
+        "number": 5,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 4,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 1,
+        "bash": 1,
+        "slash": 1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 50,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2007,
+      "name": "oldstyle skeleton skeletal soldier",
+      "shortDescr": "a skeleton",
+      "longDescr": "A skeletal soldier fights in the battle of the underworld.\n\r",
+      "description": "Even though he has died in the physical sense of the word, the battle\n\rcontinues for him in his charmed state.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "aggressive"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -290,
+      "group": 0,
+      "level": 11,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 134
+      },
+      "manaDice": {
+        "number": 5,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 10,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 1,
+        "bash": 1,
+        "slash": 1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 55,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2008,
+      "name": "oldstyle templar",
+      "shortDescr": "a templar",
+      "longDescr": "A templar shouts \"AKK! SLAY THE INFIDEL!\"\n\r",
+      "description": "As you peer closely he peers back at you\n\r\n\rA templar peers closely at you.\n\rA templar tells you, \"You are an evil force trying to spread your ways!\".\n\rA templar tells you, \"You must die for your sin!\".\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "aggressive"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 600,
+      "group": 0,
+      "level": 12,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 150
+      },
+      "manaDice": {
+        "number": 6,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 10,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 0,
+        "bash": 0,
+        "slash": 0,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 25,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2009,
+      "name": "oldstyle wraith",
+      "shortDescr": "a mysterious wraith",
+      "longDescr": "A mysterious ghostly wraith forms before your eyes.\n\r",
+      "description": "Hard to tell much about the mysterious form even upon further inspection.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "detect_hidden",
+        "pass_door"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 12,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 150
+      },
+      "manaDice": {
+        "number": 6,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 10,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 0,
+        "bash": 0,
+        "slash": 0,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 30,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2010,
+      "name": "oldstyle officer templar",
+      "shortDescr": "the templar officer",
+      "longDescr": "A templar officer keeps an eye on things here.\n\r",
+      "description": "A templar officer tells you \"Better move along evil one!\"\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "detect_invis"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 700,
+      "group": 0,
+      "level": 13,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 170
+      },
+      "manaDice": {
+        "number": 6,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 5,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -1,
+        "bash": -1,
+        "slash": -1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 30,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2011,
+      "name": "oldstyle zombie mage",
+      "shortDescr": "zombie",
+      "longDescr": "A blank-faced zombie mage joins the battle.\n\r",
+      "description": "He seems to lack real interest in what he is doing.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "aggressive",
+        "mage"
+      ],
+      "atkFlags": [
+        "dodge",
+        "assist_vnum"
+      ],
+      "alignment": -100,
+      "group": 0,
+      "level": 13,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 150
+      },
+      "manaDice": {
+        "number": 13,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 4,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 0,
+        "bash": 0,
+        "slash": 0,
+        "exotic": 5
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 27,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2012,
+      "name": "oldstyle shadow shadows",
+      "shortDescr": "the shadow",
+      "longDescr": "Eerie shadows fill the room.\n\r",
+      "description": "Looks vaguely you-shaped.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc"
+      ],
+      "affectFlags": [
+        "detect_hidden",
+        "sneak",
+        "pass_door"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 14,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 190
+      },
+      "manaDice": {
+        "number": 7,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 12,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -1,
+        "bash": -1,
+        "slash": -1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 40,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2013,
+      "name": "oldstyle bat vampire",
+      "shortDescr": "The vampire",
+      "longDescr": "A bat flaps wildly at you!\n\r",
+      "description": "A rather LARGE \"bat\" ...\n\r",
+      "race": "bat",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "detect_hidden",
+        "flying",
+        "dark_vision"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "fast",
+        "trip",
+        "assist_race"
+      ],
+      "vulnFlags": [
+        "light"
+      ],
+      "alignment": -100,
+      "group": 0,
+      "level": 15,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 208
+      },
+      "manaDice": {
+        "number": 7,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -2,
+        "bash": -2,
+        "slash": -2,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 50,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2014,
+      "name": "oldstyle necromancer necro cleric",
+      "shortDescr": "the evil necromancer",
+      "longDescr": "The evil necromancer makes undead soldiers from corpses.\n\r",
+      "description": "Though he seems absorbed in his work, you'd bet he'd take the time out\n\rto kill you to get a fresh corpse!\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -888,
+      "group": 0,
+      "level": 15,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 208
+      },
+      "manaDice": {
+        "number": 7,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -2,
+        "bash": -2,
+        "slash": -2,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 55,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2015,
+      "name": "oldstyle grand templar leader",
+      "shortDescr": "the grand templar",
+      "longDescr": "The grand templar stands here quietly observing your actions\n\r",
+      "description": "A slight, tolerant smile comes briefly across his face.  In the blink\n\rof an eye he seems stern again.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden",
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 16,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 233
+      },
+      "manaDice": {
+        "number": 8,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 4
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -2,
+        "bash": -2,
+        "slash": -2,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 75,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2016,
+      "name": "oldstyle prism dragon prismdragon",
+      "shortDescr": "the prism dragon",
+      "longDescr": "The light shines off a beautiful but dangerous dragon lurking here.\n\r",
+      "description": "The spray of colored light bouncing off his scales is almost blinding.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -303,
+      "group": 0,
+      "level": 20,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 333
+      },
+      "manaDice": {
+        "number": 10,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -4,
+        "bash": -4,
+        "slash": -4,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 1500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 2017,
+      "name": "oldstyle darken dark beast darkenbeast",
+      "shortDescr": "The DarkenBeast",
+      "longDescr": "You hear and smell the presence of the darkenbeast.\n\r",
+      "description": "You see nothing more than the sense of darkness and evil.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 24,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 500
+      },
+      "manaDice": {
+        "number": 12,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -6,
+        "bash": -6,
+        "slash": -6,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 1000,
+      "size": "medium",
+      "material": "0"
+    }
+  ],
+  "objects": [
+    {
+      "vnum": 2001,
+      "name": "glowing key",
+      "shortDescr": "a glowing key",
+      "description": "A circular, glowing key radiates a bright aura around it.",
+      "material": "oldstyle",
+      "itemType": "key",
+      "extraFlags": [
+        "glow",
+        "hum",
+        "magic"
+      ],
+      "wearFlags": [
+        "take"
+      ],
+      "values": [
+        39,
+        0,
+        0,
+        0,
+        0
+      ],
+      "weight": 10,
+      "condition": 100
+    },
+    {
+      "vnum": 2002,
+      "name": "granite plate mail platemail",
+      "shortDescr": "a suit of granite platemail",
+      "description": "A suit of platemail hewn from granite stands by itself in the corner.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "hum",
+        "antigood"
+      ],
+      "wearFlags": [
+        "take",
+        "body"
+      ],
+      "armor": {
+        "acPierce": 8,
+        "acBash": 8,
+        "acSlash": 8,
+        "acExotic": 2
+      },
+      "level": 23,
+      "weight": 550,
+      "cost": 3600,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "dexterity",
+          "level": 23,
+          "duration": -1,
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "vnum": 2003,
+      "name": "onyx ring",
+      "shortDescr": "an onyx ring",
+      "description": "A ring with a very dark onyx stone in it has been left in the dirt.",
+      "material": "oldstyle",
+      "itemType": "jewelry",
+      "extraFlags": [
+        "antigood"
+      ],
+      "wearFlags": [
+        "take",
+        "finger"
+      ],
+      "level": 7,
+      "weight": 10,
+      "cost": 800,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 7,
+          "duration": -1,
+          "modifier": -1
+        },
+        {
+          "where": "object",
+          "location": "wisdom",
+          "level": 7,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 2004,
+      "name": "neutralizer sword",
+      "shortDescr": "the neutralizer",
+      "description": "A long thin sword with a wide blade makes you wonder.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "hum",
+        "antigood",
+        "antievil"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "sword",
+        "dice": [
+          3,
+          5
+        ],
+        "damageType": "slash"
+      },
+      "level": 16,
+      "weight": 90,
+      "cost": 1280,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 16,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 16,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 2005,
+      "name": "sword excalibur",
+      "shortDescr": "the sword Excalibur",
+      "description": "A sword gleams by the light of its magical silvery blade.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "glow",
+        "magic",
+        "antievil",
+        "antineutral"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "sword",
+        "dice": [
+          5,
+          4
+        ],
+        "damageType": "slash"
+      },
+      "level": 24,
+      "weight": 150,
+      "cost": 3400,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 24,
+          "duration": -1,
+          "modifier": 3
+        },
+        {
+          "where": "object",
+          "location": "strength",
+          "level": 24,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 2006,
+      "name": "crown",
+      "shortDescr": "a kingly crown",
+      "description": "The crown of a long lost King lies forgotten here.",
+      "material": "oldstyle",
+      "itemType": "key",
+      "extraFlags": [
+        "bless"
+      ],
+      "wearFlags": [
+        "take",
+        "head"
+      ],
+      "level": 24,
+      "weight": 100,
+      "cost": 1850,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 24,
+          "duration": -1,
+          "modifier": -6
+        }
+      ]
+    },
+    {
+      "vnum": 2007,
+      "name": "stone",
+      "shortDescr": "stone",
+      "description": "The stone is surrounded by a bright glow, better look closer.",
+      "material": "oldstyle",
+      "itemType": "container",
+      "extraFlags": [
+        "glow"
+      ],
+      "container": {
+        "capacity": 15,
+        "flags": [
+          "closeable",
+          "pickproof",
+          "closed",
+          "locked"
+        ],
+        "keyVnum": 2006,
+        "maxWeight": 15,
+        "weightMult": 100
+      },
+      "condition": 100
+    },
+    {
+      "vnum": 2008,
+      "name": "holy water flask",
+      "shortDescr": "a flask of holy water",
+      "description": "A flask of holy water is here.",
+      "material": "oldstyle",
+      "itemType": "potion",
+      "extraFlags": [
+        "glow"
+      ],
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "spells": {
+        "level": 25,
+        "spells": [
+          "bless",
+          "sanctuary",
+          ""
+        ]
+      },
+      "level": 11,
+      "weight": 20,
+      "cost": 880,
+      "condition": 100
+    },
+    {
+      "vnum": 2009,
+      "name": "chainmail chain mail suit",
+      "shortDescr": "a suit of chainmail",
+      "description": "A nice suit of chainmail has been left behind.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "bless"
+      ],
+      "wearFlags": [
+        "take",
+        "body"
+      ],
+      "armor": {
+        "acPierce": 5,
+        "acBash": 5,
+        "acSlash": 5
+      },
+      "level": 10,
+      "weight": 200,
+      "cost": 1450,
+      "condition": 100
+    },
+    {
+      "vnum": 2010,
+      "name": "white cape",
+      "shortDescr": "a white cape",
+      "description": "A blazing cape of white lies in a careful pile.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "glow"
+      ],
+      "wearFlags": [
+        "take",
+        "neck"
+      ],
+      "armor": {
+        "acPierce": 5,
+        "acBash": 5,
+        "acSlash": 5
+      },
+      "level": 12,
+      "weight": 30,
+      "cost": 1000,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 12,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 2011,
+      "name": "shield defense",
+      "shortDescr": "the shield of defense",
+      "description": "A large shield lies protecting the ground.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "shield"
+      ],
+      "armor": {
+        "acPierce": 6,
+        "acBash": 6,
+        "acSlash": 6,
+        "acExotic": 4
+      },
+      "level": 13,
+      "weight": 150,
+      "cost": 1920,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 13,
+          "duration": -1,
+          "modifier": -2
+        },
+        {
+          "where": "object",
+          "location": "mana",
+          "level": 13,
+          "duration": -1,
+          "modifier": 10
+        },
+        {
+          "where": "object",
+          "location": "hp",
+          "level": 13,
+          "duration": -1,
+          "modifier": 10
+        },
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 13,
+          "duration": -1,
+          "modifier": -2
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 13,
+          "duration": -1,
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "vnum": 2012,
+      "name": "scale shield dragonscale",
+      "shortDescr": "a dragonscale shield",
+      "description": "A shield from from the scales of a large dragon lies here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "shield"
+      ],
+      "armor": {
+        "acPierce": 7,
+        "acBash": 7,
+        "acSlash": 7,
+        "acExotic": 4
+      },
+      "level": 22,
+      "weight": 180,
+      "cost": 3500,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "saves",
+          "level": 22,
+          "duration": -1,
+          "modifier": -2
+        }
+      ]
+    },
+    {
+      "vnum": 2013,
+      "name": "prism wand",
+      "shortDescr": "a prism wand",
+      "description": "A wand made of a triangular prism twinkles in the dust.",
+      "material": "oldstyle",
+      "itemType": "wand",
+      "extraFlags": [
+        "glow",
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "wand": {
+        "level": 11,
+        "chargesTotal": 4,
+        "spell": "colour spray"
+      },
+      "level": 12,
+      "weight": 40,
+      "cost": 2200,
+      "condition": 100
+    },
+    {
+      "vnum": 2014,
+      "name": "shadow cloak",
+      "shortDescr": "a shadow cloak",
+      "description": "The shadows in the corner of the room seems strange ...",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "about"
+      ],
+      "armor": {
+        "acPierce": 7,
+        "acBash": 7,
+        "acSlash": 7,
+        "acExotic": 2
+      },
+      "level": 14,
+      "weight": 10,
+      "cost": 210,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "move",
+          "level": 14,
+          "duration": -1,
+          "modifier": -30
+        }
+      ]
+    },
+    {
+      "vnum": 2015,
+      "name": "misty potion",
+      "shortDescr": "a misty potion",
+      "description": "A potion of swirling mist-like substance is here.",
+      "material": "oldstyle",
+      "itemType": "potion",
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "spells": {
+        "level": 10,
+        "spells": [
+          "pass door",
+          "faerie fire",
+          ""
+        ]
+      },
+      "level": 12,
+      "weight": 10,
+      "cost": 920,
+      "condition": 100
+    },
+    {
+      "vnum": 2016,
+      "name": "templar templars sword wooden",
+      "shortDescr": "a templar's sword",
+      "description": "A sword made of wood has been left here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "bless"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "sword",
+        "dice": [
+          2,
+          6
+        ],
+        "damageType": "slash"
+      },
+      "level": 10,
+      "weight": 60,
+      "cost": 830,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 10,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    }
+  ],
+  "shops": [],
+  "specials": [
+    {
+      "mobVnum": 2007,
+      "spec": "spec_cast_undead"
+    },
+    {
+      "mobVnum": 2009,
+      "spec": "spec_cast_undead"
+    },
+    {
+      "mobVnum": 2011,
+      "spec": "spec_cast_mage"
+    },
+    {
+      "mobVnum": 2013,
+      "spec": "spec_cast_undead"
+    },
+    {
+      "mobVnum": 2014,
+      "spec": "spec_cast_undead"
+    },
+    {
+      "mobVnum": 2016,
+      "spec": "spec_breath_any"
+    },
+    {
+      "mobVnum": 2017,
+      "spec": "spec_poison"
+    }
+  ],
+  "mobprogs": [],
+  "resets": [
+    {
+      "mobVnum": 2003,
+      "maxInArea": 2,
+      "roomVnum": 2002,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2008,
+      "maxInArea": 12,
+      "roomVnum": 2003,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2009,
+      "wearLoc": "on the body",
+      "roomVnum": 2003,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2016,
+      "wearLoc": "wielded",
+      "roomVnum": 2003,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2008,
+      "maxInArea": 12,
+      "roomVnum": 2004,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2016,
+      "wearLoc": "wielded",
+      "roomVnum": 2004,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2008,
+      "maxInArea": 12,
+      "roomVnum": 2005,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2008,
+      "maxInArea": 12,
+      "roomVnum": 2006,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2009,
+      "wearLoc": "on the body",
+      "roomVnum": 2006,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2002,
+      "maxInArea": 8,
+      "roomVnum": 2008,
+      "maxInRoom": 8,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2002,
+      "maxInArea": 8,
+      "roomVnum": 2008,
+      "maxInRoom": 8,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2002,
+      "maxInArea": 8,
+      "roomVnum": 2008,
+      "maxInRoom": 8,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2002,
+      "maxInArea": 8,
+      "roomVnum": 2008,
+      "maxInRoom": 8,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2002,
+      "maxInArea": 8,
+      "roomVnum": 2008,
+      "maxInRoom": 8,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2002,
+      "maxInArea": 8,
+      "roomVnum": 2009,
+      "maxInRoom": 8,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2002,
+      "maxInArea": 8,
+      "roomVnum": 2009,
+      "maxInRoom": 8,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2008,
+      "maxInArea": 12,
+      "roomVnum": 2009,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2009,
+      "wearLoc": "on the body",
+      "roomVnum": 2009,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2008,
+      "maxInArea": 12,
+      "roomVnum": 2009,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2016,
+      "wearLoc": "wielded",
+      "roomVnum": 2009,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2008,
+      "maxInArea": 12,
+      "roomVnum": 2009,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2009,
+      "wearLoc": "on the body",
+      "roomVnum": 2009,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2002,
+      "maxInArea": 8,
+      "roomVnum": 2010,
+      "maxInRoom": 8,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2010,
+      "maxInArea": 6,
+      "roomVnum": 2015,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2016,
+      "wearLoc": "wielded",
+      "roomVnum": 2015,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2009,
+      "wearLoc": "on the body",
+      "roomVnum": 2015,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2008,
+      "maxInArea": 12,
+      "roomVnum": 2016,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2016,
+      "wearLoc": "wielded",
+      "roomVnum": 2016,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2008,
+      "maxInArea": 12,
+      "roomVnum": 2016,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2009,
+      "wearLoc": "on the body",
+      "roomVnum": 2016,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2008,
+      "maxInArea": 12,
+      "roomVnum": 2016,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2009,
+      "wearLoc": "on the body",
+      "roomVnum": 2016,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2010,
+      "maxInArea": 6,
+      "roomVnum": 2016,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2016,
+      "wearLoc": "wielded",
+      "roomVnum": 2016,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2009,
+      "wearLoc": "on the body",
+      "roomVnum": 2016,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2010,
+      "maxInArea": 6,
+      "roomVnum": 2016,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2016,
+      "wearLoc": "wielded",
+      "roomVnum": 2016,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2009,
+      "wearLoc": "on the body",
+      "roomVnum": 2016,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2010,
+      "maxInArea": 6,
+      "roomVnum": 2016,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2016,
+      "wearLoc": "wielded",
+      "roomVnum": 2016,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2009,
+      "wearLoc": "on the body",
+      "roomVnum": 2016,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2010,
+      "maxInArea": 6,
+      "roomVnum": 2018,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2016,
+      "wearLoc": "wielded",
+      "roomVnum": 2018,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2009,
+      "wearLoc": "on the body",
+      "roomVnum": 2018,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2006,
+      "maxInArea": 7,
+      "roomVnum": 2019,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2008,
+      "maxInArea": 12,
+      "roomVnum": 2023,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2016,
+      "wearLoc": "wielded",
+      "roomVnum": 2023,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2008,
+      "maxInArea": 12,
+      "roomVnum": 2023,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2010,
+      "maxInArea": 6,
+      "roomVnum": 2023,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2009,
+      "wearLoc": "on the body",
+      "roomVnum": 2023,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2016,
+      "wearLoc": "wielded",
+      "roomVnum": 2023,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2015,
+      "maxInArea": 1,
+      "roomVnum": 2025,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2010,
+      "wearLoc": "around the neck (1)",
+      "roomVnum": 2025,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2001,
+      "wearLoc": "as a light",
+      "roomVnum": 2025,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2008,
+      "wearLoc": "held in the hands",
+      "roomVnum": 2025,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2012,
+      "maxInArea": 2,
+      "roomVnum": 2026,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2014,
+      "wearLoc": "about the shoulders",
+      "roomVnum": 2026,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2006,
+      "maxInArea": 7,
+      "roomVnum": 2028,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2017,
+      "maxInArea": 1,
+      "roomVnum": 2030,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2003,
+      "wearLoc": "on the right finger",
+      "roomVnum": 2030,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2002,
+      "wearLoc": "on the body",
+      "roomVnum": 2030,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2006,
+      "wearLoc": "held in the hands",
+      "roomVnum": 2030,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2007,
+      "roomVnum": 2032,
+      "commandName": "placeObj"
+    },
+    {
+      "objVnum": 2005,
+      "count": 9,
+      "containerVnum": 2007,
+      "maxInContainer": 1,
+      "roomVnum": 2032,
+      "commandName": "putObj"
+    },
+    {
+      "mobVnum": 2006,
+      "maxInArea": 7,
+      "roomVnum": 2033,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2005,
+      "maxInArea": 9,
+      "roomVnum": 2033,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2015,
+      "wearLoc": "held in the hands",
+      "roomVnum": 2033,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2007,
+      "maxInArea": 4,
+      "roomVnum": 2035,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2009,
+      "wearLoc": "on the body",
+      "roomVnum": 2035,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2006,
+      "maxInArea": 7,
+      "roomVnum": 2036,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2007,
+      "maxInArea": 4,
+      "roomVnum": 2036,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2011,
+      "maxInArea": 4,
+      "roomVnum": 2036,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2007,
+      "maxInArea": 4,
+      "roomVnum": 2037,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2009,
+      "wearLoc": "on the body",
+      "roomVnum": 2037,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2011,
+      "maxInArea": 4,
+      "roomVnum": 2037,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2007,
+      "maxInArea": 4,
+      "roomVnum": 2038,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2006,
+      "maxInArea": 7,
+      "roomVnum": 2039,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2009,
+      "maxInArea": 2,
+      "roomVnum": 2039,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2006,
+      "maxInArea": 7,
+      "roomVnum": 2040,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2005,
+      "maxInArea": 9,
+      "roomVnum": 2040,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2015,
+      "wearLoc": "held in the hands",
+      "roomVnum": 2040,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2005,
+      "maxInArea": 9,
+      "roomVnum": 2040,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2015,
+      "wearLoc": "held in the hands",
+      "roomVnum": 2040,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2005,
+      "maxInArea": 9,
+      "roomVnum": 2041,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2015,
+      "wearLoc": "held in the hands",
+      "roomVnum": 2041,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2005,
+      "maxInArea": 9,
+      "roomVnum": 2041,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2015,
+      "wearLoc": "held in the hands",
+      "roomVnum": 2041,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2005,
+      "maxInArea": 9,
+      "roomVnum": 2042,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2015,
+      "wearLoc": "held in the hands",
+      "roomVnum": 2042,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2005,
+      "maxInArea": 9,
+      "roomVnum": 2043,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2015,
+      "wearLoc": "held in the hands",
+      "roomVnum": 2043,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2005,
+      "maxInArea": 9,
+      "roomVnum": 2043,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2015,
+      "wearLoc": "held in the hands",
+      "roomVnum": 2043,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2005,
+      "maxInArea": 9,
+      "roomVnum": 2043,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2015,
+      "wearLoc": "held in the hands",
+      "roomVnum": 2043,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2009,
+      "maxInArea": 2,
+      "roomVnum": 2047,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2011,
+      "maxInArea": 4,
+      "roomVnum": 2047,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2006,
+      "maxInArea": 7,
+      "roomVnum": 2049,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2016,
+      "maxInArea": 1,
+      "roomVnum": 2050,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2012,
+      "wearLoc": "on the body",
+      "roomVnum": 2050,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 2013,
+      "wearLoc": "held in the hands",
+      "roomVnum": 2050,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2001,
+      "maxInArea": 6,
+      "roomVnum": 2052,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2001,
+      "maxInArea": 6,
+      "roomVnum": 2052,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2001,
+      "maxInArea": 6,
+      "roomVnum": 2052,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2013,
+      "maxInArea": 1,
+      "roomVnum": 2052,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2004,
+      "wearLoc": "wielded",
+      "roomVnum": 2052,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2001,
+      "maxInArea": 6,
+      "roomVnum": 2052,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2001,
+      "maxInArea": 6,
+      "roomVnum": 2052,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2001,
+      "maxInArea": 6,
+      "roomVnum": 2052,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2004,
+      "maxInArea": 4,
+      "roomVnum": 2053,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2004,
+      "maxInArea": 4,
+      "roomVnum": 2053,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2011,
+      "maxInArea": 4,
+      "roomVnum": 2053,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2004,
+      "maxInArea": 4,
+      "roomVnum": 2055,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2004,
+      "maxInArea": 4,
+      "roomVnum": 2055,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 2014,
+      "maxInArea": 1,
+      "roomVnum": 2055,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 2011,
+      "wearLoc": "as a shield",
+      "roomVnum": 2055,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 2003,
+      "maxInArea": 2,
+      "roomVnum": 2064,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    }
+  ],
+  "factions": [],
+  "quests": []
+}

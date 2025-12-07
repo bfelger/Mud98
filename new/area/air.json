@@ -1,0 +1,1347 @@
+{
+  "formatVersion": 1,
+  "areadata": {
+    "version": 2,
+    "name": "In the Air",
+    "builders": "",
+    "vnumRange": [
+      1000,
+      1099
+    ],
+    "credits": "Copper",
+    "security": 9,
+    "sector": "inside",
+    "lowLevel": 5,
+    "highLevel": 10,
+    "reset": 6,
+    "alwaysReset": false
+  },
+  "storyBeats": [],
+  "checklist": [],
+  "rooms": [
+    {
+      "vnum": 1001,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 40 meters above the ground north of the city.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 1006,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1002,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 1021,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1002,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 20 meters above the inside wall of West Midgaard.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1001,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1007,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1003,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 1022,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1003,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 20 meters above the west gate of Midgaard.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1002,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1008,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1004,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 1023,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1004,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 40 meters above Wall Road.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1003,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1009,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1005,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 1024,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1005,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 40 meters above Wall Road.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1004,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1010,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 1025,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1006,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 40 meters above the ground north of Midgaard.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 1011,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1007,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1001,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 1026,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1007,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 20 meters above the magic shop.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1006,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1012,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1008,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1002,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 1027,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1008,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 40 meters above Main Street.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1007,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1013,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1009,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1003,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 1028,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1009,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 20 meters above the Mage Guild Hall.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1008,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1014,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1010,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1004,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 1029,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1010,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 40 meters above Poor Alley.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1009,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1015,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1005,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 1030,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1011,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 40 meters above the ground north of Midgaard.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 1016,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1012,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1006,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 1031,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1012,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 20 meters above the bakery.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1011,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1017,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1013,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1007,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 1032,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1013,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 40 meters above Main Street.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1012,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1018,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1014,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1008,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 1033,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1014,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 20 meters above Armoury.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1013,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1019,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1015,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1009,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 1034,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1015,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 40 meters above Poor Alley.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1014,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1020,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1010,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 1035,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1016,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 10 meters above the temple spire of Midgaard\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 1017,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1011,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 1036,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1017,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 40 meters above the Temple Square.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1016,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1018,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1012,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 1037,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 3057,
+          "description": "More of the same\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1018,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 40 meters above Market Square.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1017,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1019,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1013,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 1038,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1019,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 40 meters above Market and Commons.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1018,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1020,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1014,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 1039,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1020,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 40 meters above ground, overlooking the Common Square.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1019,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1015,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 1040,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1021,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 60 meters above the ground just north of Midgaard.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 1026,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1022,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 1001,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1022,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 40 meters above the west gate of Midgaard.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1021,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1027,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1023,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 1002,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1023,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 60 meters above west gate of Midgaard.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1022,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1028,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1024,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 1003,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1024,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 60 meters above wall road.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1023,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1029,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1025,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 1004,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1025,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 60 meters above wall road.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1024,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1030,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 1005,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1026,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 60 meters above the ground north of Midgaard.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 1031,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1027,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1021,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 1006,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1027,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 40 meters above the magic shop.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1026,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1032,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1028,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1022,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 1007,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1028,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 60 meters above main street.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1027,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1033,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1029,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1023,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 1008,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1029,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 40 meters above the mage guild.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1028,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1034,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1030,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1024,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 1009,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1030,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 60 meters above poor alley.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1029,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1035,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1025,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 1010,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1031,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 60 meters above the ground north of Midgaard.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 1036,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1032,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1026,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 1011,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1032,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 40 meters above bakery and cleric guild.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1031,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1037,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1033,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1027,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 1012,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1033,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 60 meters above main street.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1032,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1038,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1034,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1028,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 1013,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1034,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 40 meters above the armoury.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1033,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1039,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1035,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1029,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 1014,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1035,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 60 meters above poor alley.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1034,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 1040,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1030,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 1015,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1036,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 30 meters above the temple spire.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 1037,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1031,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "up",
+          "toVnum": 7700,
+          "description": "The rainbow leads onward and upward into the sky.\n\rIt looks safe to travel on.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 1016,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1037,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 60 meters above the temple square.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1036,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1038,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1032,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 1017,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1038,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 60 meters above market square.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1037,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1039,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1033,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 1018,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1039,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 60 meters above market square and commons square.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1038,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 1040,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1034,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 1019,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 1040,
+      "name": "In the air ...",
+      "description": "You are flying!\n\rCurrently you are about 60 meters above commoners square and the dump.\n\rIt seems like you can see forever!\n\r",
+      "sectorType": "air",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 1039,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 1035,
+          "description": "More of the same.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 1020,
+          "description": "More of the same.\n\r"
+        }
+      ]
+    }
+  ],
+  "mobiles": [
+    {
+      "vnum": 1000,
+      "name": "oldstyle fairy dragon",
+      "shortDescr": "A fairy dragon",
+      "longDescr": "A fairy dragon is fluttering around here looking for something to do...\n\r",
+      "description": "It's a cute little multi-colored dragon...about 2 foot long.\n\rIt gracefully dances around your head.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "stay_area",
+        "mage"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_magic"
+      ],
+      "atkFlags": [
+        "dodge",
+        "assist_vnum"
+      ],
+      "alignment": 500,
+      "group": 0,
+      "level": 5,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 46
+      },
+      "manaDice": {
+        "number": 5,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 6,
+        "bash": 6,
+        "slash": 6,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 1,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 1001,
+      "name": "oldstyle griffin",
+      "shortDescr": "A griffin",
+      "longDescr": "A large black winged griffin swoops into an attack.\n\r",
+      "description": "Golden maned and black all over.  It's quite a beautiful creature if not\n\rfor the fact it is hungry and is attacking you!\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "aggressive",
+        "stay_area"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 300,
+      "group": 0,
+      "level": 8,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 96
+      },
+      "manaDice": {
+        "number": 4,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 7,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 3,
+        "bash": 3,
+        "slash": 3,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 25,
+      "size": "medium",
+      "material": "0"
+    }
+  ],
+  "objects": [
+    {
+      "vnum": 1001,
+      "name": "rose",
+      "shortDescr": "a red rose",
+      "description": "A red rose is lying on the ground.",
+      "material": "oldstyle",
+      "itemType": "treasure",
+      "wearFlags": [
+        "take",
+        "head"
+      ],
+      "values": [
+        6,
+        0,
+        0,
+        0,
+        0
+      ],
+      "weight": 80,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "rose",
+          "description": "It's a beautiful red rose, with a soft and romantic fragrance.\n\r"
+        }
+      ]
+    }
+  ],
+  "shops": [],
+  "specials": [
+    {
+      "mobVnum": 1000,
+      "spec": "spec_cast_mage"
+    }
+  ],
+  "mobprogs": [],
+  "resets": [
+    {
+      "mobVnum": 1000,
+      "maxInArea": 10,
+      "roomVnum": 1005,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1000,
+      "maxInArea": 10,
+      "roomVnum": 1019,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1000,
+      "maxInArea": 10,
+      "roomVnum": 1022,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 1001,
+      "maxInArea": 3,
+      "roomVnum": 1034,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    }
+  ],
+  "factions": [],
+  "quests": []
+}

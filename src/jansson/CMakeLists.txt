@@ -1,17 +1,17 @@
 set(JANSSON_SOURCES
-    dtoa.c
-    dump.c
-    error.c
-    hashtable.c
-    hashtable_seed.c
-    load.c
-    memory.c
-    pack_unpack.c
-    strbuffer.c
-    strconv.c
-    utf.c
-    value.c
-    version.c
+    "dtoa.c"
+    "dump.c"
+    "error.c"
+    "hashtable.c"
+    "hashtable_seed.c"
+    "load.c"
+    "memory.c"
+    "pack_unpack.c"
+    "strbuffer.c"
+    "strconv.c"
+    "utf.c"
+    "value.c"
+    "version.c"
 )
 
 configure_file(
@@ -43,4 +43,9 @@ endif()
 if (CMAKE_C_COMPILER_ID MATCHES "GNU")
     target_compile_options(jansson PRIVATE -Wno-format-truncation)
 endif()
+
+if (MSVC)
+    target_compile_options(jansson PRIVATE -D_CRT_SECURE_NO_WARNINGS)
+endif()
+
 set_target_properties(jansson PROPERTIES POSITION_INDEPENDENT_CODE ON)

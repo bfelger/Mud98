@@ -1,0 +1,6469 @@
+{
+  "formatVersion": 1,
+  "areadata": {
+    "version": 2,
+    "name": "Moria",
+    "builders": "",
+    "vnumRange": [
+      3900,
+      4199
+    ],
+    "credits": "Alfa",
+    "security": 9,
+    "sector": "inside",
+    "lowLevel": 5,
+    "highLevel": 15,
+    "reset": 6,
+    "alwaysReset": false
+  },
+  "storyBeats": [],
+  "checklist": [],
+  "rooms": [
+    {
+      "vnum": 3900,
+      "name": "West trail around Midgaard",
+      "description": "You are on a dusty trail following the outside wall of Midgaard.\n\rTo the east the wall towers over you and to the west you see the\n\rforest of Haon-Dor. The trail leads north and south along the wall. \n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 3901,
+          "description": "The dusty trail winds north closely to the wall.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 3052,
+          "description": "The dusty trail leads to outside the west gate of Midgaard.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3901,
+      "name": "West trail around Midgaard",
+      "description": "You are on a dusty trail following the outside wall of Midgaard.\n\rTo the east the wall towers over you and to the west you see the\n\rforest of Haon-Dor. The trail leads north and south along the wall. \n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 3902,
+          "description": "To the north you notice the path makes a turn, following the City wall. \n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 3900,
+          "description": "The dusty trail continues towards the south.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3902,
+      "name": "Northwest corner of dusty trail.",
+      "description": "You are standing outside the northwestern corner of the city wall.\n\rThe trail leads east following the north wall and south towards the gate.  \n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 3903,
+          "description": "The dusty trail winds close up to the north wall of Midgaard.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 3901,
+          "description": "The dusty trail leads south towards the gate.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3903,
+      "name": "Dusty trail along north wall.",
+      "description": "You are walking on the trail following the outside of Midgaard's\n\rnorthern wall.  \n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 3904,
+          "description": "The dusty trail is winding along the north wall of Midgaard.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 3902,
+          "description": "The dusty trail turns left around the corner of the wall, behind it Haon-Dor. \n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3904,
+      "name": "The long dusty trail following the north wall.",
+      "description": "You are just outside the northern gate of Midgaard.  You can continue along\n\rthe trail to the east or west, head onwards to the plains of the north, or\n\renter Midgaard to the south.  You can just barely make out the buildings of\n\rMidgaard from here, the Temple of Mota looks impressive even from this\n\rdistance.  \n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 300,
+          "description": "A small path extends into the plains.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 3905,
+          "description": "The dusty trail is winding along the north wall of Midgaard. \n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 3268,
+          "description": "You see the south gate of Midgaard.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 3903,
+          "description": "The dusty trail is winding along the north wall of Midgaard.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3905,
+      "name": "Dusty trail along north wall.",
+      "description": "You are walking on the trail following the outside of Midgaard's\n\rnorthern wall.  \n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 3906,
+          "description": "The dusty trail turns right around the corner of the wall. \n\rYou notice some mountains in the distance.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 3904,
+          "description": "The dusty trail is winding along the north wall of Midgaard.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3906,
+      "name": "Northeast corner of dusty trail.",
+      "description": "You are standing outside the northeastern corner of the city wall.\n\rThe trail leads west following the north wall and south towards the gate.  \n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 3907,
+          "description": "The dusty trail leads south towards the gate.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 3905,
+          "description": "The dusty trail winds close up to the north wall of Midgaard.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3907,
+      "name": "East trail around Midgaard",
+      "description": "You are on a dusty trail following the outside wall of Midgaard.\n\rTo the west the wall towers over you and far to the east you see\n\rsome mountains. The trail leads north and south along the wall. \n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 3906,
+          "description": "To the north you notice the path makes a turn, following the City wall. \n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 3908,
+          "description": "The dusty trail continues towards the south.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3908,
+      "name": "East trail around Midgaard",
+      "description": "You are on a dusty trail following the outside wall of Midgaard.\n\rTo the west the wall towers over you and far to the east you see\n\rsome mountains. The trail leads north and south along the wall. \n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 3907,
+          "description": "The dusty trail winds north closely to the wall.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 3053,
+          "description": "The dusty trail leads to outside the east gate of Midgaard.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 4000,
+      "name": "The hills",
+      "description": "You are on a small bewildered path winding its way between the hills in\n\rlack of better things to do. To the south you have a splendid view over the\n\rflat, vast, desolate plains. To the north the hills grow steadily darker and\n\rforeboding. This is the cause of no sunset, it is rather the power of evil\n\rpenetrating these quiet hills. Glancing around you notice only a single bird.\n\rThe mountains of the dwarven kingdom rise up to your east, you can barely\n\rmake out the queen's mines from here.\n\r",
+      "roomFlags": [
+        "no_mob"
+      ],
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4001
+        },
+        {
+          "dir": "east",
+          "toVnum": 6562,
+          "description": "You see the mountains of the dwarven kingdom. \n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 3500
+        }
+      ]
+    },
+    {
+      "vnum": 4001,
+      "name": "The hills",
+      "description": "You are surrounded by dark and sinister hills. Although they seemed fairly\n\rsmall from a distance you now get the feeling that they're closing in on you,\n\rtowering over you, overwhelming you ...  The small path seems to have second\n\rthoughts about these hills because it starts winding unnecessarily, turning\n\rseveral times around itself.  To the south the hills have a lighter hue of\n\rdark. To the north however, the hills have become nightblack holes in the\n\rdistant mountains.\n\r",
+      "roomFlags": [
+        "no_mob"
+      ],
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4002
+        },
+        {
+          "dir": "south",
+          "toVnum": 4000
+        }
+      ]
+    },
+    {
+      "vnum": 4002,
+      "name": "End of the path",
+      "description": "At this point the path has had enough. With a terrified shudder it cowers\n\rto the ground, only staying here because you're standing on it. with a slight\n\rfeeling of unease you look around noticing only a few bushes and a large sign\n\rcarved into the mountain.  You feel you can hear the cry of help from a\n\rthousand silent voices all coming from an even darker hole in the mountain to\n\rthe north marking the entrance to a cave (or a grave :-).\n\r",
+      "roomFlags": [
+        "no_mob"
+      ],
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4010
+        },
+        {
+          "dir": "south",
+          "toVnum": 4001
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "bushes",
+          "description": "Small crippled bushes desperately trying to grow south.\n\r"
+        },
+        {
+          "keyword": "sign",
+          "description": "The sign says:\n\r\n\r        /---------------------\\\n\r        | The Mines of Moria! |\n\r        |                     |\n\r        | Four levels.        |\n\r        |                     |\n\r        | Watch for mages!    |\n\r        |                     |\n\r        \\---------------------/\n\r                 | |\n\r                 | |\n\r                 | |\n\r                 | |\n\r                 | |\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 4010,
+      "name": "The cave",
+      "description": "You are in a large cave. The ceiling is lost somewhere above the reach of\n\ryour light. The floor, however, is highly illuminated, your light flickering\n\rover several tombstones. Only one is whole, the rest have been shattered by\n\rsome savage blow. The remaining tombstone looks disturbingly new...\n\rA small breeze of fresh air enters from the south (probably lost too). Take a\n\rgood breath, it may be your last mouthful of air in a long, long time that\n\rothers haven't breathed before you.\n\rTo the north a small tunnel continues into the mountain.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4011
+        },
+        {
+          "dir": "south",
+          "toVnum": 4002
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "tombstone",
+          "description": "The stone is inscribed with the unfortunate player's famous last words:\n\r\n\r  \"What are you worrying about, it is just a small harmless snake\"\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 4011,
+      "name": "The tunnel",
+      "description": "You squeeze your way through a small, narrow tunnel. The sharp-edged rocks\n\rprotruding from the walls threaten to scratch and cut you. \n\rTo the south you sense a freshness in the air which is rather unusual in these\n\rdamp, stuffy tunnels. To the north the tunnel continues.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4014
+        },
+        {
+          "dir": "south",
+          "toVnum": 4010
+        }
+      ]
+    },
+    {
+      "vnum": 4012,
+      "name": "The tunnel",
+      "description": "You are in a part of the tunnel that looks uncannily like the rest except\n\rthat it goes in a east-north direction. To the north the tunnel widens into\n\ra cave.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4016
+        },
+        {
+          "dir": "east",
+          "toVnum": 4013
+        }
+      ]
+    },
+    {
+      "vnum": 4013,
+      "name": "The tunnel",
+      "description": "This tunnel, leading east-west, seems seldom used.  A thick layer of dust\n\rcovers the floor, making the air stuffy and dry. \n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4014
+        },
+        {
+          "dir": "west",
+          "toVnum": 4012
+        }
+      ]
+    },
+    {
+      "vnum": 4014,
+      "name": "The tunnel",
+      "description": "You are walking in a narrow tunnel. The walls are only roughly shaped,\n\rsharp rocks protruding everywhere, even from the floor making you stumble in\n\rthe flickering light. To the south the tunnel narrows even more making it\n\ralmost impossible to pass. To the north it slowly widens into a cave. There\n\ris a branch of the tunnel going west.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4018
+        },
+        {
+          "dir": "east",
+          "toVnum": 4015
+        },
+        {
+          "dir": "south",
+          "toVnum": 4011
+        },
+        {
+          "dir": "west",
+          "toVnum": 4013
+        }
+      ]
+    },
+    {
+      "vnum": 4015,
+      "name": "The tunnel",
+      "description": "You are in a corner tunnel leading west and north.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4019
+        },
+        {
+          "dir": "west",
+          "toVnum": 4014
+        }
+      ]
+    },
+    {
+      "vnum": 4016,
+      "name": "The large cave",
+      "description": "You are in a large cave, the cave continues east and west, to the south\n\ryou notice a small tunnel.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4017
+        },
+        {
+          "dir": "south",
+          "toVnum": 4012
+        },
+        {
+          "dir": "west",
+          "toVnum": 4023
+        }
+      ]
+    },
+    {
+      "vnum": 4017,
+      "name": "The large cave",
+      "description": "You are in the east end of the large cave.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 4016
+        }
+      ]
+    },
+    {
+      "vnum": 4018,
+      "name": "The cave",
+      "description": "You are in the south end of a cave, to the south you see a tunnel. You\n\rnotice a large pile of bones in the corner.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4025
+        },
+        {
+          "dir": "south",
+          "toVnum": 4014
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "pile bones",
+          "description": "Some of the bones are human!\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 4019,
+      "name": "The tunnel",
+      "description": "You are in a north-south leading tunnel.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4026
+        },
+        {
+          "dir": "south",
+          "toVnum": 4015
+        }
+      ]
+    },
+    {
+      "vnum": 4020,
+      "name": "The hole",
+      "description": "You are by a hole in the floor, you can leave down, or north.\n\r",
+      "roomFlags": [
+        "dark",
+        "no_mob",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4027
+        },
+        {
+          "dir": "down",
+          "toVnum": 4064
+        }
+      ]
+    },
+    {
+      "vnum": 4021,
+      "name": "The hole",
+      "description": "A hole in the floor leads down here.\n\r",
+      "roomFlags": [
+        "dark",
+        "no_mob",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4022
+        },
+        {
+          "dir": "down",
+          "toVnum": 4115
+        }
+      ]
+    },
+    {
+      "vnum": 4022,
+      "name": "The damp tunnel",
+      "description": "You are in a damp tunnel.  Your clothes feel wet.  The tunnel continues\n\rto the north; to the west you see a hole in the floor; and to the east\n\rthere is a large cave.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4023
+        },
+        {
+          "dir": "east",
+          "toVnum": 4024
+        },
+        {
+          "dir": "west",
+          "toVnum": 4021
+        }
+      ]
+    },
+    {
+      "vnum": 4023,
+      "name": "The large cave",
+      "description": "You are in the western part of the large cave, to the south you see\n\ra damp tunnel.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4016
+        },
+        {
+          "dir": "south",
+          "toVnum": 4022
+        }
+      ]
+    },
+    {
+      "vnum": 4024,
+      "name": "The damp tunnel",
+      "description": "You are in a corner of a damp tunnel.  You can go west or south.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 4059
+        },
+        {
+          "dir": "west",
+          "toVnum": 4022
+        }
+      ]
+    },
+    {
+      "vnum": 4025,
+      "name": "The cave",
+      "description": "You are in the north end of a cave.  To the east you see many tunnels.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4026
+        },
+        {
+          "dir": "south",
+          "toVnum": 4018
+        }
+      ]
+    },
+    {
+      "vnum": 4026,
+      "name": "The many tunnels",
+      "description": "You are at the intersection of many tunnels.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4028
+        },
+        {
+          "dir": "east",
+          "toVnum": 4027
+        },
+        {
+          "dir": "south",
+          "toVnum": 4019
+        },
+        {
+          "dir": "west",
+          "toVnum": 4025
+        }
+      ]
+    },
+    {
+      "vnum": 4027,
+      "name": "The tunnel",
+      "description": "You are in a north-south leading tunnel, you also notice a tunnel to\n\rthe west. From the north you sense the fresh air!\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4029
+        },
+        {
+          "dir": "south",
+          "toVnum": 4020
+        },
+        {
+          "dir": "west",
+          "toVnum": 4026
+        }
+      ]
+    },
+    {
+      "vnum": 4028,
+      "name": "The smelly tunnel",
+      "description": "You are in a north-south leading tunnel, you see a small light\n\rto the north. You notice a strange smell from the north..\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4030
+        },
+        {
+          "dir": "south",
+          "toVnum": 4026
+        }
+      ]
+    },
+    {
+      "vnum": 4029,
+      "name": "The cave",
+      "description": "You are in a cave that is filled with fresh air, you sense the\n\rwind blowing from the north. To the south you see a small tunnel\n\rcontinue into the mountain.\n\r",
+      "roomFlags": [
+        "dark",
+        "no_mob",
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4031
+        },
+        {
+          "dir": "south",
+          "toVnum": 4027
+        }
+      ]
+    },
+    {
+      "vnum": 4030,
+      "name": "The light cave",
+      "description": "You are in a light cave, through a hole large above you, you see \n\rthe sky. A small tunnel to the south is the only way out.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 4028
+        }
+      ]
+    },
+    {
+      "vnum": 4031,
+      "name": "The valley",
+      "description": "You are in a small valley, surrounded by hills and a mountain to \n\rthe south. In the mountain there is a cave.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4032
+        },
+        {
+          "dir": "south",
+          "toVnum": 4029
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "cave",
+          "description": "Well it doesn't look nice, but it's the only way out.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 4032,
+      "name": "The foothills",
+      "description": "You are on a winding path that leads through the foothills on the\n\rother side of the mountain.  The path continues north.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4033
+        },
+        {
+          "dir": "south",
+          "toVnum": 4031
+        }
+      ]
+    },
+    {
+      "vnum": 4033,
+      "name": "The intersection in the foothills",
+      "description": "The small path you are following splits here.  The path continues\n\rnorth and south or you can follow a trail east into the mountains.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4034
+        },
+        {
+          "dir": "east",
+          "toVnum": 4037
+        },
+        {
+          "dir": "south",
+          "toVnum": 4032
+        }
+      ]
+    },
+    {
+      "vnum": 4034,
+      "name": "The grassy area of the foothills",
+      "description": "The grass here is unusually high.  You notice several areas where\n\rsomeone or something large has crushed spots of the grass down.  Several very\n\rlarge rocks litter this area.  You can go north, west or south.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4035
+        },
+        {
+          "dir": "south",
+          "toVnum": 4033
+        },
+        {
+          "dir": "west",
+          "toVnum": 4042
+        }
+      ]
+    },
+    {
+      "vnum": 4035,
+      "name": "The foothills end",
+      "description": "At this point you are leaving the foothills.  You see a plains area\n\rto the north of here.  You can spot a small city in the distance from\n\rhere.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4036
+        },
+        {
+          "dir": "south",
+          "toVnum": 4034
+        }
+      ]
+    },
+    {
+      "vnum": 4036,
+      "name": "The plains",
+      "description": "The plains.  Exits are south.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 4035
+        }
+      ]
+    },
+    {
+      "vnum": 4037,
+      "name": "The foothills path",
+      "description": "Exits are east and west.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4038
+        },
+        {
+          "dir": "west",
+          "toVnum": 4033
+        }
+      ]
+    },
+    {
+      "vnum": 4038,
+      "name": "Base of the mountain",
+      "description": "Exits are east and west.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4039
+        },
+        {
+          "dir": "west",
+          "toVnum": 4037
+        }
+      ]
+    },
+    {
+      "vnum": 4039,
+      "name": "A trail up the mountain",
+      "description": "Exits are east and west.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4040
+        },
+        {
+          "dir": "west",
+          "toVnum": 4038
+        }
+      ]
+    },
+    {
+      "vnum": 4040,
+      "name": "The mountain top.",
+      "description": "Exits are north, east, and west.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4041
+        },
+        {
+          "dir": "east",
+          "toVnum": 7114,
+          "description": "It doesn't look safe this way.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 4039
+        }
+      ]
+    },
+    {
+      "vnum": 4041,
+      "name": "The lion's den",
+      "description": "Exits are south.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 4040
+        }
+      ]
+    },
+    {
+      "vnum": 4042,
+      "name": "The level foothills",
+      "description": "Exits are east and west.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4034
+        },
+        {
+          "dir": "west",
+          "toVnum": 4043
+        }
+      ]
+    },
+    {
+      "vnum": 4043,
+      "name": "The cave entrance",
+      "description": "Exits are east and west.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4042
+        },
+        {
+          "dir": "west",
+          "toVnum": 4044
+        }
+      ]
+    },
+    {
+      "vnum": 4044,
+      "name": "The hill giant cave",
+      "description": "Exits are east.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4043
+        }
+      ]
+    },
+    {
+      "vnum": 4050,
+      "name": "The tunnel",
+      "description": "The tunnel turns here, continuing to the east and south.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4051
+        },
+        {
+          "dir": "south",
+          "toVnum": 4053
+        }
+      ]
+    },
+    {
+      "vnum": 4051,
+      "name": "The tunnel",
+      "description": "You are in a narrow east-west tunnel.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4052
+        },
+        {
+          "dir": "west",
+          "toVnum": 4050
+        }
+      ]
+    },
+    {
+      "vnum": 4052,
+      "name": "The tunnel",
+      "description": "You are at a turn, the tunnel continues south and west.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 4100
+        },
+        {
+          "dir": "west",
+          "toVnum": 4051
+        }
+      ]
+    },
+    {
+      "vnum": 4053,
+      "name": "The tunnel",
+      "description": "You are at a turn, the tunnel continues north and east.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4050
+        },
+        {
+          "dir": "east",
+          "toVnum": 4054
+        }
+      ]
+    },
+    {
+      "vnum": 4054,
+      "name": "The light cave",
+      "description": "You are in a cave, to south from you there is a large fire that lights\n\rthe entire cave, to the east and west tunnels leads off.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4055
+        },
+        {
+          "dir": "south",
+          "toVnum": 4056
+        },
+        {
+          "dir": "west",
+          "toVnum": 4053
+        }
+      ]
+    },
+    {
+      "vnum": 4055,
+      "name": "The maze",
+      "description": "You are in a maze of small damp tunnels.  The only exit is west.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 4054
+        }
+      ]
+    },
+    {
+      "vnum": 4056,
+      "name": "The light cave",
+      "description": "You are in a light cave, a large fire in front of you lights the room.\n\rThe cave continues to the north and south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4054
+        },
+        {
+          "dir": "south",
+          "toVnum": 4061
+        }
+      ]
+    },
+    {
+      "vnum": 4057,
+      "name": "The maze",
+      "description": "You are in a maze of small damp tunnels.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4058
+        },
+        {
+          "dir": "south",
+          "toVnum": 4062
+        }
+      ]
+    },
+    {
+      "vnum": 4058,
+      "name": "The maze",
+      "description": "You are in a maze of small damp tunnels.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 4063
+        },
+        {
+          "dir": "west",
+          "toVnum": 4057
+        }
+      ]
+    },
+    {
+      "vnum": 4059,
+      "name": "The tunnel",
+      "description": "You are in a tunnel, only exit is to the east. You sense that the\n\rtunnel leads slightly down.\n\r",
+      "roomFlags": [
+        "dark",
+        "no_mob",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4024
+        },
+        {
+          "dir": "east",
+          "toVnum": 4060
+        }
+      ]
+    },
+    {
+      "vnum": 4060,
+      "name": "The tunnel",
+      "description": "You are in a small tunnel, to the west the tunnel continues and \n\rto the east you see some light.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4061
+        },
+        {
+          "dir": "west",
+          "toVnum": 4059
+        }
+      ]
+    },
+    {
+      "vnum": 4061,
+      "name": "The light cave",
+      "description": "You are in the south end of a light cave.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4056
+        },
+        {
+          "dir": "west",
+          "toVnum": 4060
+        }
+      ]
+    },
+    {
+      "vnum": 4062,
+      "name": "The maze",
+      "description": "You are in a maze of small damp tunnels.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4057
+        },
+        {
+          "dir": "east",
+          "toVnum": 4065
+        }
+      ]
+    },
+    {
+      "vnum": 4063,
+      "name": "The maze",
+      "description": "You are in a maze of small damp tunnels.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4058
+        },
+        {
+          "dir": "east",
+          "toVnum": 4064
+        }
+      ]
+    },
+    {
+      "vnum": 4064,
+      "name": "The tunnel",
+      "description": "You are at the eastern end of a tunnel.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 4063
+        },
+        {
+          "dir": "up",
+          "toVnum": 4020
+        }
+      ]
+    },
+    {
+      "vnum": 4065,
+      "name": "The maze",
+      "description": "You are in a maze of small damp tunnels.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4066
+        },
+        {
+          "dir": "west",
+          "toVnum": 4062
+        }
+      ]
+    },
+    {
+      "vnum": 4066,
+      "name": "The maze",
+      "description": "You are in a maze of small damp tunnels.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4067
+        },
+        {
+          "dir": "south",
+          "toVnum": 4069
+        },
+        {
+          "dir": "west",
+          "toVnum": 4065
+        }
+      ]
+    },
+    {
+      "vnum": 4067,
+      "name": "The maze",
+      "description": "You are in a maze of small damp tunnels.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 4066
+        }
+      ]
+    },
+    {
+      "vnum": 4068,
+      "name": "The large cave",
+      "description": "You are in the northwest end of a large cave.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4069
+        },
+        {
+          "dir": "south",
+          "toVnum": 4070
+        }
+      ]
+    },
+    {
+      "vnum": 4069,
+      "name": "The large cave",
+      "description": "You are in the northeast end of a large cave. To the north the\n\ris a small damp tunnel.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4066
+        },
+        {
+          "dir": "south",
+          "toVnum": 4071
+        },
+        {
+          "dir": "west",
+          "toVnum": 4068
+        }
+      ]
+    },
+    {
+      "vnum": 4070,
+      "name": "The large cave",
+      "description": "You are in the southwest end of a large cave.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4068
+        },
+        {
+          "dir": "east",
+          "toVnum": 4071
+        }
+      ]
+    },
+    {
+      "vnum": 4071,
+      "name": "The large cave",
+      "description": "You are in the southeast end of a large cave. To the east you\n\rnotice a small tunnel.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4069
+        },
+        {
+          "dir": "east",
+          "toVnum": 4072
+        },
+        {
+          "dir": "west",
+          "toVnum": 4070
+        }
+      ]
+    },
+    {
+      "vnum": 4072,
+      "name": "The tunnel",
+      "description": "You are in a narrow tunnel, which leads both to the east and the\n\rsouth. There is also an exit towards the west, where you see a large\n\rcave.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4073
+        },
+        {
+          "dir": "south",
+          "toVnum": 4074
+        },
+        {
+          "dir": "west",
+          "toVnum": 4071
+        }
+      ]
+    },
+    {
+      "vnum": 4073,
+      "name": "End of tunnel",
+      "description": "The tunnel stops here.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 4072
+        }
+      ]
+    },
+    {
+      "vnum": 4074,
+      "name": "The hole",
+      "description": "You are at a small hole in the floor, you can either leave north\n\ror try your luck and leave down into the unknown!\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4072
+        },
+        {
+          "dir": "down",
+          "toVnum": 4171
+        }
+      ]
+    },
+    {
+      "vnum": 4100,
+      "name": "The tunnel",
+      "description": "Suddenly you feel that the tunnel leads slightly down.\n\r",
+      "roomFlags": [
+        "dark",
+        "no_mob",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4052
+        },
+        {
+          "dir": "west",
+          "toVnum": 4101
+        }
+      ]
+    },
+    {
+      "vnum": 4101,
+      "name": "The long tunnel",
+      "description": "You are in a long east-west leading tunnel. The tunnel is quite\n\rwide at this point.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4100
+        },
+        {
+          "dir": "west",
+          "toVnum": 4102
+        }
+      ]
+    },
+    {
+      "vnum": 4102,
+      "name": "The long tunnel",
+      "description": "You are in a long east-west leading tunnel. The tunnel becomes\n\rnarrow to the west.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4101
+        },
+        {
+          "dir": "west",
+          "toVnum": 4103
+        }
+      ]
+    },
+    {
+      "vnum": 4103,
+      "name": "The long tunnel",
+      "description": "You are in a long east-west leading tunnel. The tunnel is quite\n\rnarrow at this point. You notice a small hole leading south.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4102
+        },
+        {
+          "dir": "south",
+          "toVnum": 4106
+        },
+        {
+          "dir": "west",
+          "toVnum": 4104
+        }
+      ]
+    },
+    {
+      "vnum": 4104,
+      "name": "The long tunnel",
+      "description": "You are in a long east-west leading tunnel. The tunnel starts sloping\n\rdown towards the west.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4103
+        },
+        {
+          "dir": "west",
+          "toVnum": 4152
+        }
+      ]
+    },
+    {
+      "vnum": 4105,
+      "name": "The golden cave",
+      "description": "You are in a giant cave, all the walls are shining with a soft golden\n\rlight. The cave continues to the south and west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 4108
+        },
+        {
+          "dir": "west",
+          "toVnum": 4106
+        }
+      ]
+    },
+    {
+      "vnum": 4106,
+      "name": "The golden cave",
+      "description": "You are in a giant cave, all the walls are shining with a soft golden\n\rlight. The cave continues to the south and east, to the north is a narrow\n\rtunnel.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4103
+        },
+        {
+          "dir": "east",
+          "toVnum": 4105
+        },
+        {
+          "dir": "south",
+          "toVnum": 4109
+        }
+      ]
+    },
+    {
+      "vnum": 4107,
+      "name": "The passage",
+      "description": "You are in a small passage, it leads south, to the west is a golden\n\rcave.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 4113
+        },
+        {
+          "dir": "west",
+          "toVnum": 4108
+        }
+      ]
+    },
+    {
+      "vnum": 4108,
+      "name": "The golden cave",
+      "description": "You are in a giant cave, all the walls are shining with a soft golden\n\rlight. The cave continues to the north and west, east from you there is\n\ra small passage.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4105
+        },
+        {
+          "dir": "east",
+          "toVnum": 4107
+        },
+        {
+          "dir": "west",
+          "toVnum": 4109
+        }
+      ]
+    },
+    {
+      "vnum": 4109,
+      "name": "The golden cave",
+      "description": "You are in a giant cave, all the walls are shining with a soft golden\n\rlight. The cave continues to the south, east and north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4106
+        },
+        {
+          "dir": "east",
+          "toVnum": 4108
+        },
+        {
+          "dir": "south",
+          "toVnum": 4114
+        }
+      ]
+    },
+    {
+      "vnum": 4110,
+      "name": "The tunnel",
+      "description": "You are at the end of the tunnel.\n\r",
+      "roomFlags": [
+        "dark",
+        "no_mob",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 4111
+        }
+      ]
+    },
+    {
+      "vnum": 4111,
+      "name": "The tunnel",
+      "description": "You are in a small tunnel, it leads from east to the west.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4110
+        },
+        {
+          "dir": "west",
+          "toVnum": 4112
+        }
+      ]
+    },
+    {
+      "vnum": 4112,
+      "name": "The tunnel",
+      "description": "You are in a larger tunnel, it leads from west to east.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4111
+        },
+        {
+          "dir": "west",
+          "toVnum": 4113
+        }
+      ]
+    },
+    {
+      "vnum": 4113,
+      "name": "The passage",
+      "description": "You are in a passage that leads towards the south. To the east \n\ryou see a tunnel.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4107
+        },
+        {
+          "dir": "east",
+          "toVnum": 4112
+        },
+        {
+          "dir": "south",
+          "toVnum": 4116
+        }
+      ]
+    },
+    {
+      "vnum": 4114,
+      "name": "The golden cave",
+      "description": "You are in a giant cave, all the walls are shining with a soft golden\n\rlight. The cave continues to the north, to the west you see a dark \n\rpassage.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4109
+        },
+        {
+          "dir": "west",
+          "toVnum": 4115
+        }
+      ]
+    },
+    {
+      "vnum": 4115,
+      "name": "The dark passage.",
+      "description": "You are in a dark passage, that leads east. In the ceiling you notice\n\ra small hole, just big enough to pass through.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4114
+        },
+        {
+          "dir": "up",
+          "toVnum": 4021
+        }
+      ]
+    },
+    {
+      "vnum": 4116,
+      "name": "The passage",
+      "description": "You are in a passage that leads north-south. You notice a small\n\rlight to the south.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4113
+        },
+        {
+          "dir": "south",
+          "toVnum": 4120
+        }
+      ]
+    },
+    {
+      "vnum": 4117,
+      "name": "The secret chamber",
+      "description": "You are in a secret chamber.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 4122
+        }
+      ]
+    },
+    {
+      "vnum": 4118,
+      "name": "The cave",
+      "description": "You are in a light cave, from torches several feet above your\n\rhead fire lights the room. The cave continues to the west and south.\n\rTo the north a small hole leads to a tunnel.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 4123
+        },
+        {
+          "dir": "west",
+          "toVnum": 4119
+        }
+      ]
+    },
+    {
+      "vnum": 4119,
+      "name": "The cave",
+      "description": "You are in a light cave, from torches several feet above your\n\rhead fire lights the room. The cave continues to the east and south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4118
+        },
+        {
+          "dir": "south",
+          "toVnum": 4124
+        },
+        {
+          "dir": "west",
+          "toVnum": 4121
+        }
+      ]
+    },
+    {
+      "vnum": 4120,
+      "name": "The passage",
+      "description": "You are in a north-south leading passage. To the south you see light.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4116
+        },
+        {
+          "dir": "south",
+          "toVnum": 4125
+        }
+      ]
+    },
+    {
+      "vnum": 4121,
+      "name": "The secret tunnel",
+      "description": "You are in a secret tunnel that leads west, you feel evilness\n\rapproaching you as you continue west.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4119
+        },
+        {
+          "dir": "west",
+          "toVnum": 4122
+        }
+      ]
+    },
+    {
+      "vnum": 4122,
+      "name": "The secret chamber",
+      "description": "You are in a secret chamber, the room is filled with an evil\n\rfeeling.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4117
+        },
+        {
+          "dir": "east",
+          "toVnum": 4121
+        }
+      ]
+    },
+    {
+      "vnum": 4123,
+      "name": "The cave",
+      "description": "You are in a light cave, from torches several feet above your\n\rhead fire lights the room. The cave continues to the north and west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4118
+        },
+        {
+          "dir": "west",
+          "toVnum": 4124
+        }
+      ]
+    },
+    {
+      "vnum": 4124,
+      "name": "The cave",
+      "description": "You are in a light cave, from torches several feet above your\n\rhead fire lights the room. The cave continues to the east and north.\n\rTo the west a passage leads north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "city",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4119
+        },
+        {
+          "dir": "east",
+          "toVnum": 4123
+        },
+        {
+          "dir": "west",
+          "toVnum": 4125
+        }
+      ]
+    },
+    {
+      "vnum": 4125,
+      "name": "The passage",
+      "description": "You are in a passage, to the east you see a cave. Light from the\n\rcave lights up the passage. To the north the passage leads into\n\rthe darkness.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4120
+        },
+        {
+          "dir": "east",
+          "toVnum": 4124
+        }
+      ]
+    },
+    {
+      "vnum": 4150,
+      "name": "The dark hole",
+      "description": "You are standing at a hole, a small passage leads south. You see\n\rsome inscriptions on the wall, most of 'em the usual stuff, like:\n\r'Super Snude was here' and 'Why does the mayor likes secretaries with\n\rsmall hands?' - But one inscription gets your attention, it says:\n\rThe Balrog is ALIVE ...\n\r",
+      "roomFlags": [
+        "dark",
+        "no_mob",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 4151
+        }
+      ]
+    },
+    {
+      "vnum": 4151,
+      "name": "The small passage",
+      "description": "You are in a small passage, to the north you see a hole, and to\n\rthe south you see a large tunnel. The air is damp in this area.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4150
+        },
+        {
+          "dir": "south",
+          "toVnum": 4156
+        },
+        {
+          "dir": "west",
+          "toVnum": 4155
+        }
+      ]
+    },
+    {
+      "vnum": 4152,
+      "name": "The tunnel",
+      "description": "You suddenly feel that the tunnel leads down.\n\r",
+      "roomFlags": [
+        "dark",
+        "no_mob",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4104
+        },
+        {
+          "dir": "south",
+          "toVnum": 4153
+        }
+      ]
+    },
+    {
+      "vnum": 4153,
+      "name": "The large tunnel",
+      "description": "You are in a large tunnel leading from the south to the east. The\n\rair is damp in the area.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4152
+        },
+        {
+          "dir": "east",
+          "toVnum": 4154
+        },
+        {
+          "dir": "south",
+          "toVnum": 4157
+        }
+      ]
+    },
+    {
+      "vnum": 4154,
+      "name": "The large tunnel",
+      "description": "You are in a large east-west leading tunnel, the air is damp and\n\rthe floor is wet.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4155
+        },
+        {
+          "dir": "west",
+          "toVnum": 4153
+        }
+      ]
+    },
+    {
+      "vnum": 4155,
+      "name": "The large tunnel",
+      "description": "You are in a large tunnel, the tunnel leads west, and to the east\n\ryou notice a long tunnel. The air is damp in this area.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4151
+        },
+        {
+          "dir": "west",
+          "toVnum": 4154
+        }
+      ]
+    },
+    {
+      "vnum": 4156,
+      "name": "The long tunnel",
+      "description": "You are standing in a long north-south tunnel.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4151
+        },
+        {
+          "dir": "south",
+          "toVnum": 4160
+        }
+      ]
+    },
+    {
+      "vnum": 4157,
+      "name": "The wet tunnel",
+      "description": "You are in a wet, north-south leading tunnel, the floor is\n\rpartly covered by water.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4153
+        },
+        {
+          "dir": "east",
+          "toVnum": 4158
+        },
+        {
+          "dir": "south",
+          "toVnum": 4161
+        }
+      ]
+    },
+    {
+      "vnum": 4158,
+      "name": "The small maze",
+      "description": "You are in a small maze, exits leads off to the east,  south\n\rand west. The floor is partly covered by water.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4159
+        },
+        {
+          "dir": "south",
+          "toVnum": 4162
+        },
+        {
+          "dir": "west",
+          "toVnum": 4157
+        }
+      ]
+    },
+    {
+      "vnum": 4159,
+      "name": "The small maze",
+      "description": "You are in a small maze, exits leads off only to the south\n\rand west. The air is damp in this maze.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 4163
+        },
+        {
+          "dir": "west",
+          "toVnum": 4158
+        }
+      ]
+    },
+    {
+      "vnum": 4160,
+      "name": "In the tunnel at the inscription",
+      "description": "You are in a north-south leading tunnel, the air is damp. On\n\rthe wall there is an inscription.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4156
+        },
+        {
+          "dir": "south",
+          "toVnum": 4164
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "inscription",
+          "description": "It says:\n\r\n\r    Year 631 after the destruction of the dwarven realm.\n\r\n\r  We found the sword of the dwarven king, but it was guarded\n\rby a large green dragon. All but two died immediately as the\n\rdragon breathed poison gas; we are also going to die soon.\n\r\n\r       Trather and Oralane\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 4161,
+      "name": "The wet tunnel",
+      "description": "You are in a north-south leading tunnel.  The floor is fully\n\rcovered by water.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4157
+        },
+        {
+          "dir": "south",
+          "toVnum": 4165
+        }
+      ]
+    },
+    {
+      "vnum": 4162,
+      "name": "The small maze",
+      "description": "You are in a small maze. The floor is mainly covered by\n\rwater, exits leads north, east and south.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4158
+        },
+        {
+          "dir": "east",
+          "toVnum": 4163
+        },
+        {
+          "dir": "south",
+          "toVnum": 4166
+        }
+      ]
+    },
+    {
+      "vnum": 4163,
+      "name": "The small maze",
+      "description": "You are in a small maze, where the air is damp. Exits\n\rleads to the north and east.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4159
+        },
+        {
+          "dir": "east",
+          "toVnum": 4164
+        },
+        {
+          "dir": "west",
+          "toVnum": 4162
+        }
+      ]
+    },
+    {
+      "vnum": 4164,
+      "name": "The entrance to the small maze",
+      "description": "You are in a north-south leading tunnel, and the air is damp.\n\rTo the west you see a small maze.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4160
+        },
+        {
+          "dir": "south",
+          "toVnum": 4168
+        },
+        {
+          "dir": "west",
+          "toVnum": 4163
+        }
+      ]
+    },
+    {
+      "vnum": 4165,
+      "name": "In the water",
+      "description": "You are standing in water, the tunnel continues both to the\n\rnorth and south.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "swim",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4161
+        },
+        {
+          "dir": "south",
+          "toVnum": 4169
+        }
+      ]
+    },
+    {
+      "vnum": 4166,
+      "name": "The wet maze",
+      "description": "You are in a part of the maze where the floor is fully covered\n\rby water. The maze continues to the north, east and south.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4162
+        },
+        {
+          "dir": "east",
+          "toVnum": 4167
+        },
+        {
+          "dir": "south",
+          "toVnum": 4170
+        }
+      ]
+    },
+    {
+      "vnum": 4167,
+      "name": "The wet maze",
+      "description": "You are in a small maze, the floor is covered by water, the\n\rmaze continues east, west and south.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 4168
+        },
+        {
+          "dir": "south",
+          "toVnum": 4171
+        },
+        {
+          "dir": "west",
+          "toVnum": 4166
+        }
+      ]
+    },
+    {
+      "vnum": 4168,
+      "name": "The end of the tunnel",
+      "description": "The tunnel suddenly stops here, only exit is to the west.\n\rThe air is damp here.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4164
+        },
+        {
+          "dir": "west",
+          "toVnum": 4167
+        }
+      ]
+    },
+    {
+      "vnum": 4169,
+      "name": "In the water",
+      "description": "You are standing in the water, exits leads both north and east.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "swim",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4165
+        },
+        {
+          "dir": "east",
+          "toVnum": 4170
+        }
+      ]
+    },
+    {
+      "vnum": 4170,
+      "name": "In the water",
+      "description": "You are standing in the water, it continues east and west.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "swim",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4166
+        },
+        {
+          "dir": "east",
+          "toVnum": 4172
+        },
+        {
+          "dir": "west",
+          "toVnum": 4169
+        }
+      ]
+    },
+    {
+      "vnum": 4171,
+      "name": "End of maze",
+      "description": "You are at the end of the small maze which continues north.\n\rAbove you a hole leads up.\n\r",
+      "roomFlags": [
+        "dark",
+        "no_mob",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 4167
+        },
+        {
+          "dir": "up",
+          "toVnum": 4074
+        }
+      ]
+    },
+    {
+      "vnum": 4172,
+      "name": "At the sand bar",
+      "description": "You are on a little sand bar in the water.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "forest",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 4170
+        }
+      ]
+    }
+  ],
+  "mobiles": [
+    {
+      "vnum": 4000,
+      "name": "python snake",
+      "shortDescr": "the huge python",
+      "longDescr": "The huge python rears its head and hisses at you. \n\r",
+      "description": "It sways back and forth contemplating whether or not to eat you.\n\r",
+      "race": "snake",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "detect_invis"
+      ],
+      "atkFlags": [
+        "dodge",
+        "fast",
+        "trip",
+        "crush",
+        "assist_race"
+      ],
+      "resFlags": [
+        "pierce",
+        "poison"
+      ],
+      "vulnFlags": [
+        "cold"
+      ],
+      "alignment": -200,
+      "group": 0,
+      "level": 11,
+      "hitroll": 2,
+      "hitDice": {
+        "number": 11,
+        "type": 9,
+        "bonus": 110
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 3,
+        "type": 4,
+        "bonus": 2
+      },
+      "damType": "bite",
+      "ac": {
+        "pierce": -1,
+        "bash": 0,
+        "slash": 3,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "either",
+      "wealth": 0,
+      "size": "large",
+      "material": "0"
+    },
+    {
+      "vnum": 4001,
+      "name": "garter snake",
+      "shortDescr": "the garter snake",
+      "longDescr": "A small green garter snake slithers along the floor.\n\r",
+      "description": "It looks harmless enough.  Or is it?\n\r",
+      "race": "snake",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "noalign"
+      ],
+      "atkFlags": [
+        "dodge",
+        "fast",
+        "assist_race"
+      ],
+      "resFlags": [
+        "bash",
+        "poison"
+      ],
+      "vulnFlags": [
+        "cold"
+      ],
+      "alignment": -100,
+      "group": 0,
+      "level": 7,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 7,
+        "type": 7,
+        "bonus": 60
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 10,
+        "bonus": 1
+      },
+      "damType": "bite",
+      "ac": {
+        "pierce": 2,
+        "bash": 3,
+        "slash": 5,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "either",
+      "wealth": 0,
+      "size": "small",
+      "material": "0"
+    },
+    {
+      "vnum": 4002,
+      "name": "centipede",
+      "shortDescr": "the centipede",
+      "longDescr": "A small centipede here is looking for vegetation.\n\r",
+      "description": "It looks completely harmless but who knows for sure?\n\r",
+      "race": "centipede",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "noalign"
+      ],
+      "affectFlags": [
+        "dark_vision"
+      ],
+      "atkFlags": [
+        "dodge",
+        "assist_race"
+      ],
+      "resFlags": [
+        "pierce",
+        "cold"
+      ],
+      "vulnFlags": [
+        "bash"
+      ],
+      "alignment": 100,
+      "group": 0,
+      "level": 3,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 3,
+        "bonus": 30
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6
+      },
+      "damType": "sting",
+      "ac": {
+        "pierce": 6,
+        "bash": 7,
+        "slash": 9,
+        "exotic": 10
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 0,
+      "size": "tiny",
+      "material": "0"
+    },
+    {
+      "vnum": 4003,
+      "name": "kobold",
+      "shortDescr": "the kobold",
+      "longDescr": "An ugly kobold mumbles something under its breath.\n\r",
+      "description": "It looks ugly enough to scare its own mother.\n\r",
+      "race": "kobold",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area",
+        "warrior"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "assist_race"
+      ],
+      "resFlags": [
+        "poison"
+      ],
+      "vulnFlags": [
+        "magic"
+      ],
+      "alignment": -100,
+      "group": 0,
+      "level": 4,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 4,
+        "type": 4,
+        "bonus": 40
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 4,
+        "bonus": 1
+      },
+      "damType": "claw",
+      "ac": {
+        "pierce": 7,
+        "bash": 7,
+        "slash": 7,
+        "exotic": 10
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "either",
+      "wealth": 18,
+      "size": "small",
+      "material": "0"
+    },
+    {
+      "vnum": 4004,
+      "name": "orc",
+      "shortDescr": "the orc",
+      "longDescr": "This orc is frothing around the mouth.  Better stay away.\n\r",
+      "description": "You notice a slight tinge of madness in his eyes.\n\r",
+      "race": "orc",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "aggressive",
+        "stay_area",
+        "warrior"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "bash",
+        "berserk",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "magic",
+        "disease"
+      ],
+      "vulnFlags": [
+        "light"
+      ],
+      "formFlags": [
+        "humanoidDefault",
+        "poison"
+      ],
+      "alignment": -400,
+      "group": 0,
+      "level": 5,
+      "hitroll": 2,
+      "hitDice": {
+        "number": 6,
+        "type": 5,
+        "bonus": 50
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 199
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6,
+        "bonus": 3
+      },
+      "damType": "beating",
+      "ac": {
+        "pierce": 7,
+        "bash": 7,
+        "slash": 7,
+        "exotic": 10
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 60,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 4005,
+      "name": "orc",
+      "shortDescr": "the large orc",
+      "longDescr": "This large orc is looking for someone small to pick on.\n\r",
+      "description": "The orc says, \"Whatcha look'n at?\"\n\r",
+      "race": "orc",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area",
+        "warrior"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "bash",
+        "dirt_kick",
+        "assist_race"
+      ],
+      "resFlags": [
+        "disease"
+      ],
+      "vulnFlags": [
+        "light"
+      ],
+      "alignment": -500,
+      "group": 0,
+      "level": 7,
+      "hitroll": 1,
+      "hitDice": {
+        "number": 6,
+        "type": 7,
+        "bonus": 70
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 8,
+        "bonus": 2
+      },
+      "damType": "punch",
+      "ac": {
+        "pierce": 4,
+        "bash": 5,
+        "slash": 5,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "either",
+      "wealth": 120,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 4050,
+      "name": "warrior",
+      "shortDescr": "the warrior",
+      "longDescr": "This tall warrior has more scars than even you!\n\r",
+      "description": "He's surely a strong, brainless fighter.  Like you.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger",
+        "aggressive",
+        "warrior"
+      ],
+      "atkFlags": [
+        "bash",
+        "kick",
+        "assist_align",
+        "assist_race"
+      ],
+      "alignment": -300,
+      "group": 0,
+      "level": 12,
+      "hitroll": 3,
+      "hitDice": {
+        "number": 10,
+        "type": 12,
+        "bonus": 120
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 149
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 8,
+        "bonus": 4
+      },
+      "damType": "punch",
+      "ac": {
+        "pierce": 1,
+        "bash": -1,
+        "slash": 2,
+        "exotic": 5
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 300,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 4051,
+      "name": "warrior",
+      "shortDescr": "the warrior",
+      "longDescr": "This veteran warrior is old enough to be your father.\n\r",
+      "description": "He seems to know his way with weapons.  And he wants\n\rto show you what he can do!\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "aggressive",
+        "warrior"
+      ],
+      "atkFlags": [
+        "bash",
+        "kick",
+        "assist_align",
+        "assist_race"
+      ],
+      "vulnFlags": [
+        "magic"
+      ],
+      "alignment": -400,
+      "group": 0,
+      "level": 7,
+      "hitroll": 2,
+      "hitDice": {
+        "number": 8,
+        "type": 7,
+        "bonus": 70
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 7,
+        "bonus": 2
+      },
+      "damType": "punch",
+      "ac": {
+        "pierce": 4,
+        "bash": 5,
+        "slash": 4,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 140,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 4052,
+      "name": "hobgoblin",
+      "shortDescr": "the hobgoblin",
+      "longDescr": "A small beat-up hobgoblin cringes in the corner.\n\r",
+      "description": "Looking into the eyes of this poor soul makes you feel\n\rsad as you see the terror and fear in its eyes.  Why\n\rdon't you put it out of its misery?\n\r",
+      "race": "hobgoblin",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area",
+        "wimpy",
+        "warrior"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "trip"
+      ],
+      "resFlags": [
+        "poison",
+        "disease"
+      ],
+      "vulnFlags": [
+        "magic"
+      ],
+      "alignment": -300,
+      "group": 0,
+      "level": 6,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 6,
+        "type": 6,
+        "bonus": 40
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6,
+        "bonus": 1
+      },
+      "damType": "beating",
+      "ac": {
+        "pierce": 6,
+        "bash": 5,
+        "slash": 5,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 12,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 4053,
+      "name": "snake",
+      "shortDescr": "the snake",
+      "longDescr": "A sickly brown snake watches you with caution.\n\r",
+      "description": "A closer look reveals a hungry demeanor.  Don't get too close!\n\r",
+      "race": "snake",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive",
+        "noalign"
+      ],
+      "atkFlags": [
+        "dodge",
+        "fade",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "bash",
+        "pierce",
+        "poison"
+      ],
+      "vulnFlags": [
+        "cold"
+      ],
+      "alignment": -600,
+      "group": 0,
+      "level": 10,
+      "hitroll": 1,
+      "hitDice": {
+        "number": 4,
+        "type": 10,
+        "bonus": 100
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 1
+      },
+      "damType": "bite",
+      "ac": {
+        "pierce": 0,
+        "bash": 2,
+        "slash": 2,
+        "exotic": 5
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "either",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 4054,
+      "name": "centipede",
+      "shortDescr": "the centipede",
+      "longDescr": "A white centipede crawls along the cave floors randomly.\n\r",
+      "description": "The centipede doesn't really seem to notice you.\n\r",
+      "race": "centipede",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "noalign"
+      ],
+      "affectFlags": [
+        "dark_vision"
+      ],
+      "atkFlags": [
+        "dodge",
+        "assist_race"
+      ],
+      "resFlags": [
+        "pierce",
+        "cold"
+      ],
+      "vulnFlags": [
+        "bash"
+      ],
+      "alignment": -100,
+      "group": 0,
+      "level": 5,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 5,
+        "type": 5,
+        "bonus": 50
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 8
+      },
+      "damType": "sting",
+      "ac": {
+        "pierce": 4,
+        "bash": 7,
+        "slash": 5,
+        "exotic": 10
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 0,
+      "size": "small",
+      "material": "0"
+    },
+    {
+      "vnum": 4055,
+      "name": "hobgoblin",
+      "shortDescr": "the large hobgoblin",
+      "longDescr": "A large hobgoblin is here wondering if he should tear you apart.\n\r",
+      "description": "Red, bloodshot eyes and drool dripping from its mouth makes you\n\rwonder just how far away you should be.\n\r",
+      "race": "hobgoblin",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area",
+        "warrior"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "bash",
+        "berserk",
+        "dirt_kick",
+        "assist_race"
+      ],
+      "resFlags": [
+        "magic",
+        "poison",
+        "disease"
+      ],
+      "alignment": -500,
+      "group": 0,
+      "level": 10,
+      "hitroll": 2,
+      "hitDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 120
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 149
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 4,
+        "bonus": 3
+      },
+      "damType": "punch",
+      "ac": {
+        "pierce": 2,
+        "bash": 2,
+        "slash": 1,
+        "exotic": 5
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 210,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 4056,
+      "name": "orc",
+      "shortDescr": "the orc",
+      "longDescr": "An orc is here, looking for something (or perhaps someone) to eat.\n\r",
+      "description": "As you already know, orcs have quite a ravenous appetite.  \n\rCare to be dinner?\n\r",
+      "race": "orc",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "aggressive",
+        "stay_area",
+        "warrior"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "bash",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "disease"
+      ],
+      "vulnFlags": [
+        "light"
+      ],
+      "alignment": -800,
+      "group": 0,
+      "level": 8,
+      "hitroll": 1,
+      "hitDice": {
+        "number": 3,
+        "type": 10,
+        "bonus": 90
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 8,
+        "bonus": 2
+      },
+      "damType": "beating",
+      "ac": {
+        "pierce": 3,
+        "bash": 3,
+        "slash": 2,
+        "exotic": 5
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "either",
+      "wealth": 60,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 4057,
+      "name": "lion mountain",
+      "shortDescr": "the mountain lion",
+      "longDescr": "A mountain lion bears its teeth at the sight of more food.\n\r",
+      "description": "Huge claws and big teeth make quite a fearsome opponent for\n\rthe weary.  Are you next?\n\r",
+      "race": "cat",
+      "actFlags": [
+        "npc",
+        "aggressive",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "dark_vision"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "fast",
+        "assist_race"
+      ],
+      "resFlags": [
+        "bash"
+      ],
+      "alignment": -100,
+      "group": 0,
+      "level": 9,
+      "hitroll": 2,
+      "hitDice": {
+        "number": 4,
+        "type": 10,
+        "bonus": 100
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 1
+      },
+      "damType": "claw",
+      "ac": {
+        "pierce": 0,
+        "bash": 0,
+        "slash": 0,
+        "exotic": 4
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "either",
+      "wealth": 0,
+      "size": "large",
+      "material": "0"
+    },
+    {
+      "vnum": 4058,
+      "name": "giant hill",
+      "shortDescr": "the hill giant",
+      "longDescr": "A hill giant is here tossing rocks around.  Marbles perhaps?\n\r",
+      "description": "The hill giant looks like he's about 9 feet tall. By his actions you\n\rcome to the conclusion that he's not very intelligent.  A perfect\n\rplaymate for you.\n\r",
+      "race": "giant",
+      "actFlags": [
+        "npc",
+        "stay_area",
+        "warrior"
+      ],
+      "atkFlags": [
+        "berserk",
+        "crush",
+        "assist_race"
+      ],
+      "resFlags": [
+        "weapon",
+        "fire",
+        "cold"
+      ],
+      "vulnFlags": [
+        "lightning",
+        "mental"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 13,
+      "hitroll": 2,
+      "hitDice": {
+        "number": 10,
+        "type": 10,
+        "bonus": 150
+      },
+      "manaDice": {
+        "number": 10,
+        "type": 10,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 6
+      },
+      "damType": "smash",
+      "ac": {
+        "pierce": 0,
+        "bash": -2,
+        "slash": 0,
+        "exotic": 4
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 500,
+      "size": "huge",
+      "material": "0"
+    },
+    {
+      "vnum": 4100,
+      "name": "mage",
+      "shortDescr": "the Mage",
+      "longDescr": "A small intelligent looking mage is standing here. It looks like he\n\rknows his way with magic. \n\r",
+      "description": "This guy can ace the SAT with his frontal lobe tied behind his back.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger",
+        "aggressive",
+        "mage"
+      ],
+      "affectFlags": [
+        "detect_invis"
+      ],
+      "atkFlags": [
+        "dodge",
+        "assist_align"
+      ],
+      "resFlags": [
+        "magic"
+      ],
+      "alignment": -100,
+      "group": 0,
+      "level": 13,
+      "hitroll": 1,
+      "hitDice": {
+        "number": 7,
+        "type": 5,
+        "bonus": 130
+      },
+      "manaDice": {
+        "number": 13,
+        "type": 10,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6,
+        "bonus": 2
+      },
+      "damType": "punch",
+      "ac": {
+        "pierce": -2,
+        "bash": -2,
+        "slash": -2,
+        "exotic": 2
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 400,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 4101,
+      "name": "troll",
+      "shortDescr": "the troll",
+      "longDescr": "This large mean-looking troll wants to take a closer look at you.\n\r",
+      "description": "Whilst you look at this troll, you realize he is trying to\n\rfigure just how tender you are.\n\r",
+      "race": "troll",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger",
+        "aggressive",
+        "warrior"
+      ],
+      "affectFlags": [
+        "detect_hidden",
+        "infrared",
+        "regeneration"
+      ],
+      "atkFlags": [
+        "bash",
+        "berserk",
+        "disarm",
+        "crush",
+        "assist_race"
+      ],
+      "resFlags": [
+        "charm",
+        "bash"
+      ],
+      "vulnFlags": [
+        "fire",
+        "acid"
+      ],
+      "alignment": -800,
+      "group": 0,
+      "level": 12,
+      "hitroll": 2,
+      "hitDice": {
+        "number": 7,
+        "type": 10,
+        "bonus": 150
+      },
+      "manaDice": {
+        "number": 5,
+        "type": 10,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 3
+      },
+      "damType": "claw",
+      "ac": {
+        "pierce": 0,
+        "bash": -3,
+        "slash": 2,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 200,
+      "size": "large",
+      "material": "0"
+    },
+    {
+      "vnum": 4102,
+      "name": "guardian snake",
+      "shortDescr": "the guardian snake",
+      "longDescr": "A large green snake is guardian for something.\n\r",
+      "description": "You take a closer look at this large snake while it tries to\n\rbite your head off!\n\r",
+      "race": "snake",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger",
+        "aggressive"
+      ],
+      "atkFlags": [
+        "fast",
+        "tail",
+        "trip",
+        "crush",
+        "assist_race"
+      ],
+      "resFlags": [
+        "pierce",
+        "poison"
+      ],
+      "vulnFlags": [
+        "slash",
+        "cold"
+      ],
+      "alignment": -700,
+      "group": 0,
+      "level": 10,
+      "hitroll": 2,
+      "hitDice": {
+        "number": 4,
+        "type": 10,
+        "bonus": 100
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 1
+      },
+      "damType": "bite",
+      "ac": {
+        "pierce": 0,
+        "bash": 0,
+        "slash": 2,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "either",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 4103,
+      "name": "thief",
+      "shortDescr": "the thief",
+      "longDescr": "A thief, all dressed in black.\n\r",
+      "description": "Well COUNT your money!\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "wimpy",
+        "thief"
+      ],
+      "affectFlags": [
+        "sneak",
+        "hide"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "dirt_kick",
+        "trip"
+      ],
+      "alignment": -100,
+      "group": 0,
+      "level": 8,
+      "hitroll": 1,
+      "hitDice": {
+        "number": 6,
+        "type": 8,
+        "bonus": 80
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 5,
+        "bonus": 1
+      },
+      "damType": "punch",
+      "ac": {
+        "pierce": 2,
+        "bash": 4,
+        "slash": 3,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "either",
+      "wealth": 100,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 4104,
+      "name": "orc",
+      "shortDescr": "the orc",
+      "longDescr": "An ugly orc is standing here waiting for someone to practice on.\n\r",
+      "description": "Yrkk..  He belches in your face!\n\r",
+      "race": "orc",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "aggressive",
+        "stay_area",
+        "wimpy",
+        "warrior"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "bash",
+        "dirt_kick",
+        "assist_race"
+      ],
+      "resFlags": [
+        "disease"
+      ],
+      "vulnFlags": [
+        "light"
+      ],
+      "alignment": -200,
+      "group": 0,
+      "level": 7,
+      "hitroll": 1,
+      "hitDice": {
+        "number": 7,
+        "type": 7,
+        "bonus": 70
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 8,
+        "bonus": 3
+      },
+      "damType": "punch",
+      "ac": {
+        "pierce": 4,
+        "bash": 5,
+        "slash": 5,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 150,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 4105,
+      "name": "centipede",
+      "shortDescr": "a centipede",
+      "longDescr": "A small harmless centipede is here looking for some vegetation to eat.\n\r",
+      "description": "It doesn't seem to pay any attention towards you.  You are probably\n\rnot important.\n\r",
+      "race": "centipede",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "noalign"
+      ],
+      "affectFlags": [
+        "dark_vision"
+      ],
+      "atkFlags": [
+        "dodge",
+        "assist_race"
+      ],
+      "resFlags": [
+        "pierce",
+        "cold"
+      ],
+      "vulnFlags": [
+        "bash"
+      ],
+      "alignment": 300,
+      "group": 0,
+      "level": 6,
+      "hitroll": 1,
+      "hitDice": {
+        "number": 8,
+        "type": 5,
+        "bonus": 50
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 4,
+        "bonus": 1
+      },
+      "damType": "sting",
+      "ac": {
+        "pierce": 3,
+        "bash": 6,
+        "slash": 4,
+        "exotic": 10
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "none",
+      "wealth": 0,
+      "size": "small",
+      "material": "0"
+    },
+    {
+      "vnum": 4106,
+      "name": "warrior",
+      "shortDescr": "the Warrior",
+      "longDescr": "A human warrior grins an evil grin in your face.\n\r",
+      "description": "He doesn't look friendly at all...  He is no Mr. Rogers!\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "aggressive",
+        "stay_area",
+        "warrior"
+      ],
+      "atkFlags": [
+        "bash",
+        "dirt_kick",
+        "assist_align",
+        "assist_vnum"
+      ],
+      "alignment": -300,
+      "group": 0,
+      "level": 9,
+      "hitroll": 2,
+      "hitDice": {
+        "number": 4,
+        "type": 10,
+        "bonus": 130
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 8,
+        "bonus": 3
+      },
+      "damType": "punch",
+      "ac": {
+        "pierce": 3,
+        "bash": 2,
+        "slash": 4,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 300,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 4107,
+      "name": "kobold",
+      "shortDescr": "the green kobold",
+      "longDescr": "A green kobold hobbles along the cave walls puking periodically.\n\r",
+      "description": "It looks a little sick.  Something he ate maybe?\n\r",
+      "race": "kobold",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "aggressive",
+        "stay_area",
+        "warrior"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "poison"
+      ],
+      "vulnFlags": [
+        "magic"
+      ],
+      "alignment": -100,
+      "group": 0,
+      "level": 7,
+      "hitroll": 1,
+      "hitDice": {
+        "number": 8,
+        "type": 4,
+        "bonus": 50
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 4,
+        "bonus": 1
+      },
+      "damType": "claw",
+      "ac": {
+        "pierce": 5,
+        "bash": 5,
+        "slash": 5,
+        "exotic": 10
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "either",
+      "wealth": 25,
+      "size": "small",
+      "material": "0"
+    },
+    {
+      "vnum": 4150,
+      "name": "bat blue",
+      "shortDescr": "the blue bat",
+      "longDescr": "A blue bat flies in circles while electrical charges arc here and there.\n\r",
+      "description": "Bzzzt.  Zap.  Crackle.  Speak about static electricity!\n\r",
+      "race": "bat",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "flying",
+        "dark_vision"
+      ],
+      "atkFlags": [
+        "dodge",
+        "fast",
+        "assist_race"
+      ],
+      "immFlags": [
+        "lightning"
+      ],
+      "vulnFlags": [
+        "drowning",
+        "light",
+        "silver",
+        "iron"
+      ],
+      "alignment": -100,
+      "group": 0,
+      "level": 7,
+      "hitroll": 1,
+      "hitDice": {
+        "number": 3,
+        "type": 10,
+        "bonus": 70
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 9,
+        "bonus": 1
+      },
+      "damType": "shbite",
+      "ac": {
+        "pierce": 4,
+        "bash": 4,
+        "slash": 4,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "either",
+      "wealth": 0,
+      "size": "tiny",
+      "material": "0"
+    },
+    {
+      "vnum": 4151,
+      "name": "bat red",
+      "shortDescr": "the red bat",
+      "longDescr": "A red bat hangs upside down from the ceiling, glowing.\n\r",
+      "description": "You can definitely feel some heat from this thing.  A fever perhaps?\n\r",
+      "race": "bat",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "flying",
+        "dark_vision"
+      ],
+      "atkFlags": [
+        "dodge",
+        "fast",
+        "assist_race"
+      ],
+      "immFlags": [
+        "fire"
+      ],
+      "vulnFlags": [
+        "cold",
+        "drowning",
+        "light"
+      ],
+      "alignment": -100,
+      "group": 0,
+      "level": 7,
+      "hitroll": 1,
+      "hitDice": {
+        "number": 3,
+        "type": 10,
+        "bonus": 70
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 9,
+        "bonus": 1
+      },
+      "damType": "flbite",
+      "ac": {
+        "pierce": 4,
+        "bash": 4,
+        "slash": 4,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "either",
+      "wealth": 0,
+      "size": "tiny",
+      "material": "0"
+    },
+    {
+      "vnum": 4152,
+      "name": "bat green",
+      "shortDescr": "the green bat",
+      "longDescr": "A green bat flies from wall to wall leaving an awful smell.\n\r",
+      "description": "Whew!  What a stinker!\n\r",
+      "race": "bat",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "flying",
+        "dark_vision"
+      ],
+      "atkFlags": [
+        "dodge",
+        "fast",
+        "assist_race"
+      ],
+      "immFlags": [
+        "poison"
+      ],
+      "vulnFlags": [
+        "light"
+      ],
+      "formFlags": [
+        "animalDefault",
+        "poison",
+        "mammal"
+      ],
+      "alignment": -100,
+      "group": 0,
+      "level": 7,
+      "hitroll": 1,
+      "hitDice": {
+        "number": 3,
+        "type": 10,
+        "bonus": 70
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 9,
+        "bonus": 1
+      },
+      "damType": "bite",
+      "ac": {
+        "pierce": 4,
+        "bash": 4,
+        "slash": 4,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "either",
+      "wealth": 0,
+      "size": "tiny",
+      "material": "0"
+    },
+    {
+      "vnum": 4153,
+      "name": "bat white",
+      "shortDescr": "the white bat",
+      "longDescr": "A white bat rests on the ceiling.  You wonder where the cold is coming from.\n\r",
+      "description": "Brrr!  You almost can't distinguish this bat from an ice cube.\n\r",
+      "race": "bat",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "flying",
+        "dark_vision"
+      ],
+      "atkFlags": [
+        "dodge",
+        "fast",
+        "assist_race"
+      ],
+      "immFlags": [
+        "cold"
+      ],
+      "vulnFlags": [
+        "fire",
+        "light"
+      ],
+      "alignment": -100,
+      "group": 0,
+      "level": 7,
+      "hitroll": 1,
+      "hitDice": {
+        "number": 3,
+        "type": 10,
+        "bonus": 70
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 9,
+        "bonus": 1
+      },
+      "damType": "frbite",
+      "ac": {
+        "pierce": 4,
+        "bash": 4,
+        "slash": 4,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "either",
+      "wealth": 0,
+      "size": "tiny",
+      "material": "0"
+    },
+    {
+      "vnum": 4154,
+      "name": "bat black",
+      "shortDescr": "the black bat",
+      "longDescr": "A black bat flies from wall to wall leaving something hissing behind.\n\r",
+      "description": "Amazing!  This bat is grooming itself with acid!\n\r",
+      "race": "bat",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "affectFlags": [
+        "flying",
+        "dark_vision"
+      ],
+      "atkFlags": [
+        "dodge",
+        "fast",
+        "assist_race"
+      ],
+      "immFlags": [
+        "acid"
+      ],
+      "vulnFlags": [
+        "light"
+      ],
+      "alignment": -100,
+      "group": 0,
+      "level": 7,
+      "hitroll": 1,
+      "hitDice": {
+        "number": 3,
+        "type": 10,
+        "bonus": 70
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 9,
+        "bonus": 1
+      },
+      "damType": "acbite",
+      "ac": {
+        "pierce": 4,
+        "bash": 4,
+        "slash": 4,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "either",
+      "wealth": 0,
+      "size": "tiny",
+      "material": "0"
+    },
+    {
+      "vnum": 4155,
+      "name": "thief",
+      "shortDescr": "the thief",
+      "longDescr": "A sneaky thief appears and disappears within the shadows.\n\r",
+      "description": "He definitely knows what he's doing.  Trust him.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "stay_area",
+        "thief"
+      ],
+      "affectFlags": [
+        "invisible",
+        "hide"
+      ],
+      "atkFlags": [
+        "backstab",
+        "dodge",
+        "dirt_kick",
+        "trip",
+        "assist_align",
+        "assist_vnum"
+      ],
+      "alignment": 400,
+      "group": 0,
+      "level": 12,
+      "hitroll": 2,
+      "hitDice": {
+        "number": 3,
+        "type": 20,
+        "bonus": 130
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 4,
+        "bonus": 3
+      },
+      "damType": "punch",
+      "ac": {
+        "pierce": 2,
+        "bash": 0,
+        "slash": 0,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 4156,
+      "name": "troll",
+      "shortDescr": "the troll",
+      "longDescr": "A large ugly troll is here mumbling something.\n\r",
+      "description": "He looks quite mean.  Don't mess with him.\n\r",
+      "race": "troll",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "scavenger",
+        "aggressive",
+        "warrior"
+      ],
+      "affectFlags": [
+        "detect_hidden",
+        "infrared",
+        "regeneration"
+      ],
+      "atkFlags": [
+        "bash",
+        "berserk",
+        "disarm",
+        "crush",
+        "assist_race"
+      ],
+      "resFlags": [
+        "charm",
+        "bash"
+      ],
+      "vulnFlags": [
+        "magic",
+        "fire",
+        "acid"
+      ],
+      "alignment": -700,
+      "group": 0,
+      "level": 14,
+      "hitroll": 3,
+      "hitDice": {
+        "number": 8,
+        "type": 20,
+        "bonus": 140
+      },
+      "manaDice": {
+        "number": 14,
+        "type": 4,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 3,
+        "type": 4,
+        "bonus": 5
+      },
+      "damType": "claw",
+      "ac": {
+        "pierce": -1,
+        "bash": -3,
+        "slash": -1,
+        "exotic": 4
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 1000,
+      "size": "huge",
+      "material": "0"
+    },
+    {
+      "vnum": 4157,
+      "name": "mage",
+      "shortDescr": "the Mage",
+      "longDescr": "A small man is here researching magical incantations.\n\r",
+      "description": "His little head is buried into his magic books.  He'd be very\n\rangry should you bother his studies.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "aggressive",
+        "stay_area",
+        "mage"
+      ],
+      "atkFlags": [
+        "assist_align",
+        "assist_vnum"
+      ],
+      "resFlags": [
+        "magic"
+      ],
+      "alignment": -200,
+      "group": 0,
+      "level": 11,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 4,
+        "type": 10,
+        "bonus": 100
+      },
+      "manaDice": {
+        "number": 11,
+        "type": 12,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6,
+        "bonus": 1
+      },
+      "damType": "beating",
+      "ac": {
+        "pierce": 0,
+        "bash": 0,
+        "slash": 0,
+        "exotic": 2
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 200,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 4158,
+      "name": "snake",
+      "shortDescr": "the snake",
+      "longDescr": "A brown snake hisses at you.\n\r",
+      "description": "Sickly brown as it is, you know what it really wants is you\n\rfor dinner.\n\r",
+      "race": "snake",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive",
+        "noalign"
+      ],
+      "atkFlags": [
+        "dodge",
+        "fade",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "bash",
+        "pierce",
+        "poison"
+      ],
+      "vulnFlags": [
+        "cold"
+      ],
+      "alignment": 200,
+      "group": 0,
+      "level": 9,
+      "hitroll": 1,
+      "hitDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 100
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 12,
+        "bonus": 1
+      },
+      "damType": "bite",
+      "ac": {
+        "pierce": 1,
+        "bash": 3,
+        "slash": 3,
+        "exotic": 6
+      },
+      "startPos": "fighting",
+      "defaultPos": "fighting",
+      "sex": "either",
+      "wealth": 0,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 4159,
+      "name": "troll",
+      "shortDescr": "the small troll",
+      "longDescr": "A 'small' troll is here happily dancing.  Trala-la-la.  La-la.\n\r",
+      "description": "He is so happy, you are disgusted.  Kill him now!\n\r",
+      "race": "troll",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "aggressive",
+        "stay_area",
+        "warrior"
+      ],
+      "affectFlags": [
+        "detect_hidden",
+        "infrared",
+        "regeneration"
+      ],
+      "atkFlags": [
+        "berserk",
+        "disarm",
+        "dirt_kick",
+        "assist_race"
+      ],
+      "resFlags": [
+        "charm",
+        "bash"
+      ],
+      "vulnFlags": [
+        "fire",
+        "acid"
+      ],
+      "alignment": -300,
+      "group": 0,
+      "level": 8,
+      "hitroll": 2,
+      "hitDice": {
+        "number": 3,
+        "type": 10,
+        "bonus": 80
+      },
+      "manaDice": {
+        "number": 8,
+        "type": 4,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 5,
+        "bonus": 2
+      },
+      "damType": "bite",
+      "ac": {
+        "pierce": 3,
+        "bash": 1,
+        "slash": 3,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 100,
+      "size": "large",
+      "material": "0"
+    },
+    {
+      "vnum": 4160,
+      "name": "orc",
+      "shortDescr": "the orc",
+      "longDescr": "A large orc growls in your face.\n\r",
+      "description": "He is just looking for a fight isn't he?\n\r",
+      "race": "orc",
+      "actFlags": [
+        "npc",
+        "scavenger",
+        "aggressive",
+        "stay_area",
+        "warrior"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "bash",
+        "dirt_kick",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "disease"
+      ],
+      "vulnFlags": [
+        "light"
+      ],
+      "alignment": -200,
+      "group": 0,
+      "level": 9,
+      "hitroll": 1,
+      "hitDice": {
+        "number": 3,
+        "type": 10,
+        "bonus": 100
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 1,
+        "bonus": 99
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 8,
+        "bonus": 2
+      },
+      "damType": "beating",
+      "ac": {
+        "pierce": 2,
+        "bash": 2,
+        "slash": 1,
+        "exotic": 5
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "either",
+      "wealth": 150,
+      "size": "medium",
+      "material": "0"
+    }
+  ],
+  "objects": [
+    {
+      "vnum": 4000,
+      "name": "ring yellow green",
+      "shortDescr": "a yellow and green ring",
+      "description": "A ring, with yellow and green ornamentation. It looks very old.",
+      "material": "copper",
+      "itemType": "treasure",
+      "wearFlags": [
+        "take",
+        "finger"
+      ],
+      "weight": 10,
+      "condition": 75,
+      "extraDescs": [
+        {
+          "keyword": "ring",
+          "description": "It feels heavy.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "strength",
+          "level": 0,
+          "duration": -1,
+          "modifier": -2
+        }
+      ]
+    },
+    {
+      "vnum": 4001,
+      "name": "corpse",
+      "shortDescr": "a corpse",
+      "description": "A halfway decayed corpse of a cartographer.",
+      "material": "flesh",
+      "itemType": "npccorpse",
+      "extraFlags": [
+        "rotdeath"
+      ],
+      "wearFlags": [
+        "take"
+      ],
+      "weight": 1000,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "corpse",
+          "description": "Ew.  This must have been the mapper that was lost in Moria.  His rotted hand\n\rstill clutches a partially digested map...\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 4002,
+      "name": "coins",
+      "shortDescr": "some coins",
+      "description": "A small pile of coins.",
+      "material": "silver",
+      "itemType": "money",
+      "wearFlags": [
+        "take"
+      ],
+      "money": {
+        "gold": 200,
+        "silver": 3
+      },
+      "weight": 5000,
+      "condition": 100
+    },
+    {
+      "vnum": 4003,
+      "name": "dagger rusty",
+      "shortDescr": "a rusty dagger",
+      "description": "A worn and rusty dagger is here.",
+      "material": "iron",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "dagger",
+        "dice": [
+          1,
+          5
+        ],
+        "damageType": "stab"
+      },
+      "weight": 10,
+      "cost": 165,
+      "condition": 50,
+      "extraDescs": [
+        {
+          "keyword": "dagger",
+          "description": "It's old and rusted, but it still has a good edge.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 0,
+          "duration": -1,
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "vnum": 4004,
+      "name": "bullwhip whip",
+      "shortDescr": "a bullwhip",
+      "description": "A coiled length of leather is here...looks like a nasty whip!",
+      "material": "leather",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "whip",
+        "dice": [
+          1,
+          7
+        ],
+        "damageType": "whip"
+      },
+      "level": 3,
+      "weight": 30,
+      "cost": 240,
+      "condition": 90,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 3,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 4005,
+      "name": "club tree huge",
+      "shortDescr": "a huge club",
+      "description": "An uprooted tree leans against the wall.",
+      "material": "wood",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "mace",
+        "dice": [
+          2,
+          9
+        ],
+        "damageType": "crush",
+        "flags": [
+          "twohands"
+        ]
+      },
+      "level": 14,
+      "weight": 250,
+      "cost": 780,
+      "condition": 90,
+      "extraDescs": [
+        {
+          "keyword": "club tree",
+          "description": "This is the biggest club you have ever seen!  The giant didn't even bother to\n\rtrim the roots off the end.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 14,
+          "duration": -1,
+          "modifier": -2
+        }
+      ]
+    },
+    {
+      "vnum": 4006,
+      "name": "furs smelly",
+      "shortDescr": "some smelly furs",
+      "description": "A heap of smelly furs sit here.",
+      "material": "fur",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "about"
+      ],
+      "armor": {
+        "acPierce": 5,
+        "acBash": 6,
+        "acSlash": 5,
+        "acExotic": 1
+      },
+      "level": 8,
+      "weight": 100,
+      "cost": 510,
+      "condition": 75,
+      "extraDescs": [
+        {
+          "keyword": "furs",
+          "description": "They're heavy and smelly and would probably slow you down...but they do look\n\rlike good armor.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "dexterity",
+          "level": 8,
+          "duration": -1,
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "vnum": 4050,
+      "name": "potion purple",
+      "shortDescr": "a purple potion",
+      "description": "A purple potion is here.",
+      "material": "glass",
+      "itemType": "potion",
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "spells": {
+        "level": 13,
+        "spells": [
+          "cure blindness",
+          "sanctuary",
+          ""
+        ]
+      },
+      "level": 11,
+      "weight": 10,
+      "cost": 720,
+      "condition": 90,
+      "extraDescs": [
+        {
+          "keyword": "potion purple",
+          "description": "It looks rather strange!\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 4051,
+      "name": "helmet metal",
+      "shortDescr": "a metal helmet",
+      "description": "A metal helmet is here.",
+      "material": "iron",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "head"
+      ],
+      "armor": {
+        "acPierce": 4,
+        "acBash": 4,
+        "acSlash": 3,
+        "acExotic": 2
+      },
+      "level": 5,
+      "weight": 40,
+      "cost": 650,
+      "condition": 90,
+      "affects": [
+        {
+          "where": "object",
+          "location": "saves",
+          "level": 5,
+          "duration": -1,
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "vnum": 4052,
+      "name": "mushroom",
+      "shortDescr": "a mushroom",
+      "description": "A small mushroom is here.",
+      "material": "food",
+      "itemType": "food",
+      "wearFlags": [
+        "take"
+      ],
+      "food": {
+        "foodHours": 2,
+        "fullHours": 2,
+        "poisoned": true
+      },
+      "weight": 10,
+      "condition": 90,
+      "extraDescs": [
+        {
+          "keyword": "mushroom",
+          "description": "Let's put it this way - I wouldn't eat it !\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 4053,
+      "name": "dirk",
+      "shortDescr": "a thieves dirk",
+      "description": "A beautifully crafted dirk is lying here.",
+      "material": "steel",
+      "itemType": "weapon",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "dagger",
+        "dice": [
+          2,
+          5
+        ],
+        "damageType": "stab"
+      },
+      "level": 8,
+      "weight": 20,
+      "cost": 590,
+      "condition": 90,
+      "extraDescs": [
+        {
+          "keyword": "dirk",
+          "description": "It's a medium sized, beautifully crafted dirk made from grey alloy.\n\rIts blade is double-edged and very thin ... this looks like a good\n\rthieves weapon.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 8,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 8,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 4054,
+      "name": "axe war",
+      "shortDescr": "a war axe",
+      "description": "A razor-sharp war axe rests on the ground.",
+      "material": "steel",
+      "itemType": "weapon",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "axe",
+        "dice": [
+          3,
+          4
+        ],
+        "damageType": "chop"
+      },
+      "level": 12,
+      "weight": 70,
+      "cost": 930,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "axe",
+          "description": "It has an edge sharp enough to cut a passing thought. A good find, this.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 12,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 4055,
+      "name": "sword broad",
+      "shortDescr": "a broad sword",
+      "description": "A well-polished broadsword sits here.",
+      "material": "steel",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "sword",
+        "dice": [
+          1,
+          10
+        ],
+        "damageType": "chop"
+      },
+      "level": 6,
+      "weight": 80,
+      "cost": 550,
+      "condition": 90,
+      "extraDescs": [
+        {
+          "keyword": "sword",
+          "description": "It's much heavier than a long sword, but not as well balanced.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 4056,
+      "name": "flail two two-headed",
+      "shortDescr": "a two-headed flail",
+      "description": "A flail with two heavy, spiked heads is here.",
+      "material": "iron",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "flail",
+        "dice": [
+          1,
+          7
+        ],
+        "damageType": "smash"
+      },
+      "level": 3,
+      "weight": 70,
+      "cost": 290,
+      "condition": 75,
+      "extraDescs": [
+        {
+          "keyword": "flail",
+          "description": "It's a stout wooden rod with two spiked balls attached, each weighing over 2\n\rpounds.  It's a little worn for wear, but looks most painful.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 3,
+          "duration": -1,
+          "modifier": 2
+        },
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 3,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 4057,
+      "name": "mace heavy",
+      "shortDescr": "a heavy iron mace",
+      "description": "A large iron mace with a wicked head rests on the ground.",
+      "material": "iron",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "mace",
+        "dice": [
+          2,
+          4
+        ],
+        "damageType": "pound"
+      },
+      "level": 6,
+      "weight": 100,
+      "cost": 390,
+      "condition": 90,
+      "extraDescs": [
+        {
+          "keyword": "mace",
+          "description": "A metal shaft mounted with an iron head, shaped into armor-shattering form.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 6,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 4058,
+      "name": "falchion sword",
+      "shortDescr": "a falchion",
+      "description": "A curved sword with a heavy tip sits here.",
+      "material": "iron",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "sword",
+        "dice": [
+          2,
+          4
+        ],
+        "damageType": "chop"
+      },
+      "level": 5,
+      "weight": 80,
+      "cost": 490,
+      "condition": 90,
+      "extraDescs": [
+        {
+          "keyword": "falchion",
+          "description": "It's curved like a scimitar, only with no recurved blade and a tip designed\n\rfor piercing as well as slashing.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 4059,
+      "name": "voulge polearm",
+      "shortDescr": "a voulge",
+      "description": "A long polearm with a curved blade is here.",
+      "material": "iron",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "polearm",
+        "dice": [
+          2,
+          6
+        ],
+        "damageType": "slash",
+        "flags": [
+          "twohands"
+        ]
+      },
+      "level": 10,
+      "weight": 120,
+      "cost": 520,
+      "condition": 75,
+      "extraDescs": [
+        {
+          "keyword": "voulge",
+          "description": "It looks a lot like a staff with a pruning knife tied to the end, but it's\n\rquite effective.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 10,
+          "duration": -1,
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "vnum": 4100,
+      "name": "blade black demon",
+      "shortDescr": "the black demon blade",
+      "description": "An evil black demon blade is here.",
+      "material": "adamantite",
+      "itemType": "weapon",
+      "extraFlags": [
+        "magic",
+        "antigood",
+        "antineutral"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "sword",
+        "dice": [
+          3,
+          4
+        ],
+        "damageType": "cleave",
+        "flags": [
+          "vampiric",
+          "twohands"
+        ]
+      },
+      "level": 11,
+      "weight": 80,
+      "cost": 940,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "blade",
+          "description": "You'll become as evil as the weapon, if you use it!\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 4101,
+      "name": "gloves",
+      "shortDescr": "swordsman's gloves",
+      "description": "Some gloves are here.  They look like the right equipment for fighting.",
+      "material": "leather",
+      "itemType": "armor",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "hands"
+      ],
+      "armor": {
+        "acPierce": 1,
+        "acBash": 3,
+        "acSlash": 3,
+        "acExotic": 1
+      },
+      "level": 7,
+      "weight": 10,
+      "cost": 730,
+      "condition": 90,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 7,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 7,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 4102,
+      "name": "scroll ysafg",
+      "shortDescr": "a scroll which reads \"ysafg\"",
+      "description": "A scroll which reads \"ysafg\", it looks very fragile and quite old.",
+      "material": "parchment",
+      "itemType": "scroll",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "spells": {
+        "level": 10,
+        "spells": [
+          "identify",
+          "",
+          "",
+          ""
+        ]
+      },
+      "level": 7,
+      "weight": 10,
+      "cost": 840,
+      "condition": 50,
+      "extraDescs": [
+        {
+          "keyword": "scroll",
+          "description": "It looks informative.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 4103,
+      "name": "slime mold",
+      "shortDescr": "a green slime mold",
+      "description": "A green slime mold is here. It smells REAL bad.",
+      "material": "food",
+      "itemType": "food",
+      "extraFlags": [
+        "rotdeath"
+      ],
+      "wearFlags": [
+        "take"
+      ],
+      "food": {
+        "foodHours": 24,
+        "fullHours": 24
+      },
+      "weight": 10,
+      "condition": 90,
+      "extraDescs": [
+        {
+          "keyword": "slime mold",
+          "description": "It wasn't meant to be food, - Certainly not for humans.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 4104,
+      "name": "slime mold",
+      "shortDescr": "a green slime mold",
+      "description": "A green slime mold is here. It smells REAL bad.",
+      "material": "food",
+      "itemType": "food",
+      "extraFlags": [
+        "rotdeath"
+      ],
+      "wearFlags": [
+        "take"
+      ],
+      "food": {
+        "foodHours": 24,
+        "fullHours": 24,
+        "poisoned": true
+      },
+      "weight": 10,
+      "condition": 90,
+      "extraDescs": [
+        {
+          "keyword": "slime mold",
+          "description": "It wasn't meant to be food, - Certainly not for humans.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 4105,
+      "name": "staff iron iron-shod",
+      "shortDescr": "an iron-shod staff",
+      "description": "A long staff capped with iron leans against a wall.",
+      "material": "iron",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "spear",
+        "dice": [
+          2,
+          5
+        ],
+        "damageType": "pound",
+        "flags": [
+          "twohands"
+        ]
+      },
+      "level": 10,
+      "weight": 60,
+      "cost": 630,
+      "condition": 90,
+      "extraDescs": [
+        {
+          "keyword": "staff",
+          "description": "It's a superb weapon for warrior or mage.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 10,
+          "duration": -1,
+          "modifier": -2
+        }
+      ]
+    },
+    {
+      "vnum": 4150,
+      "name": "black potion",
+      "shortDescr": "a black potion",
+      "description": "A thick black potion is here.",
+      "material": "glass",
+      "itemType": "potion",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "spells": {
+        "level": 9,
+        "spells": [
+          "cure critical",
+          "",
+          ""
+        ]
+      },
+      "level": 5,
+      "weight": 10,
+      "cost": 320,
+      "condition": 90,
+      "extraDescs": [
+        {
+          "keyword": "potion black",
+          "description": "It looks healthy.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 4151,
+      "name": "staff oak",
+      "shortDescr": "a heavy oak staff",
+      "description": "A ancient heavy oak staff is here.",
+      "material": "wood",
+      "itemType": "staff",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "wand": {
+        "level": 15,
+        "chargesTotal": 4,
+        "chargesRemaining": 2,
+        "spell": "harm"
+      },
+      "level": 13,
+      "weight": 50,
+      "cost": 5400,
+      "condition": 90,
+      "extraDescs": [
+        {
+          "keyword": "staff oak",
+          "description": "You see it has some sort of runes on it.\n\r"
+        },
+        {
+          "keyword": "runes",
+          "description": "The runes says : Funthark.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "mana",
+          "level": 13,
+          "duration": -1,
+          "modifier": -20
+        }
+      ]
+    },
+    {
+      "vnum": 4152,
+      "name": "dagger light silver",
+      "shortDescr": "a light silver dagger",
+      "description": "A light silver dagger is here.",
+      "material": "silver",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "dagger",
+        "dice": [
+          2,
+          4
+        ],
+        "damageType": "stab"
+      },
+      "level": 7,
+      "weight": 20,
+      "cost": 660,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "dagger light silver",
+          "description": "It looks like an excellent weapon for thieves.\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 7,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "ac",
+          "level": 7,
+          "duration": -1,
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "vnum": 4153,
+      "name": "star morning morningstar",
+      "shortDescr": "a morning star",
+      "description": "A heavy, spiked morning star is here.",
+      "material": "iron",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "mace",
+        "dice": [
+          2,
+          6
+        ],
+        "damageType": "smash"
+      },
+      "level": 9,
+      "weight": 120,
+      "cost": 270,
+      "condition": 90,
+      "extraDescs": [
+        {
+          "keyword": "star morning",
+          "description": "It's a huge length of wood studded with iron spikes and bands. You wouldn't\n\rwant to meet this in a dark alley...\n\r"
+        }
+      ],
+      "affects": [
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 9,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "dexterity",
+          "level": 9,
+          "duration": -1,
+          "modifier": -1
+        }
+      ]
+    },
+    {
+      "vnum": 4154,
+      "name": "map moria second",
+      "shortDescr": "a map of the second level of Moria",
+      "description": "A rolled up map is here.",
+      "material": "paper",
+      "itemType": "map",
+      "wearFlags": [
+        "take"
+      ],
+      "values": [
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "weight": 10,
+      "cost": 100,
+      "condition": 50,
+      "extraDescs": [
+        {
+          "keyword": "map moria second",
+          "description": ".\n\r    * * * MORIA - Map 2 * * *\n\r     = = =============== = =\n\r\n\rMaze--Maze\n\r |     |    (Map 1)\n\r |    Maze--Tunnel*\n\r |\n\rMaze--Maze--Maze--Maze\n\r              |\n\r     Large--Large\n\r     Cave   Cave\n\r      |       |\n\r     Large--Large--Tunnel--End of\n\r     Cave    Cave    |     Tunnel\n\r                   *Hole\n\r                  (Map 3)\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 4155,
+      "name": "map moria third",
+      "shortDescr": "a map of the third level of Moria",
+      "description": "A rolled up map is here.",
+      "material": "paper",
+      "itemType": "map",
+      "wearFlags": [
+        "take"
+      ],
+      "values": [
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "weight": 10,
+      "cost": 200,
+      "condition": 90,
+      "extraDescs": [
+        {
+          "keyword": "map moria third",
+          "description": ".\n\r                                                   (Map 1*)\n\r                             Long                     |\n\r        Tunnel----Tunnel----Tunnel--Tunnel--Tunnel--Tunnel\n\r          |                   |\n\r          |                  Gold--Gold\n\r          |                  Cave  Cave\n\r          |                   |      |\n\r          |                  Gold--Gold---Passage\n\r          |                  Cave  Cave      |\n\r          |                   |           Passage--Tunnel--Tunnel--Tunnel\n\r          |          Dark*---Gold            |\n\r          |         Passage  Cave            |     Secret\n\r          |                               Passage  Chamber\n\r          |                      Hole        |       |\n\r          |                        |      Passage  Secret\n\r        Large   Large   Large    Small       |     Chamber--Cave--Cave\n\r        Tunnel--Tunnel--Tunnel--Passage      |                |      |\n\r          |                        |      Passage-----------Cave--Cave\n\r          |                       Long\n\r          |                      Tunnel\n\r         Wet    Small  Small       |\n\r        Tunnel--Maze---Maze   Inscription\n\r          |       |      |         |\n\r         Wet    Small--Small-----Small\n\r        Tunnel  Maze   Maze      Maze\n\r          |       |                |\n\r          |      Wet    Wet      End of\n\r        Water    Maze---Maze-----Tunnel\n\r          |       |      |\n\r        Water---Water  End of\n\r                       Maze*\n\r                      (Map 2)\n\r"
+        }
+      ]
+    }
+  ],
+  "shops": [],
+  "specials": [
+    {
+      "mobVnum": 4000,
+      "spec": "spec_poison"
+    },
+    {
+      "mobVnum": 4001,
+      "spec": "spec_poison"
+    },
+    {
+      "mobVnum": 4053,
+      "spec": "spec_poison"
+    },
+    {
+      "mobVnum": 4100,
+      "spec": "spec_cast_mage"
+    },
+    {
+      "mobVnum": 4102,
+      "spec": "spec_poison"
+    },
+    {
+      "mobVnum": 4150,
+      "spec": "spec_breath_lightning"
+    },
+    {
+      "mobVnum": 4151,
+      "spec": "spec_breath_fire"
+    },
+    {
+      "mobVnum": 4152,
+      "spec": "spec_breath_gas"
+    },
+    {
+      "mobVnum": 4153,
+      "spec": "spec_breath_frost"
+    },
+    {
+      "mobVnum": 4154,
+      "spec": "spec_breath_acid"
+    },
+    {
+      "mobVnum": 4155,
+      "spec": "spec_thief"
+    },
+    {
+      "mobVnum": 4157,
+      "spec": "spec_cast_mage"
+    },
+    {
+      "mobVnum": 4158,
+      "spec": "spec_poison"
+    }
+  ],
+  "mobprogs": [],
+  "resets": [
+    {
+      "mobVnum": 4003,
+      "maxInArea": 6,
+      "roomVnum": 4013,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3021,
+      "wearLoc": "wielded",
+      "roomVnum": 4013,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 3117,
+      "wearLoc": "as a shield",
+      "roomVnum": 4013,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 4003,
+      "maxInArea": 6,
+      "roomVnum": 4013,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3023,
+      "wearLoc": "wielded",
+      "roomVnum": 4013,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 4001,
+      "maxInArea": 2,
+      "roomVnum": 4015,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 4004,
+      "maxInArea": 3,
+      "roomVnum": 4015,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3029,
+      "wearLoc": "wielded",
+      "roomVnum": 4015,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 4002,
+      "maxInArea": 3,
+      "roomVnum": 4017,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 4002,
+      "maxInArea": 3,
+      "roomVnum": 4020,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 4003,
+      "maxInArea": 6,
+      "roomVnum": 4021,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 4003,
+      "wearLoc": "wielded",
+      "roomVnum": 4021,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 4003,
+      "maxInArea": 6,
+      "roomVnum": 4021,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3023,
+      "wearLoc": "wielded",
+      "roomVnum": 4021,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 4005,
+      "maxInArea": 1,
+      "roomVnum": 4022,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 4000,
+      "wearLoc": "on the left finger",
+      "roomVnum": 4022,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 3022,
+      "wearLoc": "wielded",
+      "roomVnum": 4022,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 3114,
+      "wearLoc": "on the hands",
+      "roomVnum": 4022,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 4002,
+      "maxInArea": 3,
+      "roomVnum": 4023,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 4001,
+      "maxInArea": 2,
+      "roomVnum": 4025,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 4003,
+      "maxInArea": 6,
+      "roomVnum": 4027,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3021,
+      "wearLoc": "wielded",
+      "roomVnum": 4027,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 4003,
+      "maxInArea": 6,
+      "roomVnum": 4027,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3025,
+      "wearLoc": "wielded",
+      "roomVnum": 4027,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 3117,
+      "wearLoc": "as a shield",
+      "roomVnum": 4027,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 4004,
+      "maxInArea": 3,
+      "roomVnum": 4028,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 4004,
+      "wearLoc": "wielded",
+      "roomVnum": 4028,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 4004,
+      "maxInArea": 3,
+      "roomVnum": 4028,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 4000,
+      "maxInArea": 1,
+      "roomVnum": 4030,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 4001,
+      "roomVnum": 4030,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 4002,
+      "count": -1,
+      "containerVnum": 4001,
+      "maxInContainer": 1,
+      "roomVnum": 4030,
+      "commandName": "putObj"
+    },
+    {
+      "objVnum": 4154,
+      "roomVnum": 4030,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 4057,
+      "maxInArea": 2,
+      "roomVnum": 4042,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 4058,
+      "maxInArea": 1,
+      "roomVnum": 4044,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 4005,
+      "wearLoc": "wielded",
+      "roomVnum": 4044,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 4006,
+      "wearLoc": "about the shoulders",
+      "roomVnum": 4044,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 4051,
+      "maxInArea": 4,
+      "roomVnum": 4050,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 4056,
+      "wearLoc": "wielded",
+      "roomVnum": 4050,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 3077,
+      "wearLoc": "on the arms",
+      "roomVnum": 4050,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 4054,
+      "maxInArea": 3,
+      "roomVnum": 4052,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 4054,
+      "maxInArea": 3,
+      "roomVnum": 4053,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 4051,
+      "maxInArea": 4,
+      "roomVnum": 4055,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 4057,
+      "wearLoc": "wielded",
+      "roomVnum": 4055,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 3074,
+      "wearLoc": "on the legs",
+      "roomVnum": 4055,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 4052,
+      "maxInArea": 3,
+      "roomVnum": 4056,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3023,
+      "wearLoc": "wielded",
+      "roomVnum": 4056,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 4056,
+      "maxInArea": 2,
+      "roomVnum": 4057,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3026,
+      "wearLoc": "wielded",
+      "roomVnum": 4057,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 4053,
+      "maxInArea": 2,
+      "roomVnum": 4058,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 4052,
+      "maxInArea": 3,
+      "roomVnum": 4059,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3028,
+      "wearLoc": "wielded",
+      "roomVnum": 4059,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 4054,
+      "maxInArea": 3,
+      "roomVnum": 4060,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 4050,
+      "maxInArea": 1,
+      "roomVnum": 4062,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 4051,
+      "wearLoc": "over the head",
+      "roomVnum": 4062,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 4054,
+      "wearLoc": "wielded",
+      "roomVnum": 4062,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 3116,
+      "wearLoc": "as a shield",
+      "roomVnum": 4062,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 4055,
+      "maxInArea": 2,
+      "roomVnum": 4064,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 4058,
+      "wearLoc": "wielded",
+      "roomVnum": 4064,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 4050,
+      "roomVnum": 4064,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 4052,
+      "maxInArea": 3,
+      "roomVnum": 4065,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3025,
+      "wearLoc": "wielded",
+      "roomVnum": 4065,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 4056,
+      "maxInArea": 2,
+      "roomVnum": 4067,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 4004,
+      "wearLoc": "wielded",
+      "roomVnum": 4067,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 3097,
+      "wearLoc": "as a shield",
+      "roomVnum": 4067,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 4053,
+      "maxInArea": 2,
+      "roomVnum": 4068,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 4052,
+      "roomVnum": 4068,
+      "commandName": "placeObj"
+    },
+    {
+      "objVnum": 4052,
+      "roomVnum": 4069,
+      "commandName": "placeObj"
+    },
+    {
+      "mobVnum": 4051,
+      "maxInArea": 4,
+      "roomVnum": 4070,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3027,
+      "wearLoc": "wielded",
+      "roomVnum": 4070,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 3072,
+      "wearLoc": "over the head",
+      "roomVnum": 4070,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 4052,
+      "roomVnum": 4070,
+      "commandName": "placeObj"
+    },
+    {
+      "mobVnum": 4055,
+      "maxInArea": 2,
+      "roomVnum": 4071,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 4059,
+      "wearLoc": "wielded",
+      "roomVnum": 4071,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 4050,
+      "roomVnum": 4071,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 4052,
+      "roomVnum": 4071,
+      "commandName": "placeObj"
+    },
+    {
+      "mobVnum": 4051,
+      "maxInArea": 4,
+      "roomVnum": 4073,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 4055,
+      "wearLoc": "wielded",
+      "roomVnum": 4073,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 3072,
+      "wearLoc": "on the body",
+      "roomVnum": 4073,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 4102,
+      "maxInArea": 3,
+      "roomVnum": 4103,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 4103,
+      "roomVnum": 4103,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 4103,
+      "maxInArea": 1,
+      "roomVnum": 4103,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 4053,
+      "wearLoc": "wielded",
+      "roomVnum": 4103,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 3068,
+      "wearLoc": "on the legs",
+      "roomVnum": 4103,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 3066,
+      "wearLoc": "on the body",
+      "roomVnum": 4103,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 3069,
+      "wearLoc": "on the feet",
+      "roomVnum": 4103,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 4105,
+      "maxInArea": 3,
+      "roomVnum": 4108,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 4102,
+      "maxInArea": 2,
+      "roomVnum": 4111,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 4103,
+      "roomVnum": 4111,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 4102,
+      "maxInArea": 2,
+      "roomVnum": 4111,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 4104,
+      "roomVnum": 4111,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 4106,
+      "maxInArea": 2,
+      "roomVnum": 4113,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 4105,
+      "wearLoc": "wielded",
+      "roomVnum": 4113,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 4101,
+      "wearLoc": "on the hands",
+      "roomVnum": 4113,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 4100,
+      "maxInArea": 1,
+      "roomVnum": 4114,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 4102,
+      "roomVnum": 4114,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 4155,
+      "roomVnum": 4114,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 3351,
+      "wearLoc": "wielded",
+      "roomVnum": 4114,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 4107,
+      "maxInArea": 1,
+      "roomVnum": 4119,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3023,
+      "wearLoc": "wielded",
+      "roomVnum": 4119,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 4104,
+      "roomVnum": 4119,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 4101,
+      "maxInArea": 1,
+      "roomVnum": 4122,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 4100,
+      "wearLoc": "wielded",
+      "roomVnum": 4122,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 4104,
+      "maxInArea": 3,
+      "roomVnum": 4124,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 4057,
+      "wearLoc": "wielded",
+      "roomVnum": 4124,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 4104,
+      "roomVnum": 4124,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 4156,
+      "maxInArea": 1,
+      "roomVnum": 4151,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 4105,
+      "wearLoc": "wielded",
+      "roomVnum": 4151,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 4159,
+      "maxInArea": 2,
+      "roomVnum": 4153,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 4150,
+      "maxInArea": 2,
+      "roomVnum": 4155,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 4152,
+      "maxInArea": 2,
+      "roomVnum": 4155,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 4151,
+      "maxInArea": 2,
+      "roomVnum": 4157,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 4154,
+      "maxInArea": 2,
+      "roomVnum": 4157,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 4155,
+      "maxInArea": 1,
+      "roomVnum": 4158,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 4152,
+      "wearLoc": "wielded",
+      "roomVnum": 4158,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 4151,
+      "maxInArea": 2,
+      "roomVnum": 4159,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 4152,
+      "maxInArea": 2,
+      "roomVnum": 4159,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 4160,
+      "maxInArea": 2,
+      "roomVnum": 4160,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3045,
+      "wearLoc": "on the body",
+      "roomVnum": 4160,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 4055,
+      "wearLoc": "wielded",
+      "roomVnum": 4160,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 4150,
+      "roomVnum": 4160,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 4160,
+      "maxInArea": 2,
+      "roomVnum": 4161,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3110,
+      "wearLoc": "on the body",
+      "roomVnum": 4161,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 3026,
+      "wearLoc": "wielded",
+      "roomVnum": 4161,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 4158,
+      "maxInArea": 2,
+      "roomVnum": 4162,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 4153,
+      "maxInArea": 2,
+      "roomVnum": 4164,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 4154,
+      "maxInArea": 2,
+      "roomVnum": 4164,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 4157,
+      "maxInArea": 2,
+      "roomVnum": 4167,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3351,
+      "wearLoc": "wielded",
+      "roomVnum": 4167,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 4157,
+      "maxInArea": 2,
+      "roomVnum": 4167,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 4151,
+      "wearLoc": "held in the hands",
+      "roomVnum": 4167,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 3351,
+      "wearLoc": "wielded",
+      "roomVnum": 4167,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 4159,
+      "maxInArea": 2,
+      "roomVnum": 4168,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 4158,
+      "maxInArea": 2,
+      "roomVnum": 4169,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 4150,
+      "maxInArea": 2,
+      "roomVnum": 4170,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 4153,
+      "maxInArea": 2,
+      "roomVnum": 4170,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    }
+  ],
+  "factions": [],
+  "quests": []
+}

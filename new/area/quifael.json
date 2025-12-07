@@ -1,0 +1,213 @@
+{
+  "formatVersion": 1,
+  "areadata": {
+    "version": 2,
+    "name": "Quifael's",
+    "builders": "",
+    "vnumRange": [
+      6900,
+      6999
+    ],
+    "credits": "Quifael",
+    "security": 9,
+    "sector": "inside",
+    "lowLevel": 31,
+    "highLevel": 35,
+    "reset": 6,
+    "alwaysReset": false
+  },
+  "storyBeats": [],
+  "checklist": [],
+  "rooms": [
+    {
+      "vnum": 6900,
+      "name": "Quifael's monster pen",
+      "description": "You are in a big, subterranean room with heavy massive stone walls and no\n\rwindows whatsoever.  A virtual ladder leads upwards.\n\r",
+      "roomFlags": [
+        "indoors",
+        "private"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 6902,
+          "description": "The ladder leads to the laboratory.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6901,
+      "name": "Quifael's study",
+      "description": "You are in a small, comfortable study room.  The walls are lined with\n\rbookcases filled with dusty volumes of all sizes.  In the fireplace burns a\n\rcrackling fire that makes the room warm and cosy, and in front of an oakwood\n\rreading desk is a large old-fashioned chair.\n\r",
+      "roomFlags": [
+        "no_mob",
+        "indoors",
+        "private"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 6904,
+          "description": "The corridor leads south to the hall.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "bookcase bookcases volume volumes book books",
+          "description": "Most of the books are heavy, leatherbound and covered in a thin layer of dust.\n\rThere are many titles on necromancy, conjuring and other spheres of Magick,\n\rbut also some on computer science (although these seem to be VERY dusty\n\rindeed) and a fair collection of horror literature, ranging from Bram Stoker\n\rand H. P. Lovecraft to Anne Rice and Stephen King.\n\r"
+        },
+        {
+          "keyword": "fireplace",
+          "description": "The fireplace isn't particularly big, but the fire crackles merrily in it.\n\r"
+        },
+        {
+          "keyword": "desk",
+          "description": "It is very massive and but seems worn from many years of use.\n\r"
+        },
+        {
+          "keyword": "chair",
+          "description": "It is big and old-fashioned, but quite comfortable nevertheless.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6902,
+      "name": "Quifael's laboratory",
+      "description": "You are in a room filled with shelves containing all sorts of weird equipment.\n\rThe walls are lined with numerous shelves and a massive working desk is by\n\rthe north wall.  The air smells of rare chemicals and spices.\n\rA virtual ladder leads downwards.\n\rA magical portal is hovering in the air just in front of the east wall.\n\r",
+      "roomFlags": [
+        "no_mob",
+        "indoors",
+        "private"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6903,
+          "description": "To the east is the magical portal.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 6904,
+          "description": "To the west is the hall.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 6900,
+          "description": "The virtual ladder leads down to the monster pen.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "shelves",
+          "description": "The shelves contain a mass of bottles, jars and boxes of different shapes and\n\rsizes, of which some contain powders and liquids in various colours.  Others\n\rcontain dragon's claws, giant's eyes, rabbit's ears and other body parts of\n\rdifferent monsters.\n\r"
+        },
+        {
+          "keyword": "desk",
+          "description": "On the desk is a peculiar apparatus of glass bottles and globes connected by\n\rsmall pipelines.  The green liquid inside the apparatus' globes and pipelines\n\ris bubbling steadily.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6903,
+      "name": "Quifael's virtual balcony",
+      "description": "You are on a transparent balcony hanging in mid-air.  You notice a faint blue\n\rglow surrounding everything, even yourself, making it seem as transparent as\n\rthe balcony itself.  From here, you have a terrific view of the whole Forest\n\rof Haon-Dor.\n\rA transparent bronze plate has been bolted to the balcony railing.\n\rA magical portal is hovering in the air to the west.\n\r",
+      "roomFlags": [
+        "indoors",
+        "private"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 6902,
+          "description": "The magical portal is to the west.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "balcony railing",
+          "description": "Quite transparent, but visible anyway, because of the blue glow that surrounds\n\rthe whole place.\n\r"
+        },
+        {
+          "keyword": "plate",
+          "description": "The transparent bronze plate looks quite strange, but the engraved letters are\n\rquite easy to read, nevertheless :-\n\r \n\r              Quifael's Virtual Balcony\n\r \n\r                   Do not lean out!\n\r \n\r  Please do not try to attract the attention of any\n\r      adventurers in the forest, as you are not\n\r         really in existence at the moment.\n\r \n\r        (This could possibly mess up Reality,\n\r      and we wouldn't want to do that, would we?)\n\r"
+        },
+        {
+          "keyword": "forest Haon-Dor view",
+          "description": "Through the tree crowns, you see fellow adventurers walking around in the\n\rforest, gathering mushrooms, eating blackberries, committing rabbit genocide\n\rand generally having a good time.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6904,
+      "name": "Quifael's hall",
+      "description": "You are in sparsely decorated and quite dusty hall.  Old wooden doors lead\n\rnorth, east and south and to the west is the front door.\n\rAn old mirror hangs on the wall.\n\r",
+      "roomFlags": [
+        "indoors",
+        "private"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6901,
+          "description": "The study is to the north."
+        },
+        {
+          "dir": "east",
+          "toVnum": 6902,
+          "description": "The laboratory is to the east."
+        },
+        {
+          "dir": "south",
+          "toVnum": 6905,
+          "description": "The kitchen is to the south."
+        },
+        {
+          "dir": "west",
+          "toVnum": 3126,
+          "key": 3301,
+          "flags": [
+            "door"
+          ],
+          "description": "The front door leads to Park Road.",
+          "keyword": "door"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "mirror",
+          "description": "You see yourself looking back at you.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6905,
+      "name": "Quifael's kitchen",
+      "description": "You are in an old-fashioned kitchen.\n\r",
+      "roomFlags": [
+        "indoors",
+        "private"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6904,
+          "description": "The hall is to the north."
+        }
+      ]
+    }
+  ],
+  "mobiles": [],
+  "objects": [],
+  "shops": [],
+  "specials": [],
+  "mobprogs": [],
+  "resets": [],
+  "factions": [],
+  "quests": []
+}

@@ -81,8 +81,10 @@ void cedit(Mobile* ch, char* argument)
         return;
     }
 
-    if (!str_cmp(command, "save")) {
+    if (!str_prefix("save", command)) {
+        char arg1[MIL];
         char arg2[MIL];
+        argument = one_argument(argument, arg1); // "save"
         argument = one_argument(argument, arg2); // optional format
         const char* requested_ext = NULL;
         bool force_format = false;
@@ -102,6 +104,7 @@ void cedit(Mobile* ch, char* argument)
             if (has_ext) {
                 requested_ext = NULL; // respect existing extension
             } else {
+                // Only apply default format when this looks like a new file
                 if (access(classes_file, F_OK) != 0) {
                     const char* def = cfg_get_default_format();
                     if (def && !str_cmp(def, "json"))
@@ -113,6 +116,7 @@ void cedit(Mobile* ch, char* argument)
                 }
             }
         }
+        // When format is forced, always apply the requested extension
 
         if (requested_ext != NULL) {
             size_t base_len = has_ext ? (size_t)(ext - classes_file) : strlen(classes_file);

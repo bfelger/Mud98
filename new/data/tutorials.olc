@@ -1,0 +1,181 @@
+1
+
+#TUTORIAL
+name Colors and Themes~
+blurb Learn how to use the THEME command to enhance your
+                       playing experience with custom, shareable color
+                       palettes.~
+finish You have completed the Colors and Themes tutorial.~
+min_level 0
+step_count 19
+#ENDTUTORIAL
+
+#STEP
+prompt 
+Familiarize yourself with the THEME command by typing it with no arguments: ^TTHEME.~
+match theme~
+#ENDSTEP
+
+#STEP
+prompt 
+Use THEME PREVIEW to see what your current theme looks like in action: ^TTHEME PREVIEW~
+match theme preview~
+#ENDSTEP
+
+#STEP
+prompt 
+Use THEME SHOW to see where these color assignments are made: ^TTHEME SHOW~
+match theme show~
+#ENDSTEP
+
+#STEP
+prompt 
+Each theme is made up of a PALETTE and CHANNELS.
+    * A PALETTE is a set of 16 select colors that define a curated set of 
+      colors that match the theme's concept.
+    * CHANNELS are the different kinds of information that can be sent to
+      you, and can be themed using references to the palette, or with colors
+      not already on the palette.
+      
+Mud98 has several built in palettes. Use THEME LIST to view the ones 
+available to you: ^TTHEME LIST~
+match theme list~
+#ENDSTEP
+
+#STEP 
+prompt 
+Look at the list of themes, and see if one look interesting to you. Use 
+THEME PREVIEW to see what it would look like on your screen. Remember
+that you can also refer other people's public themes by putting '@name' 
+before the theme name: ^TTHEME PREVIEW <theme name>~
+match theme preview $W+~
+#ENDSTEP
+
+#STEP
+prompt 
+If that theme doesn't suit your fancy, try previewing others until you find
+one you like. When you've settled on one, select it with THEME SELECT (note
+that the rest of this tutorial assumes you chose a 24-bit theme). Type: 
+^TTHEME SELECT <theme name>~
+match theme select $W+~
+#ENDSTEP
+
+#STEP
+prompt 
+You'll see some changes right away. Let's use THEME SHOW to take a compre-
+hensive look at your new theme: ^TTHEME SHOW.~
+match theme show~
+#ENDSTEP
+
+#STEP
+prompt 
+Enter the theme editor so you can customize this palette. The editor lets
+you adjust colors, rename the theme, and save all your work without
+retyping THEME before every command. Type: ^TTHEME EDIT~
+match theme edit~
+#ENDSTEP
+
+#STEP
+prompt 
+Are all of the colors in the palette to your liking? If not, you can easily
+change them using the PALETTE command while THEME EDIT is active.
+Choose a color swatch on the palette you want to change and refer to that
+swatch by its slot number (shown on THEME SHOW).
+
+Next, decide on a new color. In a 16-bit theme, this is a number 0-16. On
+a 256-color palette, its a number 0-256. Since we are working with a 24-bit
+theme, we can use numbers in "#RRGGBB;" hex format (remember the semicolon;
+it's required). For instance, Slate Blue is "#6A5ACD;".
+
+Try changing one of the palette swatches with your chosen color: ^TPALETTE
+<swatch number> <#xxxxxx;>  ^*Ex: palette 8 #DB7E86;~
+match palette $N #$X;~
+#ENDSTEP
+
+#STEP
+prompt
+Notice that changing the palette swatch also changed all the channels that
+referred to that swatch. This is handy way to create a whole new theme in
+a matter of minutes, simply by switching out the swatches.
+
+Right now you're working with your own personal copy of the theme. Your
+changes only apply to you, and they aren't saved automatically. For now,
+try discarding your changes: ^TDISCARD~
+match discard~
+#ENDSTEP
+
+#STEP
+prompt
+Maybe you like a theme's colors, but not how it's using them. We can change
+what colors are applied to each channel with the CHANNEL command inside
+THEME EDIT.
+
+Look at THEME SHOW and pick a channel you'd like to change (by name, so 
+like "say_text", for instance). Then choose a fresh color in "#RRGGBB;"
+format that fits your concept.
+
+Try assigning a new color to the channel: ^TCHANNEL <channel> <#xxxxxx;>~
+match channel $W #$X;~
+#ENDSTEP
+
+#STEP
+prompt 
+Now that you've customized your theme, you should use the editor's NAME
+command to give it a new name: ^TNAME <name>~
+match name $W+~
+#ENDSTEP
+
+#STEP
+prompt 
+Your theme selections and changes only apply to your current session. You 
+have to save them from inside the editor. Save your changes to the theme
+(you can delete it later): ^TSAVE~
+match save~
+#ENDSTEP
+
+#STEP
+prompt 
+Now that you have your theme saved, you can use the editor to make it visible
+and available to others while you are online (you can disable this later):
+^TPUBLIC~
+match public~
+#ENDSTEP
+
+#STEP
+prompt 
+Other players won't see your theme until you save the settings change: 
+^TSAVE~
+match save~
+#ENDSTEP
+
+#STEP
+prompt 
+When you're done editing, leave the theme editor so you can use the other
+THEME commands again: ^TDONE~
+match done~
+#ENDSTEP
+
+#STEP
+prompt 
+Look at the list of themes available to you now and see that your customized
+theme is listed (and marked public): ^TTHEME LIST~
+match theme list~
+#ENDSTEP
+
+#STEP
+prompt 
+You can get rid of unwanted themes at any time. This is useful, as you have
+a limit of 10 personal color themes (not counting public and system themes,
+which do not take up your slots.
+
+Before you can remove your new theme, however, you have to stop using it.
+Switch another theme: ^TTHEME SELECT <name>~
+match theme select $W+~
+#ENDSTEP
+
+#STEP
+prompt 
+Use THEME REMOVE to delete your custom theme (using its FULL name):
+^TTHEME REMOVE <name>~
+match theme remove $W+~
+#ENDSTEP

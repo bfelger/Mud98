@@ -1,0 +1,3232 @@
+{
+  "formatVersion": 1,
+  "areadata": {
+    "version": 2,
+    "name": "Dwarven Kingdom",
+    "builders": "",
+    "vnumRange": [
+      6500,
+      6599
+    ],
+    "credits": "Anon",
+    "security": 9,
+    "sector": "inside",
+    "lowLevel": 10,
+    "highLevel": 25,
+    "reset": 6,
+    "alwaysReset": false
+  },
+  "storyBeats": [],
+  "checklist": [],
+  "rooms": [
+    {
+      "vnum": 6500,
+      "name": "Path to Dwarven Village",
+      "description": "All around you are the mountains of the southern range, home of dwarves and \n\rgiants.  You can climb back down the mountains to the west and leave these \n\rrealms, or seek riches in the northern mineshafts.  A dirt road leads south, \n\rtowards a small building.  You can hear crying and shrieking coming from it.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6501,
+          "description": "The path continues.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 6601,
+          "description": "You hear the patter of little feet.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 6562,
+          "description": "A rocky road leads back to Midgaard and the mines of Moria.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6501,
+      "name": "Path, base of mountain",
+      "description": "Now you are at the bottom of a rugged mountain.  The forest around you is\n\rvery dense, and it seems very dark to the north.\n\r",
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6502,
+          "description": "The path continues up the mountain.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 6500,
+          "description": "The path heads toward the main city.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6502,
+      "name": "Path, middle of mountain",
+      "description": "Standing on the middle of the mountain, you can easily see the turning\n\rpoint to the south, and the top of the mountain is very near to the north.\n\r",
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6503,
+          "description": "The top of the mountain is easily seen from here.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 6501,
+          "description": "The base of the mountain is near.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6503,
+      "name": "Top of mountain",
+      "description": "You are now on the top of the mountain.  To the south you see a path\n\rleading down the mountain.  To the east and west you see entrances to\n\rwhat seems like mines.\n\r",
+      "sectorType": "hills",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6540,
+          "description": "An entrance to the mountain which seems to lead underground.\n\r"
+        },
+        {
+          "dir": "south",
+          "toVnum": 6502,
+          "description": "The path leads down the mountain to the main city.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 6505,
+          "description": "There is an entrance to the mountain.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6504,
+      "name": "Narrow Path",
+      "description": "This is a narrow path leading to the Dwarven Kingdom.  It looks less\n\rtravelled than the others, and it is very creepy.  The path opens up\n\rto the south, and continues to the north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6506
+        },
+        {
+          "dir": "south",
+          "toVnum": 6540
+        }
+      ]
+    },
+    {
+      "vnum": 6505,
+      "name": "Entrance to Mountain",
+      "description": "Here is an entrance to the mountain.  The door looks very well built,\n\rand you can hear noise coming from within.\n\r",
+      "sectorType": "field",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6503
+        },
+        {
+          "dir": "west",
+          "toVnum": 6513,
+          "key": 6502,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "keyword": "door"
+        }
+      ]
+    },
+    {
+      "vnum": 6506,
+      "name": "Bend in Narrow Path",
+      "description": "This is a narrow path that bends to the east here.  The trees hang over\n\rthe path, and it is very overgrown.  The narrow path continues to the\n\rsouth and to the east.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6507
+        },
+        {
+          "dir": "south",
+          "toVnum": 6504
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "tree trees",
+          "description": "They hang over the road in the most ominous of ways.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6507,
+      "name": "Narrow path",
+      "description": "This path is very narrow, and it continues to the north and west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6508
+        },
+        {
+          "dir": "west",
+          "toVnum": 6506
+        }
+      ]
+    },
+    {
+      "vnum": 6508,
+      "name": "Narrow north-south path",
+      "description": "This path leads to the north and south.  To the north you can see a\n\rdoor, and to the south the path continues.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6509
+        },
+        {
+          "dir": "south",
+          "toVnum": 6507
+        }
+      ]
+    },
+    {
+      "vnum": 6509,
+      "name": "Door to Kingdom",
+      "description": "Here the path turns to the west.  You can see a door in front of you,\n\rand the path continues to the west and south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6510,
+          "key": 6502,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "keyword": "door"
+        },
+        {
+          "dir": "south",
+          "toVnum": 6508
+        },
+        {
+          "dir": "west",
+          "toVnum": 6522
+        }
+      ]
+    },
+    {
+      "vnum": 6510,
+      "name": "Path to the Castle",
+      "description": "You are on a path that will eventually lead to the castle.  It\n\rcontinues north to the castle, and there is a door on the western wall.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6511
+        },
+        {
+          "dir": "west",
+          "toVnum": 6509,
+          "key": 6502,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "keyword": "door"
+        }
+      ]
+    },
+    {
+      "vnum": 6511,
+      "name": "Still on the path to the Castle",
+      "description": "You are still on the path to the castle, or back to the\n\rDwarven village, whichever way you wish to go.  The path\n\rcontinues to the north and south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6512
+        },
+        {
+          "dir": "south",
+          "toVnum": 6510
+        }
+      ]
+    },
+    {
+      "vnum": 6512,
+      "name": "Door to Castle",
+      "description": "Here there is a door to the castle to the east.  The castle\n\ris elegantly designed, and looks much like a roll of toilet paper\n\rstanding on end.  A sign says:\n\r\n\r              ******************************************\n\r              *  WELCOME TO THE CASTLE OF STRANGELOVE  *\n\r              *      Here, celibacy is uninvited       *\n\r              ******************************************\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6525,
+          "key": 6514,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "keyword": "door"
+        },
+        {
+          "dir": "south",
+          "toVnum": 6511
+        }
+      ]
+    },
+    {
+      "vnum": 6513,
+      "name": "Inside the entrance",
+      "description": "Everything here is covered in soot and very grimy.  The path continues\n\rto the east and north, and there is a door to the west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6514,
+          "description": "The little underground path continues to the north.\n\r"
+        },
+        {
+          "dir": "east",
+          "toVnum": 6505,
+          "key": 6502,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "description": "The path leads outside the entrance.\n\r",
+          "keyword": "door"
+        },
+        {
+          "dir": "west",
+          "toVnum": 6526,
+          "description": "This looks like an entrance to some type of store room.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6514,
+      "name": "Path",
+      "description": "You are on a path in the dwarven village which leads north to the shops\n\rand south to the corner of the area.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6515
+        },
+        {
+          "dir": "south",
+          "toVnum": 6513
+        }
+      ]
+    },
+    {
+      "vnum": 6515,
+      "name": "Turn in road",
+      "description": "You are on a path that leads to a Hide & Tooth shop to the west, and the\n\rpath continues to the south.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 6514
+        },
+        {
+          "dir": "west",
+          "toVnum": 6516,
+          "description": "The Hide & Tooth shop is seen to the west.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6516,
+      "name": "Hide & Tooth Shop",
+      "description": "You are in the Hide & Tooth shop.  Here you may buy the finest in Dwarven\n\rweapons and armors. The path continues to the north and east.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6517
+        },
+        {
+          "dir": "east",
+          "toVnum": 6515
+        }
+      ]
+    },
+    {
+      "vnum": 6517,
+      "name": "Path to the north of shop",
+      "description": "You are on a path to the north of the Hide & Tooth shop.  The path continues\n\rto the north, and there is Granite Head's bakery to the west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6518
+        },
+        {
+          "dir": "south",
+          "toVnum": 6516
+        },
+        {
+          "dir": "west",
+          "toVnum": 6535
+        }
+      ]
+    },
+    {
+      "vnum": 6518,
+      "name": "North of Shops",
+      "description": "Here the path bends to the east towards the barracks. To the\n\rsouth you can see the shops.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6519
+        },
+        {
+          "dir": "south",
+          "toVnum": 6517
+        }
+      ]
+    },
+    {
+      "vnum": 6519,
+      "name": "Path by Hospital",
+      "description": "Here the path passes by the Hospital to the north.  It continues\n\rto the east to the barracks, and to the west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6534
+        },
+        {
+          "dir": "east",
+          "toVnum": 6520
+        },
+        {
+          "dir": "west",
+          "toVnum": 6518
+        }
+      ]
+    },
+    {
+      "vnum": 6520,
+      "name": "Path next to barracks",
+      "description": "Here the path continues west, and east to the barracks.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6521
+        },
+        {
+          "dir": "west",
+          "toVnum": 6519
+        }
+      ]
+    },
+    {
+      "vnum": 6521,
+      "name": "Entrance to barracks",
+      "description": "Here there is an entrance to the barracks to the south, and\n\rthe path continues to the west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 6523,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "door"
+        },
+        {
+          "dir": "west",
+          "toVnum": 6520
+        }
+      ]
+    },
+    {
+      "vnum": 6522,
+      "name": "Guard House",
+      "description": "You are in the guard house to the west of the entrance\n\rto the castle.  There are nude posters covering the walls.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6509
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "poster",
+          "description": "There is a wall poster of a nude Minne Pearl.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6523,
+      "name": "First Barrack room",
+      "description": "Here is the first of two main rooms of barracks.  The\n\rbarracks continue to the south, and you can leave the room\n\rto the north.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6521,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "door"
+        },
+        {
+          "dir": "south",
+          "toVnum": 6524
+        }
+      ]
+    },
+    {
+      "vnum": 6524,
+      "name": "Back of Barracks",
+      "description": "Here is the back of the dwarven barracks.  There are rows\n\rof beds here, and there is a stench that is unbearable.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6523
+        },
+        {
+          "dir": "down",
+          "toVnum": 2001,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "floorboards boards"
+        }
+      ]
+    },
+    {
+      "vnum": 6525,
+      "name": "Inside of Castle Strangelove",
+      "description": "You are just inside the castle.  It is very tubular in shape,\n\rand it is very featureless.  There is a set of stairs that lead\n\rup, and the door leads out of the castle to the west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 6512,
+          "key": 6514,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "keyword": "door"
+        },
+        {
+          "dir": "up",
+          "toVnum": 6528
+        }
+      ]
+    },
+    {
+      "vnum": 6526,
+      "name": "A store room",
+      "description": "There is a layer of dust on the floor at least 3 inches thick!  It is\n\rprobable that not many people have been in here for many months.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6513,
+          "description": "A lighted area that looks like a well worn path.\n\r"
+        },
+        {
+          "dir": "down",
+          "toVnum": 6527,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "trapdoor"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "floor dust",
+          "description": "After blowing all the dust off the floor, you notice a trapdoor!\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6527,
+      "name": "Wine cellar",
+      "description": "This room smells like wine, and you can only assume it used to be\n\ra wine cellar at one time.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 6526,
+          "flags": [
+            "door",
+            "closed"
+          ]
+        },
+        {
+          "dir": "down",
+          "toVnum": 2065,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "floorboards boards"
+        }
+      ]
+    },
+    {
+      "vnum": 6528,
+      "name": "Stairs in castle",
+      "description": "The stairs continue to circle up and down here.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 6529
+        },
+        {
+          "dir": "down",
+          "toVnum": 6525
+        }
+      ]
+    },
+    {
+      "vnum": 6529,
+      "name": "Stairs",
+      "description": "You are still circling around on the stairs.  You are starting to\n\rget dizzy from going around and around and around and around and\n\raround.  The stairs continue up and down.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 6530
+        },
+        {
+          "dir": "down",
+          "toVnum": 6528
+        }
+      ]
+    },
+    {
+      "vnum": 6530,
+      "name": "Top of stairs",
+      "description": "You are at the top of the stairs in the castle.  There is an exit\n\rto the east, and the stairs lead down.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6531
+        },
+        {
+          "dir": "down",
+          "toVnum": 6529
+        }
+      ]
+    },
+    {
+      "vnum": 6531,
+      "name": "Queen's waiting room",
+      "description": "This is the Queen's waiting room.  Here the men literally\n\r'wait' for the queen.  You've heard that the queen really likes\n\rto get to 'know' her people, in the biblical sense.  The queen's\n\rbedroom is to the north, and you can see stairs to the west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6532,
+          "key": 6502,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "door"
+        },
+        {
+          "dir": "west",
+          "toVnum": 6530
+        }
+      ]
+    },
+    {
+      "vnum": 6532,
+      "name": "Bedroom",
+      "description": "This is the Queen's bedroom.  The bed is all ruffled, and there\n\ris a stack of dirty sheets piled in the corner.\n\r\n\rA note has been scrawled in lipstick on the mirror:\n\r\n\r    I'm out looking for my birth control pills.\n\r    Why don't you slip into something comfortable while you're waiting?\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 6531,
+          "key": 6502,
+          "flags": [
+            "door",
+            "closed"
+          ],
+          "keyword": "door"
+        }
+      ]
+    },
+    {
+      "vnum": 6534,
+      "name": "Hospital",
+      "description": "You are inside the Dwarven Hospital.  It smells like rubbing\n\ralcohol, and there is blood all over the walls.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 6519
+        }
+      ]
+    },
+    {
+      "vnum": 6535,
+      "name": "Granite Head's Bakery",
+      "description": "The aroma coming from this room is sensuous.  You can almost taste\n\rthe pastries dissolving in your mouth.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6517
+        }
+      ]
+    },
+    {
+      "vnum": 6540,
+      "name": "Dark path",
+      "description": "This path is very well worn, and there is an entrance to the mines to the\n\reast, while the path continues to the north and west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6504
+        },
+        {
+          "dir": "east",
+          "toVnum": 6541,
+          "key": 6502,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "keyword": "door"
+        },
+        {
+          "dir": "west",
+          "toVnum": 6503
+        }
+      ]
+    },
+    {
+      "vnum": 6541,
+      "name": "Mine entrance",
+      "description": "The little path here leads down toward the mines, while the worn path\n\rcontinues to the west.\n\r",
+      "roomFlags": [
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 6540,
+          "key": 6502,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "keyword": "door"
+        },
+        {
+          "dir": "down",
+          "toVnum": 6542
+        }
+      ]
+    },
+    {
+      "vnum": 6542,
+      "name": "Inside the mine",
+      "description": "There are holes everywhere from the places that the workers blew\n\raway the rock to get to whatever they were looking for.  A path leads\n\rdown and up.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "up",
+          "toVnum": 6541
+        },
+        {
+          "dir": "down",
+          "toVnum": 6554
+        }
+      ]
+    },
+    {
+      "vnum": 6543,
+      "name": "Path in the mine",
+      "description": "You are deep inside the mine, and you feel very uncomfortable.  The\n\rpath continues to the east, and leads to the mineshaft to the west.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6544
+        },
+        {
+          "dir": "west",
+          "toVnum": 6554
+        }
+      ]
+    },
+    {
+      "vnum": 6544,
+      "name": "Mine crossroad",
+      "description": "You are at a crossroad in the mine.  There is a door to the north,\n\rand the path continues to the south, east, and west.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6546,
+          "key": 6502,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "keyword": "door"
+        },
+        {
+          "dir": "east",
+          "toVnum": 6545
+        },
+        {
+          "dir": "south",
+          "toVnum": 6551
+        },
+        {
+          "dir": "west",
+          "toVnum": 6543
+        }
+      ]
+    },
+    {
+      "vnum": 6545,
+      "name": "Coal Room",
+      "description": "You are inside the storage area for the raw materials\n\rthat are found down here.  The room is very unsturdy as the\n\rsupports are very rickety.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 6544
+        }
+      ]
+    },
+    {
+      "vnum": 6546,
+      "name": "Mine Maze",
+      "description": "You have entered the maze of the mines.  To the east you\n\rcan see some inscriptions, and you can exit to the south.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6547
+        },
+        {
+          "dir": "south",
+          "toVnum": 6544,
+          "key": 6502,
+          "flags": [
+            "door",
+            "closed",
+            "locked",
+            "pickproof"
+          ],
+          "keyword": "door"
+        }
+      ]
+    },
+    {
+      "vnum": 6547,
+      "name": "Maze inscription",
+      "description": "You are inside the maze, but not far enough in that you could get lost.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6548
+        },
+        {
+          "dir": "west",
+          "toVnum": 6546
+        }
+      ]
+    },
+    {
+      "vnum": 6548,
+      "name": "Maze",
+      "description": "You are in a maze.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6549
+        },
+        {
+          "dir": "south",
+          "toVnum": 6547
+        }
+      ]
+    },
+    {
+      "vnum": 6549,
+      "name": "Maze",
+      "description": "You are in a maze.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6550
+        },
+        {
+          "dir": "west",
+          "toVnum": 6548
+        }
+      ]
+    },
+    {
+      "vnum": 6550,
+      "name": "Maze",
+      "description": "You are in a maze.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 6549
+        },
+        {
+          "dir": "west",
+          "toVnum": 6552
+        }
+      ]
+    },
+    {
+      "vnum": 6551,
+      "name": "Mining equipment room",
+      "description": "This is the storage room for equipment used by the\n\rDwarven miners.  It is very small, and you can tell that\n\rnot many miners actually use any equipment.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 6544
+        }
+      ]
+    },
+    {
+      "vnum": 6552,
+      "name": "Solved the Maze.",
+      "description": "You have solved the maze.  You can tell by the last few moves\n\rthat there is no way that a dumb worker could have figured that\n\rout.  It seems pretty desolate here.  To the south is a bleak room.\n\rTo the north, you see the maze.  There is a sign above the south exit:\n\r\n\r    Those who enter, plan on a timely death.\n\r    Especially if you're loyal to the queen.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6550
+        },
+        {
+          "dir": "west",
+          "toVnum": 6553
+        }
+      ]
+    },
+    {
+      "vnum": 6553,
+      "name": "The Mazekeeper's Room",
+      "description": "You have entered the Mazekeeper's room.  There are pictures of\n\rthe Queen with darts thrown in it.  Spray-painted on the wall are\n\rthings like 'the queen shall suffer' and 'Catholics Rule'.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6552
+        }
+      ]
+    },
+    {
+      "vnum": 6554,
+      "name": "Bottom of mineshaft",
+      "description": "You are at the bottom of the mineshaft.  The air here is very sooty, and\n\rit is very hard to breath.  The mineshaft leads up and east.\n\r",
+      "roomFlags": [
+        "dark",
+        "indoors"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6543
+        },
+        {
+          "dir": "up",
+          "toVnum": 6542
+        }
+      ]
+    },
+    {
+      "vnum": 6562,
+      "name": "The mountains of the dwarven kingdom",
+      "description": "You are standing at the foot of the mountains of the dwarven kingdom, where\n\rdwarves and giants toil endlessly to pry gems and mithril from the mother \n\rearth.  Here lies the palace of the dwarven queen, and untold riches.\n\rBut beware, for the mines are said to be haunted by demon and spirit alike.\n\rThe dwarven kingdom lies to the east.\n\r",
+      "sectorType": "mountain",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 6500,
+          "description": "The dwarven kingdom awaits!\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 4000,
+          "description": "You see the foothills of this mighty mountain range.\n\r"
+        }
+      ]
+    }
+  ],
+  "mobiles": [
+    {
+      "vnum": 6500,
+      "name": "oldstyle dwarf guard",
+      "shortDescr": "the dwarven guard",
+      "longDescr": "A dwarven guard is here.\n\r",
+      "description": "The guard looks very tough and mean.\n\r",
+      "race": "dwarf",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "actFlagsValue": 2051,
+      "affectFlags": [
+        "detect_invis",
+        "infrared"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "poison",
+        "disease"
+      ],
+      "vulnFlags": [
+        "drowning"
+      ],
+      "alignment": 500,
+      "group": 0,
+      "level": 20,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 333
+      },
+      "manaDice": {
+        "number": 10,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -4,
+        "bash": -4,
+        "slash": -4,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6501,
+      "name": "oldstyle dwarf worker miner",
+      "shortDescr": "the dwarven worker",
+      "longDescr": "A dwarven mining worker is here.\n\r",
+      "description": "He is very dirty, and looks extremely over-worked.\n\r",
+      "race": "dwarf",
+      "actFlags": [
+        "npc",
+        "stay_area"
+      ],
+      "actFlagsValue": 2113,
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "poison",
+        "disease"
+      ],
+      "vulnFlags": [
+        "drowning"
+      ],
+      "alignment": 900,
+      "group": 0,
+      "level": 12,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 10,
+        "bonus": 150
+      },
+      "manaDice": {
+        "number": 6,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 10,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 0,
+        "bash": 0,
+        "slash": 0,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 175,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6502,
+      "name": "oldstyle wraith",
+      "shortDescr": "the wraith",
+      "longDescr": "A wraith is awaiting your first move here.\n\r",
+      "description": "A black, almost transparent wraith.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "affectFlags": [
+        "detect_invis",
+        "detect_hidden"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -900,
+      "group": 0,
+      "level": 29,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 6,
+        "type": 12,
+        "bonus": 778
+      },
+      "manaDice": {
+        "number": 14,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 12,
+        "bonus": 8
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -9,
+        "bash": -9,
+        "slash": -9,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 2500,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6503,
+      "name": "oldstyle storekeeper",
+      "shortDescr": "the storekeeper",
+      "longDescr": "There is the Hide & Tooth storekeeper standing here, waiting patiently.\n\r",
+      "description": "The storekeeper is very rotund, but looks like a sharp guy.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "actFlagsValue": 2051,
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 900,
+      "group": 0,
+      "level": 35,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 10,
+        "type": 10,
+        "bonus": 1300
+      },
+      "manaDice": {
+        "number": 17,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 7,
+        "bonus": 11
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -11,
+        "bash": -11,
+        "slash": -11,
+        "exotic": 5
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 5000,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6504,
+      "name": "oldstyle baker",
+      "shortDescr": "the baker",
+      "longDescr": "Granite Head, the baker, is waiting for a customer here.\n\r",
+      "description": "Granite Head is covered with flour and grains.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "actFlagsValue": 2051,
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 900,
+      "group": 0,
+      "level": 35,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 10,
+        "type": 10,
+        "bonus": 1300
+      },
+      "manaDice": {
+        "number": 17,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 7,
+        "bonus": 11
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -11,
+        "bash": -11,
+        "slash": -11,
+        "exotic": 5
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 50,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6505,
+      "name": "oldstyle lizard",
+      "shortDescr": "the giant lizard",
+      "longDescr": "A giant lizard is here.\n\r",
+      "description": "This scaly creature looks like it is well adapted to it's underground\n\rhabitat.  He looks very powerful.\n\r",
+      "race": "lizard",
+      "actFlags": [
+        "npc",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "detect_invis"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "poison"
+      ],
+      "vulnFlags": [
+        "cold"
+      ],
+      "alignment": 100,
+      "group": 0,
+      "level": 18,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 283
+      },
+      "manaDice": {
+        "number": 9,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 4
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -3,
+        "bash": -3,
+        "slash": -3,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 60,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6506,
+      "name": "oldstyle giant",
+      "shortDescr": "the giant",
+      "longDescr": "A giant is here.\n\r",
+      "description": "The giant is about 8 feet tall, with arms of steel, and looks very strong.\n\r",
+      "race": "giant",
+      "actFlags": [
+        "npc",
+        "stay_area"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "fire",
+        "cold"
+      ],
+      "vulnFlags": [
+        "lightning",
+        "mental"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 16,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 233
+      },
+      "manaDice": {
+        "number": 8,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 4
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -2,
+        "bash": -2,
+        "slash": -2,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 100,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6507,
+      "name": "oldstyle dwarf miner",
+      "shortDescr": "the dwarven miner",
+      "longDescr": "A dwarven miner is here.\n\r",
+      "description": "The mineworker is very tired, and very dirty, and he has bulging muscles.\n\r",
+      "race": "dwarf",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "actFlagsValue": 2051,
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "poison",
+        "disease"
+      ],
+      "vulnFlags": [
+        "drowning"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 8,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 96
+      },
+      "manaDice": {
+        "number": 4,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 7,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 3,
+        "bash": 3,
+        "slash": 3,
+        "exotic": 9
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 2,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6508,
+      "name": "oldstyle dwarf leader",
+      "shortDescr": "the dwarven mine leader",
+      "longDescr": "A dwarven mine leader is here.\n\r",
+      "description": "The mine leader is very big and very strong.\n\r",
+      "race": "dwarf",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "actFlagsValue": 2051,
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "poison",
+        "disease"
+      ],
+      "vulnFlags": [
+        "drowning"
+      ],
+      "alignment": 0,
+      "group": 0,
+      "level": 21,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 4,
+        "type": 10,
+        "bonus": 360
+      },
+      "manaDice": {
+        "number": 10,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 4,
+        "type": 4,
+        "bonus": 5
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -5,
+        "bash": -5,
+        "slash": -5,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 1000,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6509,
+      "name": "oldstyle dwarf doctor",
+      "shortDescr": "the dwarven doctor",
+      "longDescr": "The dwarven doctor is here.\n\r",
+      "description": "He is a very skilled surgeon, with hands of steel.\n\r",
+      "race": "dwarf",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "actFlagsValue": 2051,
+      "affectFlags": [
+        "detect_invis",
+        "sanctuary",
+        "infrared"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "poison",
+        "disease"
+      ],
+      "vulnFlags": [
+        "drowning"
+      ],
+      "alignment": 1000,
+      "group": 0,
+      "level": 9,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 110
+      },
+      "manaDice": {
+        "number": 4,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 8,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 2,
+        "bash": 2,
+        "slash": 2,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 75,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6510,
+      "name": "oldstyle dwarf peon",
+      "shortDescr": "the dwarven peon",
+      "longDescr": "A dwarven peon is awaiting help here.\n\r",
+      "description": "",
+      "race": "dwarf",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "actFlagsValue": 2051,
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "poison",
+        "disease"
+      ],
+      "vulnFlags": [
+        "drowning"
+      ],
+      "alignment": 500,
+      "group": 0,
+      "level": 3,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 35
+      },
+      "manaDice": {
+        "number": 1,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 6
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 7,
+        "bash": 7,
+        "slash": 7,
+        "exotic": 10
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 3,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6511,
+      "name": "oldstyle dwarf",
+      "shortDescr": "the dwarf",
+      "longDescr": "A grinning dwarf is here.\n\r",
+      "description": "",
+      "race": "dwarf",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "actFlagsValue": 2051,
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "poison",
+        "disease"
+      ],
+      "vulnFlags": [
+        "drowning"
+      ],
+      "alignment": 500,
+      "group": 0,
+      "level": 9,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 110
+      },
+      "manaDice": {
+        "number": 4,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 8,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 2,
+        "bash": 2,
+        "slash": 2,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 62,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6512,
+      "name": "oldstyle dwarf son",
+      "shortDescr": "the unwanted son",
+      "longDescr": "An unwanted son is here.  You feel sorry for the guy.\n\r",
+      "description": "",
+      "race": "dwarf",
+      "actFlags": [
+        "npc",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "poison",
+        "disease"
+      ],
+      "vulnFlags": [
+        "drowning"
+      ],
+      "alignment": 250,
+      "group": 0,
+      "level": 9,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 110
+      },
+      "manaDice": {
+        "number": 4,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 1,
+        "type": 8,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 2,
+        "bash": 2,
+        "slash": 2,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 2,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6513,
+      "name": "oldstyle dwarf daughter",
+      "shortDescr": "the unwanted daughter",
+      "longDescr": "An unwanted daughter is here.  You feel sorry for her.\n\r",
+      "description": "",
+      "race": "dwarf",
+      "actFlags": [
+        "npc",
+        "stay_area"
+      ],
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "poison",
+        "disease"
+      ],
+      "vulnFlags": [
+        "drowning"
+      ],
+      "alignment": 250,
+      "group": 0,
+      "level": 10,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 2,
+        "type": 7,
+        "bonus": 121
+      },
+      "manaDice": {
+        "number": 5,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 4,
+        "bonus": 2
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": 1,
+        "bash": 1,
+        "slash": 1,
+        "exotic": 8
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "wealth": 2,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6514,
+      "name": "oldstyle dwarf guard",
+      "shortDescr": "the barracks guard",
+      "longDescr": "A barrack guard is here.\n\r",
+      "description": "",
+      "race": "dwarf",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "actFlagsValue": 2051,
+      "affectFlags": [
+        "infrared"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "poison",
+        "disease"
+      ],
+      "vulnFlags": [
+        "drowning"
+      ],
+      "alignment": 100,
+      "group": 0,
+      "level": 16,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 233
+      },
+      "manaDice": {
+        "number": 8,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 4
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -2,
+        "bash": -2,
+        "slash": -2,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 150,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6515,
+      "name": "oldstyle man",
+      "shortDescr": "the man in waiting",
+      "longDescr": "A man in waiting is here.  He looks nervous and unsure of himself.\n\r",
+      "description": "",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "actFlagsValue": 2051,
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": 300,
+      "group": 0,
+      "level": 15,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 208
+      },
+      "manaDice": {
+        "number": 7,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -2,
+        "bash": -2,
+        "slash": -2,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 348,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6516,
+      "name": "oldstyle mazekeeper",
+      "shortDescr": "the mazekeeper",
+      "longDescr": "A mazekeeper is here.\n\r",
+      "description": "He looks VERY tough.\n\r",
+      "race": "human",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "actFlagsValue": 2083,
+      "affectFlags": [
+        "sanctuary"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_vnum"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 29,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 6,
+        "type": 12,
+        "bonus": 778
+      },
+      "manaDice": {
+        "number": 14,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 12,
+        "bonus": 8
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -9,
+        "bash": -9,
+        "slash": -9,
+        "exotic": 6
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 4000,
+      "size": "medium",
+      "material": "0"
+    },
+    {
+      "vnum": 6517,
+      "name": "oldstyle snake",
+      "shortDescr": "the giant snake",
+      "longDescr": "There is a giant snake here.\n\r",
+      "description": "",
+      "race": "snake",
+      "actFlags": [
+        "npc",
+        "sentinel",
+        "aggressive"
+      ],
+      "atkFlags": [
+        "disarm",
+        "dodge",
+        "trip",
+        "assist_race"
+      ],
+      "resFlags": [
+        "poison"
+      ],
+      "vulnFlags": [
+        "cold"
+      ],
+      "alignment": -1000,
+      "group": 0,
+      "level": 15,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 208
+      },
+      "manaDice": {
+        "number": 7,
+        "type": 9,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 6,
+        "bonus": 3
+      },
+      "damType": "none",
+      "ac": {
+        "pierce": -2,
+        "bash": -2,
+        "slash": -2,
+        "exotic": 7
+      },
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "male",
+      "wealth": 150,
+      "size": "medium",
+      "material": "0"
+    }
+  ],
+  "objects": [
+    {
+      "vnum": 6502,
+      "name": "key green",
+      "shortDescr": "a deep green key",
+      "description": "A deep green key is on the floor.",
+      "material": "oldstyle",
+      "itemType": "key",
+      "wearFlags": [
+        "take"
+      ],
+      "weight": 10,
+      "condition": 100
+    },
+    {
+      "vnum": 6504,
+      "name": "dwarven hammer",
+      "shortDescr": "a hammer",
+      "description": "There is a dwarven hammer laying here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "mace",
+        "dice": [
+          4,
+          4
+        ],
+        "damageType": "pound"
+      },
+      "level": 17,
+      "weight": 30,
+      "cost": 880,
+      "condition": 100
+    },
+    {
+      "vnum": 6505,
+      "name": "dwarven plate",
+      "shortDescr": "dwarven plate mail",
+      "description": "There is dwarven plate mail laying here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "body"
+      ],
+      "armor": {
+        "acPierce": 7,
+        "acBash": 7,
+        "acSlash": 7
+      },
+      "level": 20,
+      "weight": 40,
+      "cost": 2900,
+      "condition": 100
+    },
+    {
+      "vnum": 6506,
+      "name": "stick",
+      "shortDescr": "long, black stick",
+      "description": "There is a long, black stick lying here.",
+      "material": "oldstyle",
+      "itemType": "staff",
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "wand": {
+        "level": 4,
+        "chargesTotal": 10,
+        "spell": "cure critical"
+      },
+      "level": 11,
+      "weight": 10,
+      "cost": 4800,
+      "condition": 100
+    },
+    {
+      "vnum": 6507,
+      "name": "stick",
+      "shortDescr": "long, black stick",
+      "description": "There is a long, black stick here.",
+      "material": "oldstyle",
+      "itemType": "light",
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "light": {
+        "hours": 50
+      },
+      "weight": 10,
+      "condition": 100
+    },
+    {
+      "vnum": 6508,
+      "name": "club",
+      "shortDescr": "dwarven club",
+      "description": "There is a dwarven club laying here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "mace",
+        "dice": [
+          2,
+          6
+        ],
+        "damageType": "pound"
+      },
+      "level": 10,
+      "weight": 10,
+      "cost": 510,
+      "condition": 100
+    },
+    {
+      "vnum": 6509,
+      "name": "two-handed dwarven axe",
+      "shortDescr": "a two-handed dwarven axe",
+      "description": "A two-handed Dwarven axe is here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "axe",
+        "dice": [
+          2,
+          7
+        ],
+        "damageType": "cleave",
+        "flags": [
+          "twohands"
+        ]
+      },
+      "level": 17,
+      "weight": 50,
+      "cost": 4100,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 17,
+          "duration": -1,
+          "modifier": 2
+        },
+        {
+          "where": "object",
+          "location": "strength",
+          "level": 17,
+          "duration": -1,
+          "modifier": 2
+        }
+      ]
+    },
+    {
+      "vnum": 6510,
+      "name": "helmet",
+      "shortDescr": "a dwarven helmet",
+      "description": "A dwarven helmet is here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "head"
+      ],
+      "armor": {
+        "acPierce": 7,
+        "acBash": 7,
+        "acSlash": 7
+      },
+      "level": 20,
+      "weight": 40,
+      "cost": 1450,
+      "condition": 100
+    },
+    {
+      "vnum": 6511,
+      "name": "ring golden dwarven",
+      "shortDescr": "a dwarven golden ring",
+      "description": "A pretty golden ring is here.",
+      "material": "oldstyle",
+      "itemType": "gem",
+      "extraFlags": [
+        "magic"
+      ],
+      "wearFlags": [
+        "take",
+        "finger"
+      ],
+      "level": 7,
+      "weight": 10,
+      "cost": 460,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "hitroll",
+          "level": 7,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "damroll",
+          "level": 7,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 6512,
+      "name": "gloves",
+      "shortDescr": "dwarven gloves",
+      "description": "Thick dwarven gloves lay here.",
+      "material": "oldstyle",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "hands"
+      ],
+      "armor": {
+        "acPierce": 5,
+        "acBash": 5,
+        "acSlash": 5
+      },
+      "level": 13,
+      "weight": 20,
+      "cost": 2000,
+      "condition": 100,
+      "affects": [
+        {
+          "where": "object",
+          "location": "strength",
+          "level": 13,
+          "duration": -1,
+          "modifier": 1
+        },
+        {
+          "where": "object",
+          "location": "dexterity",
+          "level": 13,
+          "duration": -1,
+          "modifier": 1
+        }
+      ]
+    },
+    {
+      "vnum": 6513,
+      "name": "note",
+      "shortDescr": "a note",
+      "description": "A crumpled note is here.",
+      "material": "oldstyle",
+      "itemType": "furniture",
+      "wearFlags": [
+        "take"
+      ],
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "note letter letters",
+          "description": "It seems to be a hot love letter from the Queen.  Unfortunately,\n\rit's not suitable for transmission across a public data network.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6514,
+      "name": "castle key",
+      "shortDescr": "a castle key",
+      "description": "There is a key to Strangelove Castle here.",
+      "material": "oldstyle",
+      "itemType": "key",
+      "wearFlags": [
+        "take"
+      ],
+      "condition": 100
+    },
+    {
+      "vnum": 6516,
+      "name": "key mine",
+      "shortDescr": "a mine key",
+      "description": "There is a key to the mines here.",
+      "material": "oldstyle",
+      "itemType": "key",
+      "wearFlags": [
+        "take"
+      ],
+      "condition": 100
+    },
+    {
+      "vnum": 6517,
+      "name": "coal",
+      "shortDescr": "a chunk of coal",
+      "description": "There is a chunk of coal here.",
+      "material": "oldstyle",
+      "itemType": "trash",
+      "extraFlags": [
+        "nolocate"
+      ],
+      "wearFlags": [
+        "take",
+        "hold"
+      ],
+      "weight": 10,
+      "condition": 100
+    },
+    {
+      "vnum": 6518,
+      "name": "pick",
+      "shortDescr": "a mining pick",
+      "description": "There is a mining pick here.",
+      "material": "oldstyle",
+      "itemType": "weapon",
+      "extraFlags": [
+        "bless"
+      ],
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "mace",
+        "dice": [
+          2,
+          3
+        ],
+        "damageType": "pierce"
+      },
+      "level": 3,
+      "weight": 10,
+      "cost": 240,
+      "condition": 100
+    },
+    {
+      "vnum": 6519,
+      "name": "pills",
+      "shortDescr": "a box of birth control pills",
+      "description": "There is a box of birth control pills here.",
+      "material": "oldstyle",
+      "itemType": "pill",
+      "wearFlags": [
+        "take"
+      ],
+      "spells": {
+        "level": 20,
+        "spells": [
+          "",
+          "",
+          "change sex"
+        ]
+      },
+      "weight": 10,
+      "cost": 300,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "birth control pills pill",
+          "description": "They are in a circular container, and there are numbers corresponding\n\rto the day that they are to be taken.  You can tell they haven't been\n\rused for a while.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 6520,
+      "name": "map castle strangelove",
+      "shortDescr": "a map of Castle Strangelove",
+      "description": "A rolled up map is here.",
+      "material": "oldstyle",
+      "itemType": "map",
+      "wearFlags": [
+        "take"
+      ],
+      "values": [
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "weight": 10,
+      "cost": 500,
+      "condition": 100,
+      "extraDescs": [
+        {
+          "keyword": "map castle strangelove",
+          "description": ".\n\r* * * Castle Strangelove * * *       __________\n\r = = ==================== = =        \\ Queen's \\\n\r      \t\t\t              \\ Bedroom \\\n\r                                       \\_________\\\n\r                                                *\n\r                               __________    ____\\_____\n\r     North  Up                 \\  Top of \\    \\ Waiting \\\n\r        \\   |                   \\ Stairs  \\----\\  Room   \\\n\r          \\ |                    \\_________\\    \\_________\\\n\r  West ---- + ---- East             |\n\r            | \\                _____|____\n\r            |   \\              \\         \\\n\r          Down  South           \\ Stairs  \\    [] - You need the Castle Key\n\r                                 \\_________\\        to get beyond this point.\n\r                                    |               The Castle Key can be\n\r                               _____|____           found on the Grinning\n\r                               \\         \\          Dwarves in the Barracks.\n\r                                \\ Stairs  \\\n\r                                 \\_________\\    * - You need the Deep Green\n\r                                    |               Key to get beyond this\n\r                __________     _____|____           point.  This key can be\n\r                \\ Door to \\    \\ Inside  \\          found on the Wraith in\n\r                 \\ Castle  \\-[]-\\ Castle  \\         the wine cellar or on one\n\r                  \\_________\\    \\_________\\        of the Dwarven Guards on\n\r                           \\                        the Dark path.\n\r                         ____\\_____\n\r                         \\ Path to \\\n\r                          \\ Castle  \\\n\r                           \\_________\\\n\r                                    \\\n\r                   __________     ____\\_____\n\r                   \\ Door to \\    \\ Path to \\\n\r                    \\ Kingdom \\----\\ Castle  \\\n\r                     \\_________\\    \\_________\\\n\r                              \\\n\r                           To Dwarven\n\r                             Kingdom\n\r"
+        }
+      ]
+    }
+  ],
+  "shops": [
+    {
+      "keeper": 6503,
+      "buyTypes": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "profitBuy": 150,
+      "profitSell": 50,
+      "openHour": 0,
+      "closeHour": 23
+    },
+    {
+      "keeper": 6504,
+      "buyTypes": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "profitBuy": 150,
+      "profitSell": 50,
+      "openHour": 0,
+      "closeHour": 23
+    }
+  ],
+  "specials": [],
+  "mobprogs": [],
+  "resets": [
+    {
+      "mobVnum": 6501,
+      "maxInArea": 6,
+      "roomVnum": 6501,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6501,
+      "maxInArea": 6,
+      "roomVnum": 6502,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6507,
+      "roomVnum": 6503,
+      "commandName": "placeObj"
+    },
+    {
+      "mobVnum": 6501,
+      "maxInArea": 6,
+      "roomVnum": 6503,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6500,
+      "maxInArea": 10,
+      "roomVnum": 6505,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6504,
+      "wearLoc": "wielded",
+      "roomVnum": 6505,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 6505,
+      "wearLoc": "on the body",
+      "roomVnum": 6505,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 6502,
+      "roomVnum": 6505,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 6500,
+      "maxInArea": 10,
+      "roomVnum": 6505,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6504,
+      "wearLoc": "wielded",
+      "roomVnum": 6505,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 6505,
+      "wearLoc": "on the body",
+      "roomVnum": 6505,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 6507,
+      "roomVnum": 6505,
+      "commandName": "placeObj"
+    },
+    {
+      "mobVnum": 6506,
+      "maxInArea": 2,
+      "roomVnum": 6508,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6500,
+      "maxInArea": 10,
+      "roomVnum": 6509,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6509,
+      "wearLoc": "wielded",
+      "roomVnum": 6509,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 6510,
+      "wearLoc": "over the head",
+      "roomVnum": 6509,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 6511,
+      "wearLoc": "on the left finger",
+      "roomVnum": 6509,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 6500,
+      "maxInArea": 10,
+      "roomVnum": 6509,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6512,
+      "wearLoc": "on the hands",
+      "roomVnum": 6509,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 6509,
+      "wearLoc": "wielded",
+      "roomVnum": 6509,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 6505,
+      "wearLoc": "on the body",
+      "roomVnum": 6509,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 6500,
+      "maxInArea": 10,
+      "roomVnum": 6512,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6504,
+      "wearLoc": "wielded",
+      "roomVnum": 6512,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 6500,
+      "maxInArea": 10,
+      "roomVnum": 6512,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6504,
+      "wearLoc": "wielded",
+      "roomVnum": 6512,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 6507,
+      "roomVnum": 6513,
+      "commandName": "placeObj"
+    },
+    {
+      "mobVnum": 6505,
+      "maxInArea": 2,
+      "roomVnum": 6515,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6503,
+      "maxInArea": 1,
+      "roomVnum": 6516,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6504,
+      "roomVnum": 6516,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 6505,
+      "roomVnum": 6516,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 6510,
+      "roomVnum": 6516,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 6511,
+      "roomVnum": 6516,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 6512,
+      "roomVnum": 6516,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 6504,
+      "wearLoc": "wielded",
+      "roomVnum": 6516,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 6505,
+      "maxInArea": 2,
+      "roomVnum": 6520,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6514,
+      "maxInArea": 4,
+      "roomVnum": 6521,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6509,
+      "wearLoc": "wielded",
+      "roomVnum": 6521,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 6514,
+      "maxInArea": 4,
+      "roomVnum": 6521,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6509,
+      "wearLoc": "wielded",
+      "roomVnum": 6521,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 6500,
+      "maxInArea": 10,
+      "roomVnum": 6521,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6500,
+      "maxInArea": 10,
+      "roomVnum": 6521,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6511,
+      "maxInArea": 8,
+      "roomVnum": 6523,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6511,
+      "maxInArea": 8,
+      "roomVnum": 6523,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6508,
+      "wearLoc": "wielded",
+      "roomVnum": 6523,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 6514,
+      "wearLoc": "held in the hands",
+      "roomVnum": 6523,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 6511,
+      "maxInArea": 8,
+      "roomVnum": 6523,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6511,
+      "maxInArea": 8,
+      "roomVnum": 6523,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6511,
+      "maxInArea": 8,
+      "roomVnum": 6524,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6513,
+      "roomVnum": 6524,
+      "commandName": "placeObj"
+    },
+    {
+      "mobVnum": 6502,
+      "maxInArea": 2,
+      "roomVnum": 6524,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6511,
+      "maxInArea": 8,
+      "roomVnum": 6524,
+      "maxInRoom": 6,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6520,
+      "roomVnum": 6524,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 6502,
+      "maxInArea": 2,
+      "roomVnum": 6527,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6502,
+      "roomVnum": 6527,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 6512,
+      "maxInArea": 3,
+      "roomVnum": 6528,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6512,
+      "maxInArea": 3,
+      "roomVnum": 6529,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6513,
+      "maxInArea": 3,
+      "roomVnum": 6529,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6513,
+      "maxInArea": 3,
+      "roomVnum": 6530,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6515,
+      "maxInArea": 4,
+      "roomVnum": 6531,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6515,
+      "maxInArea": 4,
+      "roomVnum": 6531,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6516,
+      "roomVnum": 6532,
+      "commandName": "placeObj"
+    },
+    {
+      "objVnum": 6506,
+      "roomVnum": 6534,
+      "commandName": "placeObj"
+    },
+    {
+      "mobVnum": 6510,
+      "maxInArea": 4,
+      "roomVnum": 6534,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6510,
+      "maxInArea": 4,
+      "roomVnum": 6534,
+      "maxInRoom": 4,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6509,
+      "maxInArea": 1,
+      "roomVnum": 6534,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6506,
+      "wearLoc": "held in the hands",
+      "roomVnum": 6534,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 6519,
+      "roomVnum": 6534,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 6504,
+      "maxInArea": 1,
+      "roomVnum": 6535,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 3000,
+      "roomVnum": 6535,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 3003,
+      "roomVnum": 6535,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 3009,
+      "roomVnum": 6535,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 3031,
+      "roomVnum": 6535,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 6504,
+      "wearLoc": "wielded",
+      "roomVnum": 6535,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 6500,
+      "maxInArea": 10,
+      "roomVnum": 6540,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6504,
+      "wearLoc": "wielded",
+      "roomVnum": 6540,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 6505,
+      "wearLoc": "on the body",
+      "roomVnum": 6540,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 6502,
+      "roomVnum": 6540,
+      "commandName": "giveObj"
+    },
+    {
+      "mobVnum": 6500,
+      "maxInArea": 10,
+      "roomVnum": 6540,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6504,
+      "wearLoc": "wielded",
+      "roomVnum": 6540,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 6505,
+      "wearLoc": "on the body",
+      "roomVnum": 6540,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 6507,
+      "roomVnum": 6540,
+      "commandName": "placeObj"
+    },
+    {
+      "mobVnum": 6507,
+      "maxInArea": 4,
+      "roomVnum": 6542,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6508,
+      "wearLoc": "wielded",
+      "roomVnum": 6542,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 6507,
+      "maxInArea": 4,
+      "roomVnum": 6543,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6508,
+      "wearLoc": "wielded",
+      "roomVnum": 6543,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 6507,
+      "maxInArea": 4,
+      "roomVnum": 6543,
+      "maxInRoom": 3,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6508,
+      "wearLoc": "wielded",
+      "roomVnum": 6543,
+      "commandName": "equipObj"
+    },
+    {
+      "mobVnum": 6508,
+      "maxInArea": 2,
+      "roomVnum": 6543,
+      "maxInRoom": 2,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6512,
+      "wearLoc": "on the hands",
+      "roomVnum": 6543,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 6504,
+      "wearLoc": "wielded",
+      "roomVnum": 6543,
+      "commandName": "equipObj"
+    },
+    {
+      "objVnum": 6517,
+      "roomVnum": 6545,
+      "commandName": "placeObj"
+    },
+    {
+      "mobVnum": 6517,
+      "maxInArea": 2,
+      "roomVnum": 6548,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 6517,
+      "maxInArea": 2,
+      "roomVnum": 6549,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6518,
+      "roomVnum": 6551,
+      "commandName": "placeObj"
+    },
+    {
+      "mobVnum": 6516,
+      "maxInArea": 1,
+      "roomVnum": 6553,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "objVnum": 6519,
+      "roomVnum": 6553,
+      "commandName": "giveObj"
+    }
+  ],
+  "factions": [],
+  "quests": []
+}
