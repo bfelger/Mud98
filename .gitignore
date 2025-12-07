@@ -24,10 +24,13 @@ area/shutdown.txt
 /src.*
 /size_allocs.txt
 /out/*
-# Root-level build directories
 /.build
 /.build-*
 /tools/example-tool
 /src/.vscode/settings.json
 /new/player/*
 ~/new/player/.dummy
+bin/Debug/Mud98
+src/.build-gcc/*
+src/.build-msvc/*
+src/.build-clang/*
