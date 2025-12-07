@@ -346,7 +346,7 @@ static int do_dump(const json_t *json, size_t flags, int depth, hashtable_t *par
                     struct key_len *keylen = &keys[i];
 
                     keylen->key = json_object_iter_key(iter);
-                    keylen->len = json_object_iter_key_len(iter);
+                    keylen->len = (int)json_object_iter_key_len(iter);
 
                     iter = json_object_iter_next((json_t *)json, iter);
                     i++;

@@ -1710,7 +1710,7 @@ multadd(Bigint *b, int m, int a MTd)	/* multiply by m and add a */
 			Bfree(b MTa);
 			b = b1;
 			}
-		b->x[wds++] = carry;
+		b->x[wds++] = (ULong)carry;
 		b->wds = wds;
 		}
 	return b;
@@ -1879,7 +1879,7 @@ mult(Bigint *a, Bigint *b MTd)
 				*xc++ = z & FFFFFFFF;
 				}
 				while(x < xae);
-			*xc = carry;
+			*xc = (ULong)carry;
 			}
 		}
 #else
@@ -2694,7 +2694,7 @@ rshift(Bigint *b, int k)
 			while(x < xe)
 				*x1++ = *x++;
 		}
-	if ((b->wds = x1 - b->x) == 0)
+	if ((b->wds = (int)(x1 - b->x)) == 0)
 		b->x[0] = 0;
 	}
 
@@ -2906,7 +2906,7 @@ gethex(const char **sp, U *rvp, int rounding, int sign MTd)
 		word1(rvp) = Big1;
 		return;
 		}
-	n = s1 - s0 - 1;
+	n = (int)(s1 - s0) - 1;
 	for(k = 0; n > (1 << (kshift-2)) - 1; n >>= 1)
 		k++;
 	b = Balloc(k MTa);
@@ -2941,7 +2941,7 @@ gethex(const char **sp, U *rvp, int rounding, int sign MTd)
 		n += 4;
 		}
 	*x++ = L;
-	b->wds = n = x - b->x;
+	b->wds = n = (int)(x - b->x);
 	nb = ULbits*n - hi0bits(L);
 	nbits = Nbits;
 	lostbits = 0;
@@ -3588,7 +3588,7 @@ strtod__unused(const char *s00, char **se)
 			z = 10*z + c - '0';
 #endif
 	nd0 = nd;
-	bc.dp0 = bc.dp1 = s - s0;
+	bc.dp0 = bc.dp1 = (int)(s - s0);
 	for(s1 = s; s1 > s0 && *--s1 == '0'; )
 		++nz1;
 #ifdef USE_LOCALE
@@ -3612,13 +3612,13 @@ strtod__unused(const char *s00, char **se)
 #endif
 	if (c == '.') {
 		c = *++s;
-		bc.dp1 = s - s0;
+		bc.dp1 = (int)(s - s0);
 		bc.dplen = bc.dp1 - bc.dp0;
 		if (!nd) {
 			for(; c == '0'; c = *++s)
 				nz++;
 			if (c > '0' && c <= '9') {
-				bc.dp0 = s0 - s;
+				bc.dp0 = (int)(s0 - s);
 				bc.dp1 = bc.dp0 + bc.dplen;
 				s0 = s;
 				nf += nz;
@@ -3761,7 +3761,7 @@ strtod__unused(const char *s00, char **se)
 #endif
 			) {
 #ifdef USE_BF96
-		dval(&rv) = yz;
+		dval(&rv) = (double)yz;
 #endif
 		if (!e)
 			goto ret;
@@ -3914,7 +3914,7 @@ strtod__unused(const char *s00, char **se)
 	t00 = bhi * p10->b0 + (t01 >> 32) + (t10 >> 32);
 	if (t00 & 0x8000000000000000ull) {
 		if ((t00 & 0x3ff) && (~t00 & 0x3fe)) { /* unambiguous result? */
-			if (nd > 19 && ((t00 + (1<<i) + 2) & 0x400) ^ (t00 & 0x400))
+			if (nd > 19 && ((t00 + (1ull<<(unsigned long long)i) + 2ull) & 0x400ull) ^ (t00 & 0x400ull))
 				goto many_digits;
 			if (erv <= 0)
 				goto denormal;
@@ -3931,7 +3931,7 @@ strtod__unused(const char *s00, char **se)
 		}
 	else {
 		if ((t00 & 0x1ff) && (~t00 & 0x1fe)) { /* unambiguous result? */
-			if (nd > 19 && ((t00 + (1<<i) + 2) & 0x200) ^ (t00 & 0x200))
+			if (nd > 19 && ((t00 + (1ull<<(unsigned long long)i) + 2ull) & 0x200ull) ^ (t00 & 0x200ull))
 				goto many_digits;
 			if (erv <= 1)
 				goto denormal1;
@@ -4156,15 +4156,15 @@ strtod__unused(const char *s00, char **se)
 			yz /= 10;
 			e1 += 1;
 			}
-		y = yz / 100000000;
+		y = (ULong)(yz / 100000000);
 		}
 	else if (nd > 9) {
 		i = nd - 9;
-		y = (yz >> i) / pfive[i-1];
+		y = (ULong)((yz >> i) / pfive[i-1]);
 		}
 	else
-		y = yz;
-	dval(&rv) = yz;
+		y = (ULong)yz;
+	dval(&rv) = (double)yz;
 #endif /*}*/
 
 #ifdef IEEE_Arith
@@ -4755,7 +4755,7 @@ strtod__unused(const char *s00, char **se)
 #ifdef Avoid_Underflow
 			if (bc.scale && y <= 2*P*Exp_msk1) {
 				if (aadj <= 0x7fffffff) {
-					if ((z = aadj) <= 0)
+					if ((z = (ULong)aadj) <= 0)
 						z = 1;
 					aadj = z;
 					aadj1 = bc.dsign ? aadj : -aadj;
@@ -5420,7 +5420,7 @@ dtoa_r(double dd, int mode, int ndigits, int *decpt, int *sign, char **rve, char
 		j1 = j + k + 1;
 		den = pfive[k-i] << (j1 - i);
 		for(;;) {
-			dig = res / den;
+			dig = (int)(res / den);
 			*s++ = '0' + dig;
 			if (!(res -= dig*den)) {
 #ifdef SET_INEXACT
@@ -5461,7 +5461,7 @@ dtoa_r(double dd, int mode, int ndigits, int *decpt, int *sign, char **rve, char
 			}
  no_div:
 		for(;;) {
-			dig = den = res >> j;
+			dig = (int)(den = res >> j);
 			*s++ = '0' + dig;
 			if (!(res -= den << j)) {
 #ifdef SET_INEXACT
@@ -5579,7 +5579,7 @@ dtoa_r(double dd, int mode, int ndigits, int *decpt, int *sign, char **rve, char
 					}
 				}
 			else {
-				zb = -(1ull << (eulp + 63));
+				zb = (unsigned long long)(-(long long)((1ull << (eulp + 63))));
 				if (!(zb & res)) {
 					sres = res << (1 - eulp);
 					if (sres < ulp && (!spec_case || 2*sres < ulp)) {
@@ -5697,7 +5697,7 @@ dtoa_r(double dd, int mode, int ndigits, int *decpt, int *sign, char **rve, char
 				goto Fast_failed1;
 				}
 			else {
-				zb = -(1ull << (eulp + 60));
+				zb = (unsigned long long)(-(long long)((1ull << (eulp + 60))));
 				if (!(zb & (res + rb))) {
 					sres = (res - rb) << (1 - eulp);
 					if (sres < ulp && (!spec_case || 2*sres < ulp)) {
