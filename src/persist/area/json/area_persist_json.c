@@ -420,7 +420,7 @@ static PersistResult parse_areadata(json_t* root, const AreaPersistLoadParams* p
         return (PersistResult){ PERSIST_ERR_FORMAT, "JSON area load: missing areadata", -1 };
 
     AreaData* area = new_area_data();
-    area->file_name = str_dup(params->file_name ? params->file_name : "area.json");
+    area->file_name = boot_intern_string(params->file_name ? params->file_name : "area.json");
 
     const char* name = json_string_value(json_object_get(areadata, "name"));
     if (name)
@@ -429,7 +429,7 @@ static PersistResult parse_areadata(json_t* root, const AreaPersistLoadParams* p
     const char* builders = json_string_value(json_object_get(areadata, "builders"));
     if (builders) {
         free_string(area->builders);
-        area->builders = str_dup(builders);
+        area->builders = boot_intern_string(builders);
     }
 
     json_t* vnums = json_object_get(areadata, "vnumRange");
@@ -441,7 +441,7 @@ static PersistResult parse_areadata(json_t* root, const AreaPersistLoadParams* p
     const char* credits = json_string_value(json_object_get(areadata, "credits"));
     if (credits) {
         free_string(area->credits);
-        area->credits = str_dup(credits);
+        area->credits = boot_intern_string(credits);
     }
 
     area->security = (int)json_int_or_default(areadata, "security", area->security);
@@ -508,9 +508,9 @@ static PersistResult parse_exits(RoomData* room, json_t* exits)
         ex_data->exit_reset_flags = (SHORT_FLAGS)flags_from_array(json_object_get(ex, "flags"), exit_flag_table);
 
         const char* desc = json_string_value(json_object_get(ex, "description"));
-        ex_data->description = desc ? str_dup(desc) : &str_empty[0];
+        ex_data->description = desc ? boot_intern_string(desc) : &str_empty[0];
         const char* kw = json_string_value(json_object_get(ex, "keyword"));
-        ex_data->keyword = kw ? str_dup(kw) : &str_empty[0];
+        ex_data->keyword = kw ? boot_intern_string(kw) : &str_empty[0];
 
         room->exit_data[dir] = ex_data;
     }
@@ -538,7 +538,7 @@ static PersistResult parse_rooms(json_t* root, AreaData* area)
         const char* desc = json_string_value(json_object_get(r, "description"));
         if (desc) {
             free_string(room->description);
-            room->description = str_dup(desc);
+            room->description = boot_intern_string(desc);
         }
 
         room->room_flags = flags_from_array(json_object_get(r, "roomFlags"), room_flag_table);
@@ -557,7 +557,7 @@ static PersistResult parse_rooms(json_t* root, AreaData* area)
         const char* owner = json_string_value(json_object_get(r, "owner"));
         if (owner) {
             free_string(room->owner);
-            room->owner = str_dup(owner);
+            room->owner = boot_intern_string(owner);
         }
 
         VNUM vnum = (VNUM)json_int_or_default(r, "vnum", VNUM_NONE);
@@ -576,8 +576,8 @@ static PersistResult parse_rooms(json_t* root, AreaData* area)
                 if (!json_is_object(e))
                     continue;
                 ExtraDesc* ed = new_extra_desc();
-                ed->keyword = str_dup(json_string_value(json_object_get(e, "keyword")));
-                ed->description = str_dup(json_string_value(json_object_get(e, "description")));
+                ed->keyword = boot_intern_string(json_string_value(json_object_get(e, "keyword")));
+                ed->description = boot_intern_string(json_string_value(json_object_get(e, "description")));
                 ADD_EXTRA_DESC(room, ed)
             }
         }
@@ -884,17 +884,17 @@ static PersistResult parse_mobiles(json_t* root, AreaData* area)
         const char* sd = json_string_value(json_object_get(m, "shortDescr"));
         if (sd) {
             free_string(mob->short_descr);
-            mob->short_descr = str_dup(sd);
+            mob->short_descr = boot_intern_string(sd);
         }
         const char* ld = json_string_value(json_object_get(m, "longDescr"));
         if (ld) {
             free_string(mob->long_descr);
-            mob->long_descr = str_dup(ld);
+            mob->long_descr = boot_intern_string(ld);
         }
         const char* desc = json_string_value(json_object_get(m, "description"));
         if (desc) {
             free_string(mob->description);
-            mob->description = str_dup(desc);
+            mob->description = boot_intern_string(desc);
         }
 
         const char* race_name = json_string_value(json_object_get(m, "race"));
@@ -969,7 +969,7 @@ static PersistResult parse_mobiles(json_t* root, AreaData* area)
         const char* mat = json_string_value(json_object_get(m, "material"));
         if (mat) {
             free_string(mob->material);
-            mob->material = str_dup(mat);
+            mob->material = boot_intern_string(mat);
         }
         mob->faction_vnum = (VNUM)json_int_or_default(m, "factionVnum", mob->faction_vnum);
 
@@ -1591,17 +1591,17 @@ static PersistResult parse_objects(json_t* root, AreaData* area)
         const char* sd = json_string_value(json_object_get(o, "shortDescr"));
         if (sd) {
             free_string(obj->short_descr);
-            obj->short_descr = str_dup(sd);
+            obj->short_descr = boot_intern_string(sd);
         }
         const char* desc = json_string_value(json_object_get(o, "description"));
         if (desc) {
             free_string(obj->description);
-            obj->description = str_dup(desc);
+            obj->description = boot_intern_string(desc);
         }
         const char* mat = json_string_value(json_object_get(o, "material"));
         if (mat) {
             free_string(obj->material);
-            obj->material = str_dup(mat);
+            obj->material = boot_intern_string(mat);
         }
 
         const char* itype = json_string_value(json_object_get(o, "itemType"));
@@ -1670,8 +1670,8 @@ static PersistResult parse_objects(json_t* root, AreaData* area)
                 if (!json_is_object(e))
                     continue;
                 ExtraDesc* ed = new_extra_desc();
-                ed->keyword = str_dup(json_string_value(json_object_get(e, "keyword")));
-                ed->description = str_dup(json_string_value(json_object_get(e, "description")));
+                ed->keyword = boot_intern_string(json_string_value(json_object_get(e, "keyword")));
+                ed->description = boot_intern_string(json_string_value(json_object_get(e, "description")));
                 ADD_EXTRA_DESC(obj, ed)
             }
         }
@@ -1687,7 +1687,7 @@ static PersistResult parse_objects(json_t* root, AreaData* area)
         VNUM_FIELD(obj) = vnum;
         if (!obj->material || obj->material[0] == '\0') {
             free_string(obj->material);
-            obj->material = str_dup("");
+            obj->material = boot_intern_string("");
         }
         global_obj_proto_set(obj);
         top_vnum_obj = top_vnum_obj < vnum ? vnum : top_vnum_obj;
@@ -1732,7 +1732,7 @@ static PersistResult parse_mobprogs(json_t* root)
             continue;
         MobProgCode* prog = new_mob_prog_code();
         prog->vnum = vnum;
-        prog->code = str_dup(code);
+        prog->code = boot_intern_string(code);
         ORDERED_INSERT(MobProgCode, prog, mprog_list, vnum);
     }
 
@@ -1790,12 +1790,12 @@ static PersistResult parse_quests(json_t* root, AreaData* area)
         const char* name = json_string_value(json_object_get(q, "name"));
         if (name) {
             free_string(quest->name);
-            quest->name = str_dup(name);
+            quest->name = boot_intern_string(name);
         }
         const char* entry = json_string_value(json_object_get(q, "entry"));
         if (entry) {
             free_string(quest->entry);
-            quest->entry = str_dup(entry);
+            quest->entry = boot_intern_string(entry);
         }
         const char* type = json_string_value(json_object_get(q, "type"));
         if (type) {
@@ -2089,7 +2089,7 @@ static void ensure_help_area(AreaData* area)
         return;
     HelpArea* ha = new_help_area();
     ha->area_data = area;
-    ha->filename = str_dup(area->file_name ? area->file_name : "area.json");
+    ha->filename = boot_intern_string(area->file_name ? area->file_name : "area.json");
     ha->first = ha->last = NULL;
     ha->changed = false;
     ha->next = help_area_list;
@@ -2130,8 +2130,8 @@ static PersistResult parse_helps(json_t* root, AreaData* area)
             continue;
         HelpData* help = new_help_data();
         help->level = (LEVEL)json_int_or_default(h, "level", 0);
-        help->keyword = str_dup(json_string_value(json_object_get(h, "keyword")));
-        help->text = str_dup(json_string_value(json_object_get(h, "text")));
+        help->keyword = boot_intern_string(json_string_value(json_object_get(h, "keyword")));
+        help->text = boot_intern_string(json_string_value(json_object_get(h, "text")));
         append_help(ha, help);
     }
 

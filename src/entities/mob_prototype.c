@@ -110,13 +110,20 @@ MobPrototype* new_mob_prototype()
 
     init_header(&mob_proto->header, OBJ_MOB_PROTO);
 
-    mob_proto->short_descr = str_dup("(no short description)");
-    mob_proto->long_descr = str_dup("(no long description)\n\r");
+    if (fBootDb) {
+        mob_proto->short_descr = boot_intern_string("(no short description)");
+        mob_proto->long_descr = boot_intern_string("(no long description)\n\r");
+        mob_proto->material = boot_intern_string("unknown");
+    }
+    else {
+        mob_proto->short_descr = str_dup("(no short description)");
+        mob_proto->long_descr = str_dup("(no long description)\n\r");
+        mob_proto->material = str_dup("unknown");
+    }
     mob_proto->description = &str_empty[0];
     mob_proto->sex = SEX_NEUTRAL;
     mob_proto->act_flags = ACT_IS_NPC;
     mob_proto->race = (int16_t)race_lookup("human");
-    mob_proto->material = str_dup("unknown");
     mob_proto->size = SIZE_MEDIUM;
     mob_proto->start_pos = POS_STANDING;
     mob_proto->default_pos = POS_STANDING;

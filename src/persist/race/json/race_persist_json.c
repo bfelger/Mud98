@@ -251,10 +251,10 @@ PersistResult race_persist_json_load(const PersistReader* reader, const char* fi
         INIT_ARRAY(race->class_start, StartLoc);
         const char* name = json_string_value(json_object_get(r, "name"));
         if (name)
-            race->name = str_dup(name);
+            race->name = boot_intern_string(name);
         const char* who = json_string_value(json_object_get(r, "whoName"));
         if (who)
-            race->who_name = str_dup(who);
+            race->who_name = boot_intern_string(who);
         race->pc_race = json_is_true(json_object_get(r, "pc"));
         race->points = (int16_t)json_int_or_default(r, "points", race->points);
         const char* size = json_string_value(json_object_get(r, "size"));
@@ -308,7 +308,7 @@ PersistResult race_persist_json_load(const PersistReader* reader, const char* fi
             for (size_t s = 0; s < sz && s < RACE_NUM_SKILLS; s++) {
                 const char* sk = json_string_value(json_array_get(skills, s));
                 if (sk)
-                    race->skills[s] = str_dup(sk);
+                    race->skills[s] = boot_intern_string(sk);
             }
         }
     }

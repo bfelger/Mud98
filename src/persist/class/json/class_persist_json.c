@@ -135,16 +135,16 @@ PersistResult class_persist_json_load(const PersistReader* reader, const char* f
         Class* cls = &class_table[i];
         const char* name = json_string_value(json_object_get(c, "name"));
         if (name)
-            cls->name = str_dup(name);
+            cls->name = boot_intern_string(name);
         const char* who = json_string_value(json_object_get(c, "whoName"));
         if (who)
-            cls->who_name = str_dup(who);
+            cls->who_name = boot_intern_string(who);
         const char* base = json_string_value(json_object_get(c, "baseGroup"));
         if (base)
-            cls->base_group = str_dup(base);
+            cls->base_group = boot_intern_string(base);
         const char* dflt = json_string_value(json_object_get(c, "defaultGroup"));
         if (dflt)
-            cls->default_group = str_dup(dflt);
+            cls->default_group = boot_intern_string(dflt);
         cls->weapon = (VNUM)json_int_or_default(c, "weaponVnum", cls->weapon);
         json_t* guilds = json_object_get(c, "guilds");
         if (json_is_array(guilds)) {
@@ -174,9 +174,9 @@ PersistResult class_persist_json_load(const PersistReader* reader, const char* f
                     const char* male = json_string_value(json_array_get(pair, 0));
                     const char* female = json_string_value(json_array_get(pair, 1));
                     if (male)
-                        cls->titles[lvl][0] = str_dup(male);
+                        cls->titles[lvl][0] = boot_intern_string(male);
                     if (female)
-                        cls->titles[lvl][1] = str_dup(female);
+                        cls->titles[lvl][1] = boot_intern_string(female);
                 }
             }
         }

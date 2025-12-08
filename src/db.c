@@ -90,6 +90,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include <sys/types.h>
 #include <time.h>
 
@@ -119,13 +120,41 @@ KillData kill_table[MAX_LEVEL];
 #undef GSN
 
 // Locals.
-char* string_hash[MAX_KEY_HASH];
+typedef struct string_block {
+    struct string_block* next;
+    uint32_t hash;
+} StringBlock;
+
+#define STRING_BLOCK_OVERHEAD ((int)sizeof(StringBlock))
+
+static inline char* string_block_text(StringBlock* block)
+{
+    return (char*)(block + 1);
+}
+
+StringBlock* string_hash[MAX_KEY_HASH];
+
+static uint32_t boot_hash_string(const char* str, size_t len)
+{
+    // FNV-1a hash
+    uint32_t hash = 2166136261u;
+    for (size_t i = 0; i < len; i++) {
+        hash ^= (uint8_t)str[i];
+        hash *= 16777619u;
+    }
+    return hash;
+}
 
 char* string_space;
 char* top_string;
 char str_empty[1];
 
 int	top_mprog_index;    // OLC
+
+#ifdef COUNT_BOOT_STRINGS
+static void report_boot_string_stats(void);
+static void record_boot_string_stat(const char* str, size_t len);
+#endif
 
 /*
  * Memory management.
@@ -300,6 +329,10 @@ void boot_db()
     report_size_allocs();
     printf("\nScratch Space: %d values, %d capacity.\n\n", 
         gc_protect_vals.count, gc_protect_vals.capacity);
+#endif
+
+#ifdef COUNT_BOOT_STRINGS
+    report_boot_string_stats();
 #endif
 
     // Clear our scratch space and force a GC to clear them.
@@ -861,13 +894,41 @@ String* fread_lox_string(FILE* fp)
     return copy_string(str, len);
 }
 
+static char* intern_string(char* plast)
+{
+    plast[-1] = '\0';
+
+    StringBlock* new_block = (StringBlock*)top_string;
+    char* text = string_block_text(new_block);
+    size_t len = (size_t)(plast - text - 1);
+    uint32_t hash = boot_hash_string(text, len);
+    int bucket = (int)(hash % MAX_KEY_HASH);
+
+    for (StringBlock* block = string_hash[bucket]; block != NULL; block = block->next) {
+        if (block->hash == hash && strcmp(string_block_text(block), text) == 0)
+            return string_block_text(block);
+    }
+
+    if (!fBootDb)
+        return str_dup(text);
+
+    new_block->hash = hash;
+    new_block->next = string_hash[bucket];
+    string_hash[bucket] = new_block;
+
+    nAllocString += 1;
+    sAllocString += (size_t)(plast - (char*)new_block);
+    top_string = plast;
+    return text;
+}
+
 char* fread_lox_script(FILE* fp)
 {
     char* plast;
     char c = '\0';
     char last_char = '\0';
 
-    plast = top_string + sizeof(char*);
+    plast = top_string + STRING_BLOCK_OVERHEAD;
     if (plast > &string_space[MAX_STRING - MAX_STRING_LENGTH]) {
         bug("Fread_string: MAX_STRING %d exceeded.", MAX_STRING);
         exit(1);
@@ -909,100 +970,40 @@ char* fread_lox_script(FILE* fp)
 
         case '~':
             plast++;
-            if (last_char == '#')  
-            {
-                // Special case for scripts
+            if (last_char == '#')
                 --plast;
-                union {
-                    char* pc;
-                    char rgc[sizeof(char*)];
-                } u1 = { 0 };
-                int ic;
-                int hash;
-                char* pHash;
-                char* pHashPrev = NULL;
-                char* pString;
-
-                plast[-1] = '\0';
-                hash = (int)UMIN(MAX_KEY_HASH - 1, plast - 1 - top_string);
-                for (pHash = string_hash[hash]; pHash; pHash = pHashPrev) {
-                    for (ic = 0; ic < (int)sizeof(char*); ic++)
-                        u1.rgc[ic] = pHash[ic];
-                    pHashPrev = u1.pc;
-                    pHash += sizeof(char*);
-
-                    if (top_string[sizeof(char*)] == pHash[0]
-                        && !strcmp(top_string + sizeof(char*) + 1, pHash + 1))
-                        return pHash;
-                }
-
-                if (fBootDb) {
-                    pString = top_string;
-                    top_string = plast;
-                    u1.pc = string_hash[hash];
-                    for (ic = 0; ic < (int)sizeof(char*); ic++)
-                        pString[ic] = u1.rgc[ic];
-                    string_hash[hash] = pString;
-
-                    nAllocString += 1;
-                    sAllocString += top_string - pString;
-                    return pString + sizeof(char*);
-                }
-                else {
-                    return str_dup(top_string + sizeof(char*));
-                }
-            }
+            return intern_string(plast);
         }
     }
 }
 
-static char* intern_string(char* plast)
+char* boot_intern_string(const char* str)
 {
-    union {
-        char* pc;
-        char rgc[sizeof(char*)];
-    } u1 = { 0 };
-    int ic;
-    int hash;
-    char* pHash;
-    char* pHashPrev = NULL;
-    char* pString;
+    if (str == NULL || str[0] == '\0')
+        return &str_empty[0];
 
-    plast[-1] = '\0';
-    hash = (int)UMIN(MAX_KEY_HASH - 1, plast - 1 - top_string);
-    for (pHash = string_hash[hash]; pHash; pHash = pHashPrev) {
-        for (ic = 0; ic < (int)sizeof(char*); ic++) u1.rgc[ic] = pHash[ic];
-        pHashPrev = u1.pc;
-        pHash += sizeof(char*);
+    if (!fBootDb)
+        return str_dup(str);
 
-        if (top_string[sizeof(char*)] == pHash[0]
-            && !strcmp(top_string + sizeof(char*) + 1, pHash + 1))
-            return pHash;
+    size_t len = strlen(str);
+    StringBlock* block = (StringBlock*)top_string;
+    char* dest = string_block_text(block);
+    if (dest + len + 1 > &string_space[MAX_STRING]) {
+        bug("Boot_intern_string: MAX_STRING %d exceeded.", MAX_STRING);
+        exit(1);
     }
 
-    if (fBootDb) {
-        pString = top_string;
-        top_string = plast;
-        u1.pc = string_hash[hash];
-        for (ic = 0; ic < (int)sizeof(char*); ic++)
-            pString[ic] = u1.rgc[ic];
-        string_hash[hash] = pString;
-
-        nAllocString += 1;
-        sAllocString += top_string - pString;
-        return pString + sizeof(char*);
-    }
-    else {
-        return str_dup(top_string + sizeof(char*));
-    }
+    memcpy(dest, str, len + 1);
+    char* plast = dest + len + 1;
+    return intern_string(plast);
 }
 
 /*
  * Read and allocate space for a string from a file.
  * These strings are read-only and shared.
  * Strings are hashed:
- *   each string prepended with hash pointer to prev string,
- *   hash code is simply the string length.
+ *   each string prepended with a header linking to the previous string
+ *   in the same bucket, hash code is FNV-1a on the string contents.
  *   this function takes 40% to 50% of boot-up time.
  */
 char* fread_string(FILE* fp)
@@ -1010,7 +1011,7 @@ char* fread_string(FILE* fp)
     char* plast;
     char c;
 
-    plast = top_string + sizeof(char*);
+    plast = top_string + STRING_BLOCK_OVERHEAD;
     if (plast > &string_space[MAX_STRING - MAX_STRING_LENGTH]) {
         bug("Fread_string: MAX_STRING %d exceeded.", MAX_STRING);
         exit(1);
@@ -1076,7 +1077,7 @@ char* fread_string_eol(FILE* fp)
         char_special['\r' - EOF] = true;
     }
 
-    plast = top_string + sizeof(char*);
+    plast = top_string + STRING_BLOCK_OVERHEAD;
     if (plast > &string_space[MAX_STRING - MAX_STRING_LENGTH]) {
         bug("Fread_string: MAX_STRING %d exceeded.", MAX_STRING);
         exit(1);
@@ -1142,7 +1143,7 @@ char* fread_word(FILE* fp)
     char cEnd;
 
     if (fBootDb) {
-        word = top_string + sizeof(char*);
+        word = top_string + STRING_BLOCK_OVERHEAD;
         if (word > &string_space[MAX_STRING - MAX_STRING_LENGTH]) {
             bug("Fread_string: MAX_STRING %d exceeded.", MAX_STRING);
             exit(1);
@@ -1259,6 +1260,224 @@ void report_size_allocs()
     fprintf(fp, "\nTotal wasted memory due to allocation overhead: %zu bytes\n", total_waste);
     fclose(fp);
     return;
+}
+
+#endif
+
+#ifdef COUNT_BOOT_STRINGS
+
+typedef struct boot_string_stat_t {
+    char* sample;
+    size_t length;
+    uint32_t hash;
+    size_t count;
+} BootStringStat;
+
+static BootStringStat* boot_string_table = NULL;
+static size_t boot_string_capacity = 0;
+static size_t boot_string_unique = 0;
+static size_t boot_string_total = 0;
+static size_t boot_string_dup_total = 0;
+static size_t boot_string_dup_bytes = 0;
+
+static uint32_t boot_string_hash(const char* str, size_t len)
+{
+    uint32_t hash = 2166136261u;
+    for (size_t i = 0; i < len; i++) {
+        hash ^= (uint8_t)str[i];
+        hash *= 16777619u;
+    }
+    return hash;
+}
+
+static void boot_string_resize(size_t new_capacity)
+{
+    BootStringStat* new_table = calloc(new_capacity, sizeof(BootStringStat));
+    if (new_table == NULL) {
+        perror("boot_string_resize");
+        return;
+    }
+
+    if (boot_string_table != NULL) {
+        for (size_t i = 0; i < boot_string_capacity; i++) {
+            BootStringStat* entry = &boot_string_table[i];
+            if (entry->sample == NULL)
+                continue;
+            size_t index = entry->hash & (new_capacity - 1);
+            while (new_table[index].sample != NULL)
+                index = (index + 1) & (new_capacity - 1);
+            new_table[index] = *entry;
+        }
+        free(boot_string_table);
+    }
+
+    boot_string_table = new_table;
+    boot_string_capacity = new_capacity;
+}
+
+static void boot_string_ensure_capacity(void)
+{
+    if (boot_string_capacity == 0) {
+        boot_string_resize(1024);
+        return;
+    }
+
+    size_t threshold = (boot_string_capacity * 3) / 4;
+    if (boot_string_unique + 1 > threshold)
+        boot_string_resize(boot_string_capacity * 2);
+}
+
+static BootStringStat* boot_string_find(const char* str, size_t len, uint32_t hash)
+{
+    size_t mask = boot_string_capacity - 1;
+    size_t index = hash & mask;
+
+    for (;;) {
+        BootStringStat* entry = &boot_string_table[index];
+        if (entry->sample == NULL)
+            return entry;
+
+        if (entry->hash == hash && entry->length == len
+            && memcmp(entry->sample, str, len) == 0)
+            return entry;
+
+        index = (index + 1) & mask;
+    }
+}
+
+static void record_boot_string_stat(const char* str, size_t len)
+{
+    if (len == 0)
+        return;
+
+    boot_string_ensure_capacity();
+    if (boot_string_capacity == 0)
+        return;
+
+    boot_string_total++;
+    uint32_t hash = boot_string_hash(str, len);
+
+    BootStringStat* entry = boot_string_find(str, len, hash);
+    if (entry->sample == NULL) {
+        entry->sample = malloc(len + 1);
+        if (entry->sample == NULL) {
+            perror("record_boot_string_stat");
+            return;
+        }
+
+        memcpy(entry->sample, str, len + 1);
+        entry->length = len;
+        entry->hash = hash;
+        entry->count = 1;
+        boot_string_unique++;
+    }
+    else {
+        entry->count++;
+        boot_string_dup_total++;
+        boot_string_dup_bytes += len + 1;
+    }
+}
+
+static int compare_boot_string_stats(const void* lhs, const void* rhs)
+{
+    const BootStringStat* const* a = (const BootStringStat* const*)lhs;
+    const BootStringStat* const* b = (const BootStringStat* const*)rhs;
+
+    if ((*a)->count < (*b)->count)
+        return 1;
+    if ((*a)->count > (*b)->count)
+        return -1;
+    if ((*a)->length < (*b)->length)
+        return 1;
+    if ((*a)->length > (*b)->length)
+        return -1;
+    return 0;
+}
+
+static void format_boot_string_preview(const char* src, size_t len, char* dest, size_t dest_size)
+{
+    size_t written = 0;
+    for (size_t i = 0; i < len && written + 1 < dest_size; i++) {
+        unsigned char ch = (unsigned char)src[i];
+        if (ch == '\n' || ch == '\r') {
+            if (written + 2 >= dest_size)
+                break;
+            dest[written++] = '\\';
+            dest[written++] = 'n';
+        }
+        else if (isprint(ch)) {
+            dest[written++] = (char)ch;
+        }
+        else {
+            dest[written++] = '.';
+        }
+    }
+    dest[written] = '\0';
+}
+
+static void report_boot_string_stats(void)
+{
+    FILE* fp = fopen("boot_string_stats.txt", "w");
+    if (fp == NULL) {
+        perror("report_boot_string_stats: fopen");
+        return;
+    }
+
+    fprintf(fp, "Boot-time str_dup() statistics\n");
+    fprintf(fp, "Total strings: %zu\n", boot_string_total);
+    fprintf(fp, "Unique strings: %zu\n", boot_string_unique);
+    fprintf(fp, "Duplicate strings: %zu\n", boot_string_dup_total);
+    fprintf(fp, "Duplicate heap bytes: %zu\n", boot_string_dup_bytes);
+
+    size_t string_space_used = (size_t)(top_string - string_space);
+    fprintf(fp, "String space usage: %zu / %d bytes (%.2f%%)\n",
+        string_space_used, MAX_STRING,
+        MAX_STRING > 0 ? (100.0 * (double)string_space_used / (double)MAX_STRING) : 0.0);
+
+    if (boot_string_unique > 0) {
+        size_t entry_count = 0;
+        for (size_t i = 0; i < boot_string_capacity; i++) {
+            if (boot_string_table[i].sample != NULL)
+                entry_count++;
+        }
+
+        BootStringStat** entries = malloc(entry_count * sizeof(BootStringStat*));
+        if (entries != NULL) {
+            size_t idx = 0;
+            for (size_t i = 0; i < boot_string_capacity; i++) {
+                if (boot_string_table[i].sample != NULL)
+                    entries[idx++] = &boot_string_table[i];
+            }
+
+            qsort(entries, entry_count, sizeof(BootStringStat*), compare_boot_string_stats);
+
+            fprintf(fp, "\nTop duplicate strings:\n");
+            fprintf(fp, "%8s %8s %12s  %s\n", "Count", "Length", "DupBytes", "Sample");
+            size_t limit = entry_count < 100 ? entry_count : 100;
+            for (size_t i = 0; i < limit; i++) {
+                BootStringStat* entry = entries[i];
+                size_t dup_bytes = (entry->count - 1) * (entry->length + 1);
+                char preview[81];
+                format_boot_string_preview(entry->sample, entry->length, preview, sizeof(preview));
+                fprintf(fp, "%8zu %8zu %12zu  %s\n",
+                    entry->count, entry->length, dup_bytes, preview);
+            }
+
+            free(entries);
+        }
+    }
+
+    fclose(fp);
+
+    if (boot_string_table != NULL) {
+        for (size_t i = 0; i < boot_string_capacity; i++) {
+            free(boot_string_table[i].sample);
+            boot_string_table[i].sample = NULL;
+        }
+        free(boot_string_table);
+        boot_string_table = NULL;
+        boot_string_capacity = 0;
+    }
 }
 
 #endif
@@ -1399,16 +1618,21 @@ void* alloc_perm(size_t sMem)
  */
 char* str_dup(const char* str)
 {
-    char* str_new;
-
     if (str[0] == '\0') 
         return &str_empty[0];
 
     if (IS_PERM_STRING(str)) 
         return (char*)str;
 
-    str_new = alloc_mem(strlen(str) + 1);
+    size_t len = strlen(str);
+    char* str_new = alloc_mem(len + 1);
     strcpy(str_new, str);
+
+#ifdef COUNT_BOOT_STRINGS
+    if (fBootDb)
+        record_boot_string_stat(str_new, len);
+#endif
+
     return str_new;
 }
 

@@ -271,12 +271,12 @@ PersistResult theme_persist_json_load(const PersistReader* reader, const char* f
         const char* name = json_string_value(json_object_get(entry, "name"));
         if (name && name[0]) {
             free_string(theme->name);
-            theme->name = str_dup(name);
+            theme->name = boot_intern_string(name);
         }
         const char* banner = json_string_value(json_object_get(entry, "banner"));
         if (banner) {
             free_string(theme->banner);
-            theme->banner = str_dup(banner);
+            theme->banner = boot_intern_string(banner);
         }
 
         const char* mode_name = json_string_value(json_object_get(entry, "mode"));

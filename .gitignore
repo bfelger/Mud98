@@ -23,6 +23,7 @@ olc2.1e/*
 area/shutdown.txt
 /src.*
 **/size_allocs.txt
+**/boot_string_stats.txt
 /out/*
 /.build
 /.build-*

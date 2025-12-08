@@ -103,8 +103,10 @@ ObjPrototype* new_object_prototype()
 
     SET_NAME(obj_proto, lox_string("no name"));
     
-    obj_proto->short_descr = str_dup("(no short description)");
-    obj_proto->description = str_dup("(no description)");
+    obj_proto->short_descr = fBootDb ? boot_intern_string("(no short description)")
+        : str_dup("(no short description)");
+    obj_proto->description = fBootDb ? boot_intern_string("(no description)")
+        : str_dup("(no description)");
     obj_proto->item_type = ITEM_TRASH;
     obj_proto->condition = 100;
 

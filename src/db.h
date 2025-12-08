@@ -68,6 +68,7 @@ long flag_convert(char letter);
 void* alloc_mem(size_t sMem);
 void* alloc_perm(size_t sMem);
 void free_mem(void* pMem, size_t sMem);
+char* boot_intern_string(const char* str);
 char* str_dup(const char* str);
 char* str_append(char* str1, const char* str2);
 void free_string(char* pstr);
@@ -150,7 +151,12 @@ extern AreaData* current_area_data;
 
 extern int _filbuf(FILE*);
 
-#define COUNT_SIZE_ALLOCS
+// Uncomment to enable detailed string allocation tracking
+// Use to verify no string leaks occur during booting, and to make sure we are
+// interning boot strings correctly.
+//#define COUNT_BOOT_STRINGS
+//#define COUNT_SIZE_ALLOCS
+
 #ifdef COUNT_SIZE_ALLOCS
 void report_size_allocs(); 
 extern size_t amt_perm_alloced;
