@@ -5,6 +5,7 @@
 #include "merc.h"
 
 #include "comm.h"
+#include "config.h"
 #include "db.h"
 #include "handler.h"
 #include "magic.h"
@@ -17,6 +18,17 @@
 #include "data/class.h"
 #include "data/mobile_data.h"
 #include "data/skill.h"
+
+#ifdef _MSC_VER
+#include <io.h>
+#define access _access
+#else
+#include <unistd.h>
+#endif
+
+#ifndef F_OK
+#define F_OK 0
+#endif
 
 #define GEDIT(fun) bool fun(Mobile *ch, char *argument)
 
@@ -55,8 +67,50 @@ void gedit(Mobile* ch, char* argument)
         return;
     }
 
-    if (!str_cmp(command, "save")) {
+    if (!str_prefix(command, "save")) {
+        char arg2[MIL];
+        one_argument(argument, arg2); // optional format
+        const char* requested_ext = NULL;
+        bool force_format = false;
+        if (!str_cmp(arg2, "json")) {
+            requested_ext = ".json";
+            force_format = true;
+        }
+        else if (!str_cmp(arg2, "olc")) {
+            requested_ext = ".olc";
+            force_format = true;
+        }
+        const char* groups_file = cfg_get_groups_file();
+        const char* ext = strrchr(groups_file, '.');
+        bool has_ext = (ext != NULL);
+
+        if (!force_format) {
+            if (has_ext) {
+                requested_ext = NULL;
+            }
+            else {
+                if (access(groups_file, F_OK) != 0) {
+                    const char* def = cfg_get_default_format();
+                    if (def && !str_cmp(def, "json"))
+                        requested_ext = ".json";
+                    else
+                        requested_ext = ".olc";
+                }
+                else {
+                    requested_ext = NULL;
+                }
+            }
+        }
+
+        if (requested_ext != NULL) {
+            size_t base_len = has_ext ? (size_t)(ext - groups_file) : strlen(groups_file);
+            char newname[MIL];
+            snprintf(newname, sizeof(newname), "%.*s%s", (int)base_len, groups_file, requested_ext);
+            cfg_set_groups_file(newname);
+        }
+
         save_skill_group_table();
+        send_to_char("Skill groups saved.\n\r", ch);
         return;
     }
 

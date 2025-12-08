@@ -23,6 +23,7 @@
 #include "merc.h"
 
 #include "comm.h"
+#include "config.h"
 #include "db.h"
 #include "handler.h"
 #include "olc.h"
@@ -39,6 +40,17 @@
 #include <string.h>
 #include <sys/types.h>
 #include <time.h>
+
+#ifdef _MSC_VER
+#include <io.h>
+#define access _access
+#else
+#include <unistd.h>
+#endif
+
+#ifndef F_OK
+#define F_OK 0
+#endif
 
 #define SEDIT(fun) bool fun(Mobile *ch, char *argument)
 
@@ -93,6 +105,55 @@ void sedit(Mobile* ch, char* argument)
 
     if (!str_cmp(argument, "done")) {
         edit_done(ch);
+        return;
+    }
+
+    if (!str_prefix("save", argument)) {
+        char arg1[MIL];
+        char arg2[MIL];
+        argument = one_argument(argument, arg1);
+        argument = one_argument(argument, arg2);
+        const char* requested_ext = NULL;
+        bool force_format = false;
+        if (!str_cmp(arg2, "json")) {
+            requested_ext = ".json";
+            force_format = true;
+        }
+        else if (!str_cmp(arg2, "olc")) {
+            requested_ext = ".olc";
+            force_format = true;
+        }
+        const char* socials_file = cfg_get_socials_file();
+        const char* ext = strrchr(socials_file, '.');
+        bool has_ext = (ext != NULL);
+
+        if (!force_format) {
+            if (has_ext) {
+                requested_ext = NULL;
+            }
+            else {
+                if (access(socials_file, F_OK) != 0) {
+                    const char* def = cfg_get_default_format();
+                    if (def && !str_cmp(def, "json"))
+                        requested_ext = ".json";
+                    else
+                        requested_ext = ".olc";
+                }
+                else {
+                    requested_ext = NULL;
+                }
+            }
+        }
+
+        if (requested_ext != NULL) {
+            size_t base_len = has_ext ? (size_t)(ext - socials_file) : strlen(socials_file);
+            char newname[MIL];
+            snprintf(newname, sizeof(newname), "%.*s%s", (int)base_len, socials_file, requested_ext);
+            cfg_set_socials_file(newname);
+        }
+
+        save_social_table();
+        send_to_char("Socials saved.\n\r", ch);
         return;
     }
 

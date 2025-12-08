@@ -12,6 +12,8 @@
 
 #include <lox/compiler.h>
 
+extern bool test_output_enabled;
+
 extern Table global_const_table;
 
 DEFINE_ARRAY(ClassMult, 100)
@@ -60,6 +62,9 @@ void load_race_table()
         bugf("load_race_table: failed to load races (%s)", res.message ? res.message : "unknown error");
         exit(1);
     }
+
+    if (!test_output_enabled)
+        printf_log("Race table loaded (%d races).", race_count);
 }
 
 void init_race_table_lox()

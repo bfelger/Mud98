@@ -12,6 +12,8 @@
 #include <tablesave.h>
 #include <persist/class/class_persist.h>
 
+extern bool test_output_enabled;
+
 Class* class_table = NULL;
 int class_count = 0;
 
@@ -48,6 +50,9 @@ void load_class_table()
         bugf("load_class_table: failed to load classes (%s)", res.message ? res.message : "unknown error");
         exit(1);
     }
+
+    if (!test_output_enabled)
+        printf_log("Class table loaded (%d classes).", class_count);
 }
 
 void save_class_table()

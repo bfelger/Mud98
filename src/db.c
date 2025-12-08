@@ -51,6 +51,7 @@
 #include <persist/rom-olc/loader_guard.h>
 #include <persist/area/rom-olc/area_persist_rom_olc.h>
 #include <persist/area/area_persist.h>
+#include <persist/command/command_persist.h>
 #include <persist/persist_io_adapters.h>
 
 #include <olc/olc.h>

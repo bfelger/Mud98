@@ -35,3 +35,4 @@ bin/Debug/Mud98
 src/.build-gcc/*
 src/.build-msvc/*
 src/.build-clang/*
+**/*.code-workspace

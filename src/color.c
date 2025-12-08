@@ -1492,7 +1492,7 @@ ColorTheme* dup_color_theme(const ColorTheme* theme)
     ColorTheme* copy = new_color_theme();
     memcpy(copy, theme, sizeof(ColorTheme));
     copy->name = str_dup(theme->name);
-    copy->banner = str_dup(theme->banner);
+    copy->banner = theme->banner ? str_dup(theme->banner) : NULL;
 
     if (theme->type != COLOR_THEME_TYPE_SYSTEM)
         copy->is_public = theme->is_public;

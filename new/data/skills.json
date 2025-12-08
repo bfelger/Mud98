@@ -1,0 +1,2973 @@
+{
+  "formatVersion": 1,
+  "skills": [
+    {
+      "name": "reserved",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "standing"
+    },
+    {
+      "name": "acid blast",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_acid_blast",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 70,
+      "minMana": 20,
+      "beats": 12,
+      "nounDamage": "acid blast",
+      "msgOff": "!Acid Blast!"
+    },
+    {
+      "name": "armor",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_armor",
+      "target": "tar_char_defensive",
+      "minPosition": "standing",
+      "slot": 1,
+      "minMana": 5,
+      "beats": 12,
+      "msgOff": "You feel less armored."
+    },
+    {
+      "name": "bless",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_bless",
+      "target": "tar_obj_char_def",
+      "minPosition": "standing",
+      "slot": 3,
+      "minMana": 5,
+      "beats": 12,
+      "msgOff": "You feel less righteous.",
+      "msgObj": "$p's holy aura fades."
+    },
+    {
+      "name": "blindness",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_blindness",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "gsn": "gsn_blindness",
+      "slot": 4,
+      "minMana": 5,
+      "beats": 12,
+      "msgOff": "You can see again."
+    },
+    {
+      "name": "burning hands",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_burning_hands",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 5,
+      "minMana": 15,
+      "beats": 12,
+      "nounDamage": "burning hands",
+      "msgOff": "!Burning Hands!"
+    },
+    {
+      "name": "call lightning",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_call_lightning",
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "slot": 6,
+      "minMana": 15,
+      "beats": 12,
+      "nounDamage": "lightning bolt",
+      "msgOff": "!Call Lightning!"
+    },
+    {
+      "name": "calm",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_calm",
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "slot": 509,
+      "minMana": 30,
+      "beats": 12,
+      "msgOff": "You have lost your peace of mind."
+    },
+    {
+      "name": "cancellation",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_cancellation",
+      "target": "tar_char_defensive",
+      "minPosition": "fighting",
+      "slot": 507,
+      "minMana": 20,
+      "beats": 12,
+      "nounDamage": "!cancellation!"
+    },
+    {
+      "name": "cause critical",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_cause_critical",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 63,
+      "minMana": 20,
+      "beats": 12,
+      "nounDamage": "spell",
+      "msgOff": "!Cause Critical!"
+    },
+    {
+      "name": "cause light",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_cause_light",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 62,
+      "minMana": 15,
+      "beats": 12,
+      "nounDamage": "spell",
+      "msgOff": "!Cause Light!"
+    },
+    {
+      "name": "cause serious",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_cause_serious",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 64,
+      "minMana": 17,
+      "beats": 12,
+      "nounDamage": "spell",
+      "msgOff": "!Cause Serious!"
+    },
+    {
+      "name": "chain lightning",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_chain_lightning",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 500,
+      "minMana": 25,
+      "beats": 12,
+      "nounDamage": "lightning",
+      "msgOff": "!Chain Lightning!"
+    },
+    {
+      "name": "change sex",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_change_sex",
+      "target": "tar_char_defensive",
+      "minPosition": "fighting",
+      "slot": 82,
+      "minMana": 15,
+      "beats": 12,
+      "msgOff": "Your body feels familiar again."
+    },
+    {
+      "name": "charm person",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_charm_person",
+      "target": "tar_char_offensive",
+      "minPosition": "standing",
+      "gsn": "gsn_charm_person",
+      "slot": 7,
+      "minMana": 5,
+      "beats": 12,
+      "msgOff": "You feel more self-confident."
+    },
+    {
+      "name": "chill touch",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_chill_touch",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 8,
+      "minMana": 15,
+      "beats": 12,
+      "nounDamage": "chilling touch",
+      "msgOff": "You feel less cold."
+    },
+    {
+      "name": "colour spray",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_colour_spray",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 10,
+      "minMana": 15,
+      "beats": 12,
+      "nounDamage": "colour spray",
+      "msgOff": "!Colour Spray!"
+    },
+    {
+      "name": "continual light",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_continual_light",
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "slot": 57,
+      "minMana": 7,
+      "beats": 12,
+      "msgOff": "!Continual Light!"
+    },
+    {
+      "name": "control weather",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_control_weather",
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "slot": 11,
+      "minMana": 25,
+      "beats": 12,
+      "msgOff": "!Control Weather!"
+    },
+    {
+      "name": "create food",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_create_food",
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "slot": 12,
+      "minMana": 5,
+      "beats": 12,
+      "msgOff": "!Create Food!"
+    },
+    {
+      "name": "create rose",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_create_rose",
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "slot": 511,
+      "minMana": 30,
+      "beats": 12,
+      "msgOff": "!Create Rose!"
+    },
+    {
+      "name": "create spring",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_create_spring",
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "slot": 80,
+      "minMana": 20,
+      "beats": 12,
+      "msgOff": "!Create Spring!"
+    },
+    {
+      "name": "create water",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_create_water",
+      "target": "tar_obj_inv",
+      "minPosition": "standing",
+      "slot": 13,
+      "minMana": 5,
+      "beats": 12,
+      "msgOff": "!Create Water!"
+    },
+    {
+      "name": "cure blindness",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_cure_blindness",
+      "target": "tar_char_defensive",
+      "minPosition": "fighting",
+      "slot": 14,
+      "minMana": 5,
+      "beats": 12,
+      "msgOff": "!Cure Blindness!"
+    },
+    {
+      "name": "cure critical",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_cure_critical",
+      "target": "tar_char_defensive",
+      "minPosition": "fighting",
+      "slot": 15,
+      "minMana": 20,
+      "beats": 12,
+      "msgOff": "!Cure Critical!"
+    },
+    {
+      "name": "cure disease",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_cure_disease",
+      "target": "tar_char_defensive",
+      "minPosition": "standing",
+      "slot": 501,
+      "minMana": 20,
+      "beats": 12,
+      "msgOff": "!Cure Disease!"
+    },
+    {
+      "name": "cure light",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_cure_light",
+      "target": "tar_char_defensive",
+      "minPosition": "fighting",
+      "slot": 16,
+      "minMana": 10,
+      "beats": 12,
+      "msgOff": "!Cure Light!"
+    },
+    {
+      "name": "cure poison",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_cure_poison",
+      "target": "tar_char_defensive",
+      "minPosition": "standing",
+      "slot": 43,
+      "minMana": 5,
+      "beats": 12,
+      "msgOff": "!Cure Poison!"
+    },
+    {
+      "name": "cure serious",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_cure_serious",
+      "target": "tar_char_defensive",
+      "minPosition": "fighting",
+      "slot": 61,
+      "minMana": 15,
+      "beats": 12,
+      "msgOff": "!Cure Serious!"
+    },
+    {
+      "name": "curse",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_curse",
+      "target": "tar_obj_char_off",
+      "minPosition": "fighting",
+      "gsn": "gsn_curse",
+      "slot": 17,
+      "minMana": 20,
+      "beats": 12,
+      "nounDamage": "curse",
+      "msgOff": "The curse wears off.",
+      "msgObj": "$p is no longer impure."
+    },
+    {
+      "name": "demonfire",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_demonfire",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 505,
+      "minMana": 20,
+      "beats": 12,
+      "nounDamage": "torments",
+      "msgOff": "!Demonfire!"
+    },
+    {
+      "name": "detect evil",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_detect_evil",
+      "target": "tar_char_self",
+      "minPosition": "standing",
+      "slot": 18,
+      "minMana": 5,
+      "beats": 12,
+      "msgOff": "The red in your vision disappears."
+    },
+    {
+      "name": "detect good",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_detect_good",
+      "target": "tar_char_self",
+      "minPosition": "standing",
+      "slot": 513,
+      "minMana": 5,
+      "beats": 12,
+      "msgOff": "The gold in your vision disappears."
+    },
+    {
+      "name": "detect hidden",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_detect_hidden",
+      "target": "tar_char_self",
+      "minPosition": "standing",
+      "slot": 44,
+      "minMana": 5,
+      "beats": 12,
+      "msgOff": "You feel less aware of your surroundings."
+    },
+    {
+      "name": "detect invis",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_detect_invis",
+      "target": "tar_char_self",
+      "minPosition": "standing",
+      "slot": 19,
+      "minMana": 5,
+      "beats": 12,
+      "msgOff": "You no longer see invisible objects."
+    },
+    {
+      "name": "detect magic",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_detect_magic",
+      "target": "tar_char_self",
+      "minPosition": "standing",
+      "slot": 20,
+      "minMana": 5,
+      "beats": 12,
+      "msgOff": "The detect magic wears off."
+    },
+    {
+      "name": "detect poison",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_detect_poison",
+      "target": "tar_obj_inv",
+      "minPosition": "standing",
+      "slot": 21,
+      "minMana": 5,
+      "beats": 12,
+      "msgOff": "!Detect Poison!"
+    },
+    {
+      "name": "dispel evil",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_dispel_evil",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 22,
+      "minMana": 15,
+      "beats": 12,
+      "nounDamage": "dispel evil",
+      "msgOff": "!Dispel Evil!"
+    },
+    {
+      "name": "dispel good",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_dispel_good",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 512,
+      "minMana": 15,
+      "beats": 12,
+      "nounDamage": "dispel good",
+      "msgOff": "!Dispel Good!"
+    },
+    {
+      "name": "dispel magic",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_dispel_magic",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 59,
+      "minMana": 15,
+      "beats": 12,
+      "msgOff": "!Dispel Magic!"
+    },
+    {
+      "name": "earthquake",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_earthquake",
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "slot": 23,
+      "minMana": 15,
+      "beats": 12,
+      "nounDamage": "earthquake",
+      "msgOff": "!Earthquake!"
+    },
+    {
+      "name": "enchant armor",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_enchant_armor",
+      "target": "tar_obj_inv",
+      "minPosition": "standing",
+      "slot": 510,
+      "minMana": 100,
+      "beats": 24,
+      "msgOff": "!Enchant Armor!"
+    },
+    {
+      "name": "enchant weapon",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_enchant_weapon",
+      "target": "tar_obj_inv",
+      "minPosition": "standing",
+      "slot": 24,
+      "minMana": 100,
+      "beats": 24,
+      "msgOff": "!Enchant Weapon!"
+    },
+    {
+      "name": "energy drain",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_energy_drain",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 25,
+      "minMana": 35,
+      "beats": 12,
+      "nounDamage": "energy drain",
+      "msgOff": "!Energy Drain!"
+    },
+    {
+      "name": "faerie fire",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_faerie_fire",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 72,
+      "minMana": 5,
+      "beats": 12,
+      "nounDamage": "faerie fire",
+      "msgOff": "The pink aura around you fades away."
+    },
+    {
+      "name": "faerie fog",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_faerie_fog",
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "slot": 73,
+      "minMana": 12,
+      "beats": 12,
+      "nounDamage": "faerie fog",
+      "msgOff": "!Faerie Fog!"
+    },
+    {
+      "name": "farsight",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_farsight",
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "slot": 521,
+      "minMana": 36,
+      "beats": 20,
+      "nounDamage": "farsight",
+      "msgOff": "!Farsight!"
+    },
+    {
+      "name": "fireball",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_fireball",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 26,
+      "minMana": 15,
+      "beats": 12,
+      "nounDamage": "fireball",
+      "msgOff": "!Fireball!"
+    },
+    {
+      "name": "fireproof",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_fireproof",
+      "target": "tar_obj_inv",
+      "minPosition": "standing",
+      "slot": 523,
+      "minMana": 10,
+      "beats": 12,
+      "msgObj": "$p's protective aura fades."
+    },
+    {
+      "name": "flamestrike",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_flamestrike",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 65,
+      "minMana": 20,
+      "beats": 12,
+      "nounDamage": "flamestrike",
+      "msgOff": "!Flamestrike!"
+    },
+    {
+      "name": "fly",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_fly",
+      "target": "tar_char_defensive",
+      "minPosition": "standing",
+      "slot": 56,
+      "minMana": 10,
+      "beats": 18,
+      "msgOff": "You slowly float to the ground."
+    },
+    {
+      "name": "floating disc",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_floating_disc",
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "slot": 522,
+      "minMana": 40,
+      "beats": 24,
+      "msgOff": "!Floating disc!"
+    },
+    {
+      "name": "frenzy",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_frenzy",
+      "target": "tar_char_defensive",
+      "minPosition": "standing",
+      "slot": 504,
+      "minMana": 30,
+      "beats": 24,
+      "msgOff": "Your rage ebbs."
+    },
+    {
+      "name": "gate",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_gate",
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "slot": 83,
+      "minMana": 80,
+      "beats": 12,
+      "msgOff": "!Gate!"
+    },
+    {
+      "name": "giant strength",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_giant_strength",
+      "target": "tar_char_defensive",
+      "minPosition": "standing",
+      "slot": 39,
+      "minMana": 20,
+      "beats": 12,
+      "msgOff": "You feel weaker."
+    },
+    {
+      "name": "harm",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_harm",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 27,
+      "minMana": 35,
+      "beats": 12,
+      "nounDamage": "harm spell",
+      "msgOff": "!Harm!,\t\t"
+    },
+    {
+      "name": "haste",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_haste",
+      "target": "tar_char_defensive",
+      "minPosition": "fighting",
+      "slot": 502,
+      "minMana": 30,
+      "beats": 12,
+      "msgOff": "You feel yourself slow down."
+    },
+    {
+      "name": "heal",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_heal",
+      "target": "tar_char_defensive",
+      "minPosition": "fighting",
+      "slot": 28,
+      "minMana": 50,
+      "beats": 12,
+      "msgOff": "!Heal!"
+    },
+    {
+      "name": "heat metal",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_heat_metal",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 516,
+      "minMana": 25,
+      "beats": 18,
+      "nounDamage": "spell",
+      "msgOff": "!Heat Metal!"
+    },
+    {
+      "name": "holy word",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_holy_word",
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "slot": 506,
+      "minMana": 200,
+      "beats": 24,
+      "nounDamage": "divine wrath",
+      "msgOff": "!Holy Word!"
+    },
+    {
+      "name": "identify",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_identify",
+      "target": "tar_obj_inv",
+      "minPosition": "standing",
+      "slot": 53,
+      "minMana": 12,
+      "beats": 24,
+      "msgOff": "!Identify!"
+    },
+    {
+      "name": "infravision",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_infravision",
+      "target": "tar_char_defensive",
+      "minPosition": "standing",
+      "slot": 77,
+      "minMana": 5,
+      "beats": 18,
+      "msgOff": "You no longer see in the dark."
+    },
+    {
+      "name": "invisibility",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_invis",
+      "target": "tar_obj_char_def",
+      "minPosition": "standing",
+      "gsn": "gsn_invis",
+      "slot": 29,
+      "minMana": 5,
+      "beats": 12,
+      "msgOff": "You are no longer invisible.",
+      "msgObj": "$p fades into view."
+    },
+    {
+      "name": "know alignment",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_know_alignment",
+      "target": "tar_char_defensive",
+      "minPosition": "fighting",
+      "slot": 58,
+      "minMana": 9,
+      "beats": 12,
+      "msgOff": "!Know Alignment!"
+    },
+    {
+      "name": "lightning bolt",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_lightning_bolt",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 30,
+      "minMana": 15,
+      "beats": 12,
+      "nounDamage": "lightning bolt",
+      "msgOff": "!Lightning Bolt!"
+    },
+    {
+      "name": "locate object",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_locate_object",
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "slot": 31,
+      "minMana": 20,
+      "beats": 18,
+      "msgOff": "!Locate Object!"
+    },
+    {
+      "name": "magic missile",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_magic_missile",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 32,
+      "minMana": 15,
+      "beats": 12,
+      "nounDamage": "magic missile",
+      "msgOff": "!Magic Missile!"
+    },
+    {
+      "name": "mass healing",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_mass_healing",
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "slot": 508,
+      "minMana": 100,
+      "beats": 36,
+      "msgOff": "!Mass Healing!"
+    },
+    {
+      "name": "mass invis",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_mass_invis",
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "gsn": "gsn_mass_invis",
+      "slot": 69,
+      "minMana": 20,
+      "beats": 24,
+      "msgOff": "You are no longer invisible."
+    },
+    {
+      "name": "nexus",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_nexus",
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "slot": 520,
+      "minMana": 150,
+      "beats": 36,
+      "msgOff": "!Nexus!"
+    },
+    {
+      "name": "pass door",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_pass_door",
+      "target": "tar_char_self",
+      "minPosition": "standing",
+      "slot": 74,
+      "minMana": 20,
+      "beats": 12,
+      "msgOff": "You feel solid again."
+    },
+    {
+      "name": "plague",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_plague",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "gsn": "gsn_plague",
+      "slot": 503,
+      "minMana": 20,
+      "beats": 12,
+      "nounDamage": "sickness",
+      "msgOff": "Your sores vanish."
+    },
+    {
+      "name": "poison",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_poison",
+      "target": "tar_obj_char_off",
+      "minPosition": "fighting",
+      "gsn": "gsn_poison",
+      "slot": 33,
+      "minMana": 10,
+      "beats": 12,
+      "nounDamage": "poison",
+      "msgOff": "You feel less sick.",
+      "msgObj": "The poison on $p dries up."
+    },
+    {
+      "name": "portal",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_portal",
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "slot": 519,
+      "minMana": 100,
+      "beats": 24,
+      "msgOff": "!Portal!"
+    },
+    {
+      "name": "protection evil",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_protection_evil",
+      "target": "tar_char_self",
+      "minPosition": "standing",
+      "slot": 34,
+      "minMana": 5,
+      "beats": 12,
+      "msgOff": "You feel less protected."
+    },
+    {
+      "name": "protection good",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_protection_good",
+      "target": "tar_char_self",
+      "minPosition": "standing",
+      "slot": 514,
+      "minMana": 5,
+      "beats": 12,
+      "msgOff": "You feel less protected."
+    },
+    {
+      "name": "ray of truth",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_ray_of_truth",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 518,
+      "minMana": 20,
+      "beats": 12,
+      "nounDamage": "ray of truth",
+      "msgOff": "!Ray of Truth!"
+    },
+    {
+      "name": "recharge",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_recharge",
+      "target": "tar_obj_inv",
+      "minPosition": "standing",
+      "slot": 517,
+      "minMana": 60,
+      "beats": 24,
+      "msgOff": "!Recharge!"
+    },
+    {
+      "name": "refresh",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_refresh",
+      "target": "tar_char_defensive",
+      "minPosition": "standing",
+      "slot": 81,
+      "minMana": 12,
+      "beats": 18,
+      "nounDamage": "refresh",
+      "msgOff": "!Refresh!"
+    },
+    {
+      "name": "remove curse",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_remove_curse",
+      "target": "tar_obj_char_def",
+      "minPosition": "standing",
+      "slot": 35,
+      "minMana": 5,
+      "beats": 12,
+      "msgOff": "!Remove Curse!"
+    },
+    {
+      "name": "sanctuary",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_sanctuary",
+      "target": "tar_char_defensive",
+      "minPosition": "standing",
+      "gsn": "gsn_sanctuary",
+      "slot": 36,
+      "minMana": 75,
+      "beats": 12,
+      "msgOff": "The white aura around your body fades."
+    },
+    {
+      "name": "shield",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_shield",
+      "target": "tar_char_defensive",
+      "minPosition": "standing",
+      "slot": 67,
+      "minMana": 12,
+      "beats": 18,
+      "msgOff": "Your force shield shimmers then fades away."
+    },
+    {
+      "name": "shocking grasp",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_shocking_grasp",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 53,
+      "minMana": 15,
+      "beats": 12,
+      "nounDamage": "shocking grasp",
+      "msgOff": "!Shocking Grasp!"
+    },
+    {
+      "name": "sleep",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_sleep",
+      "target": "tar_char_offensive",
+      "minPosition": "standing",
+      "gsn": "gsn_sleep",
+      "slot": 38,
+      "minMana": 15,
+      "beats": 12,
+      "msgOff": "You feel less tired."
+    },
+    {
+      "name": "slow",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_slow",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 515,
+      "minMana": 30,
+      "beats": 12,
+      "msgOff": "You feel yourself speed up."
+    },
+    {
+      "name": "stone skin",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_stone_skin",
+      "target": "tar_char_self",
+      "minPosition": "standing",
+      "slot": 66,
+      "minMana": 12,
+      "beats": 18,
+      "msgOff": "Your skin feels soft again."
+    },
+    {
+      "name": "summon",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_summon",
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "slot": 40,
+      "minMana": 50,
+      "beats": 12,
+      "msgOff": "!Summon!"
+    },
+    {
+      "name": "teleport",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_teleport",
+      "target": "tar_char_self",
+      "minPosition": "fighting",
+      "slot": 2,
+      "minMana": 35,
+      "beats": 12,
+      "msgOff": "!Teleport!"
+    },
+    {
+      "name": "ventriloquate",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_ventriloquate",
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "slot": 41,
+      "minMana": 5,
+      "beats": 12,
+      "msgOff": "!Ventriloquate!"
+    },
+    {
+      "name": "weaken",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_weaken",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 68,
+      "minMana": 20,
+      "beats": 12,
+      "nounDamage": "spell",
+      "msgOff": "You feel stronger."
+    },
+    {
+      "name": "word of recall",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_word_of_recall",
+      "target": "tar_char_self",
+      "minPosition": "resting",
+      "slot": 42,
+      "minMana": 5,
+      "beats": 12,
+      "msgOff": "!Word of Recall!"
+    },
+    {
+      "name": "acid breath",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_acid_breath",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 200,
+      "minMana": 100,
+      "beats": 24,
+      "nounDamage": "blast of acid",
+      "msgOff": "!Acid Breath!"
+    },
+    {
+      "name": "fire breath",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_fire_breath",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 201,
+      "minMana": 200,
+      "beats": 24,
+      "nounDamage": "blast of flame",
+      "msgOff": "The smoke leaves your eyes."
+    },
+    {
+      "name": "frost breath",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_frost_breath",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 202,
+      "minMana": 125,
+      "beats": 24,
+      "nounDamage": "blast of frost",
+      "msgOff": "!Frost Breath!"
+    },
+    {
+      "name": "gas breath",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_gas_breath",
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "slot": 203,
+      "minMana": 175,
+      "beats": 24,
+      "nounDamage": "blast of gas",
+      "msgOff": "!Gas Breath!"
+    },
+    {
+      "name": "lightning breath",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_lightning_breath",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 204,
+      "minMana": 150,
+      "beats": 24,
+      "nounDamage": "blast of lightning",
+      "msgOff": "!Lightning Breath!"
+    },
+    {
+      "name": "general purpose",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_general_purpose",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 401,
+      "beats": 12,
+      "nounDamage": "general purpose ammo",
+      "msgOff": "!General Purpose Ammo!"
+    },
+    {
+      "name": "high explosive",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "spell": "spell_high_explosive",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 402,
+      "beats": 12,
+      "nounDamage": "high explosive ammo",
+      "msgOff": "!High Explosive Ammo!"
+    },
+    {
+      "name": "axe",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "gsn": "gsn_axe",
+      "msgOff": "!Axe!"
+    },
+    {
+      "name": "dagger",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "gsn": "gsn_dagger",
+      "msgOff": "!Dagger!"
+    },
+    {
+      "name": "flail",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "gsn": "gsn_flail",
+      "msgOff": "!Flail!"
+    },
+    {
+      "name": "mace",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "gsn": "gsn_mace",
+      "msgOff": "!Mace!"
+    },
+    {
+      "name": "polearm",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "gsn": "gsn_polearm",
+      "msgOff": "!Polearm!"
+    },
+    {
+      "name": "shield block",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "gsn": "gsn_shield_block",
+      "msgOff": "!Shield!"
+    },
+    {
+      "name": "spear",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "gsn": "gsn_spear",
+      "msgOff": "!Spear!"
+    },
+    {
+      "name": "sword",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "gsn": "gsn_sword",
+      "msgOff": "!sword!"
+    },
+    {
+      "name": "whip",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "gsn": "gsn_whip",
+      "msgOff": "!Whip!"
+    },
+    {
+      "name": "backstab",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "gsn": "gsn_backstab",
+      "beats": 24,
+      "nounDamage": "backstab",
+      "msgOff": "!Backstab!"
+    },
+    {
+      "name": "bash",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "gsn": "gsn_bash",
+      "beats": 24,
+      "nounDamage": "bash",
+      "msgOff": "!Bash!"
+    },
+    {
+      "name": "berserk",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "gsn": "gsn_berserk",
+      "beats": 24,
+      "msgOff": "You feel your pulse slow down."
+    },
+    {
+      "name": "dirt kicking",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "gsn": "gsn_dirt",
+      "beats": 24,
+      "nounDamage": "kicked dirt",
+      "msgOff": "You rub the dirt out of your eyes."
+    },
+    {
+      "name": "disarm",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "gsn": "gsn_disarm",
+      "beats": 24,
+      "msgOff": "!Disarm!"
+    },
+    {
+      "name": "dodge",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "gsn": "gsn_dodge",
+      "msgOff": "!Dodge!"
+    },
+    {
+      "name": "enhanced damage",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "gsn": "gsn_enhanced_damage",
+      "msgOff": "!Enhanced Damage!"
+    },
+    {
+      "name": "envenom",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "resting",
+      "gsn": "gsn_envenom",
+      "beats": 36,
+      "msgOff": "!Envenom!"
+    },
+    {
+      "name": "hand to hand",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "gsn": "gsn_hand_to_hand",
+      "msgOff": "!Hand to Hand!"
+    },
+    {
+      "name": "kick",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "gsn": "gsn_kick",
+      "beats": 12,
+      "nounDamage": "kick",
+      "msgOff": "!Kick!"
+    },
+    {
+      "name": "parry",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "gsn": "gsn_parry",
+      "msgOff": "!Parry!"
+    },
+    {
+      "name": "rescue",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "gsn": "gsn_rescue",
+      "beats": 12,
+      "msgOff": "!Rescue!"
+    },
+    {
+      "name": "trip",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "gsn": "gsn_trip",
+      "beats": 24,
+      "nounDamage": "trip",
+      "msgOff": "!Trip!"
+    },
+    {
+      "name": "second attack",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "gsn": "gsn_second_attack",
+      "msgOff": "!Second Attack!"
+    },
+    {
+      "name": "third attack",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "gsn": "gsn_third_attack",
+      "msgOff": "!Third Attack!"
+    },
+    {
+      "name": "fast healing",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "sleeping",
+      "gsn": "gsn_fast_healing",
+      "msgOff": "!Fast Healing!"
+    },
+    {
+      "name": "haggle",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "resting",
+      "gsn": "gsn_haggle",
+      "msgOff": "!Haggle!"
+    },
+    {
+      "name": "hide",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "resting",
+      "gsn": "gsn_hide",
+      "beats": 12,
+      "msgOff": "!Hide!"
+    },
+    {
+      "name": "lore",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "resting",
+      "gsn": "gsn_lore",
+      "beats": 36,
+      "msgOff": "!Lore!"
+    },
+    {
+      "name": "meditation",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "sleeping",
+      "gsn": "gsn_meditation",
+      "msgOff": "Meditation"
+    },
+    {
+      "name": "peek",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "gsn": "gsn_peek",
+      "msgOff": "!Peek!"
+    },
+    {
+      "name": "pick lock",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "gsn": "gsn_pick_lock",
+      "beats": 12,
+      "msgOff": "!Pick!"
+    },
+    {
+      "name": "sneak",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "gsn": "gsn_sneak",
+      "beats": 12,
+      "msgOff": "You no longer feel stealthy."
+    },
+    {
+      "name": "steal",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "gsn": "gsn_steal",
+      "beats": 24,
+      "msgOff": "!Steal!"
+    },
+    {
+      "name": "scrolls",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "gsn": "gsn_scrolls",
+      "beats": 24,
+      "msgOff": "!Scrolls!"
+    },
+    {
+      "name": "staves",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "gsn": "gsn_staves",
+      "beats": 12,
+      "msgOff": "!Staves!"
+    },
+    {
+      "name": "wands",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "gsn": "gsn_wands",
+      "beats": 12,
+      "msgOff": "!Wands!"
+    },
+    {
+      "name": "recall",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "gsn": "gsn_recall",
+      "beats": 12,
+      "msgOff": "!Recall!"
+    },
+    {
+      "name": "dual-wield",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "target": "tar_ignore",
+      "minPosition": "resting",
+      "gsn": "gsn_dual_wield",
+      "msgOff": "!Dual-Wield!"
+    },
+    {
+      "name": "fire bolt",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 53,
+        "warrior": 53
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "loxSpell": "spell_fire_bolt",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 71,
+      "minMana": 20,
+      "beats": 12,
+      "nounDamage": "fire bolt",
+      "msgOff": "!Fire Bolt!"
+    }
+  ]
+}

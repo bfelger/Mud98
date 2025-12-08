@@ -6,6 +6,7 @@
 
 #include "bit.h"
 #include "comm.h"
+#include "config.h"
 #include "db.h"
 #include "handler.h"
 #include "lookup.h"
@@ -22,6 +23,17 @@
 #include "data/mobile_data.h"
 #include "data/skill.h"
 #include "data/spell.h"
+
+#ifdef _MSC_VER
+#include <io.h>
+#define access _access
+#else
+#include <unistd.h>
+#endif
+
+#ifndef F_OK
+#define F_OK 0
+#endif
 
 #define SKEDIT(fun) bool fun(Mobile *ch, char *argument)
 
@@ -138,8 +150,52 @@ void skedit(Mobile* ch, char* argument)
         return;
     }
 
-    if (!str_cmp(argument, "save")) {
+    if (!str_prefix("save", argument)) {
+        char arg1[MIL];
+        char arg2[MIL];
+        argument = one_argument(argument, arg1); // "save"
+        argument = one_argument(argument, arg2); // optional format
+        const char* requested_ext = NULL;
+        bool force_format = false;
+        if (!str_cmp(arg2, "json")) {
+            requested_ext = ".json";
+            force_format = true;
+        }
+        else if (!str_cmp(arg2, "olc")) {
+            requested_ext = ".olc";
+            force_format = true;
+        }
+        const char* skills_file = cfg_get_skills_file();
+        const char* ext = strrchr(skills_file, '.');
+        bool has_ext = (ext != NULL);
+
+        if (!force_format) {
+            if (has_ext) {
+                requested_ext = NULL;
+            }
+            else {
+                if (access(skills_file, F_OK) != 0) {
+                    const char* def = cfg_get_default_format();
+                    if (def && !str_cmp(def, "json"))
+                        requested_ext = ".json";
+                    else
+                        requested_ext = ".olc";
+                }
+                else {
+                    requested_ext = NULL;
+                }
+            }
+        }
+
+        if (requested_ext != NULL) {
+            size_t base_len = has_ext ? (size_t)(ext - skills_file) : strlen(skills_file);
+            char newname[MIL];
+            snprintf(newname, sizeof(newname), "%.*s%s", (int)base_len, skills_file, requested_ext);
+            cfg_set_skills_file(newname);
+        }
+
         save_skill_table();
+        send_to_char("Skills saved.\n\r", ch);
         return;
     }
 

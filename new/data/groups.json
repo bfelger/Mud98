@@ -1,0 +1,460 @@
+{
+  "formatVersion": 1,
+  "groups": [
+    {
+      "name": "rom basics",
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 0,
+        "warrior": 0
+      },
+      "skills": [
+        "scrolls",
+        "staves",
+        "wands",
+        "recall"
+      ]
+    },
+    {
+      "name": "mage basics",
+      "ratings": {
+        "mage": 0,
+        "cleric": -1,
+        "thief": -1,
+        "warrior": -1
+      },
+      "skills": [
+        "dagger"
+      ]
+    },
+    {
+      "name": "cleric basics",
+      "ratings": {
+        "mage": -1,
+        "cleric": 0,
+        "thief": -1,
+        "warrior": -1
+      },
+      "skills": [
+        "mace"
+      ]
+    },
+    {
+      "name": "thief basics",
+      "ratings": {
+        "mage": -1,
+        "cleric": -1,
+        "thief": 0,
+        "warrior": -1
+      },
+      "skills": [
+        "dagger",
+        "steal"
+      ]
+    },
+    {
+      "name": "warrior basics",
+      "ratings": {
+        "mage": -1,
+        "cleric": -1,
+        "thief": -1,
+        "warrior": 0
+      },
+      "skills": [
+        "sword",
+        "second attack"
+      ]
+    },
+    {
+      "name": "mage default",
+      "ratings": {
+        "mage": 40,
+        "cleric": -1,
+        "thief": -1,
+        "warrior": -1
+      },
+      "skills": [
+        "lore",
+        "beguiling",
+        "combat",
+        "detection",
+        "enhancement",
+        "illusion",
+        "maladictions",
+        "protective",
+        "transportation",
+        "weather"
+      ]
+    },
+    {
+      "name": "cleric default",
+      "ratings": {
+        "mage": -1,
+        "cleric": 40,
+        "thief": -1,
+        "warrior": -1
+      },
+      "skills": [
+        "flail",
+        "attack",
+        "creation",
+        "curative",
+        "benedictions",
+        "detection",
+        "healing",
+        "maladictions",
+        "protective",
+        "shield block",
+        "transportation",
+        "weather"
+      ]
+    },
+    {
+      "name": "thief default",
+      "ratings": {
+        "mage": -1,
+        "cleric": -1,
+        "thief": 40,
+        "warrior": -1
+      },
+      "skills": [
+        "mace",
+        "sword",
+        "backstab",
+        "disarm",
+        "dodge",
+        "second attack",
+        "trip",
+        "hide",
+        "peek",
+        "pick lock",
+        "sneak"
+      ]
+    },
+    {
+      "name": "warrior default",
+      "ratings": {
+        "mage": -1,
+        "cleric": -1,
+        "thief": -1,
+        "warrior": 40
+      },
+      "skills": [
+        "weaponsmaster",
+        "shield block",
+        "bash",
+        "disarm",
+        "enhanced damage",
+        "parry",
+        "rescue",
+        "third attack"
+      ]
+    },
+    {
+      "name": "weaponsmaster",
+      "ratings": {
+        "mage": 40,
+        "cleric": 40,
+        "thief": 40,
+        "warrior": 20
+      },
+      "skills": [
+        "axe",
+        "dagger",
+        "flail",
+        "mace",
+        "polearm",
+        "spear",
+        "sword",
+        "whip"
+      ]
+    },
+    {
+      "name": "attack",
+      "ratings": {
+        "mage": -1,
+        "cleric": 5,
+        "thief": -1,
+        "warrior": 8
+      },
+      "skills": [
+        "demonfire",
+        "dispel evil",
+        "dispel good",
+        "earthquake",
+        "flamestrike",
+        "heat metal",
+        "ray of truth"
+      ]
+    },
+    {
+      "name": "beguiling",
+      "ratings": {
+        "mage": 4,
+        "cleric": -1,
+        "thief": 6,
+        "warrior": -1
+      },
+      "skills": [
+        "calm",
+        "charm person",
+        "sleep"
+      ]
+    },
+    {
+      "name": "benedictions",
+      "ratings": {
+        "mage": -1,
+        "cleric": 4,
+        "thief": -1,
+        "warrior": 8
+      },
+      "skills": [
+        "bless",
+        "calm",
+        "frenzy",
+        "holy word",
+        "remove curse"
+      ]
+    },
+    {
+      "name": "combat",
+      "ratings": {
+        "mage": 6,
+        "cleric": -1,
+        "thief": 10,
+        "warrior": 9
+      },
+      "skills": [
+        "acid blast",
+        "burning hands",
+        "chain lightning",
+        "chill touch",
+        "colour spray",
+        "fireball",
+        "lightning bolt",
+        "magic missile",
+        "shocking grasp"
+      ]
+    },
+    {
+      "name": "creation",
+      "ratings": {
+        "mage": 4,
+        "cleric": 4,
+        "thief": 8,
+        "warrior": 8
+      },
+      "skills": [
+        "continual light",
+        "create food",
+        "create spring",
+        "create water",
+        "create rose",
+        "floating disc"
+      ]
+    },
+    {
+      "name": "curative",
+      "ratings": {
+        "mage": -1,
+        "cleric": 4,
+        "thief": -1,
+        "warrior": 8
+      },
+      "skills": [
+        "cure blindness",
+        "cure disease",
+        "cure poison"
+      ]
+    },
+    {
+      "name": "detection",
+      "ratings": {
+        "mage": 4,
+        "cleric": 3,
+        "thief": 6,
+        "warrior": -1
+      },
+      "skills": [
+        "detect evil",
+        "detect good",
+        "detect hidden",
+        "detect invis",
+        "detect magic",
+        "detect poison",
+        "farsight",
+        "identify",
+        "know alignment",
+        "locate object"
+      ]
+    },
+    {
+      "name": "draconian",
+      "ratings": {
+        "mage": 8,
+        "cleric": -1,
+        "thief": -1,
+        "warrior": -1
+      },
+      "skills": [
+        "acid breath",
+        "fire breath",
+        "frost breath",
+        "gas breath",
+        "lightning breath"
+      ]
+    },
+    {
+      "name": "enchantment",
+      "ratings": {
+        "mage": 6,
+        "cleric": -1,
+        "thief": -1,
+        "warrior": -1
+      },
+      "skills": [
+        "enchant armor",
+        "enchant weapon",
+        "fireproof",
+        "recharge"
+      ]
+    },
+    {
+      "name": "enhancement",
+      "ratings": {
+        "mage": 5,
+        "cleric": -1,
+        "thief": 9,
+        "warrior": 9
+      },
+      "skills": [
+        "giant strength",
+        "haste",
+        "infravision",
+        "refresh"
+      ]
+    },
+    {
+      "name": "harmful",
+      "ratings": {
+        "mage": -1,
+        "cleric": 3,
+        "thief": -1,
+        "warrior": 6
+      },
+      "skills": [
+        "cause critical",
+        "cause light",
+        "cause serious",
+        "harm"
+      ]
+    },
+    {
+      "name": "healing",
+      "ratings": {
+        "mage": -1,
+        "cleric": 3,
+        "thief": -1,
+        "warrior": 6
+      },
+      "skills": [
+        "cure critical",
+        "cure light",
+        "cure serious",
+        "heal",
+        "mass healing",
+        "refresh"
+      ]
+    },
+    {
+      "name": "illusion",
+      "ratings": {
+        "mage": 4,
+        "cleric": -1,
+        "thief": 7,
+        "warrior": -1
+      },
+      "skills": [
+        "invis",
+        "mass invis",
+        "ventriloquate"
+      ]
+    },
+    {
+      "name": "maladictions",
+      "ratings": {
+        "mage": 5,
+        "cleric": 5,
+        "thief": 9,
+        "warrior": 9
+      },
+      "skills": [
+        "blindness",
+        "change sex",
+        "curse",
+        "energy drain",
+        "plague",
+        "poison",
+        "slow",
+        "weaken"
+      ]
+    },
+    {
+      "name": "protective",
+      "ratings": {
+        "mage": 4,
+        "cleric": 4,
+        "thief": 7,
+        "warrior": 8
+      },
+      "skills": [
+        "armor",
+        "cancellation",
+        "dispel magic",
+        "fireproof",
+        "protection evil",
+        "protection good",
+        "sanctuary",
+        "shield",
+        "stone skin"
+      ]
+    },
+    {
+      "name": "transportation",
+      "ratings": {
+        "mage": 4,
+        "cleric": 4,
+        "thief": 8,
+        "warrior": 9
+      },
+      "skills": [
+        "fly",
+        "gate",
+        "nexus",
+        "pass door",
+        "portal",
+        "summon",
+        "teleport",
+        "word of recall"
+      ]
+    },
+    {
+      "name": "weather",
+      "ratings": {
+        "mage": 4,
+        "cleric": 4,
+        "thief": 8,
+        "warrior": 8
+      },
+      "skills": [
+        "call lightning",
+        "control weather",
+        "faerie fire",
+        "faerie fog",
+        "lightning bolt"
+      ]
+    }
+  ]
+}

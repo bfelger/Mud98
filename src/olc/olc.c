@@ -24,6 +24,7 @@
 #include <lookup.h>
 #include <skills.h>
 #include <tables.h>
+#include <persist/command/command_persist.h>
 
 #include <entities/descriptor.h>
 #include <entities/object.h>
@@ -543,8 +544,12 @@ bool process_olc_command(Mobile* ch, char* argument, const OlcCmdEntry* table)
                     pointer = (table[temp].argument - U(&xCmd) + U(pCmd));
                 else
                     pointer = 0;
-                if ((*table[temp].function) (table[temp].name, ch, argument, pointer, table[temp].parameter))
-                    save_command_table();
+                if ((*table[temp].function) (table[temp].name, ch, argument, pointer, table[temp].parameter)) {
+                    PersistResult res = command_persist_save(NULL);
+                    if (!persist_succeeded(res))
+                        bugf("CMDEdit: failed to save command table (%s)",
+                            res.message ? res.message : "unknown error");
+                }
                 return true;
                 break;
 

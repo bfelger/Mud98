@@ -203,7 +203,7 @@ ObjString* copy_string(const char* chars, int length)
         return interned;
     }
 
-    if (chars >= string_space && chars < top_string) {
+    if (chars >= string_space && chars < top_string && chars[length] == '\0') {
         // Yes, I'm casting away const.
         // It's not helpful here.
         return allocate_string((char*)chars, length, hash);
