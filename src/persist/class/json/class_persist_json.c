@@ -34,33 +34,33 @@ PersistResult class_persist_json_save(const PersistWriter* writer, const char* f
         return (PersistResult){ PERSIST_ERR_UNSUPPORTED, "class JSON save: missing writer", -1 };
 
     json_t* root = json_object();
-    json_object_set_new(root, "formatVersion", json_integer(1));
+    JSON_SET_INT(root, "formatVersion", 1);
     json_t* classes = json_array();
     for (int i = 0; class_table && !IS_NULLSTR(class_table[i].name); i++) {
         Class* cls = &class_table[i];
         json_t* obj = json_object();
-        json_object_set_new(obj, "name", json_string(cls->name));
+        JSON_SET_STRING(obj, "name", cls->name);
         if (cls->who_name && cls->who_name[0] != '\0')
-            json_object_set_new(obj, "whoName", json_string(cls->who_name));
+            JSON_SET_STRING(obj, "whoName", cls->who_name);
         if (cls->base_group)
-            json_object_set_new(obj, "baseGroup", json_string(cls->base_group));
+            JSON_SET_STRING(obj, "baseGroup", cls->base_group);
         if (cls->default_group)
-            json_object_set_new(obj, "defaultGroup", json_string(cls->default_group));
-        json_object_set_new(obj, "weaponVnum", json_integer(cls->weapon));
+            JSON_SET_STRING(obj, "defaultGroup", cls->default_group);
+        JSON_SET_INT(obj, "weaponVnum", cls->weapon);
         json_t* guilds = json_array();
         for (int g = 0; g < MAX_GUILD; g++) {
             json_array_append_new(guilds, json_integer(cls->guild[g]));
         }
         json_object_set_new(obj, "guilds", guilds);
         if (cls->prime_stat >= 0 && cls->prime_stat < STAT_COUNT)
-            json_object_set_new(obj, "primeStat", json_string(stat_table[cls->prime_stat].name));
-        json_object_set_new(obj, "skillCap", json_integer(cls->skill_cap));
-        json_object_set_new(obj, "thac0_00", json_integer(cls->thac0_00));
-        json_object_set_new(obj, "thac0_32", json_integer(cls->thac0_32));
-        json_object_set_new(obj, "hpMin", json_integer(cls->hp_min));
-        json_object_set_new(obj, "hpMax", json_integer(cls->hp_max));
+            JSON_SET_STRING(obj, "primeStat", stat_table[cls->prime_stat].name);
+        JSON_SET_INT(obj, "skillCap", cls->skill_cap);
+        JSON_SET_INT(obj, "thac0_00", cls->thac0_00);
+        JSON_SET_INT(obj, "thac0_32", cls->thac0_32);
+        JSON_SET_INT(obj, "hpMin", cls->hp_min);
+        JSON_SET_INT(obj, "hpMax", cls->hp_max);
         json_object_set_new(obj, "manaUser", json_boolean(cls->fMana));
-        json_object_set_new(obj, "startLoc", json_integer(cls->start_loc));
+        JSON_SET_INT(obj, "startLoc", cls->start_loc);
         json_t* titles = json_array();
         for (int lvl = 0; lvl <= MAX_LEVEL; lvl++) {
             json_t* pair = json_array();
@@ -133,16 +133,16 @@ PersistResult class_persist_json_load(const PersistReader* reader, const char* f
         if (!json_is_object(c))
             continue;
         Class* cls = &class_table[i];
-        const char* name = json_string_value(json_object_get(c, "name"));
+        const char* name = JSON_STRING(c, "name");
         if (name)
             cls->name = boot_intern_string(name);
-        const char* who = json_string_value(json_object_get(c, "whoName"));
+        const char* who = JSON_STRING(c, "whoName");
         if (who)
             cls->who_name = boot_intern_string(who);
-        const char* base = json_string_value(json_object_get(c, "baseGroup"));
+        const char* base = JSON_STRING(c, "baseGroup");
         if (base)
             cls->base_group = boot_intern_string(base);
-        const char* dflt = json_string_value(json_object_get(c, "defaultGroup"));
+        const char* dflt = JSON_STRING(c, "defaultGroup");
         if (dflt)
             cls->default_group = boot_intern_string(dflt);
         cls->weapon = (VNUM)json_int_or_default(c, "weaponVnum", cls->weapon);
@@ -152,7 +152,7 @@ PersistResult class_persist_json_load(const PersistReader* reader, const char* f
             for (size_t g = 0; g < gsz && g < MAX_GUILD; g++)
                 cls->guild[g] = (VNUM)json_integer_value(json_array_get(guilds, g));
         }
-        const char* prime = json_string_value(json_object_get(c, "primeStat"));
+        const char* prime = JSON_STRING(c, "primeStat");
         if (prime) {
             FLAGS bit = flag_lookup(prime, stat_table);
             if (bit != NO_FLAG && bit < STAT_COUNT)

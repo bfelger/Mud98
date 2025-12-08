@@ -71,7 +71,7 @@ static json_t* color_to_json(const Color* color)
         return NULL;
 
     json_t* obj = json_object();
-    json_object_set_new(obj, "mode", json_string(mode_name));
+    JSON_SET_STRING(obj, "mode", mode_name);
     json_t* code = json_array();
     int count = color_code_count(color->mode);
     for (int i = 0; i < count; ++i)
@@ -85,7 +85,7 @@ static bool color_from_json(json_t* obj, Color* out_color)
     if (!json_is_object(obj) || !out_color)
         return false;
 
-    const char* mode_name = json_string_value(json_object_get(obj, "mode"));
+    const char* mode_name = JSON_STRING(obj, "mode");
     ColorMode mode = COLOR_MODE_16;
     if (!color_mode_from_string(mode_name, &mode))
         return false;
@@ -154,7 +154,7 @@ PersistResult theme_persist_json_save(const PersistWriter* writer, const char* f
         return (PersistResult){ PERSIST_ERR_INTERNAL, "theme JSON save: no system themes loaded", -1 };
 
     json_t* root = json_object();
-    json_object_set_new(root, "formatVersion", json_integer(1));
+    JSON_SET_INT(root, "formatVersion", 1);
     json_t* themes = json_array();
 
     for (int i = 0; i < system_color_theme_count; ++i) {
@@ -163,14 +163,14 @@ PersistResult theme_persist_json_save(const PersistWriter* writer, const char* f
             continue;
 
         json_t* obj = json_object();
-        json_object_set_new(obj, "name", json_string(theme->name ? theme->name : ""));
+        JSON_SET_STRING(obj, "name", theme->name ? theme->name : "");
         if (theme->banner && theme->banner[0])
-            json_object_set_new(obj, "banner", json_string(theme->banner));
+            JSON_SET_STRING(obj, "banner", theme->banner);
         const char* mode_name = color_mode_to_string(theme->mode);
         if (mode_name)
-            json_object_set_new(obj, "mode", json_string(mode_name));
-        json_object_set_new(obj, "paletteMax", json_integer(UMIN(theme->palette_max, PALETTE_SIZE)));
-        json_object_set_new(obj, "type", json_string(theme_type_to_string(theme->type)));
+            JSON_SET_STRING(obj, "mode", mode_name);
+        JSON_SET_INT(obj, "paletteMax", UMIN(theme->palette_max, PALETTE_SIZE));
+        JSON_SET_STRING(obj, "type", theme_type_to_string(theme->type));
         json_object_set_new(obj, "public", json_boolean(theme->is_public));
 
         json_t* palette = json_array();
@@ -179,7 +179,7 @@ PersistResult theme_persist_json_save(const PersistWriter* writer, const char* f
             json_t* entry = color_to_json(&theme->palette[idx]);
             if (!entry)
                 continue;
-            json_object_set_new(entry, "index", json_integer(idx));
+            JSON_SET_INT(entry, "index", idx);
             json_array_append_new(palette, entry);
         }
         json_object_set_new(obj, "palette", palette);
@@ -268,18 +268,15 @@ PersistResult theme_persist_json_load(const PersistReader* reader, const char* f
             return (PersistResult){ PERSIST_ERR_INTERNAL, "theme JSON: allocation failed", -1 };
         }
 
-        const char* name = json_string_value(json_object_get(entry, "name"));
+        const char* name = JSON_STRING(entry, "name");
         if (name && name[0]) {
             free_string(theme->name);
             theme->name = boot_intern_string(name);
         }
-        const char* banner = json_string_value(json_object_get(entry, "banner"));
-        if (banner) {
-            free_string(theme->banner);
-            theme->banner = boot_intern_string(banner);
-        }
+        const char* banner = JSON_STRING(entry, "banner");
+        JSON_INTERN(banner, theme->banner)
 
-        const char* mode_name = json_string_value(json_object_get(entry, "mode"));
+        const char* mode_name = JSON_STRING(entry, "mode");
         ColorMode mode = theme->mode;
         if (color_mode_from_string(mode_name, &mode))
             theme->mode = mode;
@@ -287,7 +284,7 @@ PersistResult theme_persist_json_load(const PersistReader* reader, const char* f
         int pal_max = (int)json_int_or_default(entry, "paletteMax", theme->palette_max);
         theme->palette_max = URANGE(0, pal_max, PALETTE_SIZE);
 
-        const char* type_name = json_string_value(json_object_get(entry, "type"));
+        const char* type_name = JSON_STRING(entry, "type");
         theme->type = theme_type_from_string(type_name);
         theme->is_public = json_is_true(json_object_get(entry, "public"));
 

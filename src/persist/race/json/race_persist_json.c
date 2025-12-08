@@ -36,7 +36,7 @@ static json_t* build_class_mult(const Race* race)
         int16_t mult = GET_ELEM(&race->class_mult, i);
         if (mult != 0)
             has_value = true;
-        json_object_set_new(obj, class_table[i].name, json_integer(mult));
+        JSON_SET_INT(obj, class_table[i].name, mult);
     }
     if (!has_value) {
         json_decref(obj);
@@ -53,7 +53,7 @@ static json_t* build_class_start(const Race* race)
         VNUM vnum = GET_ELEM(&race->class_start, i);
         if (vnum != 0) {
             has_value = true;
-            json_object_set_new(obj, class_table[i].name, json_integer(vnum));
+            JSON_SET_INT(obj, class_table[i].name, vnum);
         }
     }
     if (!has_value) {
@@ -78,7 +78,7 @@ static void add_stats_if_needed(json_t* obj, const char* key, const int16_t* sta
         return;
     json_t* block = json_object();
     for (int s = 0; stat_table[s].name != NULL; s++)
-        json_object_set_new(block, stat_table[s].name, json_integer(stats[s]));
+        JSON_SET_INT(block, stat_table[s].name, stats[s]);
     json_object_set_new(obj, key, block);
 }
 
@@ -145,19 +145,19 @@ PersistResult race_persist_json_save(const PersistWriter* writer, const char* fi
         return (PersistResult){ PERSIST_ERR_UNSUPPORTED, "race JSON save: missing writer", -1 };
 
     json_t* root = json_object();
-    json_object_set_new(root, "formatVersion", json_integer(1));
+    JSON_SET_INT(root, "formatVersion", 1);
     json_t* races = json_array();
     for (int i = 0; race_table && !IS_NULLSTR(race_table[i].name); i++) {
         Race* race = &race_table[i];
         json_t* obj = json_object();
-        json_object_set_new(obj, "name", json_string(race->name));
+        JSON_SET_STRING(obj, "name", race->name);
         if (!IS_NULLSTR(race->who_name))
-            json_object_set_new(obj, "whoName", json_string(race->who_name));
+            JSON_SET_STRING(obj, "whoName", race->who_name);
         if (race->pc_race)
             json_object_set_new(obj, "pc", json_true());
         if (race->points != 0)
-            json_object_set_new(obj, "points", json_integer(race->points));
-        json_object_set_new(obj, "size", json_string(size_name(race->size)));
+            JSON_SET_INT(obj, "points", race->points);
+        JSON_SET_STRING(obj, "size", size_name(race->size));
         add_stats_if_needed(obj, "stats", race->stats);
         add_stats_if_needed(obj, "maxStats", race->max_stats);
         set_flags_if_not_empty(obj, "actFlags", race->act_flags, act_flag_table, NULL);
@@ -172,7 +172,7 @@ PersistResult race_persist_json_save(const PersistWriter* writer, const char* fi
         if (class_mult)
             json_object_set_new(obj, "classMult", class_mult);
         if (race->start_loc != 0)
-            json_object_set_new(obj, "startLoc", json_integer(race->start_loc));
+            JSON_SET_INT(obj, "startLoc", race->start_loc);
         json_t* class_start = build_class_start(race);
         if (class_start)
             json_object_set_new(obj, "classStart", class_start);
@@ -249,15 +249,15 @@ PersistResult race_persist_json_load(const PersistReader* reader, const char* fi
         Race* race = &race_table[i];
         INIT_ARRAY(race->class_mult, ClassMult);
         INIT_ARRAY(race->class_start, StartLoc);
-        const char* name = json_string_value(json_object_get(r, "name"));
+        const char* name = JSON_STRING(r, "name");
         if (name)
             race->name = boot_intern_string(name);
-        const char* who = json_string_value(json_object_get(r, "whoName"));
+        const char* who = JSON_STRING(r, "whoName");
         if (who)
             race->who_name = boot_intern_string(who);
         race->pc_race = json_is_true(json_object_get(r, "pc"));
         race->points = (int16_t)json_int_or_default(r, "points", race->points);
-        const char* size = json_string_value(json_object_get(r, "size"));
+        const char* size = JSON_STRING(r, "size");
         if (size) {
             int s = size_lookup(size);
             if (s >= 0)
@@ -291,12 +291,12 @@ PersistResult race_persist_json_load(const PersistReader* reader, const char* fi
             for (int s = 0; s < STAT_COUNT; s++)
                 race->max_stats[s] = (int16_t)json_integer_value(json_array_get(maxs, s));
         }
-        race->act_flags = flags_from_array(json_object_get(r, "actFlags"), act_flag_table);
-        race->aff = flags_from_array(json_object_get(r, "affectFlags"), affect_flag_table);
-        race->off = flags_from_array(json_object_get(r, "offFlags"), off_flag_table);
-        race->imm = flags_from_array(json_object_get(r, "immFlags"), imm_flag_table);
-        race->res = flags_from_array(json_object_get(r, "resFlags"), res_flag_table);
-        race->vuln = flags_from_array(json_object_get(r, "vulnFlags"), vuln_flag_table);
+        race->act_flags = JSON_FLAGS(r, "actFlags", act_flag_table);
+        race->aff = JSON_FLAGS(r, "affectFlags", affect_flag_table);
+        race->off = JSON_FLAGS(r, "offFlags", off_flag_table);
+        race->imm = JSON_FLAGS(r, "immFlags", imm_flag_table);
+        race->res = JSON_FLAGS(r, "resFlags", res_flag_table);
+        race->vuln = JSON_FLAGS(r, "vulnFlags", vuln_flag_table);
         race->form = flags_from_array_with_defaults(json_object_get(r, "formFlags"), form_defaults_flag_table, form_flag_table);
         race->parts = flags_from_array_with_defaults(json_object_get(r, "partFlags"), part_defaults_flag_table, part_flag_table);
         apply_class_mult(race, json_object_get(r, "classMult"));

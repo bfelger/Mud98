@@ -1251,8 +1251,8 @@ static int test_json_saves_typed_objects()
     ASSERT_OR_GOTO(wobj != NULL, cleanup_root);
     json_t* weapon_block = json_object_get(wobj, "weapon");
     ASSERT_OR_GOTO(json_is_object(weapon_block), cleanup_root);
-    ASSERT_STR_EQ("sword", json_string_value(json_object_get(weapon_block, "class")));
-    ASSERT_STR_EQ("slash", json_string_value(json_object_get(weapon_block, "damageType")));
+    ASSERT_STR_EQ("sword", JSON_STRING(weapon_block, "class"));
+    ASSERT_STR_EQ("slash", JSON_STRING(weapon_block, "damageType"));
     json_t* wflags = json_object_get(weapon_block, "flags");
     ASSERT(json_array_contains(wflags, "sharp"));
 
