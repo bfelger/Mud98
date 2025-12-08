@@ -22,7 +22,7 @@ gods/
 olc2.1e/*
 area/shutdown.txt
 /src.*
-/size_allocs.txt
+**/size_allocs.txt
 /out/*
 /.build
 /.build-*

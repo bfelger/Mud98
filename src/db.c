@@ -223,12 +223,6 @@ void boot_db()
     load_skill_group_table();
     load_system_color_themes();
 
-    // I uncomment these as I transmogrify file formats.
-    //save_class_table();
-    //save_race_table();
-    //save_skill_group_table();
-    //save_skill_table();
-
     // Set time and weather.
     init_weather_info();
 
@@ -281,9 +275,6 @@ void boot_db()
         close_file(fpList);
     }
 
-    //// Run boot-time verification of Lox event bindings on prototypes.
-    //verify_lox_event_bindings();
-    //
     init_world_natives();
 
     /*
@@ -1202,9 +1193,9 @@ typedef struct mem_size_alloc {
 } MemSizeAlloc;
 
 MemSizeAlloc* mem_size_alloc_list = NULL;
-uint64_t amt_perm_alloced = 0;
-uint64_t amt_temp_alloced = 0;
-uint64_t amt_temp_freed = 0;
+size_t amt_perm_alloced = 0;
+size_t amt_temp_alloced = 0;
+size_t amt_temp_freed = 0;
 size_t sizes_count = 0;
 
 void count_size_alloc(size_t mem_size, size_t alloc_size)

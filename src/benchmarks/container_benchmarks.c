@@ -44,7 +44,7 @@ Table item_table = { 0 };
 #ifdef COUNT_SIZE_ALLOCS
 #define START_TEST() amt_perm_alloced = 0; amt_temp_alloced = 0; amt_temp_freed = 0;
 #define END_TEST() \
-    printf(", alloced: %5llu perm, %8llu temp, %7llu freed.\n", amt_perm_alloced, amt_temp_alloced, amt_temp_freed);
+    printf(", alloced: %5zu perm, %8zu temp, %7zu freed.\n", amt_perm_alloced, amt_temp_alloced, amt_temp_freed);
 #else
 #define START_TEST()    
 #define END_TEST() \
@@ -222,7 +222,7 @@ void benchmark_lox_array(const char* msg)
     struct timespec timer_res = elapsed(&timer);
     printf("%10ldns", timer_res.tv_nsec * 10);
 #ifdef COUNT_SIZE_ALLOCS
-    printf(", alloced: %5llu perm, %8llu temp, %7llu freed.\n", 
+    printf(", alloced: %5zu perm, %8zu temp, %7zu freed.\n", 
         amt_perm_alloced * 10, amt_temp_alloced * 10, amt_temp_freed * 10);
 #else
     printf(".\n");
@@ -256,7 +256,7 @@ void benchmark_lox_array(const char* msg)
     timer_res = elapsed(&timer);
     printf("%10ldns", timer_res.tv_nsec * 10);
 #ifdef COUNT_SIZE_ALLOCS
-    printf(", alloced: %5llu perm, %8llu temp, %7llu freed.\n",
+    printf(", alloced: %5zu perm, %8zu temp, %7zu freed.\n",
         amt_perm_alloced * 10, amt_temp_alloced * 10, amt_temp_freed * 10);
 #else
     printf(".\n");

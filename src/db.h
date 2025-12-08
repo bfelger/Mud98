@@ -150,12 +150,12 @@ extern AreaData* current_area_data;
 
 extern int _filbuf(FILE*);
 
-//#define COUNT_SIZE_ALLOCS
+#define COUNT_SIZE_ALLOCS
 #ifdef COUNT_SIZE_ALLOCS
 void report_size_allocs(); 
-extern uint64_t amt_perm_alloced;
-extern uint64_t amt_temp_alloced;
-extern uint64_t amt_temp_freed;
+extern size_t amt_perm_alloced;
+extern size_t amt_temp_alloced;
+extern size_t amt_temp_freed;
 extern ValueArray gc_protect_vals;
 #endif
 
