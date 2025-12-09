@@ -99,7 +99,7 @@ char* gsn_name(SKNUM* pgsn)
             i++;
 
     if (fBootDb)
-        bug("gsn_name : pgsn %d does not exist", *pgsn);
+        bug("gsn_name : gsn %d does not exist", *pgsn);
 
     return "";
 }
@@ -140,7 +140,8 @@ SKNUM* gsn_lookup(char* argument)
 void skedit(Mobile* ch, char* argument)
 {
     if (ch->pcdata->security < MIN_SKEDIT_SECURITY) {
-        send_to_char("SKEdit : You do not have enough security to edit skills.\n\r", ch);
+        send_to_char(COLOR_INFO "You do not have enough security to edit "
+            "skills." COLOR_EOL, ch);
         edit_done(ch);
         return;
     }
@@ -195,7 +196,7 @@ void skedit(Mobile* ch, char* argument)
         }
 
         save_skill_table();
-        send_to_char("Skills saved.\n\r", ch);
+        send_to_char(COLOR_INFO "Skills saved." COLOR_EOL, ch);
         return;
     }
 
@@ -282,12 +283,13 @@ void do_skedit(Mobile* ch, char* argument)
         return;
 
     if (IS_NULLSTR(argument)) {
-        send_to_char("Syntax : SKEdit [skill]\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax : SKEDIT <skill>" COLOR_EOL, ch);
         return;
     }
 
     if (ch->pcdata->security < MIN_SKEDIT_SECURITY) {
-        send_to_char("SKEdit : You do not have enough security to edit skills.\n\r", ch);
+        send_to_char(COLOR_INFO "You do not have enough security to edit "
+            "skills." COLOR_EOL, ch);
         return;
     }
 
@@ -301,7 +303,7 @@ void do_skedit(Mobile* ch, char* argument)
     }
 
     if ((skill = skill_lookup(argument)) == -1) {
-        send_to_char("SKEdit : That skill does not exist.\n\r", ch);
+        send_to_char(COLOR_INFO "That skill does not exist." COLOR_EOL, ch);
         return;
     }
 
@@ -309,6 +311,8 @@ void do_skedit(Mobile* ch, char* argument)
 
     ch->desc->pEdit = U(pSkill);
     ch->desc->editor = ED_SKILL;
+
+    skedit_show(ch, "");
 
     return;
 }
@@ -417,89 +421,59 @@ SKEDIT(skedit_list)
     return false;
 }
 
+static void display_ratings(Mobile* ch, Skill* skill)
+{
+    send_to_char(
+        "\n\r"
+        COLOR_TITLE   "     Class       Level    Rating\n\r"
+        COLOR_DECOR_2 "=============== ======== ========\n\r", ch);
+
+    for (int i = 0; i < class_count; ++i) {
+        printf_to_char(ch,
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 " %-11.11s " 
+            COLOR_DECOR_1 "] [ " COLOR_ALT_TEXT_1 " %3d " 
+            COLOR_DECOR_1 "] [ " COLOR_ALT_TEXT_1 " %3d " 
+            COLOR_DECOR_1 "]" COLOR_EOL,
+            capitalize(class_table[i].name),
+            GET_ELEM(&skill->skill_level, i),
+            GET_ELEM(&skill->rating, i));
+    }
+
+    send_to_char("\n\r", ch);
+}
+
+
 SKEDIT(skedit_show)
 {
     Skill* pSkill;
-    char buf[MAX_STRING_LENGTH];
-    char buf2[MSL];
-    int i;
-    SKNUM sn = 0;
 
     EDIT_SKILL(ch, pSkill);
 
-    sprintf(buf, "Name     : [%s]\n\r",
-        pSkill->name);
-    send_to_char(buf, ch);
+    olc_print_str(ch, "Skill Name", pSkill->name);
 
-    while ((sn < skill_count) && (pSkill != &skill_table[sn]))
-        sn++;
+    bool has_func = (pSkill->spell_fun != spell_null
+        || pSkill->lox_spell_name != NULL
+        || (pSkill->pgsn != NULL));
 
-    if (sn != skill_count) {
-        sprintf(buf, "Sn       : [%3d/%3d]\n\r", sn, skill_count);
-        send_to_char(buf, ch);
-    }
+    if (!has_func || pSkill->spell_fun != spell_null)
+        olc_print_str(ch, "Spell", spell_name(pSkill->spell_fun));
+    if (!has_func || pSkill->lox_spell_name != NULL)
+        olc_print_str(ch, "Lox Spell", pSkill->lox_spell_name->chars);
+    if (!has_func || pSkill->pgsn != NULL)
+        olc_print_str(ch, "GSN", gsn_name(pSkill->pgsn));
+    
+    olc_print_flags(ch, "Target", target_table, pSkill->target);
+    olc_print_str(ch, "Min Pos", position_table[pSkill->minimum_position].name);
+    olc_print_num(ch, "Slot", pSkill->slot);
+    olc_print_num(ch, "Min Mana", pSkill->min_mana);
+    char beat_buf[MIL];
+    sprintf(beat_buf, "%.2f seconds(s)", pSkill->beats / (float)PULSE_PER_SECOND);
+    olc_print_num_str(ch, "Beats", pSkill->beats, beat_buf);
+    olc_print_str(ch, "Noun Dmg", pSkill->noun_damage);
+    olc_print_str(ch, "Msg Off", pSkill->msg_off);
+    olc_print_str(ch, "Msg Obj", pSkill->msg_obj);
 
-    sprintf(buf, "Class    + ");
-
-    for (i = 0; i < class_count; ++i) {
-        strcat(buf, class_table[i].who_name);
-        strcat(buf, " ");
-    }
-
-    strcat(buf, "\n\r");
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Level    | ");
-
-    for (i = 0; i < class_count; ++i) {
-        sprintf(buf2, "%3d ", GET_ELEM(&pSkill->skill_level, i));
-        strcat(buf, buf2);
-    }
-
-    strcat(buf, "\n\r");
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Rating   | ");
-
-    for (i = 0; i < class_count; ++i) {
-        sprintf(buf2, "%3d ", GET_ELEM(&pSkill->rating, i));
-        strcat(buf, buf2);
-    }
-
-    strcat(buf, "\n\r");
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Spell    : [%s]\n\r", spell_name(pSkill->spell_fun));
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Target   : [%s]\n\r", flag_string(target_table, pSkill->target));
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Min Pos  : [%s]\n\r", position_table[pSkill->minimum_position].name);
-    send_to_char(buf, ch);
-
-    sprintf(buf, "pGsn     : [%s]\n\r", gsn_name(pSkill->pgsn));
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Slot     : [%d]\n\r", pSkill->slot);
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Min Mana : [%d]\n\r", pSkill->min_mana);
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Beats    : [%d], %.2f seconds(s).\n\r",
-        pSkill->beats,
-        pSkill->beats / (float)PULSE_PER_SECOND);
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Noun Dmg : [%s]\n\r", pSkill->noun_damage);
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Msg Off  : [%s]\n\r", pSkill->msg_off);
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Msg Obj  : [%s]\n\r", pSkill->msg_obj);
-    send_to_char(buf, ch);
+    display_ratings(ch, pSkill);
 
     return false;
 }
@@ -661,24 +635,24 @@ SKEDIT(skedit_rating)
     READ_ARG(arg);
 
     if (IS_NULLSTR(argument) || IS_NULLSTR(arg) || !is_number(argument)) {
-        send_to_char("Syntax : rating [class] [level]\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax : rating [class] [level]" COLOR_CLEAR, ch);
         return false;
     }
 
     if ((class_ = class_lookup(arg)) == -1) {
-        send_to_char("SKEdit : That class does not exist.\n\r", ch);
+        send_to_char(COLOR_INFO "That class does not exist." COLOR_CLEAR, ch);
         return false;
     }
 
     rating = (int16_t)atoi(argument);
 
     if (rating < 0) {
-        send_to_char("SKEdit : Invalid rating.\n\r", ch);
+        send_to_char(COLOR_INFO "Invalid rating." COLOR_CLEAR, ch);
         return false;
     }
 
     SET_ELEM(pSkill->rating, class_, rating);
-    send_to_char("Ok.\n\r", ch);
+    send_to_char(COLOR_INFO "Ok." COLOR_CLEAR, ch);
     return true;
 }
 
@@ -690,19 +664,19 @@ SKEDIT(skedit_spell)
     EDIT_SKILL(ch, pSkill);
 
     if (IS_NULLSTR(argument)) {
-        send_to_char("Syntax : spell [function name]\n\r", ch);
-        send_to_char("           spell spell_null\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax : spell [function name]" COLOR_CLEAR, ch);
+        send_to_char(COLOR_INFO "         spell spell_null" COLOR_CLEAR, ch);
         return false;
     }
 
     if ((spell = spell_function(argument)) == spell_null
         && str_cmp(argument, "spell_null")) {
-        send_to_char("SKEdit : That spell function does not exist.\n\r", ch);
+        send_to_char(COLOR_INFO "That spell function does not exist." COLOR_CLEAR, ch);
         return false;
     }
 
     pSkill->spell_fun = spell;
-    send_to_char("Ok.\n\r", ch);
+    send_to_char(COLOR_INFO "Ok." COLOR_CLEAR, ch);
     return true;
 }
 
@@ -715,15 +689,15 @@ SKEDIT(skedit_gsn)
     EDIT_SKILL(ch, pSkill);
 
     if (IS_NULLSTR(argument)) {
-        send_to_char("SKedit : gsn [name]\n\r", ch);
-        send_to_char("           gsn null\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax: gsn [name]" COLOR_CLEAR, ch);
+        send_to_char(COLOR_INFO "        gsn null" COLOR_CLEAR, ch);
         return false;
     }
 
     gsn = NULL;
 
     if (str_cmp(argument, "null") && (gsn = gsn_lookup(argument)) == NULL) {
-        send_to_char("SKEdit : That gsn does not exist.\n\r", ch);
+        send_to_char(COLOR_INFO "That gsn does not exist." COLOR_CLEAR, ch);
         return false;
     }
 
@@ -733,7 +707,7 @@ SKEDIT(skedit_gsn)
             *skill_table[sn].pgsn = sn;
     }
 
-    send_to_char("Ok.\n\r", ch);
+    send_to_char(COLOR_INFO "Ok." COLOR_CLEAR, ch);
     return true;
 }
 
@@ -747,12 +721,12 @@ SKEDIT(skedit_new)
     int i;
 
     if (IS_NULLSTR(argument)) {
-        send_to_char("Syntax : new [name]\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax: new [name]" COLOR_CLEAR, ch);
         return false;
     }
 
     if (skill_lookup(argument) != -1) {
-        send_to_char("That skill already exists!\n\r", ch);
+        send_to_char(COLOR_INFO "That skill already exists." COLOR_CLEAR, ch);
         return false;
     }
 
@@ -771,7 +745,7 @@ SKEDIT(skedit_new)
     if (!new_skill_table) /* realloc failed */
     {
         perror("skedit_new (1): Falled to reallocate skill_table!");
-        send_to_char("Realloc failed. Prepare for impact. (1)\n\r", ch);
+        send_to_char(COLOR_INFO "Realloc failed. Prepare for impact. (1)" COLOR_CLEAR, ch);
         return false;
     }
 
@@ -806,7 +780,7 @@ SKEDIT(skedit_new)
         tempgendata = realloc(tch->gen_data->skill_chosen, sizeof(bool) * skill_count);
         if (!tempgendata) {
             perror("skedit_new (2): Falled to reallocate tempgendata!");
-            send_to_char("Realloc failed. Prepare for impact. (2)\n\r", ch);
+            send_to_char(COLOR_INFO "Realloc failed. Prepare for impact. (2)" COLOR_CLEAR, ch);
             return false;
         }
         tch->gen_data->skill_chosen = tempgendata;
@@ -830,7 +804,7 @@ SKEDIT(skedit_new)
     ch->desc->editor = ED_SKILL;
     ch->desc->pEdit = U(&skill_table[skill_count - 1]);
 
-    send_to_char("Skill created.\n\r", ch);
+    send_to_char(COLOR_INFO "Skill created." COLOR_CLEAR, ch);
     return true;
 }
 

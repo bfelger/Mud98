@@ -130,7 +130,7 @@ void do_redit(Mobile* ch, char* argument)
     }
 
     if (room_data == NULL) {
-        bugf(COLOR_INFO "do_redit: NULL room_data, ch %s!" COLOR_CLEAR , NAME_STR(ch));
+        bugf("redit: NULL room_data, ch %s!\n\r", NAME_STR(ch));
         return;
     }
 
@@ -157,7 +157,7 @@ void redit(Mobile* ch, char* argument)
     area = pRoom->area_data;
 
     if (!IS_BUILDER(ch, area)) {
-        send_to_char(COLOR_INFO "REdit:  Insufficient security to modify room." COLOR_EOL, ch);
+        send_to_char(COLOR_INFO "Insufficient security to modify room." COLOR_EOL, ch);
         edit_done(ch);
         return;
     }

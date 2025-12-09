@@ -611,6 +611,25 @@ void olc_print_flags(Mobile* ch, const char* label, const struct flag_type* flag
         flag_string(flag_table, flags));
 }
 
+void olc_print_flags_ex(Mobile* ch, const char* label, const struct flag_type* flag_table, const struct flag_type* defaults, FLAGS flags)
+{
+    const char* flag_str = flag_string(flag_table, flags);
+
+    printf_to_char(ch, LABEL_FMT" : " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%10s"
+        COLOR_DECOR_1 " ]", label, flag_str);
+
+    const char* preset = olc_match_flag_default(flags, defaults);
+    if (preset) {
+        if (strlen(label) + strlen(flag_str) > 68) {
+            // Too long, move preset to next line
+            printf_to_char(ch, "\n\r                ");
+        }
+        printf_to_char(ch, " " COLOR_ALT_TEXT_2 "(%s)", preset);
+    }
+
+    printf_to_char(ch, COLOR_EOL);
+}
+
 void olc_print_num(Mobile* ch, const char* label, int num)
 {
     printf_to_char(ch, LABEL_FMT " : " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%10d"
