@@ -21,6 +21,8 @@
 #include <save.h>
 #include <tables.h>
 
+#include <data/mobile_data.h>
+
 #include <entities/event.h>
 #include <entities/faction.h>
 #include <entities/mob_prototype.h>
@@ -62,7 +64,7 @@ const OlcCmdEntry mob_olc_comm_table[] = {
     { "defaultpos", U(&xMob.default_pos),	ed_int16lookup,		U(position_lookup)},
     { "damtype",	U(&xMob.dam_type),	    ed_int16poslookup,	U(attack_lookup)},
     { "race",	    U(&xMob),			    ed_race,		    0		        },
-    { "armor",	    U(&xMob),			    ed_ac,			    0		        },
+    { "ac",	    U(&xMob),			    ed_ac,			    0		        },
     { "hitdice",	U(&xMob.hit[0]),        ed_dice,		    0		        },
     { "manadice",	U(&xMob.mana[0]),		ed_dice,		    0		        },
     { "damdice",	U(&xMob.damage[0]),	    ed_dice,		    0		        },
@@ -70,6 +72,7 @@ const OlcCmdEntry mob_olc_comm_table[] = {
     { "wealth",	    0,                      ed_olded,           U(medit_wealth)  },
     { "addprog",	U(&xMob.mprogs),		ed_addprog,		    0		        },
     { "delprog",	U(&xMob.mprogs),		ed_delprog,		    0		        },
+    { "show",       0,				        ed_olded,		    U(medit_show)	},
     { "mshow",	    0,				        ed_olded,		    U(medit_show)	},
     { "oshow",	    0,				        ed_olded,		    U(oedit_show)	},
     { "olist",	    U(&xMob.area),		    ed_olist,		    0		        },
@@ -98,12 +101,12 @@ void do_medit(Mobile* ch, char* argument)
     if (is_number(arg1)) {
         value = atoi(arg1);
         if (!(pMob = get_mob_prototype(value))) {
-            send_to_char("MEdit:  That vnum does not exist.\n\r", ch);
+            send_to_char(COLOR_INFO "That vnum does not exist." COLOR_EOL, ch);
             return;
         }
 
         if (!IS_BUILDER(ch, pMob->area)) {
-            send_to_char("You do not have enough security to edit mobs.\n\r", ch);
+            send_to_char(COLOR_INFO "You do not have enough security to edit mobs." COLOR_EOL, ch);
             return;
         }
 
@@ -115,19 +118,19 @@ void do_medit(Mobile* ch, char* argument)
         if (!str_cmp(arg1, "create")) {
             value = atoi(argument);
             if (arg1[0] == '\0' || value == 0) {
-                send_to_char("Syntax:  edit mobile create [vnum]\n\r", ch);
+                send_to_char(COLOR_INFO "Syntax:  edit mobile create <vnum>" COLOR_EOL, ch);
                 return;
             }
 
             area = get_vnum_area(value);
 
             if (!area) {
-                send_to_char("MEdit:  That vnum is not assigned an area.\n\r", ch);
+                send_to_char(COLOR_INFO "That vnum is not assigned an area." COLOR_EOL, ch);
                 return;
             }
 
             if (!IS_BUILDER(ch, area)) {
-                send_to_char("You do not have enough security to edit mobs.\n\r", ch);
+                send_to_char(COLOR_INFO "You do not have enough security to edit mobs." COLOR_EOL, ch);
                 return;
             }
 
@@ -140,7 +143,7 @@ void do_medit(Mobile* ch, char* argument)
         }
     }
 
-    send_to_char("MEdit:  There is no default mobile to edit.\n\r", ch);
+    send_to_char(COLOR_INFO "There is no default mobile to edit." COLOR_EOL, ch);
     return;
 }
 
@@ -154,7 +157,7 @@ void medit(Mobile* ch, char* argument)
     area = pMob->area;
 
     if (!IS_BUILDER(ch, area)) {
-        send_to_char("MEdit: Insufficient security to modify area.\n\r", ch);
+        send_to_char(COLOR_INFO "Insufficient security to modify area." COLOR_EOL, ch);
         edit_done(ch);
         return;
     }
@@ -181,177 +184,181 @@ MEDIT(medit_show)
 {
     MobPrototype* pMob;
     char arg[MIL];
-    MobProg* list;
-    int cnt;
+    char buf[MIL];
+    bool hide_unused = true;
 
     READ_ARG(arg);
 
-    if (IS_NULLSTR(arg)) {
+    if (IS_NULLSTR(arg) || !str_cmp(arg, "all")) {
         if (ch->desc->editor == ED_MOBILE)
             EDIT_MOB(ch, pMob);
         else {
-            send_to_char(COLOR_INFO "ERROR: You must specify a vnum to look at." COLOR_EOL, ch);
+            send_to_char(COLOR_INFO "You must specify a vnum to look at." COLOR_EOL, ch);
             return false;
         }
+
+        if (!IS_NULLSTR(arg) && !str_cmp(arg, "all")) 
+            hide_unused = false;
     }
-    else {
+    else if (is_number(arg)) {
         pMob = get_mob_prototype(atoi(arg));
 
         if (!pMob) {
-            send_to_char(COLOR_INFO "ERROR: That mob does not exist." COLOR_EOL, ch);
+            send_to_char(COLOR_INFO "That mob does not exist." COLOR_EOL, ch);
             return false;
         }
 
         if (!IS_BUILDER(ch, pMob->area)) {
-            send_to_char(COLOR_INFO "ERROR: You do not have access to the area that mob is in." COLOR_EOL, ch);
+            send_to_char(COLOR_INFO "You do not have access to the area that mob is in." COLOR_EOL, ch);
             return false;
         }
-    }
 
-    INIT_BUF(buffer, MSL);
-
-    addf_buf(buffer, "Name:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, NAME_STR(pMob));
-    addf_buf(buffer, "Vnum:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%6d" COLOR_DECOR_1 "]" COLOR_EOL, VNUM_FIELD(pMob));
-    addf_buf(buffer, "Area:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%6d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "%s" COLOR_EOL,
-        !pMob->area ? -1 : VNUM_FIELD(pMob->area),
-        !pMob->area ? "No Area" : NAME_STR(pMob->area));
-
-    if (pMob->faction_vnum != 0) {
-        Faction* faction = get_faction(pMob->faction_vnum);
-        if (faction != NULL) {
-            addf_buf(buffer, "Faction:     " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%6" PRVNUM COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "%s" COLOR_EOL,
-                VNUM_FIELD(faction), NAME_STR(faction));
-        }
-        else {
-            addf_buf(buffer, "Faction:     " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%6d" PRVNUM COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "Unknown" COLOR_CLEAR COLOR_EOL,
-                pMob->faction_vnum);
-        }
+        READ_ARG(arg);
+        if (!IS_NULLSTR(arg) && !str_cmp(arg, "all")) 
+            hide_unused = false;
     }
     else {
-        add_buf(buffer, "Faction:     " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "(none)" COLOR_DECOR_1 "]" COLOR_CLEAR COLOR_EOL);
+        send_to_char(COLOR_INFO "You must specify a vnum to look at." COLOR_EOL, ch);
+        return false;
     }
 
-    addf_buf(buffer, "Level:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%6d" COLOR_DECOR_1 "]" COLOR_CLEAR " Sex:     " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%6s" COLOR_DECOR_1 "]" COLOR_CLEAR " Group:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_EOL
-        "Align:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%6d" COLOR_DECOR_1 "]" COLOR_CLEAR " Hitroll: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%6d" COLOR_DECOR_1 "]" COLOR_CLEAR " Dam type: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL,
-        pMob->level,
-        ((pMob->sex >= SEX_MIN && pMob->sex <= SEX_MAX) ? sex_table[pMob->sex].name : "ERROR"),
-        pMob->group,
-        pMob->alignment,
-        pMob->hitroll,
-        attack_table[pMob->dam_type].name);
+    olc_print_str(ch, "Name", NAME_STR(pMob));
+    olc_print_num(ch, "Vnum", VNUM_FIELD(pMob));
+    olc_print_num_str(ch, "Area", !pMob->area ? -1 : VNUM_FIELD(pMob->area),
+        !pMob->area ? "No Area" : NAME_STR(pMob->area));
 
-    addf_buf(buffer, 
-        "Hit dice:    " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%3dd%-3d+%4d" COLOR_DECOR_1 "]" COLOR_CLEAR " Damage dice:  " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%3dd%-3d+%4d" COLOR_DECOR_1 "]" COLOR_EOL
-        "Mana dice:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%3dd%-3d+%4d" COLOR_DECOR_1 "]" COLOR_CLEAR " Material:     " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%12s" COLOR_DECOR_1 "]" COLOR_EOL,
-        pMob->hit[DICE_NUMBER],
-        pMob->hit[DICE_TYPE],
-        pMob->hit[DICE_BONUS],
-        pMob->damage[DICE_NUMBER],
-        pMob->damage[DICE_TYPE],
-        pMob->damage[DICE_BONUS],
-        pMob->mana[DICE_NUMBER],
-        pMob->mana[DICE_TYPE],
-        pMob->mana[DICE_BONUS], 
-        pMob->material);
- 
-    addf_buf(buffer, "Race:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%12s" COLOR_DECOR_1 "]" COLOR_CLEAR " Size:         " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%12s" COLOR_DECOR_1 "]" COLOR_EOL,
-        race_table[pMob->race].name,
-        ((pMob->size >= MOB_SIZE_MIN && pMob->size <= MOB_SIZE_MAX) ?
-            mob_size_table[pMob->size].name : "ERROR"));
+    if (!hide_unused) {
+        olc_print_text(ch, "Short Desc", pMob->short_descr);
+        olc_print_text(ch, "Long Desc", pMob->long_descr);
+        olc_print_text(ch, "Description", IS_NULLSTR(pMob->description) ? "(none)" : pMob->description);
+    }
+    else {
+        
+        olc_print_text_ex(ch, "Short Desc", pMob->short_descr, 63);
+        olc_print_text_ex(ch, "Long Desc", pMob->long_descr, 63);
+        olc_print_text_ex(ch, "Description", IS_NULLSTR(pMob->description) ? "(none)" : pMob->description, 63);
+    }
 
-    addf_buf(buffer, "Start pos.:  " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%12s" COLOR_DECOR_1 "]" COLOR_CLEAR " Default pos.: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%12s" COLOR_DECOR_1 "]" COLOR_EOL,
-        position_table[pMob->start_pos].name,
-        position_table[pMob->default_pos].name);
+    olc_print_num_str(ch, "Faction", pMob->faction_vnum,
+        pMob->faction_vnum == 0 ? "(none)" :
+        (get_faction(pMob->faction_vnum) ? NAME_STR(get_faction(pMob->faction_vnum)) : "unknown"));
+    olc_print_num(ch, "Level", pMob->level);
+    olc_print_num(ch, "Hitroll", pMob->hitroll);
+    if (!hide_unused || pMob->dam_type != 0)
+        olc_print_str_box(ch, "Dam Type", attack_table[pMob->dam_type].name, "");
 
-    {
+    static const char* DICE_FORMAT = "%dd%d+%d";
+    sprintf(buf, DICE_FORMAT, pMob->hit[DICE_NUMBER], pMob->hit[DICE_TYPE], pMob->hit[DICE_BONUS]);
+    olc_print_str_box(ch, "Hit Dice", buf, "");
+    sprintf(buf, DICE_FORMAT, pMob->damage[DICE_NUMBER], pMob->damage[DICE_TYPE], pMob->damage[DICE_BONUS]);
+    olc_print_str_box(ch, "Damage Dice", buf, "");
+    if (!hide_unused || (pMob->mana[DICE_NUMBER] != 0 || pMob->mana[DICE_TYPE] != 0)) {
+        sprintf(buf, DICE_FORMAT, pMob->mana[DICE_NUMBER], pMob->mana[DICE_TYPE], pMob->mana[DICE_BONUS]);
+        olc_print_str_box(ch, "Mana Dice", buf, "");
+    }
+    sprintf(buf, COLOR_ALT_TEXT_2"pierce: " COLOR_ALT_TEXT_1 "%d" COLOR_ALT_TEXT_2 "  bash: " COLOR_ALT_TEXT_1 "%d" COLOR_ALT_TEXT_2 "  slash: " COLOR_ALT_TEXT_1 "%d" COLOR_ALT_TEXT_2 "  exotic: " COLOR_ALT_TEXT_1 "%d",
+        pMob->ac[AC_PIERCE], pMob->ac[AC_BASH],
+        pMob->ac[AC_SLASH], pMob->ac[AC_EXOTIC]);
+    olc_print_str_box(ch, "AC", buf, "");
+    if (!hide_unused || pMob->alignment != 0)
+        olc_print_num(ch, "Alignment", pMob->alignment);
+    if (!hide_unused || pMob->group != 0)
+        olc_print_num_str(ch, "Group", pMob->group, get_mob_group_name(pMob->group));
+    if (!hide_unused || pMob->sex != SEX_MIN)
+        olc_print_str_box(ch, "Sex", (pMob->sex >= SEX_MIN && pMob->sex <= SEX_MAX) ? sex_table[pMob->sex].name : "ERROR", "");
+    if (!hide_unused || pMob->default_pos != POS_STANDING)
+        olc_print_str_box(ch, "Default Pos", position_table[pMob->default_pos].name, "");
+    if (!hide_unused || pMob->start_pos != pMob->default_pos)
+        olc_print_str_box(ch, "Start Pos", position_table[pMob->start_pos].name, "");
+    if (!hide_unused || (!IS_NULLSTR(pMob->material) && str_cmp(pMob->material, "unknown")))
+        olc_print_str_box(ch, "Material", pMob->material ? pMob->material : "(none)", "");
+
+    if (!hide_unused || pMob->wealth != 0) {
         int16_t wealth_gold = 0, wealth_silver = 0, wealth_copper = 0;
         convert_copper_to_money(pMob->wealth, &wealth_gold, &wealth_silver, &wealth_copper);
         char wealth_desc[64];
         format_money_string(wealth_desc, sizeof(wealth_desc), wealth_gold, wealth_silver, wealth_copper, false);
-        addf_buf(buffer, "Wealth:      " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%7d cp" COLOR_DECOR_1 "]" COLOR_CLEAR " " COLOR_ALT_TEXT_2 "%s" COLOR_EOL,
-            pMob->wealth, wealth_desc);
+        olc_print_num_str(ch, "Wealth (cp)", pMob->wealth, wealth_desc);
     }
 
-    addf_buf(buffer, "Armor:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_2 "pierce: " COLOR_ALT_TEXT_1 "%d" COLOR_ALT_TEXT_2 "  bash: " COLOR_ALT_TEXT_1 "%d" COLOR_ALT_TEXT_2 "  slash: " COLOR_ALT_TEXT_1 "%d" COLOR_ALT_TEXT_2 "  magic: " COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL,
-        pMob->ac[AC_PIERCE], pMob->ac[AC_BASH],
-        pMob->ac[AC_SLASH], pMob->ac[AC_EXOTIC]);
+    // Race-derived stats
+    Race* race = &race_table[pMob->race];
+    olc_print_str_box(ch, "Race", race->name, "");
 
-    addf_buf(buffer, "Affected by: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL,
-        flag_string(affect_flag_table, pMob->affect_flags));
+    if (!hide_unused || pMob->size != race->size)
+        olc_print_str_box(ch, "Size", (pMob->size >= MOB_SIZE_MIN && pMob->size <= MOB_SIZE_MAX) ?
+            mob_size_table[pMob->size].name : "ERROR", "");
+    if (!hide_unused || pMob->affect_flags != race->aff)
+        olc_print_flags(ch, "Aff flags", affect_flag_table, pMob->affect_flags);
+    if (!hide_unused || pMob->act_flags != race->act_flags)
+        olc_print_flags(ch, "Act flags", act_flag_table, pMob->act_flags);
+    if (!hide_unused || pMob->form != race->form)
+        olc_print_flags_ex(ch, "Form Flags", form_flag_table, form_defaults_flag_table, pMob->form);
+    if (!hide_unused || pMob->parts != race->parts)
+        olc_print_flags_ex(ch, "Part Flags", part_flag_table, part_defaults_flag_table, pMob->parts);
+    if (!hide_unused || pMob->imm_flags != race->imm)
+        olc_print_flags(ch, "Imm flags", imm_flag_table, pMob->imm_flags);
+    if (!hide_unused || pMob->res_flags != race->res)
+        olc_print_flags(ch, "Res flags", res_flag_table, pMob->res_flags);
+    if (!hide_unused || pMob->vuln_flags != race->vuln)
+        olc_print_flags(ch, "Vuln flags", vuln_flag_table, pMob->vuln_flags);
+    if (!hide_unused || pMob->atk_flags != race->off)
+        olc_print_flags(ch, "Off flags", off_flag_table, pMob->atk_flags);
+    
+    if (!hide_unused || pMob->spec_fun != NULL)
+        olc_print_str_box(ch, "Spec Fun", pMob->spec_fun ? spec_name(pMob->spec_fun) : "(none)", "");
 
-    addf_buf(buffer, "Act:         " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL,
-        flag_string(act_flag_table, pMob->act_flags));
-
-    addf_buf(buffer, "%s\n\r", olc_show_flags_ex("Form", form_flag_table, form_defaults_flag_table, pMob->form));
-    addf_buf(buffer, "%s\n\r", olc_show_flags_ex("Parts", part_flag_table, part_defaults_flag_table, pMob->parts));
-    addf_buf(buffer, "%s\n\r", olc_show_flags("Imm", imm_flag_table, pMob->imm_flags));
-    addf_buf(buffer, "%s\n\r", olc_show_flags("Res", res_flag_table, pMob->res_flags));
-    addf_buf(buffer, "%s\n\r", olc_show_flags("Vuln", vuln_flag_table, pMob->vuln_flags));
-    addf_buf(buffer, "%s\n\r", olc_show_flags("Off", off_flag_table, pMob->atk_flags));
-
-    if (pMob->spec_fun) {
-        addf_buf(buffer, "Spec fun:    " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, spec_name(pMob->spec_fun));
-    }
-
-    addf_buf(buffer, "Short descr: " COLOR_ALT_TEXT_2 "%s" COLOR_EOL "Long descr:\n\r" COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR,
-        pMob->short_descr,
-        pMob->long_descr);
-
-    if (!IS_NULLSTR(pMob->description))
-        addf_buf(buffer, "Description:\n\r" COLOR_ALT_TEXT_2 "%s" COLOR_CLEAR , pMob->description);
-    else 
-        add_buf(buffer, "Description: " COLOR_ALT_TEXT_2 "(none)" COLOR_EOL);
-
+    Entity* entity = &pMob->header;
+    olc_display_lox_info(ch, entity);
+    olc_display_events(ch, entity);
+    
     if (pMob->pShop) {
         ShopData* pShop;
         int iTrade;
 
         pShop = pMob->pShop;
 
-        addf_buf(buffer,
+        printf_to_char(ch,
             "Shop data for " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR ":\n\r"
             "  Markup for purchaser: " COLOR_ALT_TEXT_1 "%d%%" COLOR_EOL
             "  Markdown for seller:  " COLOR_ALT_TEXT_1 "%d%%" COLOR_EOL,
             pShop->keeper, pShop->profit_buy, pShop->profit_sell);
-        addf_buf(buffer, "  Hours: " COLOR_ALT_TEXT_2 "%d" COLOR_CLEAR " to " COLOR_ALT_TEXT_2 "%d" COLOR_CLEAR ".\n\r",
+        printf_to_char(ch, "  Hours: " COLOR_ALT_TEXT_2 "%d" COLOR_CLEAR " to " COLOR_ALT_TEXT_2 "%d" COLOR_CLEAR ".\n\r",
             pShop->open_hour, pShop->close_hour);
 
         for (iTrade = 0; iTrade < MAX_TRADE; iTrade++) {
             if (pShop->buy_type[iTrade] != 0) {
                 if (iTrade == 0) {
-                    add_buf(buffer, "  " COLOR_TITLE "Number Trades Type\n\r");
-                    add_buf(buffer, "  " COLOR_DECOR_2 "------ -----------" COLOR_EOL);
+                    printf_to_char(ch, "  " COLOR_TITLE "Number Trades Type\n\r");
+                    printf_to_char(ch, "  " COLOR_DECOR_2 "------ -----------" COLOR_EOL);
                 }
-                addf_buf(buffer, "  " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%4d" COLOR_DECOR_1 "]" COLOR_CLEAR " " COLOR_ALT_TEXT_2 "%s" COLOR_EOL, iTrade,
+                printf_to_char(ch, "  " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%4d" COLOR_DECOR_1 "]" COLOR_CLEAR " " COLOR_ALT_TEXT_2 "%s" COLOR_EOL, iTrade,
                     flag_string(type_flag_table, pShop->buy_type[iTrade]));
             }
         }
     }
 
     if (pMob->mprogs) {
-        addf_buf(buffer,
+        MobProg* list;
+        int cnt;
+        printf_to_char(ch,
             "\n\rMOBPrograms for " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR ":\n\r", VNUM_FIELD(pMob));
 
         for (cnt = 0, list = pMob->mprogs; list; NEXT_LINK(list)) {
             if (cnt == 0) {
-                add_buf(buffer, " " COLOR_TITLE "Number Vnum Trigger Phrase\n\r");
-                add_buf(buffer, " " COLOR_DECOR_2 "------ ---- ------- ------\n\r");
+                printf_to_char(ch, " " COLOR_TITLE "Number Vnum Trigger Phrase\n\r");
+                printf_to_char(ch, " " COLOR_DECOR_2 "------ ---- ------- ------\n\r");
             }
 
-            addf_buf(buffer, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_1 "%4d %7s " COLOR_ALT_TEXT_2 "%s" COLOR_EOL, cnt,
+            printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_1 "%4d %7s " COLOR_ALT_TEXT_2 "%s" COLOR_EOL, cnt,
                 list->vnum, event_trigger_name(list->trig_type),
                 list->trig_phrase);
             cnt++;
         }
     }
 
-    send_to_char(BUF(buffer), ch);
-
-    Entity* entity = &pMob->header;
-    olc_display_lox_info(ch, entity);
-    olc_display_events(ch, entity);
-
-    free_buf(buffer);
+    if (hide_unused)
+        send_to_char(COLOR_INFO "\n\r(Note: Some fields are hidden. Use 'show all' to see all fields.)" COLOR_EOL, ch);
 
     return false;
 }
@@ -373,13 +380,13 @@ MEDIT(medit_wealth)
     }
 
     if (!is_number(amount_arg)) {
-        send_to_char(COLOR_INFO "ERROR: Amount must be numeric." COLOR_EOL, ch);
+        send_to_char(COLOR_INFO "Amount must be numeric." COLOR_EOL, ch);
         return false;
     }
 
     long amount = atol(amount_arg);
     if (amount < 0) {
-        send_to_char(COLOR_INFO "ERROR: Amount must be non-negative." COLOR_EOL, ch);
+        send_to_char(COLOR_INFO "Amount must be non-negative." COLOR_EOL, ch);
         return false;
     }
 
@@ -387,7 +394,7 @@ MEDIT(medit_wealth)
     if (!IS_NULLSTR(unit_arg)) {
         MoneyType money_type;
         if (!parse_money_type(unit_arg, &money_type)) {
-            send_to_char(COLOR_INFO "ERROR: Unit must be cp, sp, or gp." COLOR_EOL, ch);
+            send_to_char(COLOR_INFO "Unit must be cp, sp, or gp." COLOR_EOL, ch);
             return false;
         }
         multiplier = money_type_value(money_type);
@@ -395,7 +402,7 @@ MEDIT(medit_wealth)
 
     long total = amount * multiplier;
     if (total > INT_MAX) {
-        send_to_char(COLOR_INFO "ERROR: Amount is too large." COLOR_EOL, ch);
+        send_to_char(COLOR_INFO "Amount is too large." COLOR_EOL, ch);
         return false;
     }
 
@@ -422,6 +429,7 @@ MEDIT(medit_faction)
 
     if (IS_NULLSTR(arg)) {
         send_to_char(COLOR_INFO "Syntax: faction <vnum|name|none>" COLOR_EOL, ch);
+        send_to_char(COLOR_INFO "        faction none - clears the faction." COLOR_EOL, ch);
         return false;
     }
 
@@ -458,39 +466,66 @@ MEDIT(medit_group)
     MobPrototype* pMTemp;
     char arg[MAX_STRING_LENGTH];
     char buf[MAX_STRING_LENGTH];
-    int temp;
     Buffer* buffer;
     bool found = false;
 
     EDIT_MOB(ch, pMob);
 
     if (argument[0] == '\0') {
-        send_to_char("Syntax: group [num]\n\r", ch);
-        send_to_char("        group show [num]\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax: group <num>\n\r", ch);
+        send_to_char("        group show <num>\n\r", ch);
+        send_to_char("        group list" COLOR_EOL, ch);
         return false;
     }
 
     if (is_number(argument)) {
-        pMob->group = (SKNUM)atoi(argument);
-        send_to_char("Group set.\n\r", ch);
+        pMob->group = (VNUM)atoi(argument);
+        send_to_char(COLOR_INFO "Group set." COLOR_EOL, ch);
         return true;
     }
 
     READ_ARG(arg);
 
-    if (!strcmp(arg, "show") && is_number(argument)) {
-        if (atoi(argument) == 0) {
-            send_to_char("Estas loco? (Are you insane?)\n\r", ch);
+    if (!strcmp(arg, "list")) {
+        send_to_char(COLOR_TITLE   " Group VNUM  Group Name" COLOR_EOL, ch);
+        send_to_char(COLOR_DECOR_2 " ========== ============" COLOR_EOL, ch);
+        for (int i = 0; i < mob_group_count; i++) {
+            sprintf(buf, COLOR_DECOR_1 "  [ " COLOR_ALT_TEXT_1 "%6d" COLOR_DECOR_1 " ] " COLOR_ALT_TEXT_2 "%s" COLOR_EOL, mob_groups[i].vnum, mob_groups[i].name);
+            send_to_char(buf, ch);
+        }
+
+        return false;
+    }
+
+    if (!strcmp(arg, "show")) {
+        if (!is_number(argument)) {
+            send_to_char(COLOR_INFO "You must specify a mob group." COLOR_EOL, ch);
             return false;
         }
 
         buffer = new_buf();
 
-        for (temp = 0; temp < MAX_VNUM; temp++) {
-            pMTemp = get_mob_prototype(temp);
-            if (pMTemp && (pMTemp->group == atoi(argument))) {
+        VNUM vnum = atoi(argument);
+
+        int i;
+        for (i = 0; i < mob_group_count; i++) {
+            if (mob_groups[i].vnum == vnum) {
+                sprintf(buf, COLOR_TITLE "Mob Group %d (%s)" COLOR_EOL, mob_groups[i].vnum, mob_groups[i].name);
+                add_buf(buffer, buf);
+                break;
+            }
+        }
+
+        if (i == mob_group_count) {
+            send_to_char(COLOR_INFO "That mob group does not exist. Use GROUP LIST to see all groups." COLOR_EOL, ch);
+            free_buf(buffer);
+            return false;
+        }
+
+        FOR_EACH_MOB_PROTO(pMTemp) {
+            if (pMTemp->group == vnum) {
                 found = true;
-                sprintf(buf, "[%5d] %s\n\r", VNUM_FIELD(pMTemp), NAME_STR(pMTemp));
+                sprintf(buf, COLOR_DECOR_1 "  [ " COLOR_ALT_TEXT_1 "%6d" COLOR_DECOR_1 " ] " COLOR_ALT_TEXT_2 "%s" COLOR_EOL, VNUM_FIELD(pMTemp), NAME_STR(pMTemp));
                 add_buf(buffer, buf);
             }
         }
@@ -498,10 +533,15 @@ MEDIT(medit_group)
         if (found)
             page_to_char(BUF(buffer), ch);
         else
-            send_to_char("There are no mobs in that group.\n\r", ch);
+            send_to_char(COLOR_INFO "There are no mobs in that group." COLOR_EOL, ch);
 
         free_buf(buffer);
+        return false;
     }
+
+    send_to_char(COLOR_INFO "Syntax: group <num>\n\r", ch);
+    send_to_char("        group show <num>\n\r", ch);
+    send_to_char("        group list" COLOR_EOL, ch);
 
     return false;
 }
@@ -514,22 +554,22 @@ MEDIT(medit_copy)
     EDIT_MOB(ch, pMob);
 
     if (IS_NULLSTR(argument)) {
-        send_to_char("Syntax : copy [vnum]\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax: copy <vnum>" COLOR_EOL, ch);
         return false;
     }
 
     if (!is_number(argument) || (vnum = atoi(argument)) < 0) {
-        send_to_char("ERROR : Vnum must be greater than 0.\n\r", ch);
+        send_to_char(COLOR_INFO "Vnum must be greater than 0." COLOR_EOL, ch);
         return false;
     }
 
     if ((mob2 = get_mob_prototype(vnum)) == NULL) {
-        send_to_char("ERROR : That mob does not exist.\n\r", ch);
+        send_to_char(COLOR_INFO "That mob does not exist." COLOR_EOL, ch);
         return false;
     }
 
     if (!IS_BUILDER(ch, mob2->area)) {
-        send_to_char("ERROR : You do not have access to the area that mob is in.\n\r", ch);
+        send_to_char(COLOR_INFO "You do not have access to the area that mob is in." COLOR_EOL, ch);
         return false;
     }
 
@@ -567,7 +607,7 @@ MEDIT(medit_copy)
     free_string(pMob->material);
     pMob->material = str_dup(mob2->material);
 
-    send_to_char("Ok.\n\r", ch);
+    send_to_char(COLOR_INFO "Ok." COLOR_EOL, ch);
     return true;
 }
 
@@ -580,24 +620,24 @@ ED_FUN_DEC(ed_new_mob)
     value = STRTOVNUM(argument);
 
     if (argument[0] == '\0' || value == 0) {
-        send_to_char("Syntax : medit create [vnum]\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax: medit create <vnum>" COLOR_EOL, ch);
         return false;
     }
 
     area = get_vnum_area(value);
 
     if (!area) {
-        send_to_char("MEdit : That vnum is not assigned to an area.\n\r", ch);
+        send_to_char(COLOR_INFO "That vnum is not assigned to an area." COLOR_EOL, ch);
         return false;
     }
 
     if (!IS_BUILDER(ch, area)) {
-        send_to_char("MEdit : You do not have access to that area.\n\r", ch);
+        send_to_char(COLOR_INFO "You do not have access to that area." COLOR_EOL, ch);
         return false;
     }
 
     if (get_mob_prototype(value)) {
-        send_to_char("MEdit : A mob with that vnum already exists.\n\r", ch);
+        send_to_char(COLOR_INFO "A mob with that vnum already exists." COLOR_EOL, ch);
         return false;
     }
 
@@ -617,7 +657,7 @@ ED_FUN_DEC(ed_new_mob)
     set_editor(ch->desc, ED_MOBILE, U(pMob));
 /*    ch->desc->pEdit        = (void *)pMob; */
 
-    send_to_char("Mob created.\n\r", ch);
+    send_to_char(COLOR_INFO "Mob created." COLOR_EOL, ch);
 
     return true;
 }
@@ -627,13 +667,13 @@ ED_FUN_DEC(ed_recval)
     MobPrototype* pMob = (MobPrototype*)arg;
 
     if (pMob->level < 1 || pMob->level > 60) {
-        send_to_char("The mob's level must be between 1 and 60.\n\r", ch);
+        send_to_char(COLOR_INFO "The mob's level must be between 1 and 60." COLOR_EOL, ch);
         return false;
     }
 
     recalc(pMob);
 
-    send_to_char("Ok.\n\r", ch);
+    send_to_char(COLOR_INFO "Ok." COLOR_EOL, ch);
 
     return true;
 }
@@ -648,7 +688,7 @@ ED_FUN_DEC(ed_shop)
     READ_ARG(arg1);
 
     if (command[0] == '\0') {
-        send_to_char("Syntax : " COLOR_ALT_TEXT_1 "shop hours [open] [close]\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax : " COLOR_ALT_TEXT_1 "shop hours [open] [close]\n\r", ch);
         send_to_char("         shop profit [%% buy] [%% sell]\n\r", ch);
         send_to_char("         shop type [0-4] [obj type]\n\r", ch);
         send_to_char("         shop type [0-4] none\n\r", ch);
@@ -661,7 +701,7 @@ ED_FUN_DEC(ed_shop)
     if (!str_cmp(command, "hours")) {
         if (arg1[0] == '\0' || !is_number(arg1)
             || argument[0] == '\0' || !is_number(argument)) {
-            send_to_char("Syntax : " COLOR_ALT_TEXT_1 "shop hours [open] [close]" COLOR_EOL, ch);
+            send_to_char(COLOR_INFO "Syntax : " COLOR_ALT_TEXT_1 "shop hours [open] [close]" COLOR_EOL, ch);
             return false;
         }
 
@@ -673,7 +713,7 @@ ED_FUN_DEC(ed_shop)
         pMob->pShop->open_hour = (int16_t)atoi(arg1);
         pMob->pShop->close_hour = (int16_t)atoi(argument);
 
-        send_to_char("Hours set.\n\r", ch);
+        send_to_char(COLOR_INFO "Hours set." COLOR_EOL, ch);
         return true;
     }
 
@@ -692,7 +732,7 @@ ED_FUN_DEC(ed_shop)
         pMob->pShop->profit_buy = (int16_t)atoi(arg1);
         pMob->pShop->profit_sell = (int16_t)atoi(argument);
 
-        send_to_char("Shop profit set.\n\r", ch);
+        send_to_char(COLOR_INFO "Shop profit set." COLOR_EOL, ch);
         return true;
     }
 
@@ -702,36 +742,36 @@ ED_FUN_DEC(ed_shop)
 
         if (arg1[0] == '\0' || !is_number(arg1)
             || argument[0] == '\0') {
-            send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "shop type [#x0-4] [item type]" COLOR_EOL, ch);
+            send_to_char(COLOR_INFO "Syntax:  " COLOR_ALT_TEXT_1 "shop type [#x0-4] [item type]" COLOR_EOL, ch);
             return false;
         }
 
         if (atoi(arg1) >= MAX_TRADE) {
-            sprintf(buf, COLOR_INFO "MEdit:  May sell %d items max." COLOR_EOL, MAX_TRADE);
+            sprintf(buf, COLOR_INFO "Cannot exceed %d items." COLOR_EOL, MAX_TRADE);
             send_to_char(buf, ch);
             return false;
         }
 
         if (!pMob->pShop) {
-            send_to_char(COLOR_INFO "MEdit:  You must assign a shop first ('shop assign')" COLOR_CLEAR ".\n\r", ch);
+            send_to_char(COLOR_INFO "You must assign a shop first ('shop assign')" COLOR_CLEAR "." COLOR_EOL, ch);
             return false;
         }
 
         if (str_cmp(argument, "none") && (value = flag_value(type_flag_table, argument)) == NO_FLAG) {
-            send_to_char(COLOR_INFO "MEdit:  That type of item does not exist." COLOR_EOL, ch);
+            send_to_char(COLOR_INFO "That type of item does not exist." COLOR_EOL, ch);
             return false;
         }
 
         pMob->pShop->buy_type[atoi(arg1)] = !str_cmp(argument, "none") ? 0 : (int16_t)value;
 
-        send_to_char("Shop type set.\n\r", ch);
+        send_to_char(COLOR_INFO "Shop type set." COLOR_EOL, ch);
         return true;
     }
 
     /* shop assign && shop delete by Phoenix */
     if (!str_prefix(command, "assign")) {
         if (pMob->pShop) {
-            send_to_char("Mob already has a shop assigned to it.\n\r", ch);
+            send_to_char(COLOR_INFO "Mob already has a shop assigned to it." COLOR_EOL, ch);
             return false;
         }
 
@@ -744,7 +784,7 @@ ED_FUN_DEC(ed_shop)
 
         pMob->pShop->keeper = VNUM_FIELD(pMob);
 
-        send_to_char("New shop assigned to mobile.\n\r", ch);
+        send_to_char(COLOR_INFO "New shop assigned to mobile." COLOR_EOL, ch);
         return true;
     }
 
@@ -779,7 +819,7 @@ ED_FUN_DEC(ed_shop)
 
         free_shop_data(pShop);
 
-        send_to_char("Mobile is no longer a shopkeeper.\n\r", ch);
+        send_to_char(COLOR_INFO "Mobile is no longer a shopkeeper." COLOR_EOL, ch);
         return true;
     }
 
@@ -832,12 +872,12 @@ ED_FUN_DEC(ed_ac)
         pMob->ac[AC_SLASH] = slash;
         pMob->ac[AC_EXOTIC] = exotic;
 
-        send_to_char("Ac set.\n\r", ch);
+        send_to_char(COLOR_INFO "AC set." COLOR_EOL, ch);
         return true;
     } while (false);    /* Just do it once.. */
 
-    send_to_char("Syntax:  ac [ac-pierce [ac-bash [ac-slash [ac-exotic]]]]\n\r"
-        "help MOB_AC  gives a list of reasonable ac-values.\n\r", ch);
+    send_to_char(COLOR_INFO "Syntax:  ac [ac-pierce [ac-bash [ac-slash [ac-exotic]]]]\n\r"
+        "help MOB_AC  gives a list of reasonable ac-values.\n\r" COLOR_EOL, ch);
 
     return false;
 }
@@ -857,7 +897,7 @@ ED_FUN_DEC(ed_addprog)
     READ_ARG(trigger);
 
     if (!is_number(numb) || trigger[0] == '\0' || argument[0] == '\0') {
-        send_to_char("Syntax:   addprog [vnum] [trigger] [phrase]\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax:   addprog <vnum> <trigger> [phrase]\n\r" COLOR_EOL, ch);
         return false;
     }
 
@@ -866,18 +906,18 @@ ED_FUN_DEC(ed_addprog)
         flagtable = mprog_flag_table;
         break;
     default:
-        send_to_char("ERROR : Invalid editor.\n\r", ch);
+        send_to_char(COLOR_INFO "Invalid editor.\n\r" COLOR_EOL, ch);
         return false;
     }
 
     if ((value = flag_value(flagtable, trigger)) == NO_FLAG) {
-        send_to_char("Valid flags are:\n\r", ch);
+        send_to_char(COLOR_INFO "Invalid trigger. Valid triggers are:\n\r" COLOR_EOL, ch);
         show_help(ch, "mprog");
         return false;
     }
 
     if ((code = pedit_prog(atoi(numb))) == NULL) {
-        send_to_char("No such MOBProgram.\n\r", ch);
+        send_to_char(COLOR_INFO "No such MOBProgram.\n\r" COLOR_EOL, ch);
         return false;
     }
 
@@ -896,7 +936,7 @@ ED_FUN_DEC(ed_addprog)
         break;
     }
 
-    send_to_char("Mprog Added.\n\r", ch);
+    send_to_char(COLOR_INFO "Mprog Added." COLOR_EOL, ch);
     return true;
 }
 
@@ -913,19 +953,19 @@ ED_FUN_DEC(ed_delprog)
     one_argument(argument, mprog);
 
     if (!is_number(mprog) || mprog[0] == '\0') {
-        send_to_char("Syntax:  delmprog [#mprog]\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax:  delmprog <#mprog>\n\r" COLOR_EOL, ch);
         return false;
     }
 
     value = atoi(mprog);
 
     if (value < 0) {
-        send_to_char("Only non-negative mprog-numbers allowed.\n\r", ch);
+        send_to_char(COLOR_INFO "Only non-negative mprog-numbers allowed.\n\r" COLOR_EOL, ch);
         return false;
     }
 
     if (!(list = *mprogs)) {
-        send_to_char("MEdit:  Non existant mprog.\n\r", ch);
+        send_to_char(COLOR_INFO "Non-existant mprog.\n\r" COLOR_EOL, ch);
         return false;
     }
 
@@ -945,7 +985,7 @@ ED_FUN_DEC(ed_delprog)
             free_mob_prog(list_next);
         }
         else {
-            send_to_char("No such mprog.\n\r", ch);
+            send_to_char(COLOR_INFO "No such mprog.\n\r" COLOR_EOL, ch);
             return false;
         }
     }
@@ -957,7 +997,7 @@ ED_FUN_DEC(ed_delprog)
         break;
     }
 
-    send_to_char("Mprog removed.\n\r", ch);
+    send_to_char(COLOR_INFO "Mprog removed." COLOR_EOL, ch);
     return true;
 }
 
@@ -978,14 +1018,14 @@ ED_FUN_DEC(ed_race)
         pMob->form |= race_table[race].form;
         pMob->parts |= race_table[race].parts;
 
-        send_to_char("Race set.\n\r", ch);
+        send_to_char(COLOR_INFO "Race set." COLOR_EOL, ch);
         return true;
     }
 
     if (argument[0] == '?') {
         char buf[MIL];
 
-        send_to_char("Available races are:", ch);
+        send_to_char(COLOR_INFO "Available races are:\n\r" COLOR_ALT_TEXT_1, ch);
 
         for (race = 0; race_table[race].name != NULL; race++) {
             if ((race % 3) == 0)
@@ -994,11 +1034,11 @@ ED_FUN_DEC(ed_race)
             send_to_char(buf, ch);
         }
 
-        send_to_char("\n\r", ch);
+        send_to_char(COLOR_EOL, ch);
         return false;
     }
 
-    send_to_char("Syntax:  race [race]\n\r"
-        "Type 'race ?' for a list of races.\n\r", ch);
+    send_to_char(COLOR_INFO "Syntax:  race <race>\n\r"
+        "Type 'race ?' for a list of races.\n\r" COLOR_EOL, ch);
     return false;
 }

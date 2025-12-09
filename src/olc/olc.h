@@ -419,6 +419,7 @@ void olc_print_str(Mobile* ch, const char* label, const char* str);
 void olc_print_str_box(Mobile* ch, const char* label, const char* str, const char* opt_str);
 void olc_print_yesno(Mobile* ch, const char* label, bool yesno);
 void olc_print_text(Mobile* ch, const char* label, const char* text);
+void olc_print_text_ex(Mobile* ch, const char* label, const char* str, int width);
 
 const char* olc_match_flag_default(FLAGS flags, const struct flag_type* defaults);
 const char* olc_show_flags_ex(const char* label, const struct flag_type* flag_table, const struct flag_type* defaults, FLAGS flags);

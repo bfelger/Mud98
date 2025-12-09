@@ -1,4 +1,4 @@
-271
+270
 
 #COMMAND
 name .~
@@ -1821,15 +1821,6 @@ show undef~
 #COMMAND
 name socials~
 do_fun do_socials~
-position dead~
-level 0
-log log_normal~
-show undef~
-#END
-
-#COMMAND
-name show~
-do_fun do_show~
 position dead~
 level 0
 log log_normal~

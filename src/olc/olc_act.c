@@ -191,7 +191,7 @@ void show_skill_cmds(Mobile* ch, SkillTarget tar)
     if (col % 4 != 0)
         strcat(buf1, "\n\r");
 
-    send_to_char(buf1, ch);
+    printf_to_char(ch, COLOR_INFO "%s" COLOR_EOL, buf1);
     return;
 }
 
@@ -209,7 +209,7 @@ void show_spec_cmds(Mobile* ch)
 
     buf1[0] = '\0';
     col = 0;
-    send_to_char("Precede special functions with 'spec_'\n\r\n\r", ch);
+    send_to_char(COLOR_INFO "Precede special functions with 'spec_'\n\r" COLOR_EOL, ch);
     for (spec = 0; spec_table[spec].function != NULL; spec++) {
         sprintf(buf, "%-19.18s", &spec_table[spec].name[5]);
         strcat(buf1, buf);
@@ -243,7 +243,7 @@ bool show_help(Mobile* ch, char* argument)
     if (arg[0] == '\0') {
         int blah = 0;
 
-        send_to_char("Syntax:  ? [command]\n\r\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax:  ? [command]\n\r\n\r" COLOR_EOL, ch);
         sprintf(buf, "%-9.9s   %-26.26s %-9.9s   %-26.26s\n\r",
             "[command]", "[description]",
             "[command]", "[description]");
@@ -299,8 +299,8 @@ bool show_help(Mobile* ch, char* argument)
             else if (!str_prefix(arg, "spells") && help_table[cnt].structure == 0) {
 
                 if (spell[0] == '\0') {
-                    send_to_char("Syntax:  ? spells "
-                        "[ignore/attack/defend/self/object/all]\n\r", ch);
+                    send_to_char(COLOR_INFO "Syntax:  ? spells "
+                        "[ignore/attack/defend/self/object/all]" COLOR_EOL, ch);
                     return false;
                 }
 
@@ -317,8 +317,8 @@ bool show_help(Mobile* ch, char* argument)
                 else if (!str_prefix(spell, "object"))
                     show_skill_cmds(ch, SKILL_TARGET_OBJ_INV);
                 else
-                    send_to_char("Syntax:  ? spell "
-                        "[ignore/attack/defend/self/object/all]\n\r", ch);
+                    send_to_char(COLOR_INFO "Syntax:  ? spell "
+                        "[ignore/attack/defend/self/object/all]" COLOR_EOL, ch);
 
                 return false;
             }
@@ -341,9 +341,9 @@ void show_liqlist(Mobile* ch)
 
     buffer = new_buf();
 
-    for (liq = 0; liquid_table[liq].name != NULL; liq++) {
+    for (liq = 0; liq < LIQ_COUNT; liq++) {
         if ((liq % 21) == 0)
-            add_buf(buffer, "Name                 Color          Proof Full Thirst Food Ssize\n\r");
+            add_buf(buffer, COLOR_TITLE "Name                 Color          Proof Full Thirst Food Ssize" COLOR_ALT_TEXT_1);
 
         sprintf(buf, "%-20s %-14s %5d %4d %6d %4d %5d\n\r",
             liquid_table[liq].name, liquid_table[liq].color,
@@ -352,6 +352,8 @@ void show_liqlist(Mobile* ch)
             liquid_table[liq].sip_size);
         add_buf(buffer, buf);
     }
+
+    add_buf(buffer, COLOR_EOL);
 
     page_to_char(BUF(buffer), ch);
     free_buf(buffer);
@@ -367,11 +369,11 @@ void show_damlist(Mobile* ch)
 
     buffer = new_buf();
 
-    for (att = 0; attack_table[att].name != NULL; att++) {
+    for (att = 0; att < ATTACK_COUNT; att++) {
         if ((att % 21) == 0)
-            add_buf(buffer, "Name                 Noun\n\r");
+            add_buf(buffer, COLOR_TITLE "Name                 Noun" COLOR_EOL);
 
-        sprintf(buf, "%-20s %-20s\n\r",
+        sprintf(buf, COLOR_ALT_TEXT_1 "%-20s %-20s" COLOR_EOL,
             attack_table[att].name, attack_table[att].noun);
         add_buf(buffer, buf);
     }
@@ -390,11 +392,11 @@ void show_poslist(Mobile* ch)
 
     buffer = new_buf();
 
-    for (pos = 0; position_table[pos].name != NULL; pos++) {
+    for (pos = 0; pos < POS_MAX; pos++) {
         if ((pos % 21) == 0)
-            add_buf(buffer, "Name                 Short name\n\r");
+            add_buf(buffer, COLOR_TITLE "Name                 Short Name" COLOR_EOL);
 
-        sprintf(buf, "%-20s %-20s\n\r",
+        sprintf(buf, COLOR_ALT_TEXT_1 "%-20s %-20s" COLOR_EOL,
             position_table[pos].name, position_table[pos].short_name);
         add_buf(buffer, buf);
     }
@@ -413,11 +415,8 @@ void show_sexlist(Mobile* ch)
 
     buffer = new_buf();
 
-    for (sex = 0; sex_table[sex].name != NULL; sex++) {
-        if ((sex % 3) == 0)
-            add_buf(buffer, "\n\r");
-
-        sprintf(buf, "%-20s ",
+    for (sex = 0; sex < SEX_COUNT; sex++) {
+        sprintf(buf, COLOR_ALT_TEXT_1 "%-20s " COLOR_EOL,
             sex_table[sex].name);
         add_buf(buffer, buf);
     }
@@ -437,11 +436,11 @@ void show_sizelist(Mobile* ch)
 
     buffer = new_buf();
 
-    for (size = 0; mob_size_table[size].name != NULL; size++) {
+    for (size = 0; size < MOB_SIZE_COUNT; size++) {
         if ((size % 3) == 0)
             add_buf(buffer, "\n\r");
 
-        sprintf(buf, "%-20s ", mob_size_table[size].name);
+        sprintf(buf, COLOR_ALT_TEXT_1 "%-20s " COLOR_EOL, mob_size_table[size].name);
         add_buf(buffer, buf);
     }
 
@@ -485,7 +484,7 @@ ED_FUN_DEC(ed_line_lox_string)
     char buf[MIL];
 
     if (IS_NULLSTR(argument)) {
-        sprintf(buf, "Syntax : %s <string>\n\r", n_fun);
+        sprintf(buf, COLOR_INFO "Syntax : %s <string>" COLOR_EOL, n_fun);
         send_to_char(buf, ch);
         return false;
     }
@@ -498,7 +497,7 @@ ED_FUN_DEC(ed_line_lox_string)
         *string = copy_string(buf, (int)strlen(buf));
     }
 
-    send_to_char("Ok.\n\r", ch);
+    send_to_char(COLOR_INFO "Ok." COLOR_EOL, ch);
 
     return true;
 }
@@ -515,24 +514,24 @@ bool numedit(char* n_fun, Mobile* ch, char* argument, uintptr_t arg, int16_t typ
     long* lvalue = (long*)arg;
 
     if (IS_NULLSTR(argument)) {
-        printf_to_char(ch, "Syntax : %s [number]\n\r", n_fun);
+        printf_to_char(ch, COLOR_INFO "Syntax : %s <number>" COLOR_EOL, n_fun);
         return false;
     }
 
     if (!is_number(argument)) {
-        send_to_char("ERROR : Argument must be a number.\n\r", ch);
+        send_to_char(COLOR_INFO "Argument must be a number." COLOR_EOL, ch);
         return false;
     }
 
     temp = atoi(argument);
 
     if (min != -1 && temp < min) {
-        printf_to_char(ch, "ERROR : Number must be greater than %d.\n\r", min);
+        printf_to_char(ch, COLOR_INFO "Number must be greater than %d." COLOR_EOL, min);
         return false;
     }
 
     if (max != -1 && temp > max) {
-        printf_to_char(ch, "ERROR : Number must be less than %d.\n\r", max);
+        printf_to_char(ch, COLOR_INFO "Number must be less than %d." COLOR_EOL, max);
         return false;
     }
 
@@ -543,7 +542,7 @@ bool numedit(char* n_fun, Mobile* ch, char* argument, uintptr_t arg, int16_t typ
     else
         *lvalue = temp;
 
-    send_to_char("Ok.\n\r", ch);
+    send_to_char(COLOR_INFO "Ok." COLOR_EOL, ch);
     return true;
 }
 
@@ -582,7 +581,7 @@ ED_FUN_DEC(ed_desc)
         return true;
     }
 
-    send_to_char("Syntax : desc\n\r", ch);
+    send_to_char(COLOR_INFO "Syntax : desc" COLOR_EOL, ch);
 
     return false;
 }
@@ -590,7 +589,7 @@ ED_FUN_DEC(ed_desc)
 ED_FUN_DEC(ed_bool)
 {
     if (emptystring(argument)) {
-        printf_to_char(ch, "Syntax : %s [true/false]\n\r", n_fun);
+        printf_to_char(ch, COLOR_INFO "Syntax : %s <true/false>" COLOR_EOL, n_fun);
         return false;
     }
 
@@ -604,7 +603,7 @@ ED_FUN_DEC(ed_bool)
             return false;
         }
 
-    send_to_char("Ok.\n\r", ch);
+    send_to_char(COLOR_INFO "Ok." COLOR_EOL, ch);
     return true;
 }
 
@@ -613,7 +612,7 @@ ED_FUN_DEC(ed_skillgroup)
     SKNUM gn;
 
     if (emptystring(argument)) {
-        printf_to_char(ch, "Syntax : " COLOR_ALT_TEXT_1 "%s <skill group>" COLOR_EOL, n_fun);
+        printf_to_char(ch, COLOR_INFO "Syntax : %s <skill group>" COLOR_EOL, n_fun);
         return false;
     }
 
@@ -651,16 +650,16 @@ ED_FUN_DEC(ed_flag_toggle)
         while (flag_str[0]) {
             if ((value = flag_value((struct flag_type*)par, flag_str)) != NO_FLAG) {
                 *(FLAGS*)arg ^= value;
-                printf_to_char(ch, "%c%s flag toggled.\n\r", toupper(n_fun[0]), &n_fun[1]);
+                printf_to_char(ch, COLOR_INFO "%c%s flag toggled." COLOR_EOL, toupper(n_fun[0]), &n_fun[1]);
                 found = true;
             }
             else if (defaults && (value = flag_value((struct flag_type*)defaults, flag_str)) != NO_FLAG) {
                 *(FLAGS*)arg ^= value;
-                printf_to_char(ch, "%s preset toggled.\n\r", capitalize(flag_str));
+                printf_to_char(ch, COLOR_INFO "%s preset toggled." COLOR_EOL, capitalize(flag_str));
                 found = true;
             }
             else
-                printf_to_char(ch, "Unknown flag '%s'.\n\r", flag_str);
+                printf_to_char(ch, COLOR_INFO "Unknown flag '%s'." COLOR_EOL, flag_str);
             READ_ARG(flag_str);
         }
         return found;
@@ -672,7 +671,7 @@ ED_FUN_DEC(ed_flag_toggle)
     if (defaults)
         preset_out = new_buf();
 
-    printf_to_char(ch, "Syntax : " COLOR_ALT_TEXT_1 "%s [flags]" COLOR_EOL, n_fun);
+    printf_to_char(ch, COLOR_INFO "Syntax : %s <flags>" COLOR_EOL, n_fun);
     
     FLAGS current = *(FLAGS*)arg;
 
@@ -684,23 +683,23 @@ ED_FUN_DEC(ed_flag_toggle)
     }
 
     if (set_out->size > 0) {
-        printf_to_char(ch, "\n\rCurrent Flags:\n\r%s", set_out->string);
+        printf_to_char(ch, COLOR_INFO "\n\rCurrent Flags:\n\r " COLOR_ALT_TEXT_1 "%s", set_out->string);
     }
 
     if (unset_out->size > 0) {
-        printf_to_char(ch, "\n\rAvailable Flags:\n\r%s", unset_out->string);
+        printf_to_char(ch, COLOR_INFO "\n\rAvailable Flags:\n\r " COLOR_ALT_TEXT_1 "%s", unset_out->string);
     }
 
     if (preset_out) {
         for (const struct flag_type* def = defaults; def && def->name != NULL; ++def) {
-            addf_buf(preset_out, "    " COLOR_ALT_TEXT_1 "%-20s" COLOR_ALT_TEXT_2 " (%s)" COLOR_EOL,
+            addf_buf(preset_out, "    " COLOR_ALT_TEXT_1 "%-20s" COLOR_ALT_TEXT_2 " (%s)",
                 def->name, flag_string((const struct flag_type*)par, def->bit));
         }
         if (preset_out->size > 0)
-            printf_to_char(ch, "\n\rPresets:\n\r%s", preset_out->string);
+            printf_to_char(ch, COLOR_INFO "\n\rPresets:\n\r" COLOR_ALT_TEXT_1 "%s", preset_out->string);
     }
 
-    send_to_char("\n\r", ch);
+    send_to_char(COLOR_EOL, ch);
 
     free_buf(set_out);
     free_buf(unset_out);
@@ -717,14 +716,14 @@ ED_FUN_DEC(ed_flag_set_long)
         if ((value = flag_value((struct flag_type*)par, argument)) != NO_FLAG) {
             *(long*)arg = value;
 
-            printf_to_char(ch, "%c%s flag set.\n\r",
+            printf_to_char(ch, COLOR_INFO "%c%s flag set." COLOR_EOL,
                 toupper(n_fun[0]),
                 &n_fun[1]);
             return true;
         }
     }
 
-    printf_to_char(ch, "Syntax : " COLOR_ALT_TEXT_1 "%s [flags]" COLOR_EOL, n_fun);
+    printf_to_char(ch, COLOR_INFO "Syntax : %s <flags>" COLOR_EOL, n_fun);
     show_flags_to_char(ch, (struct flag_type*)par);
 
     return false;
@@ -738,14 +737,14 @@ ED_FUN_DEC(ed_flag_set_sh)
         if ((value = flag_value((struct flag_type*)par, argument)) != NO_FLAG) {
             *(int16_t*)arg = (int16_t)value;
 
-            printf_to_char(ch, "%c%s flag set.\n\r",
+            printf_to_char(ch, COLOR_INFO "%c%s flag set." COLOR_EOL,
                 toupper(n_fun[0]),
                 &n_fun[1]);
             return true;
         }
     }
 
-    printf_to_char(ch, COLOR_INFO "Syntax : " COLOR_ALT_TEXT_1 "%s [flags]" COLOR_EOL, n_fun);
+    printf_to_char(ch, COLOR_INFO "Syntax : %s <flags>" COLOR_EOL, n_fun);
     show_flags_to_char(ch, (struct flag_type*)par);
 
     return false;
@@ -762,7 +761,7 @@ ED_FUN_DEC(ed_gamespec)
     SpecFunc** spec = (SpecFunc**)arg;
 
     if (argument[0] == '\0') {
-        printf_to_char(ch, "Syntax : %s [%s]\n\r",
+        printf_to_char(ch, COLOR_INFO "Syntax : %s [%s]" COLOR_EOL,
             n_fun,
             n_fun);
         return false;
@@ -770,17 +769,17 @@ ED_FUN_DEC(ed_gamespec)
 
     if (!str_cmp(argument, "none")) {
         *spec = NULL;
-        printf_to_char(ch, "%s removed.\n\r", n_fun);
+        printf_to_char(ch, COLOR_INFO "%s removed." COLOR_EOL, n_fun);
         return true;
     }
 
     if (spec_lookup(argument)) {
         *spec = spec_lookup(argument);
-        send_to_char("Spec set.\n\r", ch);
+        send_to_char(COLOR_INFO "Spec set." COLOR_EOL, ch);
         return true;
     }
 
-    send_to_char("ERROR : Spec does not exist.\n\r", ch);
+    send_to_char(COLOR_INFO "Spec does not exist." COLOR_EOL, ch);
     return false;
 }
 
@@ -792,19 +791,19 @@ bool templookup(char* n_fun, Mobile* ch, char* argument, uintptr_t arg, const ui
     if (!emptystring(argument)) {
         if ((value = ((*blah) (argument))) > temp) {
             *(int16_t*)arg = (int16_t)value;
-            printf_to_char(ch, "%s set.\n\r",
+            printf_to_char(ch, COLOR_INFO "%s set." COLOR_EOL,
                 n_fun);
             return true;
         }
         else {
-            printf_to_char(ch, "ERROR : %s does not exist.\n\r",
+            printf_to_char(ch, COLOR_INFO "%s does not exist." COLOR_EOL,
                 n_fun);
             return false;
         }
     }
 
-    printf_to_char(ch, "Syntax : %s [%s]\n\r"
-        "Type '? %s' to list available options.\n\r",
+    printf_to_char(ch, COLOR_INFO "Syntax : %s [%s]\n\r"
+        "Type '? %s' to list available options." COLOR_EOL,
         n_fun,
         n_fun,
         n_fun);
@@ -824,7 +823,7 @@ ED_FUN_DEC(ed_int16lookup)
 
 ED_FUN_DEC(ed_dice)
 {
-    static char syntax[] = "Arguments:  " COLOR_ALT_TEXT_1 "<number> d <type> + <bonus>\n\r" 
+    static char syntax[] = COLOR_INFO "Arguments:  " COLOR_ALT_TEXT_1 "<number> d <type> + <bonus>\n\r" 
                            "            (or just 0 for 0d0+0)" COLOR_EOL;
     char* numb_str = NULL; 
     char* type_str = NULL; 
@@ -850,7 +849,7 @@ ED_FUN_DEC(ed_dice)
         array[DICE_NUMBER] = 0;
         array[DICE_TYPE] = 0;
         array[DICE_BONUS] = 0;
-        printf_to_char(ch, "%s set.\n\r", n_fun);
+        printf_to_char(ch, COLOR_INFO "%s set." COLOR_EOL, n_fun);
         return true;
     }
 
@@ -881,7 +880,7 @@ ED_FUN_DEC(ed_dice)
     array[DICE_TYPE] = type;
     array[DICE_BONUS] = bonus;
 
-    printf_to_char(ch, "%s set.\n\r", n_fun);
+    printf_to_char(ch, COLOR_INFO "%s set." COLOR_EOL, n_fun);
 
     return true;
 }
@@ -897,17 +896,17 @@ ED_FUN_DEC(ed_ed)
     READ_ARG(keyword);
 
     if (command[0] == '\0') {
-        send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "ed add [keyword]\n\r", ch);
-        send_to_char("         ed delete [keyword]\n\r", ch);
-        send_to_char("         ed edit [keyword]\n\r", ch);
-        send_to_char("         ed format [keyword]\n\r", ch);
-        send_to_char("         ed rename [keyword]" COLOR_EOL, ch);
+        send_to_char(COLOR_INFO "Syntax:  " COLOR_ALT_TEXT_1 "ed add <keyword>\n\r", ch);
+        send_to_char("         ed delete <keyword>\n\r", ch);
+        send_to_char("         ed edit <keyword>\n\r", ch);
+        send_to_char("         ed format <keyword>\n\r", ch);
+        send_to_char("         ed rename <keyword>" COLOR_EOL, ch);
         return false;
     }
 
     if (!str_cmp(command, "add")) {
         if (keyword[0] == '\0') {
-            send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "ed add [keyword]" COLOR_EOL, ch);
+            send_to_char(COLOR_INFO "Syntax:  " COLOR_ALT_TEXT_1 "ed add <keyword>" COLOR_EOL, ch);
             return false;
         }
 
@@ -923,7 +922,7 @@ ED_FUN_DEC(ed_ed)
 
     if (!str_cmp(command, "edit")) {
         if (keyword[0] == '\0') {
-            send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "ed edit [keyword]" COLOR_EOL, ch);
+            send_to_char(COLOR_INFO "Syntax:  " COLOR_ALT_TEXT_1 "ed edit <keyword>" COLOR_EOL, ch);
             return false;
         }
 
@@ -946,7 +945,7 @@ ED_FUN_DEC(ed_ed)
         ExtraDesc* ped = NULL;
 
         if (keyword[0] == '\0') {
-            send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "ed delete [keyword]" COLOR_EOL, ch);
+            send_to_char(COLOR_INFO "Syntax:  " COLOR_ALT_TEXT_1 "ed delete <keyword>" COLOR_EOL, ch);
             return false;
         }
 
@@ -957,7 +956,7 @@ ED_FUN_DEC(ed_ed)
         }
 
         if (!ed) {
-            send_to_char(COLOR_INFO "ERROR : There is no extra description with that name." COLOR_EOL, ch);
+            send_to_char(COLOR_INFO "There is no extra description with that name." COLOR_EOL, ch);
             return false;
         }
 
@@ -975,7 +974,7 @@ ED_FUN_DEC(ed_ed)
     if (!str_cmp(command, "format")) {
 
         if (keyword[0] == '\0') {
-            send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "ed format [keyword]" COLOR_EOL, ch);
+            send_to_char(COLOR_INFO "Syntax:  " COLOR_ALT_TEXT_1 "ed format <keyword>" COLOR_EOL, ch);
             return false;
         }
 
@@ -985,7 +984,7 @@ ED_FUN_DEC(ed_ed)
         }
 
         if (!ed) {
-            send_to_char(COLOR_INFO "ERROR : There is no extra description with that name." COLOR_EOL, ch);
+            send_to_char(COLOR_INFO "There is no extra description with that name." COLOR_EOL, ch);
             return false;
         }
 
@@ -1000,7 +999,7 @@ ED_FUN_DEC(ed_ed)
     if (!str_cmp(command, "rename")) {
 
         if (keyword[0] == '\0') {
-            send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "ed rename [old name] [new]" COLOR_EOL, ch);
+            send_to_char(COLOR_INFO "Syntax:  " COLOR_ALT_TEXT_1 "ed rename <old name> <new>" COLOR_EOL, ch);
             return false;
         }
 
@@ -1010,7 +1009,7 @@ ED_FUN_DEC(ed_ed)
         }
 
         if (!ed) {
-            send_to_char(COLOR_INFO "ERROR : There is no extra description with that name." COLOR_EOL, ch);
+            send_to_char(COLOR_INFO "There is no extra description with that name." COLOR_EOL, ch);
             return false;
         }
 
@@ -1036,12 +1035,12 @@ ED_FUN_DEC(ed_addaffect)
     one_argument(argument, mod);
 
     if (loc[0] == '\0' || mod[0] == '\0' || !is_number(mod)) {
-        send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "addaffect [location] [#xmod]" COLOR_EOL, ch);
+        send_to_char(COLOR_INFO "Syntax:  " COLOR_ALT_TEXT_1 "addaffect <location> <#xmod>" COLOR_EOL, ch);
         return false;
     }
 
     if ((value = flag_value(apply_flag_table, loc)) == NO_FLAG) {
-        send_to_char("Valid affects are:\n\r", ch);
+        send_to_char(COLOR_INFO "Valid affects are:\n\r", ch);
         show_help(ch, "apply");
         return false;
     }
@@ -1057,7 +1056,7 @@ ED_FUN_DEC(ed_addaffect)
     pAf->next = pObj->affected;
     pObj->affected = pAf;
 
-    send_to_char("Affect added.\n\r", ch);
+    send_to_char(COLOR_INFO "Affect added." COLOR_EOL, ch);
     return true;
 }
 
@@ -1073,7 +1072,7 @@ ED_FUN_DEC(ed_delaffect)
     one_argument(argument, BUF(aff_name));
 
     if (!is_number(BUF(aff_name)) || BUF(aff_name)[0] == '\0') {
-        send_to_char("Syntax:  " COLOR_ALT_TEXT_1 "delaffect [#xaffect]" COLOR_EOL, ch);
+        send_to_char(COLOR_INFO "Syntax:  " COLOR_ALT_TEXT_1 "delaffect <#xaffect>" COLOR_EOL, ch);
         return false;
     }
 
@@ -1085,7 +1084,7 @@ ED_FUN_DEC(ed_delaffect)
     }
 
     if (!(pAf = *pNaf)) {
-        send_to_char(COLOR_INFO "OEdit:  Non-existant affect." COLOR_EOL, ch);
+        send_to_char(COLOR_INFO "Non-existant affect." COLOR_EOL, ch);
         return false;
     }
 
@@ -1112,7 +1111,7 @@ ED_FUN_DEC(ed_delaffect)
         }
     }
 
-    send_to_char(COLOR_ALT_TEXT_1 "Affect removed." COLOR_EOL, ch);
+    send_to_char(COLOR_INFO "Affect removed." COLOR_EOL, ch);
 
     free_buf(aff_name);
 

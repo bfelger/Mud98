@@ -691,6 +691,32 @@ void olc_print_text(Mobile* ch, const char* label, const char* text)
             "%10s" COLOR_DECOR_1 " ]" COLOR_EOL, label, "(none)");
 }
 
+void olc_print_text_ex(Mobile* ch, const char* label, const char* str, int width)
+{
+    // Keep it on one line by a specified width
+    char buf[MIL];
+
+    int len = (int)strlen(str);
+    if (width > len)
+        width = len;
+
+    strncpy(buf, str, width);
+    buf[width] = '\0';
+
+    char* lfcr;
+    while ((lfcr = strpbrk(buf, "\n\r")) != NULL) {
+        lfcr[0] = '^';
+        lfcr[1] = '/';
+    }
+
+    // In case a CRLF got cut in half and wasn't caught above
+    if (buf[width - 1] == '\n')
+        buf[width - 1] = '\0';
+
+    printf_to_char(ch, LABEL_FMT " : " COLOR_ALT_TEXT_2 "%s" COLOR_EOL,
+        label, buf);
+}
+
 const char* olc_match_flag_default(FLAGS flags, const struct flag_type* defaults)
 {
     if (!defaults)

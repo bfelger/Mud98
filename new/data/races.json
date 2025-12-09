@@ -17,12 +17,6 @@
         "wis": 18,
         "dex": 18,
         "con": 18
-      },
-      "classMult": {
-        "mage": 100,
-        "cleric": 100,
-        "thief": 100,
-        "warrior": 100
       }
     },
     {
@@ -62,7 +56,7 @@
       "whoName": "Elf ",
       "pc": true,
       "points": 5,
-      "size": "small",
+      "size": "medium",
       "stats": {
         "str": 12,
         "int": 14,

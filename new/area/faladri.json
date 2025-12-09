@@ -819,7 +819,7 @@
       },
       "startPos": "standing",
       "defaultPos": "standing",
-      "sex": "none",
+      "sex": "male",
       "wealth": 0,
       "size": "medium",
       "material": "unknown",
@@ -1877,12 +1877,12 @@
       "loxScript": "on_given(giver, taker) {\n\r    if (!taker.is_mob())\n\r        return;\n\r\n\r    if (taker.vnum == 12026) {\n\r        taker.say(giver, \"I will see your words carried to Valewyn.\");\n\r        taker.echo(giver, \"$n folds the writ with care and seals it under a palm of light.\");\n\r        if (giver.has_quest(12050)) {\n\r            giver.finish_quest(12050);\n\r            giver.send(\"^jCalendor gestures east toward the unfinished bridge.^x\");\n\r        }\n\r        return;\n\r    }\n\r\n\r    giver.send(\"^rThe writ crackles and slips from ${taker.name}'s grasp, unwilling to trust another.^x\");\n\r}\n\r\n\ron_dropped(dropper) {\n\r    if (!is_mob(dropper))\n\r        return;\n\r    dropper.send(\"^rThe writ flutters, then drifts back toward your pack as if tugged by unseen roots.^x\");\n\r}\n\r",
       "events": [
         {
-          "trigger": "dropped",
-          "callback": "on_dropped"
-        },
-        {
           "trigger": "given",
           "callback": "on_given"
+        },
+        {
+          "trigger": "dropped",
+          "callback": "on_dropped"
         }
       ]
     },

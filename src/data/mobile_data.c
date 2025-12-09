@@ -74,4 +74,29 @@ const char* size_str(void* temp)
     return mob_size_table[UMAX(0, *size)].name;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Mob Groups (archaic; kept for compatibility)
+////////////////////////////////////////////////////////////////////////////////
 
+const int mob_group_count = 6;
+
+const MobGroup mob_groups[] = {
+    { MOB_VNUM_FIDO,        "fido"      },
+    { MOB_VNUM_CITYGUARD,   "cityguard" },
+    { MOB_VNUM_VAMPIRE,     "vampire"   },
+    { MOB_VNUM_PATROLMAN,   "patrolman" },
+    { GROUP_VNUM_TROLLS,    "trolls"    },
+    { GROUP_VNUM_OGRES,     "ogres"     },
+};
+
+const char* get_mob_group_name(VNUM group)
+{
+    for (int i = 0; i < mob_group_count; ++i) {
+        if (mob_groups[i].vnum == group)
+            return mob_groups[i].name;
+    }
+
+    return "unknown";
+}
+
+////////////////////////////////////////////////////////////////////////////////
