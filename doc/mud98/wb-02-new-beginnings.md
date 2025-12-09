@@ -7,15 +7,17 @@ Previous: [Worldcrafting from Scratch Pt. 1 &mdash; Getting Started](wb-01-getti
     - [Table of Contents](#table-of-contents)
   - [Choosing a VNUM block](#choosing-a-vnum-block)
   - [Creating a new area](#creating-a-new-area)
+    - [New tools for Mud98](#new-tools-for-mud98)
+    - [Crafting a narrative](#crafting-a-narrative)
+    - [Wrapping up](#wrapping-up)
   - [Creating the starting room](#creating-the-starting-room)
   - [Setting racial starting location](#setting-racial-starting-location)
   - [Creating a greeting for new characters](#creating-a-greeting-for-new-characters)
-    - [Making a triggerbot](#making-a-triggerbot)
-    - [Creating a Mob Prog](#creating-a-mob-prog)
-    - [Making the triggerbot trigger](#making-the-triggerbot-trigger)
-    - [Adding triggerbot to the room](#adding-triggerbot-to-the-room)
-    - [Testing the triggerbot](#testing-the-triggerbot)
-    - [Delayed MobProgs](#delayed-mobprogs)
+    - [Creating a Lox script](#creating-a-lox-script)
+    - [Anatomy of an event callback](#anatomy-of-an-event-callback)
+    - [Wiring up the Login event](#wiring-up-the-login-event)
+    - [Delayed scripts](#delayed-scripts)
+  - [Room building](#room-building)
   - [Quest-driven expansion](#quest-driven-expansion)
     - [Making the quest mob](#making-the-quest-mob)
     - [Creating the player's first quest](#creating-the-players-first-quest)
@@ -25,7 +27,7 @@ Previous: [Worldcrafting from Scratch Pt. 1 &mdash; Getting Started](wb-01-getti
     - [Cloning mobs](#cloning-mobs)
     - [Creating a grind quest](#creating-a-grind-quest)
     - [Testing](#testing)
-  - [Adding a tutorial](#adding-a-tutorial)
+  - [Player Onboarding](#player-onboarding)
     - [The training room](#the-training-room)
     - [The equipping room](#the-equipping-room)
   - [Completing newbie's first grind](#completing-newbies-first-grind)
@@ -1662,7 +1664,7 @@ on_greet(vch) {
 >
 > **Best practice:** Assume that any two messages could possibly have another message spliced between them. Format accordingly.
 
-Now if we load into a new character, we can see the triggerbots in action; prompting us and letting our newbie know how to proceed.
+Now if we load into a new character, we can see the new events in action; prompting us and letting our newbie know how to proceed.
 
 Now, with all of our equipment, we can finish testing the `kill_mob` quest.
 

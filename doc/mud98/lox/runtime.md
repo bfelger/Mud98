@@ -15,7 +15,7 @@ This guide explains how Lox scripts live inside Mud98: how they’re stored, com
 ---
 
 ## Script Lifecycle
-1. **Author**: Enter `lox` while editing an entity (room/mob/object) via OLC.
+1. **Create/Edit**: Enter `lox` while editing an entity (room/mob/object) via OLC.
 2. **Compile/Validate**: Use `.v` to compile in-memory; errors reference file/line inside the script.
 3. **Assign**: Use `@` to compile and attach bytecode to the entity prototype (message: `Class "room_<vnum>" ... assigned.`).
 4. **Bind Events**: `event set <trigger>` to wire callbacks declared in the script (e.g., `on_login`, `on_greet`).

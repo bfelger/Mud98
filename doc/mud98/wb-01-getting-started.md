@@ -36,7 +36,7 @@ To give you some idea of where things have been with ROM since its last release,
 
 Now it compiles on all major C compilers without any of those problems so that you may not have to get a Computer Science degree just to learn how to build your own MUD.
 
-<div style="background-color: rgb(128,128,128,0.1);padding: 1em"><p style="margin: 0">I joke; I learned <i>way</i> more from hacking on ROM than I ever did my Comp Sci degree.</p></div>
+> I joke; I learned _way_ more from hacking on ROM than I ever did my Comp Sci degree.
 
 ## Building Mud98
 
@@ -88,8 +88,10 @@ Strictly speaking, this is _optional_; but Mud98 will be so degraded in security
 
 In Mud98, OpenSSL provides secure TLS connection as well as SHA256 hashing for passwords.
 
-<div style="background-color: rgb(128,128,128,0.1);padding: 1em"><p>A note about OpenSSL: there are <i>no official builds or downloads</i>. Essentially, the only OpenSSL binary  you can trust is the one you build, yourself. It isn't especially difficult, but it is <i>involved</i>. If you are not familiar with building complex packages from scratch, including modifying Perl scripts, it is advisable that you find an appropriate pre-build.</p>
-<p style="margin: 0">You aren't exactly going for FIPS compliance, here. And if that doesn't mean anything to you, then you <i>really</i> don't need to go to the trouble.</p></div><br>
+> [!NOTE]
+> A note about OpenSSL: there are _no official builds or downloads_. Essentially, the only OpenSSL binary  you can trust is the one you build, yourself. It isn't especially difficult, but it is _involved_. If you are not familiar with building complex packages from scratch, including modifying Perl scripts, it is advisable that you find an appropriate pre-build.
+>
+> You aren't exactly going for FIPS compliance, here. And if that doesn't mean anything to you, then you _really_ don't need to go to the trouble.
 
 **On Ubuntu:**
 ```
@@ -103,23 +105,6 @@ If you have the ZLib development library, Mud98 will have MCCP (MUD Client Compr
 **On Ubuntu:**
 ```
 sudo apt-get install zlib1g-dev
-```
-
-#### Jansson JSON Library (optional)
-
-I debated long and hard about whether to make this a required dependency or not. When Jansson is present on the build system, you can switch almost all data files to use JSON instead of the old ROM-and-ROM-OLC-format files. These files are much, much easier to understand and edit outside of OLC.
-
-I _highly_ recommend it.
-
-**On Ubuntu:**
-```
-sudo apt-get install libjansson-dev
-```
-
-**NOTE:** This _may_ not work, unfortunately; if CMake doesn't find Jansson after the above, try installing through `pkg-config`:
-```
-sudo apt-get install pkg-config
-pkg-config jansson
 ```
 
 ### Building on Linux and Cygwin
@@ -146,7 +131,8 @@ $ ./config clang      # Force Clang
 
 This step will tell you missing any required or optional dependencies.
 
-<div style="background-color: rgb(128,128,128,0.1);padding: 1em"><p style="margin: 0">If downloading from GitHub, you may need to `chmod +x` these scripts before they will execute.</p></div>
+> [!IMPORTANT]
+>The first time you open the repo, you may need to `chmod +x` these scripts before they will execute.
 
 #### Compilation
 
@@ -170,7 +156,8 @@ The last option compiles the source with Release optimizations, but leaves sourc
 
 If you're an old hand at CMake and/or Powershell, you should have no problem porting the Bash scripts for Linux over to Batch or Powershell. For everyone else, I strongly recommend Visual Studio 19 or higher for its out-of-the-box CMake capability.
 
-<div style="background-color: rgb(128,128,128,0.1);padding: 1em"><p style="margin: 0">Mud98 has been tested with Visual Studio Community Edition, which is available for free.</p></div>
+> [!TIP]
+> Mud98 has been tested with Visual Studio Community Edition, which is available for free.
 
 #### Using Visual Studio
 
