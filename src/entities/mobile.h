@@ -86,7 +86,7 @@ typedef struct mobile_t {
     Position start_pos;
     Position default_pos;
     int16_t mprog_delay;
-    int16_t group;
+    VNUM group;
     int16_t clan;
     Sex sex;
     int16_t ch_class;

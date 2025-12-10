@@ -247,7 +247,7 @@ MEDIT(medit_show)
     if (!hide_unused || pMob->dam_type != 0)
         olc_print_str_box(ch, "Dam Type", attack_table[pMob->dam_type].name, "");
 
-    static const char* DICE_FORMAT = "%dd%d+%d";
+    #define DICE_FORMAT "%dd%d+%d"
     sprintf(buf, DICE_FORMAT, pMob->hit[DICE_NUMBER], pMob->hit[DICE_TYPE], pMob->hit[DICE_BONUS]);
     olc_print_str_box(ch, "Hit Dice", buf, "");
     sprintf(buf, DICE_FORMAT, pMob->damage[DICE_NUMBER], pMob->damage[DICE_TYPE], pMob->damage[DICE_BONUS]);
