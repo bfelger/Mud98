@@ -34,6 +34,7 @@ void run_unit_tests()
     register_entity_tests();
     register_act_tests();
     register_act_comm_tests();
+    register_act_obj_tests();
     register_fmt_tests();
     register_theme_tests();
     register_util_tests();

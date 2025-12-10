@@ -29,7 +29,29 @@ typedef struct obj_prototype_t {
     char* short_descr;
     char* description;
     char* material;
-    int value[5];
+    
+    // Type-specific value semantics via anonymous union
+    // All members share the same 20-byte storage (5 * int32_t)
+    // (Identical to Object union - see entities/object.h for full documentation)
+    union {
+        int value[5];  // Generic access (backward compatible)
+        struct { int unused0; int unused1; int hours; int unused3; int unused4; } light;
+        struct { int level; int spell1; int spell2; int spell3; int unused4; } scroll;
+        struct { int level; int max_charges; int charges; int spell; int unused4; } wand;
+        struct { int level; int max_charges; int charges; int spell; int unused4; } staff;
+        struct { int unused0; int unused1; int unused2; int weapon_type; int flags; } weapon;
+        struct { int ac_pierce; int ac_bash; int ac_slash; int ac_exotic; int unused4; } armor;
+        struct { int capacity; int flags; int key_vnum; int max_item_weight; int weight_mult; } container;
+        struct { int capacity; int current; int liquid_type; int poisoned; int unused4; } drink_con;
+        struct { int hours_full; int hours_hunger; int unused2; int poisoned; int unused4; } food;
+        struct { int copper; int silver; int gold; int unused3; int unused4; } money;
+        struct { int capacity; int current; int liquid_type; int unused3; int unused4; } fountain;
+        struct { int level; int spell1; int spell2; int spell3; int unused4; } pill;
+        struct { int level; int spell1; int spell2; int spell3; int unused4; } potion;
+        struct { int max_people; int max_weight; int flags; int heal_rate; int mana_rate; } furniture;
+        struct { int charges; int exit_flags; int gate_flags; int destination; int unused4; } portal;
+    };
+    
     int cost;
     FLAGS extra_flags;
     FLAGS wear_flags;

@@ -479,6 +479,34 @@ static int test_steal_coins_transfers_money()
     return 0;
 }
 
+static int test_money_union_semantics()
+{
+    Room* room = mock_room(9950, NULL, NULL);
+    Mobile* ch = mock_player("TestPlayer");
+    transfer_mob(ch, room);
+    
+    // Create money object with specific values
+    Object* money = create_money(50, 100, 250);  // 50g, 100s, 250c
+    
+    // Verify array access matches union access
+    ASSERT(money->value[MONEY_VALUE_COPPER] == 250);
+    ASSERT(money->value[MONEY_VALUE_SILVER] == 100);
+    ASSERT(money->value[MONEY_VALUE_GOLD] == 50);
+    
+    // Verify union members match
+    ASSERT(money->money.copper == 250);
+    ASSERT(money->money.silver == 100);
+    ASSERT(money->money.gold == 50);
+    
+    // Verify they're the same memory
+    ASSERT(money->value[0] == money->money.copper);
+    ASSERT(money->value[1] == money->money.silver);
+    ASSERT(money->value[2] == money->money.gold);
+    
+    extract_obj(money);
+    return 0;
+}
+
 void register_money_tests()
 {
 #define REGISTER(name, fn) register_test(&money_tests, (name), (fn))
@@ -486,6 +514,7 @@ void register_money_tests()
     init_test_group(&money_tests, "MONEY TESTS");
     register_test_group(&money_tests);
 
+    REGISTER("Money Union Semantics", test_money_union_semantics);
     REGISTER("Get Collects Money Object", test_get_collects_money_object);
     REGISTER("Give Copper Transfers Money", test_give_copper_transfers_money);
     REGISTER("Drop Copper Creates Money Object", test_drop_copper_creates_money_object);
