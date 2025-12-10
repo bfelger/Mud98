@@ -98,6 +98,32 @@ Mud98 is a modernized Rivers of MUD (ROM) 2.4b6 codebase — a classic text-base
 - **Helpers**: `mock_*` for stubbed entities/descriptors; `safe_arg()` for string safety
 - **Add tests**: Append to `src/CMakeLists.txt`, register in `tests.c`
 
+### Critical Testing Patterns
+
+**Entity Placement Requirement**:
+- **ALL entities must be placed in rooms before executing commands** — commands assume world structure exists
+- Pattern: `Room* room = mock_room(...); Mobile* ch = mock_player(...); transfer_mob(ch, room);`
+- Forgetting this causes segfaults in command execution (entities reference room->area, room->people, etc.)
+
+**Output Capture Mechanisms**:
+- `test_socket_output_enabled = true` — Captures `send_to_char()` output to `test_output_buffer`
+- `test_act_output_enabled = true` — Captures `act()` output (different code path)
+- Most commands use `send_to_char()`; some use `act()` for third-person messages
+- Always reset: `test_output_buffer = NIL_VAL` after assertions
+
+**Mock Function Signatures** (check `src/tests/mock.h` for current signatures):
+- `mock_mob(name, vnum, MobPrototype*)` — Requires prototype; use `mock_mob_proto(vnum)` first
+- `mock_sword(name, vnum, level, dam_dice, dam_size)` — Creates weapon with specific damage
+- `mock_obj(name, vnum, ObjPrototype*)` — Generic object creation
+- `mock_player(name)` — Creates player with pcdata initialized
+- **Keywords matter**: Object `header.name` field must contain searchable keywords for `get_obj_carry()`
+
+**Test Failures as Diagnostics**:
+- Failed assertion may indicate **bug in production code**, not test
+- Legacy code may have untested edge cases, missing validation, undefined behavior
+- When test fails: verify test setup first, then examine if failure reveals real bug
+- Don't automatically "fix" tests to match potentially buggy behavior
+
 ## Entity Lifecycle (`entities/`, `recycle.h`, `handler.c`)
 
 **Creation**: Entities are allocated via `new_*` functions (`new_mobile()`, `new_object()`, `new_room()`) and optionally cloned from prototypes (`create_mobile()` from `MobPrototype`, `create_object()` from `ObjPrototype`).
