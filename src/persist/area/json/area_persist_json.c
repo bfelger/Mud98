@@ -1112,7 +1112,7 @@ static void apply_container(ObjPrototype* obj, json_t* container)
         return;
     obj->container.capacity = (int16_t)json_int_or_default(container, "capacity", obj->container.capacity);
     obj->container.flags = (int16_t)JSON_FLAGS(container, "flags", container_flag_table);
-    obj->container.key_vnum = (int16_t)json_int_or_default(container, "keyVnum", obj->container.key_vnum);
+    obj->container.key_vnum = json_int_or_default(container, "keyVnum", obj->container.key_vnum);
     obj->container.max_item_weight = (int16_t)json_int_or_default(container, "maxWeight", obj->container.max_item_weight);
     obj->container.weight_mult = (int16_t)json_int_or_default(container, "weightMult", obj->container.weight_mult);
 }
@@ -1210,6 +1210,7 @@ static json_t* build_portal(const ObjPrototype* obj)
     json_set_flags_if(p, "exitFlags", obj->portal.exit_flags, exit_flag_table);
     json_set_flags_if(p, "portalFlags", obj->portal.gate_flags, portal_flag_table);
     json_set_int_if(p, "toVnum", obj->portal.destination, 0);
+    json_set_int_if(p, "keyVnum", obj->portal.key_vnum, 0);
     return p;
 }
 
@@ -1321,6 +1322,7 @@ static void apply_portal(ObjPrototype* obj, json_t* portal)
     obj->portal.exit_flags = (int16_t)JSON_FLAGS(portal, "exitFlags", exit_flag_table);
     obj->portal.gate_flags = (int16_t)JSON_FLAGS(portal, "portalFlags", portal_flag_table);
     obj->portal.destination = (int16_t)json_int_or_default(portal, "toVnum", obj->portal.destination);
+    obj->portal.key_vnum = json_int_or_default(portal, "keyVnum", obj->portal.key_vnum);
 }
 
 static void apply_furniture(ObjPrototype* obj, json_t* furniture)

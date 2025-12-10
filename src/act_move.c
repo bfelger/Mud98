@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stï¿½rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -329,22 +329,22 @@ void do_open(Mobile* ch, char* argument)
     if ((obj = get_obj_here(ch, arg)) != NULL) {
         /* open portal */
         if (obj->item_type == ITEM_PORTAL) {
-            if (!IS_SET(obj->value[1], EX_ISDOOR)) {
+            if (!IS_SET(obj->portal.exit_flags, EX_ISDOOR)) {
                 send_to_char("You can't do that.\n\r", ch);
                 return;
             }
 
-            if (!IS_SET(obj->value[1], EX_CLOSED)) {
+            if (!IS_SET(obj->portal.exit_flags, EX_CLOSED)) {
                 send_to_char("It's already open.\n\r", ch);
                 return;
             }
 
-            if (IS_SET(obj->value[1], EX_LOCKED)) {
+            if (IS_SET(obj->portal.exit_flags, EX_LOCKED)) {
                 send_to_char("It's locked.\n\r", ch);
                 return;
             }
 
-            REMOVE_BIT(obj->value[1], EX_CLOSED);
+            REMOVE_BIT(obj->portal.exit_flags, EX_CLOSED);
             act("You open $p.", ch, obj, NULL, TO_CHAR);
             act("$n opens $p.", ch, obj, NULL, TO_ROOM);
             return;
@@ -355,15 +355,15 @@ void do_open(Mobile* ch, char* argument)
             send_to_char("That's not a container.\n\r", ch);
             return;
         }
-        if (!IS_SET(obj->value[1], CONT_CLOSED)) {
+        if (!IS_SET(obj->container.flags, CONT_CLOSED)) {
             send_to_char("It's already open.\n\r", ch);
             return;
         }
-        if (!IS_SET(obj->value[1], CONT_CLOSEABLE)) {
+        if (!IS_SET(obj->container.flags, CONT_CLOSEABLE)) {
             send_to_char("You can't do that.\n\r", ch);
             return;
         }
-        if (IS_SET(obj->value[1], CONT_LOCKED)) {
+        if (IS_SET(obj->container.flags, CONT_LOCKED)) {
             send_to_char("It's locked.\n\r", ch);
             return;
         }
@@ -425,18 +425,18 @@ void do_close(Mobile* ch, char* argument)
     if ((obj = get_obj_here(ch, arg)) != NULL) {
         /* portal stuff */
         if (obj->item_type == ITEM_PORTAL) {
-            if (!IS_SET(obj->value[1], EX_ISDOOR)
-                || IS_SET(obj->value[1], EX_NOCLOSE)) {
+            if (!IS_SET(obj->portal.exit_flags, EX_ISDOOR)
+                || IS_SET(obj->portal.exit_flags, EX_NOCLOSE)) {
                 send_to_char("You can't do that.\n\r", ch);
                 return;
             }
 
-            if (IS_SET(obj->value[1], EX_CLOSED)) {
+            if (IS_SET(obj->portal.exit_flags, EX_CLOSED)) {
                 send_to_char("It's already closed.\n\r", ch);
                 return;
             }
 
-            SET_BIT(obj->value[1], EX_CLOSED);
+            SET_BIT(obj->portal.exit_flags, EX_CLOSED);
             act("You close $p.", ch, obj, NULL, TO_CHAR);
             act("$n closes $p.", ch, obj, NULL, TO_ROOM);
             return;
@@ -447,16 +447,16 @@ void do_close(Mobile* ch, char* argument)
             send_to_char("That's not a container.\n\r", ch);
             return;
         }
-        if (IS_SET(obj->value[1], CONT_CLOSED)) {
+        if (IS_SET(obj->container.flags, CONT_CLOSED)) {
             send_to_char("It's already closed.\n\r", ch);
             return;
         }
-        if (!IS_SET(obj->value[1], CONT_CLOSEABLE)) {
+        if (!IS_SET(obj->container.flags, CONT_CLOSEABLE)) {
             send_to_char("You can't do that.\n\r", ch);
             return;
         }
 
-        SET_BIT(obj->value[1], CONT_CLOSED);
+        SET_BIT(obj->container.flags, CONT_CLOSED);
         act("You close $p.", ch, obj, NULL, TO_CHAR);
         act("$n closes $p.", ch, obj, NULL, TO_ROOM);
         return;
@@ -521,32 +521,32 @@ void do_lock(Mobile* ch, char* argument)
     if ((obj = get_obj_here(ch, arg)) != NULL) {
         /* portal stuff */
         if (obj->item_type == ITEM_PORTAL) {
-            if (!IS_SET(obj->value[1], EX_ISDOOR)
-                || IS_SET(obj->value[1], EX_NOCLOSE)) {
+            if (!IS_SET(obj->portal.exit_flags, EX_ISDOOR)
+                || IS_SET(obj->portal.exit_flags, EX_NOCLOSE)) {
                 send_to_char("You can't do that.\n\r", ch);
                 return;
             }
-            if (!IS_SET(obj->value[1], EX_CLOSED)) {
+            if (!IS_SET(obj->portal.exit_flags, EX_CLOSED)) {
                 send_to_char("It's not closed.\n\r", ch);
                 return;
             }
 
-            if (obj->value[4] < 0 || IS_SET(obj->value[1], EX_NOLOCK)) {
+            if (obj->portal.key_vnum < 0 || IS_SET(obj->portal.exit_flags, EX_NOLOCK)) {
                 send_to_char("It can't be locked.\n\r", ch);
                 return;
             }
 
-            if (!has_key(ch, obj->value[4])) {
+            if (!has_key(ch, obj->portal.key_vnum)) {
                 send_to_char("You lack the key.\n\r", ch);
                 return;
             }
 
-            if (IS_SET(obj->value[1], EX_LOCKED)) {
+            if (IS_SET(obj->portal.exit_flags, EX_LOCKED)) {
                 send_to_char("It's already locked.\n\r", ch);
                 return;
             }
 
-            SET_BIT(obj->value[1], EX_LOCKED);
+            SET_BIT(obj->portal.exit_flags, EX_LOCKED);
             act("You lock $p.", ch, obj, NULL, TO_CHAR);
             act("$n locks $p.", ch, obj, NULL, TO_ROOM);
             return;
@@ -557,24 +557,24 @@ void do_lock(Mobile* ch, char* argument)
             send_to_char("That's not a container.\n\r", ch);
             return;
         }
-        if (!IS_SET(obj->value[1], CONT_CLOSED)) {
+        if (!IS_SET(obj->container.flags, CONT_CLOSED)) {
             send_to_char("It's not closed.\n\r", ch);
             return;
         }
-        if (obj->value[2] < 0) {
+        if (obj->container.key_vnum < 0) {
             send_to_char("It can't be locked.\n\r", ch);
             return;
         }
-        if (!has_key(ch, obj->value[2])) {
+        if (!has_key(ch, obj->container.key_vnum)) {
             send_to_char("You lack the key.\n\r", ch);
             return;
         }
-        if (IS_SET(obj->value[1], CONT_LOCKED)) {
+        if (IS_SET(obj->container.flags, CONT_LOCKED)) {
             send_to_char("It's already locked.\n\r", ch);
             return;
         }
 
-        SET_BIT(obj->value[1], CONT_LOCKED);
+        SET_BIT(obj->container.flags, CONT_LOCKED);
         act("You lock $p.", ch, obj, NULL, TO_CHAR);
         act("$n locks $p.", ch, obj, NULL, TO_ROOM);
         return;
@@ -635,32 +635,32 @@ void do_unlock(Mobile* ch, char* argument)
     if ((obj = get_obj_here(ch, arg)) != NULL) {
         /* portal stuff */
         if (obj->item_type == ITEM_PORTAL) {
-            if (!IS_SET(obj->value[1], EX_ISDOOR)) {
+            if (!IS_SET(obj->portal.exit_flags, EX_ISDOOR)) {
                 send_to_char("You can't do that.\n\r", ch);
                 return;
             }
 
-            if (!IS_SET(obj->value[1], EX_CLOSED)) {
+            if (!IS_SET(obj->portal.exit_flags, EX_CLOSED)) {
                 send_to_char("It's not closed.\n\r", ch);
                 return;
             }
 
-            if (obj->value[4] < 0) {
+            if (obj->portal.key_vnum < 0) {
                 send_to_char("It can't be unlocked.\n\r", ch);
                 return;
             }
 
-            if (!has_key(ch, obj->value[4])) {
+            if (!has_key(ch, obj->portal.key_vnum)) {
                 send_to_char("You lack the key.\n\r", ch);
                 return;
             }
 
-            if (!IS_SET(obj->value[1], EX_LOCKED)) {
+            if (!IS_SET(obj->portal.exit_flags, EX_LOCKED)) {
                 send_to_char("It's already unlocked.\n\r", ch);
                 return;
             }
 
-            REMOVE_BIT(obj->value[1], EX_LOCKED);
+            REMOVE_BIT(obj->portal.exit_flags, EX_LOCKED);
             act("You unlock $p.", ch, obj, NULL, TO_CHAR);
             act("$n unlocks $p.", ch, obj, NULL, TO_ROOM);
             return;
@@ -671,24 +671,24 @@ void do_unlock(Mobile* ch, char* argument)
             send_to_char("That's not a container.\n\r", ch);
             return;
         }
-        if (!IS_SET(obj->value[1], CONT_CLOSED)) {
+        if (!IS_SET(obj->container.flags, CONT_CLOSED)) {
             send_to_char("It's not closed.\n\r", ch);
             return;
         }
-        if (obj->value[2] < 0) {
+        if (obj->container.key_vnum < 0) {
             send_to_char("It can't be unlocked.\n\r", ch);
             return;
         }
-        if (!has_key(ch, obj->value[2])) {
+        if (!has_key(ch, obj->container.key_vnum)) {
             send_to_char("You lack the key.\n\r", ch);
             return;
         }
-        if (!IS_SET(obj->value[1], CONT_LOCKED)) {
+        if (!IS_SET(obj->container.flags, CONT_LOCKED)) {
             send_to_char("It's already unlocked.\n\r", ch);
             return;
         }
 
-        REMOVE_BIT(obj->value[1], CONT_LOCKED);
+        REMOVE_BIT(obj->container.flags, CONT_LOCKED);
         act("You unlock $p.", ch, obj, NULL, TO_CHAR);
         act("$n unlocks $p.", ch, obj, NULL, TO_ROOM);
         return;

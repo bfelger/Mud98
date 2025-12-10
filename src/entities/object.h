@@ -179,7 +179,7 @@ typedef struct object_t {
             int exit_flags;
             int gate_flags;   // PORTAL_* flags
             int destination;  // Target vnum
-            int unused4;
+            int key_vnum;     // Key object vnum
         } portal;
     };
     

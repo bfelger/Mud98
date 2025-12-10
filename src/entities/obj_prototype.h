@@ -49,7 +49,7 @@ typedef struct obj_prototype_t {
         struct { int level; int spell1; int spell2; int spell3; int unused4; } pill;
         struct { int level; int spell1; int spell2; int spell3; int unused4; } potion;
         struct { int max_people; int max_weight; int flags; int heal_rate; int mana_rate; } furniture;
-        struct { int charges; int exit_flags; int gate_flags; int destination; int unused4; } portal;
+        struct { int charges; int exit_flags; int gate_flags; int destination; int key_vnum; } portal;
     };
     
     int cost;

@@ -44,7 +44,7 @@ typedef struct room_exit_data_t {
     char* description;
     Direction orig_dir;
     SHORT_FLAGS exit_reset_flags;
-    int16_t key;
+    VNUM key;  // Key object vnum (changed from int16_t to support full VNUM range)
 } RoomExitData;
 
 RoomExit* new_room_exit(RoomExitData* room_exit_data, Room* from);
