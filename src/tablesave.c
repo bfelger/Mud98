@@ -36,23 +36,13 @@
 // The following is for an indeterminate number of items bounded by @
 #define MAX_LOAD 1000
 
-CmdInfo tmp_cmd;
 MobProgCode tmp_pcode;
 
 const char* lox_str(void* temp);
 bool lox_read(void* temp, const char* arg);
-char* cmd_func_name(DoFunc*);
-DoFunc* cmd_func_lookup(char*);
 
 typedef char* STR_FUNC(void*);
 typedef bool STR_READ_FUNC(void*, char*);
-
-char* do_fun_str(void* temp)
-{
-    DoFunc** fun = (DoFunc**)temp;
-
-    return cmd_func_name(*fun);
-}
 
 char* race_str(void* temp)
 {
@@ -107,15 +97,6 @@ bool class_read(void* temp, char* arg)
     return true;
 }
 
-bool do_fun_read(void* temp, char* arg)
-{
-    DoFunc** fun = (DoFunc**)temp;
-
-    *fun = cmd_func_lookup(arg);
-
-    return true;
-}
-
 #ifdef U
 #define OLD_U U
 #endif
@@ -125,16 +106,6 @@ const SaveTableEntry progcodesavetable[] = {
     { "vnum",		    FIELD_VNUM,                 U(&tmp_pcode.vnum),	0,	0	},
     { "code",		    FIELD_STRING,	            U(&tmp_pcode.code),	0,	0	},
     { NULL,		        0,				            0,			        0,	0	}
-};
-
-const SaveTableEntry cmdsavetable[] = {
-    { "name",		FIELD_STRING,			    U(&tmp_cmd.name),	    0,		            0               },
-    { "do_fun",	    FIELD_FUNCTION_INT_TO_STR,	U(&tmp_cmd.do_fun),	    U(do_fun_str),	    U(do_fun_read)  },
-    { "position",	FIELD_FUNCTION_INT16_TO_STR,U(&tmp_cmd.position),   U(position_str),    U(position_read)},
-    { "level",	    FIELD_INT16,			    U(&tmp_cmd.level),	    0,		            0               },
-    { "log",		FIELD_INT16_FLAGSTRING,		U(&tmp_cmd.log),	    U(log_flag_table),	0               },
-    { "show",		FIELD_INT16_FLAGSTRING,		U(&tmp_cmd.show),	    U(show_flag_table),	0               },
-    { NULL,		    0,				            0,			            0,		            0               }
 };
 
 void load_struct(FILE* fp, uintptr_t base_type, const SaveTableEntry* table, const uintptr_t pointer)
@@ -564,74 +535,6 @@ void save_struct(FILE* fp, uintptr_t base_type, const SaveTableEntry* table, con
     }
 }
 
-void save_command_table()
-{
-    FILE* fp;
-    const CmdInfo* temp;
-    extern CmdInfo* cmd_table;
-    int cnt = 0;
-
-    OPEN_OR_RETURN(fp = open_write_commands_file());
-
-    for (temp = cmd_table; !IS_NULLSTR(temp->name); temp++)
-        cnt++;
-
-    fprintf(fp, "%d\n\n", cnt);
-
-    for (temp = cmd_table; !IS_NULLSTR(temp->name); temp++) {
-        fprintf(fp, "#COMMAND\n");
-        save_struct(fp, U(&tmp_cmd), cmdsavetable, U(temp));
-        fprintf(fp, "#END\n\n");
-    }
-
-    close_file(fp);
-}
-
-void load_command_table(void)
-{
-    FILE* fp;
-    extern CmdInfo* cmd_table;
-    extern int max_cmd;
-    int i = 0;
-    int size;
-    char* word;
-
-    OPEN_OR_DIE(fp = open_read_commands_file());
-
-    size = fread_number(fp);
-
-    max_cmd = size;
-
-    printf_log("Creating cmd_table of length %d, size %zu", size + 1,
-        sizeof(CmdInfo) * ((size_t)size + 1));
-
-    if ((cmd_table = calloc((size_t)size + 1, sizeof(CmdInfo))) == NULL) {
-        perror("load_command_table: Could not allocate cmd_table!");
-        exit(-1);
-    }
-    //memset(cmd_table, 0, (size + 1) * sizeof(CmdInfo));
-
-    i = 0;
-
-    while (true) {
-        word = fread_word(fp);
-
-        if (str_cmp(word, "#COMMAND")) {
-            bugf("load_command_table : word %s", word);
-            close_file(fp);
-            return;
-        }
-
-        load_struct(fp, U(&tmp_cmd), cmdsavetable, U(&cmd_table[i++]));
-
-        if (i == size) {
-            printf_log("Command table loaded.");
-            close_file(fp);
-            cmd_table[i].name = str_dup("");
-            return;
-        }
-    }
-}
 void save_progs(VNUM minvnum, VNUM maxvnum)
 {
     FILE* fp;

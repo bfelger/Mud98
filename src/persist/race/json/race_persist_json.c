@@ -168,14 +168,16 @@ PersistResult race_persist_json_save(const PersistWriter* writer, const char* fi
         set_flags_if_not_empty(obj, "vulnFlags", race->vuln, vuln_flag_table, NULL);
         set_flags_if_not_empty(obj, "formFlags", race->form, form_flag_table, form_defaults_flag_table);
         set_flags_if_not_empty(obj, "partFlags", race->parts, part_flag_table, part_defaults_flag_table);
-        json_t* class_mult = build_class_mult(race);
-        if (class_mult)
-            json_object_set_new(obj, "classMult", class_mult);
-        if (race->start_loc != 0)
-            JSON_SET_INT(obj, "startLoc", race->start_loc);
-        json_t* class_start = build_class_start(race);
-        if (class_start)
-            json_object_set_new(obj, "classStart", class_start);
+        if (race->pc_race) {
+            json_t* class_mult = build_class_mult(race);
+            if (class_mult)
+                json_object_set_new(obj, "classMult", class_mult);
+            if (race->start_loc != 0)
+                JSON_SET_INT(obj, "startLoc", race->start_loc);
+            json_t* class_start = build_class_start(race);
+            if (class_start)
+                json_object_set_new(obj, "classStart", class_start);
+        }
         json_t* skills = json_array();
         for (int s = 0; s < RACE_NUM_SKILLS; s++) {
             if (race->skills[s] && race->skills[s][0] != '\0')

@@ -55,7 +55,7 @@ const OlcCmdEntry quest_olc_comm_table[] =
 void qedit(Mobile* ch, char* argument)
 {
     if (ch->pcdata->security < MIN_QEDIT_SECURITY) {
-        send_to_char(COLOR_INFO "QEDIT: You do not have enough security to edit quests." COLOR_EOL, ch);
+        send_to_char(COLOR_INFO "You do not have enough security to edit quests." COLOR_EOL, ch);
         edit_done(ch);
         return;
     }
@@ -92,7 +92,7 @@ void do_qedit(Mobile* ch, char* argument)
         vnum = (VNUM)atoi(command);
 
         if ((area_data = get_vnum_area(vnum)) == NULL) {
-            send_to_char(COLOR_INFO "QEDIT: That VNUM is not assigned to an area." COLOR_EOL, ch);
+            send_to_char(COLOR_INFO "That VNUM is not assigned to an area." COLOR_EOL, ch);
             return;
         }
 
@@ -102,7 +102,7 @@ void do_qedit(Mobile* ch, char* argument)
         }
 
         if (!(quest = get_quest(vnum))) {
-            send_to_char(COLOR_INFO "QEDIT: That VNUM does not exist." COLOR_EOL, ch);
+            send_to_char(COLOR_INFO "That VNUM does not exist." COLOR_EOL, ch);
             return;
         }
 
@@ -141,22 +141,22 @@ QEDIT(qedit_create)
     }
 
     if (get_quest(vnum)) {
-        send_to_char(COLOR_INFO "QEDIT: That quest already exists." COLOR_EOL, ch);
+        send_to_char(COLOR_INFO "That quest already exists." COLOR_EOL, ch);
         return false;
     }
 
     if ((area_data = get_vnum_area(vnum)) == NULL) {
-        send_to_char(COLOR_INFO "QEDIT: That vnum has not been assigned to an area." COLOR_EOL, ch);
+        send_to_char(COLOR_INFO "That vnum has not been assigned to an area." COLOR_EOL, ch);
         return false;
     }
 
     if (!IS_BUILDER(ch, area_data)) {
-        send_to_char(COLOR_INFO "QEDIT: You do not have access to this area." COLOR_EOL, ch);
+        send_to_char(COLOR_INFO "You do not have access to this area." COLOR_EOL, ch);
         return false;
     }
 
     if (ch->pcdata->security < MIN_QEDIT_SECURITY) {
-        send_to_char(COLOR_INFO "QEDIT: You do not have enough security to create quests." COLOR_EOL, ch);
+        send_to_char(COLOR_INFO "You do not have enough security to create quests." COLOR_EOL, ch);
         return false;
     }
 
@@ -324,13 +324,13 @@ QEDIT(qedit_target)
     case QUEST_VISIT_MOB:
     case QUEST_KILL_MOB:
         if ((mob = get_mob_prototype(vnum)) == NULL) {
-            send_to_char(COLOR_INFO "QEDIT: No mobile has that VNUM." COLOR_EOL, ch);
+            send_to_char(COLOR_INFO "No mobile has that VNUM." COLOR_EOL, ch);
             return false;
         }
         break;
     case QUEST_GET_OBJ:
         if ((obj = get_object_prototype(vnum)) == NULL) {
-            send_to_char(COLOR_INFO "QEDIT: No object has that VNUM." COLOR_EOL, ch);
+            send_to_char(COLOR_INFO "No object has that VNUM." COLOR_EOL, ch);
             return false;
         }
         break;
@@ -386,7 +386,7 @@ QEDIT(qedit_end)
     VNUM vnum = STRTOVNUM(arg);
 
     if ((mob = get_mob_prototype(vnum)) == NULL) {
-        send_to_char(COLOR_INFO "QEDIT: No mobile has that VNUM." COLOR_EOL, ch);
+        send_to_char(COLOR_INFO "No mobile has that VNUM." COLOR_EOL, ch);
         return false;
     }
 
@@ -410,7 +410,7 @@ QEDIT(qedit_faction)
 
     VNUM vnum = STRTOVNUM(arg);
     if (vnum != 0 && get_faction(vnum) == NULL) {
-        send_to_char(COLOR_INFO "QEDIT: No faction has that VNUM." COLOR_EOL, ch);
+        send_to_char(COLOR_INFO "No faction has that VNUM." COLOR_EOL, ch);
         return false;
     }
 
@@ -492,7 +492,7 @@ QEDIT(qedit_reward_item)
     }
 
     if (get_object_prototype(vnum) == NULL) {
-        send_to_char(COLOR_INFO "QEDIT: No object has that VNUM." COLOR_EOL, ch);
+        send_to_char(COLOR_INFO "No object has that VNUM." COLOR_EOL, ch);
         return false;
     }
 

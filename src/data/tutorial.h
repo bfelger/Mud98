@@ -33,4 +33,7 @@ Tutorial* get_tutorial(const char* name);
 void load_tutorials();
 void save_tutorials();
 
+extern Tutorial** tutorials;
+extern int tutorial_count;
+
 #endif // !MUD98__DATA__TUTORIAL_H

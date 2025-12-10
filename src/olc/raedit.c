@@ -73,7 +73,7 @@ const OlcCmdEntry race_olc_comm_table[] = {
 void raedit(Mobile* ch, char* argument)
 {
     if (ch->pcdata->security < MIN_RAEDIT_SECURITY) {
-        send_to_char("RAEdit : You do not have enough security to edit races.\n\r", ch);
+        send_to_char(COLOR_INFO "You do not have enough security to edit races." COLOR_CLEAR, ch);
         edit_done(ch);
         return;
     }
@@ -127,7 +127,7 @@ void raedit(Mobile* ch, char* argument)
             cfg_set_races_file(newname);
         }
         save_race_table();
-        send_to_char("Races saved.\n\r", ch);
+        send_to_char(COLOR_INFO "Races saved." COLOR_CLEAR, ch);
         return;
     }
 
@@ -153,7 +153,7 @@ void do_raedit(Mobile* ch, char* argument)
         return;
 
     if (ch->pcdata->security < MIN_RAEDIT_SECURITY) {
-        send_to_char("RAEdit : You do not have enough security to edit races.\n\r", ch);
+        send_to_char(COLOR_INFO "You do not have enough security to edit races." COLOR_CLEAR, ch);
         return;
     }
 
@@ -167,7 +167,7 @@ void do_raedit(Mobile* ch, char* argument)
     }
 
     if (IS_NULLSTR(argument) || (race = race_lookup(argument)) == 0) {
-        send_to_char("Syntax : RAEdit [race name]\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax: raedit <race name>" COLOR_CLEAR, ch);
         return;
     }
 
@@ -194,59 +194,47 @@ RAEDIT(raedit_show)
     if (pRace->start_loc > 0)
         room = get_room_data(pRace->start_loc);
 
-    printf_to_char(ch, "Name        : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, pRace->name);
-    printf_to_char(ch, "PC race?    : " COLOR_DECOR_1 "[%s" COLOR_DECOR_1 "]" COLOR_EOL, pRace->pc_race ? COLOR_B_GREEN "YES" : COLOR_B_RED "NO");
-    printf_to_char(ch, "Act         : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, flag_string(act_flag_table, pRace->act_flags));
-    printf_to_char(ch, "Aff         : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, flag_string(affect_flag_table, pRace->aff));
-    printf_to_char(ch, "Off         : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, flag_string(off_flag_table, pRace->off));
-    printf_to_char(ch, "Imm         : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, flag_string(imm_flag_table, pRace->imm));
-    printf_to_char(ch, "Res         : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, flag_string(res_flag_table, pRace->res));
-    printf_to_char(ch, "Vuln        : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, flag_string(vuln_flag_table, pRace->vuln));
-    const char* form_default = olc_match_flag_default(pRace->form, form_defaults_flag_table);
-    if (form_default)
-        printf_to_char(ch, "Form        : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "(%s)" COLOR_EOL,
-            flag_string(form_flag_table, pRace->form), form_default);
-    else
-        printf_to_char(ch, "Form        : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL,
-            flag_string(form_flag_table, pRace->form));
+    olc_print_str_box(ch, "Race Name", pRace->name, NULL);
+    olc_print_yesno(ch, "PC Race?", pRace->pc_race);
+    if (pRace->pc_race)
+        olc_print_str(ch, "Who Name", pRace->who_name);
+    olc_print_flags(ch, "Act Flags",act_flag_table, pRace->act_flags);
+    olc_print_flags(ch, "Aff Flags", affect_flag_table, pRace->aff);
+    olc_print_flags(ch, "Off Flags", off_flag_table, pRace->off);
+    olc_print_flags(ch, "Imm Flags", imm_flag_table, pRace->imm);
+    olc_print_flags(ch, "Res Flags", res_flag_table, pRace->res);
+    olc_print_flags(ch, "Vuln Flags", vuln_flag_table, pRace->vuln);
+    olc_print_flags_ex(ch, "Form Flags", form_flag_table, form_defaults_flag_table, pRace->form);
+    olc_print_flags_ex(ch, "Part Flags", part_flag_table, part_defaults_flag_table, pRace->parts);
+    olc_print_num(ch, "Points", pRace->points);
+    olc_print_str_box(ch, "Size", mob_size_table[pRace->size].name, NULL);
+    if (cfg_get_start_loc_by_race()) {
+        olc_print_num_str(ch, "Start Loc", pRace->start_loc, room ? NAME_STR(room) : "");
+        printf_to_char(ch, COLOR_TITLE "    Class      XPmult  XP/lvl(pts)   Start Loc" COLOR_EOL);
+        for (i = 0; i < class_count; ++i) {
+            VNUM vnum = GET_ELEM(&pRace->class_start, i);
 
-    const char* part_default = olc_match_flag_default(pRace->parts, part_defaults_flag_table);
-    if (part_default)
-        printf_to_char(ch, "Parts       : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "(%s)" COLOR_EOL,
-            flag_string(part_flag_table, pRace->parts), part_default);
-    else
-        printf_to_char(ch, "Parts       : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL,
-            flag_string(part_flag_table, pRace->parts));
-    printf_to_char(ch, "Points      : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL, pRace->points);
-    printf_to_char(ch, "Size        : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, mob_size_table[pRace->size].name);
-    printf_to_char(ch, "Start Loc   : " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "%s %s" COLOR_EOL,
-        pRace->start_loc,
-        room ? NAME_STR(room) : "",
-        cfg_get_start_loc_by_race() ? "" : " " COLOR_ALT_TEXT_2 "(not used)");
-    printf_to_char(ch, COLOR_TITLE "    Class      XPmult  XP/lvl(pts)   Start Loc" COLOR_EOL);
-    for (i = 0; i < class_count; ++i) {
-        VNUM vnum = GET_ELEM(&pRace->class_start, i);
-
-        if (vnum > 0)
-            room = get_room_data(vnum);
-        else
-            room = NULL;
-        sprintf(buf, "    %-7.7s     " COLOR_ALT_TEXT_1 "%3d     %4d" COLOR_DECOR_1 "(" COLOR_ALT_TEXT_1 "%3d" COLOR_DECOR_1 ")" COLOR_CLEAR "    " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "%s %s" COLOR_EOL,
-            capitalize(class_table[i].name),
-            GET_ELEM(&pRace->class_mult, i),
-            race_exp_per_level(pRace->race_id, i, get_points(pRace->race_id, i)),
-            get_points(pRace->race_id, i),
-            vnum, 
-            room ? NAME_STR(room) : "",
-            cfg_get_start_loc_by_class() && cfg_get_start_loc_by_race() ? "" : " " COLOR_ALT_TEXT_2 "(not used)"
-        );
-        send_to_char(buf, ch);
+            if (vnum > 0)
+                room = get_room_data(vnum);
+            else
+                room = NULL;
+            sprintf(buf, "    %-7.7s     " COLOR_ALT_TEXT_1 "%3d     %4d" COLOR_DECOR_1 "(" COLOR_ALT_TEXT_1 "%3d" COLOR_DECOR_1 ")" COLOR_CLEAR "    " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "%s %s" COLOR_EOL,
+                capitalize(class_table[i].name),
+                GET_ELEM(&pRace->class_mult, i),
+                race_exp_per_level(pRace->race_id, i, get_points(pRace->race_id, i)),
+                get_points(pRace->race_id, i),
+                vnum, 
+                room ? NAME_STR(room) : "",
+                cfg_get_start_loc_by_class() && cfg_get_start_loc_by_race() ? "" : " " COLOR_ALT_TEXT_2 "(not used)"
+            );
+            send_to_char(buf, ch);
+        }
+    } else {
+        olc_print_num_str(ch, "Start Loc", 0, "(not used)");
     }
-    if (i % 3)
-        send_to_char("\n\r", ch);
 
     for (i = 0; i < STAT_COUNT; ++i) {
-        sprintf(buf, "%s:" COLOR_ALT_TEXT_1 "%2d" COLOR_DECOR_1 "(" COLOR_ALT_TEXT_1 "%2d" COLOR_DECOR_1 ")" COLOR_CLEAR " ", Stats[i], pRace->stats[i], pRace->max_stats[i]);
+        sprintf(buf, "%s: " COLOR_ALT_TEXT_1 "%2d" COLOR_DECOR_1 "(" COLOR_ALT_TEXT_1 "%2d" COLOR_DECOR_1 ")" COLOR_CLEAR " ", Stats[i], pRace->stats[i], pRace->max_stats[i]);
         send_to_char(buf, ch);
     }
     send_to_char("\n\r", ch);
@@ -295,12 +283,12 @@ RAEDIT(raedit_new)
     size_t maxRace;
 
     if (IS_NULLSTR(argument)) {
-        send_to_char("Syntax : new [name]\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax: new <race name>" COLOR_CLEAR, ch);
         return false;
     }
 
     if (race_lookup(argument) != 0) {
-        send_to_char("That race already exists!\n\r", ch);
+        send_to_char(COLOR_INFO "That race already exists!" COLOR_CLEAR, ch);
         return false;
     }
 
@@ -322,7 +310,7 @@ RAEDIT(raedit_new)
 
     if (!new_race_table) /* realloc failed */
     {
-        send_to_char("Realloc failed. Prepare for impact.\n\r", ch);
+        send_to_char(COLOR_INFO "Realloc failed. Prepare for impact." COLOR_CLEAR, ch);
         return false;
     }
 
@@ -357,7 +345,7 @@ RAEDIT(raedit_new)
     ch->desc->editor = ED_RACE;
     ch->desc->pEdit = U(&race_table[maxRace - 2]);
 
-    send_to_char("New race created.\n\r", ch);
+    send_to_char(COLOR_INFO "New race created." COLOR_CLEAR, ch);
     return true;
 }
 
@@ -371,31 +359,31 @@ RAEDIT(raedit_cmult)
     EDIT_RACE(ch, race);
 
     if (IS_NULLSTR(argument)) {
-        send_to_char("Syntax : cmult [class] [multiplier]\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax: cmult <class name> <multiplier>" COLOR_CLEAR, ch);
         return false;
     }
 
     READ_ARG(class_name);
 
     if ((class_ = class_lookup(class_name)) == -1) {
-        send_to_char("RAEdit : That class does not exist.\n\r", ch);
+        send_to_char(COLOR_INFO "That class does not exist." COLOR_CLEAR, ch);
         return false;
     }
 
     if (!is_number(argument)) {
-        send_to_char("RAEdit : The multiplier must be a number.\n\r", ch);
+        send_to_char(COLOR_INFO "The multiplier must be a number." COLOR_CLEAR, ch);
         return false;
     }
 
     mult = (ClassMult)atoi(argument);
 
     if (mult < 1 || mult > 200) {
-        send_to_char("RAEdit : The multiplier must be between 1 and 200.\n\r", ch);
+        send_to_char(COLOR_INFO "The multiplier must be between 1 and 200." COLOR_CLEAR, ch);
         return false;
     }
 
     SET_ELEM(race->class_mult, class_, mult);
-    send_to_char("Ok.\n\r", ch);
+    send_to_char(COLOR_INFO "Ok." COLOR_CLEAR, ch);
     return true;
 }
 
@@ -408,7 +396,7 @@ RAEDIT(raedit_stats)
     EDIT_RACE(ch, race);
 
     if (IS_NULLSTR(argument)) {
-        send_to_char("Syntax : stats [stat] [value]\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax: stats <stat> <value>" COLOR_CLEAR, ch);
         return false;
     }
 
@@ -417,24 +405,24 @@ RAEDIT(raedit_stats)
     vstat = flag_value(stat_table, stat);
 
     if (vstat == NO_FLAG) {
-        send_to_char("RAEdit : Invalid stat.\n\r", ch);
+        send_to_char(COLOR_INFO "Invalid stat." COLOR_CLEAR, ch);
         return false;
     }
 
     if (!is_number(argument)) {
-        send_to_char("RAEdit : The value must be a number.\n\r", ch);
+        send_to_char(COLOR_INFO "The value must be a number." COLOR_CLEAR, ch);
         return false;
     }
 
     value = atoi(argument);
 
     if (value < 3 || value > 25) {
-        send_to_char("RAEdit : The value must be between 3 and 25.\n\r", ch);
+        send_to_char(COLOR_INFO "The value must be between 3 and 25." COLOR_CLEAR, ch);
         return false;
     }
 
     race->stats[vstat] = (int16_t)value;
-    send_to_char("Ok.\n\r", ch);
+    send_to_char(COLOR_INFO "Ok." COLOR_CLEAR, ch);
     return true;
 }
 
@@ -447,7 +435,7 @@ RAEDIT(raedit_maxstats)
     EDIT_RACE(ch, race);
 
     if (IS_NULLSTR(argument)) {
-        send_to_char("Syntax : maxstats [stat] [value]\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax: maxstats <stat> <value>" COLOR_CLEAR, ch);
         return false;
     }
 
@@ -456,24 +444,24 @@ RAEDIT(raedit_maxstats)
     vstat = flag_value(stat_table, stat);
 
     if (vstat == -1) {
-        send_to_char("RAEdit : Invalid stat.\n\r", ch);
+        send_to_char(COLOR_INFO "Invalid stat." COLOR_CLEAR, ch);
         return false;
     }
 
     if (!is_number(argument)) {
-        send_to_char("RAEdit : The value must be a number.\n\r", ch);
+        send_to_char(COLOR_INFO "The value must be a number." COLOR_CLEAR, ch);
         return false;
     }
 
     value = atoi(argument);
 
     if (value < 3 || value > 25) {
-        send_to_char("RAEdit : The value must be between 3 and 25.\n\r", ch);
+        send_to_char(COLOR_INFO "The value must be between 3 and 25." COLOR_CLEAR, ch);
         return false;
     }
 
     race->max_stats[vstat] = (int16_t)value;
-    send_to_char("Ok.\n\r", ch);
+    send_to_char(COLOR_INFO "Ok." COLOR_CLEAR, ch);
     return true;
 }
 
@@ -487,40 +475,40 @@ RAEDIT(raedit_skills)
     EDIT_RACE(ch, race);
 
     if (IS_NULLSTR(argument)) {
-        send_to_char("Syntax : skills [num] [skill]\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax: skills <num> <skill>" COLOR_CLEAR, ch);
         return false;
     }
 
     READ_ARG(snum);
 
     if (!is_number(snum)) {
-        send_to_char("RAEdit : Invalid number.\n\r", ch);
+        send_to_char(COLOR_INFO "Invalid number." COLOR_CLEAR, ch);
         return false;
     }
 
     num = atoi(snum);
 
     if (num < 0 || num > 4) {
-        send_to_char("RAEdit : The number must be between 0 and 4.\n\r", ch);
+        send_to_char(COLOR_INFO "The number must be between 0 and 4." COLOR_CLEAR, ch);
         return false;
     }
 
     sk = skill_lookup(argument);
 
     if (sk == -1) {
-        send_to_char("RAEdit : That skill does not exist.\n\r", ch);
+        send_to_char(COLOR_INFO "That skill does not exist." COLOR_CLEAR, ch);
         return false;
     }
 
     free_string(race->skills[num]);
     race->skills[num] = str_dup(argument);
-    send_to_char("Ok.\n\r", ch);
+    send_to_char(COLOR_INFO "Ok." COLOR_CLEAR, ch);
     return true;
 }
 
 RAEDIT(raedit_start_loc)
 {
-    static const char* help = "Syntax : " COLOR_ALT_TEXT_1 "START_LOC [CLASS NAME] <ROOM VNUM>" COLOR_CLEAR "\n\r\n\r";
+    static const char* help = COLOR_INFO "Syntax: START_LOC [CLASS NAME] <ROOM VNUM>" COLOR_CLEAR "\n\r\n\r";
     Race* race;
     char vnum_str[MIL];
     VNUM room_vnum = -1;
@@ -551,7 +539,7 @@ RAEDIT(raedit_start_loc)
     room_vnum = (VNUM)atoi(vnum_str);
 
     if (room_vnum > 0 && !get_room_data(room_vnum)) {
-        send_to_char(COLOR_INFO "That is not a valid room VNUM.\n\r", ch);
+        send_to_char(COLOR_INFO "That is not a valid room VNUM." COLOR_CLEAR, ch);
     }
 
     if (class_ != -1) {
@@ -560,7 +548,7 @@ RAEDIT(raedit_start_loc)
     else {
         race->start_loc = room_vnum;
     }
-    send_to_char("Ok.\n\r", ch);
+    send_to_char(COLOR_INFO "Ok." COLOR_CLEAR, ch);
     return true;
 }
 

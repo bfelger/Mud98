@@ -24,6 +24,7 @@
 #include <lookup.h>
 #include <skills.h>
 #include <tables.h>
+#include <persist/command/command_persist.h>
 
 #include <entities/descriptor.h>
 #include <entities/object.h>
@@ -543,8 +544,12 @@ bool process_olc_command(Mobile* ch, char* argument, const OlcCmdEntry* table)
                     pointer = (table[temp].argument - U(&xCmd) + U(pCmd));
                 else
                     pointer = 0;
-                if ((*table[temp].function) (table[temp].name, ch, argument, pointer, table[temp].parameter))
-                    save_command_table();
+                if ((*table[temp].function) (table[temp].name, ch, argument, pointer, table[temp].parameter)) {
+                    PersistResult res = command_persist_save(NULL);
+                    if (!persist_succeeded(res))
+                        bugf("CMDEdit: failed to save command table (%s)",
+                            res.message ? res.message : "unknown error");
+                }
                 return true;
                 break;
 
@@ -606,6 +611,25 @@ void olc_print_flags(Mobile* ch, const char* label, const struct flag_type* flag
         flag_string(flag_table, flags));
 }
 
+void olc_print_flags_ex(Mobile* ch, const char* label, const struct flag_type* flag_table, const struct flag_type* defaults, FLAGS flags)
+{
+    const char* flag_str = flag_string(flag_table, flags);
+
+    printf_to_char(ch, LABEL_FMT" : " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%10s"
+        COLOR_DECOR_1 " ]", label, flag_str);
+
+    const char* preset = olc_match_flag_default(flags, defaults);
+    if (preset) {
+        if (strlen(label) + strlen(flag_str) > 68) {
+            // Too long, move preset to next line
+            printf_to_char(ch, "\n\r                ");
+        }
+        printf_to_char(ch, " " COLOR_ALT_TEXT_2 "(%s)", preset);
+    }
+
+    printf_to_char(ch, COLOR_EOL);
+}
+
 void olc_print_num(Mobile* ch, const char* label, int num)
 {
     printf_to_char(ch, LABEL_FMT " : " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%10d"
@@ -665,6 +689,32 @@ void olc_print_text(Mobile* ch, const char* label, const char* text)
     else
         printf_to_char(ch, LABEL_FMT " : " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 
             "%10s" COLOR_DECOR_1 " ]" COLOR_EOL, label, "(none)");
+}
+
+void olc_print_text_ex(Mobile* ch, const char* label, const char* str, int width)
+{
+    // Keep it on one line by a specified width
+    char buf[MIL];
+
+    int len = (int)strlen(str);
+    if (width > len)
+        width = len;
+
+    strncpy(buf, str, width);
+    buf[width] = '\0';
+
+    char* lfcr;
+    while ((lfcr = strpbrk(buf, "\n\r")) != NULL) {
+        lfcr[0] = '^';
+        lfcr[1] = '/';
+    }
+
+    // In case a CRLF got cut in half and wasn't caught above
+    if (buf[width - 1] == '\n')
+        buf[width - 1] = '\0';
+
+    printf_to_char(ch, LABEL_FMT " : " COLOR_ALT_TEXT_2 "%s" COLOR_EOL,
+        label, buf);
 }
 
 const char* olc_match_flag_default(FLAGS flags, const struct flag_type* defaults)

@@ -772,18 +772,6 @@ void do_compact(Mobile* ch, char* argument)
     }
 }
 
-void do_show(Mobile* ch, char* argument)
-{
-    if (IS_SET(ch->comm_flags, COMM_SHOW_AFFECTS)) {
-        send_to_char("Affects will no longer be shown in score.\n\r", ch);
-        REMOVE_BIT(ch->comm_flags, COMM_SHOW_AFFECTS);
-    }
-    else {
-        send_to_char("Affects will now be shown in score.\n\r", ch);
-        SET_BIT(ch->comm_flags, COMM_SHOW_AFFECTS);
-    }
-}
-
 void do_prompt(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
@@ -1267,6 +1255,19 @@ void do_score(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
     int i;
+
+    // Subsume old do_show() functionality so I can remove do_show in favor of
+    // OLC.
+    if (!str_prefix(argument, "affects")) {
+        if (IS_SET(ch->comm_flags, COMM_SHOW_AFFECTS)) {
+            send_to_char("Affects will no longer be shown in score.\n\r", ch);
+            REMOVE_BIT(ch->comm_flags, COMM_SHOW_AFFECTS);
+        }
+        else {
+            send_to_char("Affects will now be shown in score.\n\r", ch);
+            SET_BIT(ch->comm_flags, COMM_SHOW_AFFECTS);
+        }
+    }
 
     sprintf(buf, "You are %s%s, level %d, %d years old (%d hours).\n\r",
             NAME_STR(ch), IS_NPC(ch) ? "" : ch->pcdata->title, ch->level,

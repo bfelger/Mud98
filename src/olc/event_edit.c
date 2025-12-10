@@ -180,7 +180,7 @@ void olc_display_events(Mobile* ch, Entity* entity)
     }
 
     send_to_char(
-        "\n\rEvents:\n\r"
+        "Events:\n\r"
         COLOR_TITLE   " Trigger          Callback (Args)     Criteria\n\r"
         COLOR_DECOR_2 "========= ================ ========== ========\n\r", ch);
 

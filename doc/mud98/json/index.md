@@ -9,3 +9,8 @@ the links below to jump to the latest schema guides:
 - [Class JSON Schema](class-json-schema.md)
 - [Race JSON Schema](race-json-schema.md)
 - [Theme JSON Schema](theme-json-schema.md)
+- [Command JSON Schema](commands-json-schema.md)
+- [Skill JSON Schema](skills-json-schema.md)
+- [Skill Group JSON Schema](skill-groups-json-schema.md)
+- [Social JSON Schema](socials-json-schema.md)
+- [Tutorial JSON Schema](tutorials-json-schema.md)

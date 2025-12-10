@@ -82,6 +82,9 @@ char* one_argument(char* argument, char* arg_first);
 /* wrapper function for safe command execution */
 void do_function(Mobile* ch, DoFunc* do_fun, char* argument);
 
+char* cmd_func_name(DoFunc* command);
+DoFunc* cmd_func_lookup(char* arg);
+
 extern CmdInfo* cmd_table;
 
 extern int max_cmd;

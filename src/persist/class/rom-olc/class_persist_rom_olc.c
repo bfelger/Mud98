@@ -64,8 +64,6 @@ PersistResult class_persist_rom_olc_load(const PersistReader* reader, const char
         load_struct(fp, U(&tmp_class), class_save_table, U(&class_table[i++]));
 
         if (i == maxclass) {
-            if (!test_output_enabled)
-                printf_log("Class table loaded.");
             class_count = maxclass;
             class_table[i].name = NULL;
             return (PersistResult){ PERSIST_OK, NULL, -1 };

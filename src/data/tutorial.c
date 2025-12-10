@@ -10,9 +10,11 @@
 #include <comm.h>
 #include <config.h>
 #include <db.h>
-#include <tablesave.h>
+#include <persist/tutorial/tutorial_persist.h>
 
 #include <stdbool.h>
+
+extern bool test_output_enabled;
 
 Tutorial** tutorials;
 int tutorial_count;
@@ -111,141 +113,23 @@ Tutorial* get_tutorial(const char* name)
 
 // SAVE/LOAD ROUTINES //////////////////////////////////////////////////////////
 
-Tutorial temp_t;
-TutorialStep temp_s;
-
-#ifdef U
-#define OLD_U U
-#endif
-#define U(x)    (uintptr_t)(x)
-
-const SaveTableEntry tutorial_save_table[] = {
-    { "name",           FIELD_STRING,           U(&temp_t.name),	        0,		            0   },
-    { "blurb",          FIELD_STRING,           U(&temp_t.blurb),           0,		            0   },
-    { "finish",         FIELD_STRING,           U(&temp_t.finish),          0,                  0   },
-    { "min_level",      FIELD_INT,              U(&temp_t.min_level),       0,                  0   },
-    { "step_count",     FIELD_INT,              U(&temp_t.step_count),      0,                  0   },
-    { NULL,             0,                      0,                          0,                  0   }
-};
-
-const SaveTableEntry step_save_table[] = {
-    { "prompt",         FIELD_STRING,           U(&temp_s.prompt),          0,                  0   },
-    { "match",          FIELD_STRING,           U(&temp_s.match),           0,		            0   },
-    { NULL,             0,                      0,                          0,                  0   }
-};
-
-static void load_tutorial(FILE* fp, int index)
-{
-    char* word;
-
-    Tutorial* t = (Tutorial*)malloc(sizeof(Tutorial));
-    if (t == NULL) {
-        perror("load_tutorial(): Could not allocate tutorial!");
-        exit(-1);
-    }
-    tutorials[index] = t;
-
-    word = fread_word(fp);
-    if (str_cmp(word, "#TUTORIAL")) {
-        bugf("load_tutorial(): Expected '#TUTORIAL', got '%s'.", word);
-        close_file(fp);
-        return;
-    }
-
-    load_struct(fp, U(&temp_t), tutorial_save_table, U(t));
-
-    TutorialStep* steps = (TutorialStep*)malloc(sizeof(TutorialStep) 
-        * t->step_count);
-    if (steps == NULL) {
-        fprintf(stderr, "load_tutorial(): Could not allocate %d tutorial steps!",
-            t->step_count);
-        exit(-1);
-    }
-
-    t->steps = steps;
-
-    for (int i = 0; i < t->step_count; i++) {
-        word = fread_word(fp);
-        if (str_cmp(word, "#STEP")) {
-            bugf("load_tutorial(): Expected '#STEP', got '%s'.", word);
-            close_file(fp);
-            return;
-        }
-        load_struct(fp, U(&temp_s), step_save_table, U(&steps[i]));
-    }
-}
-
 void load_tutorials()
 {
-    FILE* fp;
-
-    OPEN_OR_DIE(fp = open_read_tutorials_file());
-
-    tutorial_count = fread_number(fp);
-    tutorials = (Tutorial**)malloc(sizeof(Tutorial*) * tutorial_count);
-    if (tutorials == NULL) {
-        fprintf(stderr, "load_tutorials(): Could not allocate %d tutorials!", 
-            tutorial_count);
-        exit(-1);
+    PersistResult res = tutorial_persist_load(cfg_get_tutorials_file());
+    if (!persist_succeeded(res)) {
+        bugf("load_tutorials: failed to load tutorials (%s)",
+            res.message ? res.message : "unknown error");
+        exit(1);
     }
-
-    for (int i = 0; i < tutorial_count; i++)
-        load_tutorial(fp, i);
-
-    printf_log("Tutorials loaded.");
-    close_file(fp);
+    
+    if (!test_output_enabled)   
+        printf_log("Tutorials loaded (%d tutorials).", tutorial_count);
 }
 
 void save_tutorials()
 {
-    FILE* fp;
-
-    char temptutorials_file[256];
-    sprintf(temptutorials_file, "%s%s", cfg_get_data_dir(), "temptutorials");
-
-    OPEN_OR_RETURN(fp = open_write_file(temptutorials_file));
-
-    fprintf(fp, "%d\n\n", tutorial_count);
-
-    int i;
-    for (i = 0; i < tutorial_count; ++i) {
-        Tutorial* t = tutorials[i];
-
-        fprintf(fp, "#TUTORIAL\n");
-        save_struct(fp, U(&temp_t), tutorial_save_table, U(t));
-        fprintf(fp, "#ENDTUTORIAL\n");
-
-        for (int j = 0; j < t->step_count; j++) {
-            TutorialStep* s = &t->steps[j];
-
-            fprintf(fp, "#STEP\n");
-            save_struct(fp, U(&temp_s), step_save_table, U(s));
-            fprintf(fp, "#ENDSTEP\n");
-        }
-
-        fprintf(fp, "\n");
-    }
-
-    close_file(fp);
-
-    char tutorials_file[256];
-    sprintf(tutorials_file, "%s%s", cfg_get_data_dir(), cfg_get_tutorials_file());
-
-#ifdef _MSC_VER
-    if (!MoveFileExA(temptutorials_file, tutorials_file, MOVEFILE_REPLACE_EXISTING)) {
-        bugf("save_tutorials(): Could not rename %s to %s!", temptutorials_file, tutorials_file);
-        perror(tutorials_file);
-    }
-#else
-    if (rename(temptutorials_file, tutorials_file) != 0) {
-        bugf("save_tutorials(): Could not rename %s to %s!", temptutorials_file, tutorials_file);
-        perror(tutorials_file);
-    }
-#endif
+    PersistResult res = tutorial_persist_save(cfg_get_tutorials_file());
+    if (!persist_succeeded(res))
+        bugf("save_tutorials: failed to save tutorials (%s)",
+            res.message ? res.message : "unknown error");
 }
-
-#undef U
-#ifdef OLD_U
-#define U OLD_U
-#undef OLD_U
-#endif

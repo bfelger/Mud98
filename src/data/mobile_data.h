@@ -233,5 +233,27 @@ const char* size_str(void* temp);
 extern const MobSizeInfo mob_size_table[MOB_SIZE_COUNT];
 
 ////////////////////////////////////////////////////////////////////////////////
+// Mob Groups (archaic - for backwards compatibility)
+////////////////////////////////////////////////////////////////////////////////
+
+// Well-known mob IDs
+#define MOB_VNUM_FIDO           3090
+#define MOB_VNUM_CITYGUARD      3060
+#define MOB_VNUM_VAMPIRE        3404
+#define MOB_VNUM_PATROLMAN      2106
+#define GROUP_VNUM_TROLLS       2100
+#define GROUP_VNUM_OGRES        2101
+
+typedef struct {
+    VNUM vnum;
+    const char* name;
+} MobGroup;
+
+extern const MobGroup mob_groups[];
+extern const int mob_group_count;
+
+const char* get_mob_group_name(VNUM group);
+
+////////////////////////////////////////////////////////////////////////////////
 
 #endif // !MUD98__DATA__MOBILE_DATA_H

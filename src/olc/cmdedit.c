@@ -8,12 +8,25 @@
 #include "olc.h"
 
 #include <comm.h>
+#include <config.h>
 #include <db.h>
 #include <handler.h>
 #include <interp.h>
 #include <tables.h>
 #include <lookup.h>
 #include <recycle.h>
+#include <persist/command/command_persist.h>
+
+#ifdef _MSC_VER
+#include <io.h>
+#define access _access
+#else
+#include <unistd.h>
+#endif
+
+#ifndef F_OK
+#define F_OK 0
+#endif
 
 #include <entities/descriptor.h>
 #include <entities/player_data.h>
@@ -21,8 +34,6 @@
 #include <data/mobile_data.h>
 
 #define CMDEDIT(fun)bool fun( Mobile *ch, char *argument )
-
-void save_command_table(void);
 
 typedef struct cmd_entry_t {
     char* name;
@@ -41,6 +52,17 @@ const CmdEntry cmd_list[] = {
 };
 
 CmdInfo xCmd;
+
+static bool save_commands_persist(void)
+{
+    PersistResult res = command_persist_save(NULL);
+    if (!persist_succeeded(res)) {
+        bugf("CMDEdit: failed to save command table (%s)",
+            res.message ? res.message : "unknown error");
+        return false;
+    }
+    return true;
+}
 
 #ifdef U
 #define OLD_U U
@@ -121,10 +143,55 @@ void cmdedit(Mobile* ch, char* argument)
         return;
     }
 
-    if (!str_cmp(argument, "save")) {
+    if (!str_prefix("save", argument)) {
+        char arg1[MIL];
+        char arg2[MIL];
+        argument = one_argument(argument, arg1); // "save"
+        argument = one_argument(argument, arg2); // optional format
+        const char* requested_ext = NULL;
+        bool force_format = false;
+        if (!str_cmp(arg2, "json")) {
+            requested_ext = ".json";
+            force_format = true;
+        }
+        else if (!str_cmp(arg2, "olc")) {
+            requested_ext = ".olc";
+            force_format = true;
+        }
+        const char* commands_file = cfg_get_commands_file();
+        const char* ext = strrchr(commands_file, '.');
+        bool has_ext = (ext != NULL);
+
+        if (!force_format) {
+            if (has_ext) {
+                requested_ext = NULL;
+            }
+            else {
+                if (access(commands_file, F_OK) != 0) {
+                    const char* def = cfg_get_default_format();
+                    if (def && !str_cmp(def, "json"))
+                        requested_ext = ".json";
+                    else
+                        requested_ext = ".olc";
+                }
+                else {
+                    requested_ext = NULL;
+                }
+            }
+        }
+
+        if (requested_ext != NULL) {
+            size_t base_len = has_ext ? (size_t)(ext - commands_file) : strlen(commands_file);
+            char newname[MIL];
+            snprintf(newname, sizeof(newname), "%.*s%s", (int)base_len, commands_file, requested_ext);
+            cfg_set_commands_file(newname);
+        }
+
         send_to_char("Saving command table...", ch);
-        save_command_table();
-        send_to_char("Done.\n\r", ch);
+        if (save_commands_persist())
+            send_to_char("Done.\n\r", ch);
+        else
+            send_to_char("Failed.\n\r", ch);
         return;
     }
 
@@ -158,13 +225,13 @@ void do_cmdedit(Mobile* ch, char* argument)
 
     if (!str_cmp(command, "new")) {
         if (cmdedit_new(ch, argument))
-            save_command_table();
+            save_commands_persist();
         return;
     }
 
     if (!str_cmp(command, "delete")) {
         if (cmdedit_delete(ch, argument))
-            save_command_table();
+            save_commands_persist();
         return;
     }
 

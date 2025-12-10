@@ -35,7 +35,7 @@ Previous: [Worldcrafting from Scratch Pt. 1 &mdash; Getting Started](wb-01-getti
 Let's start with a brand new area. This can be the seed of a brand new network
 of areas that will define _your_ MUD. For the purposes of this example, we'll make this a new starting area for one of the races.
 
-<div style="background-color: rgb(128,128,128,0.1);padding: 1em"><p style="margin: 0">Why? Because while MUDs began as heavily tilted toward hack n' slash, most players want some measure of narrative immersion that isn't possible in stock ROM. So, instead of dropping new players into "MUD School", it's better to drop them into an area that gradually introduces them to the world (and the game mechanics).</p></div><br>
+> Why? Because while MUDs began as heavily tilted toward hack n' slash, most players want some measure of narrative immersion that isn't possible in stock ROM. So, instead of dropping new players into "MUD School", it's better to drop them into an area that gradually introduces them to the world (and the game mechanics).
 
 Before we create this new area, we need to find a block of VNUMs that are free to use. 
 
@@ -182,10 +182,10 @@ Untracked files:
 
 That's it! I now have my new starting area, and I'm read to start adding to rooms to it.
 
-<div style="background-color: rgb(128,128,128,0.1);padding: 1em"><p>You <i>are</i> using `git` to keep track of your changes, right?</p>
-<p style="margin: 0">
-Right?</p>
-</div>
+> [!TIP]
+> You _are_ using `git` to keep track of your changes, right?
+>
+> Right?
 
 ## Creating the starting room
 
@@ -216,7 +216,7 @@ Be sure to check `COMMANDS` to see what options are available.
 
 The intention is for this to be the first room a player sees when they create an elf character. Therefore, we should think carefully about the naming and prose used in this room. For now, I will use placeholder text.
 
-<div style="background-color: rgb(128,128,128,0.1);padding: 1em"><p style="margin: 0">To be honest, I was never a good builder. In my Imp days of ages past, I was a <i>coding</i> Imp. I needed an army of builders and admins to do the other work for me (like, actually <i>running</i> and <i>creating</i> the MUD).</p></div><br>
+> To be honest, I was never a good builder. In my Imp days of ages past, I was a _coding_ Imp. I needed an army of builders and admins to do the other work for me (like, actually _running_ and _creating_ the MUD).
 
 Note that, by creating the room, we actually teleported to it. This is useful so we can perform actions like `LOOK` and whatnot. OLC is very much "in-game".
 
@@ -309,7 +309,8 @@ start_loc_by_race = yes
 
 Note that this is a completely safe flag; it has no effect on races that don't have a start location set, yet.
 
-<div style="background-color: rgb(128,128,128,0.1);padding: 1em"><p style="margin: 0">You may have noticed that there is also a class <code>start_loc</code> and a per-race-class-combo <code>start_loc</code>. These can be used with each other freely. You can have a single spawn point for mages, a single spawn point for elves, and separate spawn points for all the other race/class combos. It's meant to give you maximum flexibility in world-building. To take advantage of this, you need to also enable <code>start_loc_by_class</code> in <code>mud98.cfg</code>.</p></div><br>
+> [!NOTE]
+> You may have noticed that there is also a class `start_loc` and a per-race-class-combo `start_loc`. These can be used with each other freely. You can have a single spawn point for mages, a single spawn point for elves, and separate spawn points for all the other race/class combos. It's meant to give you maximum flexibility in world-building. To take advantage of this, you need to also enable `start_loc_by_class` in `mud98.cfg`.
 
 Restart Mud98 and log back in with your Imp character. Then `raedit elf` again. Note that now `Start Loc` is `0`, but the warning that it won't be used is gone.
 
@@ -394,7 +395,8 @@ The command to create mobiles is `MEDIT`. I will create my triggerbot with this 
 medit create 12000
 ```
 
-<div style="background-color: rgb(128,128,128,0.1);padding: 1em;margin-bottom: 1em;"><p style="margin: 0">Note the re-use of the VNUM. VNUM's are only unique to a certain type of entity (<code>RoomData</code>, <code>MobPrototype</code>, <code>ObjPrototype</code>, etc), and can be shared <i>across</i> them. To have keep things less confusing, for any given VNUM <code>X</code>, I try to keep them all in one place: the <code>ObjPrototype</code> with VNUM <code>X</code> will be held by the <code>MobPrototype</code> with VNUM <code>X</code>, in the <code>RoomData</code> with VNUM <code>X</code>. Consider spacing out room VNUMs to accomodate.</p></div>
+> [!IMPORTANT]
+> Note the re-use of the VNUM. VNUM's are only unique to a certain type of entity (`RoomData`, `MobPrototype`, `ObjPrototype`, etc), and can be shared _across_ them. To have keep things less confusing, for any given VNUM `X`, I try to keep them all in one place: the `ObjPrototype` with VNUM `X` will be held by the `MobPrototype` with VNUM `X`, in the `RoomData` with VNUM `X`. Consider spacing out room VNUMs to accomodate.
 
 Anyway, the command we entered creates a new `MobPrototype` (_not_ a `CharData`... not yet) and displays it as a blank slate:
 
@@ -596,7 +598,7 @@ Note that the `MOB ECHOAT` is one lone line. MobProgs are very rudimentary. I ma
 
 The first line demonstrates MobProgs simple `IF...Else...` logic. There is no "elif" logic. This version of MobProgs actually descends from a more capable, but much _buggier_ Mob Progs. This stripped down version is straightforward and fool-proof.
 
-<div style="background-color: rgb(128,128,128,0.1);padding: 1em;margin-bottom: 1em;"><p style="margin: 0">However, I now remember back in my Imp days, crafting many tiers of nested <code>IF</code>s with a final line of <code>ENDIF ENDIF ENDIF ENDIF ENDIF</code>. I think making a basic <code>ELIF</code> would be my first Mob Progs extension.</p></div>
+> However, I now remember back in my Imp days, crafting many tiers of nested `IF`s with a final line of `ENDIF ENDIF ENDIF ENDIF ENDIF`. I think making a basic `ELIF` would be my first Mob Progs extension.
 
 `HASTARGET $i` is a simple test that checks to see if the name stored in the mob's memory belongs to anyone it can see. If it does, it performs `MOB ECHOAT $q`. Last time, we used `$n` to mean the person that triggered the Mob Prog. But in this case, the trigger was a `DELAY` timer. `$q` uses the name "remembered" by the mob.
 
@@ -658,8 +660,10 @@ east dig 12005
 
 This creates a new room (VNUM `12005`) and creates a two-way, east-west link between them. After "digging", you are now in the new room, editing it. 
 
-<div style="background-color: rgb(128,128,128,0.1);padding: 1em;margin-bottom: 1em;"><p>IMXP, the best way to build an area is to sketch it out first, assigning VNUMs ahead of time. I space VNUM's by 5, but if rooms will be dense, I space by 10. This lets me group obj and mob VNUMs by room in a way that is predictable and easy to manage.</p>
-<p style="margin: 0">Sketch out the area as uniform blocks. Even in my MUD days (late 90's) auto-mappers were ubiquitious, and players were more partial to area layouts that didn't muck with their maps.</p></div>
+> [!TIP]
+> IMXP, the best way to build an area is to sketch it out first, assigning VNUMs ahead of time. I space VNUM's by 5, but if rooms will be dense, I space by 10. This lets me group obj and mob VNUMs by room in a way that is predictable and easy to manage.
+>
+> Sketch out the area as uniform blocks. Even in my MUD days (late 90's) auto-mappers were ubiquitious, and players were more partial to area layouts that didn't muck with their maps.
 
 Set the new room's attributes as we did before, keeping in mind this is a clearing and there will be a quest mob, here.
 

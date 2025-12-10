@@ -50,7 +50,7 @@ typedef struct mob_prototype_t {
     int16_t damage[3];
     int16_t ac[AC_COUNT];
     VNUM faction_vnum;
-    int16_t group;
+    VNUM group;
     int16_t count;
     int16_t killed;
     int16_t alignment;
@@ -64,14 +64,6 @@ typedef struct mob_prototype_t {
     MobSize size;
     int16_t reset_num;
 } MobPrototype;
-
-// Well-known mob IDs
-#define MOB_VNUM_FIDO           3090
-#define MOB_VNUM_CITYGUARD      3060
-#define MOB_VNUM_VAMPIRE        3404
-#define MOB_VNUM_PATROLMAN      2106
-#define GROUP_VNUM_TROLLS       2100
-#define GROUP_VNUM_OGRES        2101
 
 #define FOR_EACH_MOB_PROTO(m) \
     for (GlobalMobProtoIter m##_iter = make_global_mob_proto_iter(); \

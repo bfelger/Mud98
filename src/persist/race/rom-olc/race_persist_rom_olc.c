@@ -64,8 +64,6 @@ PersistResult race_persist_rom_load(const PersistReader* reader, const char* fil
         load_struct(fp, U(&tmp_race), race_save_table, U(&race_table[i++]));
 
         if (i == maxrace) {
-            if (!test_output_enabled)
-                printf_log("Race table loaded.");
             race_count = maxrace;
             race_table[i].name = NULL;
             break;

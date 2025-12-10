@@ -526,6 +526,9 @@ static PersistResult parse_rooms(json_t* root, AreaData* area)
         RoomData* room = new_room_data();
         room->area_data = area;
 
+        VNUM vnum = (VNUM)json_int_or_default(r, "vnum", VNUM_NONE);
+        VNUM_FIELD(room) = vnum;
+
         const char* name = JSON_STRING(r, "name");
         if (name)
             SET_NAME(room, lox_string(name));
@@ -548,8 +551,6 @@ static PersistResult parse_rooms(json_t* root, AreaData* area)
         const char* owner = JSON_STRING(r, "owner");
         JSON_INTERN(owner, room->owner)
 
-        VNUM vnum = (VNUM)json_int_or_default(r, "vnum", VNUM_NONE);
-        VNUM_FIELD(room) = vnum;
         global_room_set(room);
         top_vnum_room = top_vnum_room < vnum ? vnum : top_vnum_room;
         assign_area_vnum(vnum);
@@ -866,6 +867,9 @@ static PersistResult parse_mobiles(json_t* root, AreaData* area)
         MobPrototype* mob = new_mob_prototype();
         mob->area = area;
 
+        VNUM vnum = (VNUM)json_int_or_default(m, "vnum", VNUM_NONE);
+        VNUM_FIELD(mob) = vnum;
+
         const char* name = JSON_STRING(m, "name");
         if (name)
             SET_NAME(mob, lox_string(name));
@@ -955,8 +959,6 @@ static PersistResult parse_mobiles(json_t* root, AreaData* area)
         parse_events(json_object_get(m, "events"), (Entity*)mob, ENT_MOB);
         ensure_entity_class((Entity*)mob, "mob");
 
-        VNUM vnum = (VNUM)json_int_or_default(m, "vnum", VNUM_NONE);
-        VNUM_FIELD(mob) = vnum;
         global_mob_proto_set(mob);
         top_vnum_mob = top_vnum_mob < vnum ? vnum : top_vnum_mob;
         assign_area_vnum(vnum);
@@ -1561,6 +1563,9 @@ static PersistResult parse_objects(json_t* root, AreaData* area)
         ObjPrototype* obj = new_object_prototype();
         obj->area = area;
 
+        VNUM vnum = (VNUM)json_int_or_default(o, "vnum", VNUM_NONE);
+        VNUM_FIELD(obj) = vnum;
+
         const char* name = JSON_STRING(o, "name");
         if (name)
             SET_NAME(obj, lox_string(name));
@@ -1650,8 +1655,6 @@ static PersistResult parse_objects(json_t* root, AreaData* area)
         parse_events(json_object_get(o, "events"), (Entity*)obj, ENT_OBJ);
         ensure_entity_class((Entity*)obj, "obj");
 
-        VNUM vnum = (VNUM)json_int_or_default(o, "vnum", VNUM_NONE);
-        VNUM_FIELD(obj) = vnum;
         if (!obj->material || obj->material[0] == '\0') {
             free_string(obj->material);
             obj->material = boot_intern_string("");

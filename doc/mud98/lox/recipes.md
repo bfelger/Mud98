@@ -1,6 +1,6 @@
 # Mud98 Lox Recipes
 
-This playbook captures common scripting scenarios drawn from the Faladrin Forest walkthrough (`doc/mud98/wb-02-new-beginnings.md`), automated tests, and live game usage. Each recipe lists prerequisites, step-by-step instructions, Lox snippets, and verification tips so builders (and AI tooling) can apply them quickly.
+This playbook captures common scripting scenarios drawn from the [Faladrin Forest walkthrough](doc/mud98/wb-02-new-beginnings.md), automated tests, and live game usage. Each recipe lists prerequisites, step-by-step instructions, Lox snippets, and verification tips so builders (and AI tooling) can apply them quickly.
 
 ## Table of Contents
 1. [Login Prologue & Onboarding Prompt](#login-prologue--onboarding-prompt)
@@ -230,7 +230,9 @@ fun count_unscripted_mobs() {
     })
     return count
 }
+```
 
+```lox
 global_objs.each((index, obj) -> {
     if (obj.area.vnum >= 12000 && obj.area.vnum <= 12099 && obj.is_obj())
         obj.send("A gentle breeze rustles nearby.")
@@ -243,4 +245,4 @@ global_objs.each((index, obj) -> {
 
 ---
 
-Have a scenario you reuse often? Extend this playbook and link back to the [Language](language.md), [Runtime](runtime.md), or [API](api.md) sections so future builders (and AI helpers) stay in sync.
+Have a scenario you reuse often? Extend this playbook and link back to the [Language](language.md), [Runtime](runtime.md), or [API](api.md) sections so future builders.

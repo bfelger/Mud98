@@ -13,6 +13,10 @@
 #include <persist/persist_io_adapters.h>
 #include <persist/persist_result.h>
 #include <persist/race/race_persist.h>
+#include <persist/command/command_persist.h>
+#include <persist/skill/skill_persist.h>
+#include <persist/social/social_persist.h>
+#include <persist/tutorial/tutorial_persist.h>
 #include <persist/theme/json/theme_persist_json.h>
 #include <persist/theme/theme_persist.h>
 
@@ -21,6 +25,9 @@
 #include <color.h>
 #include <data/class.h>
 #include <data/race.h>
+#include <data/skill.h>
+#include <data/social.h>
+#include <data/tutorial.h>
 
 #include <entities/area.h>
 #include <entities/faction.h>
@@ -29,10 +36,12 @@
 #include <entities/room.h>
 
 #include <lox/array.h>
+#include <lox/object.h>
 #include <lox/table.h>
 
 #include <config.h>
 #include <db.h>
+#include <interp.h>
 
 #include <ctype.h>
 #include <stdio.h>
@@ -1512,6 +1521,171 @@ cleanup:
     }
     return 0;
 }
+static int test_command_rom_json_round_trip()
+{
+    PersistResult load_res = command_persist_load(cfg_get_commands_file());
+    ASSERT(persist_succeeded(load_res));
+    ASSERT(cmd_table != NULL);
+    ASSERT(max_cmd > 0);
+
+    char original_data_dir[MIL];
+    snprintf(original_data_dir, sizeof(original_data_dir), "%s", cfg_get_data_dir());
+    const char* temp_dir = cfg_get_temp_dir();
+    char temp_path[MIL];
+    snprintf(temp_path, sizeof(temp_path), "%s%s", temp_dir, "commands.json");
+
+    bool swapped = false;
+    cfg_set_data_dir(temp_dir);
+    swapped = true;
+
+    PersistResult save_res = command_persist_save("commands.json");
+    ASSERT_OR_GOTO(persist_succeeded(save_res), cleanup);
+
+    int saved_count = max_cmd;
+    PersistResult json_load = command_persist_load("commands.json");
+    ASSERT_OR_GOTO(persist_succeeded(json_load), cleanup);
+    ASSERT(max_cmd == saved_count);
+
+cleanup:
+    if (swapped) {
+        remove(temp_path);
+        cfg_set_data_dir(original_data_dir);
+    }
+    return 0;
+}
+
+static int test_skill_rom_json_round_trip()
+{
+    PersistResult load_res = skill_persist_load(cfg_get_skills_file());
+    ASSERT(persist_succeeded(load_res));
+    ASSERT(skill_table != NULL);
+    ASSERT(skill_count > 0);
+
+    char original_data_dir[MIL];
+    snprintf(original_data_dir, sizeof(original_data_dir), "%s", cfg_get_data_dir());
+    const char* temp_dir = cfg_get_temp_dir();
+    char temp_path[MIL];
+    snprintf(temp_path, sizeof(temp_path), "%s%s", temp_dir, "skills.json");
+
+    bool swapped = false;
+    cfg_set_data_dir(temp_dir);
+    swapped = true;
+
+    PersistResult save_res = skill_persist_save("skills.json");
+    ASSERT_OR_GOTO(persist_succeeded(save_res), cleanup_skill);
+
+    int saved_count = skill_count;
+    PersistResult load_json = skill_persist_load("skills.json");
+    ASSERT_OR_GOTO(persist_succeeded(load_json), cleanup_skill);
+    ASSERT(skill_count == saved_count);
+
+cleanup_skill:
+    if (swapped) {
+        remove(temp_path);
+        cfg_set_data_dir(original_data_dir);
+    }
+    return 0;
+}
+
+static int test_skill_group_rom_json_round_trip()
+{
+    PersistResult load_res = skill_group_persist_load(cfg_get_groups_file());
+    ASSERT(persist_succeeded(load_res));
+    ASSERT(skill_group_table != NULL);
+    ASSERT(skill_group_count > 0);
+
+    char original_data_dir[MIL];
+    snprintf(original_data_dir, sizeof(original_data_dir), "%s", cfg_get_data_dir());
+    const char* temp_dir = cfg_get_temp_dir();
+    char temp_path[MIL];
+    snprintf(temp_path, sizeof(temp_path), "%s%s", temp_dir, "groups.json");
+
+    bool swapped = false;
+    cfg_set_data_dir(temp_dir);
+    swapped = true;
+
+    PersistResult save_res = skill_group_persist_save("groups.json");
+    ASSERT_OR_GOTO(persist_succeeded(save_res), cleanup_group);
+
+    int saved_count = skill_group_count;
+    PersistResult load_json = skill_group_persist_load("groups.json");
+    ASSERT_OR_GOTO(persist_succeeded(load_json), cleanup_group);
+    ASSERT(skill_group_count == saved_count);
+
+cleanup_group:
+    if (swapped) {
+        remove(temp_path);
+        cfg_set_data_dir(original_data_dir);
+    }
+    return 0;
+}
+
+static int test_social_rom_json_round_trip()
+{
+    PersistResult load_res = social_persist_load(cfg_get_socials_file());
+    ASSERT(persist_succeeded(load_res));
+    ASSERT(social_table != NULL);
+    ASSERT(social_count > 0);
+
+    char original_data_dir[MIL];
+    snprintf(original_data_dir, sizeof(original_data_dir), "%s", cfg_get_data_dir());
+    const char* temp_dir = cfg_get_temp_dir();
+    char temp_path[MIL];
+    snprintf(temp_path, sizeof(temp_path), "%s%s", temp_dir, "socials.json");
+
+    bool swapped = false;
+    cfg_set_data_dir(temp_dir);
+    swapped = true;
+
+    PersistResult save_res = social_persist_save("socials.json");
+    ASSERT_OR_GOTO(persist_succeeded(save_res), cleanup_social);
+
+    int saved_count = social_count;
+    PersistResult load_json = social_persist_load("socials.json");
+    ASSERT_OR_GOTO(persist_succeeded(load_json), cleanup_social);
+    ASSERT(social_count == saved_count);
+
+cleanup_social:
+    if (swapped) {
+        remove(temp_path);
+        cfg_set_data_dir(original_data_dir);
+    }
+    return 0;
+}
+
+static int test_tutorial_rom_json_round_trip()
+{
+    PersistResult load_res = tutorial_persist_load(cfg_get_tutorials_file());
+    ASSERT(persist_succeeded(load_res));
+    ASSERT(tutorials != NULL);
+    ASSERT(tutorial_count > 0);
+
+    char original_data_dir[MIL];
+    snprintf(original_data_dir, sizeof(original_data_dir), "%s", cfg_get_data_dir());
+    const char* temp_dir = cfg_get_temp_dir();
+    char temp_path[MIL];
+    snprintf(temp_path, sizeof(temp_path), "%s%s", temp_dir, "tutorials.json");
+
+    bool swapped = false;
+    cfg_set_data_dir(temp_dir);
+    swapped = true;
+
+    PersistResult save_res = tutorial_persist_save("tutorials.json");
+    ASSERT_OR_GOTO(persist_succeeded(save_res), cleanup_tutorial);
+
+    int saved_count = tutorial_count;
+    PersistResult load_json = tutorial_persist_load("tutorials.json");
+    ASSERT_OR_GOTO(persist_succeeded(load_json), cleanup_tutorial);
+    ASSERT(tutorial_count == saved_count);
+
+cleanup_tutorial:
+    if (swapped) {
+        remove(temp_path);
+        cfg_set_data_dir(original_data_dir);
+    }
+    return 0;
+}
+
 
 #ifdef ENABLE_EXTREME_AREA_ROUND_TRIP_COMPARISON
 
@@ -2152,6 +2326,11 @@ void register_persist_tests()
     REGISTER("Areas ROM->JSON->ROM Round Trip", test_areas_json_to_rom_round_trip);
     REGISTER("Races ROM<->JSON Round Trip", test_race_rom_json_round_trip);
     REGISTER("Classes ROM<->JSON Round Trip", test_class_rom_json_round_trip);
+    REGISTER("Commands ROM<->JSON Round Trip", test_command_rom_json_round_trip);
+    REGISTER("Skills ROM<->JSON Round Trip", test_skill_rom_json_round_trip);
+    REGISTER("Skill Groups ROM<->JSON Round Trip", test_skill_group_rom_json_round_trip);
+    REGISTER("Socials ROM<->JSON Round Trip", test_social_rom_json_round_trip);
+    REGISTER("Tutorials ROM<->JSON Round Trip", test_tutorial_rom_json_round_trip);
     REGISTER("Themes JSON Round Trip", test_theme_json_round_trip);
 #ifdef ENABLE_EXTREME_AREA_ROUND_TRIP_COMPARISON
     REGISTER("Extreme Area JSON Round Trip", test_extreme_area_json_round_trip);

@@ -5,6 +5,7 @@
 #include "merc.h"
 
 #include "comm.h"
+#include "config.h"
 #include "db.h"
 #include "handler.h"
 #include "magic.h"
@@ -17,6 +18,17 @@
 #include "data/class.h"
 #include "data/mobile_data.h"
 #include "data/skill.h"
+
+#ifdef _MSC_VER
+#include <io.h>
+#define access _access
+#else
+#include <unistd.h>
+#endif
+
+#ifndef F_OK
+#define F_OK 0
+#endif
 
 #define GEDIT(fun) bool fun(Mobile *ch, char *argument)
 
@@ -40,7 +52,7 @@ void gedit(Mobile* ch, char* argument)
     READ_ARG(command);
 
     if (ch->pcdata->security < MIN_SKEDIT_SECURITY) {
-        send_to_char("GEdit: You do not have enough security to edit groups.\n\r", ch);
+        send_to_char(COLOR_INFO "You do not have enough security to edit groups." COLOR_EOL, ch);
         edit_done(ch);
         return;
     }
@@ -55,8 +67,50 @@ void gedit(Mobile* ch, char* argument)
         return;
     }
 
-    if (!str_cmp(command, "save")) {
+    if (!str_prefix(command, "save")) {
+        char arg2[MIL];
+        one_argument(argument, arg2); // optional format
+        const char* requested_ext = NULL;
+        bool force_format = false;
+        if (!str_cmp(arg2, "json")) {
+            requested_ext = ".json";
+            force_format = true;
+        }
+        else if (!str_cmp(arg2, "olc")) {
+            requested_ext = ".olc";
+            force_format = true;
+        }
+        const char* groups_file = cfg_get_groups_file();
+        const char* ext = strrchr(groups_file, '.');
+        bool has_ext = (ext != NULL);
+
+        if (!force_format) {
+            if (has_ext) {
+                requested_ext = NULL;
+            }
+            else {
+                if (access(groups_file, F_OK) != 0) {
+                    const char* def = cfg_get_default_format();
+                    if (def && !str_cmp(def, "json"))
+                        requested_ext = ".json";
+                    else
+                        requested_ext = ".olc";
+                }
+                else {
+                    requested_ext = NULL;
+                }
+            }
+        }
+
+        if (requested_ext != NULL) {
+            size_t base_len = has_ext ? (size_t)(ext - groups_file) : strlen(groups_file);
+            char newname[MIL];
+            snprintf(newname, sizeof(newname), "%.*s%s", (int)base_len, groups_file, requested_ext);
+            cfg_set_groups_file(newname);
+        }
+
         save_skill_group_table();
+        send_to_char(COLOR_INFO "Skill groups saved." COLOR_EOL, ch);
         return;
     }
 
@@ -82,19 +136,19 @@ void do_gedit(Mobile* ch, char* argument)
         return;
 
     if (IS_NULLSTR(argument)) {
-        send_to_char("Syntax : GEdit [group]\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax : gedit <group name>" COLOR_EOL, ch);
         return;
     }
 
     if (ch->pcdata->security < MIN_SKEDIT_SECURITY) {
-        send_to_char("GEdit : You do not have enough security to edit groups.\n\r", ch);
+        send_to_char(COLOR_INFO "You do not have enough security to edit groups." COLOR_EOL, ch);
         return;
     }
 
     READ_ARG(command);
 
     if ((group = group_lookup(command)) == -1) {
-        send_to_char("GEdit : That group does not exist\n\r", ch);
+        send_to_char(COLOR_INFO "That group does not exist." COLOR_EOL, ch);
         return;
     }
 
@@ -103,47 +157,50 @@ void do_gedit(Mobile* ch, char* argument)
     ch->desc->pEdit = (uintptr_t)pGroup;
     ch->desc->editor = ED_GROUP;
 
+    gedit_show(ch, "");
+
     return;
+}
+
+static void display_ratings(Mobile* ch, SkillGroup* group)
+{
+    send_to_char(
+        "\n\r"
+        COLOR_TITLE   "     Class       Rating\n\r"
+        COLOR_DECOR_2 "=============== ========\n\r", ch);
+
+    for (int i = 0; i < class_count; ++i) {
+        printf_to_char(ch,
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 " %-11.11s " 
+            COLOR_DECOR_1 "] [ " COLOR_ALT_TEXT_1 " %3d " 
+            COLOR_DECOR_1 "]" COLOR_EOL,
+            capitalize(class_table[i].name),
+            GET_ELEM(&group->rating, i));
+    }
+
+    send_to_char("\n\r", ch);
 }
 
 GEDIT(gedit_show)
 {
     SkillGroup* pGrp;
-    char buf[MIL], buf2[MIL];
+    char buf[MIL];
     int i;
 
     EDIT_GROUP(ch, pGrp);
 
-    sprintf(buf, "Name      : [%s]\n\r", pGrp->name);
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Class    + ");
-
-    for (i = 0; i < class_count; ++i) {
-        strcat(buf, class_table[i].name);
-        strcat(buf, " ");
-    }
-
-    strcat(buf, "\n\r");
-    send_to_char(buf, ch);
-
-    sprintf(buf, "Rating   | ");
-
-    for (i = 0; i < class_count; ++i) {
-        sprintf(buf2, "%3d ", GET_ELEM(&pGrp->rating, i));
-        strcat(buf, buf2);
-    }
-
-    strcat(buf, "\n\r");
-    send_to_char(buf, ch);
+    olc_print_str(ch, "Name", pGrp->name);
 
     i = 0;
-
     while (i < MAX_IN_GROUP && !IS_NULLSTR(pGrp->skills[i])) {
-        sprintf(buf, "%2d. " COLOR_ALT_TEXT_1 "%s" COLOR_EOL, i, pGrp->skills[i]);
+
+        sprintf(buf, "%4d. " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 " %-10s " 
+            COLOR_DECOR_1 "]" COLOR_EOL, i, pGrp->skills[i]);
         send_to_char(buf, ch);
         i++;
     }
+
+    display_ratings(ch, pGrp);
 
     return false;
 }
@@ -155,12 +212,12 @@ GEDIT(gedit_name)
     EDIT_GROUP(ch, pGrp);
 
     if (IS_NULLSTR(argument)) {
-        send_to_char("Syntax : name [group name]\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax: name <group name>" COLOR_EOL, ch);
         return false;
     }
 
     if (group_lookup(argument) != -1) {
-        send_to_char("GEdit : That group already exists.\n\r", ch);
+        send_to_char(COLOR_INFO "That group already exists." COLOR_EOL, ch);
         return false;
     }
 
@@ -183,24 +240,24 @@ GEDIT(gedit_rating)
     READ_ARG(arg);
 
     if (IS_NULLSTR(argument) || IS_NULLSTR(arg) || !is_number(argument)) {
-        send_to_char("Syntax : rating [class] [cost]\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax: rating <class> <cost>" COLOR_EOL, ch);
         return false;
     }
 
     if ((class_ = class_lookup(arg)) < 0) {
-        send_to_char("GEdit : That class does not exist.\n\r", ch);
+        send_to_char(COLOR_INFO "That class does not exist." COLOR_EOL, ch);
         return false;
     }
 
     rating = (SkillRating)atoi(argument);
 
     if (rating < -1) {
-        send_to_char("GEdit : Rating must be at least 0.\n\r", ch);
+        send_to_char(COLOR_INFO "Rating must be at least 0." COLOR_EOL, ch);
         return false;
     }
 
     SET_ELEM(pGrp->rating, class_, rating);
-    send_to_char("Ok.\n\r", ch);
+    send_to_char(COLOR_INFO "Ok." COLOR_EOL, ch);
     return true;
 }
 
@@ -213,9 +270,9 @@ GEDIT(gedit_spell)
     EDIT_GROUP(ch, pGrp);
 
     if (IS_NULLSTR(argument)) {
-        send_to_char("Syntax: spell new [name]\n\r", ch);
-        send_to_char("        spell delete [name]\n\r", ch);
-        send_to_char("        spell delete [number]\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax: spell new <group name>" COLOR_EOL, ch);
+        send_to_char(COLOR_INFO "        spell delete <group name>" COLOR_EOL, ch);
+        send_to_char(COLOR_INFO "        spell delete <number>" COLOR_EOL, ch);
         return false;
     }
 
@@ -226,18 +283,18 @@ GEDIT(gedit_spell)
             ;
 
         if (i == MAX_IN_GROUP) {
-            send_to_char("GEdit : the group is full.\n\r", ch);
+            send_to_char(COLOR_INFO "The group is full." COLOR_EOL, ch);
             return false;
         }
 
         if (skill_lookup(argument) == -1 && group_lookup(argument) == -1) {
-            send_to_char("GEdit : skill/spell/group does not exist.\n\r", ch);
+            send_to_char(COLOR_INFO "Skill/spell/group does not exist." COLOR_EOL, ch);
             return false;
         }
 
         free_string(pGrp->skills[i]);
         pGrp->skills[i] = str_dup(argument);
-        send_to_char("Ok.\n\r", ch);
+        send_to_char(COLOR_INFO "Ok." COLOR_EOL, ch);
         return true;
     }
 
@@ -245,7 +302,7 @@ GEDIT(gedit_spell)
         int num = is_number(argument) ? atoi(argument) : -1;
 
         if (is_number(argument) && (num < 0 || num >= MAX_IN_GROUP)) {
-            send_to_char("GEdit : Invalid argument.\n\r", ch);
+            send_to_char(COLOR_INFO "Invalid argument." COLOR_EOL, ch);
             return false;
         }
 
@@ -257,13 +314,13 @@ GEDIT(gedit_spell)
                 }
                 free_string(pGrp->skills[MAX_IN_GROUP - 1]);
                 pGrp->skills[MAX_IN_GROUP - 1] = str_dup("");
-                send_to_char("Ok.\n\r", ch);
+                send_to_char(COLOR_INFO "Ok." COLOR_EOL, ch);
                 return true;
             }
             ++i;
         }
 
-        send_to_char("GEdit : Skill/spell/group does not exist.\n\r", ch);
+        send_to_char(COLOR_INFO "Skill/spell/group does not exist." COLOR_EOL, ch);
         return false;
     }
 
