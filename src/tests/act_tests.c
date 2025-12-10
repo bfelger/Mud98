@@ -765,6 +765,211 @@ static int test_credits()
     return 0;
 }
 
+static int test_scroll_status()
+{
+    Room* room = mock_room(50000, NULL, NULL);
+    Mobile* ch = mock_player("TestPlayer");
+    transfer_mob(ch, room);
+    
+    ch->lines = 20;
+    
+    test_socket_output_enabled = true;
+    do_scroll(ch, "");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("22 lines per page");
+    test_output_buffer = NIL_VAL;
+    
+    return 0;
+}
+
+static int test_scroll_disable()
+{
+    Room* room = mock_room(50000, NULL, NULL);
+    Mobile* ch = mock_player("TestPlayer");
+    transfer_mob(ch, room);
+    
+    ch->lines = 20;
+    
+    test_socket_output_enabled = true;
+    do_scroll(ch, "0");
+    test_socket_output_enabled = false;
+    
+    ASSERT(ch->lines == 0);
+    ASSERT_OUTPUT_CONTAINS("Paging disabled");
+    test_output_buffer = NIL_VAL;
+    
+    return 0;
+}
+
+static int test_scroll_set()
+{
+    Room* room = mock_room(50000, NULL, NULL);
+    Mobile* ch = mock_player("TestPlayer");
+    transfer_mob(ch, room);
+    
+    test_socket_output_enabled = true;
+    do_scroll(ch, "30");
+    test_socket_output_enabled = false;
+    
+    ASSERT(ch->lines == 28);  // lines - 2
+    ASSERT_OUTPUT_CONTAINS("Scroll set to 30");
+    test_output_buffer = NIL_VAL;
+    
+    return 0;
+}
+
+static int test_scroll_invalid()
+{
+    Room* room = mock_room(50000, NULL, NULL);
+    Mobile* ch = mock_player("TestPlayer");
+    transfer_mob(ch, room);
+    
+    test_socket_output_enabled = true;
+    do_scroll(ch, "5");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("reasonable number");
+    test_output_buffer = NIL_VAL;
+    
+    return 0;
+}
+
+static int test_socials()
+{
+    Room* room = mock_room(50000, NULL, NULL);
+    Mobile* ch = mock_player("TestPlayer");
+    transfer_mob(ch, room);
+    
+    test_socket_output_enabled = true;
+    do_socials(ch, "");
+    test_socket_output_enabled = false;
+    
+    // Just verify we get some social names
+    ASSERT(IS_STRING(test_output_buffer));
+    test_output_buffer = NIL_VAL;
+    
+    return 0;
+}
+
+static int test_prompt_toggle()
+{
+    Room* room = mock_room(50000, NULL, NULL);
+    Mobile* ch = mock_player("TestPlayer");
+    transfer_mob(ch, room);
+    
+    REMOVE_BIT(ch->comm_flags, COMM_PROMPT);
+    test_socket_output_enabled = true;
+    do_prompt(ch, "");
+    test_socket_output_enabled = false;
+    
+    ASSERT(IS_SET(ch->comm_flags, COMM_PROMPT));
+    ASSERT_OUTPUT_CONTAINS("You will now see prompts");
+    test_output_buffer = NIL_VAL;
+    
+    return 0;
+}
+
+static int test_prompt_set_custom()
+{
+    Room* room = mock_room(50000, NULL, NULL);
+    Mobile* ch = mock_player("TestPlayer");
+    transfer_mob(ch, room);
+    
+    test_socket_output_enabled = true;
+    do_prompt(ch, "<%hhp %mm>");
+    test_socket_output_enabled = false;
+    
+    ASSERT_STR_EQ(ch->prompt, "<%hhp %mm> ");
+    ASSERT_OUTPUT_CONTAINS("Prompt set to");
+    test_output_buffer = NIL_VAL;
+    
+    return 0;
+}
+
+static int test_prompt_set_all()
+{
+    Room* room = mock_room(50000, NULL, NULL);
+    Mobile* ch = mock_player("TestPlayer");
+    transfer_mob(ch, room);
+    
+    test_socket_output_enabled = true;
+    do_prompt(ch, "all");
+    test_socket_output_enabled = false;
+    
+    ASSERT_STR_EQ(ch->prompt, "<%hhp %mm %vmv> ");
+    test_output_buffer = NIL_VAL;
+    
+    return 0;
+}
+
+static int test_read()
+{
+    Room* room = mock_room(50000, NULL, NULL);
+    Mobile* ch = mock_player("TestPlayer");
+    transfer_mob(ch, room);
+    
+    // do_read is just a wrapper for do_look
+    test_socket_output_enabled = true;
+    do_read(ch, "");
+    test_socket_output_enabled = false;
+    
+    // Just verify no crash
+    test_output_buffer = NIL_VAL;
+    
+    return 0;
+}
+
+static int test_examine_nothing()
+{
+    Room* room = mock_room(50000, NULL, NULL);
+    Mobile* ch = mock_player("TestPlayer");
+    transfer_mob(ch, room);
+    
+    test_socket_output_enabled = true;
+    do_examine(ch, "");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("Examine what?");
+    test_output_buffer = NIL_VAL;
+    
+    return 0;
+}
+
+static int test_affects_none()
+{
+    Room* room = mock_room(50000, NULL, NULL);
+    Mobile* ch = mock_player("TestPlayer");
+    transfer_mob(ch, room);
+    
+    ch->affected = NULL;
+    
+    test_socket_output_enabled = true;
+    do_affects(ch, "");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("You are not affected by any spells");
+    test_output_buffer = NIL_VAL;
+    
+    return 0;
+}
+
+static int test_where_no_players()
+{
+    Room* room = mock_room(50000, NULL, NULL);
+    Mobile* ch = mock_player("TestPlayer");
+    transfer_mob(ch, room);
+    
+    test_socket_output_enabled = true;
+    do_where(ch, "");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("Players near you:");
+    test_output_buffer = NIL_VAL;
+    
+    return 0;
+}
+
 void register_act_tests()
 {
 #define REGISTER(n, f)  register_test(&act_tests, (n), (f))
@@ -808,6 +1013,18 @@ void register_act_tests()
     REGISTER("Cmd: Consider easy", test_consider_easy);
     REGISTER("Cmd: Consider hard", test_consider_hard);
     REGISTER("Cmd: Credits", test_credits);
+    REGISTER("Cmd: Scroll status", test_scroll_status);
+    REGISTER("Cmd: Scroll disable", test_scroll_disable);
+    REGISTER("Cmd: Scroll set", test_scroll_set);
+    REGISTER("Cmd: Scroll invalid", test_scroll_invalid);
+    REGISTER("Cmd: Socials", test_socials);
+    REGISTER("Cmd: Prompt toggle", test_prompt_toggle);
+    REGISTER("Cmd: Prompt set custom", test_prompt_set_custom);
+    REGISTER("Cmd: Prompt set all", test_prompt_set_all);
+    REGISTER("Cmd: Read", test_read);
+    REGISTER("Cmd: Examine nothing", test_examine_nothing);
+    REGISTER("Cmd: Affects none", test_affects_none);
+    REGISTER("Cmd: Where no players", test_where_no_players);
 
 #undef REGISTER
 }
