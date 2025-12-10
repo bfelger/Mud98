@@ -929,7 +929,7 @@ void do_violate(Mobile* ch, char* argument)
 
     FOR_EACH_ROOM_MOB(rch, ch->in_room) {
         if (get_trust(rch) >= ch->invis_level) {
-            if (ch->pcdata != NULL && ch->pcdata->bamfout[0] != '\0')
+            if (ch->pcdata != NULL && ch->pcdata->bamfout != NULL && ch->pcdata->bamfout[0] != '\0')
                 act("$t", ch, ch->pcdata->bamfout, rch, TO_VICT);
             else
                 act("$n leaves in a swirling mist.", ch, NULL, rch, TO_VICT);
@@ -940,7 +940,7 @@ void do_violate(Mobile* ch, char* argument)
 
     FOR_EACH_ROOM_MOB(rch, ch->in_room) {
         if (get_trust(rch) >= ch->invis_level) {
-            if (ch->pcdata != NULL && ch->pcdata->bamfin[0] != '\0')
+            if (ch->pcdata != NULL && ch->pcdata->bamfin != NULL && ch->pcdata->bamfin[0] != '\0')
                 act("$t", ch, ch->pcdata->bamfin, rch, TO_VICT);
             else
                 act("$n appears in a swirling mist.", ch, NULL, rch, TO_VICT);

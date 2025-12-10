@@ -216,6 +216,8 @@ Mobile* mock_player(const char* name)
     m->comm_flags = 0;  // Clear all comm flags for clean test state
     m->pcdata = new_player_data();
     m->pcdata->ch = m;
+    m->pcdata->bamfin = str_dup("");
+    m->pcdata->bamfout = str_dup("");
     m->desc = mock_descriptor();
     m->desc->character = m;
     REMOVE_BIT(m->act_flags, PLR_COLOUR);

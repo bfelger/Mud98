@@ -49,6 +49,7 @@ void register_act_move_tests();
 void register_act_wiz_tests();
 void register_act_wiz2_tests();
 void register_act_wiz3_tests();
+void register_act_wiz4_tests();
 void register_fmt_tests();
 void register_theme_tests();
 void register_util_tests();
