@@ -11,6 +11,7 @@
 #include <entities/area.h>
 #include <entities/faction.h>
 #include <entities/mobile.h>
+#include <entities/mob_prototype.h>
 #include <entities/obj_prototype.h>
 #include <entities/object.h>
 #include <entities/room.h>
@@ -84,6 +85,7 @@ MobPrototype* mock_mob_proto(VNUM vnum)
     mp->hit[1] = 1;
     mp->hit[2] = 1;
     mp->hitroll = 1;
+    global_mob_proto_set(mp);  // Register globally so mload can find it
     write_value_array(mocks(), OBJ_VAL(mp));
 
     return mp;
@@ -113,6 +115,7 @@ ObjPrototype* mock_obj_proto(VNUM vnum)
     op->weight = 1;
     op->condition = 100;
     op->material = &str_empty[0];
+    global_obj_proto_set(op);  // Register globally so oload can find it
     write_value_array(mocks(), OBJ_VAL(op));
     return op;
 }
@@ -210,12 +213,22 @@ Mobile* mock_player(const char* name)
 {
     Mobile* m = mock_mob(name, 0, NULL);
     m->act_flags = 0;
+    m->comm_flags = 0;  // Clear all comm flags for clean test state
     m->pcdata = new_player_data();
     m->pcdata->ch = m;
     m->desc = mock_descriptor();
     m->desc->character = m;
     REMOVE_BIT(m->act_flags, PLR_COLOUR);
     write_value_array(mocks(), OBJ_VAL(m->pcdata));
+    return m;
+}
+
+Mobile* mock_imm(const char* name)
+{
+    Mobile* m = mock_player(name);
+    m->level = MAX_LEVEL;
+    m->trust = MAX_LEVEL;
+    m->pcdata->security = 9;  // Full access
     return m;
 }
 
@@ -280,6 +293,16 @@ void cleanup_mocks()
             RoomData* rd = AS_ROOM_DATA(val);
             // Remove from global registry so it doesn't conflict with future tests
             global_room_remove(VNUM_FIELD(rd));
+        }
+        else if (IS_MOB_PROTO(val)) {
+            MobPrototype* mp = AS_MOB_PROTO(val);
+            // Remove from global registry
+            global_mob_proto_remove(VNUM_FIELD(mp));
+        }
+        else if (IS_OBJ_PROTO(val)) {
+            ObjPrototype* op = AS_OBJ_PROTO(val);
+            // Remove from global registry
+            global_obj_proto_remove(VNUM_FIELD(op));
         }
         // All other types (Areas, Prototypes, etc.) are managed by GC
     }

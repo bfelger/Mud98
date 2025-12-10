@@ -74,6 +74,7 @@ void mock_room_connection(Room* r1, Room* r2, Direction dir, bool bidirectional)
 MobPrototype* mock_mob_proto(VNUM vnum);
 Mobile* mock_mob(const char* name, VNUM vnum, MobPrototype* mp);
 Mobile* mock_player(const char* name);
+Mobile* mock_imm(const char* name);
 
 // OBJECT MOCKING  
 // mock_obj_proto: Creates ObjPrototype (template)

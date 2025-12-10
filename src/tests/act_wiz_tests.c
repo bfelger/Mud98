@@ -24,8 +24,7 @@ TestGroup act_wiz_tests;
 static int test_echo_with_message()
 {
     Room* room = mock_room(60000, NULL, NULL);
-    Mobile* wiz = mock_player("Wizard");
-    wiz->trust = MAX_LEVEL;
+    Mobile* wiz = mock_imm("Wizard");
     transfer_mob(wiz, room);
     
     // Add the descriptor to the global list for the echo to work
@@ -50,8 +49,7 @@ static int test_echo_with_message()
 static int test_echo_without_message()
 {
     Room* room = mock_room(60000, NULL, NULL);
-    Mobile* wiz = mock_player("Wizard");
-    wiz->trust = MAX_LEVEL;
+    Mobile* wiz = mock_imm("Wizard");
     transfer_mob(wiz, room);
     
     test_socket_output_enabled = true;
@@ -68,8 +66,7 @@ static int test_echo_without_message()
 static int test_recho_with_message()
 {
     Room* room = mock_room(60000, NULL, NULL);
-    Mobile* wiz = mock_player("Wizard");
-    wiz->trust = MAX_LEVEL;
+    Mobile* wiz = mock_imm("Wizard");
     transfer_mob(wiz, room);
     
     // Add the descriptor to the global list for the recho to work
@@ -94,8 +91,7 @@ static int test_recho_with_message()
 static int test_recho_without_message()
 {
     Room* room = mock_room(60000, NULL, NULL);
-    Mobile* wiz = mock_player("Wizard");
-    wiz->trust = MAX_LEVEL;
+    Mobile* wiz = mock_imm("Wizard");
     transfer_mob(wiz, room);
     
     test_socket_output_enabled = true;
@@ -114,8 +110,7 @@ static int test_goto_by_vnum()
     Room* room1 = mock_room(60001, NULL, NULL);
     Room* room2 = mock_room(60002, NULL, NULL);
     
-    Mobile* wiz = mock_player("Wizard");
-    wiz->trust = MAX_LEVEL;
+    Mobile* wiz = mock_imm("Wizard");
     wiz->pcdata->bamfin = str_dup("");   // Initialize bamf messages
     wiz->pcdata->bamfout = str_dup("");
     transfer_mob(wiz, room1);
@@ -136,8 +131,7 @@ static int test_goto_invalid_location()
 {
     Room* room = mock_room(60001, NULL, NULL);
     
-    Mobile* wiz = mock_player("Wizard");
-    wiz->trust = MAX_LEVEL;
+    Mobile* wiz = mock_imm("Wizard");
     transfer_mob(wiz, room);
     
     test_socket_output_enabled = true;
@@ -155,8 +149,7 @@ static int test_goto_no_argument()
 {
     Room* room = mock_room(60001, NULL, NULL);
     
-    Mobile* wiz = mock_player("Wizard");
-    wiz->trust = MAX_LEVEL;
+    Mobile* wiz = mock_imm("Wizard");
     transfer_mob(wiz, room);
     
     test_socket_output_enabled = true;
@@ -182,8 +175,7 @@ static int test_transfer_player()
     // Make sure the rooms are in the same area instance
     ASSERT(room1->area == room2->area);
     
-    Mobile* wiz = mock_player("Wizard");
-    wiz->trust = MAX_LEVEL;
+    Mobile* wiz = mock_imm("Wizard");
     SET_BIT(wiz->act_flags, PLR_HOLYLIGHT);  // Ensure can see everything
     transfer_mob(wiz, room1);
     
@@ -209,8 +201,7 @@ static int test_transfer_no_argument()
 {
     Room* room = mock_room(60010, NULL, NULL);
     
-    Mobile* wiz = mock_player("Wizard");
-    wiz->trust = MAX_LEVEL;
+    Mobile* wiz = mock_imm("Wizard");
     transfer_mob(wiz, room);
     
     test_socket_output_enabled = true;
@@ -272,8 +263,7 @@ static int test_outfit_too_high_level()
 static int test_guild_requires_argument()
 {
     Room* room = mock_room(60030, NULL, NULL);
-    Mobile* wiz = mock_player("Wizard");
-    wiz->trust = MAX_LEVEL;
+    Mobile* wiz = mock_imm("Wizard");
     transfer_mob(wiz, room);
     
     test_socket_output_enabled = true;
