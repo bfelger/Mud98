@@ -33,4 +33,8 @@ Object* mock_sword(const char* name, VNUM vnum, LEVEL level, int dam_dice, int d
 Descriptor* mock_descriptor();
 Mobile* mock_player(const char* name);
 
-#endif // !MUD98__TESTS__MOCK_H
+// Faction system mocks
+Faction* mock_faction(const char* name, VNUM vnum);
+void mock_player_reputation(Mobile* ch, VNUM faction_vnum, int value);
+
+#endif  // !MUD98__TESTS__MOCK_H

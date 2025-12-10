@@ -43,6 +43,7 @@ void register_lox_ext_tests();
 void register_entity_tests();
 void register_container_tests();
 void register_act_tests();
+void register_act_comm_tests();
 void register_fmt_tests();
 void register_theme_tests();
 void register_util_tests();

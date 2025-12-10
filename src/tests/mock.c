@@ -6,6 +6,8 @@
 
 #include <db.h>
 
+#include <entities/faction.h>
+
 // This is marked by Lox's GC
 ValueArray* mocks_ = NULL;
 
@@ -202,4 +204,22 @@ Mobile* mock_player(const char* name)
     REMOVE_BIT(m->act_flags, PLR_COLOUR);
     write_value_array(mocks(), OBJ_VAL(m->pcdata));
     return m;
+}
+
+Faction* mock_faction(const char* name, VNUM vnum)
+{
+    Faction* faction = faction_create(vnum);
+    if (faction != NULL) {
+        faction->header.name = AS_STRING(mock_str(name));
+        faction->default_standing = 0;
+    }
+    return faction;
+}
+
+void mock_player_reputation(Mobile* ch, VNUM faction_vnum, int value)
+{
+    if (ch == NULL || IS_NPC(ch) || faction_vnum == 0)
+        return;
+    
+    faction_set(ch->pcdata, faction_vnum, value);
 }

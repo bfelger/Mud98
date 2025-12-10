@@ -1,8 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // act_tests.c
-////////////////////////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////////////////////////
+//
 // Tests for act_*.c command functions and act() system.
 //
 // CRITICAL PATTERN: All entities (players, mobs, objects) MUST be placed in
@@ -970,6 +968,228 @@ static int test_where_no_players()
     return 0;
 }
 
+static int test_score_basic()
+{
+    Room* room = mock_room(50000, NULL, NULL);
+    Mobile* ch = mock_player("TestPlayer");
+    transfer_mob(ch, room);
+    
+    ch->level = 10;
+    ch->hit = 100;
+    ch->max_hit = 150;
+    
+    test_socket_output_enabled = true;
+    do_score(ch, "");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("You are TestPlayer");
+    ASSERT_OUTPUT_CONTAINS("level 10");
+    ASSERT_OUTPUT_CONTAINS("100/150 hit");
+    test_output_buffer = NIL_VAL;
+    
+    return 0;
+}
+
+static int test_score_affects_toggle()
+{
+    Room* room = mock_room(50000, NULL, NULL);
+    Mobile* ch = mock_player("TestPlayer");
+    transfer_mob(ch, room);
+    
+    REMOVE_BIT(ch->comm_flags, COMM_SHOW_AFFECTS);
+    test_socket_output_enabled = true;
+    do_score(ch, "affects");
+    test_socket_output_enabled = false;
+    
+    ASSERT(IS_SET(ch->comm_flags, COMM_SHOW_AFFECTS));
+    ASSERT_OUTPUT_CONTAINS("Affects will now be shown in score");
+    test_output_buffer = NIL_VAL;
+    
+    return 0;
+}
+
+static int test_count()
+{
+    Room* room = mock_room(50000, NULL, NULL);
+    Mobile* ch = mock_player("TestPlayer");
+    transfer_mob(ch, room);
+    
+    test_socket_output_enabled = true;
+    do_count(ch, "");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("characters on");
+    test_output_buffer = NIL_VAL;
+    
+    return 0;
+}
+
+static int test_title_empty()
+{
+    Room* room = mock_room(50000, NULL, NULL);
+    Mobile* ch = mock_player("TestPlayer");
+    transfer_mob(ch, room);
+    
+    test_socket_output_enabled = true;
+    do_title(ch, "");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("Change your title to what?");
+    test_output_buffer = NIL_VAL;
+    
+    return 0;
+}
+
+static int test_title_set()
+{
+    Room* room = mock_room(50000, NULL, NULL);
+    Mobile* ch = mock_player("TestPlayer");
+    transfer_mob(ch, room);
+    
+    test_socket_output_enabled = true;
+    do_title(ch, "the Brave");
+    test_socket_output_enabled = false;
+    
+    ASSERT_STR_EQ(ch->pcdata->title, " the Brave");
+    ASSERT_OUTPUT_CONTAINS("Ok.");
+    test_output_buffer = NIL_VAL;
+    
+    return 0;
+}
+
+static int test_description_view()
+{
+    Room* room = mock_room(50000, NULL, NULL);
+    Mobile* ch = mock_player("TestPlayer");
+    transfer_mob(ch, room);
+    
+    ch->description = str_dup("A test player.\n\r");
+    
+    test_socket_output_enabled = true;
+    do_description(ch, "");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("Your description is:");
+    ASSERT_OUTPUT_CONTAINS("A test player.");
+    test_output_buffer = NIL_VAL;
+    
+    return 0;
+}
+
+static int test_description_set()
+{
+    Room* room = mock_room(50000, NULL, NULL);
+    Mobile* ch = mock_player("TestPlayer");
+    transfer_mob(ch, room);
+    
+    test_socket_output_enabled = true;
+    do_description(ch, "A brave adventurer.");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("Your description is:");
+    ASSERT_OUTPUT_CONTAINS("A brave adventurer.");
+    test_output_buffer = NIL_VAL;
+    
+    return 0;
+}
+
+static int test_description_append()
+{
+    Room* room = mock_room(50000, NULL, NULL);
+    Mobile* ch = mock_player("TestPlayer");
+    transfer_mob(ch, room);
+    
+    ch->description = str_dup("Line one.\n\r");
+    
+    test_socket_output_enabled = true;
+    do_description(ch, "+ Line two.");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("Line one.");
+    ASSERT_OUTPUT_CONTAINS("Line two.");
+    test_output_buffer = NIL_VAL;
+    
+    return 0;
+}
+
+static int test_description_clear()
+{
+    Room* room = mock_room(50000, NULL, NULL);
+    Mobile* ch = mock_player("TestPlayer");
+    transfer_mob(ch, room);
+    
+    ch->description = str_dup("Something.\n\r");
+    
+    test_socket_output_enabled = true;
+    do_description(ch, "-");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("Description cleared");
+    test_output_buffer = NIL_VAL;
+    
+    return 0;
+}
+
+static int test_practice_list()
+{
+    Room* room = mock_room(50000, NULL, NULL);
+    Mobile* ch = mock_player("TestPlayer");
+    transfer_mob(ch, room);
+    
+    ch->practice = 5;
+    
+    test_socket_output_enabled = true;
+    do_practice(ch, "");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("You have 5 practice sessions left");
+    test_output_buffer = NIL_VAL;
+    
+    return 0;
+}
+
+static int test_reputation_none()
+{
+    Room* room = mock_room(50000, NULL, NULL);
+    Mobile* ch = mock_player("TestPlayer");
+    transfer_mob(ch, room);
+    
+    test_socket_output_enabled = true;
+    do_reputation(ch, "");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("You have not interacted with any factions yet");
+    test_output_buffer = NIL_VAL;
+    
+    return 0;
+}
+
+static int test_reputation_with_factions()
+{
+    Room* room = mock_room(50000, NULL, NULL);
+    Mobile* ch = mock_player("TestPlayer");
+    transfer_mob(ch, room);
+    
+    // Create mock factions and set reputations
+    mock_faction("Guardians of Light", 1001);
+    mock_faction("Shadow Covenant", 1002);
+    
+    mock_player_reputation(ch, 1001, 3000);  // Friendly
+    mock_player_reputation(ch, 1002, -6000); // Hostile
+    
+    test_socket_output_enabled = true;
+    do_reputation(ch, "");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("Faction");
+    ASSERT_OUTPUT_CONTAINS("Standing");
+    ASSERT_OUTPUT_CONTAINS("Guardians of Light");
+    ASSERT_OUTPUT_CONTAINS("Shadow Covenant");
+    test_output_buffer = NIL_VAL;
+    
+    return 0;
+}
+
 void register_act_tests()
 {
 #define REGISTER(n, f)  register_test(&act_tests, (n), (f))
@@ -1025,6 +1245,18 @@ void register_act_tests()
     REGISTER("Cmd: Examine nothing", test_examine_nothing);
     REGISTER("Cmd: Affects none", test_affects_none);
     REGISTER("Cmd: Where no players", test_where_no_players);
+    REGISTER("Cmd: Score basic", test_score_basic);
+    REGISTER("Cmd: Score affects toggle", test_score_affects_toggle);
+    REGISTER("Cmd: Count", test_count);
+    REGISTER("Cmd: Title empty", test_title_empty);
+    REGISTER("Cmd: Title set", test_title_set);
+    REGISTER("Cmd: Description view", test_description_view);
+    REGISTER("Cmd: Description set", test_description_set);
+    REGISTER("Cmd: Description append", test_description_append);
+    REGISTER("Cmd: Description clear", test_description_clear);
+    REGISTER("Cmd: Practice list", test_practice_list);
+    REGISTER("Cmd: Reputation none", test_reputation_none);
+    REGISTER("Cmd: Reputation with factions", test_reputation_with_factions);
 
 #undef REGISTER
 }
