@@ -1613,7 +1613,6 @@ void do_mfind(Mobile* ch, char* argument)
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
     MobPrototype* p_mob_proto;
-    //VNUM vnum;
     int nMatch;
     bool fAll;
     bool found;
@@ -1650,7 +1649,6 @@ void do_ofind(Mobile* ch, char* argument)
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
     ObjPrototype* obj_proto;
-    //VNUM vnum;
     int nMatch;
     bool fAll;
     bool found;
