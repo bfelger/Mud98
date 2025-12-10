@@ -26,6 +26,9 @@
 // Internal GC-tracked array of all mocks
 ValueArray* mocks();
 
+// Clean up all mocks (called after each test)
+void cleanup_mocks();
+
 // Create a GC-tracked Lox string
 Value mock_str(const char* str);
 

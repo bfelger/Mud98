@@ -5,8 +5,15 @@
 #include "mock.h"
 
 #include <db.h>
+#include <handler.h>
+#include <recycle.h>
 
+#include <entities/area.h>
 #include <entities/faction.h>
+#include <entities/mobile.h>
+#include <entities/obj_prototype.h>
+#include <entities/object.h>
+#include <entities/room.h>
 
 // This is marked by Lox's GC
 ValueArray* mocks_ = NULL;
@@ -44,7 +51,7 @@ RoomData* mock_room_data(VNUM vnum, AreaData* ad)
     RoomData* rd = new_room_data();
     write_value_array(mocks(), OBJ_VAL(rd));
     rd->area_data = ad;
-    VNUM_FIELD(rd) = 51000;
+    VNUM_FIELD(rd) = vnum;  // Use the vnum parameter instead of hardcoding
     global_room_set(rd);
 
     return rd;
@@ -55,7 +62,13 @@ Area* mock_area(AreaData* ad)
     if (ad == NULL)
         ad = mock_area_data();
 
-    Area* a = create_area_instance(ad, false);
+    Area* a;
+    if (ad->instances.count == 0 || ad->inst_type == AREA_INST_MULTI) {
+        a = create_area_instance(ad, true);
+        list_push(&ad->instances, OBJ_VAL(a));
+    } else {
+        a = AS_AREA(list_first(&ad->instances));
+    }
     write_value_array(mocks(), OBJ_VAL(a));
 
     return a;
@@ -222,4 +235,52 @@ void mock_player_reputation(Mobile* ch, VNUM faction_vnum, int value)
         return;
     
     faction_set(ch->pcdata, faction_vnum, value);
+}
+
+void cleanup_mocks()
+{
+    if (mocks_ == NULL)
+        return;
+
+    // Only remove entities from global lists - GC will free memory
+    while (mocks_->count > 0) {
+        Value val = mocks_->values[--mocks_->count];
+        
+        if (IS_MOBILE(val)) {
+            Mobile* mob = AS_MOBILE(val);
+            if (IS_VALID(mob)) {
+                // Just remove from room - don't extract (too aggressive)
+                if (mob->in_room != NULL)
+                    mob_from_room(mob);
+                // Remove from global mob_list
+                if (mob->mob_list_node != NULL) {
+                    list_remove_node(&mob_list, mob->mob_list_node);
+                    mob->mob_list_node = NULL;
+                }
+            }
+        }
+        else if (IS_OBJECT(val)) {
+            Object* obj = AS_OBJECT(val);
+            if (IS_VALID(obj)) {
+                // Just remove from wherever it is - don't extract
+                if (obj->in_room != NULL)
+                    obj_from_room(obj);
+                else if (obj->carried_by != NULL)
+                    obj_from_char(obj);
+                else if (obj->in_obj != NULL)
+                    obj_from_obj(obj);
+                // Remove from global obj_list
+                if (obj->obj_list_node != NULL) {
+                    list_remove_node(&obj_list, obj->obj_list_node);
+                    obj->obj_list_node = NULL;
+                }
+            }
+        }
+        else if (IS_ROOM_DATA(val)) {
+            RoomData* rd = AS_ROOM_DATA(val);
+            // Remove from global registry so it doesn't conflict with future tests
+            global_room_remove(VNUM_FIELD(rd));
+        }
+        // All other types (Areas, Prototypes, etc.) are managed by GC
+    }
 }

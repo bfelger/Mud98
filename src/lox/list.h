@@ -33,6 +33,7 @@ void free_list(List* list);
 Node* list_push(List* list, Value value);
 Node* list_push_back(List* list, Value value);
 Value list_pop(List* list);
+Value list_first(List* list);
 Node* list_find(List* list, Value value);
 void list_remove_node(List* list, Node* node);
 void list_remove_value(List* list, Value value);
