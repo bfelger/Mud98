@@ -43,6 +43,16 @@ void register_lox_ext_tests();
 void register_entity_tests();
 void register_container_tests();
 void register_act_tests();
+void register_act_comm_tests();
+void register_act_enter_tests();
+void register_act_obj_tests();
+void register_act_move_tests();
+void register_act_wiz_tests();
+void register_act_wiz2_tests();
+void register_act_wiz3_tests();
+void register_act_wiz4_tests();
+void register_act_wiz5_tests();
+void register_interp_tests();
 void register_fmt_tests();
 void register_theme_tests();
 void register_util_tests();
@@ -52,6 +62,8 @@ void register_money_tests();
 void register_quest_tests();
 void register_login_tests();
 void register_persist_tests();
+void register_fight_tests();
+void register_skills_tests();
 
 void run_unit_tests();
 

@@ -5,6 +5,16 @@
 #include "mock.h"
 
 #include <db.h>
+#include <handler.h>
+#include <recycle.h>
+
+#include <entities/area.h>
+#include <entities/faction.h>
+#include <entities/mobile.h>
+#include <entities/mob_prototype.h>
+#include <entities/obj_prototype.h>
+#include <entities/object.h>
+#include <entities/room.h>
 
 // This is marked by Lox's GC
 ValueArray* mocks_ = NULL;
@@ -42,7 +52,7 @@ RoomData* mock_room_data(VNUM vnum, AreaData* ad)
     RoomData* rd = new_room_data();
     write_value_array(mocks(), OBJ_VAL(rd));
     rd->area_data = ad;
-    VNUM_FIELD(rd) = 51000;
+    VNUM_FIELD(rd) = vnum;  // Use the vnum parameter instead of hardcoding
     global_room_set(rd);
 
     return rd;
@@ -53,7 +63,13 @@ Area* mock_area(AreaData* ad)
     if (ad == NULL)
         ad = mock_area_data();
 
-    Area* a = create_area_instance(ad, false);
+    Area* a;
+    if (ad->instances.count == 0 || ad->inst_type == AREA_INST_MULTI) {
+        a = create_area_instance(ad, true);
+        list_push(&ad->instances, OBJ_VAL(a));
+    } else {
+        a = AS_AREA(list_first(&ad->instances));
+    }
     write_value_array(mocks(), OBJ_VAL(a));
 
     return a;
@@ -69,6 +85,7 @@ MobPrototype* mock_mob_proto(VNUM vnum)
     mp->hit[1] = 1;
     mp->hit[2] = 1;
     mp->hitroll = 1;
+    global_mob_proto_set(mp);  // Register globally so mload can find it
     write_value_array(mocks(), OBJ_VAL(mp));
 
     return mp;
@@ -98,6 +115,7 @@ ObjPrototype* mock_obj_proto(VNUM vnum)
     op->weight = 1;
     op->condition = 100;
     op->material = &str_empty[0];
+    global_obj_proto_set(op);  // Register globally so oload can find it
     write_value_array(mocks(), OBJ_VAL(op));
     return op;
 }
@@ -128,10 +146,10 @@ Object* mock_sword(const char* name, VNUM vnum, LEVEL level, int dam_dice, int d
     sword_proto->cost = level * 10;
     sword_proto->item_type = ITEM_WEAPON;
 
-    sword_proto->value[0] = WEAPON_SWORD;
-    sword_proto->value[1] = dam_dice;
-    sword_proto->value[2] = dam_size;
-    sword_proto->value[3] = DAM_SLASH;
+    sword_proto->weapon.weapon_type = WEAPON_SWORD;
+    sword_proto->weapon.num_dice = dam_dice;
+    sword_proto->weapon.size_dice = dam_size;
+    sword_proto->weapon.damage_type = DAM_SLASH;
 
     Object* sword = mock_obj(name, vnum, sword_proto);
 
@@ -195,11 +213,99 @@ Mobile* mock_player(const char* name)
 {
     Mobile* m = mock_mob(name, 0, NULL);
     m->act_flags = 0;
+    m->comm_flags = 0;  // Clear all comm flags for clean test state
     m->pcdata = new_player_data();
     m->pcdata->ch = m;
+    m->pcdata->bamfin = str_dup("");
+    m->pcdata->bamfout = str_dup("");
     m->desc = mock_descriptor();
     m->desc->character = m;
     REMOVE_BIT(m->act_flags, PLR_COLOUR);
     write_value_array(mocks(), OBJ_VAL(m->pcdata));
     return m;
+}
+
+Mobile* mock_imm(const char* name)
+{
+    Mobile* m = mock_player(name);
+    m->level = MAX_LEVEL;
+    m->trust = MAX_LEVEL;
+    m->pcdata->security = 9;  // Full access
+    return m;
+}
+
+Faction* mock_faction(const char* name, VNUM vnum)
+{
+    Faction* faction = faction_create(vnum);
+    if (faction != NULL) {
+        faction->header.name = AS_STRING(mock_str(name));
+        faction->default_standing = 0;
+    }
+    return faction;
+}
+
+void mock_player_reputation(Mobile* ch, VNUM faction_vnum, int value)
+{
+    if (ch == NULL || IS_NPC(ch) || faction_vnum == 0)
+        return;
+    
+    faction_set(ch->pcdata, faction_vnum, value);
+}
+
+void cleanup_mocks()
+{
+    if (mocks_ == NULL)
+        return;
+
+    // Only remove entities from global lists - GC will free memory
+    while (mocks_->count > 0) {
+        Value val = mocks_->values[--mocks_->count];
+        
+        if (IS_MOBILE(val)) {
+            Mobile* mob = AS_MOBILE(val);
+            if (IS_VALID(mob)) {
+                // Just remove from room - don't extract (too aggressive)
+                if (mob->in_room != NULL)
+                    mob_from_room(mob);
+                // Remove from global mob_list
+                if (mob->mob_list_node != NULL) {
+                    list_remove_node(&mob_list, mob->mob_list_node);
+                    mob->mob_list_node = NULL;
+                }
+            }
+        }
+        else if (IS_OBJECT(val)) {
+            Object* obj = AS_OBJECT(val);
+            if (IS_VALID(obj)) {
+                // Just remove from wherever it is - don't extract
+                if (obj->in_room != NULL)
+                    obj_from_room(obj);
+                else if (obj->carried_by != NULL)
+                    obj_from_char(obj);
+                else if (obj->in_obj != NULL)
+                    obj_from_obj(obj);
+                // Remove from global obj_list
+                if (obj->obj_list_node != NULL) {
+                    list_remove_node(&obj_list, obj->obj_list_node);
+                    obj->obj_list_node = NULL;
+                }
+            }
+        }
+        else if (IS_ROOM_DATA(val)) {
+            RoomData* rd = AS_ROOM_DATA(val);
+            // Remove from global registry so it doesn't conflict with future tests
+            global_room_remove(VNUM_FIELD(rd));
+        }
+        else if (IS_MOB_PROTO(val)) {
+            MobPrototype* mp = AS_MOB_PROTO(val);
+            // Remove from global registry
+            global_mob_proto_remove(VNUM_FIELD(mp));
+        }
+        else if (IS_OBJ_PROTO(val)) {
+            ObjPrototype* op = AS_OBJ_PROTO(val);
+            // Remove from global registry
+            global_obj_proto_remove(VNUM_FIELD(op));
+        }
+        // All other types (Areas, Prototypes, etc.) are managed by GC
+    }
 }

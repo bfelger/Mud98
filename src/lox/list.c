@@ -113,6 +113,14 @@ Value list_pop(List* list)
     return ret;
 }
 
+Value list_first(List* list)
+{
+    if (list == NULL || list->front == NULL)
+        return NIL_VAL;
+
+    return list->front->value;
+}   
+
 Node* list_find(List* list, Value value)
 {
     for (Node* node = list->front; node != NULL; node = node->next)

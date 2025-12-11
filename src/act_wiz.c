@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stï¿½rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -66,6 +66,8 @@
 #ifndef _MSC_VER 
 #include <sys/time.h>
 #endif
+
+extern bool test_output_enabled;
 
 const WizNet wiznet_table[] = {
     { "on",         WIZ_ON,         IM  },
@@ -570,7 +572,8 @@ void do_disconnect(Mobile* ch, char* argument)
         }
     }
 
-    bug("Do_disconnect: desc not found.", 0);
+    if (!test_output_enabled)
+        bug("Do_disconnect: desc not found.", 0);
     send_to_char("Descriptor not found!\n\r", ch);
     return;
 }
@@ -929,7 +932,7 @@ void do_violate(Mobile* ch, char* argument)
 
     FOR_EACH_ROOM_MOB(rch, ch->in_room) {
         if (get_trust(rch) >= ch->invis_level) {
-            if (ch->pcdata != NULL && ch->pcdata->bamfout[0] != '\0')
+            if (ch->pcdata != NULL && ch->pcdata->bamfout != NULL && ch->pcdata->bamfout[0] != '\0')
                 act("$t", ch, ch->pcdata->bamfout, rch, TO_VICT);
             else
                 act("$n leaves in a swirling mist.", ch, NULL, rch, TO_VICT);
@@ -940,7 +943,7 @@ void do_violate(Mobile* ch, char* argument)
 
     FOR_EACH_ROOM_MOB(rch, ch->in_room) {
         if (get_trust(rch) >= ch->invis_level) {
-            if (ch->pcdata != NULL && ch->pcdata->bamfin[0] != '\0')
+            if (ch->pcdata != NULL && ch->pcdata->bamfin != NULL && ch->pcdata->bamfin[0] != '\0')
                 act("$t", ch, ch->pcdata->bamfin, rch, TO_VICT);
             else
                 act("$n appears in a swirling mist.", ch, NULL, rch, TO_VICT);
@@ -1613,7 +1616,6 @@ void do_mfind(Mobile* ch, char* argument)
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
     MobPrototype* p_mob_proto;
-    VNUM vnum;
     int nMatch;
     bool fAll;
     bool found;
@@ -1628,25 +1630,19 @@ void do_mfind(Mobile* ch, char* argument)
     found = false;
     nMatch = 0;
 
-    /*
-     * Yeah, so iterating over all vnum's takes 10,000 loops.
-     * Get_mob_prototype is fast, and I don't feel like threading another link.
-     * Do you?
-     * -- Furey
-     */
-    for (vnum = 0; nMatch < mob_proto_count; vnum++) {
-        if ((p_mob_proto = get_mob_prototype(vnum)) != NULL) {
-            nMatch++;
-            if (fAll || is_name(argument, NAME_STR(p_mob_proto))) {
-                found = true;
-                sprintf(buf, "[%5d] %s\n\r", VNUM_FIELD(p_mob_proto),
-                        p_mob_proto->short_descr);
-                send_to_char(buf, ch);
-            }
+    // TODO: Figure out how to get them to print in order of VNUM.
+    FOR_EACH_MOB_PROTO(p_mob_proto) {
+        nMatch++;
+        if (fAll || is_name(argument, NAME_STR(p_mob_proto))) {
+            found = true;
+            sprintf(buf, "[%5d] %s\n\r", VNUM_FIELD(p_mob_proto),
+                    p_mob_proto->short_descr);
+            send_to_char(buf, ch);
         }
     }
 
-    if (!found) send_to_char("No mobiles by that name.\n\r", ch);
+    if (!found) 
+        send_to_char("No mobiles by that name.\n\r", ch);
 
     return;
 }
@@ -1656,7 +1652,6 @@ void do_ofind(Mobile* ch, char* argument)
     char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
     ObjPrototype* obj_proto;
-    VNUM vnum;
     int nMatch;
     bool fAll;
     bool found;
@@ -1671,21 +1666,14 @@ void do_ofind(Mobile* ch, char* argument)
     found = false;
     nMatch = 0;
 
-    /*
-     * Yeah, so iterating over all vnum's takes 10,000 loops.
-     * Get_object_prototype is fast, and I don't feel like threading another link.
-     * Do you?
-     * -- Furey
-     */
-    for (vnum = 0; nMatch < obj_proto_count; vnum++) {
-        if ((obj_proto = get_object_prototype(vnum)) != NULL) {
-            nMatch++;
-            if (fAll || is_name(argument, NAME_STR(obj_proto))) {
-                found = true;
-                sprintf(buf, "[%5d] %s\n\r", VNUM_FIELD(obj_proto),
-                        obj_proto->short_descr);
-                send_to_char(buf, ch);
-            }
+    // TODO: Figure out how to get them to print in order of VNUM.
+    FOR_EACH_OBJ_PROTO(obj_proto) {
+        nMatch++;
+        if (fAll || is_name(argument, NAME_STR(obj_proto))) {
+            found = true;
+            sprintf(buf, "[%5d] %s\n\r", VNUM_FIELD(obj_proto),
+                    obj_proto->short_descr);
+            send_to_char(buf, ch);
         }
     }
 

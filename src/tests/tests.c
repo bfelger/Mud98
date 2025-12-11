@@ -49,6 +49,7 @@ static void run_test_group(TestGroup* group)
         printf("Test: %-40s", group->tests[i].name);
         group->tests[i].func();
         reset_stack();
+        cleanup_mocks();  // Clean up all mocks after each test
         if (group->asserts_failed == 0) {
             printf("[\033[92mPASSED\033[0m]\n");
         }

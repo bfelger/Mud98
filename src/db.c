@@ -1755,7 +1755,6 @@ void do_dump(Mobile* ch, char* argument)
     Descriptor* d;
     Affect* af;
     FILE* fp;
-    VNUM vnum;
     int nMatch = 0;
 
     OPEN_OR_RETURN(fp = open_write_mem_dump_file());
@@ -1800,13 +1799,10 @@ void do_dump(Mobile* ch, char* argument)
     fprintf(fp, "Descs	%4d (%8zu bytes), %2d free (%zu bytes)\n", count,
             count * (sizeof(*d)), count2, count2 * (sizeof(*d)));
 
-    /* object prototypes */
-    for (vnum = 0; nMatch < obj_proto_count; vnum++)
-        if ((obj_proto = get_object_prototype(vnum)) != NULL) {
-            FOR_EACH(af, obj_proto->affected)
-                aff_count++;
-            nMatch++;
-        }
+    FOR_EACH_OBJ_PROTO(obj_proto) {
+        FOR_EACH(af, obj_proto->affected)
+            aff_count++;
+    }
 
     fprintf(fp, "ObjProto   %4d (%8zu bytes)\n", obj_proto_count,
             obj_proto_count * (sizeof(*obj_proto)));
@@ -1848,13 +1844,12 @@ void do_dump(Mobile* ch, char* argument)
     fprintf(fp, "\nMobile Analysis\n");
     fprintf(fp, "---------------\n");
     nMatch = 0;
-    for (vnum = 0; nMatch < mob_proto_count; vnum++)
-        if ((p_mob_proto = get_mob_prototype(vnum)) != NULL) {
-            nMatch++;
-            fprintf(fp, "#%-4d %3d active %3d killed     %s\n", VNUM_FIELD(p_mob_proto),
-                    p_mob_proto->count, p_mob_proto->killed,
-                    p_mob_proto->short_descr);
-        }
+    FOR_EACH_MOB_PROTO(p_mob_proto) {
+        nMatch++;
+        fprintf(fp, "#%-4d %3d active %3d killed     %s\n", VNUM_FIELD(p_mob_proto),
+                p_mob_proto->count, p_mob_proto->killed,
+                p_mob_proto->short_descr);
+    }
 
     close_file(fp);
 
@@ -1864,13 +1859,13 @@ void do_dump(Mobile* ch, char* argument)
     fprintf(fp, "\nObject Analysis\n");
     fprintf(fp, "---------------\n");
     nMatch = 0;
-    for (vnum = 0; nMatch < obj_proto_count; vnum++)
-        if ((obj_proto = get_object_prototype(vnum)) != NULL) {
-            nMatch++;
-            fprintf(fp, "#%-4d %3d active %3d reset      %s\n", VNUM_FIELD(obj_proto),
-                    obj_proto->count, obj_proto->reset_num,
-                    obj_proto->short_descr);
-        }
+
+    FOR_EACH_OBJ_PROTO(obj_proto) {
+        nMatch++;
+        fprintf(fp, "#%-4d %3d active %3d reset      %s\n", VNUM_FIELD(obj_proto),
+                obj_proto->count, obj_proto->reset_num,
+                obj_proto->short_descr);
+    }
 
     /* close file */
     close_file(fp);

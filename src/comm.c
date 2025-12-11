@@ -612,7 +612,8 @@ void close_socket(Descriptor* dclose)
     }
 
     if (descriptor_list == NULL) {
-        log_string("close_socket: Descriptor not NULL but descriptor list is?");
+        if (!test_output_enabled)
+            log_string("close_socket: Descriptor not NULL but descriptor list is?");
         return;
     }
 

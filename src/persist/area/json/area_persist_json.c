@@ -1056,29 +1056,29 @@ static void apply_object_values(ObjPrototype* obj, json_t* values)
 static json_t* build_weapon(const ObjPrototype* obj)
 {
     json_t* w = json_object();
-    const char* wclass = flag_string(weapon_class, obj->value[0]);
-    if (wclass && wclass[0] != '\0' && obj->value[0] != 0)
+    const char* wclass = flag_string(weapon_class, obj->weapon.weapon_type);
+    if (wclass && wclass[0] != '\0' && obj->weapon.weapon_type != 0)
         JSON_SET_STRING(w, "class", wclass);
-    if (obj->value[1] != 0 || obj->value[2] != 0) {
+    if (obj->weapon.num_dice != 0 || obj->weapon.size_dice != 0) {
         json_t* dice = json_array();
-        json_array_append_new(dice, json_integer(obj->value[1]));
-        json_array_append_new(dice, json_integer(obj->value[2]));
+        json_array_append_new(dice, json_integer(obj->weapon.num_dice));
+        json_array_append_new(dice, json_integer(obj->weapon.size_dice));
         json_object_set_new(w, "dice", dice);
     }
-    if (obj->value[3] != 0)
-        JSON_SET_STRING(w, "damageType", attack_table[obj->value[3]].name);
-    json_set_flags_if(w, "flags", obj->value[4], weapon_type2);
+    if (obj->weapon.damage_type != 0)
+        JSON_SET_STRING(w, "damageType", attack_table[obj->weapon.damage_type].name);
+    json_set_flags_if(w, "flags", obj->weapon.flags, weapon_type2);
     return w;
 }
 
 static json_t* build_container(const ObjPrototype* obj)
 {
     json_t* c = json_object();
-    json_set_int_if(c, "capacity", obj->value[0], 0);
-    json_set_flags_if(c, "flags", obj->value[1], container_flag_table);
-    json_set_int_if(c, "keyVnum", obj->value[2], 0);
-    json_set_int_if(c, "maxWeight", obj->value[3], 0);
-    json_set_int_if(c, "weightMult", obj->value[4], 0);
+    json_set_int_if(c, "capacity", obj->container.capacity, 0);
+    json_set_flags_if(c, "flags", obj->container.flags, container_flag_table);
+    json_set_int_if(c, "keyVnum", obj->container.key_vnum, 0);
+    json_set_int_if(c, "maxWeight", obj->container.max_item_weight, 0);
+    json_set_int_if(c, "weightMult", obj->container.weight_mult, 0);
     return c;
 }
 
@@ -1090,58 +1090,58 @@ static void apply_weapon(ObjPrototype* obj, json_t* weapon)
     if (wclass) {
         FLAGS val = flag_lookup(wclass, weapon_class);
         if (val != NO_FLAG)
-            obj->value[0] = (int16_t)val;
+            obj->weapon.weapon_type = (int16_t)val;
     }
     const char* dtype = JSON_STRING(weapon, "damageType");
     if (dtype) {
         int dt = attack_lookup(dtype);
         if (dt >= 0)
-            obj->value[3] = dt;
+            obj->weapon.damage_type = dt;
     }
     json_t* dice = json_object_get(weapon, "dice");
     if (json_is_array(dice) && json_array_size(dice) >= 2) {
-        obj->value[1] = (int16_t)json_integer_value(json_array_get(dice, 0));
-        obj->value[2] = (int16_t)json_integer_value(json_array_get(dice, 1));
+        obj->weapon.num_dice = (int16_t)json_integer_value(json_array_get(dice, 0));
+        obj->weapon.size_dice = (int16_t)json_integer_value(json_array_get(dice, 1));
     }
-    obj->value[4] = (int16_t)JSON_FLAGS(weapon, "flags", weapon_type2);
+    obj->weapon.flags = (int16_t)JSON_FLAGS(weapon, "flags", weapon_type2);
 }
 
 static void apply_container(ObjPrototype* obj, json_t* container)
 {
     if (!json_is_object(container))
         return;
-    obj->value[0] = (int16_t)json_int_or_default(container, "capacity", obj->value[0]);
-    obj->value[1] = (int16_t)JSON_FLAGS(container, "flags", container_flag_table);
-    obj->value[2] = (int16_t)json_int_or_default(container, "keyVnum", obj->value[2]);
-    obj->value[3] = (int16_t)json_int_or_default(container, "maxWeight", obj->value[3]);
-    obj->value[4] = (int16_t)json_int_or_default(container, "weightMult", obj->value[4]);
+    obj->container.capacity = (int16_t)json_int_or_default(container, "capacity", obj->container.capacity);
+    obj->container.flags = (int16_t)JSON_FLAGS(container, "flags", container_flag_table);
+    obj->container.key_vnum = (VNUM)json_int_or_default(container, "keyVnum", obj->container.key_vnum);
+    obj->container.max_item_weight = (int16_t)json_int_or_default(container, "maxWeight", obj->container.max_item_weight);
+    obj->container.weight_mult = (int16_t)json_int_or_default(container, "weightMult", obj->container.weight_mult);
 }
 
 static json_t* build_light(const ObjPrototype* obj)
 {
     json_t* l = json_object();
-    json_set_int_if(l, "hours", obj->value[2], 0);
+    json_set_int_if(l, "hours", obj->light.hours, 0);
     return l;
 }
 
 static json_t* build_armor(const ObjPrototype* obj)
 {
     json_t* a = json_object();
-    json_set_int_if(a, "acPierce", obj->value[0], 0);
-    json_set_int_if(a, "acBash", obj->value[1], 0);
-    json_set_int_if(a, "acSlash", obj->value[2], 0);
-    json_set_int_if(a, "acExotic", obj->value[3], 0);
+    json_set_int_if(a, "acPierce", obj->armor.ac_pierce, 0);
+    json_set_int_if(a, "acBash", obj->armor.ac_bash, 0);
+    json_set_int_if(a, "acSlash", obj->armor.ac_slash, 0);
+    json_set_int_if(a, "acExotic", obj->armor.ac_exotic, 0);
     return a;
 }
 
 static json_t* build_drink(const ObjPrototype* obj)
 {
     json_t* d = json_object();
-    json_set_int_if(d, "capacity", obj->value[0], 0);
-    json_set_int_if(d, "remaining", obj->value[1], 0);
-    if (obj->value[2] > 0 && obj->value[2] < LIQ_COUNT)
-        JSON_SET_STRING(d, "liquid", liquid_table[obj->value[2]].name);
-    if (obj->value[3] != 0)
+    json_set_int_if(d, "capacity", obj->drink_con.capacity, 0);
+    json_set_int_if(d, "remaining", obj->drink_con.current, 0);
+    if (obj->drink_con.liquid_type > 0 && obj->drink_con.liquid_type < LIQ_COUNT)
+        JSON_SET_STRING(d, "liquid", liquid_table[obj->drink_con.liquid_type].name);
+    if (obj->drink_con.poisoned != 0)
         json_object_set_new(d, "poisoned", json_boolean(true));
     return d;
 }
@@ -1149,19 +1149,19 @@ static json_t* build_drink(const ObjPrototype* obj)
 static json_t* build_fountain(const ObjPrototype* obj)
 {
     json_t* f = json_object();
-    json_set_int_if(f, "capacity", obj->value[0], 0);
-    json_set_int_if(f, "remaining", obj->value[1], 0);
-    if (obj->value[2] > 0 && obj->value[2] < LIQ_COUNT)
-        JSON_SET_STRING(f, "liquid", liquid_table[obj->value[2]].name);
+    json_set_int_if(f, "capacity", obj->fountain.capacity, 0);
+    json_set_int_if(f, "remaining", obj->fountain.current, 0);
+    if (obj->fountain.liquid_type > 0 && obj->fountain.liquid_type < LIQ_COUNT)
+        JSON_SET_STRING(f, "liquid", liquid_table[obj->fountain.liquid_type].name);
     return f;
 }
 
 static json_t* build_food(const ObjPrototype* obj)
 {
     json_t* f = json_object();
-    json_set_int_if(f, "foodHours", obj->value[0], 0);
-    json_set_int_if(f, "fullHours", obj->value[1], 0);
-    if (obj->value[3] != 0)
+    json_set_int_if(f, "foodHours", obj->food.hours_full, 0);
+    json_set_int_if(f, "fullHours", obj->food.hours_hunger, 0);
+    if (obj->food.poisoned != 0)
         json_object_set_new(f, "poisoned", json_boolean(true));
     return f;
 }
@@ -1169,20 +1169,21 @@ static json_t* build_food(const ObjPrototype* obj)
 static json_t* build_money(const ObjPrototype* obj)
 {
     json_t* m = json_object();
-    json_set_int_if(m, "gold", obj->value[0], 0);
-    json_set_int_if(m, "silver", obj->value[1], 0);
+    json_set_int_if(m, "copper", obj->money.copper, 0);
+    json_set_int_if(m, "silver", obj->money.silver, 0);
+    json_set_int_if(m, "gold", obj->money.gold, 0);
     return m;
 }
 
 static json_t* build_wandstaff(const ObjPrototype* obj)
 {
     json_t* w = json_object();
-    json_set_int_if(w, "level", obj->value[0], 0);
-    json_set_int_if(w, "chargesTotal", obj->value[1], 0);
-    if (obj->value[2] != obj->value[1])
-        json_set_int_if(w, "chargesRemaining", obj->value[2], 0);
-    const char* spell = skill_name_from_sn((SKNUM)obj->value[3]);
-    if (spell && obj->value[3] >= 0)
+    json_set_int_if(w, "level", obj->wand.level, 0);
+    json_set_int_if(w, "chargesTotal", obj->wand.max_charges, 0);
+    if (obj->wand.charges != obj->wand.max_charges)
+        json_set_int_if(w, "chargesRemaining", obj->wand.charges, 0);
+    const char* spell = skill_name_from_sn((SKNUM)obj->wand.spell);
+    if (spell && obj->wand.spell >= 0)
         JSON_SET_STRING(w, "spell", spell);
     return w;
 }
@@ -1190,16 +1191,14 @@ static json_t* build_wandstaff(const ObjPrototype* obj)
 static json_t* build_scroll_potion_pill(const ObjPrototype* obj)
 {
     json_t* s = json_object();
-    json_set_int_if(s, "level", obj->value[0], 0);
-    int slots = (obj->item_type == ITEM_SCROLL) ? 4 : 3;
+    json_set_int_if(s, "level", obj->scroll.level, 0);
     json_t* spells = json_array();
-    for (int i = 1; i <= slots; i++) {
-        const char* name = skill_name_from_sn((SKNUM)obj->value[i]);
-        if (name)
-            json_array_append_new(spells, json_string(name));
-        else
-            json_array_append_new(spells, json_string(""));
-    }
+    const char* spell1 = skill_name_from_sn((SKNUM)obj->scroll.spell1);
+    const char* spell2 = skill_name_from_sn((SKNUM)obj->scroll.spell2);
+    const char* spell3 = skill_name_from_sn((SKNUM)obj->scroll.spell3);
+    json_array_append_new(spells, json_string(spell1 ? spell1 : ""));
+    json_array_append_new(spells, json_string(spell2 ? spell2 : ""));
+    json_array_append_new(spells, json_string(spell3 ? spell3 : ""));
     json_object_set_new(s, "spells", spells);
     return s;
 }
@@ -1207,21 +1206,22 @@ static json_t* build_scroll_potion_pill(const ObjPrototype* obj)
 static json_t* build_portal(const ObjPrototype* obj)
 {
     json_t* p = json_object();
-    json_set_int_if(p, "charges", obj->value[0], 0);
-    json_set_flags_if(p, "exitFlags", obj->value[1], exit_flag_table);
-    json_set_flags_if(p, "portalFlags", obj->value[2], portal_flag_table);
-    json_set_int_if(p, "toVnum", obj->value[3], 0);
+    json_set_int_if(p, "charges", obj->portal.charges, 0);
+    json_set_flags_if(p, "exitFlags", obj->portal.exit_flags, exit_flag_table);
+    json_set_flags_if(p, "portalFlags", obj->portal.gate_flags, portal_flag_table);
+    json_set_int_if(p, "toVnum", obj->portal.destination, 0);
+    json_set_int_if(p, "keyVnum", obj->portal.key_vnum, 0);
     return p;
 }
 
 static json_t* build_furniture(const ObjPrototype* obj)
 {
     json_t* f = json_object();
-    json_set_int_if(f, "maxPeople", obj->value[0], 0);
-    json_set_int_if(f, "maxWeight", obj->value[1], 0);
-    json_set_flags_if(f, "flags", obj->value[2], furniture_flag_table);
-    json_set_int_if(f, "healBonus", obj->value[3], 0);
-    json_set_int_if(f, "manaBonus", obj->value[4], 0);
+    json_set_int_if(f, "maxPeople", obj->furniture.max_people, 0);
+    json_set_int_if(f, "maxWeight", obj->furniture.max_weight, 0);
+    json_set_flags_if(f, "flags", obj->furniture.flags, furniture_flag_table);
+    json_set_int_if(f, "healBonus", obj->furniture.heal_rate, 0);
+    json_set_int_if(f, "manaBonus", obj->furniture.mana_rate, 0);
     return f;
 }
 
@@ -1229,45 +1229,45 @@ static void apply_light(ObjPrototype* obj, json_t* light)
 {
     if (!json_is_object(light))
         return;
-    obj->value[2] = (int16_t)json_int_or_default(light, "hours", obj->value[2]);
+    obj->light.hours = (int16_t)json_int_or_default(light, "hours", obj->light.hours);
 }
 
 static void apply_armor(ObjPrototype* obj, json_t* armor)
 {
     if (!json_is_object(armor))
         return;
-    obj->value[0] = (int16_t)json_int_or_default(armor, "acPierce", obj->value[0]);
-    obj->value[1] = (int16_t)json_int_or_default(armor, "acBash", obj->value[1]);
-    obj->value[2] = (int16_t)json_int_or_default(armor, "acSlash", obj->value[2]);
-    obj->value[3] = (int16_t)json_int_or_default(armor, "acExotic", obj->value[3]);
+    obj->armor.ac_pierce = (int16_t)json_int_or_default(armor, "acPierce", obj->armor.ac_pierce);
+    obj->armor.ac_bash = (int16_t)json_int_or_default(armor, "acBash", obj->armor.ac_bash);
+    obj->armor.ac_slash = (int16_t)json_int_or_default(armor, "acSlash", obj->armor.ac_slash);
+    obj->armor.ac_exotic = (int16_t)json_int_or_default(armor, "acExotic", obj->armor.ac_exotic);
 }
 
 static void apply_drink(ObjPrototype* obj, json_t* drink)
 {
     if (!json_is_object(drink))
         return;
-    obj->value[0] = (int)json_int_or_default(drink, "capacity", obj->value[0]);
-    obj->value[1] = (int)json_int_or_default(drink, "remaining", obj->value[1]);
+    obj->drink_con.capacity = (int)json_int_or_default(drink, "capacity", obj->drink_con.capacity);
+    obj->drink_con.current = (int)json_int_or_default(drink, "remaining", obj->drink_con.current);
     const char* liquid = JSON_STRING(drink, "liquid");
     if (liquid) {
         int l = liquid_lookup(liquid);
         if (l >= 0)
-            obj->value[2] = l;
+            obj->drink_con.liquid_type = l;
     }
-    obj->value[3] = json_bool_or_default(drink, "poisoned", obj->value[3] != 0) ? 1 : 0;
+    obj->drink_con.poisoned = json_bool_or_default(drink, "poisoned", obj->drink_con.poisoned != 0) ? 1 : 0;
 }
 
 static void apply_fountain(ObjPrototype* obj, json_t* fountain)
 {
     if (!json_is_object(fountain))
         return;
-    obj->value[0] = (int)json_int_or_default(fountain, "capacity", obj->value[0]);
-    obj->value[1] = (int)json_int_or_default(fountain, "remaining", obj->value[1]);
+    obj->fountain.capacity = (int)json_int_or_default(fountain, "capacity", obj->fountain.capacity);
+    obj->fountain.current = (int)json_int_or_default(fountain, "remaining", obj->fountain.current);
     const char* liquid = JSON_STRING(fountain, "liquid");
     if (liquid) {
         int l = liquid_lookup(liquid);
         if (l >= 0)
-            obj->value[2] = l;
+            obj->fountain.liquid_type = l;
     }
 }
 
@@ -1275,64 +1275,65 @@ static void apply_food(ObjPrototype* obj, json_t* food)
 {
     if (!json_is_object(food))
         return;
-    obj->value[0] = (int16_t)json_int_or_default(food, "foodHours", obj->value[0]);
-    obj->value[1] = (int16_t)json_int_or_default(food, "fullHours", obj->value[1]);
-    obj->value[3] = json_bool_or_default(food, "poisoned", obj->value[3] != 0) ? 1 : 0;
+    obj->food.hours_full = (int16_t)json_int_or_default(food, "foodHours", obj->food.hours_full);
+    obj->food.hours_hunger = (int16_t)json_int_or_default(food, "fullHours", obj->food.hours_hunger);
+    obj->food.poisoned = json_bool_or_default(food, "poisoned", obj->food.poisoned != 0) ? 1 : 0;
 }
 
 static void apply_money(ObjPrototype* obj, json_t* money)
 {
     if (!json_is_object(money))
         return;
-    obj->value[0] = (int)json_int_or_default(money, "gold", obj->value[0]);
-    obj->value[1] = (int)json_int_or_default(money, "silver", obj->value[1]);
+    obj->money.copper = (int)json_int_or_default(money, "copper", obj->money.copper);
+    obj->money.silver = (int)json_int_or_default(money, "silver", obj->money.silver);
+    obj->money.gold = (int)json_int_or_default(money, "gold", obj->money.gold);
 }
 
 static void apply_wandstaff(ObjPrototype* obj, json_t* wand)
 {
     if (!json_is_object(wand))
         return;
-    obj->value[0] = (int16_t)json_int_or_default(wand, "level", obj->value[0]);
-    obj->value[1] = (int16_t)json_int_or_default(wand, "chargesTotal", obj->value[1]);
+    obj->wand.level = (int16_t)json_int_or_default(wand, "level", obj->wand.level);
+    obj->wand.max_charges = (int16_t)json_int_or_default(wand, "chargesTotal", obj->wand.max_charges);
     json_t* rem = json_object_get(wand, "chargesRemaining");
     if (json_is_integer(rem))
-        obj->value[2] = (int16_t)json_integer_value(rem);
+        obj->wand.charges = (int16_t)json_integer_value(rem);
     else
-        obj->value[2] = obj->value[1];
+        obj->wand.charges = obj->wand.max_charges;
     const char* spell = JSON_STRING(wand, "spell");
     SKNUM sn = spell_lookup_name(spell);
     if (sn >= 0)
-        obj->value[3] = sn;
+        obj->wand.spell = sn;
 }
 
 static void apply_scroll_potion_pill(ObjPrototype* obj, json_t* sp)
 {
     if (!json_is_object(sp))
         return;
-    obj->value[0] = (int16_t)json_int_or_default(sp, "level", obj->value[0]);
-    int slots = (obj->item_type == ITEM_SCROLL) ? 4 : 3;
-    apply_spell_array(json_object_get(sp, "spells"), obj, 1, slots);
+    obj->scroll.level = (int16_t)json_int_or_default(sp, "level", obj->scroll.level);
+    apply_spell_array(json_object_get(sp, "spells"), obj, 1, 3);
 }
 
 static void apply_portal(ObjPrototype* obj, json_t* portal)
 {
     if (!json_is_object(portal))
         return;
-    obj->value[0] = (int16_t)json_int_or_default(portal, "charges", obj->value[0]);
-    obj->value[1] = (int16_t)JSON_FLAGS(portal, "exitFlags", exit_flag_table);
-    obj->value[2] = (int16_t)JSON_FLAGS(portal, "portalFlags", portal_flag_table);
-    obj->value[3] = (int16_t)json_int_or_default(portal, "toVnum", obj->value[3]);
+    obj->portal.charges = (int16_t)json_int_or_default(portal, "charges", obj->portal.charges);
+    obj->portal.exit_flags = (int16_t)JSON_FLAGS(portal, "exitFlags", exit_flag_table);
+    obj->portal.gate_flags = (int16_t)JSON_FLAGS(portal, "portalFlags", portal_flag_table);
+    obj->portal.destination = (int16_t)json_int_or_default(portal, "toVnum", obj->portal.destination);
+    obj->portal.key_vnum = (VNUM)json_int_or_default(portal, "keyVnum", obj->portal.key_vnum);
 }
 
 static void apply_furniture(ObjPrototype* obj, json_t* furniture)
 {
     if (!json_is_object(furniture))
         return;
-    obj->value[0] = (int16_t)json_int_or_default(furniture, "maxPeople", obj->value[0]);
-    obj->value[1] = (int16_t)json_int_or_default(furniture, "maxWeight", obj->value[1]);
-    obj->value[2] = (int16_t)JSON_FLAGS(furniture, "flags", furniture_flag_table);
-    obj->value[3] = (int16_t)json_int_or_default(furniture, "healBonus", obj->value[3]);
-    obj->value[4] = (int16_t)json_int_or_default(furniture, "manaBonus", obj->value[4]);
+    obj->furniture.max_people = (int16_t)json_int_or_default(furniture, "maxPeople", obj->furniture.max_people);
+    obj->furniture.max_weight = (int16_t)json_int_or_default(furniture, "maxWeight", obj->furniture.max_weight);
+    obj->furniture.flags = (int16_t)JSON_FLAGS(furniture, "flags", furniture_flag_table);
+    obj->furniture.heal_rate = (int16_t)json_int_or_default(furniture, "healBonus", obj->furniture.heal_rate);
+    obj->furniture.mana_rate = (int16_t)json_int_or_default(furniture, "manaBonus", obj->furniture.mana_rate);
 }
 
 
