@@ -127,15 +127,29 @@ PersistResult tutorial_persist_rom_olc_save(const PersistWriter* writer, const c
 
     for (int i = 0; i < tutorial_count; ++i) {
         Tutorial* tut = tutorials[i];
+
+        // Guard against NULL steps
+        int alloc_step_count = tut->step_count;
+        for (int j = 0; j < tut->step_count; ++j) {
+            if (!tut->steps[j].prompt || !tut->steps[j].match) {
+                --tut->step_count;
+            }
+        }
+
         fprintf(fp, "#TUTORIAL\n");
         save_struct(fp, U(&temp_t), tutorial_save_table, U(tut));
         fprintf(fp, "#ENDTUTORIAL\n");
 
-        for (int j = 0; j < tut->step_count; ++j) {
+        for (int j = 0; j < alloc_step_count; ++j) {
+            if (!tut->steps[j].prompt || !tut->steps[j].match)
+                continue;
             fprintf(fp, "#STEP\n");
             save_struct(fp, U(&temp_s), step_save_table, U(&tut->steps[j]));
             fprintf(fp, "#ENDSTEP\n");
         }
+
+        // Restore original step count in case we were in the middle of editing
+        tut->step_count = alloc_step_count;
 
         fprintf(fp, "\n");
     }

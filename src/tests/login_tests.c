@@ -97,7 +97,9 @@ static int test_password_survives_save_and_load()
 
     /* Cleanup: remove the saved file and restore config. */
     char saved_path[MIL];
-    sprintf(saved_path, "%s%s", temp_dir, capitalize(NAME_STR(player)));
+    const char* fmt = cfg_get_default_format();
+    bool use_json = (fmt && !str_cmp(fmt, "json"));
+    sprintf(saved_path, "%s%s%s", temp_dir, capitalize(NAME_STR(player)), use_json ? ".json" : "");
     remove(saved_path);
 #ifndef _MSC_VER
     rmdir(temp_dir_no_slash);

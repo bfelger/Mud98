@@ -13,14 +13,14 @@
 typedef struct Tutorial Tutorial;
 
 typedef struct TutorialStep {
-    const char* prompt;
-    const char* match;
+    char* prompt;
+    char* match;
 } TutorialStep;
 
 typedef struct Tutorial {
-    const char* name;
-    const char* blurb;
-    const char* finish;
+    char* name;
+    char* blurb;
+    char* finish;
     int min_level;
     TutorialStep* steps;
     int step_count;

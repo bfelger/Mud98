@@ -19,6 +19,7 @@
 #include <persist/tutorial/tutorial_persist.h>
 #include <persist/theme/json/theme_persist_json.h>
 #include <persist/theme/theme_persist.h>
+#include <persist/lox/lox_persist.h>
 
 #include <jansson/jansson.h>
 
@@ -38,14 +39,45 @@
 #include <lox/array.h>
 #include <lox/object.h>
 #include <lox/table.h>
+#include <lox/lox.h>
 
 #include <config.h>
 #include <db.h>
 #include <interp.h>
 
 #include <ctype.h>
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
+#ifdef _MSC_VER
+#include <direct.h>
+#else
+#include <sys/stat.h>
+#endif
+
+static void ensure_directory_exists(const char* path)
+{
+    if (!path || !path[0])
+        return;
+
+    char tmp[MIL];
+    snprintf(tmp, sizeof(tmp), "%s", path);
+    size_t len = strlen(tmp);
+    while (len > 0 && (tmp[len - 1] == '/' || tmp[len - 1] == '\\'))
+        tmp[--len] = '\0';
+    if (len == 0)
+        return;
+
+#ifdef _MSC_VER
+    if (_mkdir(tmp) != 0 && errno != EEXIST) {
+        /* ignore */
+    }
+#else
+    if (mkdir(tmp, 0775) != 0 && errno != EEXIST) {
+        /* ignore */
+    }
+#endif
+}
 
 // Define this to enable an extremely thorough area round-trip test that
 // compares every field of every entity in the area after a ROM->JSON->ROM
@@ -1554,6 +1586,58 @@ cleanup:
     return 0;
 }
 
+static int test_lox_rom_json_round_trip()
+{
+    load_lox_public_scripts();
+    size_t initial_count = lox_script_entry_count();
+    ASSERT(initial_count > 0);
+
+    char original_data_dir[MIL];
+    char original_scripts_dir[MIL];
+    char original_lox_file[MIL];
+    snprintf(original_data_dir, sizeof(original_data_dir), "%s", cfg_get_data_dir());
+    snprintf(original_scripts_dir, sizeof(original_scripts_dir), "%s", cfg_get_scripts_dir());
+    snprintf(original_lox_file, sizeof(original_lox_file), "%s", cfg_get_lox_file());
+
+    const char* temp_dir = cfg_get_temp_dir();
+    char saved_catalog_path[MIL] = "";
+
+    bool swapped = false;
+    cfg_set_data_dir(temp_dir);
+    cfg_set_lox_file("lox.json");
+    swapped = true;
+
+    ensure_directory_exists(cfg_get_data_dir());
+    char scripts_path[MIL];
+    snprintf(scripts_path, sizeof(scripts_path), "%s%s", cfg_get_data_dir(), cfg_get_scripts_dir());
+    ensure_directory_exists(scripts_path);
+
+    snprintf(saved_catalog_path, sizeof(saved_catalog_path), "%s%s%s",
+        cfg_get_data_dir(), cfg_get_scripts_dir(), cfg_get_lox_file());
+
+    PersistResult save_res = lox_persist_save(NULL);
+    ASSERT_OR_GOTO(persist_succeeded(save_res), cleanup);
+
+    lox_script_registry_clear();
+
+    PersistResult load_res = lox_persist_load(NULL);
+    ASSERT_OR_GOTO(persist_succeeded(load_res), cleanup);
+    ASSERT(lox_script_entry_count() == initial_count);
+
+cleanup:
+    if (swapped) {
+        if (saved_catalog_path[0])
+            remove(saved_catalog_path);
+        cfg_set_data_dir(original_data_dir);
+        cfg_set_scripts_dir(original_scripts_dir);
+        cfg_set_lox_file(original_lox_file);
+        lox_script_registry_clear();
+        load_lox_public_scripts();
+    }
+
+    return 0;
+}
+
 static int test_skill_rom_json_round_trip()
 {
     PersistResult load_res = skill_persist_load(cfg_get_skills_file());
@@ -2327,6 +2411,7 @@ void register_persist_tests()
     REGISTER("Races ROM<->JSON Round Trip", test_race_rom_json_round_trip);
     REGISTER("Classes ROM<->JSON Round Trip", test_class_rom_json_round_trip);
     REGISTER("Commands ROM<->JSON Round Trip", test_command_rom_json_round_trip);
+    REGISTER("Lox Scripts ROM<->JSON Round Trip", test_lox_rom_json_round_trip);
     REGISTER("Skills ROM<->JSON Round Trip", test_skill_rom_json_round_trip);
     REGISTER("Skill Groups ROM<->JSON Round Trip", test_skill_group_rom_json_round_trip);
     REGISTER("Socials ROM<->JSON Round Trip", test_social_rom_json_round_trip);

@@ -756,6 +756,14 @@
       "category": "undef"
     },
     {
+      "name": "scredit",
+      "function": "do_scredit",
+      "position": "dead",
+      "level": 0,
+      "log": "log_normal",
+      "category": "undef"
+    },
+    {
       "name": "hit",
       "function": "do_kill",
       "position": "fighting",
@@ -1531,6 +1539,14 @@
     {
       "name": "raedit",
       "function": "do_raedit",
+      "position": "dead",
+      "level": 0,
+      "log": "log_normal",
+      "category": "undef"
+    },
+    {
+      "name": "tedit",
+      "function": "do_tedit",
       "position": "dead",
       "level": 0,
       "log": "log_normal",

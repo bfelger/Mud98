@@ -25,6 +25,7 @@
 #include <tablesave.h>
 
 #include <entities/mob_prototype.h>
+#include <lox/lox.h>
 
 #include <color.h>
 #include <data/class.h>
@@ -33,6 +34,7 @@
 #include <data/spell.h>
 #include <data/social.h>
 #include <data/quest.h>
+#include <data/tutorial.h>
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -92,6 +94,8 @@ typedef enum editor_t {
     ED_HELP     = 13,
     ED_QUEST    = 14,
     ED_THEME    = 15,
+    ED_TUTORIAL = 16,
+    ED_SCRIPT   = 17,
 } EditorType;
 
 // Interpreter Prototypes
@@ -108,6 +112,8 @@ void    redit       (Mobile* ch, char* argument);
 void	sedit		(Mobile* ch, char* argument);
 void	skedit		(Mobile* ch, char* argument);
 void    qedit       (Mobile* ch, char* argument);
+void    tedit       (Mobile* ch, char* argument);
+void    scredit     (Mobile* ch, char* argument);
 
 // OLC Constants
 #define MAX_MOB	1		/* Default maximum number for resetting mobs */
@@ -121,6 +127,8 @@ void    qedit       (Mobile* ch, char* argument);
 #define	MIN_SKEDIT_SECURITY	    5
 #define MIN_SEDIT_SECURITY	    3
 #define MIN_QEDIT_SECURITY      3
+#define MIN_TEDIT_SECURITY      5
+#define MIN_SCREDIT_SECURITY    5
 
 // Structure for an OLC editor command.
 typedef struct olc_cmd_t {
@@ -146,6 +154,7 @@ extern const OlcCmdEntry prog_olc_comm_table[];
 extern const OlcCmdEntry social_olc_comm_table[];
 extern const OlcCmdEntry class_olc_comm_table[];
 extern const OlcCmdEntry quest_olc_comm_table[];
+extern const OlcCmdEntry tutorial_olc_comm_table[];
 
 bool process_olc_command(Mobile*, char* argument, const OlcCmdEntry*);
 
@@ -184,6 +193,7 @@ extern RoomData xRoom;
 extern Skill xSkill;
 extern Social xSoc;
 extern Quest xQuest;
+extern Tutorial xTutorial;
 
 // Editor Commands.
 DECLARE_DO_FUN(do_aedit);
@@ -199,6 +209,8 @@ DECLARE_DO_FUN(do_raedit);
 DECLARE_DO_FUN(do_redit);
 DECLARE_DO_FUN(do_sedit);
 DECLARE_DO_FUN(do_skedit);
+DECLARE_DO_FUN(do_scredit);
+DECLARE_DO_FUN(do_tedit);
 void theme_edit(Mobile* ch, char* argument);
 
 // General Functions
@@ -398,7 +410,9 @@ DECLARE_ED_FUN(ed_objrecval);
 #define EDIT_SKILL(ch, skill)   ( skill = (Skill*)ch->desc->pEdit )
 #define EDIT_SOCIAL(ch, social)	( social = (Social*)ch->desc->pEdit )
 #define EDIT_ENTITY(ch, room)   ( entity = (Entity*)ch->desc->pEdit )
+#define EDIT_SCRIPT(ch, entry)  ( entry = lox_script_entry_get((size_t)ch->desc->pEdit) )
 #define EDIT_THEME(ch, theme)   ( theme = (ColorTheme*)ch->desc->pEdit )
+#define EDIT_TUTORIAL(ch, tutorial) ( tutorial = (Tutorial*)ch->desc->pEdit )
 
 void show_liqlist(Mobile* ch);
 void show_poslist(Mobile* ch);
@@ -409,6 +423,8 @@ void show_sizelist(Mobile* ch);
 void InitScreen(Descriptor*);
 char* fix_string(const char* str);
 char* fix_lox_script(const char* str);
+
+const char* olc_inline_text(const char* str, int width);
 
 void olc_print_flags(Mobile* ch, const char* label, const struct flag_type* flag_table, FLAGS flags);
 void olc_print_flags_ex(Mobile* ch, const char* label, const struct flag_type* flag_table, const struct flag_type* defaults, FLAGS flags);

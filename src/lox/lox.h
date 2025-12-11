@@ -9,6 +9,8 @@
 #define LOX__LOX_H
 
 #include <stdarg.h>
+#include <stdbool.h>
+#include <stddef.h>
 
 typedef struct entity_t Entity;
 typedef struct room_t Room;
@@ -62,5 +64,42 @@ extern CompileContext compile_context;
 extern ExecContext exec_context;
 
 extern Value repl_ret_val; // The final result of REPL and in-line code
+
+typedef enum {
+    LOX_SCRIPT_WHEN_PRE,
+    LOX_SCRIPT_WHEN_POST,
+} LoxScriptWhen;
+
+typedef struct lox_script_entry_t {
+    char* category;
+    char* file;
+    LoxScriptWhen when;
+    char* source;
+    bool has_source;
+    bool executed;
+    bool script_dirty;
+} LoxScriptEntry;
+
+void load_lox_public_scripts(void);
+void run_post_lox_public_scripts(void);
+void save_lox_public_scripts(bool force_catalog);
+void save_lox_public_scripts_if_dirty(void);
+void lox_script_registry_clear(void);
+
+size_t lox_script_entry_count(void);
+LoxScriptEntry* lox_script_entry_get(size_t index);
+LoxScriptEntry* lox_script_entry_create(const char* category, const char* file, LoxScriptWhen when);
+LoxScriptEntry* lox_script_entry_append_loaded(const char* category, const char* file, LoxScriptWhen when);
+bool lox_script_entry_delete(size_t index);
+bool lox_script_entry_set_category(LoxScriptEntry* entry, const char* category);
+bool lox_script_entry_set_file(LoxScriptEntry* entry, const char* file);
+bool lox_script_entry_set_when(LoxScriptEntry* entry, LoxScriptWhen when);
+bool lox_script_entry_update_source(LoxScriptEntry* entry, const char* text);
+bool lox_script_entry_ensure_source(LoxScriptEntry* entry);
+bool lox_script_entry_execute(LoxScriptEntry* entry);
+int lox_script_entry_index(const LoxScriptEntry* entry);
+const char* lox_script_when_name(LoxScriptWhen when);
+bool lox_script_when_parse(const char* text, LoxScriptWhen* when_out);
+void lox_script_entry_source_path(char* out, size_t out_len, const LoxScriptEntry* entry);
 
 #endif // !LOX__LOX_H

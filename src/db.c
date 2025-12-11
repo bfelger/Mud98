@@ -105,6 +105,7 @@
 #endif
 
 void load_lox_public_scripts();
+void run_post_lox_public_scripts();
 MobProgCode* pedit_prog(VNUM);
 
 // Globals.
@@ -318,6 +319,7 @@ void boot_db()
         fix_mobprogs();
         fBootDb = false;
         area_update();
+        run_post_lox_public_scripts();
         gc_protect_clear();
         load_notes();
         load_bans();

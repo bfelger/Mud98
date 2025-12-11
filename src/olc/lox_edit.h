@@ -17,6 +17,6 @@ bool olc_edit_lox(Mobile* ch, char* argument);
 void lox_script_append(Mobile* ch, ObjString* script);
 void lox_script_add(Mobile* ch, char* argument);
 char* prettify_lox_script(char* string);
-void olc_display_lox_info(Mobile* ch, Entity* entity);
+void olc_display_entity_class_info(Mobile* ch, Entity* entity);
 
 #endif // !MUD98__OLC__LOX_EDIT_H
