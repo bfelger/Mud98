@@ -14,3 +14,4 @@ the links below to jump to the latest schema guides:
 - [Skill Group JSON Schema](skill-groups-json-schema.md)
 - [Social JSON Schema](socials-json-schema.md)
 - [Tutorial JSON Schema](tutorials-json-schema.md)
+- [Player JSON Schema](player-json-schema.md)

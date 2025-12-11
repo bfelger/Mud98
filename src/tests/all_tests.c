@@ -54,6 +54,7 @@ void run_unit_tests()
     register_quest_tests();
     register_login_tests();
     register_persist_tests();
+    register_player_persist_tests();
 
     test_output_enabled = true;
     test_disassemble_on_error = true;
