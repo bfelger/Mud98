@@ -14,24 +14,16 @@
 #include <lox/vm.h>
 
 #include <ctype.h>
+#include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-typedef enum {
-    LOX_SCRIPT_WHEN_PRE,
-    LOX_SCRIPT_WHEN_POST,
-} LoxScriptWhen;
-
-typedef struct lox_script_entry_t {
-    const char* category;
-    const char* file;
-    LoxScriptWhen when;
-    char* source;
-    bool executed;
-    bool script_dirty;
-} LoxScriptEntry;
+#ifdef _MSC_VER
+#include <direct.h>
+#endif
+#include <sys/stat.h>
+#include <sys/types.h>
 
 typedef struct lox_script_registry_t {
     LoxScriptEntry* entries;
@@ -44,12 +36,12 @@ static bool post_scripts_executed = false;
 static bool lox_catalog_dirty = false;
 
 static void reset_lox_script_registry();
-static LoxScriptEntry* append_lox_script_entry();
+static LoxScriptEntry* allocate_lox_script_entry();
 static bool parse_lox_when(const char* value, LoxScriptWhen* when_out);
 static bool read_lox_catalog_entry(FILE* fp, LoxScriptEntry* entry);
 static bool ensure_lox_script_source(LoxScriptEntry* entry);
 static bool run_lox_script_entry(LoxScriptEntry* entry);
-static void free_lox_entry_source(LoxScriptEntry* entry);
+static void free_lox_entry_source(LoxScriptEntry* entry, bool force);
 static void build_lox_catalog_path(char* out, size_t out_len);
 static void build_lox_source_path(char* out, size_t out_len, const LoxScriptEntry* entry);
 static bool is_absolute_path(const char* path);
@@ -57,6 +49,9 @@ static char* read_lox_source_file(const char* path);
 static bool save_lox_catalog();
 static bool save_lox_script_file(LoxScriptEntry* entry);
 static const char* lox_when_to_string(LoxScriptWhen when);
+static char* lox_strdup(const char* src);
+static void destroy_lox_script_entry(LoxScriptEntry* entry);
+static bool ensure_parent_directory(const char* path);
 
 bool lox_read(void* temp, const char* arg)
 {
@@ -144,13 +139,15 @@ void load_lox_public_scripts()
             break;
         }
 
-        LoxScriptEntry* entry = append_lox_script_entry();
+        LoxScriptEntry* entry = allocate_lox_script_entry();
         if (!read_lox_catalog_entry(fp, entry)) {
+            destroy_lox_script_entry(entry);
             --lox_scripts.count;
             continue;
         }
 
         if (!ensure_lox_script_source(entry)) {
+            destroy_lox_script_entry(entry);
             --lox_scripts.count;
             continue;
         }
@@ -180,6 +177,140 @@ void run_post_lox_public_scripts()
     }
 
     post_scripts_executed = true;
+}
+
+size_t lox_script_entry_count(void)
+{
+    return lox_scripts.count;
+}
+
+LoxScriptEntry* lox_script_entry_get(size_t index)
+{
+    if (index >= lox_scripts.count)
+        return NULL;
+    return &lox_scripts.entries[index];
+}
+
+int lox_script_entry_index(const LoxScriptEntry* entry)
+{
+    if (!entry)
+        return -1;
+    for (size_t i = 0; i < lox_scripts.count; ++i) {
+        if (&lox_scripts.entries[i] == entry)
+            return (int)i;
+    }
+    return -1;
+}
+
+LoxScriptEntry* lox_script_entry_create(const char* category, const char* file, LoxScriptWhen when)
+{
+    LoxScriptEntry* entry = allocate_lox_script_entry();
+    if (!entry)
+        return NULL;
+
+    if (category)
+        lox_script_entry_set_category(entry, category);
+    if (file)
+        lox_script_entry_set_file(entry, file);
+    lox_script_entry_set_when(entry, when);
+
+    entry->script_dirty = true;
+    entry->executed = false;
+    lox_catalog_dirty = true;
+    return entry;
+}
+
+bool lox_script_entry_delete(size_t index)
+{
+    if (index >= lox_scripts.count)
+        return false;
+
+    destroy_lox_script_entry(&lox_scripts.entries[index]);
+
+    size_t remaining = lox_scripts.count - index - 1;
+    if (remaining > 0) {
+        memmove(&lox_scripts.entries[index],
+            &lox_scripts.entries[index + 1],
+            remaining * sizeof(LoxScriptEntry));
+    }
+
+    --lox_scripts.count;
+    memset(&lox_scripts.entries[lox_scripts.count], 0, sizeof(LoxScriptEntry));
+    lox_catalog_dirty = true;
+    return true;
+}
+
+bool lox_script_entry_set_category(LoxScriptEntry* entry, const char* category)
+{
+    if (!entry)
+        return false;
+    char* copy = lox_strdup(category ? category : "");
+    if (entry->category)
+        free(entry->category);
+    entry->category = copy;
+    lox_catalog_dirty = true;
+    return true;
+}
+
+bool lox_script_entry_set_file(LoxScriptEntry* entry, const char* file)
+{
+    if (!entry)
+        return false;
+    char* copy = lox_strdup(file ? file : "");
+    if (entry->file)
+        free(entry->file);
+    entry->file = copy;
+    lox_catalog_dirty = true;
+    return true;
+}
+
+bool lox_script_entry_set_when(LoxScriptEntry* entry, LoxScriptWhen when)
+{
+    if (!entry)
+        return false;
+    entry->when = when;
+    lox_catalog_dirty = true;
+    return true;
+}
+
+bool lox_script_entry_update_source(LoxScriptEntry* entry, const char* text)
+{
+    if (!entry)
+        return false;
+    const char* src = text ? text : "";
+    size_t len = strlen(src);
+    char* copy = malloc(len + 1);
+    if (!copy) {
+        bug("lox_script_entry_update_source: allocation failed", 0);
+        return false;
+    }
+    memcpy(copy, src, len + 1);
+    if (entry->source)
+        free(entry->source);
+    entry->source = copy;
+    entry->has_source = true;
+    entry->script_dirty = true;
+    entry->executed = false;
+    return true;
+}
+
+bool lox_script_entry_ensure_source(LoxScriptEntry* entry)
+{
+    if (!entry)
+        return false;
+    return ensure_lox_script_source(entry);
+}
+
+bool lox_script_entry_execute(LoxScriptEntry* entry)
+{
+    if (!entry)
+        return false;
+    return run_lox_script_entry(entry);
+}
+
+const char* lox_script_when_name(LoxScriptWhen when)
+{
+    return lox_when_to_string(when);
 }
 
 static void lox_eval(Mobile* ch, char* argument, bool is_repl)
@@ -228,17 +359,15 @@ void do_lox(Mobile* ch, char* argument)
 
 static void reset_lox_script_registry()
 {
-    for (size_t i = 0; i < lox_scripts.count; ++i) {
-        lox_scripts.entries[i].script_dirty = false;
-        free_lox_entry_source(&lox_scripts.entries[i]);
-    }
+    for (size_t i = 0; i < lox_scripts.count; ++i)
+        destroy_lox_script_entry(&lox_scripts.entries[i]);
 
     lox_scripts.count = 0;
     post_scripts_executed = false;
     lox_catalog_dirty = false;
 }
 
-static LoxScriptEntry* append_lox_script_entry()
+static LoxScriptEntry* allocate_lox_script_entry()
 {
     if (lox_scripts.capacity == 0) {
         lox_scripts.capacity = 4;
@@ -256,10 +385,12 @@ static LoxScriptEntry* append_lox_script_entry()
     }
 
     LoxScriptEntry* entry = &lox_scripts.entries[lox_scripts.count++];
-    entry->category = "";
-    entry->file = NULL;
+    memset(entry, 0, sizeof(*entry));
+    entry->category = lox_strdup("");
+    entry->file = lox_strdup("");
     entry->when = LOX_SCRIPT_WHEN_PRE;
     entry->source = NULL;
+    entry->has_source = false;
     entry->executed = false;
     entry->script_dirty = false;
     return entry;
@@ -296,10 +427,16 @@ static bool read_lox_catalog_entry(FILE* fp, LoxScriptEntry* entry)
         }
 
         if (!str_cmp(word, "category")) {
-            entry->category = fread_string(fp);
+            char* value = fread_string(fp);
+            if (entry->category)
+                free(entry->category);
+            entry->category = lox_strdup(value);
         }
         else if (!str_cmp(word, "file")) {
-            entry->file = fread_string(fp);
+            char* value = fread_string(fp);
+            if (entry->file)
+                free(entry->file);
+            entry->file = lox_strdup(value);
         }
         else if (!str_cmp(word, "when")) {
             char* when_val = fread_string(fp);
@@ -322,8 +459,10 @@ static bool read_lox_catalog_entry(FILE* fp, LoxScriptEntry* entry)
 
 static bool ensure_lox_script_source(LoxScriptEntry* entry)
 {
-    if (entry->source)
+    if (entry->source) {
+        entry->has_source = true;
         return true;
+    }
 
     char path[MAX_INPUT_LENGTH * 3];
     build_lox_source_path(path, sizeof(path), entry);
@@ -334,6 +473,7 @@ static bool ensure_lox_script_source(LoxScriptEntry* entry)
         return false;
     }
 
+    entry->has_source = true;
     return true;
 }
 
@@ -344,14 +484,15 @@ static bool run_lox_script_entry(LoxScriptEntry* entry)
 
     compile_lox_script(entry->source);
     entry->executed = true;
-    if (!entry->script_dirty)
-        free_lox_entry_source(entry);
+    free_lox_entry_source(entry, false);
     return true;
 }
 
-static void free_lox_entry_source(LoxScriptEntry* entry)
+static void free_lox_entry_source(LoxScriptEntry* entry, bool force)
 {
-    if (entry->script_dirty)
+    if (!entry)
+        return;
+    if (!force && entry->script_dirty)
         return;
 
     if (entry->source) {
@@ -393,6 +534,13 @@ static void build_lox_source_path(char* out, size_t out_len, const LoxScriptEntr
         file);
 }
 
+void lox_script_entry_source_path(char* out, size_t out_len, const LoxScriptEntry* entry)
+{
+    if (!out || out_len == 0)
+        return;
+    build_lox_source_path(out, out_len, entry);
+}
+
 static char* read_lox_source_file(const char* path)
 {
     FILE* fp;
@@ -425,6 +573,79 @@ static char* read_lox_source_file(const char* path)
     close_file(fp);
 
     return buffer;
+}
+
+static char* lox_strdup(const char* src)
+{
+    const char* text = src ? src : "";
+    size_t len = strlen(text);
+    char* copy = (char*)malloc(len + 1);
+    if (!copy) {
+        bug("lox_strdup: allocation failed", 0);
+        exit(1);
+    }
+    memcpy(copy, text, len + 1);
+    return copy;
+}
+
+static void destroy_lox_script_entry(LoxScriptEntry* entry)
+{
+    if (!entry)
+        return;
+
+    free_lox_entry_source(entry, true);
+    if (entry->category) {
+        free(entry->category);
+        entry->category = NULL;
+    }
+    if (entry->file) {
+        free(entry->file);
+        entry->file = NULL;
+    }
+    entry->when = LOX_SCRIPT_WHEN_PRE;
+    entry->has_source = false;
+    entry->executed = false;
+    entry->script_dirty = false;
+}
+
+static bool ensure_parent_directory(const char* path)
+{
+    if (!path || path[0] == '\0')
+        return true;
+
+    char dir[MAX_INPUT_LENGTH * 3];
+    snprintf(dir, sizeof(dir), "%s", path);
+    for (char* p = dir; *p; ++p)
+        if (*p == '\\')
+            *p = '/';
+    char* slash = strrchr(dir, '/');
+    if (!slash)
+        return true;
+    *slash = '\0';
+    if (dir[0] == '\0')
+        return true;
+
+    for (char* p = dir + 1; *p; ++p) {
+        if (*p == '/') {
+            *p = '\0';
+#ifdef _MSC_VER
+            if (_mkdir(dir) != 0 && errno != EEXIST)
+                return false;
+#else
+            if (mkdir(dir, 0775) != 0 && errno != EEXIST)
+                return false;
+#endif
+            *p = '/';
+        }
+    }
+#ifdef _MSC_VER
+    if (_mkdir(dir) != 0 && errno != EEXIST)
+        return false;
+#else
+    if (mkdir(dir, 0775) != 0 && errno != EEXIST)
+        return false;
+#endif
+    return true;
 }
 
 void save_lox_public_scripts_if_dirty()
@@ -484,6 +705,11 @@ static bool save_lox_script_file(LoxScriptEntry* entry)
 
     char path[MAX_INPUT_LENGTH * 3];
     build_lox_source_path(path, sizeof(path), entry);
+
+    if (!ensure_parent_directory(path)) {
+        bugf("save_lox_script_file: unable to create directory for %s", path);
+        return false;
+    }
 
     FILE* fp;
     OPEN_OR_RETURN_FALSE(fp = open_write_file(path));

@@ -109,6 +109,9 @@ bool run_olc_editor(Descriptor* d, char* incomm)
     case ED_TUTORIAL:
         tedit(d->character, incomm);
         break;
+    case ED_SCRIPT:
+        scredit(d->character, incomm);
+        break;
     default:
         return false;
     }
@@ -166,6 +169,9 @@ char* olc_ed_name(Mobile* ch)
     case ED_TUTORIAL:
         sprintf(buf, "TEdit");
         break;
+    case ED_SCRIPT:
+        sprintf(buf, "ScrEdit");
+        break;
     default:
         sprintf(buf, " ");
         break;
@@ -189,6 +195,7 @@ char* olc_ed_vnum(Mobile* ch)
     CmdInfo* pCmd;
     Quest* pQuest;
     Tutorial* pTutorial;
+    LoxScriptEntry* script;
     static char buf[10];
 
     buf[0] = '\0';
@@ -244,6 +251,13 @@ char* olc_ed_vnum(Mobile* ch)
     case ED_TUTORIAL:
         pTutorial = (Tutorial*)ch->desc->pEdit;
         sprintf(buf, "%s", pTutorial ? pTutorial->name : "");
+        break;
+    case ED_SCRIPT:
+        script = lox_script_entry_get((size_t)ch->desc->pEdit);
+        if (script)
+            sprintf(buf, "%zu", (size_t)ch->desc->pEdit);
+        else
+            sprintf(buf, " ");
         break;
     default:
         sprintf(buf, " ");
@@ -389,6 +403,7 @@ const EditCmd editor_table[] =
    {    "class",    do_cedit    },
    {	"help",		do_hedit	},
    {	"quest",    do_qedit	},
+   {    "script",  do_scredit  },
    {    "tutorial", do_tedit   },
    {	NULL,		0		    }
 };

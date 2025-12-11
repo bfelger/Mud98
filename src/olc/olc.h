@@ -25,6 +25,7 @@
 #include <tablesave.h>
 
 #include <entities/mob_prototype.h>
+#include <lox/lox.h>
 
 #include <color.h>
 #include <data/class.h>
@@ -94,6 +95,7 @@ typedef enum editor_t {
     ED_QUEST    = 14,
     ED_THEME    = 15,
     ED_TUTORIAL = 16,
+    ED_SCRIPT   = 17,
 } EditorType;
 
 // Interpreter Prototypes
@@ -111,6 +113,7 @@ void	sedit		(Mobile* ch, char* argument);
 void	skedit		(Mobile* ch, char* argument);
 void    qedit       (Mobile* ch, char* argument);
 void    tedit       (Mobile* ch, char* argument);
+void    scredit     (Mobile* ch, char* argument);
 
 // OLC Constants
 #define MAX_MOB	1		/* Default maximum number for resetting mobs */
@@ -125,6 +128,7 @@ void    tedit       (Mobile* ch, char* argument);
 #define MIN_SEDIT_SECURITY	    3
 #define MIN_QEDIT_SECURITY      3
 #define MIN_TEDIT_SECURITY      5
+#define MIN_SCREDIT_SECURITY    5
 
 // Structure for an OLC editor command.
 typedef struct olc_cmd_t {
@@ -205,6 +209,7 @@ DECLARE_DO_FUN(do_raedit);
 DECLARE_DO_FUN(do_redit);
 DECLARE_DO_FUN(do_sedit);
 DECLARE_DO_FUN(do_skedit);
+DECLARE_DO_FUN(do_scredit);
 DECLARE_DO_FUN(do_tedit);
 void theme_edit(Mobile* ch, char* argument);
 
@@ -405,6 +410,7 @@ DECLARE_ED_FUN(ed_objrecval);
 #define EDIT_SKILL(ch, skill)   ( skill = (Skill*)ch->desc->pEdit )
 #define EDIT_SOCIAL(ch, social)	( social = (Social*)ch->desc->pEdit )
 #define EDIT_ENTITY(ch, room)   ( entity = (Entity*)ch->desc->pEdit )
+#define EDIT_SCRIPT(ch, entry)  ( entry = lox_script_entry_get((size_t)ch->desc->pEdit) )
 #define EDIT_THEME(ch, theme)   ( theme = (ColorTheme*)ch->desc->pEdit )
 #define EDIT_TUTORIAL(ch, tutorial) ( tutorial = (Tutorial*)ch->desc->pEdit )
 

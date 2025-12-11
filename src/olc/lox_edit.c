@@ -9,6 +9,7 @@
 
 #include <entities/entity.h>
 
+#include <lox/lox.h>
 #include <lox/scanner.h>
 #include <lox/vm.h>
 
@@ -50,8 +51,13 @@ void lox_script_append(Mobile* ch, ObjString* script)
     return;
 }
 
+static bool lox_script_entry_compile(Mobile* ch, bool assign);
+
 static bool lox_script_compile(Mobile* ch, bool assign)
 {
+    if (ch->desc->editor == ED_SCRIPT)
+        return lox_script_entry_compile(ch, assign);
+
     Entity* entity = NULL;
     char* entity_type_name = NULL;
 
@@ -115,6 +121,44 @@ static bool lox_script_compile(Mobile* ch, bool assign)
             COLOR_CLEAR, class_name, entity_type_name, entity->vnum);
     }
 
+    return true;
+}
+
+static bool lox_script_entry_compile(Mobile* ch, bool assign)
+{
+    LoxScriptEntry* entry = NULL;
+    EDIT_SCRIPT(ch, entry);
+
+    if (!entry) {
+        bug("lox_script_entry_compile: missing entry context.");
+        ch->desc->pLoxScript = NULL;
+        return false;
+    }
+
+    if (!assign) {
+        InterpretResult result = interpret_code(ch->desc->pLoxScript->chars);
+        if (result == INTERPRET_OK) {
+            printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_GREEN "***" COLOR_DECOR_1 "]"
+                COLOR_INFO "Script compiled successfully.\n\r" COLOR_CLEAR);
+            return true;
+        }
+
+        printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_RED "!!!" COLOR_DECOR_1 "]"
+            COLOR_INFO "Script failed to compile (check log for details).\n\r" COLOR_CLEAR);
+        return false;
+    }
+
+    if (!lox_script_entry_update_source(entry, ch->desc->pLoxScript->chars)) {
+        printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_RED "!!!" COLOR_DECOR_1 "]"
+            COLOR_INFO "Failed to update script contents.\n\r" COLOR_CLEAR);
+        return false;
+    }
+
+    ch->desc->pLoxScript = NULL;
+    entry->executed = false;
+    printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_GREEN "***" COLOR_DECOR_1 "]"
+        COLOR_INFO "Script saved. Use the EXECUTE command in SCREDIT to run it.\n\r"
+        COLOR_CLEAR);
     return true;
 }
 
