@@ -10,6 +10,7 @@ the links below to jump to the latest schema guides:
 - [Race JSON Schema](race-json-schema.md)
 - [Theme JSON Schema](theme-json-schema.md)
 - [Command JSON Schema](commands-json-schema.md)
+- [Lox Script JSON Schema](lox-json-schema.md)
 - [Skill JSON Schema](skills-json-schema.md)
 - [Skill Group JSON Schema](skill-groups-json-schema.md)
 - [Social JSON Schema](socials-json-schema.md)

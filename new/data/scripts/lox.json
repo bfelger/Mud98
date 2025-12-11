@@ -1,0 +1,10 @@
+{
+  "formatVersion": 1,
+  "scripts": [
+    {
+      "category": "spells",
+      "file": "fire_bolt.lox",
+      "when": "pre"
+    }
+  ]
+}

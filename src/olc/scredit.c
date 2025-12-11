@@ -9,6 +9,8 @@
 #include "interp.h"
 #include "olc.h"
 #include "lox_edit.h"
+#include "config.h"
+#include "file.h"
 
 #include <lox/lox.h>
 
@@ -53,7 +55,7 @@ static const ScreditHelpEntry scredit_help_table[] = {
     { "when",        "when <pre|post>",                    "Choose whether the script executes before or after area load." },
     { "script",      "script",                             "Open the multiline text editor for the script source." },
     { "execute",     "execute",                            "Compile and run the current script immediately." },
-    { "save",        "save",                               "Write dirty catalog entries and script files." },
+    { "save",        "save [olc|json]",                    "Write dirty catalog entries and script files (optionally forcing format)." },
     { "commands",    "commands",                           "List available SCredit commands." },
     { "help",        "help [command]",                     "Show help for SCredit commands (alias '?')." },
     { "?",           "?",                                  "Alias for 'help'." },
@@ -466,8 +468,52 @@ SCREDIT(scredit_delete)
 
 SCREDIT(scredit_save)
 {
-    save_lox_public_scripts_if_dirty();
-    send_to_char(COLOR_INFO "Attempted to save all scripts. Check log for any errors." COLOR_EOL, ch);
+    char arg[MAX_INPUT_LENGTH];
+    READ_ARG(arg);
+
+    const char* requested_ext = NULL;
+    bool force_format = false;
+
+    if (!IS_NULLSTR(arg)) {
+        if (!str_cmp(arg, "json")) {
+            requested_ext = ".json";
+            force_format = true;
+        }
+        else if (!str_cmp(arg, "olc")) {
+            requested_ext = ".olc";
+            force_format = true;
+        }
+        else {
+            send_to_char(COLOR_INFO "Usage: save [olc|json]" COLOR_EOL, ch);
+            return false;
+        }
+    }
+
+    const char* lox_file = cfg_get_lox_file();
+    const char* ext = strrchr(lox_file, '.');
+    bool has_ext = (ext != NULL);
+
+    if (!force_format) {
+        if (!has_ext) {
+            if (!lox_file_exists()) {
+                const char* def = cfg_get_default_format();
+                if (def && !str_cmp(def, "json"))
+                    requested_ext = ".json";
+                else
+                    requested_ext = ".olc";
+            }
+        }
+    }
+
+    if (requested_ext != NULL) {
+        size_t base_len = has_ext ? (size_t)(ext - lox_file) : strlen(lox_file);
+        char newname[MIL];
+        snprintf(newname, sizeof(newname), "%.*s%s", (int)base_len, lox_file, requested_ext);
+        cfg_set_lox_file(newname);
+    }
+
+    save_lox_public_scripts(force_format);
+    printf_to_char(ch, COLOR_INFO "Scripts saved to %s." COLOR_EOL, cfg_get_lox_file());
     return false;
 }
 

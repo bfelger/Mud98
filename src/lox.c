@@ -13,7 +13,8 @@
 #include <lox/lox.h>
 #include <lox/vm.h>
 
-#include <ctype.h>
+#include <persist/lox/lox_persist.h>
+
 #include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -37,16 +38,12 @@ static bool lox_catalog_dirty = false;
 
 static void reset_lox_script_registry();
 static LoxScriptEntry* allocate_lox_script_entry();
-static bool parse_lox_when(const char* value, LoxScriptWhen* when_out);
-static bool read_lox_catalog_entry(FILE* fp, LoxScriptEntry* entry);
+static bool remove_lox_entry(size_t index, bool mark_dirty);
 static bool ensure_lox_script_source(LoxScriptEntry* entry);
 static bool run_lox_script_entry(LoxScriptEntry* entry);
 static void free_lox_entry_source(LoxScriptEntry* entry, bool force);
-static void build_lox_catalog_path(char* out, size_t out_len);
 static void build_lox_source_path(char* out, size_t out_len, const LoxScriptEntry* entry);
-static bool is_absolute_path(const char* path);
 static char* read_lox_source_file(const char* path);
-static bool save_lox_catalog();
 static bool save_lox_script_file(LoxScriptEntry* entry);
 static const char* lox_when_to_string(LoxScriptWhen when);
 static char* lox_strdup(const char* src);
@@ -121,43 +118,32 @@ static void compile_lox_script(const char* source)
 // Used to load lox scripts from the scripts/ directory on bootup
 void load_lox_public_scripts()
 {
-    FILE* fp;
-    char catalog_path[MAX_INPUT_LENGTH * 3];
-
     printf_log("Loading Lox scripts.");
 
     reset_lox_script_registry();
-    build_lox_catalog_path(catalog_path, sizeof(catalog_path));
-
-    OPEN_OR_RETURN(fp = open_read_file(catalog_path));
-
-    int script_count = fread_number(fp);
-    for (int i = 0; i < script_count; ++i) {
-        char* section = fread_word(fp);
-        if (str_cmp(section, "#LOX_SCRIPT")) {
-            bugf("load_lox_public_scripts: expected #LOX_SCRIPT, found %s", section);
-            break;
-        }
-
-        LoxScriptEntry* entry = allocate_lox_script_entry();
-        if (!read_lox_catalog_entry(fp, entry)) {
-            destroy_lox_script_entry(entry);
-            --lox_scripts.count;
-            continue;
-        }
-
-        if (!ensure_lox_script_source(entry)) {
-            destroy_lox_script_entry(entry);
-            --lox_scripts.count;
-            continue;
-        }
-
-        if (entry->when == LOX_SCRIPT_WHEN_PRE) {
-            run_lox_script_entry(entry);
-        }
+    PersistResult res = lox_persist_load(cfg_get_lox_file());
+    if (!persist_succeeded(res)) {
+        bugf("load_lox_public_scripts: failed to load catalog (%s)",
+            res.message ? res.message : "unknown error");
+        return;
     }
 
-    close_file(fp);
+    for (size_t i = 0; i < lox_scripts.count; ++i) {
+        LoxScriptEntry* entry = &lox_scripts.entries[i];
+        if (!ensure_lox_script_source(entry)) {
+            remove_lox_entry(i, false);
+            --i;
+            continue;
+        }
+
+        if (entry->when == LOX_SCRIPT_WHEN_PRE)
+            run_lox_script_entry(entry);
+    }
+}
+
+void lox_script_registry_clear(void)
+{
+    reset_lox_script_registry();
 }
 
 void run_post_lox_public_scripts()
@@ -220,7 +206,28 @@ LoxScriptEntry* lox_script_entry_create(const char* category, const char* file, 
     return entry;
 }
 
-bool lox_script_entry_delete(size_t index)
+LoxScriptEntry* lox_script_entry_append_loaded(const char* category, const char* file, LoxScriptWhen when)
+{
+    LoxScriptEntry* entry = allocate_lox_script_entry();
+    if (!entry)
+        return NULL;
+
+    if (entry->category)
+        free(entry->category);
+    entry->category = lox_strdup(category ? category : "");
+
+    if (entry->file)
+        free(entry->file);
+    entry->file = lox_strdup(file ? file : "");
+
+    entry->when = when;
+    entry->script_dirty = false;
+    entry->has_source = false;
+    entry->executed = false;
+    return entry;
+}
+
+static bool remove_lox_entry(size_t index, bool mark_dirty)
 {
     if (index >= lox_scripts.count)
         return false;
@@ -236,8 +243,14 @@ bool lox_script_entry_delete(size_t index)
 
     --lox_scripts.count;
     memset(&lox_scripts.entries[lox_scripts.count], 0, sizeof(LoxScriptEntry));
-    lox_catalog_dirty = true;
+    if (mark_dirty)
+        lox_catalog_dirty = true;
     return true;
+}
+
+bool lox_script_entry_delete(size_t index)
+{
+    return remove_lox_entry(index, true);
 }
 
 bool lox_script_entry_set_category(LoxScriptEntry* entry, const char* category)
@@ -396,7 +409,7 @@ static LoxScriptEntry* allocate_lox_script_entry()
     return entry;
 }
 
-static bool parse_lox_when(const char* value, LoxScriptWhen* when_out)
+bool lox_script_when_parse(const char* value, LoxScriptWhen* when_out)
 {
     if (!value || !when_out)
         return false;
@@ -413,48 +426,6 @@ static bool parse_lox_when(const char* value, LoxScriptWhen* when_out)
 
     bugf("load_lox_public_scripts: unknown when value '%s'", value);
     return false;
-}
-
-static bool read_lox_catalog_entry(FILE* fp, LoxScriptEntry* entry)
-{
-    bool done = false;
-
-    while (!done) {
-        char* word = fread_word(fp);
-        if (!str_cmp(word, "#END")) {
-            done = true;
-            break;
-        }
-
-        if (!str_cmp(word, "category")) {
-            char* value = fread_string(fp);
-            if (entry->category)
-                free(entry->category);
-            entry->category = lox_strdup(value);
-        }
-        else if (!str_cmp(word, "file")) {
-            char* value = fread_string(fp);
-            if (entry->file)
-                free(entry->file);
-            entry->file = lox_strdup(value);
-        }
-        else if (!str_cmp(word, "when")) {
-            char* when_val = fread_string(fp);
-            if (!parse_lox_when(when_val, &entry->when))
-                return false;
-        }
-        else {
-            bugf("load_lox_public_scripts: unknown key '%s'", word);
-            fread_to_eol(fp);
-        }
-    }
-
-    if (!entry->file || entry->file[0] == '\0') {
-        bug("load_lox_public_scripts: script missing file name", 0);
-        return false;
-    }
-
-    return true;
 }
 
 static bool ensure_lox_script_source(LoxScriptEntry* entry)
@@ -498,24 +469,6 @@ static void free_lox_entry_source(LoxScriptEntry* entry, bool force)
     if (entry->source) {
         free(entry->source);
         entry->source = NULL;
-    }
-}
-
-static void build_lox_catalog_path(char* out, size_t out_len)
-{
-    const char* catalog = cfg_get_lox_file();
-    if (!catalog)
-        catalog = "lox.olc";
-
-    if (is_absolute_path(catalog)) {
-        snprintf(out, out_len, "%s", catalog);
-    }
-    else if (strpbrk(catalog, "/\\")) {
-        snprintf(out, out_len, "%s%s", cfg_get_data_dir(), catalog);
-    }
-    else {
-        snprintf(out, out_len, "%s%s%s",
-            cfg_get_data_dir(), cfg_get_scripts_dir(), catalog);
     }
 }
 
@@ -648,12 +601,21 @@ static bool ensure_parent_directory(const char* path)
     return true;
 }
 
-void save_lox_public_scripts_if_dirty()
+void save_lox_public_scripts(bool force_catalog)
 {
     bool success = true;
 
-    if (lox_catalog_dirty)
-        success = save_lox_catalog();
+    if (force_catalog || lox_catalog_dirty) {
+        PersistResult res = lox_persist_save(cfg_get_lox_file());
+        if (!persist_succeeded(res)) {
+            bugf("save_lox_public_scripts_if_dirty: failed to save catalog (%s)",
+                res.message ? res.message : "unknown error");
+            success = false;
+        }
+        else {
+            lox_catalog_dirty = false;
+        }
+    }
 
     for (size_t i = 0; i < lox_scripts.count; ++i) {
         LoxScriptEntry* entry = &lox_scripts.entries[i];
@@ -665,32 +627,9 @@ void save_lox_public_scripts_if_dirty()
         bug("save_lox_public_scripts_if_dirty: failed to save one or more Lox files.", 0);
 }
 
-static bool save_lox_catalog()
+void save_lox_public_scripts_if_dirty()
 {
-    char path[MAX_INPUT_LENGTH * 3];
-    build_lox_catalog_path(path, sizeof(path));
-
-    FILE* fp;
-    OPEN_OR_RETURN_FALSE(fp = open_write_file(path));
-
-    fprintf(fp, "%zu\n\n", lox_scripts.count);
-
-    for (size_t i = 0; i < lox_scripts.count; ++i) {
-        const LoxScriptEntry* entry = &lox_scripts.entries[i];
-        const char* category = entry->category ? entry->category : "";
-        const char* file = entry->file ? entry->file : "";
-        const char* when = lox_when_to_string(entry->when);
-
-        fprintf(fp, "#LOX_SCRIPT\n");
-        fprintf(fp, "category %s~\n", category);
-        fprintf(fp, "file %s~\n", file);
-        fprintf(fp, "when %s~\n", when);
-        fprintf(fp, "#END\n\n");
-    }
-
-    close_file(fp);
-    lox_catalog_dirty = false;
-    return true;
+    save_lox_public_scripts(false);
 }
 
 static bool save_lox_script_file(LoxScriptEntry* entry)
@@ -734,21 +673,4 @@ static const char* lox_when_to_string(LoxScriptWhen when)
     default:
         return "pre";
     }
-}
-
-static bool is_absolute_path(const char* path)
-{
-    if (!path || path[0] == '\0')
-        return false;
-
-    if (path[0] == '/' || path[0] == '\\')
-        return true;
-
-#ifdef _WIN32
-    if (isalpha((unsigned char)path[0]) && path[1] == ':' &&
-        (path[2] == '\\' || path[2] == '/'))
-        return true;
-#endif
-
-    return false;
 }

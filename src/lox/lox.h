@@ -82,11 +82,14 @@ typedef struct lox_script_entry_t {
 
 void load_lox_public_scripts(void);
 void run_post_lox_public_scripts(void);
+void save_lox_public_scripts(bool force_catalog);
 void save_lox_public_scripts_if_dirty(void);
+void lox_script_registry_clear(void);
 
 size_t lox_script_entry_count(void);
 LoxScriptEntry* lox_script_entry_get(size_t index);
 LoxScriptEntry* lox_script_entry_create(const char* category, const char* file, LoxScriptWhen when);
+LoxScriptEntry* lox_script_entry_append_loaded(const char* category, const char* file, LoxScriptWhen when);
 bool lox_script_entry_delete(size_t index);
 bool lox_script_entry_set_category(LoxScriptEntry* entry, const char* category);
 bool lox_script_entry_set_file(LoxScriptEntry* entry, const char* file);
@@ -96,6 +99,7 @@ bool lox_script_entry_ensure_source(LoxScriptEntry* entry);
 bool lox_script_entry_execute(LoxScriptEntry* entry);
 int lox_script_entry_index(const LoxScriptEntry* entry);
 const char* lox_script_when_name(LoxScriptWhen when);
+bool lox_script_when_parse(const char* text, LoxScriptWhen* when_out);
 void lox_script_entry_source_path(char* out, size_t out_len, const LoxScriptEntry* entry);
 
 #endif // !LOX__LOX_H
