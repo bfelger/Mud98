@@ -37,7 +37,6 @@ extern char* string_space;
 extern char* top_string;
 extern char str_empty[1];
 
-extern Table spell_scripts;
 extern Table global_const_table;
 
 extern bool fBootDb;
@@ -418,7 +417,6 @@ static void mark_natives()
             mark_object((Obj*)mob);
     }
 
-    mark_table(&spell_scripts);
     mark_table(&native_methods);
     mark_table(&native_cmds);
     mark_table(&native_mob_cmds);

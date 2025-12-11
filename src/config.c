@@ -176,6 +176,7 @@
 #define DEFAULT_DATA_DIR            "data/"
 #define DEFAULT_PROGS_DIR           "progs/"
 #define DEFAULT_SCRIPTS_DIR         "scripts/"
+#define DEFAULT_LOX_FILE            "lox.olc"
 #define DEFAULT_SOCIALS_FILE        "socials.olc"
 #define DEFAULT_GROUPS_FILE         "groups.olc"
 #define DEFAULT_SKILLS_FILE         "skills.olc"
@@ -261,6 +262,7 @@ DEFINE_FILE_CONFIG(ban_file,        area_dir,   DEFAULT_BAN_FILE)
 DEFINE_DIR_CONFIG(data_dir,         DEFAULT_DATA_DIR)
 DEFINE_DIR_CONFIG(progs_dir,        DEFAULT_PROGS_DIR)
 DEFINE_DIR_CONFIG(scripts_dir,      DEFAULT_SCRIPTS_DIR)
+DEFINE_FILE_CONFIG(lox_file,        data_dir,   DEFAULT_LOX_FILE)
 DEFINE_FILE_CONFIG(socials_file,    data_dir,   DEFAULT_SOCIALS_FILE)
 DEFINE_FILE_CONFIG(groups_file,     data_dir,   DEFAULT_GROUPS_FILE)
 DEFINE_FILE_CONFIG(skills_file,     data_dir,   DEFAULT_SKILLS_FILE)
@@ -364,6 +366,7 @@ const ConfigEntry config_entries[] = {
     { "data_dir",           CFG_DIR,    U(cfg_set_data_dir)             },
     { "progs_dir",          CFG_DIR,    U(cfg_set_progs_dir)            },
     { "scripts_dir",        CFG_DIR,    U(cfg_set_scripts_dir)          },
+    { "lox_file",           CFG_STR,    U(cfg_set_lox_file)             },
     { "socials_file",       CFG_STR,    U(cfg_set_socials_file)         },
     { "groups_file",        CFG_STR,    U(cfg_set_groups_file)          },
     { "skills_file",        CFG_STR,    U(cfg_set_skills_file)          },

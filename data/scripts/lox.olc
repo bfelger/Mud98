@@ -1,0 +1,7 @@
+1
+
+#LOX_SCRIPT
+category spells~
+file fire_bolt.lox~
+when pre~
+#END
