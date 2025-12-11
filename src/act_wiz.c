@@ -67,6 +67,8 @@
 #include <sys/time.h>
 #endif
 
+extern bool test_output_enabled;
+
 const WizNet wiznet_table[] = {
     { "on",         WIZ_ON,         IM  },
     { "prefix",     WIZ_PREFIX,     IM  },
@@ -570,7 +572,8 @@ void do_disconnect(Mobile* ch, char* argument)
         }
     }
 
-    bug("Do_disconnect: desc not found.", 0);
+    if (!test_output_enabled)
+        bug("Do_disconnect: desc not found.", 0);
     send_to_char("Descriptor not found!\n\r", ch);
     return;
 }

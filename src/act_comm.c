@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stï¿½rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -66,6 +66,8 @@
 #else
 #define unlink _unlink
 #endif
+
+extern bool test_output_enabled;
 
 /* RT code to delete yourself */
 
@@ -1224,8 +1226,10 @@ void do_quit(Mobile* ch, char* argument)
     }
     send_to_char("Alas, all good things must come to an end.\n\r", ch);
     act("$n has left the game.", ch, NULL, NULL, TO_ROOM);
-    sprintf(log_buf, "%s has quit.", NAME_STR(ch));
-    log_string(log_buf);
+    if (!test_output_enabled) {
+        sprintf(log_buf, "%s has quit.", NAME_STR(ch));
+        log_string(log_buf);
+    }
     wiznet("$N rejoins the real world.", ch, NULL, WIZ_LOGINS, 0, get_trust(ch));
 
     // After extract_char the ch is no longer valid!
