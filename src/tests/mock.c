@@ -146,10 +146,10 @@ Object* mock_sword(const char* name, VNUM vnum, LEVEL level, int dam_dice, int d
     sword_proto->cost = level * 10;
     sword_proto->item_type = ITEM_WEAPON;
 
-    sword_proto->value[0] = WEAPON_SWORD;
-    sword_proto->value[1] = dam_dice;
-    sword_proto->value[2] = dam_size;
-    sword_proto->value[3] = DAM_SLASH;
+    sword_proto->weapon.weapon_type = WEAPON_SWORD;
+    sword_proto->weapon.num_dice = dam_dice;
+    sword_proto->weapon.size_dice = dam_size;
+    sword_proto->weapon.damage_type = DAM_SLASH;
 
     Object* sword = mock_obj(name, vnum, sword_proto);
 

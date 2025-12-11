@@ -39,7 +39,7 @@ typedef struct obj_prototype_t {
         struct { int level; int spell1; int spell2; int spell3; int unused4; } scroll;
         struct { int level; int max_charges; int charges; int spell; int unused4; } wand;
         struct { int level; int max_charges; int charges; int spell; int unused4; } staff;
-        struct { int unused0; int unused1; int unused2; int weapon_type; int flags; } weapon;
+        struct { int weapon_type; int num_dice; int size_dice; int damage_type; int flags; } weapon;
         struct { int ac_pierce; int ac_bash; int ac_slash; int ac_exotic; int unused4; } armor;
         struct { int capacity; int flags; int key_vnum; int max_item_weight; int weight_mult; } container;
         struct { int capacity; int current; int liquid_type; int poisoned; int unused4; } drink_con;

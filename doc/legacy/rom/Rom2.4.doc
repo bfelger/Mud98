@@ -1121,7 +1121,7 @@ V0 and V1 are empty, held with a 0.  V2 is light duration in game hours,
 (250 hours in this case).  If V2 is set to -1 the light is permanent.
 V3 and V4 are empty and held with zeroes.
 
-Money:
+Money (obsolete; see note):
 
 #3132
 silver coins~
@@ -1139,6 +1139,13 @@ Looks like at least a thousand coins.
 V0 is the silver value (in this case, 1000) of the money object.  V1
 is the gold value (remember that Rom 2.4x uses both silver and
 gold coins).  V2, V3 and V4 are held with zeroes.
+
+!!!NOTE: In Mud98, the values have changed to the following:
+  V0 = copper
+  V1 = silver
+  V2 = gold
+  V3,V4 = unused
+--Halivar
 
 Drink containers:
 

@@ -1056,17 +1056,17 @@ static void apply_object_values(ObjPrototype* obj, json_t* values)
 static json_t* build_weapon(const ObjPrototype* obj)
 {
     json_t* w = json_object();
-    const char* wclass = flag_string(weapon_class, obj->weapon.unused0);
-    if (wclass && wclass[0] != '\0' && obj->weapon.unused0 != 0)
+    const char* wclass = flag_string(weapon_class, obj->weapon.weapon_type);
+    if (wclass && wclass[0] != '\0' && obj->weapon.weapon_type != 0)
         JSON_SET_STRING(w, "class", wclass);
-    if (obj->weapon.unused1 != 0 || obj->weapon.unused2 != 0) {
+    if (obj->weapon.num_dice != 0 || obj->weapon.size_dice != 0) {
         json_t* dice = json_array();
-        json_array_append_new(dice, json_integer(obj->weapon.unused1));
-        json_array_append_new(dice, json_integer(obj->weapon.unused2));
+        json_array_append_new(dice, json_integer(obj->weapon.num_dice));
+        json_array_append_new(dice, json_integer(obj->weapon.size_dice));
         json_object_set_new(w, "dice", dice);
     }
-    if (obj->weapon.weapon_type != 0)
-        JSON_SET_STRING(w, "damageType", attack_table[obj->weapon.weapon_type].name);
+    if (obj->weapon.damage_type != 0)
+        JSON_SET_STRING(w, "damageType", attack_table[obj->weapon.damage_type].name);
     json_set_flags_if(w, "flags", obj->weapon.flags, weapon_type2);
     return w;
 }
@@ -1090,18 +1090,18 @@ static void apply_weapon(ObjPrototype* obj, json_t* weapon)
     if (wclass) {
         FLAGS val = flag_lookup(wclass, weapon_class);
         if (val != NO_FLAG)
-            obj->weapon.unused0 = (int16_t)val;
+            obj->weapon.weapon_type = (int16_t)val;
     }
     const char* dtype = JSON_STRING(weapon, "damageType");
     if (dtype) {
         int dt = attack_lookup(dtype);
         if (dt >= 0)
-            obj->weapon.weapon_type = dt;
+            obj->weapon.damage_type = dt;
     }
     json_t* dice = json_object_get(weapon, "dice");
     if (json_is_array(dice) && json_array_size(dice) >= 2) {
-        obj->weapon.unused1 = (int16_t)json_integer_value(json_array_get(dice, 0));
-        obj->weapon.unused2 = (int16_t)json_integer_value(json_array_get(dice, 1));
+        obj->weapon.num_dice = (int16_t)json_integer_value(json_array_get(dice, 0));
+        obj->weapon.size_dice = (int16_t)json_integer_value(json_array_get(dice, 1));
     }
     obj->weapon.flags = (int16_t)JSON_FLAGS(weapon, "flags", weapon_type2);
 }
