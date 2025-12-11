@@ -106,6 +106,9 @@ bool run_olc_editor(Descriptor* d, char* incomm)
     case ED_THEME:
         theme_edit(d->character, incomm);
         break;
+    case ED_TUTORIAL:
+        tedit(d->character, incomm);
+        break;
     default:
         return false;
     }
@@ -160,6 +163,9 @@ char* olc_ed_name(Mobile* ch)
     case ED_THEME:
         sprintf(buf, "ThemeEd");
         break;
+    case ED_TUTORIAL:
+        sprintf(buf, "TEdit");
+        break;
     default:
         sprintf(buf, " ");
         break;
@@ -182,6 +188,7 @@ char* olc_ed_vnum(Mobile* ch)
     Class* pClass;
     CmdInfo* pCmd;
     Quest* pQuest;
+    Tutorial* pTutorial;
     static char buf[10];
 
     buf[0] = '\0';
@@ -234,6 +241,10 @@ char* olc_ed_vnum(Mobile* ch)
         pClass = (Class*)ch->desc->pEdit;
         sprintf(buf, "%s", pClass ? pClass->name : "");
         break;
+    case ED_TUTORIAL:
+        pTutorial = (Tutorial*)ch->desc->pEdit;
+        sprintf(buf, "%s", pTutorial ? pTutorial->name : "");
+        break;
     default:
         sprintf(buf, " ");
         break;
@@ -256,6 +267,7 @@ const OlcCmdEntry* get_olc_table(int editor)
     case ED_SOCIAL:	return social_olc_comm_table;
     case ED_CLASS:  return class_olc_comm_table;
     case ED_QUEST:  return quest_olc_comm_table;
+    case ED_TUTORIAL: return tutorial_olc_comm_table;
     }
     return NULL;
 }
@@ -377,6 +389,7 @@ const EditCmd editor_table[] =
    {    "class",    do_cedit    },
    {	"help",		do_hedit	},
    {	"quest",    do_qedit	},
+   {    "tutorial", do_tedit   },
    {	NULL,		0		    }
 };
 
@@ -421,6 +434,7 @@ bool process_olc_command(Mobile* ch, char* argument, const OlcCmdEntry* table)
     MobProgCode* pProg;
     Social* pSoc;
     Quest* pQuest;
+    Tutorial* pTutorial;
     int temp;
     uintptr_t pointer;
 
@@ -563,6 +577,17 @@ bool process_olc_command(Mobile* ch, char* argument, const OlcCmdEntry* table)
                     save_social_table();
                 return true;
                 break;
+
+            case ED_TUTORIAL:
+                EDIT_TUTORIAL(ch, pTutorial);
+                if (table[temp].argument)
+                    pointer = (table[temp].argument - U(&xTutorial) + U(pTutorial));
+                else
+                    pointer = 0;
+                if ((*table[temp].function) (table[temp].name, ch, argument, pointer, table[temp].parameter))
+                    save_tutorials();
+                return true;
+                break;
             }
         }
     }
@@ -691,10 +716,17 @@ void olc_print_text(Mobile* ch, const char* label, const char* text)
             "%10s" COLOR_DECOR_1 " ]" COLOR_EOL, label, "(none)");
 }
 
-void olc_print_text_ex(Mobile* ch, const char* label, const char* str, int width)
+static void shift_string(char* str, int start, int end)
+{
+    for (int i = end; i > start; --i) {
+        str[i] = str[i - 1];
+    }
+}
+
+const char* olc_inline_text(const char* str, int width)
 {
     // Keep it on one line by a specified width
-    char buf[MIL];
+    static char buf[MIL];
 
     int len = (int)strlen(str);
     if (width > len)
@@ -703,18 +735,36 @@ void olc_print_text_ex(Mobile* ch, const char* label, const char* str, int width
     strncpy(buf, str, width);
     buf[width] = '\0';
 
-    char* lfcr;
-    while ((lfcr = strpbrk(buf, "\n\r")) != NULL) {
-        lfcr[0] = '^';
-        lfcr[1] = '/';
+    for (int i = 0; i < width; ++i) {
+        if (buf[i] == '\n') {
+            if (i == width - 1) {
+                // If the last character is a newline, cut it off
+                buf[i] = '\0';
+                break;
+            }
+            shift_string(buf, i + 1, width++);
+            buf[i++] = '^';
+            buf[i++] = '^';
+            if (buf[i] == '\r') {
+                buf[i] = '/';
+            }
+            else {
+                // Bare newline; shift the rest of the string right one char
+                shift_string(buf, i + 1, width++);
+                buf[i] = '/';
+            }
+        }
     }
 
-    // In case a CRLF got cut in half and wasn't caught above
-    if (buf[width - 1] == '\n')
-        buf[width - 1] = '\0';
+    buf[width] = '\0';
 
+    return buf;
+}
+
+void olc_print_text_ex(Mobile* ch, const char* label, const char* str, int width)
+{
     printf_to_char(ch, LABEL_FMT " : " COLOR_ALT_TEXT_2 "%s" COLOR_EOL,
-        label, buf);
+        label, olc_inline_text(str, width));
 }
 
 const char* olc_match_flag_default(FLAGS flags, const struct flag_type* defaults)

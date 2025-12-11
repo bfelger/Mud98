@@ -24,6 +24,7 @@
 #include <entities/descriptor.h>
 
 #include <data/skill.h>
+#include <data/tutorial.h>
 
 #include <ctype.h>
 #include <stdbool.h>
@@ -218,6 +219,9 @@ void string_add(Mobile* ch, char* argument)
         switch (ch->desc->editor) {
         case ED_SKILL:
             save_skill_table();
+            break;
+        case ED_TUTORIAL:
+            save_tutorials();
             break;
         }
 

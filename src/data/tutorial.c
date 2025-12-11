@@ -48,7 +48,7 @@ void show_tutorial_step(Mobile* ch, Tutorial* t, int step)
         return;
     }
 
-    printf_to_char(ch, "\n\r^jTutorial: %s (Step %d/%d)\n\r%s^x\n\r", t->name,
+    printf_to_char(ch, COLOR_INFO "\n\rTutorial: %s (Step %d/%d)\n\r%s" COLOR_EOL, t->name,
        step + 1, t->step_count, t->steps[step].prompt);
 }
 
@@ -87,12 +87,13 @@ void do_tutorial(Mobile* ch, char* argument)
     Tutorial* t = get_tutorial(argument);
 
     if (t == NULL) {
-        printf_to_char(ch, "Tutorial '%s' not found\n\r");
+        printf_to_char(ch, COLOR_INFO"Tutorial '%s' not found" COLOR_EOL, argument);
         return;
     }
 
     if (t->min_level > ch->level) {
-        printf_to_char(ch, "Your level is too low to begin that tutorial.\n\r");
+        printf_to_char(ch, COLOR_INFO "Your level is too low to begin that tutorial." COLOR_EOL);
+        return;
     }
 
     ch->pcdata->tutorial = t;

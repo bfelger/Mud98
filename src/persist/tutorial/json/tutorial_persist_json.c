@@ -25,6 +25,8 @@ static void write_tutorial_steps(json_t* steps_arr, const Tutorial* tut)
 {
     for (int i = 0; i < tut->step_count; ++i) {
         TutorialStep* step = &tut->steps[i];
+        if (!step->prompt && !step->match)
+            continue;
         json_t* obj = json_object();
         if (step->prompt)
             JSON_SET_STRING(obj, "prompt", step->prompt);

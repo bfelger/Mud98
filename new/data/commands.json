@@ -1537,6 +1537,14 @@
       "category": "undef"
     },
     {
+      "name": "tedit",
+      "function": "do_tedit",
+      "position": "dead",
+      "level": 0,
+      "log": "log_normal",
+      "category": "undef"
+    },
+    {
       "name": "rename",
       "function": "do_rename",
       "position": "standing",

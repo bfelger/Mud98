@@ -305,10 +305,12 @@ void show_obj_values(Mobile* ch, ObjPrototype* obj)
 
     case ITEM_MONEY:
         printf_to_char(ch,
-            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v0" COLOR_DECOR_1 "]" COLOR_CLEAR " Gold:         " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
-            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v1" COLOR_DECOR_1 "]" COLOR_CLEAR " Silver:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL,
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v0" COLOR_DECOR_1 "]" COLOR_CLEAR " Copper:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v1" COLOR_DECOR_1 "]" COLOR_CLEAR " Silver:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v2" COLOR_DECOR_1 "]" COLOR_CLEAR " Gold:         " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL,
             obj->value[0],
-            obj->value[1]);
+            obj->value[1],
+            obj->value[2]);
         break;
     }
 

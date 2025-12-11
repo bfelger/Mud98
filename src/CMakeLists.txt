@@ -169,7 +169,7 @@ add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
     "olc/event_edit.h" "olc/event_edit.c" "olc/gedit.c" "olc/hedit.c" 
     "olc/medit.c" "olc/oedit.c" "olc/olc.h" "olc/olc.c" "olc/olc_act.c" 
     "olc/olc_save.c" "olc/pedit.c" "olc/qedit.c" "olc/raedit.c" "olc/redit.c" 
-    "olc/screen.h" "olc/screen.c" "olc/sedit.c" "olc/skedit.c" 
+    "olc/screen.h" "olc/screen.c" "olc/sedit.c" "olc/skedit.c" "olc/tedit.c" 
     "olc/string_edit.h" "olc/string_edit.c"  "olc/lox_edit.h" "olc/lox_edit.c"
     "olc/theme_edit.c"
 

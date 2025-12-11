@@ -121,6 +121,32 @@ wear                - where object is worn, type ? WEAR for a list
 material            - material the object is made from
 ~
 
+0 TEDIT~
+^TSyntax: tedit <tutorial name>^x
+
+The following commands are available from within TEDIT:
+
+^*show                ^|- ^jdisplay the current tutorial
+^*list                ^|- ^jlist all tutorials
+^*new <name>          ^|- ^jcreate and edit a new tutorial
+^*delete [name]       ^|- ^jdelete the current or a named tutorial
+^*name <string>       ^|- ^jrename the tutorial
+^*blurb               ^|- ^jedit the short tutorial blurb (multiline editor)
+^*finish              ^|- ^jedit the completion message (multiline editor)
+^*minlevel <n>        ^|- ^jset the minimum level required
+^*stepadd [n]         ^|- ^jinsert a blank step at position n (defaults to end)
+^*stepdel <n>         ^|- ^jdelete step number n
+^*stepprompt <n>      ^|- ^jedit the prompt text for step n (multiline editor)
+^*stepmatch <n> <pat> ^|- ^jset the match pattern for the step
+^*save [json|olc]     ^|- ^jsave tutorials (format optional, respects config)
+^*commands            ^|- ^jlist available commands
+^*help/?              ^|- ^jshow this help
+^*done                ^|- ^jexit the tutorial editor^x
+
+Use the multiline string editor commands (e.g., `.h`, `.s`, `@`) when
+editing blurb, finish, or stepprompt text.
+~
+
 0 MEDIT~
 Syntax: medit <vnum>		-Enters the editor for the selected mobile.
 

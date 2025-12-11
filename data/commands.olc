@@ -1,4 +1,4 @@
-270
+271
 
 #COMMAND
 name .~
@@ -1749,6 +1749,15 @@ show undef~
 #COMMAND
 name raedit~
 do_fun do_raedit~
+position dead~
+level 0
+log log_normal~
+show undef~
+#END
+
+#COMMAND
+name tedit~
+do_fun do_tedit~
 position dead~
 level 0
 log log_normal~
