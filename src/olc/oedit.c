@@ -717,7 +717,7 @@ OEDIT(oedit_show)
     show_obj_values(ch, pObj);
 
     Entity* entity = &pObj->header;
-    olc_display_lox_info(ch, entity);
+    olc_display_entity_class_info(ch, entity);
     olc_display_events(ch, entity);
 
     return false;

@@ -452,7 +452,7 @@ char* prettify_lox_script(char* script)
     return ret;
 }
 
-void olc_display_lox_info(Mobile* ch, Entity* entity)
+void olc_display_entity_class_info(Mobile* ch, Entity* entity)
 {
     if (entity->klass != NULL) {
         olc_print_str_box(ch, "Lox Class", entity->klass->name->chars,

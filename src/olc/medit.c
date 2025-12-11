@@ -309,7 +309,7 @@ MEDIT(medit_show)
         olc_print_str_box(ch, "Spec Fun", pMob->spec_fun ? spec_name(pMob->spec_fun) : "(none)", "");
 
     Entity* entity = &pMob->header;
-    olc_display_lox_info(ch, entity);
+    olc_display_entity_class_info(ch, entity);
     olc_display_events(ch, entity);
     
     if (pMob->pShop) {

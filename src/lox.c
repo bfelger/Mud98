@@ -30,6 +30,7 @@ typedef struct lox_script_entry_t {
     LoxScriptWhen when;
     char* source;
     bool executed;
+    bool script_dirty;
 } LoxScriptEntry;
 
 typedef struct lox_script_registry_t {
@@ -40,6 +41,7 @@ typedef struct lox_script_registry_t {
 
 static LoxScriptRegistry lox_scripts = { 0 };
 static bool post_scripts_executed = false;
+static bool lox_catalog_dirty = false;
 
 static void reset_lox_script_registry();
 static LoxScriptEntry* append_lox_script_entry();
@@ -52,6 +54,9 @@ static void build_lox_catalog_path(char* out, size_t out_len);
 static void build_lox_source_path(char* out, size_t out_len, const LoxScriptEntry* entry);
 static bool is_absolute_path(const char* path);
 static char* read_lox_source_file(const char* path);
+static bool save_lox_catalog();
+static bool save_lox_script_file(LoxScriptEntry* entry);
+static const char* lox_when_to_string(LoxScriptWhen when);
 
 bool lox_read(void* temp, const char* arg)
 {
@@ -223,11 +228,14 @@ void do_lox(Mobile* ch, char* argument)
 
 static void reset_lox_script_registry()
 {
-    for (size_t i = 0; i < lox_scripts.count; ++i)
+    for (size_t i = 0; i < lox_scripts.count; ++i) {
+        lox_scripts.entries[i].script_dirty = false;
         free_lox_entry_source(&lox_scripts.entries[i]);
+    }
 
     lox_scripts.count = 0;
     post_scripts_executed = false;
+    lox_catalog_dirty = false;
 }
 
 static LoxScriptEntry* append_lox_script_entry()
@@ -253,6 +261,7 @@ static LoxScriptEntry* append_lox_script_entry()
     entry->when = LOX_SCRIPT_WHEN_PRE;
     entry->source = NULL;
     entry->executed = false;
+    entry->script_dirty = false;
     return entry;
 }
 
@@ -335,12 +344,16 @@ static bool run_lox_script_entry(LoxScriptEntry* entry)
 
     compile_lox_script(entry->source);
     entry->executed = true;
-    free_lox_entry_source(entry);
+    if (!entry->script_dirty)
+        free_lox_entry_source(entry);
     return true;
 }
 
 static void free_lox_entry_source(LoxScriptEntry* entry)
 {
+    if (entry->script_dirty)
+        return;
+
     if (entry->source) {
         free(entry->source);
         entry->source = NULL;
@@ -412,6 +425,89 @@ static char* read_lox_source_file(const char* path)
     close_file(fp);
 
     return buffer;
+}
+
+void save_lox_public_scripts_if_dirty()
+{
+    bool success = true;
+
+    if (lox_catalog_dirty)
+        success = save_lox_catalog();
+
+    for (size_t i = 0; i < lox_scripts.count; ++i) {
+        LoxScriptEntry* entry = &lox_scripts.entries[i];
+        if (entry->script_dirty)
+            success = save_lox_script_file(entry) && success;
+    }
+
+    if (!success)
+        bug("save_lox_public_scripts_if_dirty: failed to save one or more Lox files.", 0);
+}
+
+static bool save_lox_catalog()
+{
+    char path[MAX_INPUT_LENGTH * 3];
+    build_lox_catalog_path(path, sizeof(path));
+
+    FILE* fp;
+    OPEN_OR_RETURN_FALSE(fp = open_write_file(path));
+
+    fprintf(fp, "%zu\n\n", lox_scripts.count);
+
+    for (size_t i = 0; i < lox_scripts.count; ++i) {
+        const LoxScriptEntry* entry = &lox_scripts.entries[i];
+        const char* category = entry->category ? entry->category : "";
+        const char* file = entry->file ? entry->file : "";
+        const char* when = lox_when_to_string(entry->when);
+
+        fprintf(fp, "#LOX_SCRIPT\n");
+        fprintf(fp, "category %s~\n", category);
+        fprintf(fp, "file %s~\n", file);
+        fprintf(fp, "when %s~\n", when);
+        fprintf(fp, "#END\n\n");
+    }
+
+    close_file(fp);
+    lox_catalog_dirty = false;
+    return true;
+}
+
+static bool save_lox_script_file(LoxScriptEntry* entry)
+{
+    if (!entry->script_dirty)
+        return true;
+
+    if (!entry->source) {
+        bug("save_lox_script_file: no script source available.", 0);
+        return false;
+    }
+
+    char path[MAX_INPUT_LENGTH * 3];
+    build_lox_source_path(path, sizeof(path), entry);
+
+    FILE* fp;
+    OPEN_OR_RETURN_FALSE(fp = open_write_file(path));
+
+    size_t len = strlen(entry->source);
+    if (len > 0)
+        fwrite(entry->source, 1, len, fp);
+    if (len == 0 || entry->source[len - 1] != '\n')
+        fputc('\n', fp);
+
+    close_file(fp);
+    entry->script_dirty = false;
+    return true;
+}
+
+static const char* lox_when_to_string(LoxScriptWhen when)
+{
+    switch (when) {
+    case LOX_SCRIPT_WHEN_POST:
+        return "post";
+    case LOX_SCRIPT_WHEN_PRE:
+    default:
+        return "pre";
+    }
 }
 
 static bool is_absolute_path(const char* path)

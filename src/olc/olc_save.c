@@ -36,6 +36,7 @@
 #include <special.h>
 #include <tables.h>
 #include <tablesave.h>
+#include <lox/lox.h>
 
 #include <entities/descriptor.h>
 #include <entities/event.h>
@@ -1117,6 +1118,7 @@ void do_asave(Mobile* ch, char* argument)
     bool force_format = false;
 
     if (ch == NULL || ch->desc == NULL || IS_NPC(ch)) {
+        save_lox_public_scripts_if_dirty();
         return;
     }
 
@@ -1135,6 +1137,7 @@ void do_asave(Mobile* ch, char* argument)
 
         save_other_helps(NULL);
 
+        save_lox_public_scripts_if_dirty();
         return;
     }
 
@@ -1158,6 +1161,7 @@ void do_asave(Mobile* ch, char* argument)
         send_to_char("  asave changed [json|olc] - saves all changed zones\n\r", ch);
         send_to_char("  asave world [json|olc]   - saves the world! (db dump)\n\r", ch);
         send_to_char("\n\r", ch);
+        save_lox_public_scripts_if_dirty();
         return;
     }
 
@@ -1165,6 +1169,7 @@ void do_asave(Mobile* ch, char* argument)
     value = STRTOVNUM(arg1);
     if ((area = get_area_data(value)) == NULL && is_number(arg1)) {
         send_to_char("That area does not exist.\n\r", ch);
+        save_lox_public_scripts_if_dirty();
         return;
     }
     /* Save area of given vnum. */
@@ -1173,6 +1178,7 @@ void do_asave(Mobile* ch, char* argument)
     if (is_number(arg1) && area) {
         if (ch && !IS_BUILDER(ch, area)) {
             send_to_char("You are not a builder for this area.\n\r", ch);
+            save_lox_public_scripts_if_dirty();
             return;
         }
 
@@ -1189,6 +1195,7 @@ void do_asave(Mobile* ch, char* argument)
 
         save_area_list();
         save_area(area);
+        save_lox_public_scripts_if_dirty();
         return;
     }
 
@@ -1220,6 +1227,7 @@ void do_asave(Mobile* ch, char* argument)
         save_other_helps(ch);
 
         send_to_char("You saved the world.\n\r", ch);
+        save_lox_public_scripts_if_dirty();
         return;
     }
 
@@ -1264,6 +1272,7 @@ void do_asave(Mobile* ch, char* argument)
 
         if (!str_cmp(buf, "None.\n\r"))
             send_to_char(buf, ch);
+        save_lox_public_scripts_if_dirty();
         return;
     }
 
@@ -1271,6 +1280,7 @@ void do_asave(Mobile* ch, char* argument)
     /* ----------------------- */
     if (!str_cmp(arg1, "list")) {
         save_area_list();
+        save_lox_public_scripts_if_dirty();
         return;
     }
 
@@ -1281,6 +1291,7 @@ void do_asave(Mobile* ch, char* argument)
         if (ch->desc->editor == 0) {
             send_to_char("You are not editing an area, "
                 "therefore an area vnum is required.\n\r", ch);
+            save_lox_public_scripts_if_dirty();
             return;
         }
 
@@ -1305,6 +1316,7 @@ void do_asave(Mobile* ch, char* argument)
 
         if (!IS_BUILDER(ch, area)) {
             send_to_char("You are not a builder for this area.\n\r", ch);
+            save_lox_public_scripts_if_dirty();
             return;
         }
 
@@ -1323,11 +1335,13 @@ void do_asave(Mobile* ch, char* argument)
         save_area(area);
         REMOVE_BIT(area->area_flags, AREA_CHANGED);
         send_to_char("Area saved.\n\r", ch);
+        save_lox_public_scripts_if_dirty();
         return;
     }
 
     /* Show correct syntax. */
     /* -------------------- */
     do_asave(ch, "");
+    save_lox_public_scripts_if_dirty();
     return;
 }

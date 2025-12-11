@@ -63,4 +63,8 @@ extern ExecContext exec_context;
 
 extern Value repl_ret_val; // The final result of REPL and in-line code
 
+void load_lox_public_scripts(void);
+void run_post_lox_public_scripts(void);
+void save_lox_public_scripts_if_dirty(void);
+
 #endif // !LOX__LOX_H
