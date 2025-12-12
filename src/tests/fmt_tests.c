@@ -140,6 +140,60 @@ static int test_lox_edit2()
     return 0;
 }
 
+
+static int test_lox_edit_interp()
+{
+    Mobile* pc = mock_player("Jim");
+    pc->pcdata->current_theme = dup_color_theme(get_default_system_color_theme());
+    SET_BIT(pc->act_flags, PLR_COLOUR);
+
+    char* src =
+        "// This is a comment.\n"
+        "fun echo(n)\n"
+        "{\n"
+        "    print \"This is a string with interpolation ${n}.\";\n"
+        "    return n; // This is an in-line comment.\n"
+        "}\n"
+        "print echo(echo(1) + echo(2)) + echo(echo(4) + echo(5));\n";
+
+    char* out = prettify_lox_script(src);
+
+    char* expected =
+        COLOR_ALT_TEXT_1 " 1" COLOR_CLEAR ". " COLOR_LOX_COMMENT "// This is a comment.\n\r"
+        COLOR_ALT_TEXT_1 " 2" COLOR_CLEAR ". " COLOR_LOX_KEYWORD "fun " COLOR_CLEAR "echo" COLOR_LOX_OPERATOR "(" COLOR_CLEAR "n" COLOR_LOX_OPERATOR ")\n\r"
+        COLOR_ALT_TEXT_1 " 3" COLOR_CLEAR ". " COLOR_LOX_OPERATOR "{\n\r"
+        COLOR_ALT_TEXT_1 " 4" COLOR_CLEAR ".     " COLOR_LOX_KEYWORD "print " COLOR_LOX_STRING "\"This is a string with interpolation ${n}.\"" COLOR_LOX_OPERATOR ";\n\r"
+        COLOR_ALT_TEXT_1 " 5" COLOR_CLEAR ".     " COLOR_LOX_KEYWORD "return " COLOR_CLEAR "n" COLOR_LOX_OPERATOR "; " COLOR_LOX_COMMENT "// This is an in-line comment.\n\r"
+        COLOR_ALT_TEXT_1 " 6" COLOR_CLEAR ". " COLOR_LOX_OPERATOR "}\n\r"
+        COLOR_ALT_TEXT_1 " 7" COLOR_CLEAR ". " COLOR_LOX_KEYWORD "print " COLOR_CLEAR "echo" COLOR_LOX_OPERATOR "(" COLOR_CLEAR "echo" COLOR_LOX_OPERATOR "(" COLOR_LOX_LITERAL "1" COLOR_LOX_OPERATOR ") + " COLOR_CLEAR "echo" COLOR_LOX_OPERATOR "(" COLOR_LOX_LITERAL "2" COLOR_LOX_OPERATOR ")) + " COLOR_CLEAR "echo" COLOR_LOX_OPERATOR "(" COLOR_CLEAR "echo" COLOR_LOX_OPERATOR "(" COLOR_LOX_LITERAL "4" COLOR_LOX_OPERATOR ") + " COLOR_CLEAR "echo" COLOR_LOX_OPERATOR "(" COLOR_LOX_LITERAL "5" COLOR_LOX_OPERATOR "));\n\r"
+        COLOR_ALT_TEXT_1 " 8" COLOR_CLEAR ". ";
+
+    ASSERT_STR_EQ(expected, out);
+    test_output_buffer = NIL_VAL;
+
+    // If you want to see how the Lox syntax highlighting looks on the console,
+    // uncomment the code below.
+    //char buf[MSL];
+    //colourconv(buf, out, pc);
+    //printf("%s\n", buf);
+
+    // If a test fails, and you want to know where, uncommend the code below.
+    //size_t len = strlen(out);
+    //for (size_t i = 0; i < len; i++)
+    //    if (out[i] != expected[i]) {
+    //        printf("First diff @ character %d: '%c' (%02x) != '%c' (%02x)\n", (int)i, out[i], (int)out[i], expected[i], (int)expected[i]);
+    //        printf("%s\n", &out[i]);
+    //        break;
+    //    }
+
+    free_string(out);
+
+    free_color_theme(pc->pcdata->current_theme);
+
+    return 0;
+}
+
+
 // FORMAT_STRING TESTS /////////////////////////////////////////////////////////
 
 static int test_string_format_large_text()
@@ -311,6 +365,7 @@ void register_fmt_tests()
 
     REGISTER("Lox Syntax Highlighting Test #1", test_lox_edit);
     REGISTER("Lox Syntax Highlighting Test #2", test_lox_edit2);
+    REGISTER("Lox Syntax Highlighting Test #3: String Interp", test_lox_edit_interp);
     REGISTER("String Format: Large Text", test_string_format_large_text);
     REGISTER("String Format: Bare Newlines", test_string_format_bare_newlines);
     REGISTER("String Format: Indented Paragraphs", test_string_format_para_indent);
