@@ -321,6 +321,10 @@ DECLARE_OLC_FUN(skedit_callback);
 // Command editor.
 DECLARE_OLC_FUN(cmdedit_show);
 DECLARE_OLC_FUN(cmdedit_name);
+DECLARE_OLC_FUN(cmdedit_save);
+DECLARE_OLC_FUN(cmdedit_select);
+DECLARE_OLC_FUN(cmdedit_commands);
+DECLARE_OLC_FUN(cmdedit_help);
 DECLARE_OLC_FUN(cmdedit_function);
 DECLARE_OLC_FUN(cmdedit_lox);
 DECLARE_OLC_FUN(cmdedit_level);

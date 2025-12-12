@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// skedit.c
+// cmdedit.c
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <merc.h>
@@ -53,6 +53,37 @@ const CmdEntry cmd_list[] = {
 
 CmdInfo xCmd;
 
+typedef struct cmdedit_help_entry_t {
+    const char* name;
+    const char* usage;
+    const char* desc;
+} CmdeditHelpEntry;
+
+static const CmdeditHelpEntry cmdedit_help_table[] = {
+    { "show",      "show",                        "Display the currently selected command." },
+    { "list",      "list commands [min max] [filter]\n\r            list functions", "List commands or available C functions. Optional min/max levels and substring filter narrow the command list." },
+    { "select",    "select <name>",               "Switch the editor to another command without exiting CMDEdit." },
+    { "name",      "name <new name>",             "Rename the current command. Names must be unique." },
+    { "function",  "function <do_func>",          "Bind the command to a native C function from command.h." },
+    { "lox",       "lox <loxFunc|clear>",         "Bind or clear a Lox closure invoked instead of the native function." },
+    { "level",     "level <0..MAX_LEVEL>",        "Set the minimum trust level required to use the command." },
+    { "position",  "position <pos>",              "Set the required position (dead, sleeping, standing, etc.)." },
+    { "log",       "log <log_normal|log_always|log_never>", "Control auditing of this command." },
+    { "type",      "type <category>",             "Assign the command to a 'show' category (communication, combat, ...)." },
+    { "new",       "new <name>",                  "Create a new command entry with default values." },
+    { "delete",    "delete <name>",               "Remove an existing command." },
+    { "save",      "save [json|olc]",             "Persist the command table (optionally forcing a format)." },
+    { "commands",  "commands",                    "List available CMDEdit commands with short summaries." },
+    { "help",      "help [command]",              "Show contextual help for a command (alias '?')." },
+    { "done",      "done",                        "Exit CMDEdit and return to the game." },
+    { NULL,        NULL,                          NULL }
+};
+
+static const CmdeditHelpEntry* cmdedit_help_lookup(const char* name);
+static void cmdedit_print_commands(Mobile* ch);
+static void cmdedit_print_help(Mobile* ch, const char* topic);
+static bool cmdedit_matches_filter(const CmdInfo* cmd, const char* filter);
+
 static bool save_commands_persist(void)
 {
     PersistResult res = command_persist_save(NULL);
@@ -79,10 +110,13 @@ const OlcCmdEntry cmd_olc_comm_table[] = {
     { "type",	    U(&xCmd.show),	    ed_flag_set_long,   U(show_flag_table)  },
     { "new",	    0,		            ed_olded,	        U(cmdedit_new)	    },
     { "delete",	    0,		            ed_olded,	        U(cmdedit_delete)	},
+    { "select",     0,                  ed_olded,           U(cmdedit_select)   },
     { "list",	    0,  		        ed_olded,	        U(cmdedit_list)	    },
     { "show",	    0,  		        ed_olded,	        U(cmdedit_show)	    },
-    { "commands",	0,  		        ed_olded,	        U(show_commands)	},
-    { "?",		    0,  		        ed_olded,	        U(show_help)	    },
+    { "save",       0,                  ed_olded,           U(cmdedit_save)     },
+    { "commands",	0,  		        ed_olded,	        U(cmdedit_commands)	},
+    { "help",       0,                  ed_olded,           U(cmdedit_help)     },
+    { "?",		    0,  		        ed_olded,	        U(cmdedit_help)	    },
     { "version",	0,  		        ed_olded,	        U(show_version)	    },
     { NULL,		    0,  		        NULL,		        0		            }
 };
@@ -144,58 +178,6 @@ void cmdedit(Mobile* ch, char* argument)
         return;
     }
 
-    if (!str_prefix("save", argument)) {
-        char arg1[MIL];
-        char arg2[MIL];
-        argument = one_argument(argument, arg1); // "save"
-        argument = one_argument(argument, arg2); // optional format
-        const char* requested_ext = NULL;
-        bool force_format = false;
-        if (!str_cmp(arg2, "json")) {
-            requested_ext = ".json";
-            force_format = true;
-        }
-        else if (!str_cmp(arg2, "olc")) {
-            requested_ext = ".olc";
-            force_format = true;
-        }
-        const char* commands_file = cfg_get_commands_file();
-        const char* ext = strrchr(commands_file, '.');
-        bool has_ext = (ext != NULL);
-
-        if (!force_format) {
-            if (has_ext) {
-                requested_ext = NULL;
-            }
-            else {
-                if (access(commands_file, F_OK) != 0) {
-                    const char* def = cfg_get_default_format();
-                    if (def && !str_cmp(def, "json"))
-                        requested_ext = ".json";
-                    else
-                        requested_ext = ".olc";
-                }
-                else {
-                    requested_ext = NULL;
-                }
-            }
-        }
-
-        if (requested_ext != NULL) {
-            size_t base_len = has_ext ? (size_t)(ext - commands_file) : strlen(commands_file);
-            char newname[MIL];
-            snprintf(newname, sizeof(newname), "%.*s%s", (int)base_len, commands_file, requested_ext);
-            cfg_set_commands_file(newname);
-        }
-
-        send_to_char("Saving command table...", ch);
-        if (save_commands_persist())
-            send_to_char("Done.\n\r", ch);
-        else
-            send_to_char("Failed.\n\r", ch);
-        return;
-    }
-
     /* Search Table and Dispatch Command. */
     if (!process_olc_command(ch, argument, cmd_olc_comm_table))
         interpret(ch, argument);
@@ -254,16 +236,31 @@ void do_cmdedit(Mobile* ch, char* argument)
 CMDEDIT(cmdedit_show)
 {
     CmdInfo* pCmd;
+    const char* func_name;
+    const char* log_name;
+    //const char* show_name;
 
     EDIT_CMD(ch, pCmd);
 
+    func_name = cmd_func_name(pCmd->do_fun);
+    if (IS_NULLSTR(func_name))
+        func_name = "(not assigned)";
+
+    log_name = flag_string(log_flag_table, pCmd->log);
+    if (IS_NULLSTR(log_name))
+        log_name = "log_normal";
+
+    //show_name = flag_string(show_flag_table, pCmd->show);
+    //if (IS_NULLSTR(show_name))
+    //    show_name = "none";
+
     olc_print_str(ch, "Name", pCmd->name);
-    olc_print_str(ch, "Function", cmd_func_name(pCmd->do_fun));
-    olc_print_str(ch, "Lox", (pCmd->lox_fun_name && pCmd->lox_fun_name->chars) ? pCmd->lox_fun_name->chars : "");
+    olc_print_str(ch, "Function", func_name);
+    olc_print_str(ch, "Lox", (pCmd->lox_fun_name && pCmd->lox_fun_name->chars) ? pCmd->lox_fun_name->chars : "(none)");
     olc_print_num(ch, "Level", pCmd->level);
     olc_print_str(ch, "Position", position_table[pCmd->position].name);
-    olc_print_flags(ch, "Log?", log_flag_table, pCmd->log);
-    olc_print_flags(ch, "Show?", show_flag_table, pCmd->show);
+    olc_print_str(ch, "Log", log_name);
+    //olc_print_str(ch, "Category", show_name);
 
     return false;
 }
@@ -290,67 +287,128 @@ void list_functions(Buffer* pBuf)
         add_buf(pBuf, "\n\r");
 }
 
-void list_commands(Buffer* pBuf, int minlev, int maxlev)
+static bool cmdedit_matches_filter(const CmdInfo* cmd, const char* filter)
+{
+    if (cmd == NULL || IS_NULLSTR(filter))
+        return true;
+
+    if (!str_infix(filter, cmd->name))
+        return true;
+
+    const char* func = cmd_func_name(cmd->do_fun);
+    if (!IS_NULLSTR(func) && !str_infix(filter, func))
+        return true;
+
+    if (cmd->lox_fun_name && cmd->lox_fun_name->chars
+        && !str_infix(filter, cmd->lox_fun_name->chars))
+        return true;
+
+    return false;
+}
+
+static void list_commands(Buffer* pBuf, int minlev, int maxlev, const char* filter)
 {
     char buf[MSL];
     int i, cnt = 0;
 
-    sprintf(buf, COLOR_TITLE "Nv %-12.12s %-13.13s Pos Log Nv %-12.12s %-13.13s Pos Log" COLOR_EOL,
+    sprintf(buf, COLOR_TITLE "Lv %-12.12s Src %-13.13s    Lv %-12.12s Src %-13.13s " COLOR_EOL,
         "Name", "Function", "Name", "Function");
     add_buf(pBuf, buf);
+    add_buf(pBuf, COLOR_DECOR_2 "== ============ === ============== " 
+        COLOR_DECOR_1 "|" COLOR_DECOR_2 " == ============ === ==============" COLOR_EOL);
 
     for (i = 0; i < max_cmd; ++i) {
         if (cmd_table[i].level < minlev || cmd_table[i].level > maxlev)
             continue;
+        if (!cmdedit_matches_filter(&cmd_table[i], filter))
+            continue;
 
-        sprintf(buf, "%2d " COLOR_ALT_TEXT_1 "%-12.12s" COLOR_CLEAR " %-13.13s %-3.3s %-3.3s",
+        const char* func;
+
+        if (cmd_table[i].lox_fun_name != NULL && cmd_table[i].lox_fun_name->chars != NULL)
+            func = cmd_table[i].lox_fun_name->chars;
+        else
+            func = cmd_func_name(cmd_table[i].do_fun);
+
+        if (IS_NULLSTR(func))
+            func = "(unset)";
+        //const char* log_name = flag_string(log_flag_table, cmd_table[i].log);
+        //if (IS_NULLSTR(log_name))
+        //    log_name = "log_normal";
+        //const char* show_name = flag_string(show_flag_table, cmd_table[i].show);
+        //if (IS_NULLSTR(show_name))
+        //    show_name = "none";
+
+        char src = (cmd_table[i].lox_fun_name && cmd_table[i].lox_fun_name->chars
+            && cmd_table[i].lox_fun_name->chars[0] != '\0')
+            ? 'L' : 'C';
+
+        sprintf(buf, "%2d " COLOR_ALT_TEXT_1 "%-12.12s" COLOR_CLEAR "  %c "
+            COLOR_ALT_TEXT_2 " %-13.13s ",
             cmd_table[i].level,
             cmd_table[i].name,
-            cmd_func_name(cmd_table[i].do_fun),
-            position_table[cmd_table[i].position].name,
-            &(flag_string(log_flag_table, cmd_table[i].log))[4]);
+            src,
+            func);
         if (cnt % 2 == 1)
-            strcat(buf, "\n\r");
+            strcat(buf, COLOR_EOL);
         else
-            strcat(buf, " ");
+            strcat(buf, COLOR_DECOR_1 " | " COLOR_CLEAR);
         add_buf(pBuf, buf);
         cnt++;
     }
 
-    if (cnt % 2 != 0)
-        add_buf(pBuf, "\n\r");
+    if (cnt == 0) {
+        add_buf(pBuf, COLOR_INFO "No commands matched your criteria." COLOR_EOL);
+    }
+    else {
+        if (cnt % 2 != 0)
+            add_buf(pBuf, "\n\r");
+        add_buf(pBuf, COLOR_INFO "Src legend: C = native C function, L = Lox script." COLOR_EOL);
+    }
 }
 
 CMDEDIT(cmdedit_list)
 {
     Buffer* pBuf;
-    char arg[MIL], arg2[MIL];
-    int minlev, maxlev;
+    char arg[MIL], arg2[MIL], arg3[MIL];
+    char filter[MIL] = "";
+    int minlev = 0;
+    int maxlev = MAX_LEVEL;
 
     READ_ARG(arg);
 
     if (IS_NULLSTR(arg) || !is_name(arg, "commands functions")) {
-        send_to_char("Syntax : list [commands/functions] [min level] [max level]\n\r", ch);
+        send_to_char("Syntax : list commands [min level] [max level] [name filter]\n\r"
+                     "         list functions\n\r", ch);
         return false;
     }
-
-    minlev = 0;
-    maxlev = MAX_LEVEL;
 
     if (!IS_NULLSTR(argument)) {
         READ_ARG(arg2);
 
-        if (!is_number(arg2)) {
-            send_to_char("CMDEdit : The level must be a number, obviously.\n\r", ch);
-            return false;
+        if (!IS_NULLSTR(arg2) && is_number(arg2)) {
+            minlev = atoi(arg2);
+
+            if (!IS_NULLSTR(argument)) {
+                READ_ARG(arg3);
+                if (!IS_NULLSTR(arg3) && is_number(arg3)) {
+                    maxlev = atoi(arg3);
+                }
+                else if (!IS_NULLSTR(arg3)) {
+                    strncpy(filter, arg3, sizeof(filter) - 1);
+                    filter[sizeof(filter) - 1] = '\0';
+                }
+            }
+        }
+        else if (!IS_NULLSTR(arg2)) {
+            strncpy(filter, arg2, sizeof(filter) - 1);
+            filter[sizeof(filter) - 1] = '\0';
         }
 
-        minlev = atoi(arg2);
-
-        if (!IS_NULLSTR(argument))
-            maxlev = atoi(argument);
-        else
-            maxlev = 0;
+        if (IS_NULLSTR(filter) && !IS_NULLSTR(argument)) {
+            strncpy(filter, argument, sizeof(filter) - 1);
+            filter[sizeof(filter) - 1] = '\0';
+        }
 
         if (maxlev < 1 || maxlev > MAX_LEVEL)
             maxlev = minlev;
@@ -359,20 +417,158 @@ CMDEDIT(cmdedit_list)
     pBuf = new_buf();
 
     if (!str_prefix(arg, "commands"))
-        list_commands(pBuf, minlev, maxlev);
+        list_commands(pBuf, minlev, maxlev, filter);
     else if (!str_prefix(arg, "functions"))
         list_functions(pBuf);
     else
-        add_buf(pBuf, "Idiot!\n\r");
+        add_buf(pBuf, "Unknown list target.\n\r");
 
     page_to_char(BUF(pBuf), ch);
     free_buf(pBuf);
     return false;
 }
 
+static const CmdeditHelpEntry* cmdedit_help_lookup(const char* name)
+{
+    if (IS_NULLSTR(name))
+        return NULL;
+
+    for (const CmdeditHelpEntry* entry = cmdedit_help_table; entry->name != NULL; ++entry) {
+        if (!str_prefix(name, entry->name))
+            return entry;
+    }
+    return NULL;
+}
+
+static void cmdedit_print_commands(Mobile* ch)
+{
+    Buffer* buf = new_buf();
+    char line[MSL];
+
+    add_buf(buf, COLOR_TITLE "CMDEdit Commands" COLOR_EOL);
+    for (const CmdeditHelpEntry* entry = cmdedit_help_table; entry->name != NULL; ++entry) {
+        snprintf(line, sizeof(line), COLOR_ALT_TEXT_1 "%-10s" COLOR_CLEAR " - %s\n\r",
+            entry->name, entry->desc);
+        add_buf(buf, line);
+    }
+    page_to_char(BUF(buf), ch);
+    free_buf(buf);
+}
+
+static void cmdedit_print_help(Mobile* ch, const char* topic)
+{
+    if (IS_NULLSTR(topic)) {
+        send_to_char("Usage: cmdedit help <command>\n\r", ch);
+        cmdedit_print_commands(ch);
+        return;
+    }
+
+    const CmdeditHelpEntry* entry = cmdedit_help_lookup(topic);
+    if (!entry) {
+        printf_to_char(ch, "No help available for '%s'.\n\r", topic);
+        return;
+    }
+
+    printf_to_char(ch, COLOR_TITLE "%s" COLOR_CLEAR "\n\r", entry->name);
+    printf_to_char(ch, COLOR_INFO "Usage: " COLOR_CLEAR "%s\n\r", entry->usage);
+    printf_to_char(ch, "%s\n\r", entry->desc);
+}
+
 void do_nothing(Mobile* ch, char* argument)
 {
     return;
+}
+
+CMDEDIT(cmdedit_select)
+{
+    int cmd;
+
+    if (IS_NULLSTR(argument)) {
+        send_to_char("Syntax : select <command name>\n\r", ch);
+        return false;
+    }
+
+    if ((cmd = cmd_lookup(argument)) == -1) {
+        send_to_char("CMDEdit : That command does not exist.\n\r", ch);
+        return false;
+    }
+
+    if (ch->desc == NULL) {
+        send_to_char("CMDEdit : You do not have a descriptor.\n\r", ch);
+        return false;
+    }
+
+    ch->desc->pEdit = U(&cmd_table[cmd]);
+    cmdedit_show(ch, "");
+    return false;
+}
+
+CMDEDIT(cmdedit_save)
+{
+    char format[MIL];
+    READ_ARG(format);
+
+    const char* requested_ext = NULL;
+    bool force_format = false;
+
+    if (!IS_NULLSTR(format)) {
+        if (!str_cmp(format, "json")) {
+            requested_ext = ".json";
+            force_format = true;
+        }
+        else if (!str_cmp(format, "olc")) {
+            requested_ext = ".olc";
+            force_format = true;
+        }
+        else {
+            send_to_char("Usage : save [json|olc]\n\r", ch);
+            return false;
+        }
+    }
+
+    const char* commands_file = cfg_get_commands_file();
+    const char* ext = strrchr(commands_file, '.');
+    bool has_ext = (ext != NULL);
+
+    if (!force_format) {
+        if (!has_ext) {
+            if (access(commands_file, F_OK) != 0) {
+                const char* def = cfg_get_default_format();
+                if (def && !str_cmp(def, "json"))
+                    requested_ext = ".json";
+                else
+                    requested_ext = ".olc";
+            }
+        }
+    }
+
+    if (requested_ext != NULL) {
+        size_t base_len = has_ext ? (size_t)(ext - commands_file) : strlen(commands_file);
+        char newname[MIL];
+        snprintf(newname, sizeof(newname), "%.*s%s", (int)base_len, commands_file, requested_ext);
+        cfg_set_commands_file(newname);
+    }
+
+    send_to_char("Saving command table...", ch);
+    if (save_commands_persist())
+        send_to_char("Done.\n\r", ch);
+    else
+        send_to_char("Failed.\n\r", ch);
+    return true;
+}
+
+CMDEDIT(cmdedit_commands)
+{
+    cmdedit_print_commands(ch);
+    return false;
+}
+
+CMDEDIT(cmdedit_help)
+{
+    char topic[MIL];
+    READ_ARG(topic);
+    cmdedit_print_help(ch, topic);
+    return false;
 }
 
 CMDEDIT(cmdedit_name)
@@ -453,6 +649,8 @@ CMDEDIT(cmdedit_new)
     cmd_table[max_cmd - 1].level = MAX_LEVEL;
     cmd_table[max_cmd - 1].log = LOG_ALWAYS;
     cmd_table[max_cmd - 1].show = 0;
+    cmd_table[max_cmd - 1].lox_fun_name = NULL;
+    cmd_table[max_cmd - 1].lox_closure = NULL;
 
     cmd_table[max_cmd].name = str_dup("");
 
