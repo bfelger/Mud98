@@ -268,6 +268,15 @@ bool call_value(Value callee, int arg_count)
                 push(NIL_VAL);
                 return true;
             }
+        case OBJ_NATIVE_METHOD: {
+                ObjNativeMethod* native_method = AS_NATIVE_METHOD(callee);
+                NativeMethod native = native_method->native;
+                Value receiver = peek(arg_count);
+                Value result = native(receiver, arg_count, vm.stack_top - arg_count);
+                vm.stack_top -= (ptrdiff_t)arg_count + 1;
+                push(result);
+                return true;
+            }
         default:
             break; // Non-callable object type.
         } // end switch

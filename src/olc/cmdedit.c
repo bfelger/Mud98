@@ -72,6 +72,7 @@ static bool save_commands_persist(void)
 const OlcCmdEntry cmd_olc_comm_table[] = {
     { "name",	    0,		            ed_olded,	        U(cmdedit_name)	    },
     { "function",	0,		            ed_olded,	        U(cmdedit_function)	},
+    { "lox",	    0,		            ed_olded,	        U(cmdedit_lox)	    },
     { "level",	    0,		            ed_olded,	        U(cmdedit_level)	},
     { "position",	U(&xCmd.position),	ed_int16lookup,	    U(position_lookup)	},
     { "log",	    U(&xCmd.log),	    ed_flag_set_long,   U(log_flag_table)   },
@@ -258,6 +259,7 @@ CMDEDIT(cmdedit_show)
 
     olc_print_str(ch, "Name", pCmd->name);
     olc_print_str(ch, "Function", cmd_func_name(pCmd->do_fun));
+    olc_print_str(ch, "Lox", (pCmd->lox_fun_name && pCmd->lox_fun_name->chars) ? pCmd->lox_fun_name->chars : "");
     olc_print_num(ch, "Level", pCmd->level);
     olc_print_str(ch, "Position", position_table[pCmd->position].name);
     olc_print_flags(ch, "Log?", log_flag_table, pCmd->log);
@@ -536,6 +538,33 @@ CMDEDIT(cmdedit_function)
     }
 
     pCmd->do_fun = function;
+    send_to_char("Ok.\n\r", ch);
+    return true;
+}
+
+CMDEDIT(cmdedit_lox)
+{
+    CmdInfo* pCmd;
+
+    EDIT_CMD(ch, pCmd);
+
+    if (IS_NULLSTR(argument)) {
+        send_to_char("Syntax : lox [function name|clear]\n\r", ch);
+        return false;
+    }
+
+    if (!str_cmp(argument, "clear")) {
+        pCmd->lox_fun_name = NULL;
+        pCmd->lox_closure = NULL;
+        send_to_char("Lox function cleared.\n\r", ch);
+        return true;
+    }
+
+    if (!cmd_set_lox_closure(pCmd, argument)) {
+        send_to_char("CMDEdit : Unable to bind that Lox function.\n\r", ch);
+        return false;
+    }
+
     send_to_char("Ok.\n\r", ch);
     return true;
 }

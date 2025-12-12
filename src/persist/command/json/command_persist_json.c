@@ -84,19 +84,25 @@ PersistResult command_persist_json_save(const PersistWriter* writer, const char*
         JSON_SET_STRING(obj, "name", cmd->name);
 
         const char* func = cmd_func_name(cmd->do_fun);
-        if (func && func[0] != '\0')
+        if (cmd->do_fun != do_nothing && func && func[0] != '\0')
             JSON_SET_STRING(obj, "function", func);
 
-        JSON_SET_STRING(obj, "position", position_name_safe(cmd->position));
+        if (cmd->position != POS_DEAD)
+            JSON_SET_STRING(obj, "position", position_name_safe(cmd->position));
+
+        if (cmd->level != 0)
         JSON_SET_INT(obj, "level", cmd->level);
 
         const char* log_name = flag_name_from_value(cmd->log, log_flag_table);
-        if (log_name)
+        if (cmd->log > 0 && log_name)
             JSON_SET_STRING(obj, "log", log_name);
 
         const char* show_name = flag_name_from_value(cmd->show, show_flag_table);
-        if (show_name)
+        if (cmd->show > TYP_UNDEF && show_name)
             JSON_SET_STRING(obj, "category", show_name);
+
+        if (cmd->lox_fun_name && cmd->lox_fun_name->chars && cmd->lox_fun_name->chars[0] != '\0')
+            JSON_SET_STRING(obj, "loxFunction", cmd->lox_fun_name->chars);
 
         json_array_append_new(commands, obj);
     }
@@ -192,6 +198,12 @@ PersistResult command_persist_json_load(const PersistReader* reader, const char*
 
         const char* cat_name = JSON_STRING(cmd_obj, "category");
         cmd->show = (int16_t)flag_value_from_name(cat_name, show_flag_table, TYP_UNDEF);
+
+        const char* lox_name = JSON_STRING(cmd_obj, "loxFunction");
+        if (lox_name && lox_name[0] != '\0') {
+            if (!cmd_set_lox_closure(cmd, lox_name))
+                bugf("command JSON load: failed to bind Lox function '%s'", lox_name);
+        }
     }
 
     cmd_table[count].name = str_dup("");

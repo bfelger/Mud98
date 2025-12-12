@@ -322,6 +322,7 @@ DECLARE_OLC_FUN(skedit_callback);
 DECLARE_OLC_FUN(cmdedit_show);
 DECLARE_OLC_FUN(cmdedit_name);
 DECLARE_OLC_FUN(cmdedit_function);
+DECLARE_OLC_FUN(cmdedit_lox);
 DECLARE_OLC_FUN(cmdedit_level);
 DECLARE_OLC_FUN(cmdedit_list);
 DECLARE_OLC_FUN(cmdedit_new);
