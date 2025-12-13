@@ -12,9 +12,15 @@
 #include <db.h>
 #include <handler.h>
 #include <interp.h>
+#include <mem_watchpoint.h>
 #include <tables.h>
 #include <lookup.h>
 #include <recycle.h>
+#include <stringbuffer.h>
+
+#include <entities/mobile.h>
+#include <entities/mob_prototype.h>
+
 #include <persist/command/command_persist.h>
 
 #ifdef _MSC_VER
@@ -265,14 +271,14 @@ CMDEDIT(cmdedit_show)
     return false;
 }
 
-void list_functions(Buffer* pBuf)
+void list_functions(StringBuffer* sb)
 {
     int i;
     char buf[MSL];
 
     sprintf(buf, COLOR_TITLE "Num %-13.13s Num %-13.13s Num %-13.13s Num %-13.13s" COLOR_EOL,
         "Name", "Name", "Name", "Name");
-    add_buf(pBuf, buf);
+    sb_append(sb, buf);
 
     for (i = 0; cmd_list[i].name; i++) {
         sprintf(buf, COLOR_ALT_TEXT_1 "%3d" COLOR_CLEAR " %-13.13s", i, cmd_list[i].name);
@@ -280,11 +286,11 @@ void list_functions(Buffer* pBuf)
             strcat(buf, "\n\r");
         else
             strcat(buf, " ");
-        add_buf(pBuf, buf);
+        sb_append(sb, buf);
     }
 
     if (i % 4 != 0)
-        add_buf(pBuf, "\n\r");
+        sb_append(sb, "\n\r");
 }
 
 static bool cmdedit_matches_filter(const CmdInfo* cmd, const char* filter)
@@ -306,15 +312,13 @@ static bool cmdedit_matches_filter(const CmdInfo* cmd, const char* filter)
     return false;
 }
 
-static void list_commands(Buffer* pBuf, int minlev, int maxlev, const char* filter)
+static void list_commands(StringBuffer* sb, int minlev, int maxlev, const char* filter)
 {
-    char buf[MSL];
     int i, cnt = 0;
 
-    sprintf(buf, COLOR_TITLE "Lv %-12.12s Src %-13.13s    Lv %-12.12s Src %-13.13s " COLOR_EOL,
+    sb_appendf(sb, COLOR_TITLE "Lv %-12.12s Src %-13.13s    Lv %-12.12s Src %-13.13s " COLOR_EOL,
         "Name", "Function", "Name", "Function");
-    add_buf(pBuf, buf);
-    add_buf(pBuf, COLOR_DECOR_2 "== ============ === ============== " 
+    sb_appendf(sb, COLOR_DECOR_2 "== ============ === ============== " 
         COLOR_DECOR_1 "|" COLOR_DECOR_2 " == ============ === ==============" COLOR_EOL);
 
     for (i = 0; i < max_cmd; ++i) {
@@ -343,33 +347,31 @@ static void list_commands(Buffer* pBuf, int minlev, int maxlev, const char* filt
             && cmd_table[i].lox_fun_name->chars[0] != '\0')
             ? 'L' : 'C';
 
-        sprintf(buf, "%2d " COLOR_ALT_TEXT_1 "%-12.12s" COLOR_CLEAR "  %c "
+        sb_appendf(sb, "%2d " COLOR_ALT_TEXT_1 "%-12.12s" COLOR_CLEAR "  %c "
             COLOR_ALT_TEXT_2 " %-13.13s ",
             cmd_table[i].level,
             cmd_table[i].name,
             src,
             func);
         if (cnt % 2 == 1)
-            strcat(buf, COLOR_EOL);
+            sb_append(sb, COLOR_EOL);
         else
-            strcat(buf, COLOR_DECOR_1 " | " COLOR_CLEAR);
-        add_buf(pBuf, buf);
+            sb_append(sb, COLOR_DECOR_1 " | " COLOR_CLEAR);
         cnt++;
     }
 
     if (cnt == 0) {
-        add_buf(pBuf, COLOR_INFO "No commands matched your criteria." COLOR_EOL);
+        sb_append(sb, COLOR_INFO "No commands matched your criteria." COLOR_EOL);
     }
     else {
         if (cnt % 2 != 0)
-            add_buf(pBuf, "\n\r");
-        add_buf(pBuf, COLOR_INFO "Src legend: C = native C function, L = Lox script." COLOR_EOL);
+            sb_append(sb, COLOR_EOL);
+        sb_append(sb, COLOR_INFO "Src legend: C = native C function, L = Lox script." COLOR_EOL);
     }
 }
 
 CMDEDIT(cmdedit_list)
 {
-    Buffer* pBuf;
     char arg[MIL], arg2[MIL], arg3[MIL];
     char filter[MIL] = "";
     int minlev = 0;
@@ -414,17 +416,19 @@ CMDEDIT(cmdedit_list)
             maxlev = minlev;
     }
 
-    pBuf = new_buf();
+    StringBuffer* sb = sb_new();
 
     if (!str_prefix(arg, "commands"))
-        list_commands(pBuf, minlev, maxlev, filter);
+        list_commands(sb, minlev, maxlev, filter);
     else if (!str_prefix(arg, "functions"))
-        list_functions(pBuf);
+        list_functions(sb);
     else
-        add_buf(pBuf, "Unknown list target.\n\r");
+        sb_append(sb, COLOR_INFO "Unknown list target." COLOR_EOL);
 
-    page_to_char(BUF(pBuf), ch);
-    free_buf(pBuf);
+    page_to_char(sb_string(sb), ch);
+
+    sb_free(sb);
+
     return false;
 }
 
@@ -442,17 +446,17 @@ static const CmdeditHelpEntry* cmdedit_help_lookup(const char* name)
 
 static void cmdedit_print_commands(Mobile* ch)
 {
-    Buffer* buf = new_buf();
+    StringBuffer* buf = sb_new();
     char line[MSL];
 
-    add_buf(buf, COLOR_TITLE "CMDEdit Commands" COLOR_EOL);
+    sb_append(buf, COLOR_TITLE "CMDEdit Commands" COLOR_EOL);
     for (const CmdeditHelpEntry* entry = cmdedit_help_table; entry->name != NULL; ++entry) {
         snprintf(line, sizeof(line), COLOR_ALT_TEXT_1 "%-10s" COLOR_CLEAR " - %s\n\r",
             entry->name, entry->desc);
-        add_buf(buf, line);
+        sb_append(buf, line);
     }
-    page_to_char(BUF(buf), ch);
-    free_buf(buf);
+    page_to_char(sb_string(buf), ch);
+    sb_free(buf);
 }
 
 static void cmdedit_print_help(Mobile* ch, const char* topic)

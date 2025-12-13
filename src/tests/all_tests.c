@@ -51,6 +51,9 @@ void run_unit_tests()
     register_event_tests();
     register_faction_tests();
     register_money_tests();
+    register_buffer_tests();
+    register_stringbuffer_tests();
+    register_mem_watchpoint_tests();
     register_quest_tests();
     register_login_tests();
     register_persist_tests();

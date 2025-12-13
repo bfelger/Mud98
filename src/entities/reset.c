@@ -42,6 +42,12 @@ void reset_room(Room* room)
     if (!room)
         return;
 
+    if (!room->data) {
+        bug("Reset_room: room->data is NULL for room vnum %"PRVNUM".", 
+            VNUM_FIELD(room));
+        return;
+    }
+
     last = false;
 
     for (iExit = 0; iExit < DIR_MAX; iExit++) {
@@ -65,6 +71,21 @@ void reset_room(Room* room)
         char buf[MAX_STRING_LENGTH];
         int count, limit = 0;
 
+        // Defensive check - reset should never be NULL in a well-formed list
+        if (!reset) {
+            bugf("Reset_room: reset is NULL in room %"PRVNUM" reset list!", 
+                VNUM_FIELD(room));
+            break;
+        }
+
+        // Defensive check - detect if we're reading garbage memory
+        if (reset->command < ' ' || reset->command > '~') {
+            bugf("Reset_room: reset->command is garbage (0x%02x) in room %"PRVNUM"!", 
+                (unsigned char)reset->command, VNUM_FIELD(room));
+            bugf("Reset pointer: %p, next: %p", (void*)reset, (void*)reset->next);
+            break;
+        }
+
         switch (reset->command) {
         default:
             bug("Reset_room: bad command %c.", reset->command);
@@ -74,11 +95,13 @@ void reset_room(Room* room)
         {
             if ((mob_proto = get_mob_prototype(reset->arg1)) == NULL) {
                 bug("Reset_room: 'M': bad vnum %"PRVNUM".", reset->arg1);
+                last = false;
                 continue;
             }
 
             if ((target_room = get_room(room->area, reset->arg3)) == NULL) {
                 bug("Reset_area: 'R': bad vnum %"PRVNUM".", reset->arg3);
+                last = false;
                 continue;
             }
 
