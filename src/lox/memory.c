@@ -55,7 +55,7 @@ void* reallocate(void* pointer, size_t old_size, size_t new_size)
     vm.bytes_allocated += new_size - old_size;
     if (new_size > old_size) {
 #ifdef DEBUG_STRESS_GC
-        collect_garbage();
+            collect_garbage();
 #else
         if (vm.bytes_allocated > vm.next_gc) {
             collect_garbage();
@@ -253,6 +253,7 @@ static void blacken_object(Obj* object)
         Area* area = (Area*)object;
         mark_entity(&area->header);
         mark_table(&area->rooms);
+        mark_value(OBJ_VAL(area->data));  // Keep AreaData alive
         break;
     }
     case OBJ_AREA_DATA: {
@@ -266,6 +267,9 @@ static void blacken_object(Obj* object)
         mark_entity(&room->header);
         mark_list(&room->mobiles);
         mark_list(&room->objects);
+        mark_value(OBJ_VAL(room->data));  // Keep RoomData alive
+        mark_value(OBJ_VAL(room->area));  // Keep Area alive
+        // Note: room->exit[] are RoomExit* (not Obj types), managed by memory pool
         break;
     }
     case OBJ_ROOM_DATA: {
@@ -279,22 +283,30 @@ static void blacken_object(Obj* object)
         mark_entity(&obj->header);
         mark_object((Obj*)obj->owner);
         mark_list(&obj->objects);
+        mark_value(OBJ_VAL(obj->prototype));  // Keep ObjPrototype alive
+        if (obj->in_room)
+            mark_value(OBJ_VAL(obj->in_room));  // Keep Room alive
         break;
     }
     case OBJ_OBJ_PROTO: {
         ObjPrototype* obj_proto = (ObjPrototype*)object;
         mark_entity(&obj_proto->header);
+        mark_value(OBJ_VAL(obj_proto->area));  // Keep AreaData alive
         break;
     }
     case OBJ_MOB: {
         Mobile* mob = (Mobile*)object;
         mark_entity(&mob->header);
         mark_list(&mob->objects);
+        mark_value(OBJ_VAL(mob->prototype));  // Keep MobPrototype alive
+        if (mob->in_room)
+            mark_value(OBJ_VAL(mob->in_room));  // Keep Room alive
         break;
     }
     case OBJ_MOB_PROTO: {
         MobPrototype* mob_proto = (MobPrototype*)object;
         mark_entity(&mob_proto->header);
+        mark_value(OBJ_VAL(mob_proto->area));  // Keep AreaData alive
         break;
     }
     case OBJ_FACTION: {
@@ -504,6 +516,12 @@ static void sweep()
 
 void collect_garbage()
 {
+    // Prevent reentrancy - diagnostic logging allocates memory!
+    if (vm.gc_running) {
+        return;
+    }
+    vm.gc_running = true;
+
 #if defined(DEBUG_LOG_GC) || defined(COUNT_GCS)
     lox_printf("-- gc begin\n");
     size_t before = vm.bytes_allocated;
@@ -513,14 +531,27 @@ void collect_garbage()
     gc_count++;
 #endif
 
+    fprintf(stderr, "GC: collect_garbage called, fBootDb=%d\n", fBootDb);
+    fflush(stderr);
+
     // We don't add game entities to VM globals until after boot. Don't GC
     // anything until we've had a chance to do that.
     if (!fBootDb) {
+        fprintf(stderr, "GC: Running collection (mark_id=%u, bytes=%zu)\n", 
+            vm.current_gc_mark + 1, vm.bytes_allocated);
+        fflush(stderr);
+        
         vm.current_gc_mark++;
         mark_roots();
         trace_references();
         table_remove_white(&vm.strings);
         sweep();
+        
+        fprintf(stderr, "GC: Collection complete\n");
+        fflush(stderr);
+    } else {
+        fprintf(stderr, "GC: Skipping collection (still booting)\n");
+        fflush(stderr);
     }
 
     vm.next_gc = vm.bytes_allocated * GC_HEAP_GROW_FACTOR;
@@ -530,10 +561,18 @@ void collect_garbage()
     lox_printf("   collected %zu bytes (from %zu to %zu) next at %zu\n",
         before - vm.bytes_allocated, before, vm.bytes_allocated, vm.next_gc);
 #endif
+
+    vm.gc_running = false;
 }
 
 void collect_garbage_nongrowing()
 {
+    // Prevent reentrancy
+    if (vm.gc_running) {
+        return;
+    }
+    vm.gc_running = true;
+
 #if defined(DEBUG_LOG_GC) || defined(COUNT_GCS)
     lox_printf("-- gc (non-growing) begin\n");
     size_t before = vm.bytes_allocated;
@@ -558,6 +597,8 @@ void collect_garbage_nongrowing()
     lox_printf("   collected %zu bytes (from %zu to %zu) next at %zu\n",
         before - vm.bytes_allocated, before, vm.bytes_allocated, vm.next_gc);
 #endif
+
+    vm.gc_running = false;
 }
 
 

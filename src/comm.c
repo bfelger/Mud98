@@ -43,11 +43,13 @@
 #include "interp.h"
 #include "lookup.h"
 #include "match.h"
+#include "mem_watchpoint.h"
 #include "mob_prog.h"
 #include "note.h"
 #include "recycle.h"
 #include "save.h"
 #include "skills.h"
+#include "stringbuffer.h"
 #include "stringutils.h"
 #include "tables.h"
 #include "telnet.h"
@@ -2219,49 +2221,47 @@ void page_to_char_bw(const char* txt, Mobile * ch)
 // Page to one char, new colour version, by Lope.
 void page_to_char(const char* txt, Mobile * ch)
 {
-    INIT_BUF(temp, MAX_STRING_LENGTH * 4);
-    const char* point;
-    char* point2;
-    size_t skip = 0;
-
-    BUF(temp)[0] = '\0';
-    point2 = BUF(temp);
-    if (txt && ch->desc) {
-        if (IS_SET(ch->act_flags, PLR_COLOUR)) {
-            for (point = txt; *point; point++) {
-                if (*point == COLOR_ESC_CHAR) {
-                    point++;
-                    skip = colour(*point, ch, point2);
-                    while (skip-- > 0) ++point2;
-                    continue;
-                }
-                *point2 = *point;
-                *++point2 = '\0';
-            }
-            *point2 = '\0';
-            ch->desc->showstr_head = alloc_mem(strlen(BUF(temp)) + 1);
-            strcpy(ch->desc->showstr_head, BUF(temp));
-            ch->desc->showstr_point = ch->desc->showstr_head;
-            show_string(ch->desc, "");
-        }
-        else {
-            for (point = txt; *point; point++) {
-                if (*point == COLOR_ESC_CHAR) {
-                    point++;
-                    continue;
-                }
-                *point2 = *point;
-                *++point2 = '\0';
-            }
-            *point2 = '\0';
-            ch->desc->showstr_head = alloc_mem(strlen(BUF(temp)) + 1);
-            strcpy(ch->desc->showstr_head, BUF(temp));
-            ch->desc->showstr_point = ch->desc->showstr_head;
-            show_string(ch->desc, "");
-        }
+    if (!txt || !ch->desc) {
+        return;
     }
 
-    free_buf(temp);
+    // Use growable StringBuffer to handle arbitrarily large input
+    StringBuffer* sb = sb_new();
+    const char* point;
+    
+    if (IS_SET(ch->act_flags, PLR_COLOUR)) {
+        // Process color codes
+        for (point = txt; *point; point++) {
+            if (*point == COLOR_ESC_CHAR) {
+                point++;
+                // colour() expands color code into temp buffer
+                char color_buf[256];  // Plenty of space for expanded color codes
+                size_t len = colour(*point, ch, color_buf);
+                sb_append_n(sb, color_buf, len);
+            }
+            else {
+                sb_append_char(sb, *point);
+            }
+        }
+    }
+    else {
+        // Strip color codes
+        for (point = txt; *point; point++) {
+            if (*point == COLOR_ESC_CHAR) {
+                point++;  // Skip color code character
+                continue;
+            }
+            sb_append_char(sb, *point);
+        }
+    }
+    
+    // Allocate final string and set up paging
+    ch->desc->showstr_head = alloc_mem(sb_length(sb) + 1);
+    strcpy(ch->desc->showstr_head, sb_string(sb));
+    ch->desc->showstr_point = ch->desc->showstr_head;
+    
+    sb_free(sb);
+    show_string(ch->desc, "");
 }
 
 /* string pager */

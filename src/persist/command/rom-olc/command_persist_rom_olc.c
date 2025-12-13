@@ -14,6 +14,7 @@
 #include <db.h>
 #include <interp.h>
 #include <lookup.h>
+#include <lox/vm.h>
 
 #include <data/mobile_data.h>
 
@@ -40,6 +41,7 @@ static const SaveTableEntry cmdsavetable[] = {
     { "level",       FIELD_INT16,                 U(&tmp_cmd.level),       0,                 0 },
     { "log",         FIELD_INT16_FLAGSTRING,      U(&tmp_cmd.log),         U(log_flag_table), 0 },
     { "show",        FIELD_INT16_FLAGSTRING,      U(&tmp_cmd.show),        U(show_flag_table),0 },
+    { "lox_fun",     FIELD_LOX_CLOSURE,           U(&tmp_cmd.lox_fun_name),U(&tmp_cmd.lox_closure), 0 },
     { NULL,          0,                           0,                       0,                 0 }
 };
 

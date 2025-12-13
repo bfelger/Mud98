@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stï¿½rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -177,25 +177,41 @@ bool add_buf(Buffer* buffer, char* string)
     if (buffer->state == BUFFER_OVERFLOW) /* don't waste time on bad strings! */
         return false;
 
-    size_t len = strlen(buffer->string) + strlen(string) + 1;
+    size_t current_len = strlen(buffer->string);
+    size_t add_len = strlen(string);
+    size_t new_len = current_len + add_len + 1; // +1 for null terminator
 
-    if (len >= buffer->size) /* increase the buffer size */
+    if (new_len > buffer->size) /* increase the buffer size */
     {
-        buffer->size = get_size(len);
-        if (buffer->size == SIZE_MAX) /* overflow */
+        size_t new_size = get_size(new_len);
+        if (new_size == SIZE_MAX) /* overflow */
         {
-            buffer->size = oldsize;
             buffer->state = BUFFER_OVERFLOW;
-            bug("buffer overflow past size %d", buffer->size);
+            char err[256];
+            sprintf(err, "buffer overflow: need %zu bytes, max size exceeded", new_len);
+            bug(err, 0);
             return false;
         }
-    }
-
-    if (buffer->size != oldsize) {
+        
+        buffer->size = new_size;
         buffer->string = alloc_mem(buffer->size);
 
-        strcpy(buffer->string, oldstr);
+        memcpy(buffer->string, oldstr, current_len);
+        buffer->string[current_len] = '\0';
         free_mem(oldstr, oldsize);
+        
+        char msg[256];
+        sprintf(msg, "Buffer grew from %zu to %zu (need %zu)", oldsize, buffer->size, new_len);
+        bug(msg, 0);
+    }
+
+    // Verify we have space before strcat
+    if (new_len > buffer->size) {
+        char err[256];
+        sprintf(err, "CRITICAL: Buffer size check failed! need=%zu have=%zu", new_len, buffer->size);
+        bug(err, 0);
+        buffer->state = BUFFER_OVERFLOW;
+        return false;
     }
 
     strcat(buffer->string, string);

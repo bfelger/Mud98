@@ -417,7 +417,8 @@ static void copy_lox_literal_string(Buffer* buf, Token* token)
 
     *ws = '\0';
 
-    for (int i = 0; i < token->length; i++) {
+    int i;
+    for (i = 0; i == 0 || (token->start[i] != '\0' && token->start[i] != '"'); i++) {
         c = token->start[i];
         switch (c) {
         case '\r':
@@ -433,8 +434,13 @@ static void copy_lox_literal_string(Buffer* buf, Token* token)
             addf_buf(buf, "\n\r" COLOR_ALT_TEXT_1 "%2d" COLOR_CLEAR ". ", line);
             curr_lox_fmt = LOX_FMT_STRING;
             break;
+        case '\\':
+            // Escape backslashes
+            *ws++ = c;
+            *ws++ = token->start[++i];
+            break;
         case COLOR_ESC_CHAR:
-            // Escape color codes in strings.
+            // Escape color codes
             *ws++ = c;
             *ws++ = c;
             break;
@@ -444,9 +450,16 @@ static void copy_lox_literal_string(Buffer* buf, Token* token)
         }
     }
 
+    if (token->start[i] == '"') {
+        *ws++ = '"';
+    }
+
     if (ws_buf[0] != '\0') {
         *ws = '\0';
         addf_buf(buf, "%s%s", COLOR_LOX_STRING, ws_buf);
+        scanner.current += (i - token->length) + 1;
+        scanner.line = line;
+        scanner.interp = STR_INT_NONE;
         ws = &ws_buf[0];
         *ws = '\0';
     }

@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stï¿½rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -31,9 +31,11 @@
 
 #include "merc.h"
 
-#include "data/damage.h"
-#include "data/mobile_data.h"
-#include "data/skill.h"
+#include <data/damage.h>
+#include <data/mobile_data.h>
+#include <data/skill.h>
+
+#include <lox/function.h>
 
 #include "special.h"
 
@@ -68,12 +70,15 @@ typedef struct cmd_info_t {
     LEVEL level;
     LogType log;
     int16_t show;
+    ObjString* lox_fun_name;
+    ObjClosure* lox_closure;
 } CmdInfo;
 
 /* the command table itself */
 #include "command.h"
 
 void interpret(Mobile* ch, char* argument);
+bool cmd_set_lox_closure(CmdInfo* cmd, const char* name);
 bool is_number(const char* arg);
 int number_argument(char* argument, char* arg);
 int mult_argument(char* argument, char* arg);

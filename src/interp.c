@@ -41,6 +41,8 @@
 #include "data/player.h"
 #include "data/social.h"
 
+#include <lox/lox.h>
+#include <lox/vm.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,6 +54,51 @@ bool check_social args((Mobile * ch, char* command, char* argument));
 
 // Log-all switch.
 bool fLogAll = false;
+
+static void execute_lox_command(const CmdInfo* cmd, Mobile* ch, char* argument)
+{
+    if (!cmd || !cmd->lox_closure || ch == NULL)
+        return;
+
+    const char* args = argument ? argument : "";
+    ObjString* arg_str = (args[0] == '\0') ? lox_empty_string
+        : copy_string(args, (int)strlen(args));
+
+    ExecContext previous = exec_context;
+    exec_context.me = ch;
+    exec_context.is_repl = false;
+
+    invoke_closure(cmd->lox_closure, 2, OBJ_VAL(ch), OBJ_VAL(arg_str));
+
+    exec_context = previous;
+}
+
+bool cmd_set_lox_closure(CmdInfo* cmd, const char* name)
+{
+    if (!cmd)
+        return false;
+
+    cmd->lox_fun_name = NULL;
+    cmd->lox_closure = NULL;
+
+    if (IS_NULLSTR(name))
+        return true;
+
+    cmd->lox_fun_name = lox_string(name);
+
+    Value value;
+    if (!table_get(&vm.globals, cmd->lox_fun_name, &value)) {
+        bugf("cmd_set_lox_closure: unknown Lox callable '%s'", name);
+        return false;
+    }
+    if (!IS_CLOSURE(value)) {
+        bugf("cmd_set_lox_closure: '%s' is not callable", name);
+        return false;
+    }
+
+    cmd->lox_closure = AS_CLOSURE(value);
+    return true;
+}
 
 // Command table.
 
@@ -259,7 +306,10 @@ void interpret(Mobile* ch, char* argument)
     }
 
     // Dispatch the command.
-    (*cmd_table[cmd].do_fun)(ch, argument);
+    if (cmd_table[cmd].lox_closure)
+        execute_lox_command(&cmd_table[cmd], ch, argument);
+    else
+        (*cmd_table[cmd].do_fun)(ch, argument);
 
     return;
 }
