@@ -531,27 +531,14 @@ void collect_garbage()
     gc_count++;
 #endif
 
-    fprintf(stderr, "GC: collect_garbage called, fBootDb=%d\n", fBootDb);
-    fflush(stderr);
-
     // We don't add game entities to VM globals until after boot. Don't GC
     // anything until we've had a chance to do that.
     if (!fBootDb) {
-        fprintf(stderr, "GC: Running collection (mark_id=%u, bytes=%zu)\n", 
-            vm.current_gc_mark + 1, vm.bytes_allocated);
-        fflush(stderr);
-        
         vm.current_gc_mark++;
         mark_roots();
         trace_references();
         table_remove_white(&vm.strings);
         sweep();
-        
-        fprintf(stderr, "GC: Collection complete\n");
-        fflush(stderr);
-    } else {
-        fprintf(stderr, "GC: Skipping collection (still booting)\n");
-        fflush(stderr);
     }
 
     vm.next_gc = vm.bytes_allocated * GC_HEAP_GROW_FACTOR;

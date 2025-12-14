@@ -47,6 +47,8 @@
 #include <sys/time.h>
 #endif
 
+extern bool test_output_enabled;
+
 SkillHash* skill_hash_free;
 int skill_hash_created;
 int skill_hash_allocated;
@@ -200,9 +202,11 @@ bool add_buf(Buffer* buffer, char* string)
         buffer->string[current_len] = '\0';
         free_mem(oldstr, oldsize);
         
-        char msg[256];
-        sprintf(msg, "Buffer grew from %zu to %zu (need %zu)", oldsize, buffer->size, new_len);
-        bug(msg, 0);
+        if (!test_output_enabled) {
+            char msg[256];
+            sprintf(msg, "Buffer grew from %zu to %zu (need %zu)", oldsize, buffer->size, new_len);
+            bug(msg, 0);
+        }
     }
 
     // Verify we have space before strcat

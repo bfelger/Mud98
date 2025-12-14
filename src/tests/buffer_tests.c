@@ -236,36 +236,13 @@ static int test_buffer_cmdedit_scenario()
     ASSERT(final_len < 14500);
     ASSERT(buf->state == BUFFER_SAFE);
     
-    printf("Cmdedit scenario: %zu bytes in buffer of size %zu\n", 
-        final_len, buf->size);
+    //printf("Cmdedit scenario: %zu bytes in buffer of size %zu\n", 
+    //    final_len, buf->size);
     
     free_buf(buf);
 
     return 0;
 }
-
-
-// Test memory pattern after free
-static int test_buffer_memory_pattern()
-{
-    Buffer* buf = new_buf();
-    void* buf_ptr = (void*)buf;
-    void* str_ptr = (void*)buf->string;
-    
-    add_buf(buf, "Test content");
-    
-    // Record locations before free
-    printf("Buffer at %p, string at %p\n", buf_ptr, str_ptr);
-    
-    free_buf(buf);
-
-    
-    // After free, buffer goes on free list
-    // String memory goes back to alloc_mem free list
-    // Neither should overlap with Entity memory ranges
-    return 0;
-}
-
 
 static TestGroup buffer_tests_group;
 
@@ -286,7 +263,6 @@ void register_buffer_tests()
     REGISTER("stress test with many buffers", test_buffer_stress);
     REGISTER("size bucket selection", test_buffer_size_buckets);
     REGISTER("cmdedit list scenario", test_buffer_cmdedit_scenario);
-    REGISTER("memory pattern analysis", test_buffer_memory_pattern);
 
 #undef REGISTER
 }

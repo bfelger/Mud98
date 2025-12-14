@@ -26,6 +26,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+extern bool test_output_enabled;
+
 typedef struct lox_script_registry_t {
     LoxScriptEntry* entries;
     size_t count;
@@ -118,7 +120,8 @@ static void compile_lox_script(const char* source)
 // Used to load lox scripts from the scripts/ directory on bootup
 void load_lox_public_scripts()
 {
-    printf_log("Loading Lox scripts.");
+    if (!test_output_enabled)
+        printf_log("Loading Lox scripts.");
 
     reset_lox_script_registry();
     PersistResult res = lox_persist_load(cfg_get_lox_file());

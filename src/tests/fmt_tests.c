@@ -363,9 +363,9 @@ void register_fmt_tests()
 
     register_test_group(&fmt_tests);
 
-    REGISTER("Lox Syntax Highlighting Test #1", test_lox_edit);
-    REGISTER("Lox Syntax Highlighting Test #2", test_lox_edit2);
-    REGISTER("Lox Syntax Highlighting Test #3: String Interp", test_lox_edit_interp);
+    REGISTER("Lox Syntax Highlighting #1", test_lox_edit);
+    REGISTER("Lox Syntax Highlighting #2", test_lox_edit2);
+    REGISTER("Lox Syntax Highlighting Interp", test_lox_edit_interp);
     REGISTER("String Format: Large Text", test_string_format_large_text);
     REGISTER("String Format: Bare Newlines", test_string_format_bare_newlines);
     REGISTER("String Format: Indented Paragraphs", test_string_format_para_indent);

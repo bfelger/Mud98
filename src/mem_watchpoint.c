@@ -19,10 +19,13 @@ typedef struct {
 static Watchpoint watchpoints[MAX_WATCHPOINTS];
 static int watchpoint_count = 0;
 
+extern bool test_output_enabled;
+
 bool mem_watch_add(void* addr, size_t size, const char* label)
 {
     if (watchpoint_count >= MAX_WATCHPOINTS) {
-        fprintf(stderr, "mem_watch_add: Too many watchpoints!\n");
+        if (!test_output_enabled)
+            fprintf(stderr, "mem_watch_add: Too many watchpoints!\n");
         return false;
     }
 
@@ -37,8 +40,10 @@ bool mem_watch_add(void* addr, size_t size, const char* label)
     memcpy(wp->snapshot, addr, size);
     wp->active = true;
 
-    fprintf(stderr, "WATCH: Added watchpoint on %s at %p (%zu bytes)\n",
-            wp->label, addr, size);
+    if (!test_output_enabled) {
+        fprintf(stderr, "WATCH: Added watchpoint on %s at %p (%zu bytes)\n",
+                wp->label, addr, size);
+    }
     return true;
 }
 
@@ -52,30 +57,33 @@ int mem_watch_check(void)
 
         // Compare current memory with snapshot
         if (memcmp(wp->addr, wp->snapshot, wp->size) != 0) {
-            fprintf(stderr, "\n**********************************************\n");
-            fprintf(stderr, "CORRUPTION DETECTED: %s at %p\n", wp->label, wp->addr);
-            fprintf(stderr, "**********************************************\n");
+            if (!test_output_enabled) {
+                fprintf(stderr, "\n**********************************************\n");
+                fprintf(stderr, "CORRUPTION DETECTED: %s at %p\n", wp->label, wp->addr);
+                fprintf(stderr, "**********************************************\n");
+
             
-            // Show which bytes changed
-            uint8_t* current = (uint8_t*)wp->addr;
-            for (size_t j = 0; j < wp->size; j++) {
-                if (current[j] != wp->snapshot[j]) {
-                    fprintf(stderr, "  Offset +%zu: was 0x%02x, now 0x%02x",
-                            j, wp->snapshot[j], current[j]);
-                    if (wp->snapshot[j] >= 32 && wp->snapshot[j] < 127)
-                        fprintf(stderr, " (was '%c')", wp->snapshot[j]);
-                    if (current[j] >= 32 && current[j] < 127)
-                        fprintf(stderr, " (now '%c')", current[j]);
-                    fprintf(stderr, "\n");
-                    
-                    // Only show first 20 changes
-                    if (corrupted_count > 20) {
-                        fprintf(stderr, "  ... (more changes not shown)\n");
-                        break;
+                // Show which bytes changed
+                uint8_t* current = (uint8_t*)wp->addr;
+                for (size_t j = 0; j < wp->size; j++) {
+                    if (current[j] != wp->snapshot[j]) {
+                        fprintf(stderr, "  Offset +%zu: was 0x%02x, now 0x%02x",
+                                j, wp->snapshot[j], current[j]);
+                        if (wp->snapshot[j] >= 32 && wp->snapshot[j] < 127)
+                            fprintf(stderr, " (was '%c')", wp->snapshot[j]);
+                        if (current[j] >= 32 && current[j] < 127)
+                            fprintf(stderr, " (now '%c')", current[j]);
+                        fprintf(stderr, "\n");
+                        
+                        // Only show first 20 changes
+                        if (corrupted_count > 20) {
+                            fprintf(stderr, "  ... (more changes not shown)\n");
+                            break;
+                        }
                     }
                 }
+                fprintf(stderr, "**********************************************\n\n");
             }
-            fprintf(stderr, "**********************************************\n\n");
             corrupted_count++;
             
             // Update snapshot so we don't report same corruption repeatedly
@@ -96,11 +104,15 @@ void mem_watch_clear(void)
         watchpoints[i].active = false;
     }
     watchpoint_count = 0;
-    fprintf(stderr, "WATCH: Cleared all watchpoints\n");
+    if (!test_output_enabled)
+        fprintf(stderr, "WATCH: Cleared all watchpoints\n");
 }
 
 void mem_watch_dump(void)
 {
+    if (test_output_enabled)
+        return;
+
     fprintf(stderr, "\nWatchpoint Status (%d active):\n", watchpoint_count);
     for (int i = 0; i < watchpoint_count; i++) {
         Watchpoint* wp = &watchpoints[i];

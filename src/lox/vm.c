@@ -157,6 +157,7 @@ void init_vm()
     vm.gray_capacity = 0;
     vm.gray_stack = NULL;
     vm.current_gc_mark = 0;
+    vm.gc_running = false;
 
     init_table(&vm.globals);
     init_table(&vm.strings);
