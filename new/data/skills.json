@@ -2968,6 +2968,26 @@
       "beats": 12,
       "nounDamage": "fire bolt",
       "msgOff": "!Fire Bolt!"
+    },
+    {
+      "name": "counter",
+      "levels": {
+        "mage": 53,
+        "cleric": 53,
+        "thief": 20,
+        "warrior": 25
+      },
+      "ratings": {
+        "mage": 0,
+        "cleric": 0,
+        "thief": 6,
+        "warrior": 8
+      },
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "gsn": "gsn_counter",
+      "nounDamage": "counterattack",
+      "msgOff": "!Counter!"
     }
   ]
 }

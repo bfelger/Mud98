@@ -50,7 +50,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-bool check_social args((Mobile * ch, char* command, char* argument));
+bool check_social(Mobile * ch, char* command, char* argument);
 
 // Log-all switch.
 bool fLogAll = false;

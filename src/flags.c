@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stï¿½rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -47,7 +47,7 @@
 #include <sys/time.h>
 #endif
 
-FLAGS flag_lookup args((const char* name, const struct flag_type* flag_table));
+FLAGS flag_lookup(const char* name, const struct flag_type* flag_table);
 
 void do_flag(Mobile* ch, char* argument)
 {

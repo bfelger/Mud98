@@ -70,7 +70,7 @@
 #include <direct.h>
 #endif
 
-extern int _filbuf args((FILE*));
+extern int _filbuf(FILE*);
 extern bool test_output_enabled;
 
 static bool ensure_dir_exists(const char* path)

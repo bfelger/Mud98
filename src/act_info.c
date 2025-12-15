@@ -80,12 +80,12 @@
 int max_on = 0;
 
 // Local functions.
-char* format_obj_to_char args((Object * obj, Mobile* ch, bool fShort));
+char* format_obj_to_char(Object * obj, Mobile* ch, bool fShort);
 void show_list_to_char(List* list, Mobile* ch, bool fShort, bool fShowNothing);
-void show_char_to_char_0 args((Mobile * victim, Mobile* ch));
-void show_char_to_char_1 args((Mobile * victim, Mobile* ch));
+void show_char_to_char_0(Mobile * victim, Mobile* ch);
+void show_char_to_char_1(Mobile * victim, Mobile* ch);
 void show_char_to_char(List* list, Mobile* ch);
-bool check_blind args((Mobile * ch));
+bool check_blind(Mobile * ch);
 
 char* format_obj_to_char(Object* obj, Mobile* ch, bool fShort)
 {

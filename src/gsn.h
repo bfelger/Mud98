@@ -66,5 +66,6 @@ GSN(gsn_recall)
 
 // GSNs new for Mud98
 GSN(gsn_dual_wield)
+GSN(gsn_counter)
 
 #undef GSN

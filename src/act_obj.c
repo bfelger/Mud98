@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stï¿½rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -67,11 +67,11 @@
 #define CD Mobile
 #define OD Object
 
-void wear_obj args((Mobile * ch, Object* obj, bool fReplace));
-CD* find_keeper args((Mobile * ch));
-int get_cost args((Mobile * keeper, Object* obj, bool fBuy));
-void obj_to_keeper args((Object * obj, Mobile* ch));
-OD* get_obj_keeper args((Mobile * ch, Mobile* keeper, char* argument));
+void wear_obj(Mobile * ch, Object* obj, bool fReplace);
+CD* find_keeper(Mobile * ch);
+int get_cost(Mobile * keeper, Object* obj, bool fBuy);
+void obj_to_keeper(Object * obj, Mobile* ch);
+OD* get_obj_keeper(Mobile * ch, Mobile* keeper, char* argument);
 
 static bool split_money(Mobile* ch, long amount, bool allow_partial)
 {

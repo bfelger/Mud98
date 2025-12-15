@@ -1,4 +1,4 @@
-151
+152
 
 #SKILL
 name reserved~
@@ -301,6 +301,22 @@ min_mana 25
 beats 12
 noun_damage ~
 msg_off !Control Weather!~
+msg_obj ~
+#END
+
+#SKILL
+name counter~
+skill_level 53 53 20 25 @
+rating 0 0 6 8 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position fighting~
+pgsn gsn_counter~
+slot 0
+min_mana 0
+beats 0
+noun_damage counter~
+msg_off !Counter!~
 msg_obj ~
 #END
 

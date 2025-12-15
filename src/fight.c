@@ -90,22 +90,23 @@ static const CorpseDesc corpse_descs[] = {
 #define SPRINTF_CORPSE_DESC(b, t, n)   sprintf(b, "%s%s%s", corpse_descs[t].desc1, n, corpse_descs[DESC_CORPSE].desc2);
 
 // Local functions.
-void check_assist args((Mobile * ch, Mobile* victim));
-bool check_dodge args((Mobile * ch, Mobile* victim));
-void check_killer args((Mobile * ch, Mobile* victim));
-bool check_parry args((Mobile * ch, Mobile* victim));
-bool check_shield_block args((Mobile * ch, Mobile* victim));
-void dam_message(Mobile * ch, Mobile* victim, int dam, int dt, bool immune);
-void death_cry args((Mobile * ch));
-void group_gain args((Mobile * ch, Mobile* victim));
-int xp_compute args((Mobile * gch, Mobile* victim, int total_levels));
-bool is_safe args((Mobile * ch, Mobile* victim));
-void make_corpse args((Mobile * ch));
-void one_hit(Mobile * ch, Mobile* victim, int16_t dt, bool secondary);
-void mob_hit(Mobile * ch, Mobile* victim, int16_t dt);
-void raw_kill args((Mobile * victim));
-void set_fighting args((Mobile * ch, Mobile* victim));
-void disarm args((Mobile * ch, Mobile* victim));
+void check_assist(Mobile* ch, Mobile* victim);
+bool check_dodge(Mobile* ch, Mobile* victim);
+void check_killer(Mobile* ch, Mobile* victim);
+bool check_parry(Mobile* ch, Mobile* victim);
+bool check_shield_block(Mobile* ch, Mobile* victim);
+void dam_message(Mobile* ch, Mobile* victim, int dam, int dt, bool immune);
+void death_cry(Mobile* ch);
+void group_gain(Mobile* ch, Mobile* victim);
+int xp_compute(Mobile* gch, Mobile* victim, int total_levels);
+bool is_safe(Mobile* ch, Mobile* victim);
+void make_corpse(Mobile* ch);
+void one_hit(Mobile* ch, Mobile* victim, int16_t dt, bool secondary);
+void mob_hit(Mobile* ch, Mobile* victim, int16_t dt);
+void raw_kill(Mobile* victim);
+void set_fighting(Mobile* ch, Mobile* victim);
+void disarm(Mobile* ch, Mobile* victim);
+bool check_counter(Mobile* ch, Mobile* victim, int dam, int dt);
 
 /*
  * Control the fights going on.
@@ -605,7 +606,11 @@ void one_hit(Mobile* ch, Mobile* victim, int16_t dt, bool secondary)
     if (dam <= 0) 
         dam = 1;
 
-    result = damage(ch, victim, dam, dt, dam_type, true);
+    if (!check_counter(ch, victim, dam, dt))
+        result = damage(ch, victim, dam, dt, dam_type, true);
+    else 
+    return;
+
 
     /* but do we have a funky weapon? */
     if (result && wield != NULL) {

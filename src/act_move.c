@@ -60,8 +60,8 @@
 #endif
 
 // Local functions.
-int find_door args((Mobile * ch, char* arg));
-bool has_key args((Mobile * ch, int key));
+int find_door(Mobile * ch, char* arg);
+bool has_key(Mobile * ch, int key);
 
 void move_char(Mobile* ch, int door, bool follow)
 {
