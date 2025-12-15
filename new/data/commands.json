@@ -905,6 +905,11 @@
       "position": "resting"
     },
     {
+      "name": "reload",
+      "function": "do_reload",
+      "level": 59
+    },
+    {
       "name": "remove",
       "function": "do_remove",
       "position": "resting"

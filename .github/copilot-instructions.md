@@ -66,17 +66,20 @@ Mud98 is a modernized Rivers of MUD (ROM) 2.4b6 codebase — a classic text-base
 
 **Key editors**:
 - `aedit` — Areas
+- `cedit` — Classes
+- `cmdedit` — Commands
+- `gedit` — Skill groups
+- `hedit` — Help files
 - `redit` — Rooms
 - `medit` — Mobiles (NPCs)
 - `oedit` — Objects
-- `cedit` — Classes
+- `qedit` — Quests
 - `raedit` — Races
+- `scredit` — Scripts (Lox)
 - `sedit` — Socials
 - `skedit` — Skills
-- `cmdedit` — Commands
-- `gedit` — Skill groups
-- `qedit` — Quests
-- `hedit` — Help files
+- `tedit` — Tutorials
+- `theme` — Color themes
 
 **Subeditors**: Many OLC editors support nested editors (e.g., `lox` for scripting, `event` for event bindings). Each uses `EditFunc` signature: `bool func(char* n_fun, Mobile* ch, char* argument, uintptr_t arg, const uintptr_t par)`.
 

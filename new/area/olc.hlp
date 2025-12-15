@@ -1,77 +1,130 @@
 #HELPS
 -1 OLC EDIT~
-Syntax: EDIT AREA [create/reset] [vnum]     - Area Creation and Repoping.
-Syntax: EDIT ROOM ( [create] [vnum] )       - Room Creation and Editing.
-Syntax: EDIT OBJ  [create] <vnum>		    - Object Creation and Editing.
-Syntax: EDIT MOB  [create] <vnum>           - Mobile Creation and Editing.
-Syntax: EDIT MP   [create] <vnum>           - MobProg Creation/Editing.
-
-Syntax: ASAVE  <world/area/changed/list>    - Save Editing to Disk.
-Syntax: ALIST                               - Listing of Areas.
-Syntax: RESET  See Help Resets.             - Set Game Resets.
+^TSyntax: EDIT <subcommand> [...args...]^x
 
 Definition: [optional] <required> (combined arguments)
 
-     The above commands are used to expand the game world.  The original
-code is based on was written by Surreality and installed in The Isles by Locke.
-It was then converted to work with Envy by Jason Dinkel, and ported to ROM
-2.3 by Hans Birkeland (Hugin). Port to Rom 2.4 by Ivan Toledo (ver 2.01).
+^TSubcommand  Alias        Description
+^*AREA        ^_AEDIT      ^|- ^jArea and faction editor
+^*ROOM        ^_REDIT      ^|- ^jRooms, exit, and reset editor
+^*OBJECT      ^_OEDIT      ^|- ^jObject editor
+^*MOBILE      ^_MEDIT      ^|- ^jMobile editor
+^*SCRIPT      ^_SCREDIT    ^|- ^jLox script editor (for public scripts)
+^*PROGRAM     ^_MPEDIT     ^|- ^jLegacy MobProg editor
+^*RACE        ^_RAEDIT     ^|- ^jRace editor (for player and mobiles)
+^*CLASS       ^_CEDIT      ^|- ^jClass editor
+^*SOCIAL      ^_SEDIT      ^|- ^jSocial editor
+^*SKILL       ^_SKEDIT     ^|- ^jSkill editor
+^*GROUP       ^_GEDIT      ^|- ^jSkill group editor
+^*COMMAND     ^_CMDEDIT    ^|- ^jCommand editor
+^*HELP        ^_HEDIT      ^|- ^jHelp editor
+^*QUEST       ^_QEDIT      ^|- ^jQuest editor
+^*TUTORIAL    ^_TEDIT      ^|- ^jTutorial editor^x
 
-     Inside an editor, typing COMMANDS lists working commands and ? gives
-help. AEDIT and REDIT default to the current area or room. EDIT ROOM RESET
-resets the current room.  Most commands with no arguments display syntax.
-See also help: AEDIT REDIT MEDIT OEDIT
+    Most commands with a ^jSAVE^x option accept an additional parameter to select
+the format (^jOLC^x or ^jJSON^x) to save the file so. You may have to update ^jmud98.cfg^x
+if you change file formats.
+    The above commands are used to expand the game world. The original code this
+is based on was written by Surreality and installed in The Isles by Locke. It 
+was then converted to work with Envy by Jason Dinkel, and ported to ROM 2.3 by 
+Hans Birkeland (Hugin). Port to ROM 2.4 by Ivan Toledo (ver 2.01). Mud98 extends
+that lineage with editors for races, socials, quests, commands, classes, 
+scripts, and tutorials.
+    Inside an editor, typing ^jCOMMANDS^x lists working commands and ^j?^x gives
+context help. ^jAEDIT^x and ^jREDIT^x default to the current area or room. ^jEDIT ROOM
+RESET^x resets the current room. Most commands with no arguments display syntax. 
+Use ^jASAVE^x after making changes so that the updated data is written to disk.
+
+See also help: ^jAEDIT REDIT OEDIT TEDIT MEDIT PEDIT RAEDIT SEDIT SKEDIT CMDEDIT 
+      GEDIT CEDIT HEDIT QEDIT SCREDIT^x
 ~
 
 0 ALIST~
-Syntax: ALIST
+^TSyntax: ALIST^x
 
 This command gives you a listing of all the areas along with their
 vnum assignments and the builder(s) assigned to editing them.
 ~
 
 0 AEDIT~
-Syntax: edit area	 -Enters the editor for the current area.
-Syntax: edit area <vnum> -Enters the editor for the selected area.
+^TSyntax: EDIT AREA [vnum]
+^TSyntax: EDIT AREA CREATE [vnum]
+^TSyntax: AEDIT [vnum] / CREATE [vnum]^x
 
-The follow commands are available from within the AEDITOR:
+Definition: [optional] <required> (combined arguments)
 
-age <number>        - set the age of the area
-builder <player>    - toggle that builder's access
-commands            - prints a list of possible commands
-create              - create a brand new area and switch to it
-done                - exits the area editor and returns to normal play
-filename <filename> - change the file name for the area (be careful)
-name <name>         - change the 'AREAS' name of this area
-reset               - resets the current area
-security <rating>   - set the security rating for this area
-show                - hitting return, or 'show' shows the area stats
-vnum <lower> <upper>- set the lower and upper vnum's
-lvnum <lower>       - set the lower vnum
-uvnum <upper>       - set the upper vnum
-<flags>             - area flags, type ? AREA for a list
+If not given a VNUM:
+    ^|- ^jAEDIT^x edits the area you are currently in
+    ^|- ^jAEDIT CREATE^x creates a new area with the next available VNUM
+
+^TSubcommand                    Description
+^*(none)                      ^|- ^jSame as ^*SHOW
+^*SHOW                        ^|- ^jShow fields for currently edited area
+^*NAME <string>               ^|- ^jChange the name shown in ^*AREAS^j and ^*ALIST
+^*VNUMS <lo> <hi>             ^|- ^jSet the vnum range assigned to the area
+^*MIN_VNUM <lo>               ^|- ^jSet the lower VNUM range independently
+^*MAX_VNUM <hi>               ^|- ^jSet the upper VNUM range independently
+^*LEVELS <lo> <hi>            ^|- ^jSet the advertized player and mob level range
+^*MIN_LEVEL <lo>              ^|- ^jSet the lower level range independently
+^*MAX_LEVEL <hi>              ^|- ^jSet the upper level range independently
+^*SECTOR <type>               ^|- ^jChoose the default sector for new rooms
+^*RESET <percent>/ALWAYSRESET ^|- ^jControl when the area is forced to repopulate
+^*INSTANCETYPE SINGLE/MULTI   ^|- ^jPick how the area instantiates
+^*CREDITS <text>              ^|- ^jSet the builder credits line shown in AREAS
+^*STORY                       ^|- ^jEdit builder "storybeats" for area
+^*CHECKLIST                   ^|- ^jEdit builder check-list for area
+^*FACTION                     ^|- ^jManage area-specific factions and their 
+                              relationships
+^*BUILDER                     ^|- ^jGrant or restrict builder access to the area
+^*FILENAME <filename>         ^|- ^jRename the area file before saving
+^*CREATE [vnum]               ^|- ^jCreate a new area shell starting at that vnum
+^*COMMANDS                    ^|- ^jList valid subcommands or inline help^x
+^*?                           ^|- ^jList valid subcommands or inline help^x
+
+Use ^jASAVE AREA [JSON|OLC]^x (or ^jASAVE CHANGED/WORLD^x) after editing so that
+your area file is written back out with the desired format.
 ~
 
 0 REDIT~
-Syntax: edit room		-Enters the editor for the current room.
+^TSyntax: EDIT ROOM [vnum]^x
+^TSyntax: EDIT ROOM CREATE <vnum>^x
+^TSyntax: REDIT [vnum] / CREATE <vnum>^x
 
-The following commands are available from within the REDITOR:
+Definition: [optional] <required> (combined arguments)
 
-commands            - prints a list of possible commands
-create <vnum>       - creates a room with a certain vnum
-desc                - edit description of room
-done                - exists the room editor and returns to normal play
-ed                  - type this command for additonal extra-description help
-format              - format(wordwrap) the room description
-name <room title>   - changes the room title
-show                - hitting return, or 'show' shows the room stats
-oshow <vnum>        - shows an object with given vnum
-olist               - lists objects in this area.
-mshow <vnum>        - shows a mobile with given vnum
-mlist               - lists mobiles in this area.
-room <flags>        - room attributes, type ? ROOM for a list
-sector <type>       - terrain of room, type ? SECTOR for a list
-<direction>         - see help EXIT, or type <dir> ?
+If not given a VNUM:
+    ^|- ^jREDIT^x edits the room you are currently in
+    ^|- ^jREDIT CREATE^x fails
+
+^TSubcommand                    Description
+^*(none)                      ^|- ^jSame as ^*SHOW
+^*SHOW                        ^|- ^jShow fields for currently edited room
+^*NAME <string>               ^|- ^jChange the name shown in the ^*LOOK
+^*DESC                        ^|- ^jLong-form string editor for room's description
+^*ED                          ^|- ^jManage "extra descriptions" by keyword
+^*HEAL <pct>                  ^|- ^jSet HP regen rate of room (default 100)
+^*MANA <pct>                  ^|- ^jSet mana regen rate of room (default 100)
+^*OWNER <string>              ^|- ^jSet the room's owner
+^*CLAN                        ^|- ^jSet the room's clan, if any
+^*SECTOR                      ^|- ^jSet the room's sector, if different than area's
+^*ROOMFLAGS                   ^|- ^jToggle room flags
+^*EXIT/LINK/LINK              ^|- ^jManage exits, create them, and/or add new rooms
+                              (see ^*EXIT^j)
+^*RESET/MRESET/ORESET         ^|- ^jManage resets for the room (see ^*RESETS^j)
+^*RLIST/MLIST/OLIST           ^|- ^jDisplay rooms/mobs/objs in area
+^*MSHOW/OSHOW <vnum>          ^|- ^jDisplay OLC info on the given mob/obj
+^*CHECKROOMS/CHECKMOB/CHECKOBJ^|- ^jValidate area rooms/mobs/objs for consistency
+^*LOX                         ^|- ^jEdit Lox class for room
+^*EVENT                       ^|- ^jManage events for room
+^*COPY <vnum>                 ^|- ^jCopy fields from given room
+^*CLEAR                       ^|- ^jReset room to defaults
+^*PURGE                       ^|- ^jPurge all spawned mobs/objs
+^*CREATE <vnum>               ^|- ^jCreate new room and switch to it
+^*COMMANDS                    ^|- ^jList ^*AEDIT^j subcommands
+^*? <command>                 ^|- ^jGet help about specific sublcommands and flags^x
+
+Remember to use ^*EDIT ROOM RESET^x command to immediately test the repops you 
+configure here.
 ~
 
 0 EXIT~
@@ -94,94 +147,311 @@ a player closing the door and not due to the door being set to be closed.
 ~
 
 0 OEDIT~
-Syntax: edit object <vnum>	-Enters the editor for the selected object.
+^TSyntax: EDIT OBJECT [vnum]^x
+^TSyntax: EDIT OBJECT CREATE <vnum>^x
+^TSyntax: OEDIT <vnum> / CREATE <vnum>^x
 
-The following commands are available from within the OEDITOR:
+Definition: [optional] <required> (combined arguments)
 
-addaffect           - applies an affect to an object, no args for help
-delaffect           - removes an affect to an object, no args for help
-commands            - prints a list of possible commands
-cost <gold>         - sets the gold value of the object
-create <vnum>       - creates object with specified vnum
-done                - exits the object editor and returns to normal play
-ed                  - type this for info on adding/editing extended descripts
-long                - edit long description (the one in the room)
-name <keywords>     - sets the keywords on an object
-short <desc>        - sets the 'name' of an object (a sword, a fish etc)
-show                - hitting return, or 'show' shows the object stats
-v0 <num>            - sets the value '0' on the object
-v1 <num>            - sets the value '1' on the object
-v2 <num>            - sets the value '2' on the object
-v3 <num>            - sets the value '3' on the object
-v4 <num>            - sets the value '4' on the objcet
-weight <num>        - sets the weight of the object
-type         	    - type of object, type ? TYPE for a list
-extra               - attributes of object, type ? EXTRA for a list
-wear                - where object is worn, type ? WEAR for a list
-material            - material the object is made from
+If not given a VNUM:
+    ^|- ^jOEDIT^x fails (objects must be referenced by VNUM)
+    ^|- ^jOEDIT CREATE <vnum>^x creates a new object when the VNUM belongs to
+      an area you can build in
+
+^TSubcommand                    Description
+^*(none)                      ^|- ^jSame as ^*SHOW
+^*SHOW                        ^|- ^jShow fields for currently edited object
+^*NAME / SHORT / LONG         ^|- ^jEdit names and descriptions
+^*MATERIAL / COST / LEVEL     ^|- ^jSet the object's base metadata
+^*CONDITION / WEIGHT          ^|- ^jSet durability and weight
+^*EXTRA / WEAR / TYPE         ^|- ^jToggle flags and choose the equipment slot/type
+^*ED                          ^|- ^jManage extra descriptions
+^*ADDAFFECT / DELAFFECT       ^|- ^jAdd or remove affects on the object
+^*ADDAPPLY                    ^|- ^jAdd an apply to the object
+^*V0..V4                      ^|- ^jSet type-specific values (see ^*ITEM_*^j helps)
+^*RECVAL                      ^|- ^jPrint recommended values for the object's level
+^*EVENT / LOX                 ^|- ^jAttach scripted events or edit the Lox class
+^*OLIST                       ^|- ^jList objects in the builder's area
+^*MSHOW / OSHOW <vnum>        ^|- ^jDisplay mob/object prototypes inline
+^*COPY <vnum>                 ^|- ^jCopy all fields from the given object vnum
+^*CREATE <vnum>               ^|- ^jCreate new object and switch to it
+^*COMMANDS / ?                ^|- ^jList valid subcommands or inline help^x
+
+Use ^jASAVE AREA [JSON|OLC]^x (or ^jASAVE CHANGED^x) after editing so prototype
+changes hit disk.
 ~
 
 0 TEDIT~
-^TSyntax: tedit <tutorial name>^x
+^TSyntax: EDIT TUTORIAL <name>^x
+^TSyntax: TEDIT <name>^x
+^TSyntax: TEDIT LIST / NEW <name>^x
 
-The following commands are available from within TEDIT:
+Definition: [optional] <required> (combined arguments)
 
-^*show                ^|- ^jdisplay the current tutorial
-^*list                ^|- ^jlist all tutorials
-^*new <name>          ^|- ^jcreate and edit a new tutorial
-^*delete [name]       ^|- ^jdelete the current or a named tutorial
-^*name <string>       ^|- ^jrename the tutorial
-^*blurb               ^|- ^jedit the short tutorial blurb (multiline editor)
-^*finish              ^|- ^jedit the completion message (multiline editor)
-^*minlevel <n>        ^|- ^jset the minimum level required
-^*stepadd [n]         ^|- ^jinsert a blank step at position n (defaults to end)
-^*stepdel <n>         ^|- ^jdelete step number n
-^*stepprompt <n>      ^|- ^jedit the prompt text for step n (multiline editor)
-^*stepmatch <n> <pat> ^|- ^jset the match pattern for the step
-^*save [json|olc]     ^|- ^jsave tutorials (format optional, respects config)
-^*commands            ^|- ^jlist available commands
-^*help/?              ^|- ^jshow this help
-^*done                ^|- ^jexit the tutorial editor^x
+If not given a tutorial name:
+    ^|- ^jTEDIT LIST^x lists all tutorials
+    ^|- ^jTEDIT NEW <name>^x creates a new tutorial and selects it
 
-Use the multiline string editor commands (e.g., `.h`, `.s`, `@`) when
-editing blurb, finish, or stepprompt text.
+^TSubcommand                    Description
+^*SHOW                        ^|- ^jDisplay the currently selected tutorial
+^*LIST                        ^|- ^jList all tutorials with their step counts
+^*NEW <name>                  ^|- ^jCreate a tutorial and begin editing it
+^*DELETE [name]               ^|- ^jDelete the current or named tutorial
+^*NAME <string>               ^|- ^jRename the tutorial
+^*BLURB                       ^|- ^jEdit the short description (multiline editor)
+^*FINISH                      ^|- ^jEdit the completion message (multiline editor)
+^*MINLEVEL <n>                ^|- ^jSet the minimum level required to view/start it
+^*STEP <n>                    ^|- ^jShow the prompt + match data for a step
+^*STEPADD [n]                 ^|- ^jInsert a blank step (defaults to end)
+^*STEPDEL <n>                 ^|- ^jDelete the referenced step
+^*STEPPROMPT <n>              ^|- ^jEdit the prompt text (multiline editor)
+^*STEPMATCH <n> <pattern>     ^|- ^jSet the match pattern for a step
+^*SAVE [JSON|OLC]             ^|- ^jSave tutorials, optionally forcing a file format
+^*COMMANDS / HELP/? / DONE    ^|- ^jList commands, show this help, or exit^x
+
+Use the multiline string editor commands (e.g., `.h`, `.s`, `@`) while editing
+^jBLURB^x, ^jFINISH^x, or ^jSTEPPROMPT^x text.
 ~
 
 0 MEDIT~
-Syntax: medit <vnum>		-Enters the editor for the selected mobile.
+^TSyntax: EDIT MOBILE [vnum]^x
+^TSyntax: EDIT MOBILE CREATE <vnum>^x
+^TSyntax: MEDIT <vnum> / CREATE <vnum>^x
 
-The following commands are available from within the MEDITOR:
+Definition: [optional] <required> (combined arguments)
 
-alignment <value>   - set the mobile's alignment
-commands            - prints a list of possible commands
-create <vnum>       - creates mobile with specified vnum
-desc                - edit the mobile's description (when looked at)
-done                - exits the mobile editor and returns to normal play
-level <level>       - set the mobile's level
-long                - edit long description (the one in the room)
-name <keywords>     - sets the keywords on an mobile
-shop                - type this command for further information
-short <desc>        - sets the 'name' of an mobile (a sword, a fish etc)
-show                - hitting return, or 'show' shows the mobile stats
-spec                - sets a mobiles spec proc, type ? SPEC for a list
-sex                 - set the mobile's sex, type ? SEX for a list
-act                 - mobiles actions, type ? ACT for a list
-affect              - mobile affects, type ? AFFECT for a list
-ac                  - set the mobile's ac, type ? AC for a list
-form                - mobiles body-form, type ? FORM for a list
-part                - mobiles bodyparts, type ? PART for a list
-imm                 - mobile is immune to, type ? IMM for a list
-res                 - mobile is resistant to, type ? RES for a list
-vuln                - mobile is vulnerable to, type ? VULN for a list
-material            - material mobile is made from, type ? MATERIAL for a list
-off                 - offensive behaviour, type ? OFF for a list
-size                - size, type ? SIZE for a list
-hitdice             - dice to toss to get mobile's hitpoints
-manadice            - dice to toss to get mobile's mana
-damdice             - dice to toss to get mobile's hand to hand damage
+If not given a VNUM:
+    ^|- ^jMEDIT^x fails (mobiles must be referenced by VNUM)
+    ^|- ^jMEDIT CREATE <vnum>^x creates a new mobile when the VNUM belongs to
+      an area you can build in
 
-type 'help HITDICE', 'help MANADICE', 'help DAMDICE' for lists of reasonable dice 
-combinations on different levels.
+^TSubcommand                    Description
+^*(none)                      ^|- ^jSame as ^*SHOW
+^*SHOW                        ^|- ^jShow fields for currently edited mob
+^*NAME / SHORT / LONG / DESC  ^|- ^jEdit names and descriptions
+^*MATERIAL / LEVEL / ALIGN    ^|- ^jSet combat level, material, and alignment
+^*ACT / AFFECT / OFF / FORM / PARTS ^|- ^jToggle core flags
+^*IMM / RES / VULN            ^|- ^jChoose resistances, immunities, and vulnerabilities
+^*SEX / SIZE                  ^|- ^jSet anatomical defaults
+^*STARTPOS / DEFAULTPOS       ^|- ^jChoose starting + default positions
+^*DAMTYPE / RACE / FACTION    ^|- ^jSet damage type, race, and faction
+^*HITDICE / MANADICE / DAMDICE^|- ^jConfigure dice (see ^*HITDICE/MANADICE/DAMDICE^j)
+^*HITROLL / AC / WEALTH       ^|- ^jSet combat stats and carried wealth
+^*SHOP                        ^|- ^jEdit shop data (if the mob is a shopkeeper)
+^*SPEC                        ^|- ^jAssign a special procedure
+^*RECVAL                      ^|- ^jPrint recommended statistics for the level
+^*ADDPROG / DELPROG           ^|- ^jAttach or remove MobProgs
+^*EVENT / LOX                 ^|- ^jHook scripted events or edit the Lox class
+^*OLIST                       ^|- ^jList prototypes in the current area
+^*MSHOW / OSHOW <vnum>        ^|- ^jDisplay prototypes inline
+^*COPY <vnum>                 ^|- ^jCopy data from another mobile
+^*CREATE <vnum>               ^|- ^jCreate new mobile and switch to it
+^*COMMANDS / ?                ^|- ^jList valid subcommands or inline help^x
+
+See ^jHITDICE^x, ^jMANADICE^x, and ^jDAMDICE^x for guidance on common dice
+setups, and remember to ^jASAVE AREA^x (or ^jASAVE CHANGED^x) when you are done.
+~
+
+0 PEDIT~
+^TSyntax: EDIT PROGRAM <vnum>^x
+^TSyntax: PEDIT CREATE <vnum>^x
+
+Definition: [optional] <required> (combined arguments)
+
+^TSubcommand                    Description
+^*SHOW                        ^|- ^jDisplay the currently selected mob program
+^*CODE                        ^|- ^jOpen the multiline editor for the program body
+^*CREATE <vnum>               ^|- ^jCreate a mob program with the given VNUM
+^*COMMANDS / ? / DONE         ^|- ^jList commands, show help, or exit^x
+
+Mob programs are saved along with their parent areas when you run
+^jASAVE AREA^x or ^jASAVE CHANGED^x.
+~
+
+0 RAEDIT~
+^TSyntax: EDIT RACE <name>^x
+^TSyntax: RAEDIT NEW <name>^x
+
+Definition: [optional] <required> (combined arguments)
+
+^TSubcommand                    Description
+^*SHOW                        ^|- ^jDisplay the current race definition
+^*NAME <string>               ^|- ^jRename the race
+^*PCRACE                      ^|- ^jToggle whether the race is playable
+^*WHO <string>                ^|- ^jSet the short who-name shown at creation
+^*ACT / AFF / OFF / IMM /     ^|- ^jToggle default flags for mobiles
+^*  RES / VULN / FORM / PART  ^|
+^*POINTS                      ^|- ^jSet creation point cost
+^*SIZE                        ^|- ^jSet default size
+^*START_LOC                   ^|- ^jSet the default starting room (if enabled)
+^*CMULT                       ^|- ^jAdjust XP multipliers by class
+^*STATS / MAXSTATS            ^|- ^jSet base and maximum stats
+^*SKILLS                      ^|- ^jGrant automatic skills/spells
+^*LIST                        ^|- ^jList all defined races
+^*NEW <name>                  ^|- ^jCreate a new race entry
+^*SAVE [JSON|OLC]             ^|- ^jPersist the races table
+^*COMMANDS / ?                ^|- ^jList commands or inline help^x
+
+Changes take effect globally, so be sure to ^jSAVE^x after editing and reload
+the table if you are working on a live game.
+~
+
+0 SEDIT~
+^TSyntax: EDIT SOCIAL <name>^x
+^TSyntax: SEDIT NEW/DELETE <name>^x
+
+^TSubcommand                    Description
+^*SHOW                        ^|- ^jDisplay the current social entry
+^*CNOARG / ONOARG             ^|- ^jMessages when the social has no target
+^*CFOUND / VFOUND / OFOUND    ^|- ^jMessages when targeting someone else
+^*CSELF / OSELF               ^|- ^jMessages when targeting yourself
+^*NEW <name>                  ^|- ^jCreate a social entry
+^*DELETE <name>               ^|- ^jDelete the referenced social
+^*SAVE [JSON|OLC]             ^|- ^jPersist the socials table
+^*COMMANDS / ?                ^|- ^jList available commands or inline help^x
+
+Use ^jASAVE WORLD^x or restart after saving so the new socials load.
+~
+
+0 SKEDIT~
+^TSyntax: EDIT SKILL <name>^x
+^TSyntax: SKEDIT NEW <name>^x
+
+^TSubcommand                    Description
+^*SHOW                        ^|- ^jDisplay the current skill
+^*LIST                        ^|- ^jList skills and their levels/ratings
+^*NAME <string>               ^|- ^jRename the skill (updates its GSN binding)
+^*BEATS / POSITION            ^|- ^jAdjust casting lag and minimum position
+^*SLOT                        ^|- ^jSet the spell slot
+^*TARGET                      ^|- ^jChoose the target type
+^*MANA                        ^|- ^jSet mana cost
+^*LEVEL / RATING              ^|- ^jSet minimum level and trainer rating per class
+^*GSN                         ^|- ^jBind to a GSN pointer
+^*SPELL                       ^|- ^jBind to a native spell function
+^*NOUN / OFF / OBJ            ^|- ^jSet combat/wear-off messages
+^*NEW <name>                  ^|- ^jCreate a new skill entry
+^*SAVE [JSON|OLC]             ^|- ^jPersist the skill table
+^*COMMANDS / ?                ^|- ^jList commands or inline help^x
+~
+
+0 CMDEDIT~
+^TSyntax: EDIT COMMAND <name>^x
+^TSyntax: CMDEDIT NEW <name>^x
+
+^TSubcommand                    Description
+^*SHOW                        ^|- ^jDisplay the currently selected command
+^*LIST COMMANDS               ^|- ^jList commands by level range or filter
+^*LIST FUNCTIONS              ^|- ^jList native ^jdo_fun^x handlers
+^*SELECT <name>               ^|- ^jSwitch to another command without exiting
+^*NAME <string>               ^|- ^jRename the command
+^*FUNCTION <do_fun>           ^|- ^jBind to a native handler
+^*LOX <closure|clear>         ^|- ^jOverride execution with a Lox closure
+^*LEVEL / POSITION            ^|- ^jSet minimum level and position
+^*LOG                         ^|- ^jControl auditing
+^*TYPE <category>             ^|- ^jAssign the command to a SHOW category
+^*NEW / DELETE <name>         ^|- ^jCreate or remove command entries
+^*SAVE [JSON|OLC]             ^|- ^jPersist the command table
+^*COMMANDS / HELP / DONE      ^|- ^jList commands, show help, or exit^x
+~
+
+0 GEDIT~
+^TSyntax: EDIT GROUP <name>^x
+^TSyntax: GEDIT <name>^x
+
+^TSubcommand                    Description
+^*SHOW                        ^|- ^jDisplay the group name, skills, and ratings
+^*NAME <string>               ^|- ^jRename the group
+^*RATING <class> <cost>       ^|- ^jAdjust training costs per class
+^*SPELL <slot> <skill>        ^|- ^jAdd/remove skills and spells
+^*LIST                        ^|- ^jList the skills currently in the group
+^*SAVE [JSON|OLC]             ^|- ^jPersist the skill group table
+^*COMMANDS / ?                ^|- ^jList commands or inline help^x
+~
+
+0 CEDIT~
+^TSyntax: EDIT CLASS <name>^x
+^TSyntax: CEDIT NEW <name>^x
+^TSyntax: CEDIT LIST^x
+
+^TSubcommand                    Description
+^*SHOW                        ^|- ^jDisplay the class definition, gains, and titles
+^*NAME / WHO                  ^|- ^jRename the class and adjust the who tag
+^*BASEGROUP / DEFAULTGRP      ^|- ^jSet starting skill groups
+^*WEAPON / GUILD              ^|- ^jSet the starting weapon or guild vnum
+^*PRIMESTAT / SKILLCAP        ^|- ^jDefine the primary stat + max skill percentage
+^*THAC0_00 / THAC0_32         ^|- ^jAdjust attack progression tables
+^*HPMIN / HPMAX               ^|- ^jControl hit point gains per level
+^*TITLES                      ^|- ^jEdit level titles for each sex
+^*MANA                        ^|- ^jToggle whether the class uses mana
+^*NEW <name> / LIST           ^|- ^jCreate or enumerate classes
+^*SAVE [JSON|OLC]             ^|- ^jPersist the class table
+^*COMMANDS / ?                ^|- ^jShow other commands or inline help^x
+~
+
+0 HEDIT~
+^TSyntax: EDIT HELP <keyword>^x
+^TSyntax: HEDIT <keyword>^x
+^TSyntax: HEDIT NEW [area] <keyword>^x
+
+^TSubcommand                    Description
+^*SHOW                        ^|- ^jDisplay the keyword, level, and text
+^*KEYWORD <words>             ^|- ^jRename the help entry (space separated)
+^*LEVEL <-1..MAX>             ^|- ^jRestrict who may view the help
+^*TEXT                        ^|- ^jOpen the multiline editor for the body
+^*LIST                        ^|- ^jList every help in the current helpfile
+^*NEW [area] <keyword>        ^|- ^jCreate a help in your area or a named area
+^*DELETE                      ^|- ^jRemove the current help entry
+^*COMMANDS / ? / DONE         ^|- ^jShow commands, inline help, or exit^x
+
+Helpfiles live inside area data. Use ^jASAVE AREA^x, ^jASAVE CHANGED^x, or
+^jASAVE WORLD^x after editing so the updated text is written back to disk.
+~
+
+0 QEDIT~
+^TSyntax: EDIT QUEST <vnum>^x
+^TSyntax: QEDIT CREATE <vnum>^x
+
+^TSubcommand                    Description
+^*SHOW                        ^|- ^jDisplay quest metadata, objectives, rewards
+^*TYPE <kind>                 ^|- ^jSet the quest type (visit, kill, get, etc.)
+^*XP / LEVEL                  ^|- ^jControl experience reward and suggested level
+^*TARGET <vnum>               ^|- ^jPrimary objective VNUM (mob/obj)
+^*UPPER <vnum>                ^|- ^jOptional secondary objective limit
+^*AMOUNT <n>                  ^|- ^jNumber of mobs/objects needed
+^*END <vnum>                  ^|- ^jNPC that completes the quest
+^*FACTION                     ^|- ^jGrant or remove faction reputation
+^*REWARDREP                   ^|- ^jSet repuation reward with quest faction
+^*REWARDGOLD / REWARDSILVER / ^|- ^jSet currency rewards
+^*  REWARDCOPPER
+^*REWARDITEM <vnum>           ^|- ^jAttach an optional item reward
+^*NAME / ENTRY                ^|- ^jSet the quest title and descriptive text
+^*CREATE <vnum>               ^|- ^jCreate a quest entry
+^*COMMANDS / ?                ^|- ^jList commands or inline help^x
+
+Quest data is stored in the owning area, so remember to ^jASAVE AREA^x or
+^jASAVE CHANGED^x after editing.
+~
+
+0 SCREDIT~
+^TSyntax: EDIT SCRIPT <index>^x
+^TSyntax: SCREDIT LIST^x
+^TSyntax: SCREDIT CREATE <category> <file> [pre|post]^x
+
+^TSubcommand                    Description
+^*LIST                        ^|- ^jDisplay all registered scripts with indices
+^*SHOW                        ^|- ^jDisplay metadata for the current script
+^*SELECT <index>              ^|- ^jSwitch entries without exiting
+^*CREATE <category> <file> [pre|post] ^|- ^jAdd a new script entry
+^*DELETE [index]              ^|- ^jRemove a script entry (defaults to current)
+^*CATEGORY / FILE             ^|- ^jSet the folder + file names
+^*WHEN <pre|post>             ^|- ^jChoose execution timing relative to loads
+^*SCRIPT                      ^|- ^jOpen the multiline editor for the source
+^*EXECUTE                     ^|- ^jCompile and run the current script
+^*SAVE [OLC|JSON]             ^|- ^jWrite catalog entries and script files
+^*COMMANDS / HELP / DONE      ^|- ^jList commands, show help, or exit^x
+
+Scripts live outside individual areas, but they still respect the global
+format configured for Lox files. Remember to ^jSAVE^x after making changes.
 ~
 
 0 HITDICE~

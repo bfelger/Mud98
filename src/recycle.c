@@ -201,12 +201,6 @@ bool add_buf(Buffer* buffer, char* string)
         memcpy(buffer->string, oldstr, current_len);
         buffer->string[current_len] = '\0';
         free_mem(oldstr, oldsize);
-        
-        if (!test_output_enabled) {
-            char msg[256];
-            sprintf(msg, "Buffer grew from %zu to %zu (need %zu)", oldsize, buffer->size, new_len);
-            bug(msg, 0);
-        }
     }
 
     // Verify we have space before strcat

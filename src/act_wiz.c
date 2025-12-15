@@ -31,6 +31,7 @@
 #include "comm.h"
 #include "config.h"
 #include "db.h"
+#include "file.h"
 #include "fight.h"
 #include "handler.h"
 #include "interp.h"
@@ -46,6 +47,7 @@
 
 #include <entities/area.h>
 #include <entities/descriptor.h>
+#include <entities/help_data.h>
 #include <entities/object.h>
 #include <entities/player_data.h>
 
@@ -3853,4 +3855,132 @@ void do_prefix(Mobile* ch, char* argument)
     }
 
     ch->prefix = str_dup(argument);
+}
+
+// Forward declarations for reload subfunctions
+static void reload_helps(Mobile* ch);
+
+void do_reload(Mobile* ch, char* argument)
+{
+    char arg[MAX_INPUT_LENGTH];
+
+    one_argument(argument, arg);
+
+    if (arg[0] == '\0') {
+        send_to_char(COLOR_INFO "Syntax: reload <type>\n\r", ch);
+        send_to_char("Available types:\n\r", ch);
+        send_to_char("  helps    - Reload all help files from disk" COLOR_EOL, ch);
+        return;
+    }
+
+    if (!str_prefix(arg, "helps")) {
+        reload_helps(ch);
+        return;
+    }
+
+    send_to_char(COLOR_INFO "Unknown reload type.\n\r", ch);
+    send_to_char("Type 'reload' with no arguments for syntax." COLOR_EOL, ch);
+}
+
+static void reload_helps(Mobile* ch)
+{
+    FILE* fpList;
+    FILE* fp;
+    char area_file[256];
+    char fpArea[MAX_INPUT_LENGTH];
+    int help_count = 0;
+    int file_count = 0;
+
+    send_to_char("Reloading help files...\n\r", ch);
+
+    // Clear existing help data
+    HelpData* help;
+    HelpData* help_next;
+    for (help = help_first; help != NULL; help = help_next) {
+        help_next = help->next;
+        free_help_data(help);
+    }
+    help_first = NULL;
+    help_last = NULL;
+
+    // Clear help areas
+    HelpArea* ha;
+    HelpArea* ha_next;
+    for (ha = help_area_list; ha != NULL; ha = ha_next) {
+        ha_next = ha->next;
+        free_string(ha->filename);
+        free_help_area(ha);
+    }
+    help_area_list = NULL;
+
+    // Clear help_greeting
+    extern char* help_greeting;
+    help_greeting = NULL;
+
+    // Open area.lst to get list of area files
+    fpList = open_read_area_list();
+    if (fpList == NULL) {
+        send_to_char(COLOR_INFO "ERROR: Could not retrieve area list." COLOR_EOL, ch);
+        return;
+    }
+
+    // Read each area file and reload helps sections
+    for (;;) {
+        strcpy(fpArea, fread_word(fpList));
+        if (fpArea[0] == '$')
+            break;
+
+        // Skip JSON files - they don't have HELPS sections in ROM-OLC format
+        const char* ext = strrchr(fpArea, '.');
+        if (ext && !str_cmp(ext, ".json")) {
+            continue;
+        }
+
+        sprintf(area_file, "%s%s", cfg_get_area_dir(), fpArea);
+        fp = open_read_file(area_file);
+        if (fp == NULL) {
+            printf_to_char(ch, COLOR_INFO "WARNING: Could not open %s" COLOR_EOL, area_file);
+            continue;
+        }
+
+        file_count++;
+
+        // Scan through the area file looking for HELPS sections
+        bool found_helps = false;
+        for (;;) {
+            int letter = fread_letter(fp);
+            if (letter == EOF)
+                break;
+
+            if (letter != '#') {
+                fread_to_eol(fp);
+                continue;
+            }
+
+            char* word = fread_word(fp);
+            if (word[0] == '$')
+                break;
+
+            if (!str_cmp(word, "HELPS")) {
+                load_helps(fp, fpArea);
+                found_helps = true;
+                help_count++;
+            }
+            else {
+                // Skip to the next section
+                fread_to_eol(fp);
+            }
+        }
+
+        close_file(fp);
+
+        if (found_helps) {
+            printf_to_char(ch, COLOR_INFO "  Loaded helps from %s" COLOR_EOL, fpArea);
+        }
+    }
+
+    close_file(fpList);
+
+    printf_to_char(ch, COLOR_INFO "Help reload complete: scanned %d files, loaded %d help sections." COLOR_EOL, 
+                   file_count, help_count);
 }

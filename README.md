@@ -169,24 +169,30 @@ See the [Getting Started guide](doc/mud98/wb-01-getting-started.md) for in-depth
 Once Mud98 is built, it can be run from the command-line like so:
 
 ```sh
-./Mud98
+./bin/Mud98
 ```
 
 Use the `-d` argument to specify the folder to `mud98.cfg` if you don't run it from the base folder.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- ROADMAP 
+<!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Feature 1
-- [ ] Feature 2
-- [ ] Feature 3
-- [ ] Nested Feature
+- [ ] Reload data files
+  - [x] Help files
+  - [ ] Area files
+  - [ ] Other data files
+- [ ] Randomized areas (dungeons, overland, etc.)
+- [ ] Navigation skills for randomized areas
+- [ ] Integrated webserver with embedded MUD-client
+- [ ] Loot-pool system
+- [ ] Player-run clans/guilds
+- [ ] Remort system
 
-See the [open issues](https://github.com/github_username/repo_name/issues) for a full list of proposed features (and known issues).
+<!--See the [open issues](https://github.com/github_username/repo_name/issues) for a full list of proposed features (and known issues).-->
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p-->
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Contributing
 
