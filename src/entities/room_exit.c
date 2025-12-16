@@ -39,15 +39,14 @@ RoomExit* new_room_exit(RoomExitData* room_exit_data, Room* from)
         room_exit->to_room = get_room(from->area, room_exit_data->to_vnum);
     }
     else if (room_exit_data->to_room->area_data->inst_type != AREA_INST_MULTI) {
-        // There is only one possible room.
-        // It could be NULL.
-        // Check before entering.
+        // Different area, but single-instance: there's only one possible room
         room_exit->to_room = AS_ROOM(room_exit_data->to_room->instances.front->value);
-        // DO NOT CREATE INSTANCED-TO-INSTANCED ROOM EXITS BETWEEN DIFFERENT
-        // AREAS!
-        // TODO: Add OLC code to prevent this from happening. Require a non-
-        // instanced "buffer" between multi-instanced areas.
     }
+    // else: Different area AND multi-instance: leave to_room = NULL
+    // This is INTENTIONAL! Multi-instance area exits are resolved lazily
+    // per-player via get_room_for_player() when move_char() is called.
+    // Each player gets their own instance of the target area.
+    // The to_vnum is stored in room_exit_data for lazy resolution.
 
     // Add to target room's inbound exits list
     if (room_exit->to_room) {

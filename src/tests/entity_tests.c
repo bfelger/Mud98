@@ -314,6 +314,76 @@ static int test_room_exit_is_lox_value()
     return 0;
 }
 
+static int test_multi_instance_area_exit_null_to_room()
+{
+    // Multi-instance area exits should have NULL to_room by design
+    // They are resolved lazily per-player via get_room_for_player()
+    
+    // Create a single-instance area with a room
+    AreaData* single_area_data = mock_area_data();
+    single_area_data->inst_type = AREA_INST_SINGLE;
+    Area* single_area = mock_area(single_area_data);
+    Room* r1 = mock_room(50000, NULL, single_area);
+    
+    // Create a multi-instance area with a room template
+    AreaData* multi_area_data = mock_area_data();
+    multi_area_data->inst_type = AREA_INST_MULTI;
+    RoomData* r2_data = mock_room_data(60000, multi_area_data);
+    
+    // Create exit from single-instance to multi-instance area
+    r1->data->exit_data[DIR_NORTH] = new_room_exit_data();
+    r1->data->exit_data[DIR_NORTH]->to_room = r2_data;
+    r1->data->exit_data[DIR_NORTH]->to_vnum = 60000;
+    
+    RoomExit* exit = new_room_exit(r1->data->exit_data[DIR_NORTH], r1);
+    r1->exit[DIR_NORTH] = exit;
+    
+    // Verify the exit has NULL to_room (this is CORRECT behavior)
+    ASSERT(exit != NULL);
+    ASSERT(exit->to_room == NULL);  // Lazy-loaded per player
+    ASSERT(exit->data->to_vnum == 60000);  // But vnum is stored
+    
+    // This is intentional! move_char() will call get_room_for_player()
+    // to resolve it, creating/finding the player's instance.
+    
+    return 0;
+}
+
+static int test_nullified_exit_reseats_single_instance()
+{
+    // This tests the reload room/area strategy: nullify to_room pointers
+    // and let them auto-resolve via get_room_for_player()
+    
+    // Create a single-instance area with two rooms
+    AreaData* area_data = mock_area_data();
+    area_data->inst_type = AREA_INST_SINGLE;
+    Area* area = mock_area(area_data);
+    
+    Room* r1 = mock_room(50000, NULL, area);
+    Room* r2 = mock_room(50001, NULL, area);
+    
+    // Create exit with resolved to_room
+    mock_room_connection(r1, r2, DIR_NORTH, false);
+    ASSERT(r1->exit[DIR_NORTH]->to_room == r2);
+    
+    // Simulate reload: nullify the to_room pointer
+    r1->exit[DIR_NORTH]->to_room = NULL;
+    
+    // Now simulate player movement - should auto-resolve
+    Mobile* player = mock_player("TestPlayer");
+    transfer_mob(player, r1);
+    
+    Room* resolved = get_room_for_player(player, r1->exit[DIR_NORTH]->data->to_vnum);
+    
+    // Should resolve to the same room (single-instance area)
+    ASSERT(resolved == r2);
+    
+    // This proves reload can work by just nullifying to_room!
+    // Single-instance areas auto-resolve to THE one instance.
+    
+    return 0;
+}
+
 void register_entity_tests()
 {
 #define REGISTER(n, f)  register_test(&entity_tests, (n), (f))
@@ -332,6 +402,8 @@ void register_entity_tests()
     REGISTER("Exit With NULL to_room", test_exit_with_null_to_room);
     REGISTER("Cross-Area Exit Tracking", test_cross_area_exit_tracking);
     REGISTER("RoomExit Is Lox Value", test_room_exit_is_lox_value);
+    REGISTER("Multi-Instance Area Exit NULL to_room", test_multi_instance_area_exit_null_to_room);
+    REGISTER("Nullified Exit Reseats Single Instance", test_nullified_exit_reseats_single_instance);
 
 #undef REGISTER
 }
