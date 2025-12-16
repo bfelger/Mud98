@@ -66,11 +66,16 @@ static int test_exit_bidirectional_linkage()
     // Verify the exit exists in r1
     ASSERT(r1->exit[DIR_NORTH] != NULL);
     ASSERT(r1->exit[DIR_NORTH]->to_room == r2);
+    
+    // Verify RoomExit is now a proper entity with Obj header
+    ASSERT(r1->exit[DIR_NORTH]->header.obj.type == OBJ_ROOM_EXIT);
 
     // Verify the exit is tracked in r2's inbound_exits list
     ASSERT(r2->inbound_exits.count == 1);
     ASSERT(r2->inbound_exits.front != NULL);
-    RoomExit* inbound = (RoomExit*)AS_OBJ(r2->inbound_exits.front->value);
+    
+    // Now we can safely use AS_ROOM_EXIT since it's a real entity!
+    RoomExit* inbound = AS_ROOM_EXIT(r2->inbound_exits.front->value);
     ASSERT(inbound == r1->exit[DIR_NORTH]);
     ASSERT(inbound->from_room == r1);
 
@@ -284,6 +289,31 @@ static int test_cross_area_exit_tracking()
     return 0;
 }
 
+static int test_room_exit_is_lox_value()
+{
+    // Verify RoomExit can be used as a Lox Value now that it's a full entity
+    Room* r1 = mock_room(50000, NULL, NULL);
+    Room* r2 = mock_room(50001, NULL, NULL);
+    
+    mock_room_connection(r1, r2, DIR_NORTH, false);
+    
+    RoomExit* exit = r1->exit[DIR_NORTH];
+    ASSERT(exit != NULL);
+    
+    // Can convert to Value and back safely
+    Value val = OBJ_VAL(exit);
+    ASSERT(IS_OBJ(val));
+    ASSERT(OBJ_TYPE(val) == OBJ_ROOM_EXIT);
+    
+    // Can cast back safely
+    RoomExit* exit2 = AS_ROOM_EXIT(val);
+    ASSERT(exit2 == exit);
+    ASSERT(exit2->from_room == r1);
+    ASSERT(exit2->to_room == r2);
+    
+    return 0;
+}
+
 void register_entity_tests()
 {
 #define REGISTER(n, f)  register_test(&entity_tests, (n), (f))
@@ -301,6 +331,7 @@ void register_entity_tests()
     REGISTER("Area Cleanup Sets Teardown Flag", test_area_cleanup_sets_teardown_flag);
     REGISTER("Exit With NULL to_room", test_exit_with_null_to_room);
     REGISTER("Cross-Area Exit Tracking", test_cross_area_exit_tracking);
+    REGISTER("RoomExit Is Lox Value", test_room_exit_is_lox_value);
 
 #undef REGISTER
 }

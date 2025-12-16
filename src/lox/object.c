@@ -14,6 +14,7 @@
 #include <db.h>
 
 #include <entities/event.h>
+#include <entities/room_exit.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -335,6 +336,18 @@ void print_object(Value value)
         lox_printf("<room_data %s (%d)>", NAME_STR(AS_ROOM_DATA(value)),
             VNUM_FIELD(AS_ROOM_DATA(value)));
         break;
+    case OBJ_ROOM_EXIT: {
+            RoomExit* exit = AS_ROOM_EXIT(value);
+            lox_printf("<room_exit from %d to %s>", 
+                exit->from_room ? VNUM_FIELD(exit->from_room) : -1,
+                exit->to_room ? NAME_STR(exit->to_room) : "unresolved");
+            break;
+        }
+    case OBJ_ROOM_EXIT_DATA: {
+            RoomExitData* exit_data = AS_ROOM_EXIT_DATA(value);
+            lox_printf("<room_exit_data to %d>", exit_data->to_vnum);
+            break;
+        }
     case OBJ_OBJ: {
             Object* obj = AS_OBJECT(value);
             lox_printf("<obj %s (%d)>", obj->header.name->chars,

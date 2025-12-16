@@ -17,6 +17,7 @@
 #include <entities/obj_prototype.h>
 #include <entities/mobile.h>
 #include <entities/room.h>
+#include <entities/room_exit.h>
 #include <entities/faction.h>
 
 #ifdef DEBUG_LOG_GC
@@ -269,13 +270,42 @@ static void blacken_object(Obj* object)
         mark_list(&room->objects);
         mark_value(OBJ_VAL(room->data));  // Keep RoomData alive
         mark_value(OBJ_VAL(room->area));  // Keep Area alive
-        // Note: room->exit[] are RoomExit* (not Obj types), managed by memory pool
+        mark_list(&room->inbound_exits);  // Keep inbound RoomExit objects alive
+        // Mark outbound exits
+        for (Direction dir = 0; dir < DIR_MAX; dir++) {
+            if (room->exit[dir]) {
+                mark_object((Obj*)room->exit[dir]);
+            }
+        }
         break;
     }
     case OBJ_ROOM_DATA: {
         RoomData* room_data = (RoomData*)object;
         mark_entity(&room_data->header);
         mark_list(&room_data->instances);
+        // Mark exit_data
+        for (Direction dir = 0; dir < DIR_MAX; dir++) {
+            if (room_data->exit_data[dir]) {
+                mark_object((Obj*)room_data->exit_data[dir]);
+            }
+        }
+        break;
+    }
+    case OBJ_ROOM_EXIT: {
+        RoomExit* room_exit = (RoomExit*)object;
+        mark_entity(&room_exit->header);
+        mark_value(OBJ_VAL(room_exit->data));  // Keep RoomExitData alive
+        if (room_exit->from_room)
+            mark_value(OBJ_VAL(room_exit->from_room));  // Keep source room alive
+        if (room_exit->to_room)
+            mark_value(OBJ_VAL(room_exit->to_room));  // Keep target room alive
+        break;
+    }
+    case OBJ_ROOM_EXIT_DATA: {
+        RoomExitData* exit_data = (RoomExitData*)object;
+        mark_entity(&exit_data->header);
+        if (exit_data->to_room)
+            mark_value(OBJ_VAL(exit_data->to_room));  // Keep target RoomData alive
         break;
     }
     case OBJ_OBJ: {
@@ -411,6 +441,8 @@ static void free_obj_value(Obj* object)
     case OBJ_AREA_DATA:
     case OBJ_ROOM:
     case OBJ_ROOM_DATA:
+    case OBJ_ROOM_EXIT:
+    case OBJ_ROOM_EXIT_DATA:
     case OBJ_OBJ:
     case OBJ_OBJ_PROTO:
     case OBJ_MOB:

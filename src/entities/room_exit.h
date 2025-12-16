@@ -10,6 +10,7 @@ typedef struct room_exit_data_t RoomExitData;
 #ifndef MUD98__ENTITIES__ROOM_EXIT_H
 #define MUD98__ENTITIES__ROOM_EXIT_H
 
+#include "entity.h"
 #include "room.h"
 
 #include <data/direction.h>
@@ -30,6 +31,7 @@ typedef enum exit_flags_t {
 } ExitFlags;
 
 typedef struct room_exit_t {
+    Entity header;
     RoomExit* next;
     RoomExitData* data;
     Room* from_room;  // Source room (for inbound_exits tracking)
@@ -38,6 +40,7 @@ typedef struct room_exit_t {
 } RoomExit;
 
 typedef struct room_exit_data_t {
+    Entity header;
     RoomExitData* next;
     RoomData* to_room;
     VNUM to_vnum;
