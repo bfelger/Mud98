@@ -313,6 +313,10 @@ static json_t* build_room_periods(const RoomData* room)
         JSON_SET_INT(obj, "toHour", period->end_hour);
         if (period->description && period->description[0] != '\0')
             JSON_SET_STRING(obj, "description", period->description);
+        if (period->enter_message && period->enter_message[0] != '\0')
+            JSON_SET_STRING(obj, "enterMessage", period->enter_message);
+        if (period->exit_message && period->exit_message[0] != '\0')
+            JSON_SET_STRING(obj, "exitMessage", period->exit_message);
         json_array_append_new(arr, obj);
     }
     return arr;
@@ -355,6 +359,8 @@ static json_t* build_rooms(const AreaData* area)
             JSON_SET_INT(obj, "clan", room_data->clan);
         if (room_data->owner && room_data->owner[0] != '\0')
             JSON_SET_STRING(obj, "owner", room_data->owner);
+        if (room_data->suppress_daycycle_messages)
+            json_object_set_new(obj, "suppressDaycycleMessages", json_true());
         json_t* periods = build_room_periods(room_data);
         if (json_array_size(periods) > 0)
             json_object_set_new(obj, "timePeriods", periods);
@@ -557,6 +563,16 @@ static void parse_room_periods(RoomData* room, json_t* periods)
             free_string(period->description);
             period->description = boot_intern_string(desc);
         }
+        const char* enter_msg = JSON_STRING(entry, "enterMessage");
+        if (enter_msg) {
+            free_string(period->enter_message);
+            period->enter_message = boot_intern_string(enter_msg);
+        }
+        const char* exit_msg = JSON_STRING(entry, "exitMessage");
+        if (exit_msg) {
+            free_string(period->exit_message);
+            period->exit_message = boot_intern_string(exit_msg);
+        }
     }
 }
 
@@ -598,6 +614,9 @@ static PersistResult parse_rooms(json_t* root, AreaData* area)
         room->clan = (int16_t)json_int_or_default(r, "clan", room->clan);
         const char* owner = JSON_STRING(r, "owner");
         JSON_INTERN(owner, room->owner)
+        bool suppress = json_bool_or_default(r, "suppressDaycycleMessages", room->suppress_daycycle_messages);
+        suppress = json_bool_or_default(r, "suppressWeatherMessages", suppress);
+        room->suppress_daycycle_messages = suppress;
         parse_room_periods(room, json_object_get(r, "timePeriods"));
 
         global_room_set(room);

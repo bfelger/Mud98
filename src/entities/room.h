@@ -30,6 +30,8 @@ typedef struct room_time_period_t {
     struct room_time_period_t* next;
     char* name;
     char* description;
+    char* enter_message;
+    char* exit_message;
     int8_t start_hour;
     int8_t end_hour;
 } RoomTimePeriod;
@@ -96,6 +98,7 @@ typedef struct room_data_t {
     int16_t mana_rate;
     int16_t clan;
     int16_t reset_num;
+    bool suppress_daycycle_messages;
 } RoomData;
 
 #define FOR_EACH_ROOM_INST(inst, room_data) \
@@ -166,6 +169,8 @@ bool room_time_period_remove(RoomData* room, const char* name);
 void room_time_period_clear(RoomData* room);
 RoomTimePeriod* room_time_period_clone(const RoomTimePeriod* head);
 const char* room_description_for_hour(const RoomData* room, int hour);
+bool room_has_period_message_transition(const RoomData* room, int old_hour, int new_hour);
+void broadcast_room_period_messages(int old_hour, int new_hour);
 
 extern int room_count;
 extern int room_perm_count;

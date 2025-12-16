@@ -653,6 +653,14 @@ void save_rooms(FILE* fp, AreaData* area)
                 const char* name = (period->name && period->name[0] != '\0') ? period->name : "period";
                 fprintf(fp, "P %s %d %d\n", name, period->start_hour, period->end_hour);
                 fprintf(fp, "%s~\n", fix_string(period->description));
+                if (period->enter_message && period->enter_message[0] != '\0') {
+                    fprintf(fp, "B %s\n", name);
+                    fprintf(fp, "%s~\n", fix_string(period->enter_message));
+                }
+                if (period->exit_message && period->exit_message[0] != '\0') {
+                    fprintf(fp, "A %s\n", name);
+                    fprintf(fp, "%s~\n", fix_string(period->exit_message));
+                }
             }
 
             // Put randomized rooms back in their original place to reduce
@@ -710,6 +718,8 @@ void save_rooms(FILE* fp, AreaData* area)
 
             if (pRoomIndex->owner && str_cmp(pRoomIndex->owner, ""))
                 fprintf(fp, "O %s~\n", pRoomIndex->owner);
+            if (pRoomIndex->suppress_daycycle_messages)
+                fprintf(fp, "W 1\n");
 
             fprintf(fp, "S\n");
         }

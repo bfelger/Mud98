@@ -15,6 +15,7 @@
 #include <entities/obj_prototype.h>
 #include <entities/object.h>
 #include <entities/room.h>
+#include <entities/descriptor.h>
 
 // This is marked by Lox's GC
 ValueArray* mocks_ = NULL;
@@ -250,6 +251,33 @@ void mock_player_reputation(Mobile* ch, VNUM faction_vnum, int value)
         return;
     
     faction_set(ch->pcdata, faction_vnum, value);
+}
+
+void mock_connect_player_descriptor(Mobile* player)
+{
+    if (player == NULL || player->desc == NULL)
+        return;
+
+    Descriptor* desc = player->desc;
+    desc->next = descriptor_list;
+    descriptor_list = desc;
+}
+
+void mock_disconnect_player_descriptor(Mobile* player)
+{
+    if (player == NULL || player->desc == NULL)
+        return;
+
+    Descriptor* target = player->desc;
+    Descriptor** link = &descriptor_list;
+    while (*link != NULL) {
+        if (*link == target) {
+            *link = target->next;
+            target->next = NULL;
+            break;
+        }
+        link = &(*link)->next;
+    }
 }
 
 void cleanup_mocks()

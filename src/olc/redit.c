@@ -171,7 +171,10 @@ static void show_period_usage(Mobile* ch)
     send_to_char(COLOR_INFO "  period delete <name>" COLOR_EOL, ch);
     send_to_char(COLOR_INFO "  period set <name> <start> <end>" COLOR_EOL, ch);
     send_to_char(COLOR_INFO "  period rename <name> <new name>" COLOR_EOL, ch);
-    send_to_char(COLOR_INFO "  period format <name>" COLOR_EOL, ch);
+    send_to_char(COLOR_INFO "  period format <name> [desc|enter|exit]" COLOR_EOL, ch);
+    send_to_char(COLOR_INFO "  period enter <name>" COLOR_EOL, ch);
+    send_to_char(COLOR_INFO "  period exit <name>" COLOR_EOL, ch);
+    send_to_char(COLOR_INFO "  period suppress <on|off>" COLOR_EOL, ch);
 }
 
 static void show_period_list(Mobile* ch, RoomData* room)
@@ -182,16 +185,24 @@ static void show_period_list(Mobile* ch, RoomData* room)
     }
 
     send_to_char(COLOR_TITLE "Defined Time Periods" COLOR_EOL, ch);
-    send_to_char(COLOR_DECOR_2 "  Name         Hours     Preview" COLOR_EOL, ch);
+    send_to_char(COLOR_DECOR_2 "  Name         Hours   Msgs   Preview" COLOR_EOL, ch);
 
     for (RoomTimePeriod* period = room->periods; period != NULL; period = period->next) {
         char preview[60];
         build_period_preview(period, preview, sizeof(preview));
         const char* name = (period->name && period->name[0] != '\0') ? period->name : "(unnamed)";
-        printf_to_char(ch, COLOR_ALT_TEXT_1 "  %-12s" COLOR_CLEAR "  %02d-%02d   %s" COLOR_EOL,
+        char msg_flags[4] = "";
+        if (period->enter_message && period->enter_message[0] != '\0')
+            strcat(msg_flags, "E");
+        if (period->exit_message && period->exit_message[0] != '\0')
+            strcat(msg_flags, "X");
+        if (msg_flags[0] == '\0')
+            strcpy(msg_flags, "-");
+        printf_to_char(ch, COLOR_ALT_TEXT_1 "  %-12s" COLOR_CLEAR "  %02d-%02d   %-3s   %s" COLOR_EOL,
             name,
             period->start_hour,
             period->end_hour,
+            msg_flags,
             preview);
     }
 }
@@ -331,6 +342,30 @@ REDIT(redit_period)
         return false;
     }
 
+    if (!str_prefix(command, "suppress")) {
+        char value[MIL];
+        READ_ARG(value);
+        if (value[0] == '\0') {
+            show_period_usage(ch);
+            return false;
+        }
+
+        bool suppress = false;
+        if (!str_prefix(value, "on") || !str_prefix(value, "yes") || !str_prefix(value, "true"))
+            suppress = true;
+        else if (!str_prefix(value, "off") || !str_prefix(value, "no") || !str_prefix(value, "false"))
+            suppress = false;
+        else {
+            show_period_usage(ch);
+            return false;
+        }
+
+        room->suppress_daycycle_messages = suppress;
+        SET_BIT(room->area_data->area_flags, AREA_CHANGED);
+        send_to_char(COLOR_INFO "Daycycle messages updated." COLOR_EOL, ch);
+        return true;
+    }
+
     char name[MIL];
     READ_ARG(name);
 
@@ -387,6 +422,20 @@ REDIT(redit_period)
         return false;
     }
 
+    if (!str_prefix(command, "enter")) {
+        SET_BIT(room->area_data->area_flags, AREA_CHANGED);
+        send_to_char(COLOR_INFO "Enter the message shown when this period begins." COLOR_EOL, ch);
+        string_append(ch, &period->enter_message);
+        return true;
+    }
+
+    if (!str_prefix(command, "exit")) {
+        SET_BIT(room->area_data->area_flags, AREA_CHANGED);
+        send_to_char(COLOR_INFO "Enter the message shown when this period ends." COLOR_EOL, ch);
+        string_append(ch, &period->exit_message);
+        return true;
+    }
+
     if (!str_prefix(command, "edit")) {
         SET_BIT(room->area_data->area_flags, AREA_CHANGED);
         string_append(ch, &period->description);
@@ -431,11 +480,25 @@ REDIT(redit_period)
     }
 
     if (!str_prefix(command, "format")) {
-        char* formatted = format_string(period->description);
-        free_string(period->description);
-        period->description = formatted;
+        char target[MIL];
+        READ_ARG(target);
+        char** field = NULL;
+        if (target[0] == '\0' || !str_prefix(target, "desc"))
+            field = &period->description;
+        else if (!str_prefix(target, "enter"))
+            field = &period->enter_message;
+        else if (!str_prefix(target, "exit"))
+            field = &period->exit_message;
+        else {
+            show_period_usage(ch);
+            return false;
+        }
+
+        char* formatted = format_string(*field);
+        free_string(*field);
+        *field = formatted;
         SET_BIT(room->area_data->area_flags, AREA_CHANGED);
-        send_to_char(COLOR_INFO "Time period description formatted." COLOR_EOL, ch);
+        send_to_char(COLOR_INFO "Time period text formatted." COLOR_EOL, ch);
         return true;
     }
 
@@ -573,6 +636,7 @@ REDIT(redit_show)
     if (pRoom->owner && pRoom->owner[0] != '\0') {
         olc_print_str(ch, "Owner", pRoom->owner);
     }
+    olc_print_str(ch, "Daycycle Msgs", pRoom->suppress_daycycle_messages ? "Suppressed" : "Default");
 
     redit_show_periods(ch, pRoom);
 

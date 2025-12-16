@@ -6,9 +6,12 @@
 #include "test_registry.h"
 #include "mock.h"
 
+#include <entities/descriptor.h>
 #include <entities/room.h>
 
 #include <db.h>
+#include <handler.h>
+#include <weather.h>
 
 TestGroup daycycle_tests;
 
@@ -18,6 +21,36 @@ static RoomData* setup_room(const char* desc)
     free_string(room->description);
     room->description = str_dup(desc);
     return room;
+}
+
+static RoomTimePeriod* create_period(RoomData* room, const char* name, int start, int end, const char* desc, const char* enter_msg, const char* exit_msg)
+{
+    RoomTimePeriod* period = room_time_period_add(room, name, start, end);
+    if (desc != NULL) {
+        free_string(period->description);
+        period->description = str_dup(desc);
+    }
+    if (enter_msg != NULL) {
+        free_string(period->enter_message);
+        period->enter_message = str_dup(enter_msg);
+    }
+    if (exit_msg != NULL) {
+        free_string(period->exit_message);
+        period->exit_message = str_dup(exit_msg);
+    }
+    return period;
+}
+
+static void reset_weather_state(int hour)
+{
+    time_info.hour = hour;
+    time_info.day = 0;
+    time_info.month = 0;
+    time_info.year = 0;
+    weather_info.sky = SKY_CLOUDLESS;
+    weather_info.sunlight = SUN_DARK;
+    weather_info.mmhg = 1000;
+    weather_info.change = 0;
 }
 
 static int test_room_description_defaults_without_periods()
@@ -92,6 +125,124 @@ static int test_room_description_skips_empty_periods()
     return 0;
 }
 
+static int test_period_transition_detection_handles_enter_and_exit()
+{
+    RoomData* room = setup_room("Default description.");
+
+    create_period(room, "twilight", 6, 10, NULL, "Dawn arrives.\n\r", "Dusk falls.\n\r");
+
+    ASSERT(room_has_period_message_transition(room, 5, 6));
+    ASSERT(room_has_period_message_transition(room, 10, 11));
+    ASSERT(!room_has_period_message_transition(room, 7, 8));
+
+    return 0;
+}
+
+static int test_broadcast_period_messages_only_on_transitions()
+{
+    RoomData* room_data = mock_room_data(50010, NULL);
+    create_period(room_data, "pulse", 6, 6, NULL, "The light brightens.\n\r", "The light fades.\n\r");
+
+    Room* room = mock_room(50010, room_data, NULL);
+    Mobile* player = mock_player("Watcher");
+    transfer_mob(player, room);
+
+    // Entering the window emits the enter message.
+    test_output_buffer = NIL_VAL;
+    test_socket_output_enabled = true;
+    broadcast_room_period_messages(5, 6);
+    test_socket_output_enabled = false;
+    ASSERT_OUTPUT_CONTAINS("brightens");
+    test_output_buffer = NIL_VAL;
+
+    // Hours outside the window stay silent.
+    test_socket_output_enabled = true;
+    broadcast_room_period_messages(7, 8);
+    test_socket_output_enabled = false;
+    ASSERT(IS_NIL(test_output_buffer));
+    test_output_buffer = NIL_VAL;
+
+    // Leaving the window emits the exit message.
+    test_socket_output_enabled = true;
+    broadcast_room_period_messages(6, 7);
+    test_socket_output_enabled = false;
+    ASSERT_OUTPUT_CONTAINS("fades");
+    test_output_buffer = NIL_VAL;
+
+    return 0;
+}
+
+static int test_indoor_rooms_only_receive_period_messages()
+{
+    RoomData* room_data = mock_room_data(50020, NULL);
+    room_data->room_flags |= ROOM_INDOORS;
+    create_period(room_data, "dawn", 5, 5, NULL, "The hallway brightens softly.\n\r", NULL);
+
+    Room* room = mock_room(50020, room_data, NULL);
+    Mobile* player = mock_player("Listener");
+    transfer_mob(player, room);
+    ASSERT(player->desc != NULL);
+    player->desc->connected = CON_PLAYING;
+    mock_connect_player_descriptor(player);
+
+    TimeInfo saved_time = time_info;
+    WeatherInfo saved_weather = weather_info;
+    reset_weather_state(4);
+
+    test_output_buffer = NIL_VAL;
+    test_socket_output_enabled = true;
+    update_weather_info();
+    test_socket_output_enabled = false;
+
+    ASSERT_OUTPUT_EQ("The hallway brightens softly.\n\r");
+
+    test_output_buffer = NIL_VAL;
+    mock_disconnect_player_descriptor(player);
+    time_info = saved_time;
+    weather_info = saved_weather;
+
+    return 0;
+}
+
+static int test_daycycle_message_respects_suppression_flag()
+{
+    RoomData* room_data = mock_room_data(50030, NULL);
+    Room* room = mock_room(50030, room_data, NULL);
+    Mobile* player = mock_player("Watcher");
+    transfer_mob(player, room);
+    ASSERT(player->desc != NULL);
+    player->desc->connected = CON_PLAYING;
+    mock_connect_player_descriptor(player);
+
+    TimeInfo saved_time = time_info;
+    WeatherInfo saved_weather = weather_info;
+
+    // Baseline: receives the default weather message.
+    room_data->suppress_daycycle_messages = false;
+    reset_weather_state(4);
+    test_output_buffer = NIL_VAL;
+    test_socket_output_enabled = true;
+    update_weather_info();
+    test_socket_output_enabled = false;
+    ASSERT_OUTPUT_CONTAINS("The day has begun.");
+
+    // Suppressed: no weather message delivered.
+    room_data->suppress_daycycle_messages = true;
+    reset_weather_state(4);
+    test_output_buffer = NIL_VAL;
+    test_socket_output_enabled = true;
+    update_weather_info();
+    test_socket_output_enabled = false;
+    ASSERT(IS_NIL(test_output_buffer));
+
+    test_output_buffer = NIL_VAL;
+    mock_disconnect_player_descriptor(player);
+    time_info = saved_time;
+    weather_info = saved_weather;
+
+    return 0;
+}
+
 void register_daycycle_tests()
 {
     init_test_group(&daycycle_tests, "Daycycle");
@@ -100,5 +251,9 @@ void register_daycycle_tests()
     register_test(&daycycle_tests, "Wraparound Period Handling", test_room_description_wraps_across_midnight);
     register_test(&daycycle_tests, "First Matching Period Takes Priority", test_room_description_prefers_first_match);
     register_test(&daycycle_tests, "Empty Periods Are Skipped", test_room_description_skips_empty_periods);
+    register_test(&daycycle_tests, "Period Transition Detection", test_period_transition_detection_handles_enter_and_exit);
+    register_test(&daycycle_tests, "Room Period Transition Messages", test_broadcast_period_messages_only_on_transitions);
+    register_test(&daycycle_tests, "Indoor Rooms Only Get Period Messages", test_indoor_rooms_only_receive_period_messages);
+    register_test(&daycycle_tests, "Daycycle Messages Suppression Room Flag", test_daycycle_message_respects_suppression_flag);
     register_test_group(&daycycle_tests);
 }

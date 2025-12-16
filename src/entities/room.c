@@ -173,6 +173,8 @@ static RoomTimePeriod* new_room_time_period(void)
 
     room_time_period->name = &str_empty[0];
     room_time_period->description = &str_empty[0];
+    room_time_period->enter_message = &str_empty[0];
+    room_time_period->exit_message = &str_empty[0];
     room_time_period->start_hour = 0;
     room_time_period->end_hour = 0;
 
@@ -186,6 +188,8 @@ static void free_room_time_period(RoomTimePeriod* period)
 
     free_string(period->name);
     free_string(period->description);
+    free_string(period->enter_message);
+    free_string(period->exit_message);
     RoomTimePeriod* room_time_period = period;
     LIST_FREE(room_time_period);
 }
@@ -218,6 +222,8 @@ RoomTimePeriod* room_time_period_add(RoomData* room, const char* name, int start
     period->end_hour = normalize_hour_value(end_hour);
     period->name = str_dup(name);
     period->description = str_dup("");
+    period->enter_message = str_dup("");
+    period->exit_message = str_dup("");
 
     append_room_time_period(room, period);
     return period;
@@ -286,6 +292,8 @@ RoomTimePeriod* room_time_period_clone(const RoomTimePeriod* head)
         node->end_hour = period->end_hour;
         node->name = str_dup(period->name ? period->name : "");
         node->description = str_dup(period->description ? period->description : "");
+        node->enter_message = str_dup(period->enter_message ? period->enter_message : "");
+        node->exit_message = str_dup(period->exit_message ? period->exit_message : "");
         node->next = NULL;
         if (new_head == NULL)
             new_head = node;
@@ -326,6 +334,82 @@ const char* room_description_for_hour(const RoomData* room, int hour)
     return room->description ? room->description : &str_empty[0];
 }
 
+static void send_period_message_to_room(Room* room, const char* message)
+{
+    Mobile* ch;
+
+    if (room == NULL || message == NULL || message[0] == '\0')
+        return;
+
+    FOR_EACH_ROOM_MOB(ch, room) {
+        if (IS_NPC(ch) || ch->desc == NULL)
+            continue;
+        if (!IS_AWAKE(ch))
+            continue;
+        send_to_char(message, ch);
+    }
+}
+
+static void send_period_message_to_instances(RoomData* room_data, const char* message)
+{
+    Room* room;
+
+    if (room_data == NULL || message == NULL || message[0] == '\0')
+        return;
+
+    FOR_EACH_ROOM_INST(room, room_data) {
+        if (room != NULL)
+            send_period_message_to_room(room, message);
+    }
+}
+
+bool room_has_period_message_transition(const RoomData* room, int old_hour, int new_hour)
+{
+    if (room == NULL || room->periods == NULL)
+        return false;
+
+    old_hour = normalize_hour_value(old_hour);
+    new_hour = normalize_hour_value(new_hour);
+
+    for (RoomTimePeriod* period = room->periods; period != NULL; period = period->next) {
+        bool was_active = hour_in_period(period, old_hour);
+        bool now_active = hour_in_period(period, new_hour);
+
+        if (now_active && !was_active && period->enter_message && period->enter_message[0] != '\0')
+            return true;
+        if (was_active && !now_active && period->exit_message && period->exit_message[0] != '\0')
+            return true;
+    }
+
+    return false;
+}
+
+void broadcast_room_period_messages(int old_hour, int new_hour)
+{
+    RoomData* room_data;
+
+    if (old_hour == new_hour)
+        return;
+
+    old_hour = normalize_hour_value(old_hour);
+    new_hour = normalize_hour_value(new_hour);
+
+    FOR_EACH_GLOBAL_ROOM(room_data) {
+        if (room_data->periods == NULL)
+            continue;
+
+        for (RoomTimePeriod* period = room_data->periods; period != NULL; period = period->next) {
+            bool was_active = hour_in_period(period, old_hour);
+            bool now_active = hour_in_period(period, new_hour);
+
+            if (now_active && !was_active && period->enter_message && period->enter_message[0] != '\0')
+                send_period_message_to_instances(room_data, period->enter_message);
+            if (was_active && !now_active && period->exit_message && period->exit_message[0] != '\0')
+                send_period_message_to_instances(room_data, period->exit_message);
+        }
+    }
+}
+
 RoomData* new_room_data()
 {
     LIST_ALLOC_PERM(room_data, RoomData);
@@ -343,6 +427,7 @@ RoomData* new_room_data()
     room_data->heal_rate = 100;
     room_data->mana_rate = 100;
     room_data->periods = NULL;
+    room_data->suppress_daycycle_messages = false;
 
     return room_data;
 }
@@ -595,6 +680,29 @@ void load_rooms(FILE* fp)
                 }
                 free_string(period->description);
                 period->description = fread_string(fp);
+            }
+            else if (letter == 'B') {
+                const char* name = fread_word(fp);
+                RoomTimePeriod* period = room_time_period_find(room_data, name);
+                if (period == NULL) {
+                    bug("Load_rooms: period '%s' not found for enter message in room %"PRVNUM".", name ? name : "", vnum);
+                    exit(1);
+                }
+                free_string(period->enter_message);
+                period->enter_message = fread_string(fp);
+            }
+            else if (letter == 'A') {
+                const char* name = fread_word(fp);
+                RoomTimePeriod* period = room_time_period_find(room_data, name);
+                if (period == NULL) {
+                    bug("Load_rooms: period '%s' not found for exit message in room %"PRVNUM".", name ? name : "", vnum);
+                    exit(1);
+                }
+                free_string(period->exit_message);
+                period->exit_message = fread_string(fp);
+            }
+            else if (letter == 'W') {
+                room_data->suppress_daycycle_messages = fread_number(fp) != 0;
             }
 
             else if (letter == 'O') {
