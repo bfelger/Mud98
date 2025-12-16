@@ -67,7 +67,6 @@ Area* mock_area(AreaData* ad)
     Area* a;
     if (ad->instances.count == 0 || ad->inst_type == AREA_INST_MULTI) {
         a = create_area_instance(ad, true);
-        list_push(&ad->instances, OBJ_VAL(a));
     } else {
         a = AS_AREA(list_first(&ad->instances));
     }

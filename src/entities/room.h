@@ -11,6 +11,7 @@
 
 #include <data/direction.h>
 
+#include "daycycle_period.h"
 #include "entity.h"
 #include "extra_desc.h"
 #include "mobile.h"
@@ -25,16 +26,7 @@
 
 typedef struct room_t Room;
 typedef struct room_data_t RoomData;
-
-typedef struct room_time_period_t {
-    struct room_time_period_t* next;
-    char* name;
-    char* description;
-    char* enter_message;
-    char* exit_message;
-    int8_t start_hour;
-    int8_t end_hour;
-} RoomTimePeriod;
+typedef struct area_data_t AreaData;
 
 // Static room VNUMs
 #define ROOM_VNUM_LIMBO         2
@@ -85,7 +77,7 @@ typedef struct room_data_t {
     RoomData* next;
     List instances;
     ExtraDesc* extra_desc;
-    RoomTimePeriod* periods;
+    DayCyclePeriod* periods;
     AreaData* area_data;
     RoomExitData* exit_data[DIR_MAX];
     Reset* reset_first;
@@ -163,14 +155,20 @@ RoomData* new_room_data();
 
 void load_rooms(FILE* fp);
 
-RoomTimePeriod* room_time_period_add(RoomData* room, const char* name, int start_hour, int end_hour);
-RoomTimePeriod* room_time_period_find(RoomData* room, const char* name);
-bool room_time_period_remove(RoomData* room, const char* name);
-void room_time_period_clear(RoomData* room);
-RoomTimePeriod* room_time_period_clone(const RoomTimePeriod* head);
+DayCyclePeriod* room_daycycle_period_add(RoomData* room, const char* name, int start_hour, int end_hour);
+DayCyclePeriod* room_daycycle_period_find(RoomData* room, const char* name);
+bool room_daycycle_period_remove(RoomData* room, const char* name);
+void room_daycycle_period_clear(RoomData* room);
+DayCyclePeriod* room_daycycle_period_clone(const DayCyclePeriod* head);
+DayCyclePeriod* area_daycycle_period_add(AreaData* area, const char* name, int start_hour, int end_hour);
+DayCyclePeriod* area_daycycle_period_find(AreaData* area, const char* name);
+bool area_daycycle_period_remove(AreaData* area, const char* name);
+void area_daycycle_period_clear(AreaData* area);
 const char* room_description_for_hour(const RoomData* room, int hour);
+bool room_suppresses_daycycle_messages(const RoomData* room);
 bool room_has_period_message_transition(const RoomData* room, int old_hour, int new_hour);
 void broadcast_room_period_messages(int old_hour, int new_hour);
+void broadcast_area_period_messages(int old_hour, int new_hour);
 
 extern int room_count;
 extern int room_perm_count;

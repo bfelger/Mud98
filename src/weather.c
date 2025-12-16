@@ -10,6 +10,7 @@
 #include "db.h"
 
 #include "entities/descriptor.h"
+#include "entities/area.h"
 #include "entities/room.h"
 
 TimeInfo time_info;
@@ -71,7 +72,7 @@ static void broadcast_daycycle_message(const char* message)
         Room* room = ch->in_room;
         if (!IS_OUTSIDE(ch))
             continue;
-        if (room->data && room->data->suppress_daycycle_messages)
+        if (room->data && room_suppresses_daycycle_messages(room->data))
             continue;
         send_to_char(message, ch);
     }
@@ -210,6 +211,7 @@ void update_weather_info()
     if (weather_buf[0] != '\0')
         broadcast_weather_change_message(weather_buf);
 
+    broadcast_area_period_messages(old_hour, time_info.hour);
     broadcast_room_period_messages(old_hour, time_info.hour);
 
     return;

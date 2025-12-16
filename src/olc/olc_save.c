@@ -649,7 +649,7 @@ void save_rooms(FILE* fp, AreaData* area)
                     fix_string(pEd->description));
             }
 
-            for (RoomTimePeriod* period = pRoomIndex->periods; period != NULL; period = period->next) {
+            for (DayCyclePeriod* period = pRoomIndex->periods; period != NULL; period = period->next) {
                 const char* name = (period->name && period->name[0] != '\0') ? period->name : "period";
                 fprintf(fp, "P %s %d %d\n", name, period->start_hour, period->end_hour);
                 fprintf(fp, "%s~\n", fix_string(period->description));
@@ -1025,6 +1025,37 @@ void save_checklist(FILE* fp, AreaData* area)
         // Description optional; keep empty line for backward compatibility.
         fprintf(fp, "%s~\n", IS_NULLSTR(item->description) ? "" : fix_string(item->description));
     }
+    fprintf(fp, "S\n\n\n\n");
+}
+
+void save_area_daycycle(FILE* fp, AreaData* area)
+{
+    bool has_flag = area->suppress_daycycle_messages;
+    bool has_periods = area->periods != NULL;
+    if (!has_flag && !has_periods)
+        return;
+
+    fprintf(fp, "#DAYCYCLE\n");
+    if (area->suppress_daycycle_messages)
+        fprintf(fp, "W 1\n");
+
+    for (DayCyclePeriod* period = area->periods; period != NULL; period = period->next) {
+        const char* name = (period->name && period->name[0] != '\0') ? period->name : "period";
+        fprintf(fp, "P %s %d %d\n",
+            name,
+            period->start_hour,
+            period->end_hour);
+        fprintf(fp, "%s~\n", period->description ? fix_string(period->description) : "");
+        if (period->enter_message && period->enter_message[0] != '\0') {
+            fprintf(fp, "B %s\n", name);
+            fprintf(fp, "%s~\n", fix_string(period->enter_message));
+        }
+        if (period->exit_message && period->exit_message[0] != '\0') {
+            fprintf(fp, "A %s\n", name);
+            fprintf(fp, "%s~\n", fix_string(period->exit_message));
+        }
+    }
+
     fprintf(fp, "S\n\n\n\n");
 }
 

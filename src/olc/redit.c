@@ -147,7 +147,7 @@ static bool parse_period_hours(Mobile* ch, const char* start_arg, const char* en
     return true;
 }
 
-static void build_period_preview(const RoomTimePeriod* period, char* out, size_t outlen)
+static void build_period_preview(const DayCyclePeriod* period, char* out, size_t outlen)
 {
     if (!period || !out || outlen == 0)
         return;
@@ -187,7 +187,7 @@ static void show_period_list(Mobile* ch, RoomData* room)
     send_to_char(COLOR_TITLE "Defined Time Periods" COLOR_EOL, ch);
     send_to_char(COLOR_DECOR_2 "  Name         Hours   Msgs   Preview" COLOR_EOL, ch);
 
-    for (RoomTimePeriod* period = room->periods; period != NULL; period = period->next) {
+    for (DayCyclePeriod* period = room->periods; period != NULL; period = period->next) {
         char preview[60];
         build_period_preview(period, preview, sizeof(preview));
         const char* name = (period->name && period->name[0] != '\0') ? period->name : "(unnamed)";
@@ -313,7 +313,7 @@ static void redit_show_periods(Mobile* ch, RoomData* room)
         return;
 
     printf_to_char(ch, "%-14s : " COLOR_ALT_TEXT_1, "Time Periods");
-    for (RoomTimePeriod* period = room->periods; period != NULL; period = period->next) {
+    for (DayCyclePeriod* period = room->periods; period != NULL; period = period->next) {
         const char* name = (period->name && period->name[0] != '\0') ? period->name : "(unnamed)";
         printf_to_char(ch, "%s (%02d-%02d)%s",
             name,
@@ -375,7 +375,7 @@ REDIT(redit_period)
             return false;
         }
 
-        if (room_time_period_find(room, name) != NULL) {
+        if (room_daycycle_period_find(room, name) != NULL) {
             printf_to_char(ch, COLOR_INFO "A time period named '" COLOR_ALT_TEXT_1 "%s" COLOR_INFO "' already exists." COLOR_EOL, name);
             return false;
         }
@@ -388,7 +388,7 @@ REDIT(redit_period)
         if (!parse_period_hours(ch, start_arg, end_arg, name, &start, &end))
             return false;
 
-        RoomTimePeriod* period = room_time_period_add(room, name, start, end);
+        DayCyclePeriod* period = room_daycycle_period_add(room, name, start, end);
         if (!period) {
             send_to_char(COLOR_INFO "Unable to create time period." COLOR_EOL, ch);
             return false;
@@ -406,7 +406,7 @@ REDIT(redit_period)
             return false;
         }
 
-        if (!room_time_period_remove(room, name)) {
+        if (!room_daycycle_period_remove(room, name)) {
             printf_to_char(ch, COLOR_INFO "No time period named '" COLOR_ALT_TEXT_1 "%s" COLOR_INFO "' exists." COLOR_EOL, name);
             return false;
         }
@@ -416,7 +416,7 @@ REDIT(redit_period)
         return true;
     }
 
-    RoomTimePeriod* period = room_time_period_find(room, name);
+    DayCyclePeriod* period = room_daycycle_period_find(room, name);
     if (!period) {
         printf_to_char(ch, COLOR_INFO "No time period named '" COLOR_ALT_TEXT_1 "%s" COLOR_INFO "' exists." COLOR_EOL, name);
         return false;
@@ -467,7 +467,7 @@ REDIT(redit_period)
             return false;
         }
 
-        if (room_time_period_find(room, new_name) != NULL) {
+        if (room_daycycle_period_find(room, new_name) != NULL) {
             printf_to_char(ch, COLOR_INFO "A time period named '" COLOR_ALT_TEXT_1 "%s" COLOR_INFO "' already exists." COLOR_EOL, new_name);
             return false;
         }
@@ -1588,8 +1588,8 @@ REDIT(redit_copy)
     this->clan = that->clan;
     this->heal_rate = that->heal_rate;
     this->mana_rate = that->mana_rate;
-    room_time_period_clear(this);
-    this->periods = room_time_period_clone(that->periods);
+    room_daycycle_period_clear(this);
+    this->periods = room_daycycle_period_clone(that->periods);
 
     send_to_char("Ok. Room copied.\n\r", ch);
     return true;
@@ -1628,7 +1628,7 @@ REDIT(redit_clear)
         pRoom->exit_data[i] = NULL;
     }
 
-    room_time_period_clear(pRoom);
+    room_daycycle_period_clear(pRoom);
 
     send_to_char("Room cleared.\n\r", ch);
     return true;
