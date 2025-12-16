@@ -681,3 +681,43 @@ void raise_object_dropped_event(Object* obj, Mobile* dropper)
 
     invoke_method_closure(OBJ_VAL(obj), closure, 1, OBJ_VAL(dropper));
 }
+
+// TRIG_PRDSTART
+void raise_prdstart_event(Entity* entity, const char* period_name)
+{
+    if (entity == NULL || period_name == NULL)
+        return;
+
+    if (!HAS_EVENT_TRIGGER(entity, TRIG_PRDSTART))
+        return;
+
+    Event* event = get_event_by_trigger_strval(entity, TRIG_PRDSTART, period_name);
+    if (event == NULL)
+        return;
+
+    ObjClosure* closure = get_event_closure(entity, event);
+    if (closure == NULL)
+        return;
+
+    invoke_method_closure(OBJ_VAL(entity), closure, 0);
+}
+
+// TRIG_PRDSTOP
+void raise_prdstop_event(Entity* entity, const char* period_name)
+{
+    if (entity == NULL || period_name == NULL)
+        return;
+
+    if (!HAS_EVENT_TRIGGER(entity, TRIG_PRDSTOP))
+        return;
+
+    Event* event = get_event_by_trigger_strval(entity, TRIG_PRDSTOP, period_name);
+    if (event == NULL)
+        return;
+
+    ObjClosure* closure = get_event_closure(entity, event);
+    if (closure == NULL)
+        return;
+
+    invoke_method_closure(OBJ_VAL(entity), closure, 0);
+}

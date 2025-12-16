@@ -8,6 +8,8 @@
 
 #include <entities/entity.h>
 
+#include <db.h>
+
 const EventTypeInfo event_type_info_table[TRIG_COUNT] = {
     { TRIG_ACT,         "act",      "on_act",       ENT_ALL,    CRIT_STR,       0       },
     { TRIG_ATTACKED,    "attacked", "on_attacked",  ENT_MOB,    CRIT_INT,       "100"   },
@@ -29,6 +31,8 @@ const EventTypeInfo event_type_info_table[TRIG_COUNT] = {
     { TRIG_GIVEN,       "given",    "on_given",     ENT_OBJ,    CRIT_NONE,      0       },
     { TRIG_TAKEN,       "taken",    "on_taken",     ENT_OBJ,    CRIT_NONE,      0       },
     { TRIG_DROPPED,     "dropped",  "on_dropped",   ENT_OBJ,    CRIT_NONE,      0       },
+    { TRIG_PRDSTART,    "prdstart", "on_prdstart",  ENT_PLACE,  CRIT_STR,       0       },
+    { TRIG_PRDSTOP,     "prdstop",  "on_prdstop",   ENT_PLACE,  CRIT_STR,       0       },
 };
 
 EventEnts get_entity_type(Entity* entity)
@@ -40,6 +44,19 @@ EventEnts get_entity_type(Entity* entity)
     case OBJ_ROOM_DATA:     return ENT_ROOM;
     default:                return 0;
     }
+}
+
+EventTrigger get_event_type_info_by_name(const char* name) 
+{
+    if (IS_NULLSTR(name))
+        return NO_FLAG;
+
+    for (int i = 0; i < TRIG_COUNT; i++) {
+        if (str_prefix(event_type_info_table[i].name, name) == 0)
+            return event_type_info_table[i].trigger;
+    }
+
+    return NO_FLAG;
 }
 
 const char* get_event_default_callback(EventTrigger trigger)
@@ -75,6 +92,7 @@ const EventTypeInfo* get_event_type_info(EventTrigger trigger)
 
     fprintf(stderr, "get_event_type_info: Unknown trigger type '%d'.\n",
         trigger);
+        
     return NULL;
 }
 

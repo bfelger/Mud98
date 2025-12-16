@@ -440,6 +440,7 @@ void olc_print_num_str(Mobile* ch, const char* label, int num, const char* opt_s
 void olc_print_str(Mobile* ch, const char* label, const char* str); 
 void olc_print_str_box(Mobile* ch, const char* label, const char* str, const char* opt_str);
 void olc_print_yesno(Mobile* ch, const char* label, bool yesno);
+void olc_print_yesno_ex(Mobile* ch, const char* label, bool yesno, const char* msg);
 void olc_print_text(Mobile* ch, const char* label, const char* text);
 void olc_print_text_ex(Mobile* ch, const char* label, const char* str, int width);
 

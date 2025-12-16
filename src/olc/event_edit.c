@@ -7,8 +7,9 @@
 #include "bit.h"
 #include "olc.h"
 
-#include <entities/event.h>
 #include <data/events.h>
+
+#include <entities/event.h>
 
 #include <comm.h>
 #include <db.h>
@@ -18,8 +19,8 @@
 bool olc_edit_event(Mobile* ch, char* argument)
 {
     static const char* help =
-        COLOR_INFO "Syntax: event set <trigger> [<callback> [<criteria>]]\n\r"
-        "        event delete <trigger>" COLOR_EOL;
+        COLOR_INFO "Syntax: EVENT SET <trigger> [<callback> [<criteria>]]\n\r"
+        "        EVENT DELETE <trigger>" COLOR_EOL;
 
     Entity* entity;
 
@@ -28,8 +29,7 @@ bool olc_edit_event(Mobile* ch, char* argument)
     EventEnts ent_type = get_entity_type(entity);
 
     if (ent_type == 0) {
-        send_to_char(COLOR_INFO "Cannot attach events to that entity."
-            COLOR_EOL, ch);
+        send_to_char(COLOR_INFO "Cannot attach events to that entity." COLOR_EOL, ch);
         return false;
     }
 
@@ -44,20 +44,21 @@ bool olc_edit_event(Mobile* ch, char* argument)
     READ_ARG(cmd_arg);
     READ_ARG(trig_arg);
 
-    if (IS_NULLSTR(cmd_arg) || IS_NULLSTR(trig_arg)) {
+    if (IS_NULLSTR(cmd_arg)) {
         send_to_char(help, ch);
         return false;
     }
 
     // The criteria expression, if any, will be in the remainder in "argument".
-    FLAGS trig = flag_lookup(trig_arg, mprog_flag_table);
+    FLAGS trig = (FLAGS)get_event_type_info_by_name(trig_arg);
     if (trig == NO_FLAG) {
-        printf_to_char(ch, COLOR_INFO "No trigger '%s' found. These are the "
-            "available options:\n\r" COLOR_ALT_TEXT_1, trig_arg);
+        if (!IS_NULLSTR(trig_arg))
+            printf_to_char(ch, COLOR_INFO "No trigger '%s' found. ", trig_arg);
+        printf_to_char(ch, COLOR_INFO "These are the available event triggers for this object:\n\r" COLOR_ALT_TEXT_1);
         int j = 0;
-        for (int i = 0; mprog_flag_table[i].name != NULL; ++i)
+        for (int i = 0; i < TRIG_COUNT; ++i)
             if (HAS_BIT(event_type_info_table[i].valid_ents, ent_type)) {
-                printf_to_char(ch, "%10s%s", mprog_flag_table[i].name,
+                printf_to_char(ch, "%10s%s", event_type_info_table[i].name,
                     (++j % 3 == 0) ? "\n\r" : "");
             }
         send_to_char(COLOR_EOL, ch);
@@ -139,6 +140,9 @@ bool olc_edit_event(Mobile* ch, char* argument)
                 printf_to_char(ch, COLOR_INFO "Trigger '%s' requires a criteria of type %s. Please supply one." COLOR_EOL,
                     trig_arg,
                     (trig_info->criteria_type == CRIT_INT) ? "number" : "string");
+                if (cb_arg[0] != '\0')
+                printf_to_char(ch, COLOR_ALT_TEXT_2 "    (Did you maybe mean to use the default callback '%s'? Default callbacks aren't available if you need to set criteria. Try " COLOR_INFO "'EVENT SET %s %s'" COLOR_ALT_TEXT_2 ".)" COLOR_EOL,
+                    trig_info->default_callback, trig_info->default_callback, cb_arg);
                 return false;
             }
         }
@@ -181,14 +185,14 @@ void olc_display_events(Mobile* ch, Entity* entity)
 
     send_to_char(
         "Events:\n\r"
-        COLOR_TITLE   " Trigger          Callback (Args)     Criteria\n\r"
-        COLOR_DECOR_2 "========= ================ ========== ========\n\r", ch);
+        COLOR_TITLE   "  Trigger           Callback (Args)     Criteria\n\r"
+        COLOR_DECOR_2 "=========== ================ ========== ========\n\r", ch);
 
     Node* node = entity->events.front;
     while (node != NULL) {
         Event* event = AS_EVENT(node->value);
 
-        char* trigger = capitalize(flag_string(mprog_flag_table, event->trigger));
+        char* trigger = capitalize(get_event_name((EventTrigger)event->trigger));
         char* callback = (event->method_name != NULL) ? event->method_name->chars : "(none)";
         char* args = "(mob)";
         char* criteria = (!IS_NIL(event->criteria)) ? string_value(event->criteria) : "";
@@ -199,6 +203,16 @@ void olc_display_events(Mobile* ch, Entity* entity)
                 args = "(mob, msg)";
             else if (info->trigger == TRIG_GIVE)
                 args = "(mob, obj)";
+            else if (info->trigger == TRIG_PRDSTART || info->trigger == TRIG_PRDSTOP) {
+                // Determine args based on entity type
+                EventEnts ent_type = get_entity_type(entity);
+                if (ent_type & ENT_AREA)
+                    args = "(area)";
+                else if (ent_type & ENT_ROOM)
+                    args = "(room)";
+                else
+                    args = "()";
+            }
             else if (info->criteria_type == CRIT_INT)
                 args = "(mob, num)";
             else if (info->criteria_type == CRIT_STR)
@@ -209,7 +223,7 @@ void olc_display_events(Mobile* ch, Entity* entity)
                 args = "(mob)";
         }
 
-        printf_to_char(ch, COLOR_TITLE "" COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%7.7s" COLOR_DECOR_1 "]"
+        printf_to_char(ch, COLOR_TITLE "" COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%9.9s" COLOR_DECOR_1 "]"
             COLOR_ALT_TEXT_2 " %16.16s %-10.10s "
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%6.6s" COLOR_DECOR_1 "]"
             COLOR_EOL,

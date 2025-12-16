@@ -9,7 +9,9 @@
 #include <lox/array.h>
 #include <lox/object.h>
 
+#include <entities/area.h>
 #include <entities/descriptor.h>
+#include <entities/event.h>
 #include <entities/room.h>
 
 #include <db.h>
@@ -407,6 +409,357 @@ static int test_area_suppression_blocks_default_daycycle()
     return 0;
 }
 
+static int test_prdstart_event_on_room()
+{
+    AreaData* area_data = mock_area_data();
+    register_area_for_broadcast(area_data);
+    RoomData* room_data = mock_room_data(50100, area_data);
+    Room* room = mock_room(50100, room_data, NULL);
+
+    // Create a period for morning (hour 6-12)
+    DayCyclePeriod* period = room_daycycle_period_add(room_data, "morning", 6, 12);
+    free_string(period->enter_message);
+    period->enter_message = str_dup("Morning light fills the area.\n\r");
+
+    // Attach a TRIG_PRDSTART event to the room
+    const char* event_src =
+        "on_prdstart() {"
+        "   print \"Morning period started!\";"
+        "}";
+    ObjClass* room_class = create_entity_class((Entity*)room,
+        "room_50100", event_src);
+    room->header.klass = room_class;
+    init_entity_class((Entity*)room);
+
+    Event* prdstart_event = new_event();
+    prdstart_event->trigger = TRIG_PRDSTART;
+    prdstart_event->method_name = lox_string("on_prdstart");
+    prdstart_event->criteria = OBJ_VAL(lox_string("morning"));
+    add_event((Entity*)room, prdstart_event);
+
+    TimeInfo saved_time = time_info;
+    WeatherInfo saved_weather = weather_info;
+    reset_weather_state(5);  // Hour before morning starts
+
+    test_output_buffer = NIL_VAL;
+    update_weather_info();  // Advance to hour 6
+
+    char* expected = "Morning period started!\n";
+    ASSERT_OUTPUT_EQ(expected);
+
+    test_output_buffer = NIL_VAL;
+    time_info = saved_time;
+    weather_info = saved_weather;
+    unregister_area_for_broadcast(area_data);
+    return 0;
+}
+
+static int test_prdstop_event_on_room()
+{
+    AreaData* area_data = mock_area_data();
+    register_area_for_broadcast(area_data);
+    RoomData* room_data = mock_room_data(50101, area_data);
+    Room* room = mock_room(50101, room_data, NULL);
+
+    // Create a period for morning (hour 6-12)
+    DayCyclePeriod* period = room_daycycle_period_add(room_data, "morning", 6, 12);
+    free_string(period->exit_message);
+    period->exit_message = str_dup("Morning fades into afternoon.\n\r");
+
+    // Attach a TRIG_PRDSTOP event to the room
+    const char* event_src =
+        "on_prdstop() {"
+        "   print \"Morning period ended!\";"
+        "}";
+    ObjClass* room_class = create_entity_class((Entity*)room,
+        "room_50101", event_src);
+    room->header.klass = room_class;
+    init_entity_class((Entity*)room);
+
+    Event* prdstop_event = new_event();
+    prdstop_event->trigger = TRIG_PRDSTOP;
+    prdstop_event->method_name = lox_string("on_prdstop");
+    prdstop_event->criteria = OBJ_VAL(lox_string("morning"));
+    add_event((Entity*)room, prdstop_event);
+
+    TimeInfo saved_time = time_info;
+    WeatherInfo saved_weather = weather_info;
+    reset_weather_state(12);  // Last hour of morning
+
+    test_output_buffer = NIL_VAL;
+    update_weather_info();  // Advance to hour 13
+
+    char* expected = "Morning period ended!\n";
+    ASSERT_OUTPUT_EQ(expected);
+
+    test_output_buffer = NIL_VAL;
+    time_info = saved_time;
+    weather_info = saved_weather;
+    unregister_area_for_broadcast(area_data);
+    return 0;
+}
+
+static int test_prdstart_event_on_area()
+{
+    AreaData* area_data = mock_area_data();
+    register_area_for_broadcast(area_data);
+    
+    // Create a single Area instance for the AreaData
+    Area* area_inst = create_area_instance(area_data, false);
+
+    // Create a period for evening (hour 18-22)
+    DayCyclePeriod* period = area_daycycle_period_add(area_data, "evening", 18, 22);
+    free_string(period->enter_message);
+    period->enter_message = str_dup("Evening descends upon the land.\n\r");
+
+    // Attach a TRIG_PRDSTART event to the area instance
+    const char* event_src =
+        "on_prdstart() {"
+        "   print \"Evening period started in area!\";"
+        "}";
+    ObjClass* area_class = create_entity_class((Entity*)area_inst,
+        "area_instance", event_src);
+    area_inst->header.klass = area_class;
+    init_entity_class((Entity*)area_inst);
+
+    Event* prdstart_event = new_event();
+    prdstart_event->trigger = TRIG_PRDSTART;
+    prdstart_event->method_name = lox_string("on_prdstart");
+    prdstart_event->criteria = OBJ_VAL(lox_string("evening"));
+    add_event((Entity*)area_inst, prdstart_event);
+
+    TimeInfo saved_time = time_info;
+    WeatherInfo saved_weather = weather_info;
+    reset_weather_state(17);  // Hour before evening starts
+
+    test_output_buffer = NIL_VAL;
+    update_weather_info();  // Advance to hour 18
+
+    char* expected = "Evening period started in area!\n";
+    ASSERT_OUTPUT_EQ(expected);
+
+    test_output_buffer = NIL_VAL;
+    time_info = saved_time;
+    weather_info = saved_weather;
+    unregister_area_for_broadcast(area_data);
+    return 0;
+}
+
+static int test_prdstop_event_on_area()
+{
+    AreaData* area_data = mock_area_data();
+    register_area_for_broadcast(area_data);
+    
+    // Create a single Area instance for the AreaData
+    Area* area_inst = create_area_instance(area_data, false);
+
+    // Create a period for evening (hour 18-22)
+    DayCyclePeriod* period = area_daycycle_period_add(area_data, "evening", 18, 22);
+    free_string(period->exit_message);
+    period->exit_message = str_dup("Evening gives way to night.\n\r");
+
+    // Attach a TRIG_PRDSTOP event to the area instance
+    const char* event_src =
+        "on_prdstop() {"
+        "   print \"Evening period ended in area!\";"
+        "}";
+    ObjClass* area_class = create_entity_class((Entity*)area_inst,
+        "area_instance", event_src);
+    area_inst->header.klass = area_class;
+    init_entity_class((Entity*)area_inst);
+
+    Event* prdstop_event = new_event();
+    prdstop_event->trigger = TRIG_PRDSTOP;
+    prdstop_event->method_name = lox_string("on_prdstop");
+    prdstop_event->criteria = OBJ_VAL(lox_string("evening"));
+    add_event((Entity*)area_inst, prdstop_event);
+
+    TimeInfo saved_time = time_info;
+    WeatherInfo saved_weather = weather_info;
+    reset_weather_state(22);  // Last hour of evening
+
+    test_output_buffer = NIL_VAL;
+    update_weather_info();  // Advance to hour 23
+
+    char* expected = "Evening period ended in area!\n";
+    ASSERT_OUTPUT_EQ(expected);
+
+    test_output_buffer = NIL_VAL;
+    time_info = saved_time;
+    weather_info = saved_weather;
+    unregister_area_for_broadcast(area_data);
+    return 0;
+}
+
+static int test_prdstart_fires_after_message()
+{
+    AreaData* area_data = mock_area_data();
+    register_area_for_broadcast(area_data);
+    RoomData* room_data = mock_room_data(50102, area_data);
+    Room* room = mock_room(50102, room_data, NULL);
+
+    Mobile* player = mock_player("Observer");
+    transfer_mob(player, room);
+    ASSERT(player->desc != NULL);
+    player->desc->connected = CON_PLAYING;
+    mock_connect_player_descriptor(player);
+
+    // Create a period with an enter message
+    DayCyclePeriod* period = room_daycycle_period_add(room_data, "dawn", 5, 5);
+    free_string(period->enter_message);
+    period->enter_message = str_dup("Dawn breaks.\n\r");
+
+    // Attach a TRIG_PRDSTART event that outputs text
+    const char* event_src =
+        "on_prdstart() {"
+        "   print \"Event fired after message.\";"
+        "}";
+    ObjClass* room_class = create_entity_class((Entity*)room,
+        "room_50102", event_src);
+    room->header.klass = room_class;
+    init_entity_class((Entity*)room);
+
+    Event* prdstart_event = new_event();
+    prdstart_event->trigger = TRIG_PRDSTART;
+    prdstart_event->method_name = lox_string("on_prdstart");
+    prdstart_event->criteria = OBJ_VAL(lox_string("dawn"));
+    add_event((Entity*)room, prdstart_event);
+
+    TimeInfo saved_time = time_info;
+    WeatherInfo saved_weather = weather_info;
+    reset_weather_state(4);
+
+    test_output_buffer = NIL_VAL;
+    test_socket_output_enabled = true;
+    update_weather_info();
+    test_socket_output_enabled = false;
+
+    // Verify order: message should appear before event output
+    char* output = AS_STRING(test_output_buffer)->chars;
+    char* dawn_pos = strstr(output, "Dawn breaks.");
+    char* event_pos = strstr(output, "Event fired after message.");
+    
+    ASSERT(dawn_pos != NULL);
+    ASSERT(event_pos != NULL);
+    ASSERT(dawn_pos < event_pos);  // Message should come before event
+
+    test_output_buffer = NIL_VAL;
+    mock_disconnect_player_descriptor(player);
+    time_info = saved_time;
+    weather_info = saved_weather;
+    unregister_area_for_broadcast(area_data);
+    return 0;
+}
+
+static int test_prdstop_fires_before_message()
+{
+    AreaData* area_data = mock_area_data();
+    register_area_for_broadcast(area_data);
+    RoomData* room_data = mock_room_data(50103, area_data);
+    Room* room = mock_room(50103, room_data, NULL);
+
+    Mobile* player = mock_player("Observer");
+    transfer_mob(player, room);
+    ASSERT(player->desc != NULL);
+    player->desc->connected = CON_PLAYING;
+    mock_connect_player_descriptor(player);
+
+    // Create a period with an exit message
+    DayCyclePeriod* period = room_daycycle_period_add(room_data, "dawn", 5, 5);
+    free_string(period->exit_message);
+    period->exit_message = str_dup("Dawn ends.\n\r");
+
+    // Attach a TRIG_PRDSTOP event that outputs text
+    const char* event_src =
+        "on_prdstop() {"
+        "   print \"Event fired before message.\";"
+        "}";
+    ObjClass* room_class = create_entity_class((Entity*)room,
+        "room_50103", event_src);
+    room->header.klass = room_class;
+    init_entity_class((Entity*)room);
+
+    Event* prdstop_event = new_event();
+    prdstop_event->trigger = TRIG_PRDSTOP;
+    prdstop_event->method_name = lox_string("on_prdstop");
+    prdstop_event->criteria = OBJ_VAL(lox_string("dawn"));
+    add_event((Entity*)room, prdstop_event);
+
+    TimeInfo saved_time = time_info;
+    WeatherInfo saved_weather = weather_info;
+    reset_weather_state(5);  // At dawn
+
+    test_output_buffer = NIL_VAL;
+    test_socket_output_enabled = true;
+    update_weather_info();  // Exit dawn
+    test_socket_output_enabled = false;
+
+    // Verify order: event output should appear before message
+    char* output = AS_STRING(test_output_buffer)->chars;
+    char* event_pos = strstr(output, "Event fired before message.");
+    char* dawn_pos = strstr(output, "Dawn ends.");
+    
+    ASSERT(event_pos != NULL);
+    ASSERT(dawn_pos != NULL);
+    ASSERT(event_pos < dawn_pos);  // Event should come before message
+
+    test_output_buffer = NIL_VAL;
+    mock_disconnect_player_descriptor(player);
+    time_info = saved_time;
+    weather_info = saved_weather;
+    unregister_area_for_broadcast(area_data);
+    return 0;
+}
+
+static int test_prdstart_only_fires_for_matching_period()
+{
+    AreaData* area_data = mock_area_data();
+    register_area_for_broadcast(area_data);
+    RoomData* room_data = mock_room_data(50104, area_data);
+    Room* room = mock_room(50104, room_data, NULL);
+
+    // Create two periods
+    room_daycycle_period_add(room_data, "morning", 6, 12);
+    room_daycycle_period_add(room_data, "afternoon", 13, 17);
+
+    // Attach event that only triggers for "afternoon"
+    const char* event_src =
+        "on_prdstart() {"
+        "   print \"Afternoon event triggered!\";"
+        "}";
+    ObjClass* room_class = create_entity_class((Entity*)room,
+        "room_50104", event_src);
+    room->header.klass = room_class;
+    init_entity_class((Entity*)room);
+
+    Event* prdstart_event = new_event();
+    prdstart_event->trigger = TRIG_PRDSTART;
+    prdstart_event->method_name = lox_string("on_prdstart");
+    prdstart_event->criteria = OBJ_VAL(lox_string("afternoon"));
+    add_event((Entity*)room, prdstart_event);
+
+    TimeInfo saved_time = time_info;
+    WeatherInfo saved_weather = weather_info;
+    
+    // Enter morning - should NOT trigger
+    reset_weather_state(5);
+    test_output_buffer = NIL_VAL;
+    update_weather_info();
+    ASSERT(!output_contains_text("Afternoon event triggered!"));
+
+    // Enter afternoon - SHOULD trigger
+    reset_weather_state(12);
+    test_output_buffer = NIL_VAL;
+    update_weather_info();
+    ASSERT(output_contains_text("Afternoon event triggered!"));
+
+    test_output_buffer = NIL_VAL;
+    time_info = saved_time;
+    weather_info = saved_weather;
+    unregister_area_for_broadcast(area_data);
+    return 0;
+}
+
 void register_daycycle_tests()
 {
 #define REGISTER(n, f)  register_test(&daycycle_tests, (n), (f))
@@ -427,6 +780,13 @@ void register_daycycle_tests()
     REGISTER("Area Period Messages Reach Rooms", test_area_period_messages_reach_rooms);
     REGISTER("Room Suppression Blocks Area Periods", test_room_suppression_blocks_area_periods);
     REGISTER("Area Suppression Blocks Default Daycycle", test_area_suppression_blocks_default_daycycle);
+    REGISTER("PRDSTART Event On Room", test_prdstart_event_on_room);
+    REGISTER("PRDSTOP Event On Room", test_prdstop_event_on_room);
+    REGISTER("PRDSTART Event On Area", test_prdstart_event_on_area);
+    REGISTER("PRDSTOP Event On Area", test_prdstop_event_on_area);
+    REGISTER("PRDSTART Fires After Message", test_prdstart_fires_after_message);
+    REGISTER("PRDSTOP Fires Before Message", test_prdstop_fires_before_message);
+    REGISTER("PRDSTART Only Fires For Matching Period", test_prdstart_only_fires_for_matching_period);
     
 #undef REGISTER
 }

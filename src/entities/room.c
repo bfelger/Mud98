@@ -341,10 +341,27 @@ void broadcast_room_period_messages(int old_hour, int new_hour)
             bool was_active = daycycle_period_contains_hour(period, old_hour);
             bool now_active = daycycle_period_contains_hour(period, new_hour);
 
-            if (now_active && !was_active && period->enter_message && period->enter_message[0] != '\0')
-                send_period_message_to_instances(room_data, period->enter_message);
-            if (was_active && !now_active && period->exit_message && period->exit_message[0] != '\0')
-                send_period_message_to_instances(room_data, period->exit_message);
+            // Period ending: fire TRIG_PRDSTOP BEFORE exit message
+            if (was_active && !now_active) {
+                Room* room_inst;
+                FOR_EACH_ROOM_INST(room_inst, room_data) {
+                    raise_prdstop_event((Entity*)room_inst, period->name);
+                }
+                
+                if (period->exit_message && period->exit_message[0] != '\0')
+                    send_period_message_to_instances(room_data, period->exit_message);
+            }
+
+            // Period starting: fire TRIG_PRDSTART AFTER enter message
+            if (now_active && !was_active) {
+                if (period->enter_message && period->enter_message[0] != '\0')
+                    send_period_message_to_instances(room_data, period->enter_message);
+                
+                Room* room_inst;
+                FOR_EACH_ROOM_INST(room_inst, room_data) {
+                    raise_prdstart_event((Entity*)room_inst, period->name);
+                }
+            }
         }
     }
 }
@@ -367,10 +384,27 @@ void broadcast_area_period_messages(int old_hour, int new_hour)
             bool was_active = daycycle_period_contains_hour(period, old_hour);
             bool now_active = daycycle_period_contains_hour(period, new_hour);
 
-            if (now_active && !was_active && period->enter_message && period->enter_message[0] != '\0')
-                send_period_message_to_area(area_data, period->enter_message);
-            if (was_active && !now_active && period->exit_message && period->exit_message[0] != '\0')
-                send_period_message_to_area(area_data, period->exit_message);
+            // Period ending: fire TRIG_PRDSTOP BEFORE exit message
+            if (was_active && !now_active) {
+                Area* area_inst;
+                FOR_EACH_AREA_INST(area_inst, area_data) {
+                    raise_prdstop_event((Entity*)area_inst, period->name);
+                }
+                
+                if (period->exit_message && period->exit_message[0] != '\0')
+                    send_period_message_to_area(area_data, period->exit_message);
+            }
+
+            // Period starting: fire TRIG_PRDSTART AFTER enter message
+            if (now_active && !was_active) {
+                if (period->enter_message && period->enter_message[0] != '\0')
+                    send_period_message_to_area(area_data, period->enter_message);
+                
+                Area* area_inst;
+                FOR_EACH_AREA_INST(area_inst, area_data) {
+                    raise_prdstart_event((Entity*)area_inst, period->name);
+                }
+            }
         }
     }
 }

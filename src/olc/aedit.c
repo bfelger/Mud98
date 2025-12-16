@@ -2,29 +2,32 @@
 // aedit.c
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "merc.h"
+#include <merc.h>
 
-#include "array.h"
 #include "bit.h"
-#include "comm.h"
-#include "config.h"
-#include "db.h"
-#include "format.h"
-#include "handler.h"
-#include "lookup.h"
-#include "magic.h"
+#include "event_edit.h"
+#include "lox_edit.h"
 #include "olc.h"
-
-#include <color.h>
-#include "recycle.h"
-#include "save.h"
+#include "period_edit.h"
 #include "string_edit.h"
-#include "stringutils.h"
-#include "tables.h"
 
-#include "entities/area.h"
-#include "entities/faction.h"
-#include "entities/mob_prototype.h"
+#include <array.h>
+#include <color.h>
+#include <comm.h>
+#include <config.h>
+#include <db.h>
+#include <format.h>
+#include <handler.h>
+#include <lookup.h>
+#include <magic.h>
+#include <recycle.h>
+#include <save.h>
+#include <stringutils.h>
+#include <tables.h>
+
+#include <entities/area.h>
+#include <entities/faction.h>
+#include <entities/mob_prototype.h>
 
 #define AEDIT(fun) bool fun( Mobile *ch, char *argument )
 
@@ -50,17 +53,6 @@ static const char* checklist_status_name(ChecklistStatus status);
 static StoryBeat* story_beat_by_index(AreaData* area, int index, StoryBeat** out_prev);
 static ChecklistItem* checklist_by_index(AreaData* area, int index, ChecklistItem** out_prev);
 static void aedit_seed_default_checklist(AreaData* area);
-typedef struct period_preset_t {
-    const char* name;
-    int start;
-    int end;
-} PeriodPreset;
-static bool find_period_preset(const char* name, int* start, int* end);
-static bool parse_period_hours(Mobile* ch, const char* start_arg, const char* end_arg, const char* preset_name, int* start, int* end);
-static void aedit_build_period_preview(const DayCyclePeriod* period, char* out, size_t outlen);
-static void aedit_show_period_usage(Mobile* ch);
-static void aedit_show_period_list(Mobile* ch, AreaData* area);
-static void aedit_show_periods(Mobile* ch, AreaData* area);
 
 AEDIT(aedit_story);
 AEDIT(aedit_checklist);
@@ -77,6 +69,9 @@ const OlcCmdEntry area_olc_comm_table[] = {
     { "credits", 	    U(&xArea.credits),      ed_line_string,     0                   },
     { "alwaysreset",    U(&xArea.always_reset), ed_bool,            0                   },
     { "instancetype",   U(&xArea.inst_type),    ed_flag_set_sh,     U(inst_type_table)  },
+    { "period",         0,                      ed_olded,           U(aedit_period)     },
+    { "event",          0,                      ed_olded,           U(olc_edit_event)   },
+    { "lox",            0,                      ed_olded,           U(olc_edit_lox)     },
     { "story",          0,                      ed_olded,           U(aedit_story)      },
     { "checklist",      0,                      ed_olded,           U(aedit_checklist)  },
     { "period",         0,                      ed_olded,           U(aedit_period)     },
@@ -95,145 +90,6 @@ const OlcCmdEntry area_olc_comm_table[] = {
     { NULL, 		    0,                      NULL,               0		            }
 };
 
-static const PeriodPreset period_presets[] = {
-    { "day", 6, 18 },
-    { "dusk", 19, 19 },
-    { "night", 20, 4 },
-    { "dawn", 5, 5 },
-    { NULL, 0, 0 },
-};
-
-static bool find_period_preset(const char* name, int* start, int* end)
-{
-    if (!name || name[0] == '\0')
-        return false;
-
-    for (int i = 0; period_presets[i].name != NULL; ++i) {
-        if (!str_cmp(name, period_presets[i].name)) {
-            if (start)
-                *start = period_presets[i].start;
-            if (end)
-                *end = period_presets[i].end;
-            return true;
-        }
-    }
-
-    return false;
-}
-
-static bool parse_period_hours(Mobile* ch, const char* start_arg, const char* end_arg, const char* preset_name, int* start, int* end)
-{
-    if (start_arg == NULL || start_arg[0] == '\0') {
-        if (preset_name && find_period_preset(preset_name, start, end))
-            return true;
-
-        send_to_char(COLOR_INFO "Specify start and end hours between 0 and 23, or use one of the presets: day, dusk, night, dawn." COLOR_EOL, ch);
-        return false;
-    }
-
-    if (end_arg == NULL || end_arg[0] == '\0') {
-        send_to_char(COLOR_INFO "Specify both a start and end hour between 0 and 23." COLOR_EOL, ch);
-        return false;
-    }
-
-    if (!is_number(start_arg) || !is_number(end_arg)) {
-        send_to_char(COLOR_INFO "Hours must be numeric values between 0 and 23." COLOR_EOL, ch);
-        return false;
-    }
-
-    int s = atoi(start_arg);
-    int e = atoi(end_arg);
-    if (s < 0 || s > 23 || e < 0 || e > 23) {
-        send_to_char(COLOR_INFO "Hours must be within the 0-23 range." COLOR_EOL, ch);
-        return false;
-    }
-
-    if (start)
-        *start = s;
-    if (end)
-        *end = e;
-    return true;
-}
-
-static void aedit_build_period_preview(const DayCyclePeriod* period, char* out, size_t outlen)
-{
-    if (!period || !out || outlen == 0)
-        return;
-
-    const char* msg = (period->enter_message && period->enter_message[0] != '\0')
-        ? period->enter_message
-        : (period->exit_message && period->exit_message[0] != '\0')
-            ? period->exit_message
-            : "(no message)";
-    size_t len = strcspn(msg, "\r\n");
-    if (len >= outlen)
-        len = outlen - 1;
-    strncpy(out, msg, len);
-    out[len] = '\0';
-}
-
-static void aedit_show_period_usage(Mobile* ch)
-{
-    send_to_char(COLOR_INFO "Syntax:" COLOR_EOL, ch);
-    send_to_char(COLOR_INFO "  period list" COLOR_EOL, ch);
-    send_to_char(COLOR_INFO "  period add <name> [start end]" COLOR_EOL, ch);
-    send_to_char(COLOR_INFO "  period delete <name>" COLOR_EOL, ch);
-    send_to_char(COLOR_INFO "  period set <name> <start> <end>" COLOR_EOL, ch);
-    send_to_char(COLOR_INFO "  period rename <name> <new name>" COLOR_EOL, ch);
-    send_to_char(COLOR_INFO "  period enter <name>" COLOR_EOL, ch);
-    send_to_char(COLOR_INFO "  period exit <name>" COLOR_EOL, ch);
-    send_to_char(COLOR_INFO "  period format <name> [enter|exit]" COLOR_EOL, ch);
-    send_to_char(COLOR_INFO "  period suppress <on|off>" COLOR_EOL, ch);
-}
-
-static void aedit_show_period_list(Mobile* ch, AreaData* area)
-{
-    if (!area || area->periods == NULL) {
-        send_to_char(COLOR_INFO "No time periods are defined for this area." COLOR_EOL, ch);
-        return;
-    }
-
-    send_to_char(COLOR_TITLE "Defined Time Periods" COLOR_EOL, ch);
-    send_to_char(COLOR_DECOR_2 "  Name         Hours   Msgs   Preview" COLOR_EOL, ch);
-
-    for (DayCyclePeriod* period = area->periods; period != NULL; period = period->next) {
-        char preview[64];
-        aedit_build_period_preview(period, preview, sizeof(preview));
-        const char* name = (period->name && period->name[0] != '\0') ? period->name : "(unnamed)";
-        bool has_enter = period->enter_message && period->enter_message[0] != '\0';
-        bool has_exit = period->exit_message && period->exit_message[0] != '\0';
-        printf_to_char(ch, COLOR_INFO "  %-12s %02d-%02d   %c%c     %s" COLOR_EOL,
-            name,
-            period->start_hour,
-            period->end_hour,
-            has_enter ? 'E' : '.',
-            has_exit ? 'X' : '.',
-            preview);
-    }
-}
-
-static void aedit_show_periods(Mobile* ch, AreaData* area)
-{
-    if (!area)
-        return;
-
-    if (!area->periods) {
-        send_to_char(COLOR_INFO "Daycycle Periods: " COLOR_ALT_TEXT_2 "None defined" COLOR_EOL, ch);
-        return;
-    }
-
-    send_to_char(COLOR_INFO "Daycycle Periods:" COLOR_EOL, ch);
-    for (DayCyclePeriod* period = area->periods; period != NULL; period = period->next) {
-        const char* name = (period->name && period->name[0] != '\0') ? period->name : "(unnamed)";
-        printf_to_char(ch, "  %-12s %02d-%02d%s",
-            name,
-            period->start_hour,
-            period->end_hour,
-            period->next ? "  " : "");
-    }
-    printf_to_char(ch, COLOR_EOL);
-}
-
 void do_aedit(Mobile* ch, char* argument)
 {
     AreaData* area;
@@ -246,7 +102,7 @@ void do_aedit(Mobile* ch, char* argument)
     if (is_number(arg)) {
         vnum = STRTOVNUM(arg);
         if (!(area = get_area_data(vnum))) {
-            send_to_char("That area vnum does not exist.\n\r", ch);
+            send_to_char(COLOR_INFO "That area vnum does not exist." COLOR_EOL, ch);
             return;
         }
     }
@@ -258,7 +114,7 @@ void do_aedit(Mobile* ch, char* argument)
     }
 
     if (!IS_BUILDER(ch, area) || ch->pcdata->security < MIN_AEDIT_SECURITY) {
-        send_to_char("You do not have enough security to edit areas.\n\r", ch);
+        send_to_char(COLOR_INFO "You do not have enough security to edit areas." COLOR_EOL, ch);
         return;
     }
 
@@ -277,7 +133,7 @@ void aedit(Mobile* ch, char* argument)
     EDIT_AREA(ch, area);
 
     if (!IS_BUILDER(ch, area)) {
-        send_to_char("AEdit:  Insufficient security to modify area.\n\r", ch);
+        send_to_char(COLOR_INFO "Insufficient security to modify area." COLOR_EOL, ch);
         edit_done(ch);
         return;
     }
@@ -362,10 +218,10 @@ static void format_relation_list(Buffer* buffer, const char* label, ValueArray* 
 static const char* checklist_status_name(ChecklistStatus status)
 {
     switch (status) {
-    case CHECK_TODO: return "To-Do";
-    case CHECK_IN_PROGRESS: return "In Progress";
-    case CHECK_DONE: return "Done";
-    default: return "Unknown";
+    case CHECK_TODO: return "^wTo-Do";
+    case CHECK_IN_PROGRESS: return "^YIn Progress";
+    case CHECK_DONE: return "^GDone";
+    default: return "^DUnknown";
     }
 }
 
@@ -414,31 +270,34 @@ static ChecklistItem* checklist_by_index(AreaData* area, int index, ChecklistIte
 
 static void aedit_print_story_beats(Mobile* ch, AreaData* area)
 {
-    send_to_char(COLOR_INFO "Story Beats:" COLOR_CLEAR "\n\r", ch);
     if (!area->story_beats) {
-        send_to_char("  (none)\n\r", ch);
+        send_to_char(COLOR_TEXT "Story Beats:" COLOR_ALT_TEXT_1 "  (none)" COLOR_EOL, ch);
         return;
     }
+    send_to_char(COLOR_TEXT "Story Beats:" COLOR_EOL, ch);
+
     int idx = 0;
     for (StoryBeat* beat = area->story_beats; beat; beat = beat->next, ++idx) {
-        printf_to_char(ch, "  %d) %s\n\r", idx + 1, beat->title);
+        printf_to_char(ch, COLOR_ALT_TEXT_1 "  %d)" COLOR_TITLE " %s" COLOR_EOL, idx + 1, beat->title);
         if (!IS_NULLSTR(beat->description))
-            printf_to_char(ch, "     %s\n\r", beat->description);
+            printf_to_char(ch, COLOR_ALT_TEXT_2"     %s" COLOR_EOL, beat->description);
     }
 }
 
 static void aedit_print_checklist(Mobile* ch, AreaData* area)
-{
-    send_to_char(COLOR_INFO "Checklist:" COLOR_CLEAR "\n\r", ch);
-    if (!area->checklist) {
-        send_to_char("  (none)\n\r", ch);
+{    if (!area->checklist) {
+        send_to_char(COLOR_TEXT "Checklist:" COLOR_ALT_TEXT_1 "  (none)" COLOR_EOL, ch);
         return;
     }
+    send_to_char(COLOR_TEXT "Checklist:" COLOR_EOL, ch);
+
     int idx = 0;
     for (ChecklistItem* item = area->checklist; item; item = item->next, ++idx) {
-        printf_to_char(ch, "  %d) [%s] %s\n\r", idx + 1, checklist_status_name(item->status), item->title);
+        printf_to_char(ch, COLOR_ALT_TEXT_1 "  %d) " COLOR_DECOR_1 
+            "[" COLOR_INFO "%s" COLOR_DECOR_1 "] " COLOR_TITLE "%s\n\r", 
+            idx + 1, checklist_status_name(item->status), item->title);
         if (!IS_NULLSTR(item->description))
-            printf_to_char(ch, "     %s\n\r", item->description);
+            printf_to_char(ch, COLOR_ALT_TEXT_2 "     %s" COLOR_EOL, item->description);
     }
 }
 
@@ -447,7 +306,7 @@ static void aedit_print_faction_summary(Mobile* ch, AreaData* area)
     Buffer* buffer = new_buf();
     bool found = false;
 
-    add_buf(buffer, COLOR_TITLE "Factions" COLOR_CLEAR "\n\r");
+    add_buf(buffer, COLOR_TEXT "Factions:" COLOR_CLEAR "\n\r");
 
     if (faction_table.capacity > 0 && faction_table.entries != NULL) {
         for (int idx = 0; idx < faction_table.capacity; ++idx) {
@@ -460,10 +319,10 @@ static void aedit_print_faction_summary(Mobile* ch, AreaData* area)
                 continue;
 
             addf_buf(buffer,
-                COLOR_DECOR_1 "[%" PRVNUM "] " COLOR_ALT_TEXT_1 "%-20s"
-                COLOR_CLEAR " default: " COLOR_ALT_TEXT_2 "%6d"
-                COLOR_CLEAR " allies: " COLOR_ALT_TEXT_2 "%2d"
-                COLOR_CLEAR " enemies: " COLOR_ALT_TEXT_2 "%2d" COLOR_EOL,
+                COLOR_DECOR_1 "  [" COLOR_ALT_TEXT_1 "%" PRVNUM COLOR_DECOR_1 "] " COLOR_TITLE "%-16s"
+                COLOR_INFO " Default Rep: " COLOR_ALT_TEXT_1 "%-6d"
+                COLOR_INFO " Allies: " COLOR_ALT_TEXT_1 "%-2d"
+                COLOR_INFO " Enemies: " COLOR_ALT_TEXT_1 "%-2d" COLOR_EOL,
                 VNUM_FIELD(faction),
                 NAME_STR(faction),
                 faction->default_standing,
@@ -474,9 +333,10 @@ static void aedit_print_faction_summary(Mobile* ch, AreaData* area)
     }
 
     if (!found)
-        add_buf(buffer, COLOR_ALT_TEXT_2 "  (none)" COLOR_CLEAR "\n\r");
-
-    send_to_char(BUF(buffer), ch);
+        send_to_char(COLOR_TEXT "Factions:" COLOR_ALT_TEXT_2 "  (none)" COLOR_EOL, ch);
+    else
+        send_to_char(BUF(buffer), ch);
+    
     free_buf(buffer);
 }
 
@@ -577,8 +437,16 @@ AEDIT(aedit_show)
     olc_print_str(ch, "Builders", area->builders);
     olc_print_str(ch, "Credits", area->credits);
     olc_print_flags(ch, "Flags", area_flag_table, area->area_flags);
-    olc_print_str(ch, "Daycycle Msgs", area->suppress_daycycle_messages ? "Suppressed" : "Default");
-    aedit_show_periods(ch, area);
+    
+    Entity* entity = &area->header;
+    olc_display_entity_class_info(ch, entity);
+    olc_display_events(ch, entity);
+
+    olc_print_yesno_ex(ch, "Daycycle Msgs", !area->suppress_daycycle_messages,
+        !area->suppress_daycycle_messages ? "Day-cycle messages are shown." :
+        "Day-cycle messages are suppressed.");
+    olc_show_periods(ch, &area->header /*, get_period_ops_for_area()*/);
+
     aedit_print_faction_summary(ch, area);
     aedit_print_story_beats(ch, area);
     aedit_print_checklist(ch, area);
@@ -590,173 +458,7 @@ AEDIT(aedit_period)
 {
     AreaData* area;
     EDIT_AREA(ch, area);
-
-    char command[MIL];
-    READ_ARG(command);
-
-    if (command[0] == '\0') {
-        aedit_show_period_usage(ch);
-        return false;
-    }
-
-    if (!str_prefix(command, "list")) {
-        aedit_show_period_list(ch, area);
-        return false;
-    }
-
-    if (!str_prefix(command, "suppress")) {
-        char value[MIL];
-        READ_ARG(value);
-        if (value[0] == '\0') {
-            aedit_show_period_usage(ch);
-            return false;
-        }
-
-        bool suppress = false;
-        if (!str_prefix(value, "on") || !str_prefix(value, "yes") || !str_prefix(value, "true"))
-            suppress = true;
-        else if (!str_prefix(value, "off") || !str_prefix(value, "no") || !str_prefix(value, "false"))
-            suppress = false;
-        else {
-            aedit_show_period_usage(ch);
-            return false;
-        }
-
-        area->suppress_daycycle_messages = suppress;
-        SET_BIT(area->area_flags, AREA_CHANGED);
-        send_to_char(COLOR_INFO "Daycycle messages updated." COLOR_EOL, ch);
-        return true;
-    }
-
-    char name[MIL];
-    READ_ARG(name);
-
-    if (!str_prefix(command, "add")) {
-        if (name[0] == '\0') {
-            aedit_show_period_usage(ch);
-            return false;
-        }
-
-        if (area_daycycle_period_find(area, name) != NULL) {
-            printf_to_char(ch, COLOR_INFO "A time period named '" COLOR_ALT_TEXT_1 "%s" COLOR_INFO "' already exists." COLOR_EOL, name);
-            return false;
-        }
-
-        char start_arg[MIL], end_arg[MIL];
-        READ_ARG(start_arg);
-        READ_ARG(end_arg);
-
-        int start = 0, end = 0;
-        if (!parse_period_hours(ch, start_arg, end_arg, name, &start, &end))
-            return false;
-
-        DayCyclePeriod* period = area_daycycle_period_add(area, name, start, end);
-        if (!period) {
-            send_to_char(COLOR_INFO "Unable to create time period." COLOR_EOL, ch);
-            return false;
-        }
-
-        SET_BIT(area->area_flags, AREA_CHANGED);
-        send_to_char(COLOR_INFO "Time period created. Use 'period enter' and 'period exit' to define the messages." COLOR_EOL, ch);
-        return true;
-    }
-
-    if (!str_prefix(command, "delete") || !str_prefix(command, "remove")) {
-        if (name[0] == '\0') {
-            aedit_show_period_usage(ch);
-            return false;
-        }
-
-        if (!area_daycycle_period_remove(area, name)) {
-            printf_to_char(ch, COLOR_INFO "No time period named '" COLOR_ALT_TEXT_1 "%s" COLOR_INFO "' exists." COLOR_EOL, name);
-            return false;
-        }
-
-        SET_BIT(area->area_flags, AREA_CHANGED);
-        send_to_char(COLOR_INFO "Time period removed." COLOR_EOL, ch);
-        return true;
-    }
-
-    DayCyclePeriod* period = area_daycycle_period_find(area, name);
-    if (!period) {
-        printf_to_char(ch, COLOR_INFO "No time period named '" COLOR_ALT_TEXT_1 "%s" COLOR_INFO "' exists." COLOR_EOL, name);
-        return false;
-    }
-
-    if (!str_prefix(command, "enter")) {
-        SET_BIT(area->area_flags, AREA_CHANGED);
-        send_to_char(COLOR_INFO "Enter the message shown when this period begins." COLOR_EOL, ch);
-        string_append(ch, &period->enter_message);
-        return true;
-    }
-
-    if (!str_prefix(command, "exit")) {
-        SET_BIT(area->area_flags, AREA_CHANGED);
-        send_to_char(COLOR_INFO "Enter the message shown when this period ends." COLOR_EOL, ch);
-        string_append(ch, &period->exit_message);
-        return true;
-    }
-
-    if (!str_prefix(command, "set") || !str_prefix(command, "range")) {
-        char start_arg[MIL], end_arg[MIL];
-        READ_ARG(start_arg);
-        READ_ARG(end_arg);
-
-        int start = 0, end = 0;
-        if (!parse_period_hours(ch, start_arg, end_arg, NULL, &start, &end))
-            return false;
-
-        period->start_hour = (int8_t)start;
-        period->end_hour = (int8_t)end;
-        SET_BIT(area->area_flags, AREA_CHANGED);
-        send_to_char(COLOR_INFO "Time period hours updated." COLOR_EOL, ch);
-        return true;
-    }
-
-    if (!str_prefix(command, "rename")) {
-        char new_name[MIL];
-        READ_ARG(new_name);
-
-        if (new_name[0] == '\0') {
-            send_to_char(COLOR_INFO "Specify the new name." COLOR_EOL, ch);
-            return false;
-        }
-
-        if (area_daycycle_period_find(area, new_name) != NULL) {
-            printf_to_char(ch, COLOR_INFO "A time period named '" COLOR_ALT_TEXT_1 "%s" COLOR_INFO "' already exists." COLOR_EOL, new_name);
-            return false;
-        }
-
-        free_string(period->name);
-        period->name = str_dup(new_name);
-        SET_BIT(area->area_flags, AREA_CHANGED);
-        send_to_char(COLOR_INFO "Time period renamed." COLOR_EOL, ch);
-        return true;
-    }
-
-    if (!str_prefix(command, "format")) {
-        char target[MIL];
-        READ_ARG(target);
-        char** field = NULL;
-        if (target[0] == '\0' || !str_prefix(target, "enter"))
-            field = &period->enter_message;
-        else if (!str_prefix(target, "exit"))
-            field = &period->exit_message;
-        else {
-            aedit_show_period_usage(ch);
-            return false;
-        }
-
-        char* formatted = format_string(*field);
-        free_string(*field);
-        *field = formatted;
-        SET_BIT(area->area_flags, AREA_CHANGED);
-        send_to_char(COLOR_INFO "Time period text formatted." COLOR_EOL, ch);
-        return true;
-    }
-
-    aedit_show_period_usage(ch);
-    return false;
+    return olc_edit_period(ch, argument, &area->header /*, get_period_ops_for_area()*/);
 }
 
 AEDIT(aedit_faction)
@@ -1071,23 +773,23 @@ AEDIT(aedit_checklist)
 
     argument = one_argument(argument, arg1);
     if (IS_NULLSTR(arg1)) {
-        send_to_char("Syntax: checklist list\n\r"
+        send_to_char(COLOR_INFO "Syntax: checklist list\n\r"
             "        checklist add [status] <title> [description]\n\r"
             "        checklist title <index> <title>\n\r"
             "        checklist desc <index> <description>\n\r"
             "        checklist status <index> <todo|progress|done>\n\r"
             "        checklist del <index>\n\r"
             "        checklist clear\n\r"
-            "        (indexes are 1-based)\n\r", ch);
+            "        (indexes are 1-based)" COLOR_EOL, ch);
         return false;
     }
 
-    if (!str_cmp(arg1, "list")) {
+    if (!str_prefix(arg1, "list")) {
         aedit_print_checklist(ch, area);
         return false;
     }
 
-    if (!str_cmp(arg1, "add")) {
+    if (!str_prefix(arg1, "add")) {
         argument = one_argument(argument, arg2);
         ChecklistStatus status = checklist_status_from_name(arg2, CHECK_TODO);
         const char* title = NULL;
@@ -1099,13 +801,13 @@ AEDIT(aedit_checklist)
         }
 
         if (IS_NULLSTR(title)) {
-            send_to_char("Checklist add requires a title.\n\r", ch);
+            send_to_char(COLOR_INFO "Checklist add requires a title." COLOR_EOL, ch);
             return false;
         }
 
         add_checklist_item(area, title, argument, status);
         SET_BIT(area->area_flags, AREA_CHANGED);
-        send_to_char("Checklist item added.\n\r", ch);
+        send_to_char(COLOR_INFO "Checklist item added." COLOR_EOL, ch);
         return true;
     }
 
@@ -1113,41 +815,41 @@ AEDIT(aedit_checklist)
         free_checklist(area->checklist);
         area->checklist = NULL;
         SET_BIT(area->area_flags, AREA_CHANGED);
-        send_to_char("Checklist cleared.\n\r", ch);
+        send_to_char(COLOR_INFO "Checklist cleared." COLOR_EOL, ch);
         return true;
     }
 
-    if (!str_cmp(arg1, "title") || !str_cmp(arg1, "desc") || !str_cmp(arg1, "status")) {
+    if (!str_prefix(arg1, "title") || !str_prefix(arg1, "desc") || !str_prefix(arg1, "status")) {
         argument = one_argument(argument, arg2);
         if (!is_number(arg2)) {
-            send_to_char("Checklist requires a numeric index.\n\r", ch);
+            send_to_char(COLOR_INFO "Checklist requires a numeric index." COLOR_EOL, ch);
             return false;
         }
         int idx = atoi(arg2) - 1;
         if (idx < 0) {
-            send_to_char("No such checklist item.\n\r", ch);
+            send_to_char(COLOR_INFO "No such checklist item." COLOR_EOL, ch);
             return false;
         }
         ChecklistItem* item = checklist_by_index(area, idx, NULL);
         if (!item) {
-            send_to_char("No such checklist item.\n\r", ch);
+            send_to_char(COLOR_INFO "No such checklist item." COLOR_EOL, ch);
             return false;
         }
 
-        if (!str_cmp(arg1, "status")) {
+        if (!str_prefix(arg1, "status")) {
             ChecklistStatus status = checklist_status_from_name(argument, item->status);
             item->status = status;
             SET_BIT(area->area_flags, AREA_CHANGED);
-            send_to_char("Checklist status updated.\n\r", ch);
+            send_to_char(COLOR_INFO "Checklist status updated." COLOR_EOL, ch);
             return true;
         }
 
         if (IS_NULLSTR(argument)) {
-            send_to_char("Checklist title/desc requires text.\n\r", ch);
+            send_to_char(COLOR_INFO "Checklist title/desc requires text." COLOR_EOL, ch);
             return false;
         }
 
-        if (!str_cmp(arg1, "title")) {
+        if (!str_prefix(arg1, "title")) {
             free_string(item->title);
             item->title = str_dup(argument);
         }
@@ -1156,25 +858,25 @@ AEDIT(aedit_checklist)
             item->description = str_dup(argument);
         }
         SET_BIT(area->area_flags, AREA_CHANGED);
-        send_to_char("Checklist item updated.\n\r", ch);
+        send_to_char(COLOR_INFO "Checklist item updated." COLOR_EOL, ch);
         return true;
     }
 
     if (!str_cmp(arg1, "del")) {
         argument = one_argument(argument, arg2);
         if (!is_number(arg2)) {
-            send_to_char("Syntax: checklist del <index>\n\r", ch);
+            send_to_char(COLOR_INFO "Syntax: checklist del <index>" COLOR_EOL, ch);
             return false;
         }
         int idx = atoi(arg2) - 1;
         if (idx < 0) {
-            send_to_char("No such checklist item.\n\r", ch);
+            send_to_char(COLOR_INFO "No such checklist item." COLOR_EOL, ch);
             return false;
         }
         ChecklistItem* prev = NULL;
         ChecklistItem* item = checklist_by_index(area, idx, &prev);
         if (!item) {
-            send_to_char("No such checklist item.\n\r", ch);
+            send_to_char(COLOR_INFO "No such checklist item." COLOR_EOL, ch);
             return false;
         }
         if (prev)
@@ -1185,11 +887,11 @@ AEDIT(aedit_checklist)
         free_string(item->description);
         free(item);
         SET_BIT(area->area_flags, AREA_CHANGED);
-        send_to_char("Checklist item removed.\n\r", ch);
+        send_to_char(COLOR_INFO "Checklist item removed." COLOR_EOL, ch);
         return true;
     }
 
-    send_to_char("Unknown checklist command.\n\r", ch);
+    send_to_char(COLOR_INFO "Unknown checklist command." COLOR_EOL, ch);
     return false;
 }
 
@@ -1203,7 +905,7 @@ AEDIT(aedit_reset)
 
     FOR_EACH_AREA_INST(area, area_data)
         reset_area(area);
-    send_to_char("Area reset.\n\r", ch);
+    send_to_char(COLOR_INFO "Area reset." COLOR_EOL, ch);
 
     return false;
 }
@@ -1213,7 +915,7 @@ AEDIT(aedit_create)
     AreaData* area_data;
 
     if (IS_NPC(ch) || ch->pcdata->security < MIN_AEDIT_SECURITY) {
-        send_to_char("You do not have enough security to edit areas.\n\r", ch);
+        send_to_char(COLOR_INFO "You do not have enough security to edit areas." COLOR_EOL, ch);
         return false;
     }
 
@@ -1231,7 +933,7 @@ AEDIT(aedit_create)
     set_editor(ch->desc, ED_AREA, U(area_data));
 
     SET_BIT(area_data->area_flags, AREA_ADDED);
-    send_to_char("Area Created.\n\r", ch);
+    send_to_char(COLOR_INFO "Area Created." COLOR_EOL, ch);
     return true;
 }
 
@@ -1263,21 +965,21 @@ AEDIT(aedit_file)
     one_argument(argument, file);    /* Forces Lowercase */
 
     if (argument[0] == '\0') {
-        send_to_char("Syntax:  filename [$file]\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax:  filename <file>" COLOR_EOL, ch);
         return false;
     }
 
     // Simple Syntax Check.
     length = strlen(argument);
     if (length > 8) {
-        send_to_char("No more than eight characters allowed.\n\r", ch);
+        send_to_char(COLOR_INFO "No more than eight characters allowed." COLOR_EOL, ch);
         return false;
     }
 
     // Allow only letters and numbers.
     for (i = 0; i < (int)length; i++) {
         if (!ISALNUM(file[i])) {
-            send_to_char("Only letters and numbers are valid.\n\r", ch);
+            send_to_char(COLOR_INFO "Only letters and numbers are valid." COLOR_EOL, ch);
             return false;
         }
     }
@@ -1288,7 +990,7 @@ AEDIT(aedit_file)
     strcat(file, ext);
     area->file_name = str_dup(file);
 
-    send_to_char("Filename set.\n\r", ch);
+    send_to_char(COLOR_INFO "Filename set." COLOR_EOL, ch);
     return true;
 }
 
@@ -1307,19 +1009,19 @@ AEDIT(aedit_levels)
 
     if (lower_str[0] == '\0' || !is_number(lower_str)
         || upper_str[0] == '\0' || !is_number(upper_str)) {
-        send_to_char("Syntax:  levels [#xlower] [#xupper]\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax:  levels <lower> <upper>" COLOR_EOL, ch);
         return false;
     }
 
     if ((lower = (LEVEL)atoi(lower_str)) > (upper = (LEVEL)atoi(upper_str))) {
-        send_to_char("AEdit:  Upper must be larger than lower.\n\r", ch);
+        send_to_char(COLOR_INFO "Upper must be larger than lower." COLOR_EOL, ch);
         return false;
     }
 
     area->low_range = lower;
     area->high_range = upper;
 
-    printf_to_char(ch, "Level range set to %d-%d.\n\r", lower, upper);
+    printf_to_char(ch, COLOR_INFO "Level range set to %d-%d." COLOR_EOL, lower, upper);
 
     return true;
 }
@@ -1336,7 +1038,7 @@ AEDIT(aedit_security)
     one_argument(argument, sec);
 
     if (!is_number(sec) || sec[0] == '\0') {
-        send_to_char("Syntax:  security [#xlevel]\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax:  security <level>" COLOR_EOL, ch);
         return false;
     }
 
@@ -1344,11 +1046,11 @@ AEDIT(aedit_security)
 
     if (value > ch->pcdata->security || value < 0) {
         if (ch->pcdata->security != 0) {
-            sprintf(buf, "Security is 0-%d.\n\r", ch->pcdata->security);
+            sprintf(buf, COLOR_INFO "Security is 0-%d." COLOR_EOL, ch->pcdata->security);
             send_to_char(buf, ch);
         }
         else
-            send_to_char("Security is 0 only.\n\r", ch);
+            send_to_char(COLOR_INFO "Security is 0 only." COLOR_EOL, ch);
         return false;
     }
 
@@ -1369,8 +1071,8 @@ AEDIT(aedit_builder)
     first_arg(argument, name, false);
 
     if (name[0] == '\0') {
-        send_to_char("Syntax:  builder [$name]  - toggles builder\n\r", ch);
-        send_to_char("Syntax:  builder All      - allows everyone\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax:  builder [$name]  - toggles builder" COLOR_EOL, ch);
+        send_to_char(COLOR_INFO "Syntax:  builder All      - allows everyone" COLOR_EOL, ch);
         return false;
     }
 
@@ -1384,7 +1086,7 @@ AEDIT(aedit_builder)
             free_string(area->builders);
             area->builders = str_dup("None");
         }
-        send_to_char("Builder removed.\n\r", ch);
+        send_to_char(COLOR_INFO "Builder removed." COLOR_EOL, ch);
         return true;
     }
 
@@ -1402,9 +1104,9 @@ AEDIT(aedit_builder)
     free_string(area->builders);
     area->builders = string_proper(str_dup(buf));
 
-    send_to_char("Builder added.\n\r", ch);
+    send_to_char(COLOR_INFO "Builder added." COLOR_EOL, ch);
     send_to_char(area->builders, ch);
-    send_to_char("\n\r", ch);
+    send_to_char(COLOR_EOL, ch);
     return true;
 }
 
@@ -1445,37 +1147,37 @@ AEDIT(aedit_vnums)
 
     if (!is_number(lower) || lower[0] == '\0'
         || !is_number(upper) || upper[0] == '\0') {
-        send_to_char("Syntax:  VNUMS [#xlower] [#xupper]\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax:  VNUMS <lower> <upper>" COLOR_EOL, ch);
         return false;
     }
 
     if ((ilower = atoi(lower)) > (iupper = atoi(upper))) {
-        send_to_char("AEdit:  Upper must be larger then lower.\n\r", ch);
+        send_to_char(COLOR_INFO "Upper must be larger then lower." COLOR_EOL, ch);
         return false;
     }
 
     if (!check_range(ilower, iupper)) {
-        send_to_char("AEdit:  Range must include only this area.\n\r", ch);
+        send_to_char(COLOR_INFO "Range must include only this area." COLOR_EOL, ch);
         return false;
     }
 
     if (get_vnum_area(ilower)
         && get_vnum_area(ilower) != area) {
-        send_to_char("AEdit:  Lower VNUM already assigned.\n\r", ch);
+        send_to_char(COLOR_INFO "Lower VNUM already assigned." COLOR_EOL, ch);
         return false;
     }
 
     area->min_vnum = ilower;
-    send_to_char("Lower VNUM set.\n\r", ch);
+    send_to_char(COLOR_INFO "Lower VNUM set." COLOR_EOL, ch);
 
     if (get_vnum_area(iupper)
         && get_vnum_area(iupper) != area) {
-        send_to_char("AEdit:  Upper VNUM already assigned.\n\r", ch);
+        send_to_char(COLOR_INFO "Upper VNUM already assigned." COLOR_EOL, ch);
         return true;    /* The lower value has been set. */
     }
 
     area->max_vnum = iupper;
-    send_to_char("VNUMs set.\n\r", ch);
+    send_to_char(COLOR_INFO "VNUMs set." COLOR_EOL, ch);
 
     return true;
 }
@@ -1492,28 +1194,28 @@ AEDIT(aedit_lvnum)
     one_argument(argument, lower);
 
     if (!is_number(lower) || lower[0] == '\0') {
-        send_to_char("Syntax:  min_vnum [#xlower]\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax:  min_vnum <vnum>" COLOR_EOL, ch);
         return false;
     }
 
     if ((ilower = atoi(lower)) > (iupper = area->max_vnum)) {
-        send_to_char("AEdit:  Value must be less than the max_vnum.\n\r", ch);
+        send_to_char(COLOR_INFO "Value must be less than the max_vnum." COLOR_EOL, ch);
         return false;
     }
 
     if (!check_range(ilower, iupper)) {
-        send_to_char("AEdit:  Range must include only this area.\n\r", ch);
+        send_to_char(COLOR_INFO "Range must include only this area." COLOR_EOL, ch);
         return false;
     }
 
     if (get_vnum_area(ilower)
         && get_vnum_area(ilower) != area) {
-        send_to_char("AEdit:  Lower VNUM already assigned.\n\r", ch);
+        send_to_char(COLOR_INFO "Lower VNUM already assigned." COLOR_EOL, ch);
         return false;
     }
 
     area->min_vnum = ilower;
-    send_to_char("Lower VNUM set.\n\r", ch);
+    send_to_char(COLOR_INFO "Lower VNUM set." COLOR_EOL, ch);
     return true;
 }
 
@@ -1529,28 +1231,28 @@ AEDIT(aedit_uvnum)
     one_argument(argument, upper);
 
     if (!is_number(upper) || upper[0] == '\0') {
-        send_to_char("Syntax:  max_vnum [#xupper]\n\r", ch);
+        send_to_char(COLOR_INFO "Syntax:  max_vnum <vnum>" COLOR_EOL, ch);
         return false;
     }
 
     if ((ilower = area->min_vnum) > (iupper = atoi(upper))) {
-        send_to_char("AEdit:  Upper must be larger then lower.\n\r", ch);
+        send_to_char(COLOR_INFO "Upper must be larger then lower." COLOR_EOL, ch);
         return false;
     }
 
     if (!check_range(ilower, iupper)) {
-        send_to_char("AEdit:  Range must include only this area.\n\r", ch);
+        send_to_char(COLOR_INFO "Range must include only this area." COLOR_EOL, ch);
         return false;
     }
 
     if (get_vnum_area(iupper)
         && get_vnum_area(iupper) != area) {
-        send_to_char("AEdit:  Upper VNUM already assigned.\n\r", ch);
+        send_to_char(COLOR_INFO "Upper VNUM already assigned." COLOR_EOL, ch);
         return false;
     }
 
     area->max_vnum = iupper;
-    send_to_char("Upper VNUM set.\n\r", ch);
+    send_to_char(COLOR_INFO "Upper VNUM set." COLOR_EOL, ch);
 
     return true;
 }

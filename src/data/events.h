@@ -23,18 +23,21 @@ typedef enum event_trigger_t {
     TRIG_GRALL      = BIT(8),           // I
     TRIG_HPCNT      = BIT(9),           // J
     TRIG_RANDOM     = BIT(10),          // K
-    TRIG_SPEECH     = BIT(12),          // L
-    TRIG_EXIT       = BIT(13),          // M
-    TRIG_EXALL      = BIT(14),          // N
-    TRIG_DELAY      = BIT(15),          // O
-    TRIG_SURR       = BIT(16),          // P
-    TRIG_LOGIN      = BIT(17),          // Q
-    TRIG_GIVEN      = BIT(18),          // R
-    TRIG_TAKEN      = BIT(19),          // S
-    TRIG_DROPPED    = BIT(20),          // T
+    // Unused:        BIT(11)           // L
+    TRIG_SPEECH     = BIT(12),          // M
+    TRIG_EXIT       = BIT(13),          // N
+    TRIG_EXALL      = BIT(14),          // O
+    TRIG_DELAY      = BIT(15),          // P
+    TRIG_SURR       = BIT(16),          // Q
+    TRIG_LOGIN      = BIT(17),          // R
+    TRIG_GIVEN      = BIT(18),          // S
+    TRIG_TAKEN      = BIT(19),          // T
+    TRIG_DROPPED    = BIT(20),          // U
+    TRIG_PRDSTART   = BIT(21),          // V
+    TRIG_PRDSTOP    = BIT(22),          // X
 } EventTrigger;
 
-#define TRIG_COUNT 21
+#define TRIG_COUNT 22
 
 typedef enum {
     ENT_AREA    = BIT(0),
@@ -45,6 +48,7 @@ typedef enum {
 } EventEnts;
 
 #define ENT_ALL (ENT_ROOM | ENT_MOB | ENT_OBJ)
+#define ENT_PLACE (ENT_AREA | ENT_ROOM)
 
 typedef enum {
     CRIT_NONE = 0,
@@ -66,9 +70,10 @@ EventEnts get_entity_type(Entity* entity);
 const char* get_event_default_callback(EventTrigger trigger);
 const char* get_event_name(EventTrigger trigger);
 const EventTypeInfo* get_event_type_info(EventTrigger trigger);
+EventTrigger get_event_type_info_by_name(const char* name);
 
 extern const EventTypeInfo event_type_info_table[];
 
-#define LAST_TRIG TRIG_LOGIN
+#define LAST_TRIG TRIG_PRDSTOP
 
 #endif // !MUD98__DATA__EVENTS_H

@@ -119,6 +119,7 @@ typedef struct area_data_t {
 #define LAST_AREA_DATA                                                         \
     GET_AREA_DATA(global_areas.count - 1)
 
+Area* new_area(AreaData* area_data);
 AreaData* new_area_data();
 Area* create_area_instance(AreaData* area_data, bool create_exits);
 void create_instance_exits(Area* area);
