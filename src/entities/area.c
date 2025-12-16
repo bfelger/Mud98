@@ -43,6 +43,7 @@ Area* new_area(AreaData* area_data)
     area->data = area_data;
     area->empty = true;
     area->owner_list = str_empty;
+    area->teardown_in_progress = false;
     area->reset_timer = area->data->reset_thresh;
 
     return area;
@@ -50,6 +51,10 @@ Area* new_area(AreaData* area_data)
 
 void free_area(Area* area)
 {
+    // Set flag to skip expensive inbound exit cleanup
+    // since we're destroying all rooms anyway
+    area->teardown_in_progress = true;
+    
     free_table(&area->header.fields);
     free_table(&area->rooms);
 

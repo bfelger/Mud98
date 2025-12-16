@@ -121,6 +121,8 @@ Room* new_room(RoomData* room_data, Area* area)
     init_list(&room->objects);
     SET_LOX_FIELD(&room->header, &room->objects, objects);
 
+    init_list(&room->inbound_exits);
+
     SET_NAME(room, NAME_FIELD(room_data));
 
     VNUM_FIELD(room) = VNUM_FIELD(room_data);
@@ -150,8 +152,39 @@ void free_room(Room* room)
 {
     Area* area = room->area;
 
-    list_remove_value(&room->data->instances, OBJ_VAL(room));
+    // Clean up outbound exits
+    for (Direction dir = 0; dir < DIR_MAX; dir++) {
+        if (room->exit[dir]) {
+            free_room_exit(room->exit[dir]);
+            room->exit[dir] = NULL;
+        }
+    }
 
+    // Clean up inbound exit references (unless doing bulk area teardown)
+    if (!area->teardown_in_progress) {
+        // Use the inbound_exits list to find ALL exits pointing to this room,
+        // regardless of which area they're in (handles cross-area exits!)
+        Node* node = room->inbound_exits.front;
+        while (node != NULL) {
+            RoomExit* inbound_exit = (RoomExit*)AS_OBJ(node->value);
+            Node* next_node = node->next;  // Save next before we free the exit
+            
+            // Find which direction this exit is in the source room and free it
+            Room* source_room = inbound_exit->from_room;
+            for (Direction dir = 0; dir < DIR_MAX; dir++) {
+                if (source_room->exit[dir] == inbound_exit) {
+                    free_room_exit(source_room->exit[dir]);
+                    source_room->exit[dir] = NULL;
+                    break;
+                }
+            }
+            
+            node = next_node;
+        }
+    }
+
+    free_list(&room->inbound_exits);
+    list_remove_value(&room->data->instances, OBJ_VAL(room));
     table_delete_vnum(&area->rooms, VNUM_FIELD(room));
 
     LIST_FREE(room);

@@ -32,6 +32,7 @@ typedef enum exit_flags_t {
 typedef struct room_exit_t {
     RoomExit* next;
     RoomExitData* data;
+    Room* from_room;  // Source room (for inbound_exits tracking)
     Room* to_room;
     SHORT_FLAGS exit_flags;
 } RoomExit;

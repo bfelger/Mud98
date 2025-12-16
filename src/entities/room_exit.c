@@ -21,6 +21,7 @@ RoomExit* new_room_exit(RoomExitData* room_exit_data, Room* from)
     LIST_ALLOC_PERM(room_exit, RoomExit);
 
     room_exit->data = room_exit_data;
+    room_exit->from_room = from;
     room_exit->exit_flags = room_exit_data->exit_reset_flags;
 
     if (room_exit_data->to_room == NULL || room_exit_data->to_room->instances.front == NULL) {
@@ -42,6 +43,11 @@ RoomExit* new_room_exit(RoomExitData* room_exit_data, Room* from)
         // instanced "buffer" between multi-instanced areas.
     }
 
+    // Add to target room's inbound exits list
+    if (room_exit->to_room) {
+        list_push_back(&room_exit->to_room->inbound_exits, OBJ_VAL(room_exit));
+    }
+
     return room_exit;
 }
 
@@ -49,6 +55,11 @@ void free_room_exit(RoomExit* room_exit)
 {
     if (room_exit == NULL)
         return;
+
+    // Remove from target room's inbound exits list
+    if (room_exit->to_room) {
+        list_remove_value(&room_exit->to_room->inbound_exits, OBJ_VAL(room_exit));
+    }
 
     LIST_FREE(room_exit);
 }

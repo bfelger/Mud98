@@ -71,6 +71,7 @@ typedef struct area_t {
     int16_t reset_timer;
     int nplayer;
     bool empty;
+    bool teardown_in_progress;  // Skip inbound exit cleanup during bulk teardown
 } Area;
 
 typedef struct area_data_t {
@@ -120,6 +121,7 @@ typedef struct area_data_t {
     GET_AREA_DATA(global_areas.count - 1)
 
 Area* new_area(AreaData* area_data);
+void free_area(Area* area);
 AreaData* new_area_data();
 Area* create_area_instance(AreaData* area_data, bool create_exits);
 void create_instance_exits(Area* area);

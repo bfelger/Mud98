@@ -66,6 +66,7 @@ typedef struct room_t {
     Room* next;
     List mobiles;
     List objects;
+    List inbound_exits;  // RoomExit* pointing TO this room
     RoomData* data;
     Area* area;
     RoomExit* exit[DIR_MAX];

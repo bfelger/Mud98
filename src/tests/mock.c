@@ -185,6 +185,7 @@ void mock_room_data_connection(RoomData* rd1, RoomData* rd2, Direction dir, bool
     if (rd1 != NULL && rd2 != NULL) {
         rd1->exit_data[dir] = new_room_exit_data();
         rd1->exit_data[dir]->to_room = rd2;
+        rd1->exit_data[dir]->to_vnum = VNUM_FIELD(rd2);
     }
 
     if (bidirectional)
