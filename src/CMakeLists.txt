@@ -251,6 +251,7 @@ add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
     "tests/buffer_tests.c" "tests/stringbuffer_tests.c" "tests/mem_watchpoint_tests.c"
     "tests/login_tests.c" "tests/player_persist_tests.c" "tests/quest_tests.c" 
     "tests/fmt_tests.c" "tests/theme_tests.c" "tests/util_tests.c"
+    "tests/daycycle_tests.c"
 
     "benchmarks/benchmarks.h" "benchmarks/benchmarks.c" 
     "benchmarks/container_benchmarks.c" "benchmarks/format_benchmarks.c"

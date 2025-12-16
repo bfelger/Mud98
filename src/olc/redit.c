@@ -20,6 +20,7 @@
 #include <recycle.h>
 #include <save.h>
 #include <tables.h>
+#include <string.h>
 
 #include <entities/event.h>
 #include <entities/object.h>
@@ -40,6 +41,7 @@ RoomData xRoom;
 const OlcCmdEntry room_olc_comm_table[] = {
     { "name",	    U(&xRoom.header.name),  ed_line_lox_string, 0		        },
     { "desc",	    U(&xRoom.description),	ed_desc,		    0		        },
+    { "period",    0,                      ed_olded,           U(redit_period) },
     { "ed",	        U(&xRoom.extra_desc),	ed_ed,			    0		        },
     { "heal",	    U(&xRoom.heal_rate),	ed_number_s_pos,	0		        },
     { "mana",	    U(&xRoom.mana_rate),	ed_number_s_pos,	0		        },
@@ -78,6 +80,121 @@ const OlcCmdEntry room_olc_comm_table[] = {
     { "version",	0,				        ed_olded,		    U(show_version)	},
     { NULL,	        0,				        NULL,			    0		        }
 };
+
+typedef struct {
+    const char* name;
+    int start;
+    int end;
+} PeriodPreset;
+
+static const PeriodPreset period_presets[] = {
+    { "day", 6, 18 },
+    { "dusk", 19, 19 },
+    { "night", 20, 4 },
+    { "dawn", 5, 5 },
+    { NULL, 0, 0 },
+};
+
+static bool find_period_preset(const char* name, int* start, int* end)
+{
+    if (!name || name[0] == '\0')
+        return false;
+
+    for (int i = 0; period_presets[i].name != NULL; ++i) {
+        if (!str_cmp(name, period_presets[i].name)) {
+            if (start)
+                *start = period_presets[i].start;
+            if (end)
+                *end = period_presets[i].end;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+static bool parse_period_hours(Mobile* ch, const char* start_arg, const char* end_arg, const char* preset_name, int* start, int* end)
+{
+    if (start_arg == NULL || start_arg[0] == '\0') {
+        if (preset_name && find_period_preset(preset_name, start, end))
+            return true;
+
+        send_to_char(COLOR_INFO "Specify start and end hours between 0 and 23, or use one of the presets: day, dusk, night, dawn." COLOR_EOL, ch);
+        return false;
+    }
+
+    if (end_arg == NULL || end_arg[0] == '\0') {
+        send_to_char(COLOR_INFO "Specify both a start and end hour between 0 and 23." COLOR_EOL, ch);
+        return false;
+    }
+
+    if (!is_number(start_arg) || !is_number(end_arg)) {
+        send_to_char(COLOR_INFO "Hours must be numeric values between 0 and 23." COLOR_EOL, ch);
+        return false;
+    }
+
+    int s = atoi(start_arg);
+    int e = atoi(end_arg);
+    if (s < 0 || s > 23 || e < 0 || e > 23) {
+        send_to_char(COLOR_INFO "Hours must be within the 0-23 range." COLOR_EOL, ch);
+        return false;
+    }
+
+    if (start)
+        *start = s;
+    if (end)
+        *end = e;
+    return true;
+}
+
+static void build_period_preview(const RoomTimePeriod* period, char* out, size_t outlen)
+{
+    if (!period || !out || outlen == 0)
+        return;
+
+    const char* desc = (period->description && period->description[0] != '\0')
+        ? period->description
+        : "(no description)";
+    size_t len = strcspn(desc, "\r\n");
+    if (len >= outlen)
+        len = outlen - 1;
+    strncpy(out, desc, len);
+    out[len] = '\0';
+}
+
+static void show_period_usage(Mobile* ch)
+{
+    send_to_char(COLOR_INFO "Syntax:" COLOR_EOL, ch);
+    send_to_char(COLOR_INFO "  period list" COLOR_EOL, ch);
+    send_to_char(COLOR_INFO "  period add <name> [start end]" COLOR_EOL, ch);
+    send_to_char(COLOR_INFO "  period edit <name>" COLOR_EOL, ch);
+    send_to_char(COLOR_INFO "  period delete <name>" COLOR_EOL, ch);
+    send_to_char(COLOR_INFO "  period set <name> <start> <end>" COLOR_EOL, ch);
+    send_to_char(COLOR_INFO "  period rename <name> <new name>" COLOR_EOL, ch);
+    send_to_char(COLOR_INFO "  period format <name>" COLOR_EOL, ch);
+}
+
+static void show_period_list(Mobile* ch, RoomData* room)
+{
+    if (!room || room->periods == NULL) {
+        send_to_char(COLOR_INFO "No time periods are defined for this room." COLOR_EOL, ch);
+        return;
+    }
+
+    send_to_char(COLOR_TITLE "Defined Time Periods" COLOR_EOL, ch);
+    send_to_char(COLOR_DECOR_2 "  Name         Hours     Preview" COLOR_EOL, ch);
+
+    for (RoomTimePeriod* period = room->periods; period != NULL; period = period->next) {
+        char preview[60];
+        build_period_preview(period, preview, sizeof(preview));
+        const char* name = (period->name && period->name[0] != '\0') ? period->name : "(unnamed)";
+        printf_to_char(ch, COLOR_ALT_TEXT_1 "  %-12s" COLOR_CLEAR "  %02d-%02d   %s" COLOR_EOL,
+            name,
+            period->start_hour,
+            period->end_hour,
+            preview);
+    }
+}
 
 /* Entry point for editing room_index_data. */
 void do_redit(Mobile* ch, char* argument)
@@ -177,6 +294,153 @@ void redit(Mobile* ch, char* argument)
         interpret(ch, argument);
 
     return;
+}
+
+static void redit_show_periods(Mobile* ch, RoomData* room)
+{
+    if (!room || !room->periods)
+        return;
+
+    printf_to_char(ch, "%-14s : " COLOR_ALT_TEXT_1, "Time Periods");
+    for (RoomTimePeriod* period = room->periods; period != NULL; period = period->next) {
+        const char* name = (period->name && period->name[0] != '\0') ? period->name : "(unnamed)";
+        printf_to_char(ch, "%s (%02d-%02d)%s",
+            name,
+            period->start_hour,
+            period->end_hour,
+            period->next ? "  " : "");
+    }
+    printf_to_char(ch, COLOR_EOL);
+}
+
+REDIT(redit_period)
+{
+    RoomData* room;
+    EDIT_ROOM(ch, room);
+
+    char command[MIL];
+    READ_ARG(command);
+
+    if (command[0] == '\0') {
+        show_period_usage(ch);
+        return false;
+    }
+
+    if (!str_prefix(command, "list")) {
+        show_period_list(ch, room);
+        return false;
+    }
+
+    char name[MIL];
+    READ_ARG(name);
+
+    if (!str_prefix(command, "add")) {
+        if (name[0] == '\0') {
+            show_period_usage(ch);
+            return false;
+        }
+
+        if (room_time_period_find(room, name) != NULL) {
+            printf_to_char(ch, COLOR_INFO "A time period named '" COLOR_ALT_TEXT_1 "%s" COLOR_INFO "' already exists." COLOR_EOL, name);
+            return false;
+        }
+
+        char start_arg[MIL], end_arg[MIL];
+        READ_ARG(start_arg);
+        READ_ARG(end_arg);
+
+        int start = 0, end = 0;
+        if (!parse_period_hours(ch, start_arg, end_arg, name, &start, &end))
+            return false;
+
+        RoomTimePeriod* period = room_time_period_add(room, name, start, end);
+        if (!period) {
+            send_to_char(COLOR_INFO "Unable to create time period." COLOR_EOL, ch);
+            return false;
+        }
+
+        SET_BIT(room->area_data->area_flags, AREA_CHANGED);
+        send_to_char(COLOR_INFO "Enter the description for this period. End with '@' on a blank line." COLOR_EOL, ch);
+        string_append(ch, &period->description);
+        return true;
+    }
+
+    if (!str_prefix(command, "delete") || !str_prefix(command, "remove")) {
+        if (name[0] == '\0') {
+            show_period_usage(ch);
+            return false;
+        }
+
+        if (!room_time_period_remove(room, name)) {
+            printf_to_char(ch, COLOR_INFO "No time period named '" COLOR_ALT_TEXT_1 "%s" COLOR_INFO "' exists." COLOR_EOL, name);
+            return false;
+        }
+
+        SET_BIT(room->area_data->area_flags, AREA_CHANGED);
+        send_to_char(COLOR_INFO "Time period removed." COLOR_EOL, ch);
+        return true;
+    }
+
+    RoomTimePeriod* period = room_time_period_find(room, name);
+    if (!period) {
+        printf_to_char(ch, COLOR_INFO "No time period named '" COLOR_ALT_TEXT_1 "%s" COLOR_INFO "' exists." COLOR_EOL, name);
+        return false;
+    }
+
+    if (!str_prefix(command, "edit")) {
+        SET_BIT(room->area_data->area_flags, AREA_CHANGED);
+        string_append(ch, &period->description);
+        return true;
+    }
+
+    if (!str_prefix(command, "set") || !str_prefix(command, "range")) {
+        char start_arg[MIL], end_arg[MIL];
+        READ_ARG(start_arg);
+        READ_ARG(end_arg);
+
+        int start = 0, end = 0;
+        if (!parse_period_hours(ch, start_arg, end_arg, NULL, &start, &end))
+            return false;
+
+        period->start_hour = (int8_t)start;
+        period->end_hour = (int8_t)end;
+        SET_BIT(room->area_data->area_flags, AREA_CHANGED);
+        send_to_char(COLOR_INFO "Time period hours updated." COLOR_EOL, ch);
+        return true;
+    }
+
+    if (!str_prefix(command, "rename")) {
+        char new_name[MIL];
+        READ_ARG(new_name);
+
+        if (new_name[0] == '\0') {
+            send_to_char(COLOR_INFO "Specify the new name." COLOR_EOL, ch);
+            return false;
+        }
+
+        if (room_time_period_find(room, new_name) != NULL) {
+            printf_to_char(ch, COLOR_INFO "A time period named '" COLOR_ALT_TEXT_1 "%s" COLOR_INFO "' already exists." COLOR_EOL, new_name);
+            return false;
+        }
+
+        free_string(period->name);
+        period->name = str_dup(new_name);
+        SET_BIT(room->area_data->area_flags, AREA_CHANGED);
+        send_to_char(COLOR_INFO "Time period renamed." COLOR_EOL, ch);
+        return true;
+    }
+
+    if (!str_prefix(command, "format")) {
+        char* formatted = format_string(period->description);
+        free_string(period->description);
+        period->description = formatted;
+        SET_BIT(room->area_data->area_flags, AREA_CHANGED);
+        send_to_char(COLOR_INFO "Time period description formatted." COLOR_EOL, ch);
+        return true;
+    }
+
+    show_period_usage(ch);
+    return false;
 }
 
 REDIT(redit_rlist)
@@ -309,6 +573,8 @@ REDIT(redit_show)
     if (pRoom->owner && pRoom->owner[0] != '\0') {
         olc_print_str(ch, "Owner", pRoom->owner);
     }
+
+    redit_show_periods(ch, pRoom);
 
     ////////////////////////////////////////////////////////////////////////////
     // EXTRA DESCRIPTIONS
@@ -1258,6 +1524,8 @@ REDIT(redit_copy)
     this->clan = that->clan;
     this->heal_rate = that->heal_rate;
     this->mana_rate = that->mana_rate;
+    room_time_period_clear(this);
+    this->periods = room_time_period_clone(that->periods);
 
     send_to_char("Ok. Room copied.\n\r", ch);
     return true;
@@ -1295,6 +1563,8 @@ REDIT(redit_clear)
         free_room_exit_data(pRoom->exit_data[i]);
         pRoom->exit_data[i] = NULL;
     }
+
+    room_time_period_clear(pRoom);
 
     send_to_char("Room cleared.\n\r", ch);
     return true;

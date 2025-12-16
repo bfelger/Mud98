@@ -30,6 +30,10 @@ int room_data_count;
 int room_data_perm_count;
 RoomData* room_data_free;
 
+int room_time_period_count;
+int room_time_period_perm_count;
+RoomTimePeriod* room_time_period_free;
+
 static OrderedTable global_rooms;
 
 VNUM top_vnum_room;
@@ -155,6 +159,173 @@ void free_room(Room* room)
     LIST_FREE(room);
 }
 
+static int8_t normalize_hour_value(int hour)
+{
+    int normalized = hour % 24;
+    if (normalized < 0)
+        normalized += 24;
+    return (int8_t)normalized;
+}
+
+static RoomTimePeriod* new_room_time_period(void)
+{
+    LIST_ALLOC_PERM(room_time_period, RoomTimePeriod);
+
+    room_time_period->name = &str_empty[0];
+    room_time_period->description = &str_empty[0];
+    room_time_period->start_hour = 0;
+    room_time_period->end_hour = 0;
+
+    return room_time_period;
+}
+
+static void free_room_time_period(RoomTimePeriod* period)
+{
+    if (period == NULL)
+        return;
+
+    free_string(period->name);
+    free_string(period->description);
+    RoomTimePeriod* room_time_period = period;
+    LIST_FREE(room_time_period);
+}
+
+static void append_room_time_period(RoomData* room, RoomTimePeriod* period)
+{
+    if (!room || !period)
+        return;
+
+    period->next = NULL;
+
+    if (room->periods == NULL) {
+        room->periods = period;
+        return;
+    }
+
+    RoomTimePeriod* tail = room->periods;
+    while (tail->next != NULL)
+        tail = tail->next;
+    tail->next = period;
+}
+
+RoomTimePeriod* room_time_period_add(RoomData* room, const char* name, int start_hour, int end_hour)
+{
+    if (!room || name == NULL)
+        return NULL;
+
+    RoomTimePeriod* period = new_room_time_period();
+    period->start_hour = normalize_hour_value(start_hour);
+    period->end_hour = normalize_hour_value(end_hour);
+    period->name = str_dup(name);
+    period->description = str_dup("");
+
+    append_room_time_period(room, period);
+    return period;
+}
+
+RoomTimePeriod* room_time_period_find(RoomData* room, const char* name)
+{
+    if (!room || !name || name[0] == '\0')
+        return NULL;
+
+    for (RoomTimePeriod* period = room->periods; period != NULL; period = period->next) {
+        if (!str_cmp(period->name, name))
+            return period;
+    }
+
+    return NULL;
+}
+
+bool room_time_period_remove(RoomData* room, const char* name)
+{
+    if (!room || !name || name[0] == '\0')
+        return false;
+
+    RoomTimePeriod* prev = NULL;
+    RoomTimePeriod* curr = room->periods;
+
+    while (curr != NULL) {
+        if (!str_cmp(curr->name, name)) {
+            if (prev == NULL)
+                room->periods = curr->next;
+            else
+                prev->next = curr->next;
+            free_room_time_period(curr);
+            return true;
+        }
+        prev = curr;
+        curr = curr->next;
+    }
+
+    return false;
+}
+
+void room_time_period_clear(RoomData* room)
+{
+    if (!room)
+        return;
+
+    RoomTimePeriod* period = room->periods;
+    while (period != NULL) {
+        RoomTimePeriod* next = period->next;
+        free_room_time_period(period);
+        period = next;
+    }
+
+    room->periods = NULL;
+}
+
+RoomTimePeriod* room_time_period_clone(const RoomTimePeriod* head)
+{
+    RoomTimePeriod* new_head = NULL;
+    RoomTimePeriod* tail = NULL;
+
+    for (const RoomTimePeriod* period = head; period != NULL; period = period->next) {
+        RoomTimePeriod* node = new_room_time_period();
+        node->start_hour = period->start_hour;
+        node->end_hour = period->end_hour;
+        node->name = str_dup(period->name ? period->name : "");
+        node->description = str_dup(period->description ? period->description : "");
+        node->next = NULL;
+        if (new_head == NULL)
+            new_head = node;
+        else
+            tail->next = node;
+        tail = node;
+    }
+
+    return new_head;
+}
+
+static bool hour_in_period(const RoomTimePeriod* period, int hour)
+{
+    if (!period)
+        return false;
+
+    int8_t start = period->start_hour;
+    int8_t end = period->end_hour;
+
+    if (start <= end)
+        return hour >= start && hour <= end;
+
+    return hour >= start || hour <= end;
+}
+
+const char* room_description_for_hour(const RoomData* room, int hour)
+{
+    if (!room)
+        return &str_empty[0];
+
+    hour = normalize_hour_value(hour);
+
+    for (RoomTimePeriod* period = room->periods; period != NULL; period = period->next) {
+        if (period->description && period->description[0] != '\0' && hour_in_period(period, hour))
+            return period->description;
+    }
+
+    return room->description ? room->description : &str_empty[0];
+}
+
 RoomData* new_room_data()
 {
     LIST_ALLOC_PERM(room_data, RoomData);
@@ -171,6 +342,7 @@ RoomData* new_room_data()
     room_data->owner = &str_empty[0];
     room_data->heal_rate = 100;
     room_data->mana_rate = 100;
+    room_data->periods = NULL;
 
     return room_data;
 }
@@ -196,6 +368,8 @@ void free_room_data(RoomData* room_data)
         NEXT_LINK(room_data->reset_first);
         free_reset(reset);
     }
+
+    room_time_period_clear(room_data);
 
     free_list(&room_data->instances);
 
@@ -409,6 +583,18 @@ void load_rooms(FILE* fp)
                 ed->keyword = fread_string(fp);
                 ed->description = fread_string(fp);
                 ADD_EXTRA_DESC(room_data, ed)
+            }
+            else if (letter == 'P') {
+                const char* name = fread_word(fp);
+                int start = fread_number(fp);
+                int end = fread_number(fp);
+                RoomTimePeriod* period = room_time_period_add(room_data, name, start, end);
+                if (period == NULL) {
+                    bug("Load_rooms: failed to add time period '%s' to room %"PRVNUM".", name ? name : "", vnum);
+                    exit(1);
+                }
+                free_string(period->description);
+                period->description = fread_string(fp);
             }
 
             else if (letter == 'O') {

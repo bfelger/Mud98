@@ -49,6 +49,7 @@
 #include <entities/area.h>
 #include <entities/descriptor.h>
 #include <entities/faction.h>
+#include <entities/room.h>
 #include <entities/object.h>
 #include <entities/player_data.h>
 
@@ -924,11 +925,12 @@ void do_look(Mobile* ch, char* argument)
 
         send_to_char(COLOR_EOL, ch);
 
-        if (ch->in_room->data->description[0] && !IS_NPC(ch) && !IS_SET(ch->comm_flags, COMM_BRIEF)) {
-            if (ch->in_room->data->description[0] == ' ')
-                sprintf(buf, COLOR_ROOM_TEXT "%s" COLOR_CLEAR , ch->in_room->data->description);
+        const char* room_desc = room_description_for_hour(ch->in_room->data, time_info.hour);
+        if (room_desc[0] && !IS_NPC(ch) && !IS_SET(ch->comm_flags, COMM_BRIEF)) {
+            if (room_desc[0] == ' ')
+                sprintf(buf, COLOR_ROOM_TEXT "%s" COLOR_CLEAR, room_desc);
             else
-                sprintf(buf, COLOR_ROOM_TEXT "  %s\n\r" COLOR_CLEAR , ch->in_room->data->description);
+                sprintf(buf, COLOR_ROOM_TEXT "  %s\n\r" COLOR_CLEAR, room_desc);
             send_to_char(buf, ch);
         }
 

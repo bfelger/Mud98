@@ -3,9 +3,6 @@
 // Utilities to handle navigable rooms
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef struct room_t Room;
-typedef struct room_data_t RoomData;
-
 #pragma once
 #ifndef MUD98__ENTITIES__ROOM_H
 #define MUD98__ENTITIES__ROOM_H
@@ -25,6 +22,17 @@ typedef struct room_data_t RoomData;
 #include <lox/list.h>
 #include <lox/ordered_table.h>
 #include <lox/table.h>
+
+typedef struct room_t Room;
+typedef struct room_data_t RoomData;
+
+typedef struct room_time_period_t {
+    struct room_time_period_t* next;
+    char* name;
+    char* description;
+    int8_t start_hour;
+    int8_t end_hour;
+} RoomTimePeriod;
 
 // Static room VNUMs
 #define ROOM_VNUM_LIMBO         2
@@ -75,6 +83,7 @@ typedef struct room_data_t {
     RoomData* next;
     List instances;
     ExtraDesc* extra_desc;
+    RoomTimePeriod* periods;
     AreaData* area_data;
     RoomExitData* exit_data[DIR_MAX];
     Reset* reset_first;
@@ -150,6 +159,13 @@ RoomData* get_room_data(VNUM vnum);
 RoomData* new_room_data();
 
 void load_rooms(FILE* fp);
+
+RoomTimePeriod* room_time_period_add(RoomData* room, const char* name, int start_hour, int end_hour);
+RoomTimePeriod* room_time_period_find(RoomData* room, const char* name);
+bool room_time_period_remove(RoomData* room, const char* name);
+void room_time_period_clear(RoomData* room);
+RoomTimePeriod* room_time_period_clone(const RoomTimePeriod* head);
+const char* room_description_for_hour(const RoomData* room, int hour);
 
 extern int room_count;
 extern int room_perm_count;

@@ -303,6 +303,21 @@ static json_t* build_extra_descs(ExtraDesc* ed_list)
     return arr;
 }
 
+static json_t* build_room_periods(const RoomData* room)
+{
+    json_t* arr = json_array();
+    for (RoomTimePeriod* period = room->periods; period != NULL; period = period->next) {
+        json_t* obj = json_object();
+        JSON_SET_STRING(obj, "name", period->name ? period->name : "");
+        JSON_SET_INT(obj, "fromHour", period->start_hour);
+        JSON_SET_INT(obj, "toHour", period->end_hour);
+        if (period->description && period->description[0] != '\0')
+            JSON_SET_STRING(obj, "description", period->description);
+        json_array_append_new(arr, obj);
+    }
+    return arr;
+}
+
 static json_t* build_rooms(const AreaData* area)
 {
     json_t* arr = json_array();
@@ -340,6 +355,11 @@ static json_t* build_rooms(const AreaData* area)
             JSON_SET_INT(obj, "clan", room_data->clan);
         if (room_data->owner && room_data->owner[0] != '\0')
             JSON_SET_STRING(obj, "owner", room_data->owner);
+        json_t* periods = build_room_periods(room_data);
+        if (json_array_size(periods) > 0)
+            json_object_set_new(obj, "timePeriods", periods);
+        else
+            json_decref(periods);
 
         json_t* exits = json_array();
         for (int dir = 0; dir < DIR_MAX; dir++) {
@@ -512,6 +532,34 @@ static PersistResult parse_exits(RoomData* room, json_t* exits)
     return (PersistResult){ PERSIST_OK, NULL, -1 };
 }
 
+static void parse_room_periods(RoomData* room, json_t* periods)
+{
+    if (!room || !json_is_array(periods))
+        return;
+
+    size_t count = json_array_size(periods);
+    for (size_t i = 0; i < count; i++) {
+        json_t* entry = json_array_get(periods, i);
+        if (!json_is_object(entry))
+            continue;
+
+        const char* name = JSON_STRING(entry, "name");
+        int start = (int)json_int_or_default(entry, "fromHour", 0);
+        int end = (int)json_int_or_default(entry, "toHour", start);
+        RoomTimePeriod* period = room_time_period_add(room, name ? name : "", start, end);
+        if (!period)
+            continue;
+
+        free_string(period->name);
+        period->name = boot_intern_string(name ? name : "");
+        const char* desc = JSON_STRING(entry, "description");
+        if (desc) {
+            free_string(period->description);
+            period->description = boot_intern_string(desc);
+        }
+    }
+}
+
 static PersistResult parse_rooms(json_t* root, AreaData* area)
 {
     json_t* rooms = json_object_get(root, "rooms");
@@ -550,6 +598,7 @@ static PersistResult parse_rooms(json_t* root, AreaData* area)
         room->clan = (int16_t)json_int_or_default(r, "clan", room->clan);
         const char* owner = JSON_STRING(r, "owner");
         JSON_INTERN(owner, room->owner)
+        parse_room_periods(room, json_object_get(r, "timePeriods"));
 
         global_room_set(room);
         top_vnum_room = top_vnum_room < vnum ? vnum : top_vnum_room;

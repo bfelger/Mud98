@@ -41,6 +41,7 @@
 #include <entities/descriptor.h>
 #include <entities/event.h>
 #include <entities/faction.h>
+#include <entities/room.h>
 #include <entities/object.h>
 #include <entities/player_data.h>
 
@@ -646,6 +647,12 @@ void save_rooms(FILE* fp, AreaData* area)
             FOR_EACH(pEd, pRoomIndex->extra_desc) {
                 fprintf(fp, "E\n%s~\n%s~\n", pEd->keyword,
                     fix_string(pEd->description));
+            }
+
+            for (RoomTimePeriod* period = pRoomIndex->periods; period != NULL; period = period->next) {
+                const char* name = (period->name && period->name[0] != '\0') ? period->name : "period";
+                fprintf(fp, "P %s %d %d\n", name, period->start_hour, period->end_hour);
+                fprintf(fp, "%s~\n", fix_string(period->description));
             }
 
             // Put randomized rooms back in their original place to reduce

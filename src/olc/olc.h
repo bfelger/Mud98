@@ -249,6 +249,7 @@ DECLARE_OLC_FUN(redit_checkobj);
 DECLARE_OLC_FUN(redit_copy);
 DECLARE_OLC_FUN(redit_checkrooms);
 DECLARE_OLC_FUN(redit_clear);
+DECLARE_OLC_FUN(redit_period);
 
 // Object Editor Prototypes
 DECLARE_OLC_FUN(oedit_show);
