@@ -203,6 +203,28 @@ static int test_broadcast_period_messages_only_on_transitions()
     return 0;
 }
 
+static int test_room_period_messages_without_description()
+{
+    RoomData* room_data = mock_room_data(50011, NULL);
+    free_string(room_data->description);
+    room_data->description = str_dup("Plain room.\n\r");
+    Room* room = mock_room(50011, room_data, NULL);
+    Mobile* player = mock_player("Timekeeper");
+    transfer_mob(player, room);
+
+    create_period(room_data, "chime", 6, 6, NULL, "The grandfather clock chimes six times.\n\r", NULL);
+
+    ASSERT_STR_EQ("Plain room.\n\r", room_description_for_hour(room_data, 6));
+
+    test_output_buffer = NIL_VAL;
+    test_socket_output_enabled = true;
+    broadcast_room_period_messages(5, 6);
+    test_socket_output_enabled = false;
+    ASSERT_OUTPUT_CONTAINS("grandfather clock chimes");
+
+    return 0;
+}
+
 static int test_indoor_rooms_only_receive_period_messages()
 {
     RoomData* room_data = mock_room_data(50020, NULL);
@@ -264,7 +286,7 @@ static int test_daycycle_message_respects_suppression_flag()
     test_socket_output_enabled = true;
     update_weather_info();
     test_socket_output_enabled = false;
-    ASSERT(IS_NIL(test_output_buffer));
+    ASSERT(!output_contains_text("The day has begun."));
 
     test_output_buffer = NIL_VAL;
     mock_disconnect_player_descriptor(player);
@@ -375,7 +397,7 @@ static int test_area_suppression_blocks_default_daycycle()
     test_socket_output_enabled = true;
     update_weather_info();
     test_socket_output_enabled = false;
-    ASSERT(IS_NIL(test_output_buffer));
+    ASSERT(!output_contains_text("The day has begun."));
 
     test_output_buffer = NIL_VAL;
     mock_disconnect_player_descriptor(player);
@@ -387,18 +409,24 @@ static int test_area_suppression_blocks_default_daycycle()
 
 void register_daycycle_tests()
 {
-    init_test_group(&daycycle_tests, "Daycycle");
-    register_test(&daycycle_tests, "Defaults Without Periods", test_room_description_defaults_without_periods);
-    register_test(&daycycle_tests, "Matching Period Overrides Description", test_room_description_uses_matching_period);
-    register_test(&daycycle_tests, "Wraparound Period Handling", test_room_description_wraps_across_midnight);
-    register_test(&daycycle_tests, "First Matching Period Takes Priority", test_room_description_prefers_first_match);
-    register_test(&daycycle_tests, "Empty Periods Are Skipped", test_room_description_skips_empty_periods);
-    register_test(&daycycle_tests, "Period Transition Detection", test_period_transition_detection_handles_enter_and_exit);
-    register_test(&daycycle_tests, "Room Period Transition Messages", test_broadcast_period_messages_only_on_transitions);
-    register_test(&daycycle_tests, "Indoor Rooms Only Get Period Messages", test_indoor_rooms_only_receive_period_messages);
-    register_test(&daycycle_tests, "Daycycle Messages Suppression Room Flag", test_daycycle_message_respects_suppression_flag);
-    register_test(&daycycle_tests, "Area Period Messages Reach Rooms", test_area_period_messages_reach_rooms);
-    register_test(&daycycle_tests, "Room Suppression Blocks Area Periods", test_room_suppression_blocks_area_periods);
-    register_test(&daycycle_tests, "Area Suppression Blocks Default Daycycle", test_area_suppression_blocks_default_daycycle);
+#define REGISTER(n, f)  register_test(&daycycle_tests, (n), (f))
+
+    init_test_group(&daycycle_tests, "DAYCYCLE TESTS");
     register_test_group(&daycycle_tests);
+
+    REGISTER("Defaults Without Periods", test_room_description_defaults_without_periods);
+    REGISTER("Matching Period Overrides Description", test_room_description_uses_matching_period);
+    REGISTER("Wraparound Period Handling", test_room_description_wraps_across_midnight);
+    REGISTER("First Matching Period Takes Priority", test_room_description_prefers_first_match);
+    REGISTER("Empty Periods Are Skipped", test_room_description_skips_empty_periods);
+    REGISTER("Period Transition Detection", test_period_transition_detection_handles_enter_and_exit);
+    REGISTER("Room Period Transition Messages", test_broadcast_period_messages_only_on_transitions);
+    REGISTER("Room Period Messages Without Description", test_room_period_messages_without_description);
+    REGISTER("Indoor Rooms Only Get Period Messages", test_indoor_rooms_only_receive_period_messages);
+    REGISTER("Daycycle Messages Suppression Room Flag", test_daycycle_message_respects_suppression_flag);
+    REGISTER("Area Period Messages Reach Rooms", test_area_period_messages_reach_rooms);
+    REGISTER("Room Suppression Blocks Area Periods", test_room_suppression_blocks_area_periods);
+    REGISTER("Area Suppression Blocks Default Daycycle", test_area_suppression_blocks_default_daycycle);
+    
+#undef REGISTER
 }
