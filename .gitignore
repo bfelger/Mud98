@@ -5,6 +5,7 @@
 !.vs/launch.vs.json
 *.o
 build/*
+_deps/*
 bin/*
 player/*
 src/rom*

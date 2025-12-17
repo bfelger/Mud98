@@ -10,13 +10,35 @@ if (NOT MSVC)
     find_package(Threads REQUIRED)
 endif()
 
-# Persistence layer options (must come before add_subdirectory)
+# Persistence layer options (must come before dependencies)
 option(ENABLE_JSON_PERSISTENCE "Build JSON persistence support (requires Jansson)" ON)
 option(ENABLE_ROM_OLC_PERSISTENCE "Build ROM-OLC persistence support (legacy text format)" ON)
 
-# Conditionally build Jansson only if JSON persistence is enabled
+# Conditionally fetch Jansson only if JSON persistence is enabled
 if (ENABLE_JSON_PERSISTENCE)
-    add_subdirectory(jansson)
+    include(FetchContent)
+    
+    # Configure Jansson options before fetching
+    set(JANSSON_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+    set(JANSSON_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(JANSSON_WITHOUT_TESTS ON CACHE BOOL "" FORCE)
+    
+    FetchContent_Declare(
+        jansson
+        GIT_REPOSITORY https://github.com/akheron/jansson.git
+        GIT_TAG        v2.14
+    )
+    
+    FetchContent_MakeAvailable(jansson)
+    
+    # Workaround: Jansson doesn't properly expose its include directories
+    # Use BUILD_INTERFACE so it only applies during build, not install
+    FetchContent_GetProperties(jansson)
+    if(jansson_POPULATED)
+        target_include_directories(jansson INTERFACE 
+            $<BUILD_INTERFACE:${jansson_SOURCE_DIR}/src>
+        )
+    endif()
 endif()
 
 set(OPENSSL_USE_STATIC_LIBS TRUE)

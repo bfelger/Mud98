@@ -62,7 +62,6 @@ target_include_directories(Mud98PersistJson
         ${CMAKE_SOURCE_DIR}/src/entities
         ${CMAKE_SOURCE_DIR}/src/data
         ${CMAKE_SOURCE_DIR}/src/lox
-        ${CMAKE_SOURCE_DIR}/src/jansson/src
 )
 
 target_link_libraries(Mud98PersistJson PUBLIC jansson)

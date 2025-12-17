@@ -13,7 +13,7 @@
 #include <persist/area/json/area_persist_json.h>
 #include <persist/json/persist_json.h>
 #include <persist/theme/json/theme_persist_json.h>
-#include <jansson/jansson.h>
+#include <jansson.h>
 #endif
 #ifdef ENABLE_ROM_OLC_PERSISTENCE
 #include <persist/area/rom-olc/area_persist_rom_olc.h>
