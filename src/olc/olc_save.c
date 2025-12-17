@@ -241,26 +241,35 @@ static void save_faction_relations(FILE* fp, const char* keyword, ValueArray* re
 
 void save_factions(FILE* fp, AreaData* area)
 {
-    fprintf(fp, "#FACTIONS\n");
+    if (faction_table.capacity == 0 || faction_table.entries == NULL)
+        return;
 
-    if (faction_table.capacity > 0 && faction_table.entries != NULL) {
-        for (int idx = 0; idx < faction_table.capacity; ++idx) {
-            Entry* entry = &faction_table.entries[idx];
-            if (IS_NIL(entry->value) || !IS_FACTION(entry->value))
-                continue;
+    bool found = false;
 
-            Faction* faction = AS_FACTION(entry->value);
-            if (faction->area != area)
-                continue;
+    for (int idx = 0; idx < faction_table.capacity; ++idx) {
+        Entry* entry = &faction_table.entries[idx];
+        if (IS_NIL(entry->value) || !IS_FACTION(entry->value))
+            continue;
 
-            fprintf(fp, "#%" PRVNUM "\n", VNUM_FIELD(faction));
-            fprintf(fp, "Name %s~\n", NAME_STR(faction));
-            fprintf(fp, "DefaultStanding %d\n", faction->default_standing);
-            save_faction_relations(fp, "Allies", &faction->allies);
-            save_faction_relations(fp, "Opposing", &faction->enemies);
-            fprintf(fp, "End\n");
+        Faction* faction = AS_FACTION(entry->value);
+        if (faction->area != area)
+            continue;
+
+        if (!found) {
+            found = true;
+            fprintf(fp, "#FACTIONS\n");
         }
+
+        fprintf(fp, "#%" PRVNUM "\n", VNUM_FIELD(faction));
+        fprintf(fp, "Name %s~\n", NAME_STR(faction));
+        fprintf(fp, "DefaultStanding %d\n", faction->default_standing);
+        save_faction_relations(fp, "Allies", &faction->allies);
+        save_faction_relations(fp, "Opposing", &faction->enemies);
+        fprintf(fp, "End\n");
     }
+
+    if (!found)
+        return;
 
     fprintf(fp, "#0\n\n");
 }
@@ -1006,6 +1015,9 @@ void save_shops(FILE* fp, AreaData* area)
 
 void save_story_beats(FILE* fp, AreaData* area)
 {
+    if (area->story_beats == NULL)
+        return;
+
     fprintf(fp, "#STORYBEATS\n");
     for (StoryBeat* beat = area->story_beats; beat != NULL; beat = beat->next) {
         fprintf(fp, "B\n%s~\n%s~\n",
@@ -1017,6 +1029,9 @@ void save_story_beats(FILE* fp, AreaData* area)
 
 void save_checklist(FILE* fp, AreaData* area)
 {
+    if (area->checklist == NULL)
+        return;
+
     fprintf(fp, "#CHECKLIST\n");
     for (ChecklistItem* item = area->checklist; item != NULL; item = item->next) {
         fprintf(fp, "C %d\n%s~\n",

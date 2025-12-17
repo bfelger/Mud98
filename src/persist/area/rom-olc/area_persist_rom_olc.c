@@ -228,13 +228,17 @@ PersistResult persist_area_rom_olc_save(const AreaPersistSaveParams* params)
     fprintf(fp, "VNUMs %"PRVNUM" %"PRVNUM"\n", area->min_vnum, area->max_vnum);
     fprintf(fp, "Credits %s~\n", area->credits);
     fprintf(fp, "Security %d\n", area->security);
-    fprintf(fp, "Sector %d\n", area->sector);
+    if (area->sector != 0)
+        fprintf(fp, "Sector %d\n", area->sector);
     fprintf(fp, "Low %d\n", area->low_range);
     fprintf(fp, "High %d\n", area->high_range);
-    fprintf(fp, "Reset %d\n", area->reset_thresh);
-    fprintf(fp, "AlwaysReset %d\n", (int)area->always_reset);
-    fprintf(fp, "InstType %d\n", area->inst_type);
-    fprintf(fp, "End\n\n");
+    if (area->reset_thresh != 6)
+        fprintf(fp, "Reset %d\n", area->reset_thresh);
+    if (area->always_reset)
+        fprintf(fp, "AlwaysReset %d\n", (int)area->always_reset);
+    if (area->inst_type != AREA_INST_SINGLE)
+        fprintf(fp, "InstType %d\n", area->inst_type);
+    fprintf(fp, "End\n\n\n\n");
 
     save_area_daycycle(fp, (AreaData*)area);
     save_story_beats(fp, (AreaData*)area);

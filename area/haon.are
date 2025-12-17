@@ -454,147 +454,6 @@ mace 2 8 'crush' 0
 
 
 #ROOMS
-#6144
-A small path in the deep, dark forest~
-You are on a narrow path leading through the deep, dark forest.  Ancient,
-grey trees loom everywhere.  The tree trunks here seem to be covered in some
-sticky substance.  The path continues south and west.
-~
-0
-AD 3
-E
-substance rope ropes thread threads~
-The substance reminds you of giant threads covered with glue.  If it had not
-been for the size you could have sworn it was part of a spider web.
-~
-E
-tree trees trunk trunks~
-The ancient grey giants seem to observe you silently.
-~
-E
-path~
-The path seems all too frail.  One of the giant roots could probably crush it
-in a single blow.
-~
-D2
-The narrow path winds its way through the trees to the south.
-~
-~
-0 -1 6110
-D3
-The narrow path winds its way through the trees to the west.
-~
-~
-0 -1 6130
-S
-#6150
-The narrow trail.~
-This trail looks much spookier than any other thats you have seen.  The usual
-animal claw marks and bites on the trees are getting far and few between. The
-trail continues north.
-~
-0
-AD 3
-D0
-the narrow trail continues north.
-~
-~
-0 -1 6151
-D2
-the trail intersects the main forest path.
-~
-~
-0 -1 6103
-S
-#6151
-The narrow trail.~
-This area of the trail is also very peculiar.  You can see no signs of animal
-life what so ever.  The structure of the surrounding trees forces the path to
-make a sharp turn to the east.
-~
-0
-AD 3
-D1
-the trail bends east.
-~
-~
-0 -1 6152
-D2
-the start of the trail.
-~
-~
-0 -1 6150
-S
-#6152
-The circle of trees.~
-The trees here seem to form a circle around a HUGE tree that is in the center
-of them.  You notice a wooden door carved into the huge tree to the east.  The
-trail that you followed to get here seems to end at the base of the tree.
-~
-0
-AD 3
-D1
-The tree door is carved beautifully.
-~
-door~
-1 -1 6153
-D3
-the bend on the trail.
-~
-~
-1 -1 6151
-S
-#6153
-Inside the great tree.~
-You have stepped inside of this hollowed tree.  From here steps lead down into
-darkness or you can exit the tree by going west.
-~
-0
-AD 3
-D3
-the door is carved beautifully.
-~
-door~
-1 -1 6152
-D5
-The steps look appear like they will hold your weight.
-~
-~
-0 -1 6154
-S
-#6154
-The underground hallway.~
-This hallway is apparently one of the roots of the tree hollowed out.  The hall
-leads south to a room where you hear strange noises or you can go up the steps.
-~
-0
-AD 3
-D2
-the hallway looks quite grand.
-~
-~
-1 -1 6155
-D4
-the steps appear like they will hold your weight.
-~
-~
-1 -1 6153
-S
-#6155
-The cultist temple.~
-This temple is built to some god that you don't worship.  It is a nice place
-to visit but you feel very uncomfortable about spending much time here.
-The wooden altar seems almost to glow as you enter the room.  The only exit is
-the way you came in.
-~
-0
-AD 3
-D0
-the hallway looks quite grand.
-~
-~
-1 -1 6154
-S
 #6000
 The edge of the forest~
 You are standing at the eastern edge of a big forest.  To the east is the West
@@ -2545,6 +2404,147 @@ The exit leads out into the forest.
 ~
 0 -1 6142
 S
+#6144
+A small path in the deep, dark forest~
+You are on a narrow path leading through the deep, dark forest.  Ancient,
+grey trees loom everywhere.  The tree trunks here seem to be covered in some
+sticky substance.  The path continues south and west.
+~
+0
+AD 3
+E
+substance rope ropes thread threads~
+The substance reminds you of giant threads covered with glue.  If it had not
+been for the size you could have sworn it was part of a spider web.
+~
+E
+tree trees trunk trunks~
+The ancient grey giants seem to observe you silently.
+~
+E
+path~
+The path seems all too frail.  One of the giant roots could probably crush it
+in a single blow.
+~
+D2
+The narrow path winds its way through the trees to the south.
+~
+~
+0 -1 6110
+D3
+The narrow path winds its way through the trees to the west.
+~
+~
+0 -1 6130
+S
+#6150
+The narrow trail.~
+This trail looks much spookier than any other thats you have seen.  The usual
+animal claw marks and bites on the trees are getting far and few between. The
+trail continues north.
+~
+0
+AD 3
+D0
+the narrow trail continues north.
+~
+~
+0 -1 6151
+D2
+the trail intersects the main forest path.
+~
+~
+0 -1 6103
+S
+#6151
+The narrow trail.~
+This area of the trail is also very peculiar.  You can see no signs of animal
+life what so ever.  The structure of the surrounding trees forces the path to
+make a sharp turn to the east.
+~
+0
+AD 3
+D1
+the trail bends east.
+~
+~
+0 -1 6152
+D2
+the start of the trail.
+~
+~
+0 -1 6150
+S
+#6152
+The circle of trees.~
+The trees here seem to form a circle around a HUGE tree that is in the center
+of them.  You notice a wooden door carved into the huge tree to the east.  The
+trail that you followed to get here seems to end at the base of the tree.
+~
+0
+AD 3
+D1
+The tree door is carved beautifully.
+~
+door~
+1 -1 6153
+D3
+the bend on the trail.
+~
+~
+1 -1 6151
+S
+#6153
+Inside the great tree.~
+You have stepped inside of this hollowed tree.  From here steps lead down into
+darkness or you can exit the tree by going west.
+~
+0
+AD 3
+D3
+the door is carved beautifully.
+~
+door~
+1 -1 6152
+D5
+The steps look appear like they will hold your weight.
+~
+~
+0 -1 6154
+S
+#6154
+The underground hallway.~
+This hallway is apparently one of the roots of the tree hollowed out.  The hall
+leads south to a room where you hear strange noises or you can go up the steps.
+~
+0
+AD 3
+D2
+the hallway looks quite grand.
+~
+~
+1 -1 6155
+D4
+the steps appear like they will hold your weight.
+~
+~
+1 -1 6153
+S
+#6155
+The cultist temple.~
+This temple is built to some god that you don't worship.  It is a nice place
+to visit but you feel very uncomfortable about spending much time here.
+The wooden altar seems almost to glow as you enter the room.  The only exit is
+the way you came in.
+~
+0
+AD 3
+D0
+the hallway looks quite grand.
+~
+~
+1 -1 6154
+S
 #0
 
 
@@ -2557,11 +2557,9 @@ S
 
 
 #RESETS
+D 0 6009 0 1
 D 0 6152 1 1
 D 0 6153 3 1
-D 0 6009 0 1
-M 0 6116 1 6155 1
-E 0 6155 0 16
 O 0 6011 0 6006
 M 0 6000 1 6009 1
 E 0 6000 0 16
@@ -2612,6 +2610,8 @@ M 0 6112 1 6143 1
 G 0 6110 0
 G 0 6112 0
 G 0 6111 0
+M 0 6116 1 6155 1
+E 0 6155 0 16
 S
 
 
