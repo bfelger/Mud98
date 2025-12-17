@@ -23,6 +23,9 @@
 
 #include <lox/array.h>
 
+// Forward declarations
+typedef struct combat_ops_t CombatOps;
+
 // Internal GC-tracked array of all mocks
 ValueArray* mocks();
 
@@ -109,4 +112,18 @@ void mock_player_reputation(Mobile* ch, VNUM faction_vnum, int value);
 extern RngOps mock_rng;
 void reset_mock_rng(void);
 void set_mock_rng_sequence(int* sequence, int length);
+
+// COMBAT MOCKING
+// Switch to mock combat for observing damage/healing without side effects
+// Provides tracking and configuration for combat tests
+extern CombatOps mock_combat;
+void reset_mock_combat(void);
+void set_mock_always_hit(bool value);
+void set_mock_damage_override(int damage);
+void set_mock_prevent_death(bool value);
+int get_mock_damage_dealt(void);
+int get_mock_healing_done(void);
+int get_mock_deaths(void);
+bool get_mock_last_attack_hit(void);
+
 #endif  // !MUD98__TESTS__MOCK_H
