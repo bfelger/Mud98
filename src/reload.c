@@ -11,6 +11,8 @@
 #include "handler.h"
 #include "interp.h"
 
+#include <persist/rom-olc/db_rom_olc.h>
+
 #include <entities/area.h>
 #include <entities/descriptor.h>
 #include <entities/help_data.h>

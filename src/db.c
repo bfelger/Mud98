@@ -53,6 +53,7 @@
 #include <persist/persist_io_adapters.h>
 #ifdef ENABLE_ROM_OLC_PERSISTENCE
 #include <persist/rom-olc/loader_guard.h>
+#include <persist/rom-olc/db_rom_olc.h>
 #include <persist/area/rom-olc/area_persist_rom_olc.h>
 #endif
 
@@ -199,11 +200,7 @@ AreaData* current_area_data;
 
 // Local booting procedures.
 void init_mm();
-void load_helps(FILE* fp, char* fname);
-void load_shops(FILE* fp);
-void load_specials(FILE* fp);
 void load_notes();
-void load_mobprogs(FILE* fp);
 
 void fix_exits();
 void fix_mobprogs();

@@ -55,7 +55,6 @@ char* print_flags(FLAGS flag);
 void boot_db(void);
 void area_update(void);
 MobProgCode* get_mprog_index(VNUM vnum);
-void load_helps(FILE* fp, char* fname);
 char fread_letter(FILE* fp);
 int fread_number(FILE* fp);
 long fread_flag(FILE* fp);
