@@ -1,14 +1,11 @@
+#
+# Mud98 Base CMake Configuration
+#
+
 cmake_minimum_required(VERSION 3.12)
 
 # Define the project at the root level
 project(Mud98 VERSION 1.0 LANGUAGES C)
-
-# Most recent C standard MSVC will pretend to follow
-set(MSVC_C_STD "/std:c17")
-
-# MSVC will ignore this
-set(CMAKE_C_STANDARD 23)
-set(CMAKE_C_STANDARD_REQUIRED OFF)
 
 # Place built binaries under bin/<config> at the repo root so runtime files
 # (e.g., mud98.cfg) are easy to find when launching from the root.
