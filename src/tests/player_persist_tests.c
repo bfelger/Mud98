@@ -8,7 +8,7 @@
 
 #include <config.h>
 #include <save.h>
-#include <file.h>
+#include <fileutils.h>
 #include <skills.h>
 #include <stringutils.h>
 #include <recycle.h>

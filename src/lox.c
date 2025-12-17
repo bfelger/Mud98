@@ -6,7 +6,7 @@
 #include "comm.h"
 #include "config.h"
 #include "db.h"
-#include "file.h"
+#include "fileutils.h"
 
 #include <entities/mobile.h>
 

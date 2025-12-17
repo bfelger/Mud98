@@ -10,7 +10,7 @@
 #include "olc.h"
 #include "lox_edit.h"
 #include "config.h"
-#include "file.h"
+#include "fileutils.h"
 
 #include <lox/lox.h>
 

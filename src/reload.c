@@ -7,7 +7,7 @@
 #include "comm.h"
 #include "config.h"
 #include "db.h"
-#include "file.h"
+#include "fileutils.h"
 #include "handler.h"
 #include "interp.h"
 

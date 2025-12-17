@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////
-// file.c
+// fileutils.c
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "file.h"
+#include "fileutils.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -10,7 +10,7 @@
 
 #ifndef _MSC_VER
 #include <unistd.h>
-#define NULL_FILE   "/dev/null"     // To reserve one stream
+#define NULL_FILE   "/dev/null"
 #else
 #include <direct.h>
 #include <errno.h>

@@ -1,10 +1,10 @@
 ////////////////////////////////////////////////////////////////////////////////
-// file.h
+// fileutils.h
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#ifndef MUD98__FILE_H
-#define MUD98__FILE_H
+#ifndef MUD98__FILEUTILS_H
+#define MUD98__FILEUTILS_H
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -30,4 +30,4 @@ void open_reserve_file();
 #define OPEN_OR_BREAK(open_expr)        OPEN_OR(open_expr, break)
 #define OPEN_OR_CONTINUE(open_expr)     OPEN_OR(open_expr, continue)
 
-#endif // !MUD98__FILE_H
+#endif // !MUD98__FILEUTILS_H

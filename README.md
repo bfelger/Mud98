@@ -186,12 +186,17 @@ Use the `-d` argument to specify the folder to `mud98.cfg` if you don't run it f
   - [ ] Other data
 - [X] Time-of-day room descriptions
   - [ ] Day-cycle events
+- [ ] Professions
+  - [ ] Crafting
+  - [ ] Resource gathering
 - [ ] Randomized areas (dungeons, overland, etc.)
-- [ ] Navigation skills for randomized areas
+  - [ ] Navigation skills for randomized areas
 - [ ] Integrated webserver with embedded MUD-client
 - [ ] Loot-pool system
 - [ ] Player-run clans/guilds
+- [ ] Player/Clan housing
 - [ ] Remort system
+- [ ] Alternative combat engines
 
 <!--See the [open issues](https://github.com/github_username/repo_name/issues) for a full list of proposed features (and known issues).-->
 

@@ -48,7 +48,7 @@
 #include "config.h"
 #include "comm.h"
 #include "db.h"
-#include "file.h"
+#include "fileutils.h"
 #include "stringutils.h"
 #include "update.h"
 

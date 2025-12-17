@@ -6,7 +6,7 @@
 #ifndef MUD98__CONFIG_H
 #define MUD98__CONFIG_H
 
-#include "file.h"
+#include "fileutils.h"
 
 #include <stdbool.h>
 #include <stdio.h>

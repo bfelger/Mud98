@@ -31,7 +31,7 @@
 #include "comm.h"
 #include "config.h"
 #include "db.h"
-#include "file.h"
+#include "fileutils.h"
 #include "fight.h"
 #include "handler.h"
 #include "interp.h"

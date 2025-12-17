@@ -6,7 +6,7 @@
 
 #include "config.h"
 
-#include "file.h"
+#include "fileutils.h"
 #include "stringutils.h"
 
 #include <stdbool.h>
