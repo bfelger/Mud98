@@ -29,6 +29,8 @@
 
 #include "merc.h"
 
+#include "rng.h"
+
 #include "act_move.h"
 #include "act_wiz.h"
 #include "ban.h"
@@ -1872,99 +1874,12 @@ void do_dump(Mobile* ch, char* argument)
     close_file(fp);
 }
 
-// Stick a little fuzz on a number.
-int number_fuzzy(int number)
-{
-    switch (number_bits(2)) {
-    case 0:
-        number -= 1;
-        break;
-    case 3:
-        number += 1;
-        break;
-    }
-
-    return UMAX(1, number);
-}
-
-// Generate a random number.
-int number_range(int from, int to)
-{
-    int power;
-    int number;
-
-    if (from == 0 && to == 0) 
-        return 0;
-
-    if ((to = to - from + 1) <= 1) 
-        return from;
-
-    for (power = 2; power < to; power <<= 1)
-        ;
-
-    while ((number = number_mm() & (power - 1)) >= to)
-        ;
-
-    return from + number;
-}
-
-// Generate a percentile roll.
-int number_percent(void)
-{
-    int percent;
-
-    while ((percent = number_mm() & (128 - 1)) > 99)
-        ;
-
-    return 1 + percent;
-}
-
-// Generate a random door.
-Direction number_door()
-{
-    Direction door;
-
-    while ((door = number_mm() & (8 - 1)) > 5)
-        ;
-
-    return door;
-}
-
-int number_bits(int width)
-{
-    return number_mm() & ((1 << width) - 1);
-}
-
 void init_mm()
 {
     int rounds = 5;
 
     // Seed with external entropy -- the time and some program addresses
     pcg32_srandom(time(NULL) ^ (intptr_t)&printf, (intptr_t)&rounds);
-}
-
-long number_mm(void)
-{
-    return pcg32_random();
-}
-
-// Roll some dice.
-int dice(int number, int size)
-{
-    int idice;
-    int sum;
-
-    switch (size) {
-    case 0:
-        return 0;
-    case 1:
-        return number;
-    }
-
-    for (idice = 0, sum = 0; idice < number; idice++)
-        sum += number_range(1, size);
-
-    return sum;
 }
 
 // Simple linear interpolation.

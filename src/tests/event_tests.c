@@ -160,10 +160,17 @@ static int test_bribe_event()
 
 static int test_death_event()
 {
+    // Use deterministic RNG for predictable combat
+    RngOps* saved_rng = rng;
+    rng = &mock_rng;
+    reset_mock_rng();
+
     // Mock up a room with mob and player
     Room* room = mock_room(54000, NULL, NULL);
 
     Mobile* mob = mock_mob("Joe", 54001, NULL);
+    mob->hit = 1;       // Very low HP - will die quickly
+    mob->max_hit = 1;
     transfer_mob(mob, room);
 
     // Give Bob a weapon to kill Joe with
@@ -196,20 +203,17 @@ static int test_death_event()
     // Have the player kill the mob organically using `kill`.
     interpret(pc, "kill Joe");
 
-    // The event should fire when mob dies, but combat is RNG-based
-    // Even with heavily slanted stats, the mob might survive or player might miss
-    // Just verify no crash - the event firing is probabilistic
+    // With deterministic RNG and heavily slanted stats, mob should die
     char* expected = "Bob killed me!\n";
-    if (IS_STRING(test_output_buffer)) {
-        // If we got output, verify it matches
-        ASSERT_OUTPUT_EQ(expected);
-    }
-    // Otherwise mob didn't die yet - that's okay for this test
+    ASSERT_OUTPUT_EQ(expected);
 
     extract_char(pc, true);
     extract_char(mob, true);
 
     test_output_buffer = NIL_VAL;
+    
+    // Restore production RNG
+    rng = saved_rng;
     return 0;
 }
 
@@ -253,6 +257,11 @@ static int test_entry_event()
 
 static int test_fight_event()
 {
+    // Use deterministic RNG for predictable combat
+    RngOps* saved_rng = rng;
+    rng = &mock_rng;
+    reset_mock_rng();
+
     // Create a room with an attacker and victim 
     Room* room = mock_room(56000, NULL, NULL);
     Mobile* attacker = mock_mob("Attacker", 56001, NULL);
@@ -297,6 +306,9 @@ static int test_fight_event()
     extract_char(victim, true);
 
     test_output_buffer = NIL_VAL;
+    
+    // Restore production RNG
+    rng = saved_rng;
     return 0;
 }
 
@@ -472,21 +484,26 @@ static int test_greet_event_on_mob()
 
 static int test_hpcnt_event()
 {
-        // Create a room with an attacker and victim 
+    // Use deterministic RNG for predictable damage
+    RngOps* saved_rng = rng;
+    rng = &mock_rng;
+    reset_mock_rng();
+
+    // Create a room with an attacker and victim 
     Room* room = mock_room(60000, NULL, NULL);
 
     Mobile* attacker = mock_mob("Attacker", 60001, NULL);
-    attacker->level = 49;
+    attacker->level = 10;
     attacker->hitroll = 100;
     transfer_mob(attacker, room);
 
     Mobile* victim = mock_mob("Victim", 60002, NULL);
-    victim->hit = 3;
-    victim->max_hit = 3;
+    victim->hit = 100;
+    victim->max_hit = 100;
     transfer_mob(victim, room);
 
-    // Arm the attacker with a very weak weapon so the first hit doesn't kill.
-    Object* sword = mock_sword("sword", 60003, 1, 1, 1);
+    // Arm the attacker with a weapon that will do predictable damage
+    Object* sword = mock_sword("sword", 60003, 5, 10, 10);
     obj_to_char(sword, attacker);
     equip_char(attacker, sword, WEAR_WIELD);
 
@@ -513,6 +530,7 @@ static int test_hpcnt_event()
     // Run violence_update to process the fight round.
     violence_update();
 
+    // With deterministic RNG, damage should be predictable
     char* expected = "Attacker brought me to $N% health!\n";
     ASSERT_OUTPUT_MATCH(expected);
 
@@ -520,11 +538,19 @@ static int test_hpcnt_event()
     extract_char(victim, true);
 
     test_output_buffer = NIL_VAL;
+    
+    // Restore production RNG
+    rng = saved_rng;
     return 0;
 }
 
 static int test_random_event()
 {
+    // Use deterministic RNG for predictable dice rolls
+    RngOps* saved_rng = rng;
+    rng = &mock_rng;
+    reset_mock_rng();
+
     Room* room = mock_room(61000, NULL, NULL);
 
     Mobile* mob = mock_mob("Random", 61001, NULL);
@@ -551,12 +577,16 @@ static int test_random_event()
     // Update all
     update_handler();
 
+    // With deterministic RNG, dice should return predictable value
     char* expected = "I am Random; I like to do $N random things a day.\n";
     ASSERT_OUTPUT_MATCH(expected);
 
     extract_char(mob, true);
 
     test_output_buffer = NIL_VAL;
+    
+    // Restore production RNG
+    rng = saved_rng;
     return 0;
 }
 

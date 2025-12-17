@@ -217,11 +217,22 @@ Use the `-d` argument to specify the folder containing `mud98.cfg` if you don't 
 
 - [ ] Reload data
   - [x] Help files
-  - [X] Rooms
+  - [x] Rooms
   - [ ] Areas
   - [ ] Other data
-- [X] Time-of-day room descriptions
+- [x] Time-of-day room descriptions
   - [ ] Day-cycle events
+- [ ] Functional seams for testing
+  - [x] Persistence
+  - [x] RNG
+  - [ ] Combat
+    - [ ] Hit/miss resolution
+    - [ ] Damage calculation
+    - [ ] AC/Defense
+    - [ ] Status effects
+    - [ ] Action economy
+    - [ ] Stats/attributes
+  - [ ] Memory allocation
 - [ ] Professions
   - [ ] Crafting
   - [ ] Resource gathering
@@ -232,7 +243,9 @@ Use the `-d` argument to specify the folder containing `mud98.cfg` if you don't 
 - [ ] Player-run clans/guilds
 - [ ] Player/Clan housing
 - [ ] Remort system
-- [ ] Alternative combat engines
+- [ ] Alternative, selectable combat engines
+  - [ ] 3.5 SRD
+  - [ ] 5E
 
 <!--See the [open issues](https://github.com/github_username/repo_name/issues) for a full list of proposed features (and known issues).-->
 

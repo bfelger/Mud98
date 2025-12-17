@@ -32,6 +32,8 @@
 #define MUD_NAME "Mud98"
 #define MUD_VER "0.90"
 
+#include "rng.h"
+
 #include <inttypes.h>
 #include <stdbool.h>
 #include <stdint.h>

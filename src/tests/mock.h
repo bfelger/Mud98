@@ -97,5 +97,10 @@ Descriptor* mock_descriptor();
 // FACTION SYSTEM MOCKING
 Faction* mock_faction(const char* name, VNUM vnum);
 void mock_player_reputation(Mobile* ch, VNUM faction_vnum, int value);
-
+// RNG MOCKING
+// Switch to deterministic RNG for predictable combat/event testing
+// Call before tests that depend on RNG (damage rolls, percent checks, etc.)
+extern RngOps mock_rng;
+void reset_mock_rng(void);
+void set_mock_rng_sequence(int* sequence, int length);
 #endif  // !MUD98__TESTS__MOCK_H
