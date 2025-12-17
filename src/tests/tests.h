@@ -66,6 +66,7 @@ void register_player_persist_tests();
 void register_fight_tests();
 void register_damage_tests();
 void register_tohit_tests();
+void register_combat_state_tests();
 void register_skills_tests();
 void register_buffer_tests();
 void register_stringbuffer_tests();
