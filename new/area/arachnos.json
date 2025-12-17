@@ -2094,7 +2094,7 @@
     },
     {
       "vnum": 6308,
-      "name": "coins silver gold",
+      "name": "coins copper silver",
       "shortDescr": "a big pile of coins",
       "description": "A big pile of coins is lying here.",
       "material": "oldstyle",
@@ -2103,7 +2103,7 @@
         "take"
       ],
       "money": {
-        "gold": 500,
+        "copper": 500,
         "silver": 20
       },
       "condition": 100

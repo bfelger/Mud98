@@ -3189,8 +3189,7 @@
         "spells": [
           "identify",
           "know alignment",
-          "faerie fog",
-          ""
+          "faerie fog"
         ]
       },
       "level": 10,
@@ -3290,7 +3289,7 @@
         "take"
       ],
       "money": {
-        "gold": 1850,
+        "copper": 1850,
         "silver": 23
       },
       "weight": 200,

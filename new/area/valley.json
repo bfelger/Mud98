@@ -3257,7 +3257,6 @@
         "spells": [
           "cure critical",
           "",
-          "",
           ""
         ]
       },
@@ -3283,7 +3282,6 @@
         "level": 16,
         "spells": [
           "enchant armor",
-          "",
           "",
           ""
         ]
@@ -3311,7 +3309,6 @@
         "spells": [
           "detect evil",
           "",
-          "",
           ""
         ]
       },
@@ -3336,7 +3333,6 @@
         "level": 10,
         "spells": [
           "create water",
-          "",
           "",
           ""
         ]
@@ -3363,7 +3359,6 @@
         "spells": [
           "magic missile",
           "",
-          "",
           ""
         ]
       },
@@ -3389,7 +3384,6 @@
         "spells": [
           "chill touch",
           "",
-          "",
           ""
         ]
       },
@@ -3414,7 +3408,6 @@
         "level": 10,
         "spells": [
           "heal",
-          "",
           "",
           ""
         ]

@@ -1706,4 +1706,6 @@ Your reputation with Tauremar increases (Friendly).
 
 With just those two quest types, we can do a lot of narrative world expansion. The task of completing this area, and of making other racial (or even class) starting areas is up to you.
 
+Next: [Worldcrafting from Scratch Pt. 3 &mdash; A Living World](wb-03-a-living-world)
+
 Home: [Documentation](index)

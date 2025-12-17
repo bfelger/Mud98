@@ -10,6 +10,8 @@
 #include "mock.h"
 
 #include <db.h>
+#include <handler.h>
+#include <reload.h>
 
 #include <entities/area.h>
 
@@ -384,6 +386,86 @@ static int test_nullified_exit_reseats_single_instance()
     return 0;
 }
 
+static int test_reload_room_recreates_from_prototype()
+{
+    // Create an area and room
+    AreaData* area_data = mock_area_data();
+    Area* area = mock_area(area_data);
+    
+    RoomData* room_data = mock_room_data(100, area_data);
+    Room* room = mock_room(100, room_data, area);
+    
+    // Add a mobile and object to the room
+    MobPrototype* mob_proto = mock_mob_proto(100);
+    Mobile* mob = mock_mob("testmob", 100, mob_proto);
+    mob_to_room(mob, room);
+    
+    ObjPrototype* obj_proto = mock_obj_proto(100);
+    Object* obj = mock_obj("testobj", 100, obj_proto);
+    obj_to_room(obj, room);
+    
+    // Create an inbound exit from another room
+    RoomData* source_data = mock_room_data(101, area_data);
+    Room* source_room = mock_room(101, source_data, area);
+    mock_room_data_connection(source_data, room_data, DIR_NORTH, false);
+    source_room->exit[DIR_NORTH] = new_room_exit(source_data->exit_data[DIR_NORTH], source_room);
+    
+    // Verify initial state
+    ASSERT(room->mobiles.count == 1);
+    ASSERT(room->objects.count == 1);
+    ASSERT(room->inbound_exits.count == 1);
+    ASSERT(source_room->exit[DIR_NORTH]->to_room == room);
+    
+    // Add an exit from the room we're reloading (so we can verify it's recreated)
+    RoomData* dest_data = mock_room_data(102, area_data);
+    Room* dest_room = mock_room(102, dest_data, area);
+    mock_room_data_connection(room_data, dest_data, DIR_SOUTH, false);
+    room->exit[DIR_SOUTH] = new_room_exit(room_data->exit_data[DIR_SOUTH], room);
+    
+    // Reload the room
+    Mobile* admin = mock_player("Admin");
+    mob_to_room(admin, room);
+    test_socket_output_enabled = true;
+    
+    reload_room(admin, room);
+    
+    // Get the new room instance (should be in the same area, same vnum)
+    Room* new_room = get_room(area, 100);
+    ASSERT(new_room != NULL);
+    
+    // Note: Can't compare new_room != old_room because memory pool may reuse the address!
+    // Instead, verify recreation by checking that exits were recreated
+    
+    // Verify the new room has same VNUM
+    ASSERT(VNUM_FIELD(new_room) == 100);
+    
+    // Verify mobile and object were restored (2 mobs: original mob + admin)
+    ASSERT(new_room->mobiles.count == 2);
+    ASSERT(new_room->objects.count == 1);
+    
+    // Verify the mobile and object are in the new room
+    ASSERT(mob->in_room == new_room);
+    ASSERT(obj->in_room == new_room);
+    ASSERT(admin->in_room == new_room);
+    
+    // Verify outbound exit exists and points to correct destination
+    // Note: Can't check new_room->exit[DIR_SOUTH] != old_exit because memory pool may reuse address
+    ASSERT(new_room->exit[DIR_SOUTH] != NULL);
+    ASSERT(new_room->exit[DIR_SOUTH]->to_room == dest_room); // Points to correct dest
+    ASSERT(new_room->exit[DIR_SOUTH]->from_room == new_room); // Points back to new room
+    
+    // Verify inbound exit was nullified (not freed, waiting for auto-resolve)
+    ASSERT(source_room->exit[DIR_NORTH] != NULL);
+    ASSERT(source_room->exit[DIR_NORTH]->to_room == NULL); // Nullified during reload
+    
+    // Verify admin got success message
+    ASSERT_OUTPUT_CONTAINS("Room reloaded successfully");
+    test_socket_output_enabled = false;
+    test_output_buffer = NIL_VAL;
+    
+    return 0;
+}
+
 void register_entity_tests()
 {
 #define REGISTER(n, f)  register_test(&entity_tests, (n), (f))
@@ -404,6 +486,7 @@ void register_entity_tests()
     REGISTER("RoomExit Is Lox Value", test_room_exit_is_lox_value);
     REGISTER("Multi-Instance Area Exit NULL to_room", test_multi_instance_area_exit_null_to_room);
     REGISTER("Nullified Exit Reseats Single Instance", test_nullified_exit_reseats_single_instance);
+    REGISTER("Reload Room Recreates From Prototype", test_reload_room_recreates_from_prototype);
 
 #undef REGISTER
 }
