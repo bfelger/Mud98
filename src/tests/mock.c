@@ -156,6 +156,47 @@ Object* mock_sword(const char* name, VNUM vnum, LEVEL level, int dam_dice, int d
     return sword;
 }
 
+Object* mock_shield(const char* name, VNUM vnum, LEVEL level)
+{
+    ObjPrototype* shield_proto = mock_obj_proto(vnum);
+    shield_proto->header.name = AS_STRING(mock_str(name));
+    shield_proto->short_descr = str_dup(name);
+
+    shield_proto->level = level;
+    shield_proto->condition = 100;
+    shield_proto->weight = 5;
+    shield_proto->cost = level * 15;
+    shield_proto->item_type = ITEM_ARMOR;
+    shield_proto->armor.ac_pierce = -10;
+    shield_proto->armor.ac_bash = -10;
+    shield_proto->armor.ac_slash = -10;
+    shield_proto->armor.ac_exotic = -10;
+
+    Object* shield = mock_obj(name, vnum, shield_proto);
+
+    return shield;
+}
+
+void mock_skill(Mobile* ch, SKNUM sn, int value)
+{
+    if (ch == NULL || sn < 0) return;
+
+    if (IS_NPC(ch)) {
+        // For NPCs, set appropriate atk_flags for defensive skills
+        if (sn == gsn_parry) {
+            SET_BIT(ch->atk_flags, ATK_PARRY);
+        } else if (sn == gsn_dodge) {
+            SET_BIT(ch->atk_flags, ATK_DODGE);
+        }
+        // For other skills, NPCs calculate based on level (can't override)
+    } else {
+        // For PCs, set learned value directly
+        if (ch->pcdata != NULL && ch->pcdata->learned != NULL) {
+            ch->pcdata->learned[sn] = value;
+        }
+    }
+}
+
 Room* mock_room(VNUM vnum, RoomData* rd, Area* a)
 {
     if (a == NULL) {

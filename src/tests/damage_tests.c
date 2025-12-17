@@ -27,6 +27,8 @@ extern Value test_output_buffer;
 extern RngOps mock_rng;
 extern void reset_mock_rng(void);
 
+TestGroup damage_group;
+
 // Test basic damage application
 static int test_basic_damage()
 {
@@ -404,10 +406,9 @@ static int test_stop_fighting()
 
 void register_damage_tests()
 {
-    TestGroup* group = calloc(1, sizeof(TestGroup));
-    init_test_group(group, "DAMAGE TESTS");
+    init_test_group(&damage_group, "DAMAGE TESTS");
 
-#define REGISTER(name, func) register_test(group, (name), (func))
+#define REGISTER(name, func) register_test(&damage_group, (name), (func))
 
     // Basic damage mechanics
     REGISTER("Damage: Basic application", test_basic_damage);
@@ -429,5 +430,5 @@ void register_damage_tests()
 
 #undef REGISTER
 
-    register_test_group(group);
+    register_test_group(&damage_group);
 }

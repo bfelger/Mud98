@@ -82,6 +82,7 @@ void mock_disconnect_player_descriptor(Mobile* player);
 // mock_obj_proto: Creates ObjPrototype (template)
 // mock_obj: Creates Object instance (generic item)
 // mock_sword: Creates weapon with specific damage
+// mock_shield: Creates shield armor for blocking tests
 // 
 // CRITICAL: Object header.name field must contain searchable keywords!
 // get_obj_carry() searches this field, so name="sword blade" allows
@@ -89,6 +90,11 @@ void mock_disconnect_player_descriptor(Mobile* player);
 ObjPrototype* mock_obj_proto(VNUM vnum);
 Object* mock_obj(const char* name, VNUM vnum, ObjPrototype* op);
 Object* mock_sword(const char* name, VNUM vnum, LEVEL level, int dam_dice, int dam_size);
+Object* mock_shield(const char* name, VNUM vnum, LEVEL level);
+
+// MOBILE SKILL MOCKING
+// Sets skill value for PC (pcdata->learned) or NPC (atk_flags for defensive skills)
+void mock_skill(Mobile* ch, SKNUM sn, int value);
 
 // DESCRIPTOR MOCKING
 // Creates network connection stub for player tests

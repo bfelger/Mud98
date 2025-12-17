@@ -10,7 +10,9 @@
 #include "rng.h"
 
 // Mock RNG state
-static int mock_rng_sequence[] = {50, 75, 25, 100, 10, 90, 40, 60, 30, 70};
+static int default_sequence[] = {50, 75, 25, 100, 10, 90, 40, 60, 30, 70};
+static int* mock_rng_sequence = default_sequence;
+static int mock_rng_length = sizeof(default_sequence) / sizeof(default_sequence[0]);
 static int mock_rng_index = 0;
 
 // Mock RNG implementations
@@ -37,7 +39,7 @@ RngOps mock_rng = {
 static int get_next_mock_value(void)
 {
     int value = mock_rng_sequence[mock_rng_index];
-    mock_rng_index = (mock_rng_index + 1) % (sizeof(mock_rng_sequence) / sizeof(mock_rng_sequence[0]));
+    mock_rng_index = (mock_rng_index + 1) % mock_rng_length;
     return value;
 }
 
@@ -50,9 +52,16 @@ void reset_mock_rng(void)
 // Set custom deterministic sequence
 void set_mock_rng_sequence(int* sequence, int length)
 {
-    // Not implemented yet - uses default sequence
-    (void)sequence;
-    (void)length;
+    if (sequence != NULL && length > 0) {
+        mock_rng_sequence = sequence;
+        mock_rng_length = length;
+        mock_rng_index = 0;
+    } else {
+        // Reset to default sequence
+        mock_rng_sequence = default_sequence;
+        mock_rng_length = sizeof(default_sequence) / sizeof(default_sequence[0]);
+        mock_rng_index = 0;
+    }
 }
 
 // Mock implementations - return deterministic values

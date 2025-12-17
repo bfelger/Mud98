@@ -45,6 +45,7 @@ void run_unit_tests()
     register_interp_tests();
     register_fight_tests();
     register_damage_tests();
+    register_tohit_tests();
     register_skills_tests();
     register_fmt_tests();
     register_theme_tests();
