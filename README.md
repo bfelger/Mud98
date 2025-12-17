@@ -179,10 +179,13 @@ Use the `-d` argument to specify the folder to `mud98.cfg` if you don't run it f
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Reload data files
+- [ ] Reload data
   - [x] Help files
-  - [ ] Area files
-  - [ ] Other data files
+  - [X] Rooms
+  - [ ] Areas
+  - [ ] Other data
+- [X] Time-of-day room descriptions
+  - [ ] Day-cycle events
 - [ ] Randomized areas (dungeons, overland, etc.)
 - [ ] Navigation skills for randomized areas
 - [ ] Integrated webserver with embedded MUD-client

@@ -3761,8 +3761,7 @@
         "spells": [
           "armor",
           "bless",
-          "shield",
-          ""
+          "shield"
         ]
       },
       "level": 11,
@@ -3794,7 +3793,6 @@
         "spells": [
           "summon",
           "charm person",
-          "",
           ""
         ]
       },
@@ -3824,7 +3822,6 @@
         "spells": [
           "lightning bolt",
           "lightning bolt",
-          "",
           ""
         ]
       },

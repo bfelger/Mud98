@@ -8271,8 +8271,7 @@
         "spells": [
           "cure blindness",
           "detect evil",
-          "shield",
-          ""
+          "shield"
         ]
       },
       "level": 11,

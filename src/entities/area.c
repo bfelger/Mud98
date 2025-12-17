@@ -43,6 +43,7 @@ Area* new_area(AreaData* area_data)
     area->data = area_data;
     area->empty = true;
     area->owner_list = str_empty;
+    area->teardown_in_progress = false;
     area->reset_timer = area->data->reset_thresh;
 
     return area;
@@ -50,6 +51,10 @@ Area* new_area(AreaData* area_data)
 
 void free_area(Area* area)
 {
+    // Set flag to skip expensive inbound exit cleanup
+    // since we're destroying all rooms anyway
+    area->teardown_in_progress = true;
+    
     free_table(&area->header.fields);
     free_table(&area->rooms);
 
@@ -82,6 +87,8 @@ AreaData* new_area_data()
     area_data->file_name = str_dup(buf);
     area_data->story_beats = NULL;
     area_data->checklist = NULL;
+    area_data->periods = NULL;
+    area_data->suppress_daycycle_messages = false;
 
     return area_data;
 }
@@ -94,6 +101,7 @@ void free_area_data(AreaData* area_data)
     free_string(area_data->credits);
     free_story_beats(area_data->story_beats);
     free_checklist(area_data->checklist);
+    area_daycycle_period_clear(area_data);
 
     remove_array_value(&global_areas, OBJ_VAL(area_data));
 
@@ -296,6 +304,57 @@ void load_checklist(FILE* fp)
         add_checklist_item(current_area_data, title, desc, st);
         free_string(title);
         free_string(desc);
+    }
+}
+
+void load_area_daycycle(FILE* fp)
+{
+    if (current_area_data == NULL)
+        return;
+
+    for (;;) {
+        char letter = fread_letter(fp);
+        if (letter == 'S')
+            break;
+
+        if (letter == 'P') {
+            const char* name = fread_word(fp);
+            int start = fread_number(fp);
+            int end = fread_number(fp);
+            DayCyclePeriod* period = area_daycycle_period_add(current_area_data, name, start, end);
+            if (period == NULL) {
+                bug("load_area_daycycle: failed to add time period '%s'.", name ? name : "");
+                exit(1);
+            }
+            free_string(period->description);
+            period->description = fread_string(fp);
+        }
+        else if (letter == 'B') {
+            const char* name = fread_word(fp);
+            DayCyclePeriod* period = area_daycycle_period_find(current_area_data, name);
+            if (period == NULL) {
+                bug("load_area_daycycle: period '%s' not found for enter message.", name ? name : "");
+                exit(1);
+            }
+            free_string(period->enter_message);
+            period->enter_message = fread_string(fp);
+        }
+        else if (letter == 'A') {
+            const char* name = fread_word(fp);
+            DayCyclePeriod* period = area_daycycle_period_find(current_area_data, name);
+            if (period == NULL) {
+                bug("load_area_daycycle: period '%s' not found for exit message.", name ? name : "");
+                exit(1);
+            }
+            free_string(period->exit_message);
+            period->exit_message = fread_string(fp);
+        }
+        else if (letter == 'W') {
+            current_area_data->suppress_daycycle_messages = fread_number(fp) != 0;
+        }
+        else {
+            fread_to_eol(fp);
+        }
     }
 }
 

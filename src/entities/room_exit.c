@@ -7,6 +7,8 @@
 
 #include <db.h>
 
+#include <lox/vm.h>
+
 
 int room_exit_count;
 int room_exit_perm_count;
@@ -20,11 +22,16 @@ RoomExit* new_room_exit(RoomExitData* room_exit_data, Room* from)
 {
     LIST_ALLOC_PERM(room_exit, RoomExit);
 
+    gc_protect(OBJ_VAL(room_exit));
+    init_header(&room_exit->header, OBJ_ROOM_EXIT);
+
     room_exit->data = room_exit_data;
+    room_exit->from_room = from;
     room_exit->exit_flags = room_exit_data->exit_reset_flags;
 
-    if (room_exit_data->to_room == NULL || room_exit_data->to_room->instances.front == NULL) {
+    if (room_exit_data->to_room == NULL || room_exit_data->to_room->header.obj.type != OBJ_ROOM_DATA || room_exit_data->to_room->instances.front == NULL) {
         room_exit->to_room = NULL;
+        gc_protect_clear();
         return room_exit;
     }
     
@@ -32,16 +39,21 @@ RoomExit* new_room_exit(RoomExitData* room_exit_data, Room* from)
         room_exit->to_room = get_room(from->area, room_exit_data->to_vnum);
     }
     else if (room_exit_data->to_room->area_data->inst_type != AREA_INST_MULTI) {
-        // There is only one possible room.
-        // It could be NULL.
-        // Check before entering.
+        // Different area, but single-instance: there's only one possible room
         room_exit->to_room = AS_ROOM(room_exit_data->to_room->instances.front->value);
-        // DO NOT CREATE INSTANCED-TO-INSTANCED ROOM EXITS BETWEEN DIFFERENT
-        // AREAS!
-        // TODO: Add OLC code to prevent this from happening. Require a non-
-        // instanced "buffer" between multi-instanced areas.
+    }
+    // else: Different area AND multi-instance: leave to_room = NULL
+    // This is INTENTIONAL! Multi-instance area exits are resolved lazily
+    // per-player via get_room_for_player() when move_char() is called.
+    // Each player gets their own instance of the target area.
+    // The to_vnum is stored in room_exit_data for lazy resolution.
+
+    // Add to target room's inbound exits list
+    if (room_exit->to_room) {
+        list_push_back(&room_exit->to_room->inbound_exits, OBJ_VAL(room_exit));
     }
 
+    gc_protect_clear();
     return room_exit;
 }
 
@@ -50,6 +62,11 @@ void free_room_exit(RoomExit* room_exit)
     if (room_exit == NULL)
         return;
 
+    // Remove from target room's inbound exits list
+    if (room_exit->to_room) {
+        list_remove_value(&room_exit->to_room->inbound_exits, OBJ_VAL(room_exit));
+    }
+
     LIST_FREE(room_exit);
 }
 
@@ -57,10 +74,14 @@ RoomExitData* new_room_exit_data()
 {
     LIST_ALLOC_PERM(room_exit_data, RoomExitData);
 
+    gc_protect(OBJ_VAL(room_exit_data));
+    init_header(&room_exit_data->header, OBJ_ROOM_EXIT_DATA);
+
     room_exit_data->keyword = &str_empty[0];
     room_exit_data->description = &str_empty[0];
     room_exit_data->key = -1;
 
+    gc_protect_clear();
     return room_exit_data;
 }
 

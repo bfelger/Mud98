@@ -2366,7 +2366,7 @@
         "take"
       ],
       "money": {
-        "gold": 427,
+        "copper": 427,
         "silver": 12
       },
       "condition": 100
@@ -2561,8 +2561,7 @@
         "spells": [
           "cure blindness",
           "remove curse",
-          "cure poison",
-          ""
+          "cure poison"
         ]
       },
       "level": 11,

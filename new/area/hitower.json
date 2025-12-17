@@ -8727,7 +8727,7 @@
         "take"
       ],
       "money": {
-        "gold": 237,
+        "copper": 237,
         "silver": 11
       },
       "weight": 10,
@@ -9020,8 +9020,7 @@
         "spells": [
           "blindness",
           "curse",
-          "sleep",
-          ""
+          "sleep"
         ]
       },
       "level": 11,
@@ -9048,8 +9047,7 @@
         "spells": [
           "armor",
           "teleport",
-          "protection evil",
-          ""
+          "protection evil"
         ]
       },
       "level": 24,
@@ -9109,7 +9107,6 @@
         "spells": [
           "create food",
           "",
-          "",
           ""
         ]
       },
@@ -9134,7 +9131,6 @@
         "level": 35,
         "spells": [
           "enchant weapon",
-          "",
           "",
           ""
         ]

@@ -8230,7 +8230,6 @@
         "spells": [
           "cancellation",
           "",
-          "",
           ""
         ]
       },
@@ -8263,7 +8262,6 @@
         "level": 12,
         "spells": [
           "identify",
-          "",
           "",
           ""
         ]
@@ -8329,7 +8327,6 @@
         "level": 20,
         "spells": [
           "word of recall",
-          "",
           "",
           ""
         ]
@@ -10326,7 +10323,6 @@
         "spells": [
           "identify",
           "",
-          "",
           ""
         ]
       },
@@ -10391,7 +10387,6 @@
         "level": 20,
         "spells": [
           "word of recall",
-          "",
           "",
           ""
         ]

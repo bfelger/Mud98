@@ -75,6 +75,8 @@ MobPrototype* mock_mob_proto(VNUM vnum);
 Mobile* mock_mob(const char* name, VNUM vnum, MobPrototype* mp);
 Mobile* mock_player(const char* name);
 Mobile* mock_imm(const char* name);
+void mock_connect_player_descriptor(Mobile* player);
+void mock_disconnect_player_descriptor(Mobile* player);
 
 // OBJECT MOCKING  
 // mock_obj_proto: Creates ObjPrototype (template)

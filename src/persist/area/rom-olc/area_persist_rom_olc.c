@@ -156,6 +156,8 @@ PersistResult persist_area_rom_olc_load(const AreaPersistLoadParams* params)
             load_story_beats(fp);
         else if (!str_cmp(word, "CHECKLIST"))
             load_checklist(fp);
+        else if (!str_cmp(word, "DAYCYCLE"))
+            load_area_daycycle(fp);
         else if (!str_cmp(word, "RESETS"))
             load_resets(fp);
         else if (!str_cmp(word, "ROOMS"))
@@ -234,6 +236,7 @@ PersistResult persist_area_rom_olc_save(const AreaPersistSaveParams* params)
     fprintf(fp, "InstType %d\n", area->inst_type);
     fprintf(fp, "End\n\n");
 
+    save_area_daycycle(fp, (AreaData*)area);
     save_story_beats(fp, (AreaData*)area);
     save_checklist(fp, (AreaData*)area);
     save_factions(fp, (AreaData*)area);
@@ -289,4 +292,3 @@ PersistResult persist_area_rom_olc_save(const AreaPersistSaveParams* params)
 
     return (PersistResult){ PERSIST_OK, NULL, -1 };
 }
-

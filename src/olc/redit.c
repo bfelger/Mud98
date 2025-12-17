@@ -8,6 +8,7 @@
 #include "event_edit.h"
 #include "lox_edit.h"
 #include "olc.h"
+#include "period_edit.h"
 #include "string_edit.h"
 
 #include <act_move.h>
@@ -20,6 +21,7 @@
 #include <recycle.h>
 #include <save.h>
 #include <tables.h>
+#include <string.h>
 
 #include <entities/event.h>
 #include <entities/object.h>
@@ -36,6 +38,8 @@ RoomData xRoom;
 #define OLD_U U
 #endif
 #define U(x)    (uintptr_t)(x)
+
+REDIT(redit_period);
 
 const OlcCmdEntry room_olc_comm_table[] = {
     { "name",	    U(&xRoom.header.name),  ed_line_lox_string, 0		        },
@@ -59,6 +63,7 @@ const OlcCmdEntry room_olc_comm_table[] = {
     { "mlist",	    0,				        ed_olded,		    U(redit_mlist)	},
     { "olist",	    U(&xRoom.area_data),    ed_olist,           0               },
     { "copy",	    0,				        ed_olded,		    U(redit_copy)	},
+    { "period",     0,                      ed_olded,           U(redit_period) },
     { "event",      0,                      ed_olded,           U(olc_edit_event)   },
     { "lox",        0,                      ed_olded,           U(olc_edit_lox)     },
     { "listreset",	0,				        ed_olded,		    U(redit_listreset)  },
@@ -103,7 +108,7 @@ void do_redit(Mobile* ch, char* argument)
     }
     else if (!str_cmp(arg1, "create")) {
         if (argument[0] == '\0' || atoi(argument) == 0) {
-            send_to_char("Syntax: " COLOR_ALT_TEXT_1 "edit room create [vnum]" COLOR_EOL, ch);
+            send_to_char(COLOR_INFO "Syntax: edit room create [vnum]" COLOR_EOL, ch);
             return;
         }
 
@@ -177,6 +182,13 @@ void redit(Mobile* ch, char* argument)
         interpret(ch, argument);
 
     return;
+}
+
+REDIT(redit_period)
+{
+    RoomData* room;
+    EDIT_ROOM(ch, room);
+    return olc_edit_period(ch, argument, &room->header /*, get_period_ops_for_room()*/);
 }
 
 REDIT(redit_rlist)
@@ -309,6 +321,11 @@ REDIT(redit_show)
     if (pRoom->owner && pRoom->owner[0] != '\0') {
         olc_print_str(ch, "Owner", pRoom->owner);
     }
+
+    olc_print_yesno_ex(ch, "Daycycle Msgs", pRoom->suppress_daycycle_messages,
+        pRoom->suppress_daycycle_messages ? "Day-cycle messages are shown." :
+        "Day-cycle messages are suppressed.");
+    olc_show_periods(ch, &pRoom->header /*, get_period_ops_for_room()*/);
 
     ////////////////////////////////////////////////////////////////////////////
     // EXTRA DESCRIPTIONS
@@ -1258,6 +1275,8 @@ REDIT(redit_copy)
     this->clan = that->clan;
     this->heal_rate = that->heal_rate;
     this->mana_rate = that->mana_rate;
+    room_daycycle_period_clear(this);
+    this->periods = room_daycycle_period_clone(that->periods);
 
     send_to_char("Ok. Room copied.\n\r", ch);
     return true;
@@ -1295,6 +1314,8 @@ REDIT(redit_clear)
         free_room_exit_data(pRoom->exit_data[i]);
         pRoom->exit_data[i] = NULL;
     }
+
+    room_daycycle_period_clear(pRoom);
 
     send_to_char("Room cleared.\n\r", ch);
     return true;

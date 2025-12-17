@@ -73,6 +73,28 @@
       "status": "done"
     }
   ],
+  "daycycle": {
+    "suppressDaycycleMessages": true,
+    "periods": [
+      {
+        "name": "night",
+        "fromHour": 20,
+        "toHour": 4,
+        "enterMessage": "The leaves rustle gently as the twinkling light fades through the tree canopy.\n",
+        "exitMessage": "The gloom of the nighttime forest lifts as the first rays of light poke through the trees.\n"
+      },
+      {
+        "name": "dusk",
+        "fromHour": 19,
+        "toHour": 19
+      },
+      {
+        "name": "dawn",
+        "fromHour": 5,
+        "toHour": 5
+      }
+    ]
+  },
   "rooms": [
     {
       "vnum": 12000,
@@ -82,6 +104,21 @@
         "no_recall"
       ],
       "sectorType": "forest",
+      "timePeriods": [
+        {
+          "name": "night",
+          "fromHour": 20,
+          "toHour": 4,
+          "description": "  The night-time forest is obscured by gloomy darkness. Nevertheless, you can\n\rhear the sounds of life around you. The path through the forest continues east;\n\rbut impenetrable darkness hides the way.\n\r"
+        },
+        {
+          "name": "dusk",
+          "fromHour": 19,
+          "toHour": 19,
+          "description": "  It's hard to see past the closest trees in the waning light. You can still\n\rmake out a path leading east.\n",
+          "enterMessage": "The ambient light dims as the smattering of sunlight turns a dark orange.\n"
+        }
+      ],
       "exits": [
         {
           "dir": "east",

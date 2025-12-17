@@ -68,6 +68,7 @@ void register_skills_tests();
 void register_buffer_tests();
 void register_stringbuffer_tests();
 void register_mem_watchpoint_tests();
+void register_daycycle_tests();
 
 void run_unit_tests();
 

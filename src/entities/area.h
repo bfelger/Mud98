@@ -17,6 +17,7 @@ typedef struct checklist_item_t ChecklistItem;
 #include <data/direction.h>
 #include <data/quest.h>
 
+#include "daycycle_period.h"
 #include "entity.h"
 #include "help_data.h"
 #include "reset.h"
@@ -70,6 +71,7 @@ typedef struct area_t {
     int16_t reset_timer;
     int nplayer;
     bool empty;
+    bool teardown_in_progress;  // Skip inbound exit cleanup during bulk teardown
 } Area;
 
 typedef struct area_data_t {
@@ -93,6 +95,8 @@ typedef struct area_data_t {
     InstanceType inst_type;
     StoryBeat* story_beats;
     ChecklistItem* checklist;
+    DayCyclePeriod* periods;
+    bool suppress_daycycle_messages;
 } AreaData;
 
 #define FOR_EACH_AREA(area)                                                    \
@@ -116,6 +120,8 @@ typedef struct area_data_t {
 #define LAST_AREA_DATA                                                         \
     GET_AREA_DATA(global_areas.count - 1)
 
+Area* new_area(AreaData* area_data);
+void free_area(Area* area);
 AreaData* new_area_data();
 Area* create_area_instance(AreaData* area_data, bool create_exits);
 void create_instance_exits(Area* area);
@@ -125,6 +131,7 @@ Area* get_area_for_player(Mobile* ch, AreaData* area_data);
 void load_area(FILE* fp);
 void load_story_beats(FILE* fp);
 void load_checklist(FILE* fp);
+void load_area_daycycle(FILE* fp);
 StoryBeat* add_story_beat(AreaData* area_data, const char* title, const char* description);
 ChecklistItem* add_checklist_item(AreaData* area_data, const char* title, const char* description, ChecklistStatus status);
 void free_story_beats(StoryBeat* head);

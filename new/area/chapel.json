@@ -2949,7 +2949,7 @@
         "take"
       ],
       "money": {
-        "gold": 400,
+        "copper": 400,
         "silver": 8
       },
       "weight": 500,
@@ -3093,8 +3093,7 @@
         "spells": [
           "colour spray",
           "create food",
-          "magic missile",
-          ""
+          "magic missile"
         ]
       },
       "level": 8,

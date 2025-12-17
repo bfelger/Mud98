@@ -10,6 +10,8 @@
 #include "db.h"
 
 #include "entities/descriptor.h"
+#include "entities/area.h"
+#include "entities/room.h"
 
 TimeInfo time_info;
 WeatherInfo weather_info;
@@ -54,33 +56,73 @@ void init_weather_info()
         weather_info.sky = SKY_CLOUDLESS;
 }
 
+static void broadcast_daycycle_message(const char* message)
+{
+    Descriptor* d;
+
+    if (message == NULL || message[0] == '\0')
+        return;
+
+    FOR_EACH(d, descriptor_list) {
+        if (d->connected != CON_PLAYING || d->character == NULL)
+            continue;
+        Mobile* ch = d->character;
+        if (!IS_AWAKE(ch) || ch->in_room == NULL)
+            continue;
+        Room* room = ch->in_room;
+        if (!IS_OUTSIDE(ch))
+            continue;
+        if (room->data && room_suppresses_daycycle_messages(room->data))
+            continue;
+        send_to_char(message, ch);
+    }
+}
+
+static void broadcast_weather_change_message(const char* message)
+{
+    Descriptor* d;
+
+    if (message == NULL || message[0] == '\0')
+        return;
+
+    FOR_EACH(d, descriptor_list) {
+        if (d->connected != CON_PLAYING || d->character == NULL)
+            continue;
+        Mobile* ch = d->character;
+        if (!IS_AWAKE(ch) || ch->in_room == NULL)
+            continue;
+        if (!IS_OUTSIDE(ch))
+            continue;
+        send_to_char(message, ch);
+    }
+}
+
 void update_weather_info()
 {
-    char buf[MAX_STRING_LENGTH] = "";
-    Descriptor* d;
+    char daycycle_buf[MAX_STRING_LENGTH] = "";
+    char weather_buf[MAX_STRING_LENGTH] = "";
     int diff;
-
-    buf[0] = '\0';
+    int old_hour = time_info.hour;
 
     switch (++time_info.hour) {
     case 5:
         weather_info.sunlight = SUN_LIGHT;
-        strcat(buf, "The day has begun.\n\r");
+        strcat(daycycle_buf, "The day has begun.\n\r");
         break;
 
     case 6:
         weather_info.sunlight = SUN_RISE;
-        strcat(buf, "The sun rises in the east.\n\r");
+        strcat(daycycle_buf, "The sun rises in the east.\n\r");
         break;
 
     case 19:
         weather_info.sunlight = SUN_SET;
-        strcat(buf, "The sun slowly disappears in the west.\n\r");
+        strcat(daycycle_buf, "The sun slowly disappears in the west.\n\r");
         break;
 
     case 20:
         weather_info.sunlight = SUN_DARK;
-        strcat(buf, "The night has begun.\n\r");
+        strcat(daycycle_buf, "The night has begun.\n\r");
         break;
 
     case 24:
@@ -122,7 +164,7 @@ void update_weather_info()
     case SKY_CLOUDLESS:
         if (weather_info.mmhg < 990
             || (weather_info.mmhg < 1010 && number_bits(2) == 0)) {
-            strcat(buf, "The sky is getting cloudy.\n\r");
+            strcat(weather_buf, "The sky is getting cloudy.\n\r");
             weather_info.sky = SKY_CLOUDY;
         }
         break;
@@ -130,25 +172,25 @@ void update_weather_info()
     case SKY_CLOUDY:
         if (weather_info.mmhg < 970
             || (weather_info.mmhg < 990 && number_bits(2) == 0)) {
-            strcat(buf, "It starts to rain.\n\r");
+            strcat(weather_buf, "It starts to rain.\n\r");
             weather_info.sky = SKY_RAINING;
         }
 
         if (weather_info.mmhg > 1030 && number_bits(2) == 0) {
-            strcat(buf, "The clouds disappear.\n\r");
+            strcat(weather_buf, "The clouds disappear.\n\r");
             weather_info.sky = SKY_CLOUDLESS;
         }
         break;
 
     case SKY_RAINING:
         if (weather_info.mmhg < 970 && number_bits(2) == 0) {
-            strcat(buf, "Lightning flashes in the sky.\n\r");
+            strcat(weather_buf, "Lightning flashes in the sky.\n\r");
             weather_info.sky = SKY_LIGHTNING;
         }
 
         if (weather_info.mmhg > 1030
             || (weather_info.mmhg > 1010 && number_bits(2) == 0)) {
-            strcat(buf, "The rain stopped.\n\r");
+            strcat(weather_buf, "The rain stopped.\n\r");
             weather_info.sky = SKY_CLOUDY;
         }
         break;
@@ -156,20 +198,21 @@ void update_weather_info()
     case SKY_LIGHTNING:
         if (weather_info.mmhg > 1010
             || (weather_info.mmhg > 990 && number_bits(2) == 0)) {
-            strcat(buf, "The lightning has stopped.\n\r");
+            strcat(weather_buf, "The lightning has stopped.\n\r");
             weather_info.sky = SKY_RAINING;
             break;
         }
         break;
     }
 
-    if (buf[0] != '\0') {
-        FOR_EACH(d, descriptor_list) {
-            if (d->connected == CON_PLAYING && IS_OUTSIDE(d->character)
-                && IS_AWAKE(d->character))
-                send_to_char(buf, d->character);
-        }
-    }
+    if (daycycle_buf[0] != '\0')
+        broadcast_daycycle_message(daycycle_buf);
+
+    if (weather_buf[0] != '\0')
+        broadcast_weather_change_message(weather_buf);
+
+    broadcast_area_period_messages(old_hour, time_info.hour);
+    broadcast_room_period_messages(old_hour, time_info.hour);
 
     return;
 }

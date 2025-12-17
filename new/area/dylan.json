@@ -2263,8 +2263,7 @@
         "spells": [
           "blindness",
           "curse",
-          "poison",
-          ""
+          "poison"
         ]
       },
       "level": 12,

@@ -4590,7 +4590,7 @@
         "take"
       ],
       "money": {
-        "gold": 200,
+        "copper": 200,
         "silver": 3
       },
       "weight": 5000,
@@ -5210,7 +5210,6 @@
         "level": 10,
         "spells": [
           "identify",
-          "",
           "",
           ""
         ]

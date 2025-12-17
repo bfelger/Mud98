@@ -656,8 +656,8 @@ void area_update()
             if (area->reset_timer >= thresh) {
                 if (area->data->inst_type == AREA_INST_MULTI && area->nplayer == 0) {
                     // If the area is "instanced": delete, don't reset.
-                    // TODO: See if we also need to manually clean up rooms
                     list_remove_node(&area_data->instances, area_loop.node);
+                    free_area(area);
                 }
                 else {
                     resetting = true;

@@ -15,6 +15,7 @@
 #include <entities/obj_prototype.h>
 #include <entities/object.h>
 #include <entities/room.h>
+#include <entities/descriptor.h>
 
 // This is marked by Lox's GC
 ValueArray* mocks_ = NULL;
@@ -66,7 +67,6 @@ Area* mock_area(AreaData* ad)
     Area* a;
     if (ad->instances.count == 0 || ad->inst_type == AREA_INST_MULTI) {
         a = create_area_instance(ad, true);
-        list_push(&ad->instances, OBJ_VAL(a));
     } else {
         a = AS_AREA(list_first(&ad->instances));
     }
@@ -185,6 +185,7 @@ void mock_room_data_connection(RoomData* rd1, RoomData* rd2, Direction dir, bool
     if (rd1 != NULL && rd2 != NULL) {
         rd1->exit_data[dir] = new_room_exit_data();
         rd1->exit_data[dir]->to_room = rd2;
+        rd1->exit_data[dir]->to_vnum = VNUM_FIELD(rd2);
     }
 
     if (bidirectional)
@@ -250,6 +251,33 @@ void mock_player_reputation(Mobile* ch, VNUM faction_vnum, int value)
         return;
     
     faction_set(ch->pcdata, faction_vnum, value);
+}
+
+void mock_connect_player_descriptor(Mobile* player)
+{
+    if (player == NULL || player->desc == NULL)
+        return;
+
+    Descriptor* desc = player->desc;
+    desc->next = descriptor_list;
+    descriptor_list = desc;
+}
+
+void mock_disconnect_player_descriptor(Mobile* player)
+{
+    if (player == NULL || player->desc == NULL)
+        return;
+
+    Descriptor* target = player->desc;
+    Descriptor** link = &descriptor_list;
+    while (*link != NULL) {
+        if (*link == target) {
+            *link = target->next;
+            target->next = NULL;
+            break;
+        }
+        link = &(*link)->next;
+    }
 }
 
 void cleanup_mocks()

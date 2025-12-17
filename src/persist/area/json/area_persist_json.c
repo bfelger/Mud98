@@ -303,6 +303,64 @@ static json_t* build_extra_descs(ExtraDesc* ed_list)
     return arr;
 }
 
+static json_t* build_time_periods(const DayCyclePeriod* head, bool include_description)
+{
+    json_t* arr = json_array();
+    for (const DayCyclePeriod* period = head; period != NULL; period = period->next) {
+        json_t* obj = json_object();
+        JSON_SET_STRING(obj, "name", period->name ? period->name : "");
+        JSON_SET_INT(obj, "fromHour", period->start_hour);
+        JSON_SET_INT(obj, "toHour", period->end_hour);
+        if (include_description && period->description && period->description[0] != '\0')
+            JSON_SET_STRING(obj, "description", period->description);
+        if (period->enter_message && period->enter_message[0] != '\0')
+            JSON_SET_STRING(obj, "enterMessage", period->enter_message);
+        if (period->exit_message && period->exit_message[0] != '\0')
+            JSON_SET_STRING(obj, "exitMessage", period->exit_message);
+        json_array_append_new(arr, obj);
+    }
+    return arr;
+}
+
+static json_t* build_room_periods(const RoomData* room)
+{
+    if (!room)
+        return json_array();
+    return build_time_periods(room->periods, true);
+}
+
+static json_t* build_area_periods(const AreaData* area)
+{
+    if (!area)
+        return json_array();
+    return build_time_periods(area->periods, false);
+}
+
+static void parse_area_periods(AreaData* area, json_t* periods);
+
+static json_t* build_area_daycycle(const AreaData* area)
+{
+    if (!area)
+        return NULL;
+
+    json_t* periods = build_area_periods(area);
+    size_t period_count = json_array_size(periods);
+    bool has_flag = area->suppress_daycycle_messages;
+    if (!has_flag && period_count == 0) {
+        json_decref(periods);
+        return NULL;
+    }
+
+    json_t* obj = json_object();
+    if (area->suppress_daycycle_messages)
+        json_object_set_new(obj, "suppressDaycycleMessages", json_true());
+    if (period_count > 0)
+        json_object_set_new(obj, "periods", periods);
+    else
+        json_decref(periods);
+    return obj;
+}
+
 static json_t* build_rooms(const AreaData* area)
 {
     json_t* arr = json_array();
@@ -340,6 +398,13 @@ static json_t* build_rooms(const AreaData* area)
             JSON_SET_INT(obj, "clan", room_data->clan);
         if (room_data->owner && room_data->owner[0] != '\0')
             JSON_SET_STRING(obj, "owner", room_data->owner);
+        if (room_data->suppress_daycycle_messages)
+            json_object_set_new(obj, "suppressDaycycleMessages", json_true());
+        json_t* periods = build_room_periods(room_data);
+        if (json_array_size(periods) > 0)
+            json_object_set_new(obj, "timePeriods", periods);
+        else
+            json_decref(periods);
 
         json_t* exits = json_array();
         for (int dir = 0; dir < DIR_MAX; dir++) {
@@ -451,6 +516,7 @@ static PersistResult parse_areadata(json_t* root, const AreaPersistLoadParams* p
     area->high_range = (LEVEL)json_int_or_default(areadata, "highLevel", area->high_range);
     area->reset_thresh = (int16_t)json_int_or_default(areadata, "reset", area->reset_thresh);
     area->always_reset = json_bool_or_default(areadata, "alwaysReset", area->always_reset);
+    area->suppress_daycycle_messages = json_bool_or_default(areadata, "suppressDaycycleMessages", area->suppress_daycycle_messages);
     json_t* inst = json_object_get(areadata, "instType");
     if (json_is_string(inst)) {
         const char* istr = json_string_value(inst);
@@ -464,6 +530,11 @@ static PersistResult parse_areadata(json_t* root, const AreaPersistLoadParams* p
 
     parse_story_beats(json_object_get(root, "storyBeats"), area);
     parse_checklist(json_object_get(root, "checklist"), area);
+    json_t* daycycle = json_object_get(root, "daycycle");
+    if (json_is_object(daycycle)) {
+        area->suppress_daycycle_messages = json_bool_or_default(daycycle, "suppressDaycycleMessages", area->suppress_daycycle_messages);
+        parse_area_periods(area, json_object_get(daycycle, "periods"));
+    }
 
     write_value_array(&global_areas, OBJ_VAL(area));
     if (global_areas.count > 0)
@@ -512,6 +583,82 @@ static PersistResult parse_exits(RoomData* room, json_t* exits)
     return (PersistResult){ PERSIST_OK, NULL, -1 };
 }
 
+static void parse_room_periods(RoomData* room, json_t* periods)
+{
+    if (!room || !json_is_array(periods))
+        return;
+
+    size_t count = json_array_size(periods);
+    for (size_t i = 0; i < count; i++) {
+        json_t* entry = json_array_get(periods, i);
+        if (!json_is_object(entry))
+            continue;
+
+        const char* name = JSON_STRING(entry, "name");
+        int start = (int)json_int_or_default(entry, "fromHour", 0);
+        int end = (int)json_int_or_default(entry, "toHour", start);
+        DayCyclePeriod* period = room_daycycle_period_add(room, name ? name : "", start, end);
+        if (!period)
+            continue;
+
+        free_string(period->name);
+        period->name = boot_intern_string(name ? name : "");
+        const char* desc = JSON_STRING(entry, "description");
+        if (desc) {
+            free_string(period->description);
+            period->description = boot_intern_string(desc);
+        }
+        const char* enter_msg = JSON_STRING(entry, "enterMessage");
+        if (enter_msg) {
+            free_string(period->enter_message);
+            period->enter_message = boot_intern_string(enter_msg);
+        }
+        const char* exit_msg = JSON_STRING(entry, "exitMessage");
+        if (exit_msg) {
+            free_string(period->exit_message);
+            period->exit_message = boot_intern_string(exit_msg);
+        }
+    }
+}
+
+static void parse_area_periods(AreaData* area, json_t* periods)
+{
+    if (!area || !json_is_array(periods))
+        return;
+
+    size_t count = json_array_size(periods);
+    for (size_t i = 0; i < count; i++) {
+        json_t* entry = json_array_get(periods, i);
+        if (!json_is_object(entry))
+            continue;
+
+        const char* name = JSON_STRING(entry, "name");
+        int start = (int)json_int_or_default(entry, "fromHour", 0);
+        int end = (int)json_int_or_default(entry, "toHour", start);
+        DayCyclePeriod* period = area_daycycle_period_add(area, name ? name : "", start, end);
+        if (!period)
+            continue;
+
+        free_string(period->name);
+        period->name = boot_intern_string(name ? name : "");
+        const char* desc = JSON_STRING(entry, "description");
+        if (desc) {
+            free_string(period->description);
+            period->description = boot_intern_string(desc);
+        }
+        const char* enter_msg = JSON_STRING(entry, "enterMessage");
+        if (enter_msg) {
+            free_string(period->enter_message);
+            period->enter_message = boot_intern_string(enter_msg);
+        }
+        const char* exit_msg = JSON_STRING(entry, "exitMessage");
+        if (exit_msg) {
+            free_string(period->exit_message);
+            period->exit_message = boot_intern_string(exit_msg);
+        }
+    }
+}
+
 static PersistResult parse_rooms(json_t* root, AreaData* area)
 {
     json_t* rooms = json_object_get(root, "rooms");
@@ -550,6 +697,10 @@ static PersistResult parse_rooms(json_t* root, AreaData* area)
         room->clan = (int16_t)json_int_or_default(r, "clan", room->clan);
         const char* owner = JSON_STRING(r, "owner");
         JSON_INTERN(owner, room->owner)
+        bool suppress = json_bool_or_default(r, "suppressDaycycleMessages", room->suppress_daycycle_messages);
+        suppress = json_bool_or_default(r, "suppressWeatherMessages", suppress);
+        room->suppress_daycycle_messages = suppress;
+        parse_room_periods(room, json_object_get(r, "timePeriods"));
 
         global_room_set(room);
         top_vnum_room = top_vnum_room < vnum ? vnum : top_vnum_room;
@@ -2266,6 +2417,9 @@ PersistResult json_save(const AreaPersistSaveParams* params)
     json_object_set_new(root, "areadata", build_areadata(params->area));
     json_object_set_new(root, "storyBeats", build_story_beats(params->area));
     json_object_set_new(root, "checklist", build_checklist(params->area));
+    json_t* daycycle = build_area_daycycle(params->area);
+    if (daycycle)
+        json_object_set_new(root, "daycycle", daycycle);
     json_object_set_new(root, "rooms", build_rooms(params->area));
     json_object_set_new(root, "mobiles", build_mobiles(params->area));
     json_object_set_new(root, "objects", build_objects(params->area));

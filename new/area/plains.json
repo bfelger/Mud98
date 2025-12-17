@@ -1728,8 +1728,7 @@
         "spells": [
           "sleep",
           "blindness",
-          "fireball",
-          ""
+          "fireball"
         ]
       },
       "level": 13,
@@ -1792,7 +1791,6 @@
         "level": 18,
         "spells": [
           "protection evil",
-          "",
           "",
           ""
         ]

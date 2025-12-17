@@ -3814,7 +3814,6 @@
         "spells": [
           "enchant weapon",
           "",
-          "",
           ""
         ]
       },
@@ -3841,8 +3840,7 @@
         "spells": [
           "detect evil",
           "detect invis",
-          "detect magic",
-          ""
+          "detect magic"
         ]
       },
       "weight": 150,

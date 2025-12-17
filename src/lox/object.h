@@ -46,15 +46,17 @@ typedef enum {
     // Mud98 Objects
     OBJ_EVENT,
     // Mud98 In-Game Entities
-    OBJ_AREA        = 100,
-    OBJ_AREA_DATA   = 101,
-    OBJ_ROOM        = 102,
-    OBJ_ROOM_DATA   = 103,
-    OBJ_OBJ         = 104,
-    OBJ_OBJ_PROTO   = 105,
-    OBJ_MOB         = 106,
-    OBJ_MOB_PROTO   = 107,
-    OBJ_FACTION     = 108,
+    OBJ_AREA            = 100,
+    OBJ_AREA_DATA       = 101,
+    OBJ_ROOM            = 102,
+    OBJ_ROOM_DATA       = 103,
+    OBJ_ROOM_EXIT       = 104,
+    OBJ_ROOM_EXIT_DATA  = 105,
+    OBJ_OBJ             = 106,
+    OBJ_OBJ_PROTO       = 107,
+    OBJ_MOB             = 108,
+    OBJ_MOB_PROTO       = 109,
+    OBJ_FACTION         = 110,
 } ObjType;
 
 struct Obj {
@@ -86,6 +88,8 @@ struct Obj {
 #define IS_AREA_DATA(value)     is_obj_type(value, OBJ_AREA_DATA)
 #define IS_ROOM(value)          is_obj_type(value, OBJ_ROOM)
 #define IS_ROOM_DATA(value)     is_obj_type(value, OBJ_ROOM_DATA)
+#define IS_ROOM_EXIT(value)     is_obj_type(value, OBJ_ROOM_EXIT)
+#define IS_ROOM_EXIT_DATA(value) is_obj_type(value, OBJ_ROOM_EXIT_DATA)
 #define IS_OBJECT(value)        is_obj_type(value, OBJ_OBJ)
 #define IS_OBJ_PROTO(value)     is_obj_type(value, OBJ_OBJ_PROTO)
 #define IS_MOBILE(value)        is_obj_type(value, OBJ_MOB)
@@ -116,6 +120,8 @@ struct Obj {
 #define AS_AREA_DATA(value)     ((AreaData*)AS_OBJ(value))
 #define AS_ROOM(value)          ((Room*)AS_OBJ(value))
 #define AS_ROOM_DATA(value)     ((RoomData*)AS_OBJ(value))
+#define AS_ROOM_EXIT(value)     ((RoomExit*)AS_OBJ(value))
+#define AS_ROOM_EXIT_DATA(value) ((RoomExitData*)AS_OBJ(value))
 #define AS_OBJECT(value)        ((Object*)AS_OBJ(value))
 #define AS_OBJ_PROTO(value)     ((ObjPrototype*)AS_OBJ(value))
 #define AS_MOBILE(value)        ((Mobile*)AS_OBJ(value))

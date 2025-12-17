@@ -3,9 +3,6 @@
 // Utilities to handle navigable rooms
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef struct room_t Room;
-typedef struct room_data_t RoomData;
-
 #pragma once
 #ifndef MUD98__ENTITIES__ROOM_H
 #define MUD98__ENTITIES__ROOM_H
@@ -14,6 +11,7 @@ typedef struct room_data_t RoomData;
 
 #include <data/direction.h>
 
+#include "daycycle_period.h"
 #include "entity.h"
 #include "extra_desc.h"
 #include "mobile.h"
@@ -25,6 +23,10 @@ typedef struct room_data_t RoomData;
 #include <lox/list.h>
 #include <lox/ordered_table.h>
 #include <lox/table.h>
+
+typedef struct room_t Room;
+typedef struct room_data_t RoomData;
+typedef struct area_data_t AreaData;
 
 // Static room VNUMs
 #define ROOM_VNUM_LIMBO         2
@@ -64,6 +66,7 @@ typedef struct room_t {
     Room* next;
     List mobiles;
     List objects;
+    List inbound_exits;  // RoomExit* pointing TO this room
     RoomData* data;
     Area* area;
     RoomExit* exit[DIR_MAX];
@@ -75,6 +78,7 @@ typedef struct room_data_t {
     RoomData* next;
     List instances;
     ExtraDesc* extra_desc;
+    DayCyclePeriod* periods;
     AreaData* area_data;
     RoomExitData* exit_data[DIR_MAX];
     Reset* reset_first;
@@ -87,6 +91,7 @@ typedef struct room_data_t {
     int16_t mana_rate;
     int16_t clan;
     int16_t reset_num;
+    bool suppress_daycycle_messages;
 } RoomData;
 
 #define FOR_EACH_ROOM_INST(inst, room_data) \
@@ -150,6 +155,21 @@ RoomData* get_room_data(VNUM vnum);
 RoomData* new_room_data();
 
 void load_rooms(FILE* fp);
+
+DayCyclePeriod* room_daycycle_period_add(RoomData* room, const char* name, int start_hour, int end_hour);
+DayCyclePeriod* room_daycycle_period_find(RoomData* room, const char* name);
+bool room_daycycle_period_remove(RoomData* room, const char* name);
+void room_daycycle_period_clear(RoomData* room);
+DayCyclePeriod* room_daycycle_period_clone(const DayCyclePeriod* head);
+DayCyclePeriod* area_daycycle_period_add(AreaData* area, const char* name, int start_hour, int end_hour);
+DayCyclePeriod* area_daycycle_period_find(AreaData* area, const char* name);
+bool area_daycycle_period_remove(AreaData* area, const char* name);
+void area_daycycle_period_clear(AreaData* area);
+const char* room_description_for_hour(const RoomData* room, int hour);
+bool room_suppresses_daycycle_messages(const RoomData* room);
+bool room_has_period_message_transition(const RoomData* room, int old_hour, int new_hour);
+void broadcast_room_period_messages(int old_hour, int new_hour);
+void broadcast_area_period_messages(int old_hour, int new_hour);
 
 extern int room_count;
 extern int room_perm_count;

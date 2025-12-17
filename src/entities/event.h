@@ -76,5 +76,7 @@ extern EventTimer* event_timers;
 /* TRIG_GIVEN   */  void raise_object_given_event(Object* obj, Mobile* giver, Mobile* taker);
 /* TRIG_TAKEN   */  void raise_object_taken_event(Object* obj, Mobile* taker);
 /* TRIG_DROPPED */  void raise_object_dropped_event(Object* obj, Mobile* dropper);
+/* TRIG_PRDSTART*/  void raise_prdstart_event(Entity* entity, const char* period_name);
+/* TRIG_PRDSTOP */  void raise_prdstop_event(Entity* entity, const char* period_name);
 
 #endif // !MUD98__ENTITIES__EVENT_H

@@ -710,6 +710,13 @@ void olc_print_str_box(Mobile* ch, const char* label, const char* str,
         str, opt_str ? opt_str : "");
 }
 
+void olc_print_yesno_ex(Mobile* ch, const char* label, bool yesno, const char* msg)
+{
+    printf_to_char(ch, LABEL_FMT " : "  COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 
+        "%12s" COLOR_DECOR_1 " ] " COLOR_ALT_TEXT_2 "%s" COLOR_EOL, label, 
+        yesno ? COLOR_B_GREEN "YES" : COLOR_B_RED "NO", msg);
+}
+
 void olc_print_yesno(Mobile* ch, const char* label, bool yesno)
 {
     // Add space for color codes!

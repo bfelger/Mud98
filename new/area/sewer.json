@@ -6400,7 +6400,7 @@
         "take"
       ],
       "money": {
-        "gold": 400,
+        "copper": 400,
         "silver": 3
       },
       "condition": 100,
@@ -6854,7 +6854,7 @@
         "take"
       ],
       "money": {
-        "gold": 400,
+        "copper": 400,
         "silver": 12
       },
       "condition": 100,
