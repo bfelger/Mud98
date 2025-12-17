@@ -240,7 +240,7 @@ add_executable(Mud98Tests
     "tests/stringbuffer_tests.c" "tests/mem_watchpoint_tests.c" 
     "tests/login_tests.c" "tests/player_persist_tests.c" "tests/quest_tests.c" 
     "tests/fmt_tests.c" "tests/theme_tests.c" "tests/util_tests.c"
-    "tests/daycycle_tests.c"
+    "tests/daycycle_tests.c" "tests/multihit_tests.c"
 )
 target_link_libraries(Mud98Tests PRIVATE Mud98Core)
 

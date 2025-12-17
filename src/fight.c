@@ -540,9 +540,8 @@ void one_hit(Mobile* ch, Mobile* victim, int16_t dt, bool secondary)
     if (victim->position < POS_RESTING)
         victim_ac += 6;
 
-    // The moment of excitement!
-    while ((diceroll = number_bits(5)) >= 20)
-        ;
+    // Roll d20 (0-19) for to-hit
+    diceroll = number_range(0, 19);
 
     if (diceroll == 0 || (diceroll != 19 && diceroll < thac0 - victim_ac)) {
         /* Miss. */

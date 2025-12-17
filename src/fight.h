@@ -25,5 +25,7 @@ bool check_dodge(Mobile* ch, Mobile* victim);
 bool check_shield_block(Mobile* ch, Mobile* victim);
 void check_killer(Mobile* ch, Mobile* victim);
 void make_corpse(Mobile* ch);
+void set_fighting(Mobile* ch, Mobile* victim);
+void raw_kill(Mobile* victim);
 
 #endif // !MUD98__FIGHT_H

@@ -62,6 +62,7 @@ void run_unit_tests()
     register_persist_tests();
     register_player_persist_tests();
     register_daycycle_tests();
+    register_multihit_tests();
 
     test_output_enabled = true;
     test_disassemble_on_error = true;

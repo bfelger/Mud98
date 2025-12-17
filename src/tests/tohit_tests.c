@@ -380,15 +380,17 @@ static int test_hitroll_affects_tohit()
     // Set victim AC moderate
     victim->armor[AC_SLASH] = 0;
     
-    // Mock RNG
+    // Mock RNG - use 19 for automatic hit
     RngOps* saved_rng = rng;
     rng = &mock_rng;
-    reset_mock_rng();
+    int sequence[] = {19};  // Auto-hit
+    set_mock_rng_sequence(sequence, 1);
     
     int hp_before = victim->hit;
     one_hit(attacker, victim, TYPE_UNDEFINED, false);
     int hp_after = victim->hit;
     
+    set_mock_rng_sequence(NULL, 0);
     rng = saved_rng;
     
     // High hitroll should increase hit chance significantly
