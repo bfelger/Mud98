@@ -2,6 +2,9 @@
 // array.h
 ////////////////////////////////////////////////////////////////////////////////
 
+// TODO: Take a look at C23's new generic features to see if they can
+// simplify or replace this header. Also consider replacing with Lox arrays.
+
 #pragma once
 #ifndef MUD98__ARRAY_H
 #define MUD98__ARRAY_H
