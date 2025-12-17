@@ -235,7 +235,7 @@ add_executable(Mud98Tests
     "tests/act_enter_tests.c" "tests/act_obj_tests.c" "tests/act_move_tests.c" 
     "tests/act_wiz_tests.c" "tests/act_wiz2_tests.c" "tests/act_wiz3_tests.c" 
     "tests/act_wiz4_tests.c" "tests/act_wiz5_tests.c" "tests/interp_tests.c" 
-    "tests/fight_tests.c" "tests/skills_tests.c" "tests/event_tests.c" 
+    "tests/fight_tests.c" "tests/damage_tests.c" "tests/skills_tests.c" "tests/event_tests.c" 
     "tests/faction_tests.c" "tests/money_tests.c" "tests/buffer_tests.c" 
     "tests/stringbuffer_tests.c" "tests/mem_watchpoint_tests.c" 
     "tests/login_tests.c" "tests/player_persist_tests.c" "tests/quest_tests.c" 
