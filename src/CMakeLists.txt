@@ -121,14 +121,18 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/persist)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/jansson)
 
-add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h" 
+# ============================================================================
+# Mud98Core Library
+# ============================================================================
+# Core game logic shared by main executable, tests, and benchmarks
+add_library(Mud98Core STATIC "merc.h" "act_comm.h" "act_comm.c" "act_enter.h" 
     "act_enter.c" "act_info.h" "act_info.c" "act_move.h" "act_move.c" 
     "act_obj.h" "act_obj.c" "act_wiz.h" "act_wiz.c" "alias.h" "alias.c" 
     "array.h" "ban.h" "ban.c" "color.h" "color.c" "comm.h" "comm.c" "config.h" 
     "config.c" "db.c" "digest.h" "digest.c" "effects.h" "effects.c" "fileutils.h" 
-    "fileutils.c" "fight.h" "fight.c" "flags.c" "format.h" "format.c" "handler.h" 
+    "fileutils.c" "fight.h" "fight.c" "flags.c" "format.h" "format.c" "globals.c" "handler.h" 
     "handler.c" "healer.c" "lox.c" "interp.c" "lookup.c" "magic.c" "magic2.c" 
-    "main.c" "match.h" "match.c" "mem_watchpoint.h" "mem_watchpoint.c" 
+    "match.h" "match.c" "mem_watchpoint.h" "mem_watchpoint.c" 
     "mob_cmds.h" "mob_cmds.c" "mob_prog.h" 
     "mob_prog.c" "music.c" "note.h" "note.c" "pcg_basic.c" "recycle.c" "reload.h" 
     "reload.c" "save.h" 
@@ -237,33 +241,56 @@ add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
     "lox/function.h"
     "lox/segvec.h" "lox/segvec.c"
     "lox/enum.h" "lox/enum.c"
- 
-    "tests/tests.c"
-    "tests/test_registry.h" "tests/test_registry.c" 
-    "tests/all_tests.c" "tests/tests.h"
-    "tests/mock.h" "tests/mock.c"
-    "tests/lox_tests.h" "tests/lox_tests.c" "tests/lox_ext_tests.c"
-    "tests/persist_tests.c"
-    "tests/entity_tests.c" "tests/container_tests.c" "tests/act_tests.c" 
-    "tests/act_comm_tests.c" "tests/act_enter_tests.c" "tests/act_obj_tests.c" 
-    "tests/act_move_tests.c" 
-    "tests/act_wiz_tests.c" "tests/act_wiz2_tests.c" "tests/act_wiz3_tests.c" 
-    "tests/act_wiz4_tests.c" "tests/act_wiz5_tests.c"
-    "tests/interp_tests.c" "tests/fight_tests.c" "tests/skills_tests.c"
-    "tests/event_tests.c" "tests/faction_tests.c" "tests/money_tests.c" 
-    "tests/buffer_tests.c" "tests/stringbuffer_tests.c" "tests/mem_watchpoint_tests.c"
-    "tests/login_tests.c" "tests/player_persist_tests.c" "tests/quest_tests.c" 
-    "tests/fmt_tests.c" "tests/theme_tests.c" "tests/util_tests.c"
-    "tests/daycycle_tests.c"
-
-    "benchmarks/benchmarks.h" "benchmarks/benchmarks.c" 
-    "benchmarks/container_benchmarks.c" "benchmarks/format_benchmarks.c"
 
     "snippets/counter.c" "snippets/lore.c" "snippets/merc.dual.v1.c" 
     "snippets/wizutil.v3.c"
 )
 
-target_link_libraries(Mud98 PRIVATE ${Mud98_LIBS})
+target_link_libraries(Mud98Core PRIVATE ${Mud98_LIBS})
+
+# ============================================================================
+# Mud98 Main Executable
+# ============================================================================
+add_executable(Mud98 "main.c" "test_stubs.c")
+target_link_libraries(Mud98 PRIVATE Mud98Core ${Mud98_LIBS})
+
+# ============================================================================
+# Mud98Tests Executable
+# ============================================================================
+add_executable(Mud98Tests
+    "tests/test_main.c" "tests/tests.c" "tests/tests.h" "tests/all_tests.c" 
+    "tests/test_registry.h" "tests/test_registry.c" 
+    "tests/mock.h" "tests/mock.c" "tests/lox_tests.h" "tests/lox_tests.c" 
+    "tests/lox_ext_tests.c" "tests/persist_tests.c" "tests/entity_tests.c" 
+    "tests/container_tests.c" "tests/act_tests.c" "tests/act_comm_tests.c" 
+    "tests/act_enter_tests.c" "tests/act_obj_tests.c" "tests/act_move_tests.c" 
+    "tests/act_wiz_tests.c" "tests/act_wiz2_tests.c" "tests/act_wiz3_tests.c" 
+    "tests/act_wiz4_tests.c" "tests/act_wiz5_tests.c" "tests/interp_tests.c" 
+    "tests/fight_tests.c" "tests/skills_tests.c" "tests/event_tests.c" 
+    "tests/faction_tests.c" "tests/money_tests.c" "tests/buffer_tests.c" 
+    "tests/stringbuffer_tests.c" "tests/mem_watchpoint_tests.c" 
+    "tests/login_tests.c" "tests/player_persist_tests.c" "tests/quest_tests.c" 
+    "tests/fmt_tests.c" "tests/theme_tests.c" "tests/util_tests.c"
+    "tests/daycycle_tests.c"
+)
+target_link_libraries(Mud98Tests PRIVATE Mud98Core ${Mud98_LIBS})
+
+# Register with CTest
+add_test(NAME AllUnitTests COMMAND $<TARGET_FILE:Mud98Tests>)
+set_tests_properties(AllUnitTests PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
+
+# ============================================================================
+# Mud98Benchmarks Executable
+# ============================================================================
+add_executable(Mud98Benchmarks
+    "benchmarks/benchmark_main.c"
+    "test_stubs.c"
+    "benchmarks/benchmarks.h" "benchmarks/benchmarks.c" 
+    "benchmarks/container_benchmarks.c" "benchmarks/format_benchmarks.c"
+)
+target_link_libraries(Mud98Benchmarks PRIVATE Mud98Core ${Mud98_LIBS})
 
 message("Config summary:")
 message("")

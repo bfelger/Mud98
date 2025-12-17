@@ -169,10 +169,23 @@ See the [Getting Started guide](doc/mud98/wb-01-getting-started.md) for in-depth
 Once Mud98 is built, it can be run from the command-line like so:
 
 ```sh
+# Run the game server
 ./bin/Mud98
+
+# Or use the helper script (auto-detects build config)
+./run [debug|release|relwithdebinfo]
+
+# Run unit tests (separate executable)
+./bin/Mud98Tests
+./run test
+ctest --output-on-failure  # From build directory
+
+# Run benchmarks (separate executable)
+./bin/Mud98Benchmarks
+./run bench
 ```
 
-Use the `-d` argument to specify the folder to `mud98.cfg` if you don't run it from the base folder.
+Use the `-d` argument to specify the folder containing `mud98.cfg` if you don't run from the base folder.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

@@ -3,9 +3,31 @@
 How to add and run tests that match the existing `src/tests/` style.
 
 ## Running tests
-- From repo root: `./src/run unittest` (passes `-U` to the binary).
-- Or direct: `bin/<Config>/Mud98 -U`.
-- Tests print failures with file/line and per-group summaries; keep output quiet on success.
+
+Tests are compiled into a separate `Mud98Tests` executable (not the main game binary):
+
+```sh
+# Via helper script from repo root
+./run test
+
+# Direct execution
+./bin/Mud98Tests
+./bin/Debug/Mud98Tests  # Or Release, RelWithDebInfo
+
+# Via CTest (from build directory)
+cd build  # or .build-gcc, etc.
+ctest --output-on-failure
+```
+
+Tests print failures with file/line and per-group summaries; keep output quiet on success.
+
+## Architecture
+
+Mud98 uses a library-based test architecture:
+- Core game logic lives in `libMud98Core` static library
+- Main executable (`Mud98`) links the library
+- Test executable (`Mud98Tests`) also links the library + test files
+- This keeps production binaries clean (37.5% smaller!) without test infrastructure
 
 ## Anatomy of a test group
 - Each group lives in `src/tests/*_tests.c`.

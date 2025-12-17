@@ -1,6 +1,6 @@
 #!/bin/bash
 
-repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 build_cfg="Debug"
 run_mode="game"
 

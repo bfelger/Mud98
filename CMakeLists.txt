@@ -25,6 +25,17 @@ if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif()
 
 # ============================================================================
+# Testing & Benchmarking
+# ============================================================================
+enable_testing()
+
+# Tests and benchmarks are built automatically as separate targets.
+# Run with:
+#   ctest                      # Run all tests via CTest
+#   ./bin/<Config>/Mud98Tests  # Run tests directly
+#   ./bin/<Config>/Mud98Benchmarks  # Run benchmarks directly
+
+# ============================================================================
 # Main Game
 # ============================================================================
 add_subdirectory(src)
