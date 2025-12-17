@@ -143,24 +143,40 @@ static PersistResult player_persist_save_dispatch(PlayerPersistFormat fmt,
     const PlayerPersistSaveParams* params)
 {
     switch (fmt) {
+#ifdef ENABLE_JSON_PERSISTENCE
     case PLAYER_PERSIST_JSON:
         return player_persist_json_save(params);
+#endif
+#ifdef ENABLE_ROM_OLC_PERSISTENCE
     case PLAYER_PERSIST_ROM_OLC:
-    default:
         return player_persist_rom_olc_save(params);
+#endif
+    default:
+        break;
     }
+    
+    PersistResult result = { PERSIST_ERR_UNSUPPORTED, "No player persistence formats enabled", -1 };
+    return result;
 }
 
 static PersistResult player_persist_load_dispatch(PlayerPersistFormat fmt,
     const PlayerPersistLoadParams* params)
 {
     switch (fmt) {
+#ifdef ENABLE_JSON_PERSISTENCE
     case PLAYER_PERSIST_JSON:
         return player_persist_json_load(params);
+#endif
+#ifdef ENABLE_ROM_OLC_PERSISTENCE
     case PLAYER_PERSIST_ROM_OLC:
-    default:
         return player_persist_rom_olc_load(params);
+#endif
+    default:
+        break;
     }
+    
+    PersistResult result = { PERSIST_ERR_UNSUPPORTED, "No player persistence formats enabled", -1 };
+    return result;
 }
 
 static void resave_in_default_format(Mobile* ch)

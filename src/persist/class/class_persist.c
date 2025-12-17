@@ -6,8 +6,14 @@
 #include "class_persist.h"
 
 #include <persist/persist_io_adapters.h>
+
+#ifdef ENABLE_ROM_OLC_PERSISTENCE
 #include <persist/class/rom-olc/class_persist_rom_olc.h>
+#endif
+
+#ifdef ENABLE_JSON_PERSISTENCE
 #include <persist/class/json/class_persist_json.h>
+#endif
 
 #include <config.h>
 #include <db.h>
@@ -18,10 +24,16 @@ static const ClassPersistFormat* class_format_from_name(const char* filename)
 {
     if (filename) {
         const char* ext = strrchr(filename, '.');
+#ifdef ENABLE_JSON_PERSISTENCE
         if (ext && !str_cmp(ext, ".json"))
             return &CLASS_PERSIST_JSON;
+#endif
     }
+#ifdef ENABLE_ROM_OLC_PERSISTENCE
     return &CLASS_PERSIST_ROM_OLC;
+#else
+    return NULL;
+#endif
 }
 
 PersistResult class_persist_load(const char* filename)

@@ -6,8 +6,14 @@
 #include "command_persist.h"
 
 #include <persist/persist_io_adapters.h>
+
+#ifdef ENABLE_ROM_OLC_PERSISTENCE
 #include <persist/command/rom-olc/command_persist_rom_olc.h>
+#endif
+
+#ifdef ENABLE_JSON_PERSISTENCE
 #include <persist/command/json/command_persist_json.h>
+#endif
 
 #include <comm.h>
 #include <config.h>
@@ -35,10 +41,16 @@ static const CommandPersistFormat* command_format_from_name(const char* filename
 {
     if (filename) {
         const char* ext = strrchr(filename, '.');
+#ifdef ENABLE_JSON_PERSISTENCE
         if (ext && !str_cmp(ext, ".json"))
             return &COMMAND_PERSIST_JSON;
+#endif
     }
+#ifdef ENABLE_ROM_OLC_PERSISTENCE
     return &COMMAND_PERSIST_ROM_OLC;
+#else
+    return NULL;
+#endif
 }
 
 PersistResult command_persist_load(const char* filename)

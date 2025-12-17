@@ -5,8 +5,14 @@
 #include "tutorial_persist.h"
 
 #include <persist/persist_io_adapters.h>
+
+#ifdef ENABLE_ROM_OLC_PERSISTENCE
 #include <persist/tutorial/rom-olc/tutorial_persist_rom_olc.h>
+#endif
+
+#ifdef ENABLE_JSON_PERSISTENCE
 #include <persist/tutorial/json/tutorial_persist_json.h>
+#endif
 
 #include <config.h>
 #include <db.h>
@@ -18,10 +24,16 @@ static const TutorialPersistFormat* tutorial_format_from_name(const char* filena
 {
     if (filename) {
         const char* ext = strrchr(filename, '.');
+#ifdef ENABLE_JSON_PERSISTENCE
         if (ext && !str_cmp(ext, ".json"))
             return &TUTORIAL_PERSIST_JSON;
+#endif
     }
+#ifdef ENABLE_ROM_OLC_PERSISTENCE
     return &TUTORIAL_PERSIST_ROM_OLC;
+#else
+    return NULL;
+#endif
 }
 
 PersistResult tutorial_persist_load(const char* filename)

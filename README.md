@@ -164,6 +164,29 @@ The following are optional, but **highly** recommended:
 
 See the [Getting Started guide](doc/mud98/wb-01-getting-started.md) for in-depth information on how to build on the platform of your choosing.
 
+#### Build Options
+
+Mud98 supports several CMake options to customize your build:
+
+**Persistence Formats:**
+- `ENABLE_JSON_PERSISTENCE` (default: ON) - Build JSON persistence support (requires Jansson)
+- `ENABLE_ROM_OLC_PERSISTENCE` (default: ON) - Build ROM-OLC legacy text format support
+
+You can disable persistence formats you don't need to reduce binary size and compilation time:
+
+```sh
+# JSON-only (modern format)
+cmake -DENABLE_ROM_OLC_PERSISTENCE=OFF ..
+
+# ROM-OLC only (legacy format)
+cmake -DENABLE_JSON_PERSISTENCE=OFF ..
+
+# Both formats (default, required for tests)
+cmake -DENABLE_JSON_PERSISTENCE=ON -DENABLE_ROM_OLC_PERSISTENCE=ON ..
+```
+
+**Note:** Persistence tests require both formats enabled for round-trip testing. Disabling either format will skip those tests.
+
 ## Usage
 
 Once Mud98 is built, it can be run from the command-line like so:

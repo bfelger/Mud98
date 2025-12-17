@@ -5,8 +5,14 @@
 #include "social_persist.h"
 
 #include <persist/persist_io_adapters.h>
+
+#ifdef ENABLE_ROM_OLC_PERSISTENCE
 #include <persist/social/rom-olc/social_persist_rom_olc.h>
+#endif
+
+#ifdef ENABLE_JSON_PERSISTENCE
 #include <persist/social/json/social_persist_json.h>
+#endif
 
 #include <config.h>
 #include <db.h>
@@ -18,10 +24,16 @@ static const SocialPersistFormat* social_format_from_name(const char* filename)
 {
     if (filename) {
         const char* ext = strrchr(filename, '.');
+#ifdef ENABLE_JSON_PERSISTENCE
         if (ext && !str_cmp(ext, ".json"))
             return &SOCIAL_PERSIST_JSON;
+#endif
     }
+#ifdef ENABLE_ROM_OLC_PERSISTENCE
     return &SOCIAL_PERSIST_ROM_OLC;
+#else
+    return NULL;
+#endif
 }
 
 PersistResult social_persist_load(const char* filename)

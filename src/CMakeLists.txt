@@ -10,7 +10,14 @@ if (NOT MSVC)
     find_package(Threads REQUIRED)
 endif()
 
-add_subdirectory(jansson)
+# Persistence layer options (must come before add_subdirectory)
+option(ENABLE_JSON_PERSISTENCE "Build JSON persistence support (requires Jansson)" ON)
+option(ENABLE_ROM_OLC_PERSISTENCE "Build ROM-OLC persistence support (legacy text format)" ON)
+
+# Conditionally build Jansson only if JSON persistence is enabled
+if (ENABLE_JSON_PERSISTENCE)
+    add_subdirectory(jansson)
+endif()
 
 set(OPENSSL_USE_STATIC_LIBS TRUE)
 find_package(OpenSSL)
@@ -35,6 +42,9 @@ endif()
 # ============================================================================
 # Mud98Core Library
 # ============================================================================
+# Add persist subdirectory first so its object libraries are available
+add_subdirectory(persist)
+
 # Core game logic shared by main executable, tests, and benchmarks
 add_library(Mud98Core STATIC "merc.h" "act_comm.h" "act_comm.c" "act_enter.h" 
     "act_enter.c" "act_info.h" "act_info.c" "act_move.h" "act_move.c" 
@@ -50,43 +60,6 @@ add_library(Mud98Core STATIC "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
     "save.c" "scan.c" "skills.h" "skills.c" "socket.h" "special.h" "special.c" 
     "spell_list.h" "stringbuffer.h" "stringbuffer.c" "tables.c" "tablesave.c" 
     "update.h" "update.c" "weather.h" "weather.c"
-
-    "persist/persist_io.h" "persist/persist_io_adapters.h" 
-    "persist/persist_io_adapters.c" "persist/persist_result.h" 
-    "persist/area/area_persist.h" "persist/area/area_persist.c" 
-    "persist/json/persist_json.h" "persist/json/persist_json.c"
-    "persist/area/rom-olc/area_persist_rom_olc.h" 
-    "persist/area/rom-olc/area_persist_rom_olc.c" "persist/area/json/area_persist_json.h" 
-    "persist/area/json/area_persist_json.c" "persist/race/race_persist.h" 
-    "persist/race/race_persist.c" "persist/class/class_persist.h" 
-    "persist/class/class_persist.c" "persist/class/rom-olc/class_persist_rom_olc.h" 
-    "persist/class/rom-olc/class_persist_rom_olc.c" 
-    "persist/class/json/class_persist_json.h" "persist/class/json/class_persist_json.c" 
-    "persist/race/rom-olc/race_persist_rom_olc.h" 
-    "persist/race/rom-olc/race_persist_rom_olc.c" "persist/race/json/race_persist_json.h" 
-    "persist/race/json/race_persist_json.c"
-    "persist/theme/theme_persist.h" "persist/theme/theme_persist.c"
-    "persist/theme/rom-olc/theme_persist_rom_olc.h" "persist/theme/rom-olc/theme_persist_rom_olc.c"
-    "persist/theme/json/theme_persist_json.h" "persist/theme/json/theme_persist_json.c"
-    "persist/theme/rom-olc/theme_rom_olc_io.h" "persist/theme/rom-olc/theme_rom_olc_io.c"
-    "persist/command/command_persist.h" "persist/command/command_persist.c"
-    "persist/command/rom-olc/command_persist_rom_olc.h" "persist/command/rom-olc/command_persist_rom_olc.c"
-    "persist/command/json/command_persist_json.h" "persist/command/json/command_persist_json.c"
-    "persist/lox/lox_persist.h" "persist/lox/lox_persist.c"
-    "persist/lox/rom-olc/lox_persist_rom_olc.h" "persist/lox/rom-olc/lox_persist_rom_olc.c"
-    "persist/lox/json/lox_persist_json.h" "persist/lox/json/lox_persist_json.c"
-    "persist/skill/skill_persist.h" "persist/skill/skill_persist.c"
-    "persist/skill/rom-olc/skill_persist_rom_olc.h" "persist/skill/rom-olc/skill_persist_rom_olc.c"
-    "persist/skill/json/skill_persist_json.h" "persist/skill/json/skill_persist_json.c"
-    "persist/social/social_persist.h" "persist/social/social_persist.c"
-    "persist/social/rom-olc/social_persist_rom_olc.h" "persist/social/rom-olc/social_persist_rom_olc.c"
-    "persist/social/json/social_persist_json.h" "persist/social/json/social_persist_json.c"
-    "persist/tutorial/tutorial_persist.h" "persist/tutorial/tutorial_persist.c"
-    "persist/tutorial/rom-olc/tutorial_persist_rom_olc.h" "persist/tutorial/rom-olc/tutorial_persist_rom_olc.c"
-    "persist/tutorial/json/tutorial_persist_json.h" "persist/tutorial/json/tutorial_persist_json.c"
-    "persist/player/player_persist.h" "persist/player/player_persist.c"
-    "persist/player/rom-olc/player_persist_rom_olc.c"
-    "persist/player/json/player_persist_json.c"
 
     "olc/aedit.c" "olc/bit.h" "olc/bit.c" "olc/cedit.c" "olc/cmdedit.c" 
     "olc/event_edit.h" "olc/event_edit.c" "olc/gedit.c" "olc/hedit.c" 
@@ -174,8 +147,12 @@ target_include_directories(Mud98Core
 
 # Link dependencies
 target_link_libraries(Mud98Core 
-    PUBLIC 
-        jansson
+    PUBLIC
+        # Persistence layer object libraries
+        Mud98Persist
+        $<$<BOOL:${ENABLE_ROM_OLC_PERSISTENCE}>:Mud98PersistRomOlc>
+        $<$<BOOL:${ENABLE_JSON_PERSISTENCE}>:Mud98PersistJson>
+        $<$<BOOL:${ENABLE_JSON_PERSISTENCE}>:jansson>
     PRIVATE
         $<$<BOOL:${OPENSSL_FOUND}>:$<IF:$<BOOL:${MSVC}>,OpenSSL::Crypto;OpenSSL::SSL;OpenSSL::applink,OpenSSL::SSL>>
         $<$<BOOL:${ZLIB_FOUND}>:ZLIB::ZLIB>

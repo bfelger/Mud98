@@ -2,14 +2,23 @@
 // persist_tests.c
 ///////////////////////////////////////////////////////////////////////////////
 
+// Persistence tests require both formats for round-trip testing
+#if defined(ENABLE_ROM_OLC_PERSISTENCE) && defined(ENABLE_JSON_PERSISTENCE)
+
 #include "tests.h"
 #include "test_registry.h"
 
 #include <persist/area/area_persist.h>
+#ifdef ENABLE_JSON_PERSISTENCE
 #include <persist/area/json/area_persist_json.h>
-#include <persist/area/rom-olc/area_persist_rom_olc.h>
-#include <persist/class/class_persist.h>
 #include <persist/json/persist_json.h>
+#include <persist/theme/json/theme_persist_json.h>
+#include <jansson/jansson.h>
+#endif
+#ifdef ENABLE_ROM_OLC_PERSISTENCE
+#include <persist/area/rom-olc/area_persist_rom_olc.h>
+#endif
+#include <persist/class/class_persist.h>
 #include <persist/persist_io_adapters.h>
 #include <persist/persist_result.h>
 #include <persist/race/race_persist.h>
@@ -17,11 +26,8 @@
 #include <persist/skill/skill_persist.h>
 #include <persist/social/social_persist.h>
 #include <persist/tutorial/tutorial_persist.h>
-#include <persist/theme/json/theme_persist_json.h>
 #include <persist/theme/theme_persist.h>
 #include <persist/lox/lox_persist.h>
-
-#include <jansson/jansson.h>
 
 #include <color.h>
 #include <data/class.h>
@@ -2386,6 +2392,7 @@ static TestGroup persist_tests;
 
 void register_persist_tests()
 {
+#if defined(ENABLE_ROM_OLC_PERSISTENCE) && defined(ENABLE_JSON_PERSISTENCE)
 #define REGISTER(n, f)  register_test(&persist_tests, (n), (f))
 
     init_test_group(&persist_tests, "Persistence Tests");
@@ -2398,6 +2405,7 @@ void register_persist_tests()
 #ifdef PERSIST_EXHAUSTIVE_PERSIST_TEST
     REGISTER("ROM OLC Exhaustive Area Round Trip", test_rom_olc_exhaustive_area_round_trip);
 #endif
+
     REGISTER("JSON Loads Areadata", test_json_loads_areadata);
     REGISTER("JSON Saves Typed Objects", test_json_saves_typed_objects);
     REGISTER("JSON Story/Checklist Round Trip", test_story_checklist_round_trip);
@@ -2407,6 +2415,7 @@ void register_persist_tests()
     REGISTER("JSON Instance Counts Match ROM", test_json_instance_counts_match_rom);
     REGISTER("JSON Shop Counts Match ROM", test_json_instance_shop_counts_match_rom);
 #endif
+
     REGISTER("Areas ROM->JSON->ROM Round Trip", test_areas_json_to_rom_round_trip);
     REGISTER("Races ROM<->JSON Round Trip", test_race_rom_json_round_trip);
     REGISTER("Classes ROM<->JSON Round Trip", test_class_rom_json_round_trip);
@@ -2422,4 +2431,18 @@ void register_persist_tests()
 #endif
 
 #undef REGISTER
+#else
+    // Persistence tests require both formats enabled for round-trip testing
+    (void)persist_tests;
+#endif
 }
+
+#else // !defined(ENABLE_ROM_OLC_PERSISTENCE) || !defined(ENABLE_JSON_PERSISTENCE)
+
+// Stub registration when both formats aren't enabled
+void register_persist_tests()
+{
+    // Persistence tests require both formats enabled for round-trip testing
+}
+
+#endif // ENABLE_ROM_OLC_PERSISTENCE && ENABLE_JSON_PERSISTENCE

@@ -6,8 +6,14 @@
 #include "theme_persist.h"
 
 #include <persist/persist_io_adapters.h>
+
+#ifdef ENABLE_ROM_OLC_PERSISTENCE
 #include <persist/theme/rom-olc/theme_persist_rom_olc.h>
+#endif
+
+#ifdef ENABLE_JSON_PERSISTENCE
 #include <persist/theme/json/theme_persist_json.h>
+#endif
 
 #include <config.h>
 #include <db.h>
@@ -19,19 +25,29 @@ static const ThemePersistFormat* theme_format_from_name(const char* filename)
 {
     if (filename) {
         const char* ext = strrchr(filename, '.');
+#ifdef ENABLE_JSON_PERSISTENCE
         if (ext && !str_cmp(ext, ".json"))
             return &THEME_PERSIST_JSON;
+#endif
     }
+#ifdef ENABLE_ROM_OLC_PERSISTENCE
     return &THEME_PERSIST_ROM_OLC;
+#else
+    return NULL;
+#endif
 }
 
 static const ThemePersistFormat* theme_format_from_hint(const char* hint, const char* filename)
 {
     if (hint) {
+#ifdef ENABLE_JSON_PERSISTENCE
         if (!str_cmp(hint, "json"))
             return &THEME_PERSIST_JSON;
+#endif
+#ifdef ENABLE_ROM_OLC_PERSISTENCE
         if (!str_cmp(hint, "olc") || !str_cmp(hint, "rom") || !str_cmp(hint, "rom-olc"))
             return &THEME_PERSIST_ROM_OLC;
+#endif
     }
     return theme_format_from_name(filename);
 }

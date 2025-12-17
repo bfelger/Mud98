@@ -48,11 +48,13 @@
 #include "tables.h"
 #include "weather.h"
 
-#include <persist/rom-olc/loader_guard.h>
-#include <persist/area/rom-olc/area_persist_rom_olc.h>
 #include <persist/area/area_persist.h>
 #include <persist/command/command_persist.h>
 #include <persist/persist_io_adapters.h>
+#ifdef ENABLE_ROM_OLC_PERSISTENCE
+#include <persist/rom-olc/loader_guard.h>
+#include <persist/area/rom-olc/area_persist_rom_olc.h>
+#endif
 
 #include <olc/olc.h>
 
@@ -2161,9 +2163,11 @@ void bug(const char* fmt, ...)
     vsprintf(buf + strlen(buf), fmt, args);
     log_string(buf);
 
+#ifdef ENABLE_ROM_OLC_PERSISTENCE
     if (current_loader_guard) {
         loader_longjmp(buf, 0);
     }
+#endif
 
     return;
 }

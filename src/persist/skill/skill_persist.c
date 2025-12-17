@@ -6,8 +6,14 @@
 #include "skill_persist.h"
 
 #include <persist/persist_io_adapters.h>
+
+#ifdef ENABLE_ROM_OLC_PERSISTENCE
 #include <persist/skill/rom-olc/skill_persist_rom_olc.h>
+#endif
+
+#ifdef ENABLE_JSON_PERSISTENCE
 #include <persist/skill/json/skill_persist_json.h>
+#endif
 
 #include <config.h>
 #include <db.h>
@@ -19,20 +25,32 @@ static const SkillPersistFormat* skill_format_from_name(const char* filename)
 {
     if (filename) {
         const char* ext = strrchr(filename, '.');
+#ifdef ENABLE_JSON_PERSISTENCE
         if (ext && !str_cmp(ext, ".json"))
             return &SKILL_PERSIST_JSON;
+#endif
     }
+#ifdef ENABLE_ROM_OLC_PERSISTENCE
     return &SKILL_PERSIST_ROM_OLC;
+#else
+    return NULL;
+#endif
 }
 
 static const SkillGroupPersistFormat* skill_group_format_from_name(const char* filename)
 {
     if (filename) {
         const char* ext = strrchr(filename, '.');
+#ifdef ENABLE_JSON_PERSISTENCE
         if (ext && !str_cmp(ext, ".json"))
             return &SKILL_GROUP_PERSIST_JSON;
+#endif
     }
+#ifdef ENABLE_ROM_OLC_PERSISTENCE
     return &SKILL_GROUP_PERSIST_ROM_OLC;
+#else
+    return NULL;
+#endif
 }
 
 static PersistResult persist_load_common(const char* fname, const char* default_name,
