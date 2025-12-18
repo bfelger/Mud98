@@ -24,11 +24,18 @@ if (ENABLE_JSON_PERSISTENCE)
     set(JANSSON_EXAMPLES OFF CACHE BOOL "" FORCE)
     set(JANSSON_WITHOUT_TESTS ON CACHE BOOL "" FORCE)
     
+    # If on CMake 4.0 or higher, use master instead of v2.14.1 due to Windows CMake issues
+    if (CMAKE_VERSION VERSION_GREATER_EQUAL "4.0.0")
+        message(WARNING "Using Jansson master branch due to CMake 4.0+ Windows issues. "
+                        "Once Jansson fixes their CMake files, switch back to v2.14.1.")
+        set(JANSSON_GIT_TAG "master")
+    else()
+        set(JANSSON_GIT_TAG "v2.14.1")
+    endif()
     FetchContent_Declare(
         jansson
         GIT_REPOSITORY https://github.com/akheron/jansson.git
-        #GIT_TAG        v2.14.1  -- Put back when they fix CMake issues on Windows
-        GIT_TAG        master
+        GIT_TAG        ${JANSSON_GIT_TAG}
     )
     
     FetchContent_MakeAvailable(jansson)
