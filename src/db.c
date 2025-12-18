@@ -1542,6 +1542,9 @@ void free_mem(void* pMem, size_t sMem)
     int iList;
     int* magic;
 
+    if (pMem == NULL)
+        return;
+
 #ifdef COUNT_SIZE_ALLOCS
     decrement_size_alloc(sMem);
     amt_temp_freed += sMem;

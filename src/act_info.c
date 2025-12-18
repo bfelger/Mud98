@@ -41,6 +41,7 @@
 #include "spell_list.h"
 #include "recycle.h"
 #include "save.h"
+#include "skill_ops.h"
 #include "skills.h"
 #include "stringutils.h"
 #include "tables.h"
@@ -445,8 +446,9 @@ void show_char_to_char_1(Mobile* victim, Mobile* ch)
         }
     }
 
+    // Use skill check seam for testability
     if (victim != ch && !IS_NPC(ch)
-        && number_percent() < get_skill(ch, gsn_peek)) {
+        && skill_ops->check_simple(ch, gsn_peek)) {
         send_to_char("\n\rYou peek at the inventory:\n\r", ch);
         check_improve(ch, gsn_peek, true, 4);
         show_list_to_char(&victim->objects, ch, true, true);

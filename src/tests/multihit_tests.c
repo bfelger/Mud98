@@ -642,7 +642,7 @@ static int test_no_attacks_when_stunned()
 
 void register_multihit_tests()
 {
-    init_test_group(&multihit_group, "MULTI-HIT");
+    init_test_group(&multihit_group, "MULTI-HIT TESTS");
     
     #define REGISTER(name, func) register_test(&multihit_group, name, func)
     

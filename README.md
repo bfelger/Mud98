@@ -230,10 +230,19 @@ Use the `-d` argument to specify the folder containing `mud98.cfg` if you don't 
     - [x] Damage calculation
     - [x] AC/Defense
     - [x] Skill checks
+    - [x] Magic spells
     - [ ] Status effects
     - [ ] Action economy
     - [ ] Stats/attributes
   - [ ] Memory allocation
+- [x] Unit tests
+  - [x] Lox scripting
+  - [x] Events
+  - [x] Player commands
+  - [x] Wiz commands
+  - [x] Combat skills
+  - [x] Thief skills
+  - [x] Magic skills
 - [ ] Professions
   - [ ] Crafting
   - [ ] Resource gathering

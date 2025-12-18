@@ -2395,7 +2395,7 @@ void register_persist_tests()
 #if defined(ENABLE_ROM_OLC_PERSISTENCE) && defined(ENABLE_JSON_PERSISTENCE)
 #define REGISTER(n, f)  register_test(&persist_tests, (n), (f))
 
-    init_test_group(&persist_tests, "Persistence Tests");
+    init_test_group(&persist_tests, "PERSISTENCE TESTS");
     register_test_group(&persist_tests);
 
     REGISTER("ROM OLC Loads Minimal Area", test_rom_olc_loads_minimal_area);

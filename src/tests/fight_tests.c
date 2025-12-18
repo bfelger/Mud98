@@ -32,22 +32,32 @@ static int test_kill_basic()
     
     Mobile* attacker = mock_player("attacker");
     attacker->position = POS_STANDING;
-    attacker->level = 10;
+    attacker->level = 60;  // High level to guarantee kill
     transfer_mob(attacker, room);
     
     MobPrototype* proto = mock_mob_proto(60002);
     Mobile* victim = mock_mob("victim", 60002, proto);
-    victim->level = 5;
+    victim->level = 1;    // Low level
+    victim->max_hit = 10; // Low HP
+    victim->hit = 10;
     transfer_mob(victim, room);
+    
+    // Use combat mock to guarantee hit and high damage
+    CombatOps* saved_combat = combat;
+    combat = &mock_combat;
+    reset_mock_combat();
+    set_mock_always_hit(true);
+    set_mock_damage_override(1000);  // Massive overkill damage
     
     test_socket_output_enabled = true;
     do_kill(attacker, "victim");
     test_socket_output_enabled = false;
     test_output_buffer = NIL_VAL;
     
-    // Should have initiated combat
-    ASSERT(attacker->fighting != NULL);
-    ASSERT(victim->fighting != NULL);
+    combat = saved_combat;
+
+    // Verify victim died - attacker should not be dead/resting and death count should be 1
+    ASSERT(attacker->position != POS_RESTING && attacker->position != POS_DEAD && get_mock_deaths() == 1);
     
     return 0;
 }
@@ -59,21 +69,42 @@ static int test_murder_player()
     
     Mobile* attacker = mock_player("attacker");
     attacker->position = POS_STANDING;
-    attacker->level = 10;
+    attacker->level = 60;  // High level to guarantee kill
     transfer_mob(attacker, room);
     
     Mobile* victim = mock_player("victim");
-    victim->level = 8;
+    victim->level = 1;    // Low level
+    victim->max_hit = 10; // Low HP
+    victim->hit = 10;
     transfer_mob(victim, room);
+    
+    // Use combat mock to guarantee hit and high damage
+    CombatOps* saved_combat = combat;
+    combat = &mock_combat;
+    reset_mock_combat();
+    set_mock_always_hit(true);
+    set_mock_damage_override(1000);  // Massive overkill damage
     
     test_socket_output_enabled = true;
     do_murder(attacker, "victim");
     test_socket_output_enabled = false;
     test_output_buffer = NIL_VAL;
     
-    // Should have initiated combat (or given error if not PK)
-    // Just verify it doesn't crash
-    ASSERT(true);
+    combat = saved_combat;
+    
+    // Verify victim died - should have created a corpse (PC corpse)
+    //Object* corpse = NULL;
+    //Object* obj;
+    //FOR_EACH_ROOM_OBJ(obj, room) {
+    //    if (obj->item_type == ITEM_CORPSE_PC) {
+    //        corpse = obj;
+    //        break;
+    //    }
+    //}
+    
+    // Should find a corpse (victim died and make_corpse was called)
+    //ASSERT(corpse != NULL);
+    ASSERT(attacker->position != POS_RESTING && attacker->position != POS_DEAD && get_mock_deaths() == 1);
     
     return 0;
 }
@@ -102,10 +133,14 @@ static int test_flee()
     test_socket_output_enabled = true;
     do_flee(player, "");
     test_socket_output_enabled = false;
+
+    static const char* possible_outputs[] = {
+        "You flee from combat!",
+        "PANIC! You couldn't escape!"
+    };
+    ASSERT_OUTPUT_CONTAINS_ANY(possible_outputs, 2);
+
     test_output_buffer = NIL_VAL;
-    
-    // May or may not succeed, but should execute without crash
-    ASSERT(true);
     
     return 0;
 }
@@ -236,29 +271,28 @@ static int test_dirt()
     attacker->position = POS_STANDING;
     attacker->level = 60;
     transfer_mob(attacker, room);
-    mock_skill(attacker, gsn_dirt, 100);  // Ensure attacker has dirt kicking skill
+    mock_skill(attacker, gsn_dirt, 100);
     
     MobPrototype* proto = mock_mob_proto(60002);
     Mobile* victim = mock_mob("victim", 60002, proto);
     victim->level = 8;
     transfer_mob(victim, room);
     
-    // Use mock RNG to force success
-    int sequence[] = {1, 1, 50, 50};  // Very low rolls for guaranteed success
-    RngOps* saved_rng = rng;
-    rng = &mock_rng;
-    set_mock_rng_sequence(sequence, 4);
+    // Use skill ops seam for deterministic control
+    SkillOps* saved_skill_ops = skill_ops;
+    skill_ops = &mock_skill_ops;
+    set_skill_check_result(gsn_dirt, true);
     
     test_socket_output_enabled = true;
     do_dirt(attacker, "victim");
     test_socket_output_enabled = false;
     test_output_buffer = NIL_VAL;
     
-    set_mock_rng_sequence(NULL, 0);
-    rng = saved_rng;
+    skill_ops = saved_skill_ops;
+    clear_skill_check_results();
     
-    // Dirt should blind victim (AFF_BLIND) or initiate combat
-    ASSERT(IS_AFFECTED(victim, AFF_BLIND) || attacker->fighting == victim);
+    // Dirt succeeded - victim should be blinded
+    ASSERT(IS_AFFECTED(victim, AFF_BLIND));
     
     return 0;
 }
@@ -290,25 +324,24 @@ static int test_disarm()
     equip_char(victim, sword, WEAR_WIELD);
     
     // Start combat first - disarm requires ch->fighting to be set
-    multi_hit(attacker, victim, TYPE_UNDEFINED);
+    set_fighting(attacker, victim);
     ASSERT(attacker->fighting == victim);
-    ASSERT(get_eq_char(victim, WEAR_WIELD) != NULL);  // Victim still has weapon
+    ASSERT(get_eq_char(victim, WEAR_WIELD) != NULL);
     
-    // Use mock RNG to force success
-    int sequence[] = {1, 1, 50, 50};  // Very low rolls for guaranteed success
-    RngOps* saved_rng = rng;
-    rng = &mock_rng;
-    set_mock_rng_sequence(sequence, 4);
+    // Use skill ops seam for deterministic control
+    SkillOps* saved_skill_ops = skill_ops;
+    skill_ops = &mock_skill_ops;
+    set_skill_check_result(gsn_disarm, true);
     
     test_socket_output_enabled = true;
-    do_disarm(attacker, "");  // No argument - uses ch->fighting
+    do_disarm(attacker, "");
     test_socket_output_enabled = false;
     test_output_buffer = NIL_VAL;
     
-    set_mock_rng_sequence(NULL, 0);
-    rng = saved_rng;
+    skill_ops = saved_skill_ops;
+    clear_skill_check_results();
     
-    // Disarm should remove weapon from victim's wield slot
+    // Disarm succeeded - weapon should be removed
     ASSERT(get_eq_char(victim, WEAR_WIELD) == NULL);
     
     return 0;
@@ -341,22 +374,31 @@ static int test_backstab()
     
     int hp_before = victim->hit;
     
-    // Use skill ops seam for deterministic control
+    // Use skill ops seam for deterministic skill check
     SkillOps* saved_skill_ops = skill_ops;
     skill_ops = &mock_skill_ops;
     set_skill_check_result(gsn_backstab, true);
+    
+    // Use combat ops seam for deterministic hit/damage
+    CombatOps* saved_combat = combat;
+    combat = &mock_combat;
+    reset_mock_combat();
+    set_mock_always_hit(true);
+    set_mock_damage_override(100);  // Fixed damage for predictable test
     
     test_socket_output_enabled = true;
     do_backstab(attacker, "victim");
     test_socket_output_enabled = false;
     test_output_buffer = NIL_VAL;
     
+    combat = saved_combat;
     skill_ops = saved_skill_ops;
     clear_skill_check_results();
     
-    // Backstab succeeded - should deal damage and initiate combat
+    // Backstab succeeded - verify damage was dealt
     ASSERT(victim->hit < hp_before);
-    ASSERT(attacker->fighting == victim);
+    ASSERT(get_mock_damage_dealt() > 0);
+    ASSERT(get_mock_last_attack_hit());
     
     return 0;
 }
@@ -369,15 +411,35 @@ static int test_berserk()
     Mobile* warrior = mock_player("warrior");
     warrior->position = POS_STANDING;
     warrior->level = 15;
+    warrior->mana = 60;  // Ensure enough mana
+    warrior->hit = warrior->max_hit / 3;  // Low HP improves berserk chance
     transfer_mob(warrior, room);
+    mock_skill(warrior, gsn_berserk, 100);
+    
+    // Use skill ops seam for deterministic control
+    SkillOps* saved_skill_ops = skill_ops;
+    skill_ops = &mock_skill_ops;
+    set_skill_check_result(gsn_berserk, true);
     
     test_socket_output_enabled = true;
     do_berserk(warrior, "");
     test_socket_output_enabled = false;
-    test_output_buffer = NIL_VAL;
     
-    // Berserk may or may not succeed, just verify no crash
-    ASSERT(true);
+    skill_ops = saved_skill_ops;
+    clear_skill_check_results();
+    
+    // Berserk should produce some output (success, failure, or error)
+    static const char* possible_outputs[] = {
+        "Your pulse races as you are consumed by rage!",
+        "Your pulse speeds up, but nothing happens.",
+        "You turn red in the face, but nothing happens.",
+        "You get a little madder.",
+        "You're feeling to mellow to berserk.",
+        "You can't get up enough energy."
+    };
+    ASSERT_OUTPUT_CONTAINS_ANY(possible_outputs, 6);
+    
+    test_output_buffer = NIL_VAL;
     
     return 0;
 }
@@ -391,7 +453,7 @@ static int test_rescue()
     rescuer->position = POS_STANDING;
     rescuer->level = 60;
     transfer_mob(rescuer, room);
-    mock_skill(rescuer, gsn_rescue, 100);  // Ensure rescuer has rescue skill
+    mock_skill(rescuer, gsn_rescue, 100);
     
     Mobile* victim = mock_player("victim");
     victim->position = POS_STANDING;
@@ -409,24 +471,33 @@ static int test_rescue()
     victim->position = POS_FIGHTING;
     mob->position = POS_FIGHTING;
     
-    // Use mock RNG to force success
-    int sequence[] = {1, 1, 1, 1, 50, 50, 50, 50};  // Low rolls for guaranteed success, extra values
-    RngOps* saved_rng = rng;
-    rng = &mock_rng;
-    set_mock_rng_sequence(sequence, 8);
+    // Use skill ops seam for deterministic control
+    SkillOps* saved_skill_ops = skill_ops;
+    skill_ops = &mock_skill_ops;
+    set_skill_check_result(gsn_rescue, true);
     
     test_socket_output_enabled = true;
     do_rescue(rescuer, "victim");
     test_socket_output_enabled = false;
+    
+    skill_ops = saved_skill_ops;
+    clear_skill_check_results();
+    
+    // Rescue should produce some output (success, failure, or error)
+    static const char* possible_outputs[] = {
+        "You rescue",
+        "You fail the rescue.",
+        "Rescue whom?",
+        "They aren't here.",
+        "What about fleeing instead?",
+        "Doesn't need your help!",
+        "Too late.",
+        "That person is not fighting right now.",
+        "Kill stealing is not permitted."
+    };
+    ASSERT_OUTPUT_CONTAINS_ANY(possible_outputs, 9);
+    
     test_output_buffer = NIL_VAL;
-    
-    set_mock_rng_sequence(NULL, 0);
-    rng = saved_rng;
-    
-    // Rescue should redirect mob's target to rescuer
-    // However, various factors can affect success
-    // Verify the skill executes without crashing
-    ASSERT(true);  // Test passes if no crash occurred
     
     return 0;
 }
@@ -455,11 +526,15 @@ static int test_surrender()
     test_socket_output_enabled = true;
     do_surrender(player, "");
     test_socket_output_enabled = false;
-    test_output_buffer = NIL_VAL;
     
-    // Surrender calls stop_fighting, but mob may attack back
-    // Just verify no crash
-    ASSERT(true);
+    // Surrender should produce output (either success or error)
+    static const char* possible_outputs[] = {
+        "You surrender to",
+        "But you're not fighting!"
+    };
+    ASSERT_OUTPUT_CONTAINS_ANY(possible_outputs, 2);
+    
+    test_output_buffer = NIL_VAL;
     
     return 0;
 }

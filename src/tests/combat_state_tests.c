@@ -246,6 +246,7 @@ static int test_flee_success()
     // Should have fled to room2
     ASSERT(ch->in_room == room2);
     ASSERT(ch->fighting == NULL);
+    ASSERT_OUTPUT_CONTAINS("You flee from combat!");
     
     test_socket_output_enabled = false;
     
@@ -277,9 +278,7 @@ static int test_flee_no_exits()
     // Verify still in same room and still fighting
     ASSERT(ch->in_room == room);
     ASSERT(ch->fighting == victim);
-    
-    // Verify got panic message (don't check exact text due to formatting)
-    ASSERT(IS_STRING(test_output_buffer));
+    ASSERT_OUTPUT_CONTAINS("PANIC! You couldn't escape!");
     
     test_output_buffer = NIL_VAL;
     test_socket_output_enabled = false;
@@ -304,8 +303,7 @@ static int test_flee_not_fighting()
     // Try to flee when not fighting
     do_flee(ch, "");
     
-    // Verify got error message (don't check exact text due to formatting)
-    ASSERT(IS_STRING(test_output_buffer));
+    ASSERT_OUTPUT_CONTAINS("You aren't fighting anyone.");
     
     test_output_buffer = NIL_VAL;
     test_socket_output_enabled = false;

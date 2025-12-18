@@ -38,3 +38,4 @@ src/.build-msvc/*
 src/.build-clang/*
 **/*.code-workspace
 test_output.txt
+.vscode/settings.json

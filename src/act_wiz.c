@@ -577,6 +577,7 @@ void do_disconnect(Mobile* ch, char* argument)
 
     if (!test_output_enabled)
         bug("Do_disconnect: desc not found.", 0);
+        
     send_to_char("Descriptor not found!\n\r", ch);
     return;
 }

@@ -91,8 +91,8 @@ typedef struct combat_ops_t {
     //   ch        - Attacker
     //   victim    - Defender
     //   weapon    - Weapon being used (NULL for unarmed)
-    //   sn        - Skill number (for weapon skills)
-    bool (*check_hit)(Mobile* ch, Mobile* victim, Object* weapon, int16_t sn);
+    //   dt        - Damage type/skill number (TYPE_HIT, gsn_backstab, etc.)
+    bool (*check_hit)(Mobile* ch, Mobile* victim, Object* weapon, int16_t dt);
     
     // Calculate base damage for an attack.
     // Factors in weapon dice, skill %, strength, level, etc.
@@ -104,10 +104,10 @@ typedef struct combat_ops_t {
     //   ch         - Attacker
     //   victim     - Defender (for context, not damage reduction)
     //   weapon     - Weapon being used (NULL for unarmed)
-    //   sn         - Skill number (for damage bonuses)
+    //   dt         - Damage type/skill number (TYPE_HIT, gsn_backstab, etc.)
     //   is_offhand - Whether this is an offhand/dual-wield attack
     int (*calculate_damage)(Mobile* ch, Mobile* victim, Object* weapon, 
-                           int16_t sn, bool is_offhand);
+                           int16_t dt, bool is_offhand);
     
     // -------------------------------------------------------------------------
     // DEATH & CORPSES
@@ -147,11 +147,11 @@ extern CombatOps combat_rom;
 #define COMBAT_DRAIN_MOVE(ch, amount) \
     (combat->drain_move((ch), (amount)))
 
-#define COMBAT_CHECK_HIT(ch, victim, weapon, sn) \
-    (combat->check_hit((ch), (victim), (weapon), (sn)))
+#define COMBAT_CHECK_HIT(ch, victim, weapon, dt) \
+    (combat->check_hit((ch), (victim), (weapon), (dt)))
 
-#define COMBAT_CALC_DAMAGE(ch, victim, weapon, sn, offhand) \
-    (combat->calculate_damage((ch), (victim), (weapon), (sn), (offhand)))
+#define COMBAT_CALC_DAMAGE(ch, victim, weapon, dt, offhand) \
+    (combat->calculate_damage((ch), (victim), (weapon), (dt), (offhand)))
 
 #define COMBAT_DEATH(victim) \
     (combat->handle_death((victim)))

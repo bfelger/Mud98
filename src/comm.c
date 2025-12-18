@@ -368,6 +368,9 @@ void close_server(SockServer* server)
 
 void close_client(SockClient* client)
 {
+    if (client == NULL)
+        return;
+        
 #ifndef NO_OPENSSL
     if (client->type == SOCK_TLS) {
         TlsClient* tls = (TlsClient*)client;
@@ -2045,14 +2048,14 @@ bool write_to_descriptor(Descriptor* d, char* txt, size_t length)
     size_t s_bytes = 0;
     int block;
 
-    if (!IS_VALID(d))
+    if (!IS_VALID(d) || d->client == NULL)
         return false;
 
     if (length <= 0)
         length = strlen(txt);
 
 #ifndef NO_ZLIB
-    if (d->mth->mccp2) {
+    if (d->mth && d->mth->mccp2) {
         write_mccp2(d, txt, length);
         return true;
     }

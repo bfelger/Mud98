@@ -102,8 +102,9 @@ static bool rom_skill_check_simple(Mobile* ch, SKNUM sn)
 // while still using the seam for RNG testability
 static bool rom_skill_check_modified(Mobile* ch, SKNUM sn, int chance)
 {
-    (void)ch;  // May be used for logging/debugging in future
-    (void)sn;  // May be used for logging/debugging in future
+    // May be used for logging/debugging in future
+    (void)ch;
+    (void)sn;
     
     if (chance <= 0)
         return false;

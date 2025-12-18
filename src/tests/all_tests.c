@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 // all_tests.c
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -7,6 +7,12 @@
 #include "test_registry.h"
 
 #include "lox_tests.h"
+
+void register_thief_tests();
+void register_magic_tests();
+
+void register_thief_tests();
+void register_magic_tests();
 
 #include <lox/vm.h>
 #include <lox/table.h>
@@ -63,6 +69,8 @@ void run_unit_tests()
     register_player_persist_tests();
     register_daycycle_tests();
     register_multihit_tests();
+    register_thief_tests();
+    register_magic_tests();
 
     test_output_enabled = true;
     test_disassemble_on_error = true;

@@ -62,6 +62,8 @@
 #include <sys/types.h>
 #include <time.h>
 
+extern bool test_output_enabled;
+
 typedef struct {
     const char* short_desc;
     const char* desc1;
@@ -430,18 +432,8 @@ void mob_hit(Mobile* ch, Mobile* victim, int16_t dt)
 void one_hit(Mobile* ch, Mobile* victim, int16_t dt, bool secondary)
 {
     Object* wield;
-    int victim_ac;
-    int thac0;
-    int thac0_00;
-    int thac0_32;
     int dam;
-    int diceroll;
-    SKNUM sn;
-    int skill;
-    DamageType dam_type;
     bool result;
-
-    sn = -1;
 
     /* just in case */
     if (victim == ch || ch == NULL || victim == NULL) 
@@ -469,148 +461,48 @@ void one_hit(Mobile* ch, Mobile* victim, int16_t dt, bool secondary)
             dt += (int16_t)ch->dam_type;
     }
 
-    if (dt < TYPE_HIT)
-        if (wield != NULL)
-            dam_type = attack_table[wield->value[3]].damage;
-        else
-            dam_type = attack_table[ch->dam_type].damage;
-    else
-        dam_type = attack_table[dt - TYPE_HIT].damage;
-
-    if (dam_type == DAM_NONE) 
-        dam_type = DAM_BASH;
-
-    /* get the weapon skill */
-    sn = get_weapon_sn(ch);
-    skill = 20 + get_weapon_skill(ch, sn);
-
-    // Calculate to-hit-armor-class-0 versus armor.
-    if (IS_NPC(ch)) {
-        thac0_00 = 20;
-        thac0_32 = -4; /* as good as a thief */
-        if (IS_SET(ch->act_flags, ACT_WARRIOR))
-            thac0_32 = -10;
-        else if (IS_SET(ch->act_flags, ACT_THIEF))
-            thac0_32 = -4;
-        else if (IS_SET(ch->act_flags, ACT_CLERIC))
-            thac0_32 = 2;
-        else if (IS_SET(ch->act_flags, ACT_MAGE))
-            thac0_32 = 6;
-    }
-    else {
-        thac0_00 = class_table[ch->ch_class].thac0_00;
-        thac0_32 = class_table[ch->ch_class].thac0_32;
-    }
-    thac0 = interpolate(ch->level, thac0_00, thac0_32);
-
-    if (thac0 < 0) 
-        thac0 = thac0 / 2;
-
-    if (thac0 < -5) 
-        thac0 = -5 + (thac0 + 5) / 2;
-
-    thac0 -= GET_HITROLL(ch) * skill / 100;
-    thac0 += 5 * (100 - skill) / 100;
-
-    if (dt == gsn_backstab) 
-        thac0 -= 10 * (100 - get_skill(ch, gsn_backstab));
-
-    switch (dam_type) {
-    case DAM_PIERCE:
-        victim_ac = GET_AC(victim, AC_PIERCE) / 10;
-        break;
-    case DAM_BASH:
-        victim_ac = GET_AC(victim, AC_BASH) / 10;
-        break;
-    case DAM_SLASH:
-        victim_ac = GET_AC(victim, AC_SLASH) / 10;
-        break;
-    default:
-        victim_ac = GET_AC(victim, AC_EXOTIC) / 10;
-        break;
-    };
-
-    if (victim_ac < -15) 
-        victim_ac = (victim_ac + 15) / 5 - 15;
-
-    if (!can_see(ch, victim)) 
-        victim_ac -= 4;
-
-    if (victim->position < POS_FIGHTING)
-        victim_ac += 4;
-
-    if (victim->position < POS_RESTING)
-        victim_ac += 6;
-
-    // Roll d20 (0-19) for to-hit
-    diceroll = number_range(0, 19);
-
-    if (diceroll == 0 || (diceroll != 19 && diceroll < thac0 - victim_ac)) {
+    // Use CombatOps seam for to-hit calculation
+    if (!combat->check_hit(ch, victim, wield, dt)) {
         /* Miss. */
+        DamageType dam_type;
+        if (dt < TYPE_HIT) {
+            if (wield != NULL)
+                dam_type = attack_table[wield->value[3]].damage;
+            else
+                dam_type = attack_table[ch->dam_type].damage;
+        }
+        else {
+            dam_type = attack_table[dt - TYPE_HIT].damage;
+        }
+        if (dam_type == DAM_NONE) 
+            dam_type = DAM_BASH;
+            
         damage(ch, victim, 0, dt, dam_type, true);
         return;
     }
 
     /*
-     * Hit.
-     * Calc damage.
+     * Hit - calculate damage using CombatOps seam
      */
-    if (IS_NPC(ch) && wield == NULL) {
-        dam = dice(ch->damage[DICE_NUMBER], ch->damage[DICE_TYPE]);
+    dam = combat->calculate_damage(ch, victim, wield, dt, secondary);
+
+    DamageType dam_type;
+    if (dt < TYPE_HIT) {
+        if (wield != NULL)
+            dam_type = attack_table[wield->value[3]].damage;
+        else
+            dam_type = attack_table[ch->dam_type].damage;
     }
     else {
-        if (sn != -1)
-            check_improve(ch, sn, true, 5);
-        if (wield != NULL) {
-            dam = dice(wield->value[1], wield->value[2]) * skill / 100;
-
-            if (get_eq_char(ch, WEAR_SHIELD) == NULL) /* no shield = more */
-                dam = dam * 11 / 10;
-
-            /* sharpness! */
-            if (IS_WEAPON_STAT(wield, WEAPON_SHARP)) {
-                int percent;
-
-                if ((percent = number_percent()) <= (skill / 8))
-                    dam = 2 * dam + (dam * 2 * percent / 100);
-            }
-        }
-        else {
-            dam = number_range(1 + 4 * skill / 100,
-                               2 * ch->level / 3 * skill / 100);
-        }
+        dam_type = attack_table[dt - TYPE_HIT].damage;
     }
-
-    // Bonuses.
-    if (get_skill(ch, gsn_enhanced_damage) > 0) {
-        diceroll = number_percent();
-        if (diceroll <= get_skill(ch, gsn_enhanced_damage)) {
-            check_improve(ch, gsn_enhanced_damage, true, 6);
-            dam += 2 * (dam * diceroll / 300);
-        }
-    }
-
-    if (!IS_AWAKE(victim))
-        dam *= 2;
-    else if (victim->position < POS_FIGHTING)
-        dam = dam * 3 / 2;
-
-    if (dt == gsn_backstab && wield != NULL) {
-        if (wield->value[0] != 2)
-            dam *= 2 + (ch->level / 10);
-        else
-            dam *= 2 + (ch->level / 8);
-    }
-
-    dam += GET_DAMROLL(ch) * UMIN(100, skill) / 100;
-
-    if (dam <= 0) 
-        dam = 1;
+    if (dam_type == DAM_NONE) 
+        dam_type = DAM_BASH;
 
     if (!check_counter(ch, victim, dam, dt))
         result = damage(ch, victim, dam, dt, dam_type, true);
     else 
-    return;
+        return;
 
 
     /* but do we have a funky weapon? */
@@ -1032,7 +924,8 @@ void update_pos(Mobile* victim)
 void set_fighting(Mobile* ch, Mobile* victim)
 {
     if (ch->fighting != NULL) {
-        bug("Set_fighting: already fighting", 0);
+        if (!test_output_enabled)
+            bug("Set_fighting: already fighting", 0);
         return;
     }
 

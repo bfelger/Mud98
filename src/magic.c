@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stï¿½rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -36,6 +36,7 @@
 #include "interp.h"
 #include "handler.h"
 #include "recycle.h"
+#include "skill_ops.h"
 #include "skills.h"
 #include "spell_list.h"
 #include "update.h"
@@ -474,7 +475,7 @@ void do_cast(Mobile* ch, char* argument)
 
     WAIT_STATE(ch, skill_table[sn].beats);
 
-    if (number_percent() > get_skill(ch, sn)) {
+    if (!skill_ops->check_simple(ch, sn)) {
         send_to_char("You lost your concentration.\n\r", ch);
         check_improve(ch, sn, false, 1);
         ch->mana -= (int16_t)mana / 2;

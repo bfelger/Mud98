@@ -100,7 +100,10 @@ Mobile* mock_mob(const char* name, VNUM vnum, MobPrototype* mp)
     }
 
     Mobile* m = create_mobile(mp);
-    m->header.name = AS_STRING(mock_str(name));
+    if (name != NULL) {
+        SET_NAME(m, AS_STRING(mock_str(name)));
+        m->short_descr = str_dup(name);
+    }
     m->position = POS_STANDING;
     write_value_array(mocks(), OBJ_VAL(m));
 
@@ -129,7 +132,10 @@ Object* mock_obj(const char* name, VNUM vnum, ObjPrototype* op)
     }
 
     Object* o = create_object(op, 0);
-    o->header.name = AS_STRING(mock_str(name));
+    if (name != NULL) {
+        SET_NAME(o, AS_STRING(mock_str(name)));
+        o->short_descr = str_dup(name);
+    }
     write_value_array(mocks(), OBJ_VAL(o));
     return o;
 }
@@ -296,12 +302,14 @@ void mock_player_reputation(Mobile* ch, VNUM faction_vnum, int value)
 
 void mock_connect_player_descriptor(Mobile* player)
 {
-    if (player == NULL || player->desc == NULL)
+    if (player == NULL)
         return;
 
-    Descriptor* desc = player->desc;
+    Descriptor* desc = player->desc ? player->desc : mock_descriptor();
     desc->next = descriptor_list;
+    desc->character = player;
     descriptor_list = desc;
+    desc->connected = CON_PLAYING;
 }
 
 void mock_disconnect_player_descriptor(Mobile* player)

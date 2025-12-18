@@ -372,7 +372,6 @@ static int test_thac0_warrior()
     rng = saved_rng;
     
     // If we get here without crashing, THAC0 calculation worked
-    ASSERT(true);
 
     return 0;
 }
@@ -503,7 +502,6 @@ static int test_armor_class_affects_hit()
     
     // With excellent AC and moderate roll, likely missed
     // But the important thing is the calculation doesn't crash
-    ASSERT(true);
 
     return 0;
 }

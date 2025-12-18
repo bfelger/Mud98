@@ -154,7 +154,7 @@ static void mock_drain_move(Mobile* ch, int amount)
         ch->move = 0;
 }
 
-static bool mock_check_hit(Mobile* ch, Mobile* victim, Object* weapon, int16_t sn)
+static bool mock_check_hit(Mobile* ch, Mobile* victim, Object* weapon, int16_t dt)
 {
     // Mock can override hit behavior
     if (mock_always_hit) {
@@ -165,13 +165,13 @@ static bool mock_check_hit(Mobile* ch, Mobile* victim, Object* weapon, int16_t s
     // Otherwise use real THAC0 calculation (from combat_rom.c)
     // For now, just delegate to ROM implementation
     extern CombatOps combat_rom;
-    bool hit = combat_rom.check_hit(ch, victim, weapon, sn);
+    bool hit = combat_rom.check_hit(ch, victim, weapon, dt);
     mock_last_attack_hit = hit;
     return hit;
 }
 
 static int mock_calculate_damage(Mobile* ch, Mobile* victim, Object* weapon, 
-                                 int16_t sn, bool is_offhand)
+                                 int16_t dt, bool is_offhand)
 {
     // Override damage if configured
     if (mock_damage_override >= 0)
@@ -179,7 +179,7 @@ static int mock_calculate_damage(Mobile* ch, Mobile* victim, Object* weapon,
     
     // Otherwise use real calculation
     extern CombatOps combat_rom;
-    return combat_rom.calculate_damage(ch, victim, weapon, sn, is_offhand);
+    return combat_rom.calculate_damage(ch, victim, weapon, dt, is_offhand);
 }
 
 static void mock_handle_death(Mobile* victim)

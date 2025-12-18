@@ -1780,7 +1780,8 @@ void do_recite(Mobile* ch, char* argument)
     act("$n recites $p.", ch, scroll, NULL, TO_ROOM);
     act("You recite $p.", ch, scroll, NULL, TO_CHAR);
 
-    if (number_percent() >= 20 + get_skill(ch, gsn_scrolls) * 4 / 5) {
+    int chance = 20 + get_skill(ch, gsn_scrolls) * 4 / 5;
+    if (!skill_ops->check_modified(ch, gsn_scrolls, chance)) {
         send_to_char("You mispronounce a syllable.\n\r", ch);
         check_improve(ch, gsn_scrolls, false, 2);
     }
@@ -1812,7 +1813,7 @@ void do_brandish(Mobile* ch, char* argument)
         return;
     }
 
-    if ((sn = (SKNUM)staff->value[3]) < 0 || sn >= skill_count
+    if ((sn = (SKNUM)staff->staff.spell) < 0 || sn >= skill_count
         || skill_table[sn].spell_fun == 0) {
         bug("Do_brandish: bad sn %d.", sn);
         return;
@@ -1820,11 +1821,12 @@ void do_brandish(Mobile* ch, char* argument)
 
     WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
 
-    if (staff->value[2] > 0) {
+    if (staff->staff.charges > 0) {
         act("$n brandishes $p.", ch, staff, NULL, TO_ROOM);
         act("You brandish $p.", ch, staff, NULL, TO_CHAR);
+        int chance = 20 + get_skill(ch, gsn_staves) * 4 / 5;
         if (ch->level < staff->level
-            || number_percent() >= 20 + get_skill(ch, gsn_staves) * 4 / 5) {
+            || !skill_ops->check_modified(ch, gsn_staves, chance)) {
             act("You fail to invoke $p.", ch, staff, NULL, TO_CHAR);
             act("...and nothing happens.", ch, NULL, NULL, TO_ROOM);
             check_improve(ch, gsn_staves, false, 2);
@@ -1832,7 +1834,8 @@ void do_brandish(Mobile* ch, char* argument)
 
         else
             FOR_EACH_ROOM_MOB(vch, ch->in_room) {
-                switch (skill_table[sn].target) {
+                Skill* skill = &skill_table[sn];
+                switch (skill->target) {
                 default:
                     bug("Do_brandish: bad target for sn %d.", sn);
                     return;
@@ -1842,10 +1845,12 @@ void do_brandish(Mobile* ch, char* argument)
                     break;
 
                 case SKILL_TARGET_CHAR_OFFENSIVE:
+                case SKILL_TARGET_OBJ_CHAR_OFF:
                     if (IS_NPC(ch) ? IS_NPC(vch) : !IS_NPC(vch)) continue;
                     break;
 
                 case SKILL_TARGET_CHAR_DEFENSIVE:
+                case SKILL_TARGET_OBJ_CHAR_DEF:
                     if (IS_NPC(ch) ? !IS_NPC(vch) : IS_NPC(vch)) continue;
                     break;
 
@@ -1854,12 +1859,12 @@ void do_brandish(Mobile* ch, char* argument)
                     break;
                 }
 
-                obj_cast_spell((SKNUM)staff->value[3], (LEVEL)staff->value[0], ch, vch, NULL);
+                obj_cast_spell((SKNUM)staff->staff.spell, (LEVEL)staff->staff.level, ch, vch, NULL);
                 check_improve(ch, gsn_staves, true, 2);
             }
     }
 
-    if (--staff->value[2] <= 0) {
+    if (--staff->staff.charges <= 0) {
         act("$n's $p blazes bright and is gone.", ch, staff, NULL, TO_ROOM);
         act("Your $p blazes bright and is gone.", ch, staff, NULL, TO_CHAR);
         extract_obj(staff);
@@ -1920,8 +1925,9 @@ void do_zap(Mobile* ch, char* argument)
             act("You zap $P with $p.", ch, wand, obj, TO_CHAR);
         }
 
+        int chance = 20 + get_skill(ch, gsn_wands) * 4 / 5;
         if (ch->level < wand->level
-            || number_percent() >= 20 + get_skill(ch, gsn_wands) * 4 / 5) {
+            || !skill_ops->check_modified(ch, gsn_wands, chance)) {
             act("Your efforts with $p produce only smoke and sparks.", ch, wand,
                 NULL, TO_CHAR);
             act("$n's efforts with $p produce only smoke and sparks.", ch, wand,

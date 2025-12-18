@@ -46,6 +46,8 @@
 #include "lookup.h"
 #include "recycle.h"
 #include "rng.h"
+#include "skills.h"
+#include "tables.h"
 #include "update.h"
 
 #include <entities/affect.h>
@@ -63,6 +65,8 @@
 
 #include <stdio.h>
 #include <string.h>
+
+extern bool test_output_enabled;
 
 // Forward declarations of fight.c helper functions
 extern void dam_message(Mobile* ch, Mobile* victim, int dam, int16_t dt, bool immune);
@@ -87,7 +91,8 @@ static bool rom_apply_damage(Mobile* ch, Mobile* victim, int dam,
 
     // Stop up any residual loopholes.
     if (dam > 1200 && dt >= TYPE_HIT) {
-        bug("Damage: %d: more than 1200 points!", dam);
+        if (!test_output_enabled)
+            bug("Damage: %d: more than 1200 points!", dam);
         dam = 1200;
         if (!IS_IMMORTAL(ch)) {
             Object* obj;
@@ -429,28 +434,189 @@ static void rom_drain_move(Mobile* ch, int amount)
         ch->move = 0;
 }
 
-static bool rom_check_hit(Mobile* ch, Mobile* victim, Object* weapon, int16_t sn)
+static bool rom_check_hit(Mobile* ch, Mobile* victim, Object* weapon, int16_t dt)
 {
-    // TODO: Extract THAC0 logic from one_hit() in fight.c
-    // For now, return true (we're not changing behavior yet)
-    (void)ch;
-    (void)victim;
-    (void)weapon;
-    (void)sn;
-    return true;
+    int thac0_00, thac0_32;
+    int thac0;
+    int victim_ac;
+    int diceroll;
+    DamageType dam_type;
+    int skill;
+    SKNUM sn;
+    
+    // Determine damage type for AC calculation
+    if (dt < TYPE_HIT) {
+        if (weapon != NULL)
+            dam_type = attack_table[weapon->value[3]].damage;
+        else
+            dam_type = attack_table[ch->dam_type].damage;
+    }
+    else {
+        dam_type = attack_table[dt - TYPE_HIT].damage;
+    }
+
+    if (dam_type == DAM_NONE) 
+        dam_type = DAM_BASH;
+
+    // Get weapon skill
+    sn = get_weapon_sn(ch);
+    skill = 20 + get_weapon_skill(ch, sn);
+
+    // Calculate to-hit-armor-class-0 (THAC0)
+    if (IS_NPC(ch)) {
+        thac0_00 = 20;
+        thac0_32 = -4; /* as good as a thief */
+        if (IS_SET(ch->act_flags, ACT_WARRIOR))
+            thac0_32 = -10;
+        else if (IS_SET(ch->act_flags, ACT_THIEF))
+            thac0_32 = -4;
+        else if (IS_SET(ch->act_flags, ACT_CLERIC))
+            thac0_32 = 2;
+        else if (IS_SET(ch->act_flags, ACT_MAGE))
+            thac0_32 = 6;
+    }
+    else {
+        thac0_00 = class_table[ch->ch_class].thac0_00;
+        thac0_32 = class_table[ch->ch_class].thac0_32;
+    }
+    
+    // Interpolate THAC0 based on level
+    thac0 = interpolate(ch->level, thac0_00, thac0_32);
+
+    if (thac0 < 0) 
+        thac0 = thac0 / 2;
+
+    if (thac0 < -5) 
+        thac0 = -5 + (thac0 + 5) / 2;
+
+    // Apply hitroll and skill modifiers
+    thac0 -= GET_HITROLL(ch) * skill / 100;
+    thac0 += 5 * (100 - skill) / 100;
+
+    // Backstab bonus
+    if (dt == gsn_backstab) 
+        thac0 -= 10 * (100 - get_skill(ch, gsn_backstab));
+
+    // Get victim AC based on damage type
+    switch (dam_type) {
+    case DAM_PIERCE:
+        victim_ac = GET_AC(victim, AC_PIERCE) / 10;
+        break;
+    case DAM_BASH:
+        victim_ac = GET_AC(victim, AC_BASH) / 10;
+        break;
+    case DAM_SLASH:
+        victim_ac = GET_AC(victim, AC_SLASH) / 10;
+        break;
+    default:
+        victim_ac = GET_AC(victim, AC_EXOTIC) / 10;
+        break;
+    }
+
+    // AC diminishing returns
+    if (victim_ac < -15) 
+        victim_ac = (victim_ac + 15) / 5 - 15;
+
+    // Vision modifiers
+    if (!can_see(ch, victim)) 
+        victim_ac -= 4;
+
+    // Position modifiers
+    if (victim->position < POS_FIGHTING)
+        victim_ac += 4;
+
+    if (victim->position < POS_RESTING)
+        victim_ac += 6;
+
+    // Roll d20 (0-19) for to-hit
+    diceroll = number_range(0, 19);
+
+    // Check hit: natural miss (0) or roll < (THAC0 - AC)
+    if (diceroll == 0 || (diceroll != 19 && diceroll < thac0 - victim_ac)) {
+        return false;  // Miss
+    }
+
+    return true;  // Hit
 }
 
 static int rom_calculate_damage(Mobile* ch, Mobile* victim, Object* weapon, 
-                                int16_t sn, bool is_offhand)
+                                int16_t dt, bool is_offhand)
 {
-    // TODO: Extract damage calculation from one_hit() in fight.c
-    // For now, return 0 (we're not changing behavior yet)
-    (void)ch;
-    (void)victim;
-    (void)weapon;
-    (void)sn;
-    (void)is_offhand;
-    return 0;
+    int dam;
+    int skill;
+    SKNUM sn;
+    int diceroll;
+    
+    // Get weapon skill
+    sn = get_weapon_sn(ch);
+    skill = 20 + get_weapon_skill(ch, sn);
+    
+    // Improve weapon skill on hit
+    if (sn != -1)
+        check_improve(ch, sn, true, 5);
+    
+    // Calculate base damage
+    if (IS_NPC(ch) && weapon == NULL) {
+        // NPC unarmed damage from prototype
+        dam = dice(ch->damage[DICE_NUMBER], ch->damage[DICE_TYPE]);
+    }
+    else {
+        if (weapon != NULL) {
+            // Weapon damage
+            dam = dice(weapon->value[1], weapon->value[2]) * skill / 100;
+
+            // No shield = 10% damage bonus
+            if (get_eq_char(ch, WEAR_SHIELD) == NULL)
+                dam = dam * 11 / 10;
+
+            // Sharpness weapon flag
+            if (IS_WEAPON_STAT(weapon, WEAPON_SHARP)) {
+                int percent;
+
+                if ((percent = number_percent()) <= (skill / 8))
+                    dam = 2 * dam + (dam * 2 * percent / 100);
+            }
+        }
+        else {
+            // Unarmed damage for PCs
+            dam = number_range(1 + 4 * skill / 100,
+                               2 * ch->level / 3 * skill / 100);
+        }
+    }
+
+    // Enhanced damage skill bonus
+    if (get_skill(ch, gsn_enhanced_damage) > 0) {
+        diceroll = number_percent();
+        if (diceroll <= get_skill(ch, gsn_enhanced_damage)) {
+            check_improve(ch, gsn_enhanced_damage, true, 6);
+            dam += 2 * (dam * diceroll / 300);
+        }
+    }
+
+    // Position multipliers
+    if (!IS_AWAKE(victim))
+        dam *= 2;
+    else if (victim->position < POS_FIGHTING)
+        dam = dam * 3 / 2;
+
+    // Backstab multiplier
+    if (dt == gsn_backstab && weapon != NULL) {
+        if (weapon->value[0] != 2)  // Not a dagger
+            dam *= 2 + (ch->level / 10);
+        else  // Dagger
+            dam *= 2 + (ch->level / 8);
+    }
+
+    // Add damroll bonus
+    dam += GET_DAMROLL(ch) * UMIN(100, skill) / 100;
+
+    // Minimum damage of 1
+    if (dam <= 0) 
+        dam = 1;
+    
+    (void)is_offhand;  // TODO: Apply offhand penalty if needed
+    
+    return dam;
 }
 
 static void rom_handle_death(Mobile* victim)
@@ -478,7 +644,6 @@ static void rom_handle_death(Mobile* victim)
     victim->hit = UMAX(1, victim->hit);
     victim->mana = UMAX(1, victim->mana);
     victim->move = UMAX(1, victim->move);
-    /*  save_char_obj( victim ); we're stable enough to not need this :) */
 }
 
 ////////////////////////////////////////////////////////////////////////////////
