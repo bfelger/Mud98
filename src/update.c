@@ -217,7 +217,7 @@ int hit_gain(Mobile* ch)
     gain = gain * ch->in_room->data->heal_rate / 100;
 
     if (ch->on != NULL && ch->on->item_type == ITEM_FURNITURE)
-        gain = gain * ch->on->value[3] / 100;
+        gain = gain * ch->on->furniture.heal_rate / 100;
 
     if (IS_AFFECTED(ch, AFF_POISON)) 
         gain /= 4;
@@ -288,7 +288,7 @@ int mana_gain(Mobile* ch)
     gain = gain * ch->in_room->data->mana_rate / 100;
 
     if (ch->on != NULL && ch->on->item_type == ITEM_FURNITURE)
-        gain = gain * ch->on->value[4] / 100;
+        gain = gain * ch->on->furniture.mana_rate / 100;
 
     if (IS_AFFECTED(ch, AFF_POISON)) gain /= 4;
 
@@ -330,7 +330,7 @@ int move_gain(Mobile* ch)
     gain = gain * ch->in_room->data->heal_rate / 100;
 
     if (ch->on != NULL && ch->on->item_type == ITEM_FURNITURE)
-        gain = gain * ch->on->value[3] / 100;
+        gain = gain * ch->on->furniture.heal_rate / 100;
 
     if (IS_AFFECTED(ch, AFF_POISON)) 
         gain /= 4;
@@ -567,14 +567,14 @@ void char_update(void)
             Object* obj;
 
             if ((obj = get_eq_char(ch, WEAR_LIGHT)) != NULL
-                && obj->item_type == ITEM_LIGHT && obj->value[2] > 0) {
-                if (--obj->value[2] == 0 && ch->in_room != NULL) {
+                && obj->item_type == ITEM_LIGHT && obj->light.hours > 0) {
+                if (--obj->light.hours == 0 && ch->in_room != NULL) {
                     --ch->in_room->light;
                     act("$p goes out.", ch, obj, NULL, TO_ROOM);
                     act("$p flickers and goes out.", ch, obj, NULL, TO_CHAR);
                     extract_obj(obj);
                 }
-                else if (obj->value[2] <= 5 && ch->in_room != NULL)
+                else if (obj->light.hours <= 5 && ch->in_room != NULL)
                     act("$p flickers.", ch, obj, NULL, TO_CHAR);
             }
 

@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stï¿½rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -94,7 +94,7 @@ void spell_portal(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget targe
 
     portal = create_object(get_object_prototype(OBJ_VNUM_PORTAL), 0);
     portal->timer = 2 + (int16_t)level / 25;
-    portal->value[3] = VNUM_FIELD(victim->in_room);
+    portal->portal.destination = VNUM_FIELD(victim->in_room);
 
     obj_to_room(portal, ch->in_room);
 
@@ -144,7 +144,7 @@ void spell_nexus(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target
     /* portal one */
     portal = create_object(get_object_prototype(OBJ_VNUM_PORTAL), 0);
     portal->timer = 1 + (int16_t)level / 10;
-    portal->value[3] = VNUM_FIELD(to_room);
+    portal->portal.destination = VNUM_FIELD(to_room);
 
     obj_to_room(portal, from_room);
 
@@ -158,7 +158,7 @@ void spell_nexus(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget target
     /* portal two */
     portal = create_object(get_object_prototype(OBJ_VNUM_PORTAL), 0);
     portal->timer = 1 + (int16_t)level / 10;
-    portal->value[3] = VNUM_FIELD(from_room);
+    portal->portal.destination = VNUM_FIELD(from_room);
 
     obj_to_room(portal, to_room);
 

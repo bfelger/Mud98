@@ -1210,14 +1210,14 @@ void do_ostat(Mobile* ch, char* argument)
 
     case ITEM_DRINK_CON:
         sprintf(buf, "It holds %s-colored %s.\n\r",
-                liquid_table[obj->value[2]].color,
-                liquid_table[obj->value[2]].name);
+                liquid_table[obj->drink_con.liquid_type].color,
+                liquid_table[obj->drink_con.liquid_type].name);
         send_to_char(buf, ch);
         break;
 
     case ITEM_WEAPON:
         send_to_char("Weapon type is ", ch);
-        switch (obj->value[0]) {
+        switch (obj->weapon.weapon_type) {
         case (WEAPON_EXOTIC):
             send_to_char("exotic\n\r", ch);
             break;
@@ -1249,20 +1249,20 @@ void do_ostat(Mobile* ch, char* argument)
             send_to_char("unknown\n\r", ch);
             break;
         }
-        sprintf(buf, "Damage is %dd%d (average %d)\n\r", obj->value[1],
-                obj->value[2], (1 + obj->value[2]) * obj->value[1] / 2);
+        sprintf(buf, "Damage is %dd%d (average %d)\n\r", obj->weapon.num_dice,
+                obj->weapon.size_dice, (1 + obj->weapon.size_dice) * obj->weapon.num_dice / 2);
         send_to_char(buf, ch);
 
         sprintf(buf, "Damage noun is %s.\n\r",
-                (obj->value[3] > 0 && obj->value[3] < ATTACK_COUNT)
-                    ? attack_table[obj->value[3]].noun
+                (obj->weapon.damage_type > 0 && obj->weapon.damage_type < ATTACK_COUNT)
+                    ? attack_table[obj->weapon.damage_type].noun
                     : "undefined");
         send_to_char(buf, ch);
 
-        if (obj->value[4]) /* weapon flags */
+        if (obj->weapon.flags) /* weapon flags */
         {
             sprintf(buf, "Weapons flags: %s\n\r",
-                    weapon_bit_name(obj->value[4]));
+                    weapon_bit_name(obj->weapon.flags));
             send_to_char(buf, ch);
         }
         break;
@@ -1271,16 +1271,16 @@ void do_ostat(Mobile* ch, char* argument)
         sprintf(
             buf,
             "Armor class is %d pierce, %d bash, %d slash, and %d vs. magic\n\r",
-            obj->value[0], obj->value[1], obj->value[2], obj->value[3]);
+            obj->armor.ac_pierce, obj->armor.ac_bash, obj->armor.ac_slash, obj->armor.unused4);
         send_to_char(buf, ch);
         break;
 
     case ITEM_CONTAINER:
         sprintf(buf, "Capacity: %d#  Maximum weight: %d#  flags: %s\n\r",
-                obj->value[0], obj->value[3], cont_bit_name(obj->value[1]));
+                obj->container.capacity, obj->container.max_item_weight, cont_bit_name(obj->container.flags));
         send_to_char(buf, ch);
-        if (obj->value[4] != 100) {
-            sprintf(buf, "Weight multiplier: %d%%\n\r", obj->value[4]);
+        if (obj->container.weight_mult != 100) {
+            sprintf(buf, "Weight multiplier: %d%%\n\r", obj->container.weight_mult);
             send_to_char(buf, ch);
         }
         break;

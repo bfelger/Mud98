@@ -456,9 +456,9 @@ void one_hit(Mobile* ch, Mobile* victim, int16_t dt, bool secondary)
     if (dt == TYPE_UNDEFINED) {
         dt = TYPE_HIT;
         if (wield != NULL && wield->item_type == ITEM_WEAPON)
-            dt += (int16_t)wield->value[3];
+            dt = (int16_t)wield->weapon.damage_type;
         else
-            dt += (int16_t)ch->dam_type;
+            dt = (int16_t)ch->dam_type;
     }
 
     // Use CombatOps seam for to-hit calculation
@@ -467,7 +467,7 @@ void one_hit(Mobile* ch, Mobile* victim, int16_t dt, bool secondary)
         DamageType dam_type;
         if (dt < TYPE_HIT) {
             if (wield != NULL)
-                dam_type = attack_table[wield->value[3]].damage;
+                dam_type = attack_table[wield->weapon.damage_type].damage;
             else
                 dam_type = attack_table[ch->dam_type].damage;
         }
@@ -489,7 +489,7 @@ void one_hit(Mobile* ch, Mobile* victim, int16_t dt, bool secondary)
     DamageType dam_type;
     if (dt < TYPE_HIT) {
         if (wield != NULL)
-            dam_type = attack_table[wield->value[3]].damage;
+            dam_type = attack_table[wield->weapon.damage_type].damage;
         else
             dam_type = attack_table[ch->dam_type].damage;
     }
@@ -1135,7 +1135,7 @@ void death_cry(Mobile* ch)
 
         if (obj->item_type == ITEM_FOOD) {
             if (IS_SET(ch->form, FORM_POISON))
-                obj->value[3] = 1;
+                obj->food.poisoned = 1;
             else if (!IS_SET(ch->form, FORM_EDIBLE))
                 obj->item_type = ITEM_TRASH;
         }

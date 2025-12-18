@@ -167,10 +167,10 @@ void show_obj_values(Mobile* ch, ObjPrototype* obj)
         break;
 
     case ITEM_LIGHT:
-        if (obj->value[2] == -1 || obj->value[2] == 999) /* ROM OLC */
+        if (obj->light.hours == -1 || obj->light.hours == 999) /* ROM OLC */
             printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v2" COLOR_DECOR_1 "]" COLOR_CLEAR " Light:  " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "-1" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "(infinite)" COLOR_EOL);
         else
-            printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v2" COLOR_DECOR_1 "]" COLOR_CLEAR " Light:  " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL, obj->value[2]);
+            printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v2" COLOR_DECOR_1 "]" COLOR_CLEAR " Light:  " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL, obj->light.hours);
         break;
 
     case ITEM_WAND:
@@ -193,10 +193,10 @@ void show_obj_values(Mobile* ch, ObjPrototype* obj)
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v1" COLOR_DECOR_1 "]" COLOR_CLEAR " Exit Flags:     " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v2" COLOR_DECOR_1 "]" COLOR_CLEAR " Portal Flags:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v3" COLOR_DECOR_1 "]" COLOR_CLEAR " Goes to VNUM:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL,
-            obj->value[0],
-            flag_string(exit_flag_table, obj->value[1]),
-            flag_string(portal_flag_table, obj->value[2]),
-            obj->value[3]);
+            obj->portal.charges,
+            flag_string(exit_flag_table, obj->portal.exit_flags),
+            flag_string(portal_flag_table, obj->portal.gate_flags),
+            obj->portal.destination);
         break;
 
     case ITEM_FURNITURE:
@@ -206,11 +206,11 @@ void show_obj_values(Mobile* ch, ObjPrototype* obj)
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v2" COLOR_DECOR_1 "]" COLOR_CLEAR " Furniture Flags: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v3" COLOR_DECOR_1 "]" COLOR_CLEAR " Heal bonus:      " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v4" COLOR_DECOR_1 "]" COLOR_CLEAR " Mana bonus:      " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL,
-            obj->value[0],
-            obj->value[1],
-            flag_string(furniture_flag_table, obj->value[2]),
-            obj->value[3],
-            obj->value[4]);
+            obj->furniture.max_people,
+            obj->furniture.max_weight,
+            flag_string(furniture_flag_table, obj->furniture.flags),
+            obj->furniture.heal_rate,
+            obj->furniture.mana_rate);
         break;
 
     case ITEM_SCROLL:
@@ -237,21 +237,21 @@ void show_obj_values(Mobile* ch, ObjPrototype* obj)
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v1" COLOR_DECOR_1 "]" COLOR_CLEAR " AC bash         " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v2" COLOR_DECOR_1 "]" COLOR_CLEAR " AC slash        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v3" COLOR_DECOR_1 "]" COLOR_CLEAR " AC exotic       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL,
-            obj->value[0],
-            obj->value[1],
-            obj->value[2],
-            obj->value[3]);
+            obj->armor.ac_pierce,
+            obj->armor.ac_bash,
+            obj->armor.ac_slash,
+            obj->armor.ac_exotic);
         break;
 
 /* WEAPON changed in ROM: */
 /* I had to split the output here, I have no idea why, but it helped -- Hugin */
 /* It somehow fixed a bug in showing scroll/pill/potions too ?! */
     case ITEM_WEAPON:
-        printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v0" COLOR_DECOR_1 "]" COLOR_CLEAR " Weapon class:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, flag_string(weapon_class, obj->value[0]));
-        printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v1" COLOR_DECOR_1 "]" COLOR_CLEAR " Number of dice: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL, obj->value[1]);
-        printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v2" COLOR_DECOR_1 "]" COLOR_CLEAR " Type of dice:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL, obj->value[2]);
-        printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v3" COLOR_DECOR_1 "]" COLOR_CLEAR " Type:           " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, attack_table[obj->value[3]].name);
-        printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v4" COLOR_DECOR_1 "]" COLOR_CLEAR " Special type:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, flag_string(weapon_type2, obj->value[4]));
+        printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v0" COLOR_DECOR_1 "]" COLOR_CLEAR " Weapon class:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, flag_string(weapon_class, obj->weapon.weapon_type));
+        printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v1" COLOR_DECOR_1 "]" COLOR_CLEAR " Number of dice: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL, obj->weapon.num_dice);
+        printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v2" COLOR_DECOR_1 "]" COLOR_CLEAR " Type of dice:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL, obj->weapon.size_dice);
+        printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v3" COLOR_DECOR_1 "]" COLOR_CLEAR " Type:           " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, attack_table[obj->weapon.damage_type].name);
+        printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v4" COLOR_DECOR_1 "]" COLOR_CLEAR " Special type:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, flag_string(weapon_type2, obj->weapon.flags));
         break;
 
     case ITEM_CONTAINER:
@@ -259,16 +259,16 @@ void show_obj_values(Mobile* ch, ObjPrototype* obj)
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v0" COLOR_DECOR_1 "]" COLOR_CLEAR " Weight:     " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d kg" COLOR_DECOR_1 "]" COLOR_EOL
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v1" COLOR_DECOR_1 "]" COLOR_CLEAR " Flags:      " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v2" COLOR_DECOR_1 "]" COLOR_CLEAR " Key:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_ALT_TEXT_2 " %s" COLOR_EOL
-            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v3" COLOR_DECOR_1 "]" COLOR_CLEAR " Capacity    " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v3" COLOR_DECOR_1 "]" COLOR_CLEAR " Max Item Wt." COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v4" COLOR_DECOR_1 "]" COLOR_CLEAR " Weight Mult " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL,
-            obj->value[0],
-            flag_string(container_flag_table, obj->value[1]),
-            obj->value[2],
-            get_object_prototype(obj->value[2])
-            ? get_object_prototype(obj->value[2])->short_descr
+            obj->container.capacity,
+            flag_string(container_flag_table, obj->container.flags),
+            obj->container.key_vnum,
+            get_object_prototype(obj->container.key_vnum)
+            ? get_object_prototype(obj->container.key_vnum)->short_descr
             : "none",
-            obj->value[3],
-            obj->value[4]);
+            obj->container.max_item_weight,
+            obj->container.weight_mult);
         break;
 
     case ITEM_DRINK_CON:
@@ -277,10 +277,10 @@ void show_obj_values(Mobile* ch, ObjPrototype* obj)
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v1" COLOR_DECOR_1 "]" COLOR_CLEAR " Liquid Left:  " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v2" COLOR_DECOR_1 "]" COLOR_CLEAR " Liquid:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v3" COLOR_DECOR_1 "]" COLOR_CLEAR " Poisoned:     " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL,
-            obj->value[0],
-            obj->value[1],
-            liquid_table[obj->value[2]].name,
-            obj->value[3] != 0 ? "Yes" : "No");
+            obj->drink_con.capacity,
+            obj->drink_con.current,
+            liquid_table[obj->drink_con.liquid_type].name,
+            obj->drink_con.poisoned != 0 ? "Yes" : "No");
         break;
 
     case ITEM_FOUNTAIN:
@@ -288,9 +288,9 @@ void show_obj_values(Mobile* ch, ObjPrototype* obj)
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v0" COLOR_DECOR_1 "]" COLOR_CLEAR " Liquid Total: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v1" COLOR_DECOR_1 "]" COLOR_CLEAR " Liquid Left:  " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v2" COLOR_DECOR_1 "]" COLOR_CLEAR " Liquid:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL,
-            obj->value[0],
-            obj->value[1],
-            liquid_table[obj->value[2]].name);
+            obj->fountain.capacity,
+            obj->fountain.current,
+            liquid_table[obj->fountain.liquid_type].name);
         break;
 
     case ITEM_FOOD:
@@ -298,9 +298,9 @@ void show_obj_values(Mobile* ch, ObjPrototype* obj)
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v0" COLOR_DECOR_1 "]" COLOR_CLEAR " Food hours:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v1" COLOR_DECOR_1 "]" COLOR_CLEAR " Full hours:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v3" COLOR_DECOR_1 "]" COLOR_CLEAR " Poisoned:     " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL,
-            obj->value[0],
-            obj->value[1],
-            obj->value[3] != 0 ? "Yes" : "No");
+            obj->food.hours_full,
+            obj->food.hours_hunger,
+            obj->food.poisoned != 0 ? "Yes" : "No");
         break;
 
     case ITEM_MONEY:
@@ -308,9 +308,9 @@ void show_obj_values(Mobile* ch, ObjPrototype* obj)
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v0" COLOR_DECOR_1 "]" COLOR_CLEAR " Copper:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v1" COLOR_DECOR_1 "]" COLOR_CLEAR " Silver:       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v2" COLOR_DECOR_1 "]" COLOR_CLEAR " Gold:         " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL,
-            obj->value[0],
-            obj->value[1],
-            obj->value[2]);
+            obj-> money.copper,
+            obj->money.silver,
+            obj->money.gold);
         break;
     }
 
@@ -332,7 +332,7 @@ bool set_obj_values(Mobile* ch, ObjPrototype* pObj, int value_num, char* argumen
             return false;
         case 2:
             send_to_char("HOURS OF LIGHT SET.\n\r\n\r", ch);
-            pObj->value[2] = atoi(argument);
+            pObj->light.hours = atoi(argument);
             break;
         }
         break;
@@ -401,19 +401,19 @@ bool set_obj_values(Mobile* ch, ObjPrototype* pObj, int value_num, char* argumen
             return false;
         case 0:
             send_to_char("AC PIERCE SET.\n\r\n\r", ch);
-            pObj->value[0] = atoi(argument);
+            pObj->armor.ac_pierce = atoi(argument);
             break;
         case 1:
             send_to_char("AC BASH SET.\n\r\n\r", ch);
-            pObj->value[1] = atoi(argument);
+            pObj->armor.ac_bash = atoi(argument);
             break;
         case 2:
             send_to_char("AC SLASH SET.\n\r\n\r", ch);
-            pObj->value[2] = atoi(argument);
+            pObj->armor.ac_slash = atoi(argument);
             break;
         case 3:
             send_to_char("AC EXOTIC SET.\n\r\n\r", ch);
-            pObj->value[3] = atoi(argument);
+            pObj->armor.ac_exotic = atoi(argument);
             break;
         }
         break;
@@ -427,23 +427,23 @@ bool set_obj_values(Mobile* ch, ObjPrototype* pObj, int value_num, char* argumen
             return false;
         case 0:
             send_to_char("WEAPON CLASS SET.\n\r\n\r", ch);
-            pObj->value[0] = flag_value(weapon_class, argument);
+            pObj->weapon.weapon_type = flag_value(weapon_class, argument);
             break;
         case 1:
             send_to_char("NUMBER OF DICE SET.\n\r\n\r", ch);
-            pObj->value[1] = atoi(argument);
+            pObj->weapon.num_dice = atoi(argument);
             break;
         case 2:
             send_to_char("TYPE OF DICE SET.\n\r\n\r", ch);
-            pObj->value[2] = atoi(argument);
+            pObj->weapon.size_dice = atoi(argument);
             break;
         case 3:
-            send_to_char("WEAPON TYPE SET.\n\r\n\r", ch);
-            pObj->value[3] = attack_lookup(argument);
+            send_to_char("DAMAGE TYPE SET.\n\r\n\r", ch);
+            pObj->weapon.damage_type = attack_lookup(argument);
             break;
         case 4:
             send_to_char("SPECIAL WEAPON TYPE TOGGLED.\n\r\n\r", ch);
-            pObj->value[4] ^= (flag_value(weapon_type2, argument) != NO_FLAG
+            pObj->weapon.flags ^= (flag_value(weapon_type2, argument) != NO_FLAG
                 ? flag_value(weapon_type2, argument) : 0);
             break;
         }
@@ -457,19 +457,23 @@ bool set_obj_values(Mobile* ch, ObjPrototype* pObj, int value_num, char* argumen
 
         case 0:
             send_to_char("CHARGES SET.\n\r\n\r", ch);
-            pObj->value[0] = atoi(argument);
+            pObj->portal.charges = atoi(argument);
             break;
         case 1:
             send_to_char("EXIT FLAGS SET.\n\r\n\r", ch);
-            pObj->value[1] = ((tmp = flag_value(exit_flag_table, argument)) == NO_FLAG ? 0 : tmp);
+            pObj->portal.exit_flags = ((tmp = flag_value(exit_flag_table, argument)) == NO_FLAG ? 0 : tmp);
             break;
         case 2:
             send_to_char("PORTAL FLAGS SET.\n\r\n\r", ch);
-            pObj->value[2] = ((tmp = flag_value(portal_flag_table, argument)) == NO_FLAG ? 0 : tmp);
+            pObj->portal.gate_flags = ((tmp = flag_value(portal_flag_table, argument)) == NO_FLAG ? 0 : tmp);
             break;
         case 3:
             send_to_char("EXIT VNUM SET.\n\r\n\r", ch);
-            pObj->value[3] = atoi(argument);
+            pObj->portal.destination = atoi(argument);
+            break;
+        case 4:
+            send_to_char("PORTAL KEY SET.\n\r\n\r", ch);
+            pObj->portal.key_vnum = atoi(argument);
             break;
         }
         break;
@@ -482,24 +486,24 @@ bool set_obj_values(Mobile* ch, ObjPrototype* pObj, int value_num, char* argumen
 
         case 0:
             send_to_char("NUMBER OF PEOPLE SET.\n\r\n\r", ch);
-            pObj->value[0] = atoi(argument);
+            pObj->furniture.max_people = atoi(argument);
             break;
         case 1:
             send_to_char("MAX WEIGHT SET.\n\r\n\r", ch);
-            pObj->value[1] = atoi(argument);
+            pObj->furniture.max_weight = atoi(argument);
             break;
         case 2:
             send_to_char("FURNITURE FLAGS TOGGLED.\n\r\n\r", ch);
-            pObj->value[2] ^= (flag_value(furniture_flag_table, argument) != NO_FLAG
+            pObj->furniture.flags ^= (flag_value(furniture_flag_table, argument) != NO_FLAG
                 ? flag_value(furniture_flag_table, argument) : 0);
             break;
         case 3:
             send_to_char("HEAL BONUS SET.\n\r\n\r", ch);
-            pObj->value[3] = atoi(argument);
+            pObj->furniture.heal_rate = atoi(argument);
             break;
         case 4:
             send_to_char("MANA BONUS SET.\n\r\n\r", ch);
-            pObj->value[4] = atoi(argument);
+            pObj->furniture.mana_rate = atoi(argument);
             break;
         }
         break;
@@ -513,12 +517,12 @@ bool set_obj_values(Mobile* ch, ObjPrototype* pObj, int value_num, char* argumen
             return false;
         case 0:
             send_to_char("WEIGHT CAPACITY SET.\n\r\n\r", ch);
-            pObj->value[0] = atoi(argument);
+            pObj->container.capacity = atoi(argument);
             break;
         case 1:
             if ((value = flag_value(container_flag_table, argument))
                 != NO_FLAG)
-                TOGGLE_BIT(pObj->value[1], value);
+                TOGGLE_BIT(pObj->container.flags, value);
             else {
                 do_help(ch, "ITEM_CONTAINER");
                 return false;
@@ -538,15 +542,15 @@ bool set_obj_values(Mobile* ch, ObjPrototype* pObj, int value_num, char* argumen
                 }
             }
             send_to_char("CONTAINER KEY SET.\n\r\n\r", ch);
-            pObj->value[2] = atoi(argument);
+            pObj->container.key_vnum = atoi(argument);
             break;
         case 3:
             send_to_char("CONTAINER MAX WEIGHT SET.\n\r", ch);
-            pObj->value[3] = atoi(argument);
+            pObj->container.max_item_weight = atoi(argument);
             break;
         case 4:
             send_to_char("WEIGHT MULTIPLIER SET.\n\r\n\r", ch);
-            pObj->value[4] = atoi(argument);
+            pObj->container.weight_mult = atoi(argument);
             break;
         }
         break;
@@ -559,20 +563,20 @@ bool set_obj_values(Mobile* ch, ObjPrototype* pObj, int value_num, char* argumen
             return false;
         case 0:
             send_to_char("MAXIMUM AMOUT OF LIQUID HOURS SET.\n\r\n\r", ch);
-            pObj->value[0] = atoi(argument);
+            pObj->drink_con.capacity = atoi(argument);
             break;
         case 1:
             send_to_char("CURRENT AMOUNT OF LIQUID HOURS SET.\n\r\n\r", ch);
-            pObj->value[1] = atoi(argument);
+            pObj->drink_con.current = atoi(argument);
             break;
         case 2:
             send_to_char("LIQUID TYPE SET.\n\r\n\r", ch);
-            pObj->value[2] = (liquid_lookup(argument) != -1 ?
+            pObj->drink_con.liquid_type = (liquid_lookup(argument) != -1 ?
                 liquid_lookup(argument) : 0);
             break;
         case 3:
             send_to_char("POISON VALUE TOGGLED.\n\r\n\r", ch);
-            pObj->value[3] = (pObj->value[3] == 0) ? 1 : 0;
+            pObj->drink_con.poisoned = (pObj->drink_con.poisoned == 0) ? 1 : 0;
             break;
         }
         break;
@@ -585,15 +589,15 @@ bool set_obj_values(Mobile* ch, ObjPrototype* pObj, int value_num, char* argumen
             return false;
         case 0:
             send_to_char("LIQUID MAXIMUM SET.\n\r\n\r", ch);
-            pObj->value[0] = atoi(argument);
+            pObj->fountain.capacity = atoi(argument);
             break;
         case 1:
             send_to_char("LIQUID LEFT SET.\n\r\n\r", ch);
-            pObj->value[1] = atoi(argument);
+            pObj->fountain.current = atoi(argument);
             break;
         case 2:
             send_to_char("LIQUID TYPE SET.\n\r\n\r", ch);
-            pObj->value[2] = (liquid_lookup(argument) != -1 ?
+            pObj->fountain.liquid_type = (liquid_lookup(argument) != -1 ?
                 liquid_lookup(argument) : 0);
             break;
         }
@@ -606,15 +610,15 @@ bool set_obj_values(Mobile* ch, ObjPrototype* pObj, int value_num, char* argumen
             return false;
         case 0:
             send_to_char("HOURS OF FOOD SET.\n\r\n\r", ch);
-            pObj->value[0] = atoi(argument);
+            pObj->food.hours_full = atoi(argument);
             break;
         case 1:
             send_to_char("HOURS OF FULL SET.\n\r\n\r", ch);
-            pObj->value[1] = atoi(argument);
+            pObj->food.hours_hunger = atoi(argument);
             break;
         case 3:
             send_to_char("POISON VALUE TOGGLED.\n\r\n\r", ch);
-            pObj->value[3] = (pObj->value[3] == 0) ? 1 : 0;
+            pObj->food.poisoned = (pObj->food.poisoned == 0) ? 1 : 0;
             break;
         }
         break;
@@ -625,12 +629,16 @@ bool set_obj_values(Mobile* ch, ObjPrototype* pObj, int value_num, char* argumen
             do_help(ch, "ITEM_MONEY");
             return false;
         case 0:
-            send_to_char("GOLD AMOUNT SET.\n\r\n\r", ch);
-            pObj->value[0] = atoi(argument);
+            send_to_char("COPPER AMOUNT SET.\n\r\n\r", ch);
+            pObj->money.copper = atoi(argument);
             break;
         case 1:
             send_to_char("SILVER AMOUNT SET.\n\r\n\r", ch);
-            pObj->value[1] = atoi(argument);
+            pObj->money.silver = atoi(argument);
+            break;
+        case 2:
+            send_to_char("GOLD AMOUNT SET.\n\r\n\r", ch);
+            pObj->money.gold = atoi(argument);
             break;
         }
         break;

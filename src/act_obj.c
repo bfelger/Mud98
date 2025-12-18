@@ -258,9 +258,9 @@ void get_obj(Mobile* ch, Object* obj, Object* container)
 
     if (obj->item_type == ITEM_MONEY) {
         long amount = convert_money_to_copper(
-            obj->value[MONEY_VALUE_GOLD],
-            obj->value[MONEY_VALUE_SILVER],
-            obj->value[MONEY_VALUE_COPPER]);
+            obj->money.gold,
+            obj->money.silver,
+            obj->money.copper);
 
         if (amount > 0) {
             long total = mobile_total_copper(ch) + amount;
@@ -359,7 +359,7 @@ void do_get(Mobile* ch, char* argument)
         }
         }
 
-        if (IS_SET(container->value[1], CONT_CLOSED)) {
+        if (IS_SET(container->container.flags, CONT_CLOSED)) {
             act("The $d is closed.", ch, NULL, NAME_STR(container), TO_CHAR);
             return;
         }
@@ -436,7 +436,7 @@ void do_put(Mobile* ch, char* argument)
         return;
     }
 
-    if (IS_SET(container->value[1], CONT_CLOSED)) {
+    if (IS_SET(container->container.flags, CONT_CLOSED)) {
         act("The $d is closed.", ch, NULL, NAME_STR(container), TO_CHAR);
         return;
     }
@@ -465,8 +465,8 @@ void do_put(Mobile* ch, char* argument)
         }
 
         if (get_obj_weight(obj) + get_true_weight(container)
-                > (container->value[0] * 10)
-            || get_obj_weight(obj) > (container->value[3] * 10)) {
+                > (container->container.capacity * 10)
+            || get_obj_weight(obj) > (container->container.max_item_weight * 10)) {
             send_to_char("It won't fit.\n\r", ch);
             return;
         }
@@ -482,7 +482,7 @@ void do_put(Mobile* ch, char* argument)
         obj_from_char(obj);
         obj_to_obj(obj, container);
 
-        if (IS_SET(container->value[1], CONT_PUT_ON)) {
+        if (IS_SET(container->container.flags, CONT_PUT_ON)) {
             act("$n puts $p on $P.", ch, obj, container, TO_ROOM);
             act("You put $p on $P.", ch, obj, container, TO_CHAR);
         }
@@ -500,8 +500,8 @@ void do_put(Mobile* ch, char* argument)
                 && obj->wear_loc == WEAR_UNHELD && obj != container
                 && can_drop_obj(ch, obj)
                 && get_obj_weight(obj) + get_true_weight(container)
-                       <= (container->value[0] * 10)
-                && get_obj_weight(obj) < (container->value[3] * 10)) {
+                       <= (container->container.capacity * 10)
+                && get_obj_weight(obj) < (container->container.max_item_weight * 10)) {
                 if (VNUM_FIELD(container->prototype) == OBJ_VNUM_PIT && !CAN_WEAR(
                     obj, ITEM_TAKE)) {
                     if (obj->timer)
@@ -512,7 +512,7 @@ void do_put(Mobile* ch, char* argument)
                 obj_from_char(obj);
                 obj_to_obj(obj, container);
 
-                if (IS_SET(container->value[1], CONT_PUT_ON)) {
+                if (IS_SET(container->container.flags, CONT_PUT_ON)) {
                     act("$n puts $p on $P.", ch, obj, container, TO_ROOM);
                     act("You put $p on $P.", ch, obj, container, TO_CHAR);
                 }
@@ -581,9 +581,9 @@ void do_drop(Mobile* ch, char* argument)
                 continue;
 
             total_copper += convert_money_to_copper(
-                obj->value[MONEY_VALUE_GOLD],
-                obj->value[MONEY_VALUE_SILVER],
-                obj->value[MONEY_VALUE_COPPER]);
+                obj->money.gold,
+                obj->money.silver,
+                obj->money.copper);
             extract_obj(obj);
         }
 
@@ -910,8 +910,8 @@ void do_envenom(Mobile* ch, char* argument)
             return;
         }
 
-        if (obj->value[3] < 0
-            || attack_table[obj->value[3]].damage == DAM_BASH) {
+        if (obj->weapon.damage_type < 0
+            || attack_table[obj->weapon.damage_type].damage == DAM_BASH) {
             send_to_char("You can only envenom edged weapons.\n\r", ch);
             return;
         }
@@ -988,24 +988,25 @@ void do_fill(Mobile* ch, char* argument)
         return;
     }
 
-    if (obj->value[1] != 0 && obj->value[2] != fountain->value[2]) {
+    if (obj->drink_con.current != 0 
+        && obj->drink_con.liquid_type != fountain->fountain.liquid_type) {
         send_to_char("There is already another liquid in it.\n\r", ch);
         return;
     }
 
-    if (obj->value[1] >= obj->value[0]) {
+    if (obj->drink_con.current >= obj->drink_con.capacity) {
         send_to_char("Your container is full.\n\r", ch);
         return;
     }
 
     sprintf(buf, "You fill $p with %s from $P.",
-            liquid_table[fountain->value[2]].name);
+            liquid_table[fountain->fountain.liquid_type].name);
     act(buf, ch, obj, fountain, TO_CHAR);
     sprintf(buf, "$n fills $p with %s from $P.",
-            liquid_table[fountain->value[2]].name);
+            liquid_table[fountain->fountain.liquid_type].name);
     act(buf, ch, obj, fountain, TO_ROOM);
-    obj->value[2] = fountain->value[2];
-    obj->value[1] = obj->value[0];
+    obj->drink_con.liquid_type = fountain->fountain.liquid_type;
+    obj->drink_con.current = obj->drink_con.capacity;
     return;
 }
 
@@ -1034,19 +1035,19 @@ void do_pour(Mobile* ch, char* argument)
     }
 
     if (!str_cmp(argument, "out")) {
-        if (out->value[1] == 0) {
+        if (out->drink_con.current == 0) {
             send_to_char("It's already empty.\n\r", ch);
             return;
         }
 
-        out->value[1] = 0;
-        out->value[3] = 0;
+        out->drink_con.current = 0;
+        out->drink_con.liquid_type = 0;
         sprintf(buf, "You invert $p, spilling %s all over the ground.",
-                liquid_table[out->value[2]].name);
+                liquid_table[out->drink_con.liquid_type].name);
         act(buf, ch, out, NULL, TO_CHAR);
 
         sprintf(buf, "$n inverts $p, spilling %s all over the ground.",
-                liquid_table[out->value[2]].name);
+                liquid_table[out->drink_con.liquid_type].name);
         act(buf, ch, out, NULL, TO_ROOM);
         return;
     }
@@ -1077,28 +1078,28 @@ void do_pour(Mobile* ch, char* argument)
         return;
     }
 
-    if (in->value[1] != 0 && in->value[2] != out->value[2]) {
+    if (in->drink_con.current != 0 && in->drink_con.liquid_type != out->drink_con.liquid_type) {
         send_to_char("They don't hold the same liquid.\n\r", ch);
         return;
     }
 
-    if (out->value[1] == 0) {
+    if (out->drink_con.current == 0) {
         act("There's nothing in $p to pour.", ch, out, NULL, TO_CHAR);
         return;
     }
 
-    if (in->value[1] >= in->value[0]) {
+    if (in->drink_con.current >= in->drink_con.capacity) {
         act("$p is already filled to the top.", ch, in, NULL, TO_CHAR);
         return;
     }
 
-    amount = UMIN(out->value[1], in->value[0] - in->value[1]);
+    amount = UMIN(out->drink_con.current, in->drink_con.capacity - in->drink_con.current);
 
-    int liq = out->value[2];
+    int liq = out->drink_con.liquid_type;
 
-    in->value[1] += amount;
-    out->value[1] -= amount;
-    in->value[2] = liq;
+    in->drink_con.current += amount;
+    out->drink_con.current -= amount;
+    in->drink_con.liquid_type = liq;
 
 
     if (vch == NULL) {
@@ -1155,26 +1156,26 @@ void do_drink(Mobile* ch, char* argument)
         return;
 
     case ITEM_FOUNTAIN:
-        if ((liquid = obj->value[2]) < 0) {
+        if ((liquid = obj->fountain.liquid_type) < 0) {
             bug("Do_drink: bad liquid number %d.", liquid);
-            liquid = obj->value[2] = 0;
+            liquid = obj->fountain.liquid_type = 0;
         }
         amount = liquid_table[liquid].sip_size * 3;
         break;
 
     case ITEM_DRINK_CON:
-        if (obj->value[1] <= 0) {
+        if (obj->drink_con.current <= 0) {
             send_to_char("It is already empty.\n\r", ch);
             return;
         }
 
-        if ((liquid = obj->value[2]) < 0) {
+        if ((liquid = obj->drink_con.liquid_type) < 0) {
             bug("Do_drink: bad liquid number %d.", liquid);
-            liquid = obj->value[2] = 0;
+            liquid = obj->drink_con.liquid_type = 0;
         }
 
         amount = liquid_table[liquid].sip_size;
-        amount = UMIN(amount, obj->value[1]);
+        amount = UMIN(amount, obj->drink_con.current);
         break;
     }
     if (!IS_NPC(ch) && !IS_IMMORTAL(ch)
@@ -1198,7 +1199,7 @@ void do_drink(Mobile* ch, char* argument)
     if (!IS_NPC(ch) && ch->pcdata->condition[COND_THIRST] > 40)
         send_to_char("Your thirst is quenched.\n\r", ch);
 
-    if (obj->value[3] != 0) {
+    if (obj->drink_con.poisoned != 0) {
         /* The drink was poisoned ! */
         Affect af = { 0 };
 
@@ -1214,7 +1215,7 @@ void do_drink(Mobile* ch, char* argument)
         affect_join(ch, &af);
     }
 
-    if (obj->value[0] > 0) obj->value[1] -= amount;
+    if (obj->drink_con.current > 0) obj->drink_con.current -= amount;
 
     return;
 }
@@ -1255,15 +1256,15 @@ void do_eat(Mobile* ch, char* argument)
             int condition;
 
             condition = ch->pcdata->condition[COND_HUNGER];
-            gain_condition(ch, COND_FULL, obj->value[0]);
-            gain_condition(ch, COND_HUNGER, obj->value[1]);
+            gain_condition(ch, COND_FULL, obj->food.hours_full);
+            gain_condition(ch, COND_HUNGER, obj->food.hours_hunger);
             if (condition == 0 && ch->pcdata->condition[COND_HUNGER] > 0)
                 send_to_char("You are no longer hungry.\n\r", ch);
             else if (ch->pcdata->condition[COND_FULL] > 40)
                 send_to_char("You are full.\n\r", ch);
         }
 
-        if (obj->value[3] != 0) {
+        if (obj->food.poisoned != 0) {
             /* The food was poisoned! */
             Affect af = { 0 };
 
@@ -1272,8 +1273,8 @@ void do_eat(Mobile* ch, char* argument)
 
             af.where = TO_AFFECTS;
             af.type = gsn_poison;
-            af.level = (int16_t)number_fuzzy(obj->value[0]);
-            af.duration = 2 * (int16_t)obj->value[0];
+            af.level = (int16_t)number_fuzzy(obj->food.hours_full);
+            af.duration = 2 * (int16_t)obj->food.hours_full;
             af.location = APPLY_NONE;
             af.modifier = 0;
             af.bitvector = AFF_POISON;
@@ -1281,9 +1282,9 @@ void do_eat(Mobile* ch, char* argument)
         }
     }
     else if (obj->item_type == ITEM_PILL) {
-        obj_cast_spell((SKNUM)obj->value[1], (LEVEL)obj->value[0], ch, ch, NULL);
-        obj_cast_spell((SKNUM)obj->value[2], (LEVEL)obj->value[0], ch, ch, NULL);
-        obj_cast_spell((SKNUM)obj->value[3], (LEVEL)obj->value[0], ch, ch, NULL);
+        obj_cast_spell((SKNUM)obj->pill.spell1, (LEVEL)obj->pill.level, ch, ch, NULL);
+        obj_cast_spell((SKNUM)obj->pill.spell2, (LEVEL)obj->pill.level, ch, ch, NULL);
+        obj_cast_spell((SKNUM)obj->pill.spell3, (LEVEL)obj->pill.level, ch, ch, NULL);
     }
 
     extract_obj(obj);
@@ -1732,9 +1733,9 @@ void do_quaff(Mobile* ch, char* argument)
     act("$n quaffs $p.", ch, obj, NULL, TO_ROOM);
     act("You quaff $p.", ch, obj, NULL, TO_CHAR);
 
-    obj_cast_spell((SKNUM)obj->value[1], (LEVEL)obj->value[0], ch, ch, NULL);
-    obj_cast_spell((SKNUM)obj->value[2], (LEVEL)obj->value[0], ch, ch, NULL);
-    obj_cast_spell((SKNUM)obj->value[3], (LEVEL)obj->value[0], ch, ch, NULL);
+    obj_cast_spell((SKNUM)obj->potion.spell1, (LEVEL)obj->potion.level, ch, ch, NULL);
+    obj_cast_spell((SKNUM)obj->potion.spell2, (LEVEL)obj->potion.level, ch, ch, NULL);
+    obj_cast_spell((SKNUM)obj->potion.spell3, (LEVEL)obj->potion.level, ch, ch, NULL);
 
     extract_obj(obj);
     return;
@@ -1787,9 +1788,9 @@ void do_recite(Mobile* ch, char* argument)
     }
 
     else {
-        obj_cast_spell((SKNUM)scroll->value[1], (LEVEL)scroll->value[0], ch, victim, obj);
-        obj_cast_spell((SKNUM)scroll->value[2], (LEVEL)scroll->value[0], ch, victim, obj);
-        obj_cast_spell((SKNUM)scroll->value[3], (LEVEL)scroll->value[0], ch, victim, obj);
+        obj_cast_spell((SKNUM)scroll->scroll.spell1, (LEVEL)scroll->scroll.level, ch, victim, obj);
+        obj_cast_spell((SKNUM)scroll->scroll.spell2, (LEVEL)scroll->scroll.level, ch, victim, obj);
+        obj_cast_spell((SKNUM)scroll->scroll.spell3, (LEVEL)scroll->scroll.level, ch, victim, obj);
         check_improve(ch, gsn_scrolls, true, 2);
     }
 
@@ -1914,7 +1915,7 @@ void do_zap(Mobile* ch, char* argument)
 
     WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
 
-    if (wand->value[2] > 0) {
+    if (wand->wand.charges > 0) {
         if (victim != NULL) {
             act("$n zaps $N with $p.", ch, wand, victim, TO_NOTVICT);
             act("You zap $N with $p.", ch, wand, victim, TO_CHAR);
@@ -1935,12 +1936,12 @@ void do_zap(Mobile* ch, char* argument)
             check_improve(ch, gsn_wands, false, 2);
         }
         else {
-            obj_cast_spell((SKNUM)wand->value[3], (LEVEL)wand->value[0], ch, victim, obj);
+            obj_cast_spell((SKNUM)wand->wand.spell, (LEVEL)wand->wand.level, ch, victim, obj);
             check_improve(ch, gsn_wands, true, 2);
         }
     }
 
-    if (--wand->value[2] <= 0) {
+    if (--wand->wand.charges <= 0) {
         act("$n's $p explodes into fragments.", ch, wand, NULL, TO_ROOM);
         act("Your $p explodes into fragments.", ch, wand, NULL, TO_CHAR);
         extract_obj(wand);

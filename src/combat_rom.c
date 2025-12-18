@@ -447,7 +447,7 @@ static bool rom_check_hit(Mobile* ch, Mobile* victim, Object* weapon, int16_t dt
     // Determine damage type for AC calculation
     if (dt < TYPE_HIT) {
         if (weapon != NULL)
-            dam_type = attack_table[weapon->value[3]].damage;
+            dam_type = attack_table[weapon->weapon.weapon_type].damage;
         else
             dam_type = attack_table[ch->dam_type].damage;
     }
@@ -563,7 +563,7 @@ static int rom_calculate_damage(Mobile* ch, Mobile* victim, Object* weapon,
     else {
         if (weapon != NULL) {
             // Weapon damage
-            dam = dice(weapon->value[1], weapon->value[2]) * skill / 100;
+            dam = dice(weapon->weapon.num_dice, weapon->weapon.size_dice) * skill / 100;
 
             // No shield = 10% damage bonus
             if (get_eq_char(ch, WEAR_SHIELD) == NULL)
@@ -601,7 +601,7 @@ static int rom_calculate_damage(Mobile* ch, Mobile* victim, Object* weapon,
 
     // Backstab multiplier
     if (dt == gsn_backstab && weapon != NULL) {
-        if (weapon->value[0] != 2)  // Not a dagger
+        if (weapon->weapon.weapon_type != WEAPON_DAGGER)  // Not a dagger
             dam *= 2 + (ch->level / 10);
         else  // Dagger
             dam *= 2 + (ch->level / 8);

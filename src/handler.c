@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stï¿½rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -408,7 +408,7 @@ SKNUM get_weapon_sn(Mobile* ch)
     if (wield == NULL || wield->item_type != ITEM_WEAPON)
         return gsn_hand_to_hand;
     
-    return *(weapon_table[wield->value[0]].gsn);
+    return *(weapon_table[wield->weapon.weapon_type].gsn);
 }
 
 int get_weapon_skill(Mobile* ch, SKNUM sn)
@@ -894,7 +894,7 @@ void mob_from_room(Mobile* ch)
         --ch->in_room->area->nplayer;
 
     if ((obj = get_eq_char(ch, WEAR_LIGHT)) != NULL
-        && obj->item_type == ITEM_LIGHT && obj->value[2] != 0
+        && obj->item_type == ITEM_LIGHT && obj->light.hours != 0
         && ch->in_room->light > 0)
         --ch->in_room->light;
 
@@ -982,7 +982,7 @@ void mob_to_room(Mobile* ch, Room* room)
     }
 
     if ((obj = get_eq_char(ch, WEAR_LIGHT)) != NULL
-        && obj->item_type == ITEM_LIGHT && obj->value[2] != 0)
+        && obj->item_type == ITEM_LIGHT && obj->light.hours != 0)
         ++ch->in_room->light;
 
     if (IS_AFFECTED(ch, AFF_PLAGUE)) {
@@ -1153,7 +1153,7 @@ void equip_char(Mobile* ch, Object* obj, WearLocation iWear)
         else
             affect_modify(ch, affect, true);
 
-    if (obj->item_type == ITEM_LIGHT && obj->value[2] != 0
+    if (obj->item_type == ITEM_LIGHT && obj->light.hours != 0
         && ch->in_room != NULL)
         ++ch->in_room->light;
 
@@ -1215,7 +1215,7 @@ void unequip_char(Mobile* ch, Object* obj)
         }
     }
 
-    if (obj->item_type == ITEM_LIGHT && obj->value[2] != 0
+    if (obj->item_type == ITEM_LIGHT && obj->light.hours != 0
         && ch->in_room != NULL && ch->in_room->light > 0)
         --ch->in_room->light;
 
@@ -1753,9 +1753,9 @@ Object* create_money(int16_t gold, int16_t silver, int16_t copper)
         obj->short_descr = str_dup(buf);
     }
 
-    obj->value[MONEY_VALUE_GOLD] = gold;
-    obj->value[MONEY_VALUE_SILVER] = silver;
-    obj->value[MONEY_VALUE_COPPER] = copper;
+    obj->money.gold = gold;
+    obj->money.silver = silver;
+    obj->money.copper = copper;
 
     obj->cost = (int)(total_copper / COPPER_PER_SILVER);
     if (total_copper > 0 && obj->cost == 0)
@@ -1947,7 +1947,7 @@ bool can_see_obj(Mobile* ch, Object* obj)
     if (IS_AFFECTED(ch, AFF_BLIND) && obj->item_type != ITEM_POTION)
         return false;
 
-    if (obj->item_type == ITEM_LIGHT && obj->value[2] != 0) 
+    if (obj->item_type == ITEM_LIGHT && obj->light.hours != 0) 
         return true;
 
     if (IS_SET(obj->extra_flags, ITEM_INVIS)

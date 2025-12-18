@@ -112,9 +112,9 @@ static int test_drop_copper_creates_money_object()
 
     ASSERT(money != NULL);
     ASSERT(money->item_type == ITEM_MONEY);
-    ASSERT(money->value[MONEY_VALUE_COPPER] == 5);
-    ASSERT(money->value[MONEY_VALUE_SILVER] == 0);
-    ASSERT(money->value[MONEY_VALUE_GOLD] == 0);
+    ASSERT(money->money.copper == 5);
+    ASSERT(money->money.silver == 0);
+    ASSERT(money->money.gold == 0);
 
     return 0;
 }
