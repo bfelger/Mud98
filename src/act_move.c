@@ -35,6 +35,7 @@
 #include "interp.h"
 #include "mob_prog.h"
 #include "note.h"
+#include "skill_ops.h"
 #include "skills.h"
 #include "update.h"
 
@@ -757,7 +758,8 @@ void do_pick(Mobile* ch, char* argument)
         }
     }
 
-    if (!IS_NPC(ch) && number_percent() > get_skill(ch, gsn_pick_lock)) {
+    /* Use skill check seam for testability */
+    if (!IS_NPC(ch) && !skill_ops->check_simple(ch, gsn_pick_lock)) {
         send_to_char("You failed.\n\r", ch);
         check_improve(ch, gsn_pick_lock, false, 2);
         return;
@@ -1362,7 +1364,8 @@ void do_sneak(Mobile* ch, char* argument)
 
     if (IS_AFFECTED(ch, AFF_SNEAK)) return;
 
-    if (number_percent() < get_skill(ch, gsn_sneak)) {
+    /* Use skill check seam for testability */
+    if (skill_ops->check_simple(ch, gsn_sneak)) {
         check_improve(ch, gsn_sneak, true, 3);
         af.where = TO_AFFECTS;
         af.type = gsn_sneak;
@@ -1385,7 +1388,8 @@ void do_hide(Mobile* ch, char* argument)
 
     if (IS_AFFECTED(ch, AFF_HIDE)) REMOVE_BIT(ch->affect_flags, AFF_HIDE);
 
-    if (number_percent() < get_skill(ch, gsn_hide)) {
+    /* Use skill check seam for testability */
+    if (skill_ops->check_simple(ch, gsn_hide)) {
         SET_BIT(ch->affect_flags, AFF_HIDE);
         check_improve(ch, gsn_hide, true, 3);
     }

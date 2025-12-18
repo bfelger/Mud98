@@ -29,6 +29,7 @@
 
 #include "act_comm.h"
 #include "combat_ops.h"
+#include "skill_ops.h"
 #include "act_move.h"
 #include "act_obj.h"
 #include "act_wiz.h"
@@ -947,7 +948,9 @@ bool check_parry(Mobile* ch, Mobile* victim)
 
     if (!can_see(ch, victim)) chance /= 2;
 
-    if (number_percent() >= chance + victim->level - ch->level) return false;
+    /* Use skill check seam for testability */
+    chance += victim->level - ch->level;
+    if (!skill_ops->check_modified(victim, gsn_parry, chance)) return false;
 
     act("You parry $n's attack.", ch, NULL, victim, TO_VICT);
     act("$N parries your attack.", ch, NULL, victim, TO_CHAR);
@@ -966,7 +969,9 @@ bool check_shield_block(Mobile* ch, Mobile* victim)
 
     if (get_eq_char(victim, WEAR_SHIELD) == NULL) return false;
 
-    if (number_percent() >= chance + victim->level - ch->level) return false;
+    /* Use skill check seam for testability */
+    chance += victim->level - ch->level;
+    if (!skill_ops->check_modified(victim, gsn_shield_block, chance)) return false;
 
     act("You block $n's attack with your shield.", ch, NULL, victim, TO_VICT);
     act("$N blocks your attack with a shield.", ch, NULL, victim, TO_CHAR);
@@ -985,7 +990,9 @@ bool check_dodge(Mobile* ch, Mobile* victim)
 
     if (!can_see(victim, ch)) chance /= 2;
 
-    if (number_percent() >= chance + victim->level - ch->level) return false;
+    /* Use skill check seam for testability */
+    chance += victim->level - ch->level;
+    if (!skill_ops->check_modified(victim, gsn_dodge, chance)) return false;
 
     act("You dodge $n's attack.", ch, NULL, victim, TO_VICT);
     act("$N dodges your attack.", ch, NULL, victim, TO_CHAR);
@@ -1783,7 +1790,8 @@ void do_berserk(Mobile* ch, char* argument)
     hp_percent = 100 * ch->hit / ch->max_hit;
     chance += 25 - hp_percent / 2;
 
-    if (number_percent() < chance) {
+    /* Use skill check seam for testability */
+    if (skill_ops->check_modified(ch, gsn_berserk, chance)) {
         Affect af = { 0 };
 
         WAIT_STATE(ch, PULSE_VIOLENCE);
@@ -1907,8 +1915,8 @@ void do_bash(Mobile* ch, char* argument)
         chance -= 3 * (get_skill(victim, gsn_dodge) - chance);
     }
 
-    /* now the attack */
-    if (number_percent() < chance) {
+    /* Use skill check seam for testability */
+    if (skill_ops->check(ch, gsn_bash, victim)) {
         act(COLOR_FIGHT_SKILL "$n sends you sprawling with a powerful bash!" COLOR_CLEAR , ch, NULL,
             victim, TO_VICT);
         act(COLOR_FIGHT_SKILL "You slam into $N, and send $M flying!" COLOR_CLEAR , ch, NULL, victim,
@@ -1919,9 +1927,9 @@ void do_bash(Mobile* ch, char* argument)
 
         DAZE_STATE(victim, 3 * PULSE_VIOLENCE);
         WAIT_STATE(ch, skill_table[gsn_bash].beats);
-        victim->position = POS_RESTING;
         damage(ch, victim, number_range(2, 2 + 2 * ch->size + chance / 20),
                gsn_bash, DAM_BASH, false);
+        victim->position = POS_RESTING;
     }
     else {
         damage(ch, victim, 0, gsn_bash, DAM_BASH, false);
@@ -2047,7 +2055,8 @@ void do_dirt(Mobile* ch, char* argument)
     }
 
     /* now the attack */
-    if (number_percent() < chance) {
+    /* Use skill check seam for testability */
+    if (skill_ops->check_modified(ch, gsn_dirt, chance)) {
         Affect af = { 0 };
         act(COLOR_FIGHT_SKILL "$n is blinded by the dirt in $s eyes!" COLOR_CLEAR , victim, NULL, NULL,
             TO_ROOM);
@@ -2134,27 +2143,8 @@ void do_trip(Mobile* ch, char* argument)
         return;
     }
 
-    /* modifiers */
-
-    /* size */
-    if (ch->size < victim->size)
-        chance += (ch->size - victim->size) * 10; /* bigger = harder to trip */
-
-    /* dex */
-    chance += get_curr_stat(ch, STAT_DEX);
-    chance -= get_curr_stat(victim, STAT_DEX) * 3 / 2;
-
-    /* speed */
-    if (IS_SET(ch->atk_flags, ATK_FAST) || IS_AFFECTED(ch, AFF_HASTE))
-        chance += 10;
-    if (IS_SET(victim->atk_flags, ATK_FAST) || IS_AFFECTED(victim, AFF_HASTE))
-        chance -= 20;
-
-    /* level */
-    chance += (ch->level - victim->level) * 2;
-
-    /* now the attack */
-    if (number_percent() < chance) {
+    /* Use skill check seam for testability */
+    if (skill_ops->check(ch, gsn_trip, victim)) {
         act(COLOR_FIGHT_SKILL "$n trips you and you go down!" COLOR_CLEAR , ch, NULL, victim, TO_VICT);
         act(COLOR_FIGHT_SKILL "You trip $N and $N goes down!" COLOR_CLEAR , ch, NULL, victim, TO_CHAR);
         act(COLOR_FIGHT_SKILL "$n trips $N, sending $M to the ground." COLOR_CLEAR , ch, NULL, victim,
@@ -2163,9 +2153,9 @@ void do_trip(Mobile* ch, char* argument)
 
         DAZE_STATE(victim, 2 * PULSE_VIOLENCE);
         WAIT_STATE(ch, skill_table[gsn_trip].beats);
-        victim->position = POS_RESTING;
         damage(ch, victim, number_range(2, 2 + 2 * victim->size), gsn_trip,
                DAM_BASH, true);
+        victim->position = POS_RESTING;
     }
     else {
         damage(ch, victim, 0, gsn_trip, DAM_BASH, true);
@@ -2343,7 +2333,9 @@ void do_backstab(Mobile* ch, char* argument)
 
     check_killer(ch, victim);
     WAIT_STATE(ch, skill_table[gsn_backstab].beats);
-    if (number_percent() < get_skill(ch, gsn_backstab)
+    
+    /* Use skill check seam for testability */
+    if (skill_ops->check(ch, gsn_backstab, victim)
         || (get_skill(ch, gsn_backstab) >= 2 && !IS_AWAKE(victim))) {
         check_improve(ch, gsn_backstab, true, 1);
         multi_hit(ch, victim, gsn_backstab);
@@ -2450,7 +2442,8 @@ void do_rescue(Mobile* ch, char* argument)
     }
 
     WAIT_STATE(ch, skill_table[gsn_rescue].beats);
-    if (number_percent() > get_skill(ch, gsn_rescue)) {
+    /* Use skill check seam for testability */
+    if (!skill_ops->check_simple(ch, gsn_rescue)) {
         send_to_char("You fail the rescue.\n\r", ch);
         check_improve(ch, gsn_rescue, false, 1);
         return;
@@ -2488,7 +2481,8 @@ void do_kick(Mobile* ch, char* argument)
     }
 
     WAIT_STATE(ch, skill_table[gsn_kick].beats);
-    if (get_skill(ch, gsn_kick) > number_percent()) {
+    /* Use skill check seam for testability */
+    if (skill_ops->check_simple(ch, gsn_kick)) {
         damage(ch, victim, number_range(1, ch->level), gsn_kick, DAM_BASH,
                true);
         check_improve(ch, gsn_kick, true, 1);
@@ -2554,7 +2548,8 @@ void do_disarm(Mobile* ch, char* argument)
     chance += (ch->level - victim->level) * 2;
 
     /* and now the attack */
-    if (number_percent() < chance) {
+    /* Use skill check seam for testability */
+    if (skill_ops->check_modified(ch, gsn_disarm, chance)) {
         WAIT_STATE(ch, skill_table[gsn_disarm].beats);
         disarm(ch, victim);
         check_improve(ch, gsn_disarm, true, 1);

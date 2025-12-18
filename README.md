@@ -229,6 +229,7 @@ Use the `-d` argument to specify the folder containing `mud98.cfg` if you don't 
     - [x] Hit/miss resolution
     - [x] Damage calculation
     - [x] AC/Defense
+    - [x] Skill checks
     - [ ] Status effects
     - [ ] Action economy
     - [ ] Stats/attributes

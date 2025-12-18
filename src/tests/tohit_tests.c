@@ -4,6 +4,7 @@
 
 #include "merc.h"
 
+#include "combat_ops.h"
 #include "fight.h"
 #include "handler.h"
 #include "recycle.h"
@@ -519,32 +520,32 @@ static int test_critical_miss()
     transfer_mob(victim, room);
     
     attacker->level = 20;
-    attacker->hitroll = 100;  // Massive hitroll
+    attacker->hitroll = 100;  // Massive hitroll - should normally always hit
     victim->level = 1;
     victim->hit = 100;
     victim->max_hit = 100;
-    victim->armor[AC_SLASH] = 100;  // Terrible armor
+    victim->armor[AC_SLASH] = 100;  // Terrible armor - easy to hit normally
     
     obj_to_char(sword, attacker);
     equip_char(attacker, sword, WEAR_WIELD);
     
-    // Mock RNG - diceroll uses number_bits(5) which is harder to control
-    // This test verifies the code doesn't crash; critical miss is roll==0
-    // which is difficult to force with current mock implementation
+    // Force the d20 roll to return 0 (critical miss)
+    // one_hit calls number_range(0, 19), so sequence needs to provide 0
+    int sequence[] = {0};  // d20 roll = 0 (auto-miss)
     RngOps* saved_rng = rng;
     rng = &mock_rng;
-    reset_mock_rng();
+    set_mock_rng_sequence(sequence, 1);
     
-    // TODO: Improve mock RNG to force roll of 0
-    //int hp_before = victim->hit;
+    int hp_before = victim->hit;
     one_hit(attacker, victim, TYPE_UNDEFINED, false);
-    //int hp_after = victim->hit;
+    int hp_after = victim->hit;
     
+    set_mock_rng_sequence(NULL, 0);
     rng = saved_rng;
     
-    // With massive advantages, we should normally hit unless we get unlucky
-    // This test mainly ensures the code path doesn't crash
-    ASSERT(true);
+    // Critical miss (roll==0) should always miss regardless of bonuses
+    // Victim HP should not change
+    ASSERT(hp_after == hp_before);
 
     return 0;
 }
@@ -565,28 +566,29 @@ static int test_critical_hit()
     victim->level = 50;  // Much higher level
     victim->hit = 200;
     victim->max_hit = 200;
-    victim->armor[AC_SLASH] = -200;  // Excellent armor
+    victim->armor[AC_SLASH] = -200;  // Excellent armor - should normally never hit
     
     obj_to_char(sword, attacker);
     equip_char(attacker, sword, WEAR_WIELD);
     
-    // Mock RNG - diceroll uses number_bits(5) which is harder to control
-    // This test verifies the code doesn't crash; critical hit is roll==19
-    // which is difficult to force with current mock implementation  
+    // Force the d20 roll to return 19 (critical hit)
+    // one_hit calls number_range(0, 19), then various other RNG calls for damage
+    // First call is the d20 roll, so provide 19 followed by reasonable values
+    int sequence[] = {19, 50, 50, 50};  // d20=19 (auto-hit), then normal rolls for damage
     RngOps* saved_rng = rng;
     rng = &mock_rng;
-    reset_mock_rng();
+    set_mock_rng_sequence(sequence, 4);
     
-    // TODO: Improve mock RNG to force roll of 0
-    //int hp_before = victim->hit;
+    int hp_before = victim->hit;
     one_hit(attacker, victim, TYPE_UNDEFINED, false);
-    //int hp_after = victim->hit;
+    int hp_after = victim->hit;
     
+    set_mock_rng_sequence(NULL, 0);
     rng = saved_rng;
     
-    // This test mainly ensures the code path doesn't crash
-    // Actual hit/miss depends on complex THAC0 calculations
-    ASSERT(true);
+    // Critical hit (roll==19) should always hit regardless of penalties
+    // Victim HP should decrease despite massive defensive advantages
+    ASSERT(hp_after < hp_before);
 
     return 0;
 }

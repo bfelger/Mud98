@@ -38,6 +38,7 @@
 #include "mob_prog.h"
 #include "note.h"
 #include "save.h"
+#include "skill_ops.h"
 #include "skills.h"
 #include "update.h"
 #include "weather.h"
@@ -1949,7 +1950,6 @@ void do_steal(Mobile* ch, char* argument)
     char arg2[MAX_INPUT_LENGTH];
     Mobile* victim;
     Object* obj;
-    int percent;
 
     READ_ARG(arg1);
     READ_ARG(arg2);
@@ -1979,18 +1979,22 @@ void do_steal(Mobile* ch, char* argument)
     }
 
     WAIT_STATE(ch, skill_table[gsn_steal].beats);
-    percent = number_percent();
+    
+    // Calculate difficulty - start with base skill
+    int chance = get_skill(ch, gsn_steal);
 
+    // Apply difficulty modifiers (these make it harder/easier)
     if (!IS_AWAKE(victim))
-        percent -= 10;
+        chance += 10;  // Easier when victim is asleep
     else if (!can_see(victim, ch))
-        percent += 25;
+        chance -= 25;  // Harder if victim can't see you
     else
-        percent += 50;
+        chance -= 50;  // Much harder if victim sees you
 
+    /* Use skill check seam for testability */
     if (((ch->level + 7 < victim->level || ch->level - 7 > victim->level)
          && !IS_NPC(victim) && !IS_NPC(ch))
-        || (!IS_NPC(ch) && percent > get_skill(ch, gsn_steal))
+        || (!IS_NPC(ch) && !skill_ops->check_modified(ch, gsn_steal, chance))
         || (!IS_NPC(ch) && !is_clan(ch))) {
         // Failure.
         send_to_char("Oops.\n\r", ch);
