@@ -192,7 +192,7 @@ void mock_skill(Mobile* ch, SKNUM sn, int value)
     } else {
         // For PCs, set learned value directly
         if (ch->pcdata != NULL && ch->pcdata->learned != NULL) {
-            ch->pcdata->learned[sn] = value;
+            ch->pcdata->learned[sn] = (int16_t)value;
         }
     }
 }

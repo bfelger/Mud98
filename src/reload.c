@@ -74,8 +74,8 @@ static void reload_helps_impl(Mobile* ch)
     FILE* fpList;
     FILE* fp;
     char area_file[256];
-    char fpArea[MAX_INPUT_LENGTH];
-    int help_count = 0;
+    char reload_area[MAX_INPUT_LENGTH];
+    int reload_help_count = 0;
     int file_count = 0;
 
     send_to_char("Reloading help files...\n\r", ch);
@@ -113,17 +113,17 @@ static void reload_helps_impl(Mobile* ch)
 
     // Read each area file and reload helps sections
     for (;;) {
-        strcpy(fpArea, fread_word(fpList));
-        if (fpArea[0] == '$')
+        strcpy(reload_area, fread_word(fpList));
+        if (reload_area[0] == '$')
             break;
 
         // Skip JSON files - they don't have HELPS sections in ROM-OLC format
-        const char* ext = strrchr(fpArea, '.');
+        const char* ext = strrchr(reload_area, '.');
         if (ext && !str_cmp(ext, ".json")) {
             continue;
         }
 
-        sprintf(area_file, "%s%s", cfg_get_area_dir(), fpArea);
+        sprintf(area_file, "%s%s", cfg_get_area_dir(), reload_area);
         fp = open_read_file(area_file);
         if (fp == NULL) {
             printf_to_char(ch, COLOR_INFO "WARNING: Could not open %s" COLOR_EOL, area_file);
@@ -149,9 +149,9 @@ static void reload_helps_impl(Mobile* ch)
                 break;
 
             if (!str_cmp(word, "HELPS")) {
-                load_helps(fp, fpArea);
+                load_helps(fp, reload_area);
                 found_helps = true;
-                help_count++;
+                reload_help_count++;
             }
             else {
                 // Skip to the next section
@@ -162,14 +162,14 @@ static void reload_helps_impl(Mobile* ch)
         close_file(fp);
 
         if (found_helps) {
-            printf_to_char(ch, COLOR_INFO "  Loaded helps from %s" COLOR_EOL, fpArea);
+            printf_to_char(ch, COLOR_INFO "  Loaded helps from %s" COLOR_EOL, reload_area);
         }
     }
 
     close_file(fpList);
 
     printf_to_char(ch, COLOR_INFO "Help reload complete: scanned %d files, loaded %d help sections." COLOR_EOL, 
-                   file_count, help_count);
+                   file_count, reload_help_count);
 }
 
 void reload_room(Mobile* ch, Room* room)

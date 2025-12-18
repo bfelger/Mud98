@@ -1,6 +1,7 @@
 #
 # Mud98 Game Executable
 #
+cmake_minimum_required(VERSION 3.14)
 
 # ============================================================================
 # Dependencies
@@ -26,7 +27,8 @@ if (ENABLE_JSON_PERSISTENCE)
     FetchContent_Declare(
         jansson
         GIT_REPOSITORY https://github.com/akheron/jansson.git
-        GIT_TAG        v2.14
+        #GIT_TAG        v2.14.1  -- Put back when they fix CMake issues on Windows
+        GIT_TAG        master
     )
     
     FetchContent_MakeAvailable(jansson)
@@ -45,7 +47,12 @@ set(OPENSSL_USE_STATIC_LIBS TRUE)
 find_package(OpenSSL)
 
 if (OPENSSL_FOUND)
-    message("OpenSSL version ${OPENSSL_VERSION} found at ${OPENSSL_INCLUDE_DIRS}.")
+    message("OpenSSL version ${OPENSSL_VERSION} found.")
+    message("  OPENSSL_INCLUDE_DIR: ${OPENSSL_INCLUDE_DIR}")
+    message("  OPENSSL_INCLUDE_DIRS: ${OPENSSL_INCLUDE_DIRS}")
+    message("  OPENSSL_LIBRARIES: ${OPENSSL_LIBRARIES}")
+    message("  OPENSSL_SSL_LIBRARY: ${OPENSSL_SSL_LIBRARY}")
+    message("  OPENSSL_CRYPTO_LIBRARY: ${OPENSSL_CRYPTO_LIBRARY}")
 endif()
 
 if (NOT OPENSSL_FOUND OR OPENSSL_VERSION VERSION_LESS "3.0.0")
@@ -164,6 +171,8 @@ target_include_directories(Mud98Core
         ${CMAKE_CURRENT_SOURCE_DIR}/data
         ${CMAKE_CURRENT_SOURCE_DIR}/lox
         ${CMAKE_CURRENT_SOURCE_DIR}/olc
+        $<$<BOOL:${OPENSSL_FOUND}>:${OPENSSL_INCLUDE_DIR}>
+        $<$<BOOL:${ZLIB_FOUND}>:${ZLIB_INCLUDE_DIRS}>
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/persist
 )
@@ -186,7 +195,7 @@ target_link_libraries(Mud98Core
 # Compiler-specific options
 target_compile_options(Mud98Core PRIVATE
     # MSVC options
-    $<$<CXX_COMPILER_ID:MSVC>:
+    $<$<C_COMPILER_ID:MSVC>:
         /Wall /WX /std:c17
         /wd4061  # enumerator not explicitly handled
         /wd4068  # unknown pragma
@@ -197,9 +206,12 @@ target_compile_options(Mud98Core PRIVATE
         /wd4710  # function not inlined
         /wd4820  # padding after data member
         /wd5045  # Spectre mitigation
+        /wd4668  # Until MS fixes their own macros
+        /wd4996  # Stupid deprecation warnings
+        /wd4191  # Fix your SDK, Microsoft
     >
     # GCC/Clang options
-    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:
+    $<$<NOT:$<C_COMPILER_ID:MSVC>>:
         -Wall -Werror -Wextra -pedantic
         -Wno-unused-parameter -Wno-unknown-pragmas
     >
@@ -211,8 +223,8 @@ target_compile_options(Mud98Core PRIVATE
 
 # Compile definitions
 target_compile_definitions(Mud98Core PRIVATE
-    $<$<CXX_COMPILER_ID:MSVC>:_CRT_SECURE_NO_WARNINGS NOCRYPT>
-    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:_GNU_SOURCE>
+    $<$<C_COMPILER_ID:MSVC>:_CRT_SECURE_NO_WARNINGS>
+    $<$<NOT:$<C_COMPILER_ID:MSVC>>:_GNU_SOURCE>
     $<$<NOT:$<BOOL:${OPENSSL_FOUND}>>:NO_OPENSSL>
     $<$<AND:$<NOT:$<BOOL:${OPENSSL_FOUND}>>,$<BOOL:${CYGWIN}>>:NO_ENCRYPTION>
     $<$<NOT:$<BOOL:${ZLIB_FOUND}>>:NO_ZLIB>
@@ -244,6 +256,60 @@ add_executable(Mud98Tests
     "tests/fmt_tests.c" "tests/theme_tests.c" "tests/util_tests.c"
     "tests/daycycle_tests.c" "tests/multihit_tests.c"
 )
+
+# Compiler-specific options
+target_compile_options(Mud98Tests PRIVATE
+    # MSVC options
+    $<$<C_COMPILER_ID:MSVC>:
+        /Wall /WX /std:c17
+        /wd4061  # enumerator not explicitly handled
+        /wd4068  # unknown pragma
+        /wd4100  # unreferenced parameter
+        /wd4152  # function/data pointer conversion
+        /wd4255  # no function prototype
+        /wd4706  # assignment in conditional
+        /wd4710  # function not inlined
+        /wd4820  # padding after data member
+        /wd5045  # Spectre mitigation
+        /wd4668  # Until MS fixes their own macros
+        /wd4996  # Stupid deprecation warnings
+        /wd4191  # Fix your SDK, Microsoft
+    >
+    # GCC/Clang options
+    $<$<NOT:$<C_COMPILER_ID:MSVC>>:
+        -Wall -Werror -Wextra -pedantic
+        -Wno-unused-parameter -Wno-unknown-pragmas
+    >
+    # GCC-specific
+    $<$<C_COMPILER_ID:GNU>:-std=gnu2x>
+    # Clang-specific
+    $<$<C_COMPILER_ID:Clang>:-std=c2x>
+)
+
+# Compile definitions
+target_compile_definitions(Mud98Tests PRIVATE
+    $<$<C_COMPILER_ID:MSVC>:_CRT_SECURE_NO_WARNINGS>
+    $<$<NOT:$<C_COMPILER_ID:MSVC>>:_GNU_SOURCE>
+    $<$<NOT:$<BOOL:${OPENSSL_FOUND}>>:NO_OPENSSL>
+    $<$<AND:$<NOT:$<BOOL:${OPENSSL_FOUND}>>,$<BOOL:${CYGWIN}>>:NO_ENCRYPTION>
+    $<$<NOT:$<BOOL:${ZLIB_FOUND}>>:NO_ZLIB>
+)
+
+# Configure library includes (PUBLIC so consumers get them)
+target_include_directories(Mud98Core
+    PUBLIC
+        ${CMAKE_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/entities
+        ${CMAKE_CURRENT_SOURCE_DIR}/data
+        ${CMAKE_CURRENT_SOURCE_DIR}/lox
+        ${CMAKE_CURRENT_SOURCE_DIR}/olc
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/persist
+        $<$<BOOL:${OPENSSL_FOUND}>:${OPENSSL_INCLUDE_DIR}>
+        $<$<BOOL:${ZLIB_FOUND}>:${ZLIB_INCLUDE_DIRS}>
+)
+
 target_link_libraries(Mud98Tests PRIVATE Mud98Core)
 
 # Register with CTest

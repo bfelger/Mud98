@@ -55,6 +55,8 @@ static int test_parry_no_weapon_npc()
     rng = saved_rng;
     
     ASSERT(result == true);
+
+    return 0;
 }
 
 // Test check_parry for PC without weapon (should always fail)
@@ -74,6 +76,8 @@ static int test_parry_no_weapon_pc()
     bool result = check_parry(attacker, victim);
     
     ASSERT(result == false);
+
+    return 0;
 }
 
 // Test check_parry with weapon equipped
@@ -112,6 +116,8 @@ static int test_parry_with_weapon()
     rng = saved_rng;
     
     ASSERT(result == true);
+
+    return 0;
 }
 
 // Test check_parry fails when victim can't see attacker
@@ -145,6 +151,8 @@ static int test_parry_blind_victim()
     rng = saved_rng;
     
     ASSERT(result == false);
+
+    return 0;
 }
 
 // Test check_shield_block with shield
@@ -203,6 +211,8 @@ static int test_shield_block_no_shield()
     bool result = check_shield_block(attacker, victim);
     
     ASSERT(result == false);
+
+    return 0;
 }
 
 // Test check_dodge basic functionality
@@ -232,6 +242,8 @@ static int test_dodge_basic()
     rng = saved_rng;
     
     ASSERT(result == true);
+
+    return 0;
 }
 
 // Test check_dodge when victim can't see attacker
@@ -262,6 +274,8 @@ static int test_dodge_blind_victim()
     rng = saved_rng;
     
     ASSERT(result == false);
+
+    return 0;
 }
 
 // Test check_dodge fails when victim is not awake
@@ -282,6 +296,8 @@ static int test_dodge_sleeping_victim()
     bool result = check_dodge(attacker, victim);
     
     ASSERT(result == false);
+
+    return 0;
 }
 
 // Test level difference affects defensive chances
@@ -309,6 +325,8 @@ static int test_level_difference_defense()
     rng = saved_rng;
     
     ASSERT(result == true);
+
+    return 0;
 }
 
 // Test THAC0 calculation for warriors
@@ -354,6 +372,8 @@ static int test_thac0_warrior()
     
     // If we get here without crashing, THAC0 calculation worked
     ASSERT(true);
+
+    return 0;
 }
 
 // Test GET_HITROLL affects to-hit
@@ -396,6 +416,8 @@ static int test_hitroll_affects_tohit()
     // High hitroll should increase hit chance significantly
     // We should have landed a hit
     ASSERT(hp_after < hp_before);
+
+    return 0;
 }
 
 // Test GET_DAMROLL affects damage
@@ -442,6 +464,8 @@ static int test_damroll_affects_damage()
     // Then +20 damroll should significantly increase damage
     // Actual damage will be modified by many factors, but should be > 0
     ASSERT(damage > 0);
+
+    return 0;
 }
 
 // Test armor class affects hit chance
@@ -479,6 +503,8 @@ static int test_armor_class_affects_hit()
     // With excellent AC and moderate roll, likely missed
     // But the important thing is the calculation doesn't crash
     ASSERT(true);
+
+    return 0;
 }
 
 // Test critical miss (roll == 0)
@@ -509,15 +535,18 @@ static int test_critical_miss()
     rng = &mock_rng;
     reset_mock_rng();
     
-    int hp_before = victim->hit;
+    // TODO: Improve mock RNG to force roll of 0
+    //int hp_before = victim->hit;
     one_hit(attacker, victim, TYPE_UNDEFINED, false);
-    int hp_after = victim->hit;
+    //int hp_after = victim->hit;
     
     rng = saved_rng;
     
     // With massive advantages, we should normally hit unless we get unlucky
     // This test mainly ensures the code path doesn't crash
     ASSERT(true);
+
+    return 0;
 }
 
 // Test critical hit (roll == 19)
@@ -548,15 +577,18 @@ static int test_critical_hit()
     rng = &mock_rng;
     reset_mock_rng();
     
-    int hp_before = victim->hit;
+    // TODO: Improve mock RNG to force roll of 0
+    //int hp_before = victim->hit;
     one_hit(attacker, victim, TYPE_UNDEFINED, false);
-    int hp_after = victim->hit;
+    //int hp_after = victim->hit;
     
     rng = saved_rng;
     
     // This test mainly ensures the code path doesn't crash
     // Actual hit/miss depends on complex THAC0 calculations
     ASSERT(true);
+
+    return 0;
 }
 
 void register_tohit_tests()

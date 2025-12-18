@@ -17,7 +17,7 @@
 extern bool test_output_enabled;
 
 Tutorial** tutorials;
-int tutorial_count;
+int tutorial_count = 0;
 
 static void show_tutorial_list(Mobile* ch)
 {

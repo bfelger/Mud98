@@ -42,12 +42,12 @@ typedef uint64_t Value;
 #define IS_INT(v)               (((v) & NANISH_MASK) == INTEGER_MASK)
 
 #define AS_DOUBLE(v)            value_to_double(v)
-#define AS_OBJ(v)               ((Obj*)((v) & 0xFFFFFFFFFFFF))
+#define AS_OBJ(v)               ((Obj*)(uintptr_t)((v) & 0xFFFFFFFFFFFF))
 #define AS_BOOL(v)              ((char)((v) & 0x1))
 #define AS_INT(v)               (int32_t)((v) & 0xFFFFFFFFULL)
 
 #define BOOL_VAL(b)             ((b) ? TRUE_VAL : FALSE_VAL)
-#define OBJ_VAL(p)              (((uint64_t)(p)) | OBJECT_MASK)
+#define OBJ_VAL(p)              (((uint64_t)(uintptr_t)(p)) | OBJECT_MASK)
 #define INT_VAL(i)              (((uint64_t)(uint32_t)(i)) | INTEGER_MASK)
 #define DOUBLE_VAL(d)           double_to_value(d)
 

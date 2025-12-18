@@ -98,6 +98,7 @@
 #endif
 
 #ifdef _MSC_VER
+#define WIN32_LEAN_AND_MEAN
 #pragma comment(lib, "Ws2_32.lib")
 #include <windows.h>
 #include <winsock.h>

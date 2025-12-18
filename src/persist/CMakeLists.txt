@@ -56,6 +56,8 @@ target_include_directories(Mud98Persist
         ${CMAKE_SOURCE_DIR}/src/entities
         ${CMAKE_SOURCE_DIR}/src/data
         ${CMAKE_SOURCE_DIR}/src/lox
+        $<$<BOOL:${OPENSSL_FOUND}>:${OPENSSL_INCLUDE_DIR}>
+        $<$<BOOL:${ZLIB_FOUND}>:${ZLIB_INCLUDE_DIRS}>
 )
 
 # ============================================================================

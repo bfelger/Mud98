@@ -356,7 +356,7 @@ static int test_damage_types()
     
     MobPrototype* proto = mock_mob_proto(2);
     
-    for (int i = 0; i < sizeof(types) / sizeof(types[0]); i++) {
+    for (size_t i = 0; i < sizeof(types) / sizeof(types[0]); i++) {
         Mobile* victim = mock_mob("Victim", 2, proto);
         victim->hit = 100;
         victim->max_hit = 100;
