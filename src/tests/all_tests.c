@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 // all_tests.c
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -7,6 +7,12 @@
 #include "test_registry.h"
 
 #include "lox_tests.h"
+
+void register_thief_tests();
+void register_magic_tests();
+
+void register_thief_tests();
+void register_magic_tests();
 
 #include <lox/vm.h>
 #include <lox/table.h>
@@ -44,6 +50,9 @@ void run_unit_tests()
     register_act_wiz5_tests();
     register_interp_tests();
     register_fight_tests();
+    register_damage_tests();
+    register_tohit_tests();
+    register_combat_state_tests();
     register_skills_tests();
     register_fmt_tests();
     register_theme_tests();
@@ -59,6 +68,9 @@ void run_unit_tests()
     register_persist_tests();
     register_player_persist_tests();
     register_daycycle_tests();
+    register_multihit_tests();
+    register_thief_tests();
+    register_magic_tests();
 
     test_output_enabled = true;
     test_disassemble_on_error = true;

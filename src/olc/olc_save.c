@@ -58,6 +58,7 @@
 #include <time.h>
 
 #ifdef _MSC_VER
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #endif
 
@@ -441,80 +442,82 @@ void save_object(FILE* fp, ObjPrototype* obj_proto)
 
     case ITEM_LIGHT:
         fprintf(fp, "0 0 %d 0 0\n",
-            obj_proto->value[2] < 1 ? 999  /* infinite */
-            : obj_proto->value[2]);
+            obj_proto->light.hours < 1 ? 999  /* infinite */
+            : obj_proto->light.hours);
         break;
 
     case ITEM_MONEY:
-        fprintf(fp, "%d %d 0 0 0\n",
-            obj_proto->value[0],
-            obj_proto->value[1]);
+        fprintf(fp, "%d %d %d 0 0\n",
+            obj_proto->money.copper,
+            obj_proto->money.silver,
+            obj_proto->money.gold);
         break;
 
     case ITEM_DRINK_CON:
         fprintf(fp, "%d %d '%s' %d 0\n",
-            obj_proto->value[0],
-            obj_proto->value[1],
-            liquid_table[obj_proto->value[2]].name,
-            obj_proto->value[3]);
+            obj_proto->drink_con.capacity,
+            obj_proto->drink_con.current,
+            liquid_table[obj_proto->drink_con.liquid_type].name,
+            obj_proto->drink_con.poisoned);
         break;
 
     case ITEM_FOUNTAIN:
         fprintf(fp, "%d %d '%s' 0 0\n",
-            obj_proto->value[0],
-            obj_proto->value[1],
-            liquid_table[obj_proto->value[2]].name);
+            obj_proto->fountain.capacity,
+            obj_proto->fountain.current,
+            liquid_table[obj_proto->fountain.liquid_type].name);
         break;
 
     case ITEM_CONTAINER:
         fprintf(fp, "%d %s %d %d %d\n",
-            obj_proto->value[0],
-            fwrite_flag(obj_proto->value[1], buf),
-            obj_proto->value[2],
-            obj_proto->value[3],
-            obj_proto->value[4]);
+            obj_proto->container.capacity,
+            fwrite_flag(obj_proto->container.flags, buf),
+            obj_proto->container.key_vnum,
+            obj_proto->container.max_item_weight,
+            obj_proto->container.weight_mult);
         break;
 
     case ITEM_FOOD:
         fprintf(fp, "%d %d 0 %s 0\n",
-            obj_proto->value[0],
-            obj_proto->value[1],
-            fwrite_flag(obj_proto->value[3], buf));
+            obj_proto->food.hours_full,
+            obj_proto->food.hours_hunger,
+            fwrite_flag(obj_proto->food.poisoned, buf));
         break;
 
     case ITEM_PORTAL:
-        fprintf(fp, "%d %s %s %d 0\n",
-            obj_proto->value[0],
-            fwrite_flag(obj_proto->value[1], buf),
-            fwrite_flag(obj_proto->value[2], buf),
-            obj_proto->value[3]);
+        fprintf(fp, "%d %s %s %d %d\n",
+            obj_proto->portal.charges,
+            fwrite_flag(obj_proto->portal.gate_flags, buf),
+            fwrite_flag(obj_proto->portal.key_vnum, buf),
+            obj_proto->portal.destination,
+            obj_proto->portal.key_vnum);
         break;
 
     case ITEM_FURNITURE:
         fprintf(fp, "%d %d %s %d %d\n",
-            obj_proto->value[0],
-            obj_proto->value[1],
-            fwrite_flag(obj_proto->value[2], buf),
-            obj_proto->value[3],
-            obj_proto->value[4]);
+            obj_proto->furniture.max_people,
+            obj_proto->furniture.max_weight,
+            fwrite_flag(obj_proto->furniture.flags, buf),
+            obj_proto->furniture.heal_rate,
+            obj_proto->furniture.mana_rate);
         break;
 
     case ITEM_WEAPON:
         fprintf(fp, "%s %d %d '%s' %s\n",
-            weapon_table[obj_proto->value[0]].name,
-            obj_proto->value[1],
-            obj_proto->value[2],
-            attack_table[obj_proto->value[3]].name,
-            fwrite_flag(obj_proto->value[4], buf));
+            weapon_table[obj_proto->weapon.weapon_type].name,
+            obj_proto->weapon.num_dice,
+            obj_proto->weapon.size_dice,
+            attack_table[obj_proto->weapon.damage_type].name,
+            fwrite_flag(obj_proto->weapon.flags, buf));
         break;
 
     case ITEM_ARMOR:
         fprintf(fp, "%d %d %d %d %d\n",
-            obj_proto->value[0],
-            obj_proto->value[1],
-            obj_proto->value[2],
-            obj_proto->value[3],
-            obj_proto->value[4]);
+            obj_proto->armor.ac_pierce,
+            obj_proto->armor.ac_bash,
+            obj_proto->armor.ac_slash,
+            obj_proto->armor.ac_exotic,
+            obj_proto->armor.ac_exotic);
         break;
 
     case ITEM_PILL:

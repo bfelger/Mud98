@@ -164,15 +164,51 @@ The following are optional, but **highly** recommended:
 
 See the [Getting Started guide](doc/mud98/wb-01-getting-started.md) for in-depth information on how to build on the platform of your choosing.
 
+#### Build Options
+
+Mud98 supports several CMake options to customize your build:
+
+**Persistence Formats:**
+- `ENABLE_JSON_PERSISTENCE` (default: ON) - Build JSON persistence support (requires Jansson)
+- `ENABLE_ROM_OLC_PERSISTENCE` (default: ON) - Build ROM-OLC legacy text format support
+
+You can disable persistence formats you don't need to reduce binary size and compilation time:
+
+```sh
+# JSON-only (modern format)
+cmake -DENABLE_ROM_OLC_PERSISTENCE=OFF ..
+
+# ROM-OLC only (legacy format)
+cmake -DENABLE_JSON_PERSISTENCE=OFF ..
+
+# Both formats (default, required for tests)
+cmake -DENABLE_JSON_PERSISTENCE=ON -DENABLE_ROM_OLC_PERSISTENCE=ON ..
+```
+
+**Note:** Persistence tests require both formats enabled for round-trip testing. Disabling either format will skip those tests.
+
 ## Usage
 
 Once Mud98 is built, it can be run from the command-line like so:
 
 ```sh
+# Run the game server
 ./bin/Mud98
+
+# Or use the helper script (auto-detects build config)
+./run [debug|release|relwithdebinfo]
+
+# Run unit tests (separate executable)
+./bin/Mud98Tests
+./run test
+ctest --output-on-failure  # From build directory
+
+# Run benchmarks (separate executable)
+./bin/Mud98Benchmarks
+./run bench
 ```
 
-Use the `-d` argument to specify the folder to `mud98.cfg` if you don't run it from the base folder.
+Use the `-d` argument to specify the folder containing `mud98.cfg` if you don't run from the base folder.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -181,11 +217,32 @@ Use the `-d` argument to specify the folder to `mud98.cfg` if you don't run it f
 
 - [ ] Reload data
   - [x] Help files
-  - [X] Rooms
+  - [x] Rooms
   - [ ] Areas
   - [ ] Other data
-- [X] Time-of-day room descriptions
+- [x] Time-of-day room descriptions
   - [ ] Day-cycle events
+- [ ] Functional seams for testing
+  - [x] Persistence
+  - [x] RNG
+  - [ ] Combat
+    - [x] Hit/miss resolution
+    - [x] Damage calculation
+    - [x] AC/Defense
+    - [x] Skill checks
+    - [x] Magic spells
+    - [ ] Status effects
+    - [ ] Action economy
+    - [ ] Stats/attributes
+  - [ ] Memory allocation
+- [x] Unit tests
+  - [x] Lox scripting
+  - [x] Events
+  - [x] Player commands
+  - [x] Wiz commands
+  - [x] Combat skills
+  - [x] Thief skills
+  - [x] Magic skills
 - [ ] Professions
   - [ ] Crafting
   - [ ] Resource gathering
@@ -196,7 +253,9 @@ Use the `-d` argument to specify the folder to `mud98.cfg` if you don't run it f
 - [ ] Player-run clans/guilds
 - [ ] Player/Clan housing
 - [ ] Remort system
-- [ ] Alternative combat engines
+- [ ] Alternative, selectable combat engines
+  - [ ] 3.5 SRD
+  - [ ] 5E
 
 <!--See the [open issues](https://github.com/github_username/repo_name/issues) for a full list of proposed features (and known issues).-->
 

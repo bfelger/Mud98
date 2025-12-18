@@ -50,7 +50,11 @@ void uninit_mth_socket(Descriptor* d)
 {
 	unannounce_support(d);
 
-	if (d->mth->msdp_data) {
+	if (!d || !d->mth) {
+		return;
+	}
+
+	if (d && d->mth && d->mth->msdp_data) {
 		for (int i = 0; i < mud->msdp_table_size; ++i) {
 			free_string(d->mth->msdp_data[i]->value);
 			free_mem(d->mth->msdp_data[i], sizeof(struct msdp_data));

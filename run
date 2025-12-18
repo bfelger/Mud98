@@ -1,0 +1,46 @@
+#!/bin/bash
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+build_cfg="Debug"
+run_mode="game"
+
+for arg in "$@" 
+do
+if [[ ${arg,,} == "release" ]] || [[ ${arg,,} == "rel" ]]
+    then
+        build_cfg="Release"
+    elif [[ ${arg,,} == "debug" ]] || [[ ${arg,,} == "deb" ]]
+    then
+        build_cfg="Debug"
+    elif [[ ${arg,,} == "relwithdebinfo" ]] || [[ ${arg,,} == "relwithdeb" ]] || [[ ${arg,,} == "reldeb" ]]
+    then
+        build_cfg="RelWithDebInfo"
+    elif [[ ${arg,,} == "bench" ]] || [[ ${arg,,} == "benchtest" ]]
+    then
+        run_mode="bench"
+    elif [[ ${arg,,} == "unittest" ]] || [[ ${arg,,} == "test" ]]
+    then
+        run_mode="test"
+    else
+        echo "Unknown argument '${arg,,}'."
+        exit
+    fi
+done
+
+# Try config-specific directory first, then fall back to bin/
+if [[ -f "${repo_root}/bin/${build_cfg}/Mud98Tests" ]]
+then
+    bin_dir="${repo_root}/bin/${build_cfg}"
+else
+    bin_dir="${repo_root}/bin"
+fi
+
+if [[ ${run_mode} == "test" ]]
+then
+    "${bin_dir}/Mud98Tests" --area-dir="${repo_root}/area"
+elif [[ ${run_mode} == "bench" ]]
+then
+    "${bin_dir}/Mud98Benchmarks" --area-dir="${repo_root}/area"
+else
+    "${bin_dir}/Mud98" --area-dir="${repo_root}/area" --port=4000
+fi

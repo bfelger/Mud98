@@ -28,7 +28,7 @@
 #include <entities/faction.h>
 #include <entities/object.h>
 
-#include <jansson/jansson.h>
+#include <jansson.h>
 #include <lox/lox.h>
 
 #include <assert.h>

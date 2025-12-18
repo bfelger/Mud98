@@ -13,7 +13,7 @@
 
 #include <tables.h>
 
-#include <jansson/jansson.h>
+#include <jansson.h>
 
 #include <stddef.h>
 #include <stdbool.h>

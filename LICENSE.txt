@@ -1,1 +1,0 @@
-This software is licensed under the Diku, Merc, and ROM licenses (in LICENSE.diku.txt, LICENSE.merc.txt, and LICENSE.rom.txt, respectively).

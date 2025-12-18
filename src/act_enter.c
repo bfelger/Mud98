@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stï¿½rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -100,27 +100,27 @@ void do_enter(Mobile* ch, char* argument)
         }
 
         if (portal->item_type != ITEM_PORTAL
-            || (IS_SET(portal->value[1], EX_CLOSED)
+            || (IS_SET(portal->portal.exit_flags, EX_CLOSED)
                 && !IS_TRUSTED(ch, ANGEL))) {
             send_to_char("You can't seem to find a way in.\n\r", ch);
             return;
         }
 
-        if (!IS_TRUSTED(ch, ANGEL) && !IS_SET(portal->value[2], PORTAL_NOCURSE)
+        if (!IS_TRUSTED(ch, ANGEL) && !IS_SET(portal->portal.gate_flags, PORTAL_NOCURSE)
             && (IS_AFFECTED(ch, AFF_CURSE)
                 || IS_SET(old_room->data->room_flags, ROOM_NO_RECALL))) {
             send_to_char("Something prevents you from leaving...\n\r", ch);
             return;
         }
 
-        if (IS_SET(portal->value[2], PORTAL_RANDOM) || portal->value[3] == -1) {
+        if (IS_SET(portal->portal.gate_flags, PORTAL_RANDOM) || portal->portal.destination == -1) {
             location = get_random_room(ch);
-            portal->value[3] = VNUM_FIELD(location); /* for record keeping :) */
+            portal->portal.destination = VNUM_FIELD(location); /* for record keeping :) */
         }
-        else if (IS_SET(portal->value[2], PORTAL_BUGGY) && (number_percent() < 5))
+        else if (IS_SET(portal->portal.gate_flags, PORTAL_BUGGY) && (number_percent() < 5))
             location = get_random_room(ch);
         else
-            location = get_room(old_room->area, portal->value[3]);
+            location = get_room(old_room->area, portal->portal.destination);
 
         if (location == NULL || location == old_room
             || !can_see_room(ch, location->data)
@@ -137,7 +137,7 @@ void do_enter(Mobile* ch, char* argument)
 
         act("$n steps into $p.", ch, portal, NULL, TO_ROOM);
 
-        if (IS_SET(portal->value[2], PORTAL_NORMAL_EXIT))
+        if (IS_SET(portal->portal.gate_flags, PORTAL_NORMAL_EXIT))
             act("You enter $p.", ch, portal, NULL, TO_CHAR);
         else
             act("You walk through $p and find yourself somewhere else...", ch,
@@ -145,13 +145,13 @@ void do_enter(Mobile* ch, char* argument)
 
         transfer_mob(ch, location);
 
-        if (IS_SET(portal->value[2], PORTAL_GOWITH)) {
+        if (IS_SET(portal->portal.gate_flags, PORTAL_GOWITH)) {
             // Take the gate along
             obj_from_room(portal);
             obj_to_room(portal, location);
         }
 
-        if (IS_SET(portal->value[2], PORTAL_NORMAL_EXIT))
+        if (IS_SET(portal->portal.gate_flags, PORTAL_NORMAL_EXIT))
             act("$n has arrived.", ch, portal, NULL, TO_ROOM);
         else
             act("$n has arrived through $p.", ch, portal, NULL, TO_ROOM);
@@ -159,10 +159,10 @@ void do_enter(Mobile* ch, char* argument)
         do_function(ch, &do_look, "auto");
 
         /* charges */
-        if (portal->value[0] > 0) {
-            portal->value[0]--;
-            if (portal->value[0] == 0) 
-                portal->value[0] = -1;
+        if (portal->portal.charges > 0) {
+            portal->portal.charges--;
+            if (portal->portal.charges == 0) 
+                portal->portal.charges = -1;
         }
 
         /* protect against circular follows */
@@ -170,7 +170,7 @@ void do_enter(Mobile* ch, char* argument)
             return;
 
         FOR_EACH_ROOM_MOB(fch, old_room) {
-            if (portal == NULL || portal->value[0] == -1)
+            if (portal == NULL || portal->portal.charges == -1)
                 /* no following through dead portals */
                 continue;
 
@@ -193,7 +193,7 @@ void do_enter(Mobile* ch, char* argument)
             }
         }
 
-        if (portal != NULL && portal->value[0] == -1) {
+        if (portal != NULL && portal->portal.charges == -1) {
             act("$p fades out of existence.", ch, portal, NULL, TO_CHAR);
             if (ch->in_room == old_room)
                 act("$p fades out of existence.", ch, portal, NULL, TO_ROOM);

@@ -122,11 +122,12 @@ static int test_slay()
     do_slay(wiz, "victim");
     test_socket_output_enabled = false;
     test_act_output_enabled = false;
-    test_output_buffer = NIL_VAL;
     
-    // Victim should be dead - raw_kill was called
-    // Just verify the command executed
-    ASSERT(true);
+    // Verify slay message was sent
+    ASSERT_OUTPUT_CONTAINS("slay");
+    ASSERT_OUTPUT_CONTAINS("cold blood");
+    
+    test_output_buffer = NIL_VAL;
     
     return 0;
 }
@@ -220,6 +221,8 @@ static int test_disconnect()
     transfer_mob(wiz, room);
     
     Mobile* player = mock_player("testplayer");
+    mock_connect_player_descriptor(player);
+
     player->trust = 0;
     transfer_mob(player, room);
     
@@ -228,11 +231,13 @@ static int test_disconnect()
     do_disconnect(wiz, "testplayer");
     test_socket_output_enabled = false;
     test_act_output_enabled = false;
-    test_output_buffer = NIL_VAL;
     
-    // Descriptor should be marked for closing (note: in tests, close_socket may not fully disconnect)
-    // Just verify the command executed without crashing
-    ASSERT(true);
+    // Verify disconnect processed (may succeed or fail based on descriptor state)
+    ASSERT_OUTPUT_CONTAINS("Ok.");
+
+    mock_disconnect_player_descriptor(player);
+    
+    test_output_buffer = NIL_VAL;
     
     return 0;
 }
@@ -243,17 +248,25 @@ static int test_echo()
     Room* room = mock_room(60001, NULL, NULL);
     
     Mobile* wiz = mock_imm("Wizard");
+    mock_connect_player_descriptor(wiz);
     transfer_mob(wiz, room);
     
     // Echo iterates descriptor_list and sends to all connected players
-    // In test environment, descriptor list may be empty
     test_socket_output_enabled = true;
     do_echo(wiz, "test message");
     test_socket_output_enabled = false;
     
-    // Just verify command executed without crashing
+    // Verify echo output (even if descriptor list is empty, command processes)
+    // Echo may output to wizard if they're in descriptor_list
+    static const char* possible_outputs[] = {
+        "test message",
+        "Global echo what?"
+    };
+    ASSERT_OUTPUT_CONTAINS_ANY(possible_outputs, 2);
+    
+    mock_disconnect_player_descriptor(wiz);
+
     test_output_buffer = NIL_VAL;
-    ASSERT(true);
     
     return 0;
 }
@@ -267,6 +280,7 @@ static int test_recho()
     transfer_mob(wiz, room);
     
     Mobile* player = mock_player("testplayer");
+    mock_connect_player_descriptor(player);
     player->trust = 0;
     transfer_mob(player, room);
     
@@ -275,9 +289,12 @@ static int test_recho()
     do_recho(wiz, "room message");
     test_socket_output_enabled = false;
     
-    // Just verify command executed without crashing
+    // Verify recho output
+    ASSERT_OUTPUT_CONTAINS("room message");
+
+    mock_disconnect_player_descriptor(player);
+    
     test_output_buffer = NIL_VAL;
-    ASSERT(true);
     
     return 0;
 }
@@ -298,9 +315,15 @@ static int test_pecho()
     do_pecho(wiz, "testplayer personal message");
     test_socket_output_enabled = false;
     
-    // Just verify command executed
+    // Verify pecho output (sends to both wizard and target)
+    static const char* possible_outputs[] = {
+        "personal message",
+        "Personal echo what?",
+        "Target not found."
+    };
+    ASSERT_OUTPUT_CONTAINS_ANY(possible_outputs, 3);
+    
     test_output_buffer = NIL_VAL;
-    ASSERT(true);
     
     return 0;
 }

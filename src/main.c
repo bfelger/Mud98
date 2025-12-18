@@ -54,10 +54,6 @@
 
 #include <entities/descriptor.h>
 
-#include <tests/tests.h>
-
-#include <benchmarks/benchmarks.h>
-
 #ifdef _MSC_VER
 #include <stdint.h>
 #include <io.h>
@@ -68,14 +64,14 @@
 #include <unistd.h>
 #endif
 
-// Global variables.
-bool merc_down = false;             // Shutdown
-bool wizlock;                       // Game is wizlocked
-bool newlock;                       // Game is newlocked
-char str_boot_time[MAX_INPUT_LENGTH];
-time_t boot_time;                   // time of this pulse
-time_t current_time;                // time of this pulse
-bool events_enabled = true;         // act() switch
+// Global variables (defined in globals.c)
+extern bool merc_down;
+extern bool wizlock;
+extern bool newlock;
+extern char str_boot_time[MAX_INPUT_LENGTH];
+extern time_t boot_time;
+extern time_t current_time;
+extern bool events_enabled;
 
 #ifndef NO_OPENSSL
     #define GAME_LOOP_PARAMS SockServer* telnet_server, TlsServer* tls_server
@@ -109,9 +105,6 @@ int main(int argc, char** argv)
     char port_str[256] = { 0 };
     char run_dir[256] = { 0 };
     char area_dir[256] = { 0 };
-    bool rt_opt_benchmark = false;
-    bool rt_opt_unittest = false;
-    bool rt_opt_noloop = false;
 
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
@@ -143,35 +136,6 @@ int main(int argc, char** argv)
             else if (!strcmp(argv[i], "-a")) {
                 if (++i < argc) {
                     strcpy(area_dir, argv[i]);
-                }
-            }
-            else if (!strcmp(argv[i], "--benchmark") || !strcmp(argv[i], "--benchmark-only")) {
-                rt_opt_benchmark = true;
-                rt_opt_noloop = true;
-            }
-            else if (!strcmp(argv[i], "--unittest") || !strcmp(argv[i], "--unittest-only")) {
-                rt_opt_unittest = true;
-                rt_opt_noloop = true;
-            }
-            else if (argv[i][0] == '-') {
-                char* opt = argv[i] + 1;
-                while (*opt != '\0') {
-                    switch (*opt) {
-                    case 'B':
-                    case 'b':
-                        rt_opt_noloop = true;
-                        rt_opt_benchmark = true;
-                        break;
-                    case 'U':
-                    case 'u':
-                        rt_opt_noloop = true;
-                        rt_opt_unittest = true;
-                        break;
-                    default:
-                        fprintf(stderr, "Unknown option '-%c'.\n", *opt);
-                        exit(1);
-                    }
-                    opt++;
                 }
             }
             else {
@@ -212,30 +176,12 @@ int main(int argc, char** argv)
     open_reserve_file();
 
     // Run the game.
-    Timer boot_timer = { 0 };
-    if (rt_opt_benchmark)
-        start_timer(&boot_timer);
-
     boot_db();
 
     if (port_str[0])
         cfg_set_telnet_port(port);
 
     print_memory();
-    if (rt_opt_benchmark) {
-        stop_timer(&boot_timer);
-        struct timespec timer_res = elapsed(&boot_timer);
-        sprintf(log_buf, "Boot time: "TIME_FMT"s, %ldns.", timer_res.tv_sec, timer_res.tv_nsec);
-        log_string(log_buf);
-
-        run_benchmarks();
-    }
-
-    if (rt_opt_unittest) {
-        run_unit_tests();
-    }
-
-    if (!rt_opt_noloop) {
         bool telnet = cfg_get_telnet_enabled();
         bool tls = cfg_get_tls_enabled();
         int telnet_port = cfg_get_telnet_port();
@@ -277,19 +223,18 @@ int main(int argc, char** argv)
         }
         log_string(log_buf);
 #ifndef NO_OPENSSL
-        game_loop(telnet_server, tls_server);
+    game_loop(telnet_server, tls_server);
 #else
-        game_loop(telnet_server);
+    game_loop(telnet_server);
 #endif
 
-        if (telnet_server)
-            close_server(telnet_server);
+    if (telnet_server)
+        close_server(telnet_server);
 
 #ifndef NO_OPENSSL
-        if (tls_server)
-            close_server((SockServer*)tls_server);
+    if (tls_server)
+        close_server((SockServer*)tls_server);
 #endif
-    }
 
     free_vm();
 
@@ -421,9 +366,4 @@ void game_loop(GAME_LOOP_PARAMS)
     }
 
     return;
-}
-
-int get_uptime()
-{
-    return (int)(current_time - boot_time);
 }

@@ -92,10 +92,9 @@ static int test_interpret_empty_command()
     test_socket_output_enabled = true;
     interpret(player, "");
     test_socket_output_enabled = false;
-    
-    // Empty command should just do nothing or minimal output
+
+    ASSERT(IS_NIL(test_output_buffer));
     test_output_buffer = NIL_VAL;
-    ASSERT(true);
     
     return 0;
 }
@@ -128,6 +127,8 @@ static int test_interpret_command_with_args()
 static int test_interpret_multiword_command()
 {
     Room* room = mock_room(60001, NULL, NULL);
+    SET_NAME(room, lox_string("The Auto Room"));
+    room->data->description = str_dup("This is the auto look test room.");
     
     Mobile* player = mock_player("testplayer");
     player->position = POS_STANDING;
@@ -137,9 +138,9 @@ static int test_interpret_multiword_command()
     interpret(player, "look auto");
     test_socket_output_enabled = false;
     
-    // Should execute without error
+    ASSERT_OUTPUT_CONTAINS("This is the auto look test room.");
+
     test_output_buffer = NIL_VAL;
-    ASSERT(true);
     
     return 0;
 }
@@ -156,9 +157,9 @@ static int test_interpret_position_requirement()
     test_socket_output_enabled = true;
     interpret(player, "north");  // Movement requires standing
     test_socket_output_enabled = false;
+
+    ASSERT_OUTPUT_CONTAINS("In your dreams, or what?");
     
-    // Should fail with position error
-    ASSERT(!IS_NIL(test_output_buffer));
     test_output_buffer = NIL_VAL;
     
     return 0;
@@ -168,6 +169,8 @@ static int test_interpret_position_requirement()
 static int test_interpret_with_delay()
 {
     Room* room = mock_room(60001, NULL, NULL);
+    SET_NAME(room, lox_string("The Look Room"));
+    room->data->description = str_dup("This is the look test room.");
     
     Mobile* player = mock_player("testplayer");
     player->position = POS_STANDING;
@@ -178,9 +181,9 @@ static int test_interpret_with_delay()
     interpret(player, "look");
     test_socket_output_enabled = false;
     
-    // Command should execute
+    ASSERT_OUTPUT_CONTAINS("This is the look test room.");
+
     test_output_buffer = NIL_VAL;
-    ASSERT(true);
     
     return 0;
 }
@@ -189,6 +192,8 @@ static int test_interpret_with_delay()
 static int test_interpret_case_insensitive()
 {
     Room* room = mock_room(60001, NULL, NULL);
+    SET_NAME(room, lox_string("The Look Room"));
+    room->data->description = str_dup("This is the look test room.");
     
     Mobile* player = mock_player("testplayer");
     player->position = POS_STANDING;
@@ -197,9 +202,9 @@ static int test_interpret_case_insensitive()
     test_socket_output_enabled = true;
     interpret(player, "LOOK");  // Uppercase
     test_socket_output_enabled = false;
+
+    ASSERT_OUTPUT_CONTAINS("This is the look test room.");
     
-    // Should work with uppercase
-    ASSERT(!IS_NIL(test_output_buffer));
     test_output_buffer = NIL_VAL;
     
     return 0;
@@ -209,6 +214,8 @@ static int test_interpret_case_insensitive()
 static int test_interpret_leading_whitespace()
 {
     Room* room = mock_room(60001, NULL, NULL);
+    SET_NAME(room, lox_string("The Look Room"));
+    room->data->description = str_dup("This is the look test room.");
     
     Mobile* player = mock_player("testplayer");
     player->position = POS_STANDING;
@@ -217,9 +224,9 @@ static int test_interpret_leading_whitespace()
     test_socket_output_enabled = true;
     interpret(player, "   look   ");  // Extra whitespace
     test_socket_output_enabled = false;
+
+    ASSERT_OUTPUT_CONTAINS("This is the look test room.");
     
-    // Should handle whitespace gracefully
-    ASSERT(!IS_NIL(test_output_buffer));
     test_output_buffer = NIL_VAL;
     
     return 0;
@@ -237,10 +244,10 @@ static int test_interpret_fallback_to_social()
     test_socket_output_enabled = true;
     interpret(player, "smile");  // Social command
     test_socket_output_enabled = false;
+
+    ASSERT_OUTPUT_CONTAINS("You smile happily.");
     
-    // Should execute social
     test_output_buffer = NIL_VAL;
-    ASSERT(true);
     
     return 0;
 }
@@ -254,13 +261,11 @@ static int test_interpret_npc_command()
     npc->position = POS_STANDING;
     transfer_mob(npc, room);
     
-    test_socket_output_enabled = true;
-    interpret(npc, "look");
-    test_socket_output_enabled = false;
+    interpret(npc, "sleep");
+
+    ASSERT(npc->position == POS_SLEEPING);
     
-    // NPCs can execute commands too
     test_output_buffer = NIL_VAL;
-    ASSERT(true);
     
     return 0;
 }
@@ -279,9 +284,9 @@ static int test_interpret_trust_level()
     test_socket_output_enabled = true;
     interpret(player, "mload 60100");  // Imm command - should fail
     test_socket_output_enabled = false;
+
+    ASSERT_OUTPUT_CONTAINS("Huh?");
     
-    // Should deny access
-    ASSERT(!IS_NIL(test_output_buffer));
     test_output_buffer = NIL_VAL;
     
     return 0;

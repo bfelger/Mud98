@@ -6,8 +6,14 @@
 #include "race_persist.h"
 
 #include <persist/persist_io_adapters.h>
+
+#ifdef ENABLE_ROM_OLC_PERSISTENCE
 #include <persist/race/rom-olc/race_persist_rom_olc.h>
+#endif
+
+#ifdef ENABLE_JSON_PERSISTENCE
 #include <persist/race/json/race_persist_json.h>
+#endif
 
 #include <config.h>
 #include <db.h>
@@ -18,10 +24,16 @@ static const RacePersistFormat* race_format_from_name(const char* filename)
 {
     if (filename) {
         const char* ext = strrchr(filename, '.');
+#ifdef ENABLE_JSON_PERSISTENCE
         if (ext && !str_cmp(ext, ".json"))
             return &RACE_PERSIST_JSON;
+#endif
     }
+#ifdef ENABLE_ROM_OLC_PERSISTENCE
     return &RACE_PERSIST_ROM_OLC;
+#else
+    return NULL;
+#endif
 }
 
 PersistResult race_persist_load(const char* filename)

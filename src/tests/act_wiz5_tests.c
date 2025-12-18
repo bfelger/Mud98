@@ -123,13 +123,11 @@ static int test_sset()
     transfer_mob(player, room);
     
     // Set a skill to 75%
-    test_socket_output_enabled = true;
     do_sset(wiz, "testplayer 'magic missile' 75");
-    test_socket_output_enabled = false;
-    test_output_buffer = NIL_VAL;
     
-    // Just verify command executed - skill may or may not be set depending on gsn
-    ASSERT(true);
+    ASSERT(get_skill(player, skill_lookup("magic missile")) == 75);
+    
+    test_output_buffer = NIL_VAL;
     
     return 0;
 }
@@ -207,13 +205,18 @@ static int test_return()
     transfer_mob(wiz, room);
     
     // Return is for switch command (body-swap), requires descriptor->original
-    // Just test that command executes without crashing
     test_socket_output_enabled = true;
     do_return(wiz, "");
     test_socket_output_enabled = false;
-    test_output_buffer = NIL_VAL;
     
-    ASSERT(true);
+    // Verify return command output
+    static const char* possible_outputs[] = {
+        "You return to your original body",
+        "You aren't switched"
+    };
+    ASSERT_OUTPUT_CONTAINS_ANY(possible_outputs, 2);
+    
+    test_output_buffer = NIL_VAL;
     
     return 0;
 }
@@ -230,13 +233,22 @@ static int test_snoop()
     player->trust = 0;
     transfer_mob(player, room);
     
-    // Just test that command executes - actual snooping requires descriptor management
+    // Actual snooping requires descriptor management
     test_socket_output_enabled = true;
     do_snoop(wiz, "testplayer");
     test_socket_output_enabled = false;
-    test_output_buffer = NIL_VAL;
     
-    ASSERT(true);
+    // Verify snoop output (success or error)
+    static const char* possible_outputs[] = {
+        "Ok.",
+        "Busy already.",
+        "No descriptor",
+        "You can't find them",
+        "Snoop whom?"
+    };
+    ASSERT_OUTPUT_CONTAINS_ANY(possible_outputs, 5);
+    
+    test_output_buffer = NIL_VAL;
     
     return 0;
 }
@@ -256,10 +268,16 @@ static int test_switch()
     test_socket_output_enabled = true;
     do_switch(wiz, "testmob");
     test_socket_output_enabled = false;
-    test_output_buffer = NIL_VAL;
     
-    // Just verify command executed
-    ASSERT(true);
+    // Verify switch output (success or error)
+    static const char* possible_outputs[] = {
+        "Ok.",
+        "You can't find them",
+        "Switch into whom?"
+    };
+    ASSERT_OUTPUT_CONTAINS_ANY(possible_outputs, 3);
+    
+    test_output_buffer = NIL_VAL;
     
     return 0;
 }
@@ -277,9 +295,14 @@ static int test_immtalk()
     test_socket_output_enabled = false;
     
     // Immtalk sends to all imms via descriptor_list
-    // Just verify command executed
+    // Verify command produced output
+    static const char* possible_outputs[] = {
+        "test message",
+        "Huh?"
+    };
+    ASSERT_OUTPUT_CONTAINS_ANY(possible_outputs, 2);
+    
     test_output_buffer = NIL_VAL;
-    ASSERT(true);
     
     return 0;
 }

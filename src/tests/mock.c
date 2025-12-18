@@ -100,7 +100,10 @@ Mobile* mock_mob(const char* name, VNUM vnum, MobPrototype* mp)
     }
 
     Mobile* m = create_mobile(mp);
-    m->header.name = AS_STRING(mock_str(name));
+    if (name != NULL) {
+        SET_NAME(m, AS_STRING(mock_str(name)));
+        m->short_descr = str_dup(name);
+    }
     m->position = POS_STANDING;
     write_value_array(mocks(), OBJ_VAL(m));
 
@@ -129,7 +132,10 @@ Object* mock_obj(const char* name, VNUM vnum, ObjPrototype* op)
     }
 
     Object* o = create_object(op, 0);
-    o->header.name = AS_STRING(mock_str(name));
+    if (name != NULL) {
+        SET_NAME(o, AS_STRING(mock_str(name)));
+        o->short_descr = str_dup(name);
+    }
     write_value_array(mocks(), OBJ_VAL(o));
     return o;
 }
@@ -154,6 +160,47 @@ Object* mock_sword(const char* name, VNUM vnum, LEVEL level, int dam_dice, int d
     Object* sword = mock_obj(name, vnum, sword_proto);
 
     return sword;
+}
+
+Object* mock_shield(const char* name, VNUM vnum, LEVEL level)
+{
+    ObjPrototype* shield_proto = mock_obj_proto(vnum);
+    shield_proto->header.name = AS_STRING(mock_str(name));
+    shield_proto->short_descr = str_dup(name);
+
+    shield_proto->level = level;
+    shield_proto->condition = 100;
+    shield_proto->weight = 5;
+    shield_proto->cost = level * 15;
+    shield_proto->item_type = ITEM_ARMOR;
+    shield_proto->armor.ac_pierce = -10;
+    shield_proto->armor.ac_bash = -10;
+    shield_proto->armor.ac_slash = -10;
+    shield_proto->armor.ac_exotic = -10;
+
+    Object* shield = mock_obj(name, vnum, shield_proto);
+
+    return shield;
+}
+
+void mock_skill(Mobile* ch, SKNUM sn, int value)
+{
+    if (ch == NULL || sn < 0) return;
+
+    if (IS_NPC(ch)) {
+        // For NPCs, set appropriate atk_flags for defensive skills
+        if (sn == gsn_parry) {
+            SET_BIT(ch->atk_flags, ATK_PARRY);
+        } else if (sn == gsn_dodge) {
+            SET_BIT(ch->atk_flags, ATK_DODGE);
+        }
+        // For other skills, NPCs calculate based on level (can't override)
+    } else {
+        // For PCs, set learned value directly
+        if (ch->pcdata != NULL && ch->pcdata->learned != NULL) {
+            ch->pcdata->learned[sn] = (int16_t)value;
+        }
+    }
 }
 
 Room* mock_room(VNUM vnum, RoomData* rd, Area* a)
@@ -255,12 +302,14 @@ void mock_player_reputation(Mobile* ch, VNUM faction_vnum, int value)
 
 void mock_connect_player_descriptor(Mobile* player)
 {
-    if (player == NULL || player->desc == NULL)
+    if (player == NULL)
         return;
 
-    Descriptor* desc = player->desc;
+    Descriptor* desc = player->desc ? player->desc : mock_descriptor();
     desc->next = descriptor_list;
+    desc->character = player;
     descriptor_list = desc;
+    desc->connected = CON_PLAYING;
 }
 
 void mock_disconnect_player_descriptor(Mobile* player)

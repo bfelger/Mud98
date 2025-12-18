@@ -29,6 +29,8 @@
 
 #include "merc.h"
 
+#include "rng.h"
+
 #include "act_move.h"
 #include "act_wiz.h"
 #include "ban.h"
@@ -48,11 +50,14 @@
 #include "tables.h"
 #include "weather.h"
 
-#include <persist/rom-olc/loader_guard.h>
-#include <persist/area/rom-olc/area_persist_rom_olc.h>
 #include <persist/area/area_persist.h>
 #include <persist/command/command_persist.h>
 #include <persist/persist_io_adapters.h>
+#ifdef ENABLE_ROM_OLC_PERSISTENCE
+#include <persist/rom-olc/loader_guard.h>
+#include <persist/rom-olc/db_rom_olc.h>
+#include <persist/area/rom-olc/area_persist_rom_olc.h>
+#endif
 
 #include <olc/olc.h>
 
@@ -96,6 +101,7 @@
 #include <time.h>
 
 #ifdef _MSC_VER 
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #else
 #include <sys/resource.h>
@@ -197,11 +203,7 @@ AreaData* current_area_data;
 
 // Local booting procedures.
 void init_mm();
-void load_helps(FILE* fp, char* fname);
-void load_shops(FILE* fp);
-void load_specials(FILE* fp);
 void load_notes();
-void load_mobprogs(FILE* fp);
 
 void fix_exits();
 void fix_mobprogs();
@@ -1540,6 +1542,9 @@ void free_mem(void* pMem, size_t sMem)
     int iList;
     int* magic;
 
+    if (pMem == NULL)
+        return;
+
 #ifdef COUNT_SIZE_ALLOCS
     decrement_size_alloc(sMem);
     amt_temp_freed += sMem;
@@ -1873,99 +1878,12 @@ void do_dump(Mobile* ch, char* argument)
     close_file(fp);
 }
 
-// Stick a little fuzz on a number.
-int number_fuzzy(int number)
-{
-    switch (number_bits(2)) {
-    case 0:
-        number -= 1;
-        break;
-    case 3:
-        number += 1;
-        break;
-    }
-
-    return UMAX(1, number);
-}
-
-// Generate a random number.
-int number_range(int from, int to)
-{
-    int power;
-    int number;
-
-    if (from == 0 && to == 0) 
-        return 0;
-
-    if ((to = to - from + 1) <= 1) 
-        return from;
-
-    for (power = 2; power < to; power <<= 1)
-        ;
-
-    while ((number = number_mm() & (power - 1)) >= to)
-        ;
-
-    return from + number;
-}
-
-// Generate a percentile roll.
-int number_percent(void)
-{
-    int percent;
-
-    while ((percent = number_mm() & (128 - 1)) > 99)
-        ;
-
-    return 1 + percent;
-}
-
-// Generate a random door.
-Direction number_door()
-{
-    Direction door;
-
-    while ((door = number_mm() & (8 - 1)) > 5)
-        ;
-
-    return door;
-}
-
-int number_bits(int width)
-{
-    return number_mm() & ((1 << width) - 1);
-}
-
 void init_mm()
 {
     int rounds = 5;
 
     // Seed with external entropy -- the time and some program addresses
     pcg32_srandom(time(NULL) ^ (intptr_t)&printf, (intptr_t)&rounds);
-}
-
-long number_mm(void)
-{
-    return pcg32_random();
-}
-
-// Roll some dice.
-int dice(int number, int size)
-{
-    int idice;
-    int sum;
-
-    switch (size) {
-    case 0:
-        return 0;
-    case 1:
-        return number;
-    }
-
-    for (idice = 0, sum = 0; idice < number; idice++)
-        sum += number_range(1, size);
-
-    return sum;
 }
 
 // Simple linear interpolation.
@@ -2161,9 +2079,11 @@ void bug(const char* fmt, ...)
     vsprintf(buf + strlen(buf), fmt, args);
     log_string(buf);
 
+#ifdef ENABLE_ROM_OLC_PERSISTENCE
     if (current_loader_guard) {
         loader_longjmp(buf, 0);
     }
+#endif
 
     return;
 }

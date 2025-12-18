@@ -283,7 +283,7 @@ void register_quest_tests()
     cfg_set_player_dir("../temp/quest_tests/");
     cfg_set_gods_dir("../temp/quest_tests/");
 
-    init_test_group(&quest_tests, "Quest Tests");
+    init_test_group(&quest_tests, "QUEST TESTS");
     register_test_group(&quest_tests);
 
     REGISTER("Add Targets To Quest Log", test_quest_add_targets);

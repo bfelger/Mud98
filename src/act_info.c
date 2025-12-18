@@ -41,6 +41,7 @@
 #include "spell_list.h"
 #include "recycle.h"
 #include "save.h"
+#include "skill_ops.h"
 #include "skills.h"
 #include "stringutils.h"
 #include "tables.h"
@@ -280,12 +281,12 @@ void show_char_to_char_0(Mobile* victim, Mobile* ch)
         break;
     case POS_SLEEPING:
         if (victim->on != NULL) {
-            if (IS_SET(victim->on->value[2], SLEEP_AT)) {
+            if (IS_SET(victim->on->furniture.flags, SLEEP_AT)) {
                 sprintf(message, " is sleeping at %s.",
                         victim->on->short_descr);
                 strcat(buf, message);
             }
-            else if (IS_SET(victim->on->value[2], SLEEP_ON)) {
+            else if (IS_SET(victim->on->furniture.flags, SLEEP_ON)) {
                 sprintf(message, " is sleeping on %s.",
                         victim->on->short_descr);
                 strcat(buf, message);
@@ -301,11 +302,11 @@ void show_char_to_char_0(Mobile* victim, Mobile* ch)
         break;
     case POS_RESTING:
         if (victim->on != NULL) {
-            if (IS_SET(victim->on->value[2], REST_AT)) {
+            if (IS_SET(victim->on->furniture.flags, REST_AT)) {
                 sprintf(message, " is resting at %s.", victim->on->short_descr);
                 strcat(buf, message);
             }
-            else if (IS_SET(victim->on->value[2], REST_ON)) {
+            else if (IS_SET(victim->on->furniture.flags, REST_ON)) {
                 sprintf(message, " is resting on %s.", victim->on->short_descr);
                 strcat(buf, message);
             }
@@ -319,11 +320,11 @@ void show_char_to_char_0(Mobile* victim, Mobile* ch)
         break;
     case POS_SITTING:
         if (victim->on != NULL) {
-            if (IS_SET(victim->on->value[2], SIT_AT)) {
+            if (IS_SET(victim->on->furniture.flags, SIT_AT)) {
                 sprintf(message, " is sitting at %s.", victim->on->short_descr);
                 strcat(buf, message);
             }
-            else if (IS_SET(victim->on->value[2], SIT_ON)) {
+            else if (IS_SET(victim->on->furniture.flags, SIT_ON)) {
                 sprintf(message, " is sitting on %s.", victim->on->short_descr);
                 strcat(buf, message);
             }
@@ -337,12 +338,12 @@ void show_char_to_char_0(Mobile* victim, Mobile* ch)
         break;
     case POS_STANDING:
         if (victim->on != NULL) {
-            if (IS_SET(victim->on->value[2], STAND_AT)) {
+            if (IS_SET(victim->on->furniture.flags, STAND_AT)) {
                 sprintf(message, " is standing at %s.",
                         victim->on->short_descr);
                 strcat(buf, message);
             }
-            else if (IS_SET(victim->on->value[2], STAND_ON)) {
+            else if (IS_SET(victim->on->furniture.flags, STAND_ON)) {
                 sprintf(message, " is standing on %s.",
                         victim->on->short_descr);
                 strcat(buf, message);
@@ -445,8 +446,9 @@ void show_char_to_char_1(Mobile* victim, Mobile* ch)
         }
     }
 
+    // Use skill check seam for testability
     if (victim != ch && !IS_NPC(ch)
-        && number_percent() < get_skill(ch, gsn_peek)) {
+        && skill_ops->check_simple(ch, gsn_peek)) {
         send_to_char("\n\rYou peek at the inventory:\n\r", ch);
         check_improve(ch, gsn_peek, true, 4);
         show_list_to_char(&victim->objects, ch, true, true);
@@ -962,16 +964,16 @@ void do_look(Mobile* ch, char* argument)
             break;
 
         case ITEM_DRINK_CON:
-            if (obj->value[1] <= 0) {
+            if (obj->drink_con.current <= 0) {
                 send_to_char("It is empty.\n\r", ch);
                 break;
             }
 
             sprintf(buf, "It's %sfilled with  a %s liquid.\n\r",
-                    obj->value[1] < obj->value[0] / 4       ? "less than half-"
-                    : obj->value[1] < 3 * obj->value[0] / 4 ? "about half-"
+                    obj->drink_con.current < obj->drink_con.capacity / 4       ? "less than half-"
+                    : obj->drink_con.current < 3 * obj->drink_con.capacity / 4 ? "about half-"
                                                             : "more than half-",
-                    liquid_table[obj->value[2]].color);
+                    liquid_table[obj->drink_con.liquid_type].color);
 
             send_to_char(buf, ch);
             break;
@@ -979,7 +981,7 @@ void do_look(Mobile* ch, char* argument)
         case ITEM_CONTAINER:
         case ITEM_CORPSE_NPC:
         case ITEM_CORPSE_PC:
-            if (IS_SET(obj->value[1], CONT_CLOSED)) {
+            if (IS_SET(obj->furniture.flags, CONT_CLOSED)) {
                 send_to_char("It is closed.\n\r", ch);
                 break;
             }
@@ -1149,9 +1151,9 @@ void do_examine(Mobile* ch, char* argument)
             break;
 
         case ITEM_MONEY: {
-            int gold = obj->value[MONEY_VALUE_GOLD];
-            int silver = obj->value[MONEY_VALUE_SILVER];
-            int copper = obj->value[MONEY_VALUE_COPPER];
+            int gold = obj->money.gold;
+            int silver = obj->money.silver;
+            int copper = obj->money.copper;
             if (gold == 0 && silver == 0 && copper == 0) {
                 sprintf(buf, "Odd...there's no coins in the pile.\n\r");
             }
@@ -1987,13 +1989,13 @@ void do_compare(Mobile* ch, char* argument)
     else {
         switch (obj1->item_type) {
         case ITEM_ARMOR:
-            value1 = obj1->value[0] + obj1->value[1] + obj1->value[2];
-            value2 = obj2->value[0] + obj2->value[1] + obj2->value[2];
+            value1 = obj1->armor.ac_bash + obj1->armor.ac_slash + obj1->armor.ac_pierce;
+            value2 = obj2->armor.ac_bash + obj2->armor.ac_slash + obj2->armor.ac_pierce;
             break;
 
         case ITEM_WEAPON:
-            value1 = (1 + obj1->value[2]) * obj1->value[1];
-            value2 = (1 + obj2->value[2]) * obj2->value[1];
+            value1 = (1 + obj1->weapon.size_dice) * obj1->weapon.num_dice;
+            value2 = (1 + obj2->weapon.size_dice) * obj2->weapon.num_dice;
             break;
             
         default:

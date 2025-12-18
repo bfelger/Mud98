@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stï¿½rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -43,11 +43,8 @@
 #include <sys/types.h>
 #include <time.h>
 
-void scan_list args((Room * scan_room, Mobile* ch, int16_t depth,
-                     int16_t door));
-
-void scan_char args((Mobile * victim, Mobile* ch, int16_t depth,
-                     int16_t door));
+void scan_list(Room* scan_room, Mobile* ch, int16_t depth, int16_t door);
+void scan_char(Mobile* victim, Mobile* ch, int16_t depth, int16_t door);
 
 void do_scan(Mobile* ch, char* argument)
 {

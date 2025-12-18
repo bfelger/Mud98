@@ -193,18 +193,18 @@ void load_objects(FILE* fp)
         obj_proto->wear_flags = fread_flag(fp);
         switch (obj_proto->item_type) {
         case ITEM_WEAPON:
-            obj_proto->value[0] = weapon_lookup(fread_word(fp));
-            obj_proto->value[1] = fread_number(fp);
-            obj_proto->value[2] = fread_number(fp);
-            obj_proto->value[3] = attack_lookup(fread_word(fp));
-            obj_proto->value[4] = fread_flag(fp);
+            obj_proto->weapon.weapon_type = weapon_lookup(fread_word(fp));
+            obj_proto->weapon.num_dice = fread_number(fp);
+            obj_proto->weapon.size_dice = fread_number(fp);
+            obj_proto->weapon.damage_type = attack_lookup(fread_word(fp));
+            obj_proto->weapon.flags = fread_flag(fp);
             break;
         case ITEM_CONTAINER:
-            obj_proto->value[0] = fread_number(fp);
-            obj_proto->value[1] = fread_flag(fp);
-            obj_proto->value[2] = fread_number(fp);
-            obj_proto->value[3] = fread_number(fp);
-            obj_proto->value[4] = fread_number(fp);
+            obj_proto->container.capacity = fread_number(fp);
+            obj_proto->container.flags = fread_flag(fp);
+            obj_proto->container.key_vnum = fread_number(fp);
+            obj_proto->container.max_item_weight = fread_number(fp);
+            obj_proto->container.weight_mult = fread_number(fp);
             break;
         case ITEM_DRINK_CON:
         case ITEM_FOUNTAIN:

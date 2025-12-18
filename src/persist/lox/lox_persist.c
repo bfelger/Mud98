@@ -6,8 +6,14 @@
 #include "lox_persist.h"
 
 #include <persist/persist_io_adapters.h>
+
+#ifdef ENABLE_ROM_OLC_PERSISTENCE
 #include <persist/lox/rom-olc/lox_persist_rom_olc.h>
+#endif
+
+#ifdef ENABLE_JSON_PERSISTENCE
 #include <persist/lox/json/lox_persist_json.h>
+#endif
 
 #include <merc.h>
 #include <db.h>
@@ -58,9 +64,15 @@ static void build_catalog_path(char* out, size_t out_len, const char* override_f
 static const LoxPersistFormat* lox_format_from_name(const char* filename)
 {
     const char* ext = filename ? strrchr(filename, '.') : NULL;
+#ifdef ENABLE_JSON_PERSISTENCE
     if (ext && !str_cmp(ext, ".json"))
         return &LOX_PERSIST_JSON;
+#endif
+#ifdef ENABLE_ROM_OLC_PERSISTENCE
     return &LOX_PERSIST_ROM_OLC;
+#else
+    return NULL;
+#endif
 }
 
 PersistResult lox_persist_load(const char* filename)

@@ -1113,10 +1113,8 @@ void end_mccp2(Descriptor* d)
 {
 #ifndef NO_ZLIB
 
-	if (d->mth->mccp2 == NULL)
-	{
+	if (!d || !d->mth || !d->mth->mccp2)
 		return;
-	}
 
 	d->mth->mccp2->next_in = NULL;
 	d->mth->mccp2->avail_in = 0;
@@ -1273,14 +1271,13 @@ size_t process_sb_mccp3(Descriptor* d, unsigned char* src, size_t srclen)
 void end_mccp3(Descriptor* d)
 {
 #ifndef NO_ZLIB
+	if (!d || !d->mth || !d->mth->mccp3)
+		return;
 
-	if (d->mth->mccp3)
-	{
-		log_descriptor_printf(d, "MCCP3: COMPRESSION END");
-		inflateEnd(d->mth->mccp3);
-		free_mem(d->mth->mccp3, sizeof(z_stream));
-		d->mth->mccp3 = NULL;
-	}
+	log_descriptor_printf(d, "MCCP3: COMPRESSION END");
+	inflateEnd(d->mth->mccp3);
+	free_mem(d->mth->mccp3, sizeof(z_stream));
+	d->mth->mccp3 = NULL;
 
 #endif
 }

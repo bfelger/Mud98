@@ -1,186 +1,110 @@
 #
 # Mud98 Game Executable
 #
+cmake_minimum_required(VERSION 3.14)
 
-set(Mud98_LIBS "")
-
+# ============================================================================
+# Dependencies
+# ============================================================================
 if (NOT MSVC)
     set(THREADS_PREFER_PTHREAD_FLAG ON)
     find_package(Threads REQUIRED)
-    list(APPEND Mud98_LIBS Threads::Threads)
 endif()
 
-add_subdirectory(jansson)
-list(APPEND Mud98_LIBS jansson)
+# Persistence layer options (must come before dependencies)
+option(ENABLE_JSON_PERSISTENCE "Build JSON persistence support (requires Jansson)" ON)
+option(ENABLE_ROM_OLC_PERSISTENCE "Build ROM-OLC persistence support (legacy text format)" ON)
 
-set (OPENSSL_USE_STATIC_LIBS true)
+# Conditionally fetch Jansson only if JSON persistence is enabled
+if (ENABLE_JSON_PERSISTENCE)
+    include(FetchContent)
+    
+    # Configure Jansson options before fetching
+    set(JANSSON_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+    set(JANSSON_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(JANSSON_WITHOUT_TESTS ON CACHE BOOL "" FORCE)
+    
+    # If on CMake 4.0 or higher, use master instead of v2.14.1 due to Windows CMake issues
+    if (CMAKE_VERSION VERSION_GREATER_EQUAL "4.0.0")
+        message(WARNING "Using Jansson master branch due to CMake 4.0+ Windows issues. "
+                        "Once Jansson fixes their CMake files, switch back to v2.14.1.")
+        set(JANSSON_GIT_TAG "master")
+    else()
+        set(JANSSON_GIT_TAG "v2.14.1")
+    endif()
+    FetchContent_Declare(
+        jansson
+        GIT_REPOSITORY https://github.com/akheron/jansson.git
+        GIT_TAG        ${JANSSON_GIT_TAG}
+    )
+    
+    FetchContent_MakeAvailable(jansson)
+    
+    # Workaround: Jansson doesn't properly expose its include directories
+    # Use BUILD_INTERFACE so it only applies during build, not install
+    FetchContent_GetProperties(jansson)
+    if(jansson_POPULATED)
+        target_include_directories(jansson INTERFACE 
+            $<BUILD_INTERFACE:${jansson_SOURCE_DIR}/src>
+        )
+    endif()
+endif()
+
+set(OPENSSL_USE_STATIC_LIBS TRUE)
 find_package(OpenSSL)
 
 if (OPENSSL_FOUND)
-    message("OpenSSL version ${OPENSSL_VERSION} found at ${OPENSSL_INCLUDE_DIRS}.")
+    message("OpenSSL version ${OPENSSL_VERSION} found.")
+    message("  OPENSSL_INCLUDE_DIR: ${OPENSSL_INCLUDE_DIR}")
+    message("  OPENSSL_INCLUDE_DIRS: ${OPENSSL_INCLUDE_DIRS}")
+    message("  OPENSSL_LIBRARIES: ${OPENSSL_LIBRARIES}")
+    message("  OPENSSL_SSL_LIBRARY: ${OPENSSL_SSL_LIBRARY}")
+    message("  OPENSSL_CRYPTO_LIBRARY: ${OPENSSL_CRYPTO_LIBRARY}")
 endif()
 
 if (NOT OPENSSL_FOUND OR OPENSSL_VERSION VERSION_LESS "3.0.0")
     message(WARNING "OpenSSL 3.0 or higher not found. If you have it installed, set the OPENSSL_ROOT_DIR environment variable. "
                     "If you proceed without OpenSSL, you will not have TLS capability.")
-    set(NO_OPENSSL true)
-else()
-    if (MSVC)
-        list(APPEND Mud98_LIBS OpenSSL::Crypto OpenSSL::SSL OpenSSL::applink)
-    else()
-        list(APPEND Mud98_LIBS OpenSSL::SSL)
-    endif()
+    set(NO_OPENSSL TRUE)
 endif()
 
-set (ZLIB_USE_STATIC_LIBS true)
+set(ZLIB_USE_STATIC_LIBS TRUE)
 find_package(ZLIB)
-if (ZLIB_FOUND)
-    list(APPEND Mud98_LIBS ZLIB::ZLIB)
-else()
+if (NOT ZLIB_FOUND)
     message(WARNING "ZLIB not found. If you have it installed, set the ZLIB_ROOT_DIR environment variable. "
                     "If you proceed without ZLIB, you will not be able to use MTH compression.")
-    set(NO_ZLIB true)
 endif()
 
-if (MSVC)
-    set(MSVC_DISABLED_WARNINGS
+# ============================================================================
+# Mud98Core Library
+# ============================================================================
+# Add persist subdirectory first so its object libraries are available
+add_subdirectory(persist)
 
-        # enumerator 'X' in switch of enum 'Y' is not explicitly handled by a 
-        # case label
-        "C4061"     # If no default is specified, we get C4062 intead. That is
-                    # the only warning I care about.
-
-        # unknown pragma 'GCC'
-        "C4068"     # Equivalent to -Wno-unknown-pragmas
-
-        # Unreferenced formal parameter
-        "C4100"     # Disabling this is the equivalent of GCC/Clang's  
-                    # '-Wno-unused-parameter'.
-
-        # Nonstandard extension, function/data pointer conversion in expression
-        "C4152"     # For openssl/applink.c.
-
-        # No function prototype given: converting '()' to '(void)'"
-        "C4255"     # C23 removes this requirement. Although MSVC is not 
-                    # implementing C23, I would rather make MSVC conform to 
-                    # GCC/Clang, and not the other way around.
-
-         # Assignment within conditional expression
-        "C4706"     # Microsoft can take my assigning conditionals out of my 
-                    # cold, dead hands.
-
-        # Function not inlined
-        "C4710"     # Many stdlib calls are marked inline, but cannot be inlined
-                    # at the call-site. This is noise.
-        
-        # X bytes padding after data member 'Y'
-        "C4820"     # As long as sizeof() reports the correct value (it does), 
-                    # this is a non-issue.
-
-        # Compiler will insert Spectre mitigation for memory load if /Qspectre
-        # switch specified
-        "C5045"     # Spectre is serious business, but mitigations are costly.
-                    # In the end, the choice to add mitigation is yours. Add
-                    # /Qspectre to CFLAGS if you want to enable it. This WILL
-                    # impact performance, as ROM does quite a bit of the things
-                    # that need to be guarded. You can also mitigate by running
-                    # as a user account with no privileges (which you should be
-                    # doing, anyway). With or without Spectre, ASSUME HACKERS
-                    # WILL BREACH. Prepare accordingly.
-    )
-
-    string(REPLACE "C" " -wd" MSVC_DISABLED_WARNINGS_OPT ${MSVC_DISABLED_WARNINGS})
-    string(REGEX REPLACE "[/-]W[1234][ ]?" "" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
-
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${MSVC_C_STD} /Wall /WX ${MSVC_DISABLED_WARNINGS_OPT}")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_CRT_SECURE_NO_WARNINGS -DNOCRYPT")
-elseif (CMAKE_C_COMPILER_ID STREQUAL "GNU")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu2x")
-elseif (CMAKE_C_COMPILER_ID STREQUAL "Clang")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c2x")
-endif()
-
-if (NOT MSVC)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -Wextra -pedantic -Wno-unused-parameter -Wno-unknown-pragmas -D_GNU_SOURCE")
-    list(APPEND Mud98_LIBS m)
-endif()
-
-if (NO_OPENSSL)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DNO_OPENSSL")
-    if (CYGWIN)
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DNO_ENCRYPTION")
-    endif()
-endif()
-
-if (NOT ZLIB_FOUND)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DNO_ZLIB")
-endif()
-
-include_directories(${CMAKE_SOURCE_DIR})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/persist)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/jansson)
-
-add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h" 
+# Core game logic shared by main executable, tests, and benchmarks
+add_library(Mud98Core STATIC "merc.h" "act_comm.h" "act_comm.c" "act_enter.h" 
     "act_enter.c" "act_info.h" "act_info.c" "act_move.h" "act_move.c" 
     "act_obj.h" "act_obj.c" "act_wiz.h" "act_wiz.c" "alias.h" "alias.c" 
-    "array.h" "ban.h" "ban.c" "color.h" "color.c" "comm.h" "comm.c" "config.h" 
-    "config.c" "db.c" "digest.h" "digest.c" "effects.h" "effects.c" "fileutils.h" 
-    "fileutils.c" "fight.h" "fight.c" "flags.c" "format.h" "format.c" "handler.h" 
-    "handler.c" "healer.c" "lox.c" "interp.c" "lookup.c" "magic.c" "magic2.c" 
-    "main.c" "match.h" "match.c" "mem_watchpoint.h" "mem_watchpoint.c" 
-    "mob_cmds.h" "mob_cmds.c" "mob_prog.h" 
-    "mob_prog.c" "music.c" "note.h" "note.c" "pcg_basic.c" "recycle.c" "reload.h" 
-    "reload.c" "save.h" 
-    "save.c" "scan.c" "skills.h" "skills.c" "socket.h" "special.h" "special.c" 
-    "spell_list.h" "stringbuffer.h" "stringbuffer.c" "tables.c" "tablesave.c" 
-    "update.h" "update.c" "weather.h" "weather.c"
-
-    "persist/persist_io.h" "persist/persist_io_adapters.h" 
-    "persist/persist_io_adapters.c" "persist/persist_result.h" 
-    "persist/area/area_persist.h" "persist/area/area_persist.c" 
-    "persist/json/persist_json.h" "persist/json/persist_json.c"
-    "persist/area/rom-olc/area_persist_rom_olc.h" 
-    "persist/area/rom-olc/area_persist_rom_olc.c" "persist/area/json/area_persist_json.h" 
-    "persist/area/json/area_persist_json.c" "persist/race/race_persist.h" 
-    "persist/race/race_persist.c" "persist/class/class_persist.h" 
-    "persist/class/class_persist.c" "persist/class/rom-olc/class_persist_rom_olc.h" 
-    "persist/class/rom-olc/class_persist_rom_olc.c" 
-    "persist/class/json/class_persist_json.h" "persist/class/json/class_persist_json.c" 
-    "persist/race/rom-olc/race_persist_rom_olc.h" 
-    "persist/race/rom-olc/race_persist_rom_olc.c" "persist/race/json/race_persist_json.h" 
-    "persist/race/json/race_persist_json.c"
-    "persist/theme/theme_persist.h" "persist/theme/theme_persist.c"
-    "persist/theme/rom-olc/theme_persist_rom_olc.h" "persist/theme/rom-olc/theme_persist_rom_olc.c"
-    "persist/theme/json/theme_persist_json.h" "persist/theme/json/theme_persist_json.c"
-    "persist/theme/rom-olc/theme_rom_olc_io.h" "persist/theme/rom-olc/theme_rom_olc_io.c"
-    "persist/command/command_persist.h" "persist/command/command_persist.c"
-    "persist/command/rom-olc/command_persist_rom_olc.h" "persist/command/rom-olc/command_persist_rom_olc.c"
-    "persist/command/json/command_persist_json.h" "persist/command/json/command_persist_json.c"
-    "persist/lox/lox_persist.h" "persist/lox/lox_persist.c"
-    "persist/lox/rom-olc/lox_persist_rom_olc.h" "persist/lox/rom-olc/lox_persist_rom_olc.c"
-    "persist/lox/json/lox_persist_json.h" "persist/lox/json/lox_persist_json.c"
-    "persist/skill/skill_persist.h" "persist/skill/skill_persist.c"
-    "persist/skill/rom-olc/skill_persist_rom_olc.h" "persist/skill/rom-olc/skill_persist_rom_olc.c"
-    "persist/skill/json/skill_persist_json.h" "persist/skill/json/skill_persist_json.c"
-    "persist/social/social_persist.h" "persist/social/social_persist.c"
-    "persist/social/rom-olc/social_persist_rom_olc.h" "persist/social/rom-olc/social_persist_rom_olc.c"
-    "persist/social/json/social_persist_json.h" "persist/social/json/social_persist_json.c"
-    "persist/tutorial/tutorial_persist.h" "persist/tutorial/tutorial_persist.c"
-    "persist/tutorial/rom-olc/tutorial_persist_rom_olc.h" "persist/tutorial/rom-olc/tutorial_persist_rom_olc.c"
-    "persist/tutorial/json/tutorial_persist_json.h" "persist/tutorial/json/tutorial_persist_json.c"
-    "persist/player/player_persist.h" "persist/player/player_persist.c"
-    "persist/player/rom-olc/player_persist_rom_olc.c"
-    "persist/player/json/player_persist_json.c"
+    "array.h" "ban.h" "ban.c" "color.h" "color.c" "combat_ops.h" "combat_rom.c" 
+    "comm.h" "comm.c" "config.h" "config.c" "db.c" "digest.h" "digest.c" 
+    "effects.h" "effects.c" "fileutils.h" "fileutils.c" "fight.h" "fight.c" 
+    "flags.c" "format.h" "format.c" "globals.c" "handler.h" "handler.c" 
+    "healer.c" "lox.c" "interp.c" "lookup.c" "magic.c" "magic2.c" "match.h" 
+    "match.c" "mem_watchpoint.h" "mem_watchpoint.c" "mob_cmds.h" "mob_cmds.c" 
+    "mob_prog.h" "mob_prog.c" "music.c" "note.h" "note.c" "pcg_basic.c" 
+    "recycle.c" "reload.h" "reload.c" "rng.h" "rng.c" "save.h" "save.c" "scan.c"
+    "skill_ops.h" "skill_ops.c" "skills.h" "skills.c" "socket.h" "special.h" 
+    "special.c" "spell_list.h" "stringbuffer.h" "stringbuffer.c" "tables.c" 
+    "tablesave.c" "update.h" "update.c" "weather.h" "weather.c"
 
     "olc/aedit.c" "olc/bit.h" "olc/bit.c" "olc/cedit.c" "olc/cmdedit.c" 
     "olc/event_edit.h" "olc/event_edit.c" "olc/gedit.c" "olc/hedit.c" 
     "olc/medit.c" "olc/oedit.c" "olc/olc.h" "olc/olc.c" "olc/olc_act.c" 
     "olc/olc_save.c" "olc/pedit.c" "olc/period_edit.h" "olc/period_edit.c"
-    "olc/qedit.c" "olc/raedit.c" "olc/redit.c" 
-    "olc/screen.h" "olc/screen.c" "olc/sedit.c" "olc/skedit.c" "olc/tedit.c" 
-    "olc/string_edit.h" "olc/string_edit.c"  "olc/lox_edit.h" "olc/lox_edit.c"
-    "olc/scredit.c" "olc/theme_edit.c"
+    "olc/qedit.c" "olc/raedit.c" "olc/redit.c" "olc/screen.h" "olc/screen.c" 
+    "olc/sedit.c" "olc/skedit.c" "olc/tedit.c" "olc/string_edit.h" 
+    "olc/string_edit.c"  "olc/lox_edit.h" "olc/lox_edit.c" "olc/scredit.c" 
+    "olc/theme_edit.c"
 
     "mth/mth.h" "mth/msdp.c" "mth/mth.c" "mth/telopt.c"
     
@@ -237,33 +161,181 @@ add_executable(Mud98 "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
     "lox/function.h"
     "lox/segvec.h" "lox/segvec.c"
     "lox/enum.h" "lox/enum.c"
- 
-    "tests/tests.c"
-    "tests/test_registry.h" "tests/test_registry.c" 
-    "tests/all_tests.c" "tests/tests.h"
-    "tests/mock.h" "tests/mock.c"
-    "tests/lox_tests.h" "tests/lox_tests.c" "tests/lox_ext_tests.c"
-    "tests/persist_tests.c"
-    "tests/entity_tests.c" "tests/container_tests.c" "tests/act_tests.c" 
-    "tests/act_comm_tests.c" "tests/act_enter_tests.c" "tests/act_obj_tests.c" 
-    "tests/act_move_tests.c" 
-    "tests/act_wiz_tests.c" "tests/act_wiz2_tests.c" "tests/act_wiz3_tests.c" 
-    "tests/act_wiz4_tests.c" "tests/act_wiz5_tests.c"
-    "tests/interp_tests.c" "tests/fight_tests.c" "tests/skills_tests.c"
-    "tests/event_tests.c" "tests/faction_tests.c" "tests/money_tests.c" 
-    "tests/buffer_tests.c" "tests/stringbuffer_tests.c" "tests/mem_watchpoint_tests.c"
-    "tests/login_tests.c" "tests/player_persist_tests.c" "tests/quest_tests.c" 
-    "tests/fmt_tests.c" "tests/theme_tests.c" "tests/util_tests.c"
-    "tests/daycycle_tests.c"
-
-    "benchmarks/benchmarks.h" "benchmarks/benchmarks.c" 
-    "benchmarks/container_benchmarks.c" "benchmarks/format_benchmarks.c"
 
     "snippets/counter.c" "snippets/lore.c" "snippets/merc.dual.v1.c" 
     "snippets/wizutil.v3.c"
 )
 
-target_link_libraries(Mud98 PRIVATE ${Mud98_LIBS})
+target_link_libraries(Mud98Core PRIVATE ${Mud98_LIBS})
+
+# Configure library includes (PUBLIC so consumers get them)
+target_include_directories(Mud98Core
+    PUBLIC
+        ${CMAKE_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/entities
+        ${CMAKE_CURRENT_SOURCE_DIR}/data
+        ${CMAKE_CURRENT_SOURCE_DIR}/lox
+        ${CMAKE_CURRENT_SOURCE_DIR}/olc
+        $<$<BOOL:${OPENSSL_FOUND}>:${OPENSSL_INCLUDE_DIR}>
+        $<$<BOOL:${ZLIB_FOUND}>:${ZLIB_INCLUDE_DIRS}>
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/persist
+)
+
+# Link dependencies
+target_link_libraries(Mud98Core 
+    PUBLIC
+        # Persistence layer object libraries
+        Mud98Persist
+        $<$<BOOL:${ENABLE_ROM_OLC_PERSISTENCE}>:Mud98PersistRomOlc>
+        $<$<BOOL:${ENABLE_JSON_PERSISTENCE}>:Mud98PersistJson>
+        $<$<BOOL:${ENABLE_JSON_PERSISTENCE}>:jansson>
+    PRIVATE
+        $<$<BOOL:${OPENSSL_FOUND}>:$<IF:$<BOOL:${MSVC}>,OpenSSL::Crypto;OpenSSL::SSL;OpenSSL::applink,OpenSSL::SSL>>
+        $<$<BOOL:${ZLIB_FOUND}>:ZLIB::ZLIB>
+        $<$<NOT:$<BOOL:${MSVC}>>:Threads::Threads>
+        $<$<NOT:$<BOOL:${MSVC}>>:m>
+)
+
+# Compiler-specific options
+target_compile_options(Mud98Core PRIVATE
+    # MSVC options
+    $<$<C_COMPILER_ID:MSVC>:
+        /Wall /WX /std:c17
+        /wd4061  # enumerator not explicitly handled
+        /wd4068  # unknown pragma
+        /wd4100  # unreferenced parameter
+        /wd4152  # function/data pointer conversion
+        /wd4255  # no function prototype
+        /wd4706  # assignment in conditional
+        /wd4710  # function not inlined
+        /wd4820  # padding after data member
+        /wd5045  # Spectre mitigation
+        /wd4668  # Until MS fixes their own macros
+        /wd4996  # Stupid deprecation warnings
+        /wd4191  # Fix your SDK, Microsoft
+    >
+    # GCC/Clang options
+    $<$<NOT:$<C_COMPILER_ID:MSVC>>:
+        -Wall -Werror -Wextra -pedantic
+        -Wno-unused-parameter -Wno-unknown-pragmas
+    >
+    # GCC-specific
+    $<$<C_COMPILER_ID:GNU>:-std=gnu2x>
+    # Clang-specific
+    $<$<C_COMPILER_ID:Clang>:-std=c2x>
+)
+
+# Compile definitions
+target_compile_definitions(Mud98Core PRIVATE
+    $<$<C_COMPILER_ID:MSVC>:_CRT_SECURE_NO_WARNINGS>
+    $<$<NOT:$<C_COMPILER_ID:MSVC>>:_GNU_SOURCE>
+    $<$<NOT:$<BOOL:${OPENSSL_FOUND}>>:NO_OPENSSL>
+    $<$<AND:$<NOT:$<BOOL:${OPENSSL_FOUND}>>,$<BOOL:${CYGWIN}>>:NO_ENCRYPTION>
+    $<$<NOT:$<BOOL:${ZLIB_FOUND}>>:NO_ZLIB>
+)
+
+# ============================================================================
+# Mud98 Main Executable
+# ============================================================================
+add_executable(Mud98 "main.c" "test_stubs.c")
+target_link_libraries(Mud98 PRIVATE Mud98Core)
+
+# ============================================================================
+# Mud98Tests Executable
+# ============================================================================
+add_executable(Mud98Tests
+    "tests/test_main.c" "tests/tests.c" "tests/tests.h" "tests/all_tests.c" 
+    "tests/test_registry.h" "tests/test_registry.c" "tests/mock.h" 
+    "tests/mock.c" "tests/mock_rng.c" "tests/mock_combat.c" 
+    "tests/mock_skill_ops.h" "tests/mock_skill_ops.c" "tests/lox_tests.h"
+    "tests/lox_tests.c" "tests/lox_ext_tests.c" "tests/persist_tests.c" 
+    "tests/entity_tests.c" "tests/container_tests.c" "tests/act_tests.c" 
+    "tests/act_comm_tests.c" "tests/act_enter_tests.c" "tests/act_obj_tests.c"
+    "tests/act_move_tests.c" "tests/act_wiz_tests.c" "tests/act_wiz2_tests.c" 
+    "tests/act_wiz3_tests.c" "tests/act_wiz4_tests.c" "tests/act_wiz5_tests.c" 
+    "tests/interp_tests.c" "tests/fight_tests.c" "tests/damage_tests.c" 
+    "tests/tohit_tests.c" "tests/combat_state_tests.c" "tests/skills_tests.c" 
+    "tests/event_tests.c" "tests/faction_tests.c" "tests/money_tests.c" 
+    "tests/buffer_tests.c" "tests/stringbuffer_tests.c" 
+    "tests/mem_watchpoint_tests.c" "tests/login_tests.c" 
+    "tests/player_persist_tests.c" "tests/quest_tests.c" "tests/fmt_tests.c" 
+    "tests/theme_tests.c" "tests/util_tests.c" "tests/daycycle_tests.c" 
+    "tests/multihit_tests.c" "tests/thief_tests.c" "tests/magic_tests.c"
+)
+
+# Compiler-specific options
+target_compile_options(Mud98Tests PRIVATE
+    # MSVC options
+    $<$<C_COMPILER_ID:MSVC>:
+        /Wall /WX /std:c17
+        /wd4061  # enumerator not explicitly handled
+        /wd4068  # unknown pragma
+        /wd4100  # unreferenced parameter
+        /wd4152  # function/data pointer conversion
+        /wd4255  # no function prototype
+        /wd4706  # assignment in conditional
+        /wd4710  # function not inlined
+        /wd4820  # padding after data member
+        /wd5045  # Spectre mitigation
+        /wd4668  # Until MS fixes their own macros
+        /wd4996  # Stupid deprecation warnings
+        /wd4191  # Fix your SDK, Microsoft
+    >
+    # GCC/Clang options
+    $<$<NOT:$<C_COMPILER_ID:MSVC>>:
+        -Wall -Werror -Wextra -pedantic
+        -Wno-unused-parameter -Wno-unknown-pragmas
+    >
+    # GCC-specific
+    $<$<C_COMPILER_ID:GNU>:-std=gnu2x>
+    # Clang-specific
+    $<$<C_COMPILER_ID:Clang>:-std=c2x>
+)
+
+# Compile definitions
+target_compile_definitions(Mud98Tests PRIVATE
+    $<$<C_COMPILER_ID:MSVC>:_CRT_SECURE_NO_WARNINGS>
+    $<$<NOT:$<C_COMPILER_ID:MSVC>>:_GNU_SOURCE>
+    $<$<NOT:$<BOOL:${OPENSSL_FOUND}>>:NO_OPENSSL>
+    $<$<AND:$<NOT:$<BOOL:${OPENSSL_FOUND}>>,$<BOOL:${CYGWIN}>>:NO_ENCRYPTION>
+    $<$<NOT:$<BOOL:${ZLIB_FOUND}>>:NO_ZLIB>
+)
+
+# Configure library includes (PUBLIC so consumers get them)
+target_include_directories(Mud98Core
+    PUBLIC
+        ${CMAKE_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/entities
+        ${CMAKE_CURRENT_SOURCE_DIR}/data
+        ${CMAKE_CURRENT_SOURCE_DIR}/lox
+        ${CMAKE_CURRENT_SOURCE_DIR}/olc
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/persist
+        $<$<BOOL:${OPENSSL_FOUND}>:${OPENSSL_INCLUDE_DIR}>
+        $<$<BOOL:${ZLIB_FOUND}>:${ZLIB_INCLUDE_DIRS}>
+)
+
+target_link_libraries(Mud98Tests PRIVATE Mud98Core)
+
+# Register with CTest
+add_test(NAME AllUnitTests COMMAND $<TARGET_FILE:Mud98Tests>)
+set_tests_properties(AllUnitTests PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
+
+# ============================================================================
+# Mud98Benchmarks Executable
+# ============================================================================
+add_executable(Mud98Benchmarks
+    "benchmarks/benchmark_main.c"
+    "test_stubs.c"
+    "benchmarks/benchmarks.h" "benchmarks/benchmarks.c" 
+    "benchmarks/container_benchmarks.c" "benchmarks/format_benchmarks.c"
+)
+target_link_libraries(Mud98Benchmarks PRIVATE Mud98Core)
 
 message("Config summary:")
 message("")
@@ -272,11 +344,8 @@ message("        Host type:        ${CMAKE_SYSTEM_NAME}")
 message("        Compiler:         ${CMAKE_C_COMPILER}")
 message("        Compiler ID:      ${CMAKE_C_COMPILER_ID}")
 message("        CMAKE_VERSION:    ${CMAKE_VERSION}")
-message("        CFLAGS:           ${CMAKE_C_FLAGS}")
-message("        CFLAGS_DEBUG:     ${CMAKE_C_FLAGS_DEBUG}")
-#message("        CPPFLAGS:         ${CMAKE_CXX_FLAGS}")
-message("        Linked Libs:      ${Mud98_LIBS}")
-message("        Include dirs:     ${CMAKE_INCLUDE_PATH}")
+message("        OpenSSL:          ${OPENSSL_FOUND}")
+message("        ZLIB:             ${ZLIB_FOUND}")
 message("        Build type:       ${CMAKE_BUILD_TYPE}")
 message("")
 message("        Install prefix:   ${CMAKE_INSTALL_PREFIX}")

@@ -7,6 +7,7 @@
 
 #include <persist/persist_io_adapters.h>
 #include <persist/rom-olc/loader_guard.h>
+#include <persist/rom-olc/db_rom_olc.h>
 
 #include <olc/olc.h>
 #include <olc/olc_save.h>
@@ -28,12 +29,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-
-// Legacy loader prototypes not exposed via headers.
-void load_helps(FILE* fp, char* fname);
-void load_shops(FILE* fp);
-void load_specials(FILE* fp);
-void load_mobprogs(FILE* fp);
 
 const AreaPersistFormat AREA_PERSIST_ROM_OLC = {
     .name = "rom-olc",

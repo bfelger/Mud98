@@ -28,6 +28,8 @@
 #include "fight.h"
 
 #include "act_comm.h"
+#include "combat_ops.h"
+#include "skill_ops.h"
 #include "act_move.h"
 #include "act_obj.h"
 #include "act_wiz.h"
@@ -59,6 +61,8 @@
 #include <string.h>
 #include <sys/types.h>
 #include <time.h>
+
+extern bool test_output_enabled;
 
 typedef struct {
     const char* short_desc;
@@ -428,18 +432,8 @@ void mob_hit(Mobile* ch, Mobile* victim, int16_t dt)
 void one_hit(Mobile* ch, Mobile* victim, int16_t dt, bool secondary)
 {
     Object* wield;
-    int victim_ac;
-    int thac0;
-    int thac0_00;
-    int thac0_32;
     int dam;
-    int diceroll;
-    SKNUM sn;
-    int skill;
-    DamageType dam_type;
     bool result;
-
-    sn = -1;
 
     /* just in case */
     if (victim == ch || ch == NULL || victim == NULL) 
@@ -462,154 +456,53 @@ void one_hit(Mobile* ch, Mobile* victim, int16_t dt, bool secondary)
     if (dt == TYPE_UNDEFINED) {
         dt = TYPE_HIT;
         if (wield != NULL && wield->item_type == ITEM_WEAPON)
-            dt += (int16_t)wield->value[3];
+            dt = (int16_t)wield->weapon.damage_type;
         else
-            dt += (int16_t)ch->dam_type;
+            dt = (int16_t)ch->dam_type;
     }
 
-    if (dt < TYPE_HIT)
-        if (wield != NULL)
-            dam_type = attack_table[wield->value[3]].damage;
-        else
-            dam_type = attack_table[ch->dam_type].damage;
-    else
-        dam_type = attack_table[dt - TYPE_HIT].damage;
-
-    if (dam_type == DAM_NONE) 
-        dam_type = DAM_BASH;
-
-    /* get the weapon skill */
-    sn = get_weapon_sn(ch);
-    skill = 20 + get_weapon_skill(ch, sn);
-
-    // Calculate to-hit-armor-class-0 versus armor.
-    if (IS_NPC(ch)) {
-        thac0_00 = 20;
-        thac0_32 = -4; /* as good as a thief */
-        if (IS_SET(ch->act_flags, ACT_WARRIOR))
-            thac0_32 = -10;
-        else if (IS_SET(ch->act_flags, ACT_THIEF))
-            thac0_32 = -4;
-        else if (IS_SET(ch->act_flags, ACT_CLERIC))
-            thac0_32 = 2;
-        else if (IS_SET(ch->act_flags, ACT_MAGE))
-            thac0_32 = 6;
-    }
-    else {
-        thac0_00 = class_table[ch->ch_class].thac0_00;
-        thac0_32 = class_table[ch->ch_class].thac0_32;
-    }
-    thac0 = interpolate(ch->level, thac0_00, thac0_32);
-
-    if (thac0 < 0) 
-        thac0 = thac0 / 2;
-
-    if (thac0 < -5) 
-        thac0 = -5 + (thac0 + 5) / 2;
-
-    thac0 -= GET_HITROLL(ch) * skill / 100;
-    thac0 += 5 * (100 - skill) / 100;
-
-    if (dt == gsn_backstab) 
-        thac0 -= 10 * (100 - get_skill(ch, gsn_backstab));
-
-    switch (dam_type) {
-    case DAM_PIERCE:
-        victim_ac = GET_AC(victim, AC_PIERCE) / 10;
-        break;
-    case DAM_BASH:
-        victim_ac = GET_AC(victim, AC_BASH) / 10;
-        break;
-    case DAM_SLASH:
-        victim_ac = GET_AC(victim, AC_SLASH) / 10;
-        break;
-    default:
-        victim_ac = GET_AC(victim, AC_EXOTIC) / 10;
-        break;
-    };
-
-    if (victim_ac < -15) 
-        victim_ac = (victim_ac + 15) / 5 - 15;
-
-    if (!can_see(ch, victim)) 
-        victim_ac -= 4;
-
-    if (victim->position < POS_FIGHTING)
-        victim_ac += 4;
-
-    if (victim->position < POS_RESTING)
-        victim_ac += 6;
-
-    // The moment of excitement!
-    while ((diceroll = number_bits(5)) >= 20)
-        ;
-
-    if (diceroll == 0 || (diceroll != 19 && diceroll < thac0 - victim_ac)) {
+    // Use CombatOps seam for to-hit calculation
+    if (!combat->check_hit(ch, victim, wield, dt)) {
         /* Miss. */
+        DamageType dam_type;
+        if (dt < TYPE_HIT) {
+            if (wield != NULL)
+                dam_type = attack_table[wield->weapon.damage_type].damage;
+            else
+                dam_type = attack_table[ch->dam_type].damage;
+        }
+        else {
+            dam_type = attack_table[dt - TYPE_HIT].damage;
+        }
+        if (dam_type == DAM_NONE) 
+            dam_type = DAM_BASH;
+            
         damage(ch, victim, 0, dt, dam_type, true);
         return;
     }
 
     /*
-     * Hit.
-     * Calc damage.
+     * Hit - calculate damage using CombatOps seam
      */
-    if (IS_NPC(ch) && wield == NULL) {
-        dam = dice(ch->damage[DICE_NUMBER], ch->damage[DICE_TYPE]);
+    dam = combat->calculate_damage(ch, victim, wield, dt, secondary);
+
+    DamageType dam_type;
+    if (dt < TYPE_HIT) {
+        if (wield != NULL)
+            dam_type = attack_table[wield->weapon.damage_type].damage;
+        else
+            dam_type = attack_table[ch->dam_type].damage;
     }
     else {
-        if (sn != -1)
-            check_improve(ch, sn, true, 5);
-        if (wield != NULL) {
-            dam = dice(wield->value[1], wield->value[2]) * skill / 100;
-
-            if (get_eq_char(ch, WEAR_SHIELD) == NULL) /* no shield = more */
-                dam = dam * 11 / 10;
-
-            /* sharpness! */
-            if (IS_WEAPON_STAT(wield, WEAPON_SHARP)) {
-                int percent;
-
-                if ((percent = number_percent()) <= (skill / 8))
-                    dam = 2 * dam + (dam * 2 * percent / 100);
-            }
-        }
-        else {
-            dam = number_range(1 + 4 * skill / 100,
-                               2 * ch->level / 3 * skill / 100);
-        }
+        dam_type = attack_table[dt - TYPE_HIT].damage;
     }
-
-    // Bonuses.
-    if (get_skill(ch, gsn_enhanced_damage) > 0) {
-        diceroll = number_percent();
-        if (diceroll <= get_skill(ch, gsn_enhanced_damage)) {
-            check_improve(ch, gsn_enhanced_damage, true, 6);
-            dam += 2 * (dam * diceroll / 300);
-        }
-    }
-
-    if (!IS_AWAKE(victim))
-        dam *= 2;
-    else if (victim->position < POS_FIGHTING)
-        dam = dam * 3 / 2;
-
-    if (dt == gsn_backstab && wield != NULL) {
-        if (wield->value[0] != 2)
-            dam *= 2 + (ch->level / 10);
-        else
-            dam *= 2 + (ch->level / 8);
-    }
-
-    dam += GET_DAMROLL(ch) * UMIN(100, skill) / 100;
-
-    if (dam <= 0) 
-        dam = 1;
+    if (dam_type == DAM_NONE) 
+        dam_type = DAM_BASH;
 
     if (!check_counter(ch, victim, dam, dt))
         result = damage(ch, victim, dam, dt, dam_type, true);
     else 
-    return;
+        return;
 
 
     /* but do we have a funky weapon? */
@@ -695,300 +588,8 @@ void one_hit(Mobile* ch, Mobile* victim, int16_t dt, bool secondary)
 // Inflict damage from a hit.
 bool damage(Mobile* ch, Mobile* victim, int dam, int16_t dt, DamageType dam_type, bool show)
 {
-    Object* corpse;
-    bool immune;
-
-    if (victim->position == POS_DEAD)
-        return false;
-
-    // Stop up any residual loopholes.
-    if (dam > 1200 && dt >= TYPE_HIT) {
-        bug("Damage: %d: more than 1200 points!", dam);
-        dam = 1200;
-        if (!IS_IMMORTAL(ch)) {
-            Object* obj;
-            obj = get_eq_char(ch, WEAR_WIELD);
-            send_to_char("You really shouldn't cheat.\n\r", ch);
-            if (obj != NULL) extract_obj(obj);
-        }
-    }
-
-    /* damage reduction */
-    if (dam > 35) 
-        dam = (dam - 35) / 2 + 35;
-    if (dam > 80) 
-        dam = (dam - 80) / 2 + 80;
-
-    if (victim != ch) {
-        /*
-         * Certain attacks are forbidden.
-         * Most other attacks are returned.
-         */
-        if (is_safe(ch, victim)) 
-            return false;
-
-        check_killer(ch, victim);
-
-        if (victim->position > POS_STUNNED) {
-            if (victim->fighting == NULL) {
-                set_fighting(victim, ch);
-                if (IS_NPC(victim) && HAS_MPROG_TRIGGER(victim, TRIG_ATTACKED))
-                    mp_percent_trigger(victim, ch, NULL, NULL, TRIG_ATTACKED);
-                if (IS_NPC(victim) && HAS_EVENT_TRIGGER(victim, TRIG_ATTACKED))
-                    raise_attacked_event(victim, ch, number_percent());
-            }
-            if (victim->timer <= 4)
-                victim->position = POS_FIGHTING;
-        }
-
-        if (victim->position > POS_STUNNED) {
-            if (ch->fighting == NULL) 
-                set_fighting(ch, victim);
-        }
-
-        // More charm stuff.
-        if (victim->master == ch) 
-            stop_follower(victim);
-    }
-
-    // Inviso attacks ... not.
-    if (IS_AFFECTED(ch, AFF_INVISIBLE)) {
-        affect_strip(ch, gsn_invis);
-        affect_strip(ch, gsn_mass_invis);
-        REMOVE_BIT(ch->affect_flags, AFF_INVISIBLE);
-        act("$n fades into existence.", ch, NULL, NULL, TO_ROOM);
-    }
-
-    // Damage modifiers.
-
-    if (dam > 1 && !IS_NPC(victim)
-        && victim->pcdata->condition[COND_DRUNK] > 10)
-        dam = 9 * dam / 10;
-
-    if (dam > 1 && IS_AFFECTED(victim, AFF_SANCTUARY)) 
-        dam /= 2;
-
-    if (dam > 1
-        && ((IS_AFFECTED(victim, AFF_PROTECT_EVIL) && IS_EVIL(ch))
-            || (IS_AFFECTED(victim, AFF_PROTECT_GOOD) && IS_GOOD(ch))))
-        dam -= dam / 4;
-
-    immune = false;
-
-    // Check for parry, and dodge.
-    if (dt >= TYPE_HIT && ch != victim) {
-        if (check_parry(ch, victim)) 
-            return false;
-        if (check_dodge(ch, victim)) 
-            return false;
-        if (check_shield_block(ch, victim)) 
-            return false;
-    }
-
-    switch (check_immune(victim, dam_type)) {
-    case IS_IMMUNE:
-        immune = true;
-        dam = 0;
-        break;
-    case IS_RESISTANT:
-        dam -= dam / 3;
-        break;
-    case IS_VULNERABLE:
-        dam += dam / 2;
-        break;
-    default:
-        break;
-    }
-
-    if (show) 
-        dam_message(ch, victim, dam, dt, immune);
-
-    if (dam == 0) 
-        return false;
-
-    /*
-     * Hurt the victim.
-     * Inform the victim of his new state.
-     */
-    victim->hit -= (int16_t)dam;
-    if (!IS_NPC(victim) && victim->level >= LEVEL_IMMORTAL && victim->hit < 1)
-        victim->hit = 1;
-    update_pos(victim);
-
-    switch (victim->position) {
-    case POS_MORTAL:
-        act("$n is mortally wounded, and will die soon, if not aided.", victim,
-            NULL, NULL, TO_ROOM);
-        send_to_char(
-            "You are mortally wounded, and will die soon, if not aided.\n\r",
-            victim);
-        break;
-
-    case POS_INCAP:
-        act("$n is incapacitated and will slowly die, if not aided.", victim,
-            NULL, NULL, TO_ROOM);
-        send_to_char(
-            "You are incapacitated and will slowly die, if not aided.\n\r",
-            victim);
-        break;
-
-    case POS_STUNNED:
-        act("$n is stunned, but will probably recover.", victim, NULL, NULL,
-            TO_ROOM);
-        send_to_char("You are stunned, but will probably recover.\n\r", victim);
-        break;
-
-    case POS_DEAD:
-        act("$n is DEAD!!", victim, NULL, NULL, TO_ROOM);
-        send_to_char("You have been KILLED!!\n\r\n\r", victim);
-        break;
-
-    default:
-        if (dam > victim->max_hit / 4)
-            send_to_char("That really did HURT!\n\r", victim);
-        if (victim->hit < victim->max_hit / 4)
-            send_to_char("You sure are BLEEDING!\n\r", victim);
-        break;
-    }
-
-    // Sleep spells and extremely wounded folks.
-    if (!IS_AWAKE(victim)) stop_fighting(victim, false);
-
-    // Payoff for killing things.
-    if (victim->position == POS_DEAD) {
-        group_gain(ch, victim);
-
-        if (!IS_NPC(victim)) {
-            sprintf(log_buf, "%s killed by %s at %d", NAME_STR(victim),
-                    (IS_NPC(ch) ? ch->short_descr : NAME_STR(ch)),
-                    VNUM_FIELD(ch->in_room));
-            log_string(log_buf);
-
-            /*
-             * Dying penalty:
-             * 2/3 way back to previous level.
-             */
-            if (victim->exp
-                > exp_per_level(victim, victim->pcdata->points) * victim->level)
-                gain_exp(victim,
-                         (2
-                          * (exp_per_level(victim, victim->pcdata->points)
-                                 * victim->level
-                             - victim->exp)
-                          / 3)
-                             + 50);
-        }
-        else if (ch->pcdata) {
-            QuestTarget* qt;
-            QuestStatus* qs;
-            if ((qt = get_quest_targ_mob(ch, VNUM_FIELD(victim->prototype))) != NULL
-                && (qs = get_quest_status(ch, qt->quest_vnum)) != NULL) {
-                if (qs->quest->type == QUEST_KILL_MOB && qs->progress < qs->amount) {
-                    ++qs->progress;
-                    printf_to_char(ch, COLOR_INFO "Quest Progress: " COLOR_CLEAR "%s " COLOR_DECOR_1 "(" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "/" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 ")" COLOR_EOL,
-                        qs->quest->name, qs->progress, qs->amount);
-                }
-            }
-        }
-
-        sprintf(log_buf, "%s got toasted by %s at %s [room %d]",
-                (IS_NPC(victim) ? victim->short_descr : NAME_STR(victim)),
-                (IS_NPC(ch) ? ch->short_descr : NAME_STR(ch)), 
-                NAME_STR(ch->in_room),
-                VNUM_FIELD(ch->in_room));
-
-        if (IS_NPC(victim))
-            wiznet(log_buf, NULL, NULL, WIZ_MOBDEATHS, 0, 0);
-        else
-            wiznet(log_buf, NULL, NULL, WIZ_DEATHS, 0, 0);
-
-        // Death trigger
-        if (IS_NPC(victim) && HAS_MPROG_TRIGGER(victim, TRIG_DEATH)) {
-            victim->position = POS_STANDING;
-            mp_percent_trigger(victim, ch, NULL, NULL, TRIG_DEATH);
-        }
-
-        if (IS_NPC(victim) && HAS_EVENT_TRIGGER(victim, TRIG_DEATH)) {
-            victim->position = POS_STANDING;
-            raise_death_event(victim, ch);
-        }
-
-        raw_kill(victim);
-        /* dump the flags */
-        if (ch != victim && !IS_NPC(ch) && !is_same_clan(ch, victim)) {
-            if (IS_SET(victim->act_flags, PLR_KILLER))
-                REMOVE_BIT(victim->act_flags, PLR_KILLER);
-            else
-                REMOVE_BIT(victim->act_flags, PLR_THIEF);
-        }
-
-        /* RT new auto commands */
-
-        if (!IS_NPC(ch)
-            && (corpse = get_obj_list(ch, "corpse", &ch->in_room->objects))
-                   != NULL
-            && corpse->item_type == ITEM_CORPSE_NPC
-            && can_see_obj(ch, corpse)) {
-            Object* coins;
-
-            corpse = get_obj_list(ch, "corpse", &ch->in_room->objects);
-
-            if (IS_SET(ch->act_flags, PLR_AUTOLOOT) && corpse
-                && OBJ_HAS_OBJS(corpse)) /* exists and not empty */
-            {
-                do_function(ch, &do_get, "all corpse");
-            }
-
-            if (IS_SET(ch->act_flags, PLR_AUTOGOLD) && corpse && OBJ_HAS_OBJS(corpse)
-                && /* exists and not empty */
-                !IS_SET(ch->act_flags, PLR_AUTOLOOT)) {
-                if ((coins = get_obj_list(ch, "gcash", &corpse->objects))
-                    != NULL) {
-                    do_function(ch, &do_get, "all.gcash corpse");
-                }
-            }
-
-            if (IS_SET(ch->act_flags, PLR_AUTOSAC)) {
-                if (IS_SET(ch->act_flags, PLR_AUTOLOOT) && corpse
-                    && OBJ_HAS_OBJS(corpse)) {
-                    return true; /* leave if corpse has treasure */
-                }
-                else {
-                    do_function(ch, &do_sacrifice, "corpse");
-                }
-            }
-        }
-
-        return true;
-    }
-
-    if (victim == ch)
-        return true;
-
-    // Take care of link dead people.
-    if (!IS_NPC(victim) && victim->desc == NULL) {
-        if (number_range(0, victim->wait) == 0) {
-            do_function(victim, &do_recall, "");
-            return true;
-        }
-    }
-
-    // Wimp out?
-    if (IS_NPC(victim) && dam > 0 && victim->wait < PULSE_VIOLENCE / 2) {
-        if ((IS_SET(victim->act_flags, ACT_WIMPY) && number_bits(2) == 0
-             && victim->hit < victim->max_hit / 5)
-            || (IS_AFFECTED(victim, AFF_CHARM) && victim->master != NULL
-                && victim->master->in_room != victim->in_room)) {
-            do_function(victim, &do_flee, "");
-        }
-    }
-
-    if (!IS_NPC(victim) && victim->hit > 0 && victim->hit <= victim->wimpy
-        && victim->wait < PULSE_VIOLENCE / 2) {
-        do_function(victim, &do_flee, "");
-    }
-
-    return true;
+    // Delegate to combat ops table
+    return combat->apply_damage(ch, victim, dam, dt, dam_type, show);
 }
 
 bool is_safe(Mobile* ch, Mobile* victim)
@@ -1239,7 +840,9 @@ bool check_parry(Mobile* ch, Mobile* victim)
 
     if (!can_see(ch, victim)) chance /= 2;
 
-    if (number_percent() >= chance + victim->level - ch->level) return false;
+    /* Use skill check seam for testability */
+    chance += victim->level - ch->level;
+    if (!skill_ops->check_modified(victim, gsn_parry, chance)) return false;
 
     act("You parry $n's attack.", ch, NULL, victim, TO_VICT);
     act("$N parries your attack.", ch, NULL, victim, TO_CHAR);
@@ -1258,7 +861,9 @@ bool check_shield_block(Mobile* ch, Mobile* victim)
 
     if (get_eq_char(victim, WEAR_SHIELD) == NULL) return false;
 
-    if (number_percent() >= chance + victim->level - ch->level) return false;
+    /* Use skill check seam for testability */
+    chance += victim->level - ch->level;
+    if (!skill_ops->check_modified(victim, gsn_shield_block, chance)) return false;
 
     act("You block $n's attack with your shield.", ch, NULL, victim, TO_VICT);
     act("$N blocks your attack with a shield.", ch, NULL, victim, TO_CHAR);
@@ -1277,7 +882,9 @@ bool check_dodge(Mobile* ch, Mobile* victim)
 
     if (!can_see(victim, ch)) chance /= 2;
 
-    if (number_percent() >= chance + victim->level - ch->level) return false;
+    /* Use skill check seam for testability */
+    chance += victim->level - ch->level;
+    if (!skill_ops->check_modified(victim, gsn_dodge, chance)) return false;
 
     act("You dodge $n's attack.", ch, NULL, victim, TO_VICT);
     act("$N dodges your attack.", ch, NULL, victim, TO_CHAR);
@@ -1317,7 +924,8 @@ void update_pos(Mobile* victim)
 void set_fighting(Mobile* ch, Mobile* victim)
 {
     if (ch->fighting != NULL) {
-        bug("Set_fighting: already fighting", 0);
+        if (!test_output_enabled)
+            bug("Set_fighting: already fighting", 0);
         return;
     }
 
@@ -1527,7 +1135,7 @@ void death_cry(Mobile* ch)
 
         if (obj->item_type == ITEM_FOOD) {
             if (IS_SET(ch->form, FORM_POISON))
-                obj->value[3] = 1;
+                obj->food.poisoned = 1;
             else if (!IS_SET(ch->form, FORM_EDIBLE))
                 obj->item_type = ITEM_TRASH;
         }
@@ -1557,29 +1165,8 @@ void death_cry(Mobile* ch)
 
 void raw_kill(Mobile* victim)
 {
-    int i;
-
-    stop_fighting(victim, true);
-    death_cry(victim);
-    make_corpse(victim);
-
-    if (IS_NPC(victim)) {
-        victim->prototype->killed++;
-        kill_table[URANGE(0, victim->level, MAX_LEVEL - 1)].killed++;
-        extract_char(victim, true);
-        return;
-    }
-
-    extract_char(victim, false);
-    while (victim->affected) affect_remove(victim, victim->affected);
-    victim->affect_flags = race_table[victim->race].aff;
-    for (i = 0; i < 4; i++) victim->armor[i] = 100;
-    victim->position = POS_RESTING;
-    victim->hit = UMAX(1, victim->hit);
-    victim->mana = UMAX(1, victim->mana);
-    victim->move = UMAX(1, victim->move);
-    /*  save_char_obj( victim ); we're stable enough to not need this :) */
-    return;
+    // Delegate to combat ops table
+    combat->handle_death(victim);
 }
 
 void group_gain(Mobile* ch, Mobile* victim)
@@ -2096,7 +1683,8 @@ void do_berserk(Mobile* ch, char* argument)
     hp_percent = 100 * ch->hit / ch->max_hit;
     chance += 25 - hp_percent / 2;
 
-    if (number_percent() < chance) {
+    /* Use skill check seam for testability */
+    if (skill_ops->check_modified(ch, gsn_berserk, chance)) {
         Affect af = { 0 };
 
         WAIT_STATE(ch, PULSE_VIOLENCE);
@@ -2220,8 +1808,8 @@ void do_bash(Mobile* ch, char* argument)
         chance -= 3 * (get_skill(victim, gsn_dodge) - chance);
     }
 
-    /* now the attack */
-    if (number_percent() < chance) {
+    /* Use skill check seam for testability */
+    if (skill_ops->check(ch, gsn_bash, victim)) {
         act(COLOR_FIGHT_SKILL "$n sends you sprawling with a powerful bash!" COLOR_CLEAR , ch, NULL,
             victim, TO_VICT);
         act(COLOR_FIGHT_SKILL "You slam into $N, and send $M flying!" COLOR_CLEAR , ch, NULL, victim,
@@ -2232,9 +1820,9 @@ void do_bash(Mobile* ch, char* argument)
 
         DAZE_STATE(victim, 3 * PULSE_VIOLENCE);
         WAIT_STATE(ch, skill_table[gsn_bash].beats);
-        victim->position = POS_RESTING;
         damage(ch, victim, number_range(2, 2 + 2 * ch->size + chance / 20),
                gsn_bash, DAM_BASH, false);
+        victim->position = POS_RESTING;
     }
     else {
         damage(ch, victim, 0, gsn_bash, DAM_BASH, false);
@@ -2360,7 +1948,8 @@ void do_dirt(Mobile* ch, char* argument)
     }
 
     /* now the attack */
-    if (number_percent() < chance) {
+    /* Use skill check seam for testability */
+    if (skill_ops->check_modified(ch, gsn_dirt, chance)) {
         Affect af = { 0 };
         act(COLOR_FIGHT_SKILL "$n is blinded by the dirt in $s eyes!" COLOR_CLEAR , victim, NULL, NULL,
             TO_ROOM);
@@ -2447,27 +2036,8 @@ void do_trip(Mobile* ch, char* argument)
         return;
     }
 
-    /* modifiers */
-
-    /* size */
-    if (ch->size < victim->size)
-        chance += (ch->size - victim->size) * 10; /* bigger = harder to trip */
-
-    /* dex */
-    chance += get_curr_stat(ch, STAT_DEX);
-    chance -= get_curr_stat(victim, STAT_DEX) * 3 / 2;
-
-    /* speed */
-    if (IS_SET(ch->atk_flags, ATK_FAST) || IS_AFFECTED(ch, AFF_HASTE))
-        chance += 10;
-    if (IS_SET(victim->atk_flags, ATK_FAST) || IS_AFFECTED(victim, AFF_HASTE))
-        chance -= 20;
-
-    /* level */
-    chance += (ch->level - victim->level) * 2;
-
-    /* now the attack */
-    if (number_percent() < chance) {
+    /* Use skill check seam for testability */
+    if (skill_ops->check(ch, gsn_trip, victim)) {
         act(COLOR_FIGHT_SKILL "$n trips you and you go down!" COLOR_CLEAR , ch, NULL, victim, TO_VICT);
         act(COLOR_FIGHT_SKILL "You trip $N and $N goes down!" COLOR_CLEAR , ch, NULL, victim, TO_CHAR);
         act(COLOR_FIGHT_SKILL "$n trips $N, sending $M to the ground." COLOR_CLEAR , ch, NULL, victim,
@@ -2476,9 +2046,9 @@ void do_trip(Mobile* ch, char* argument)
 
         DAZE_STATE(victim, 2 * PULSE_VIOLENCE);
         WAIT_STATE(ch, skill_table[gsn_trip].beats);
-        victim->position = POS_RESTING;
         damage(ch, victim, number_range(2, 2 + 2 * victim->size), gsn_trip,
                DAM_BASH, true);
+        victim->position = POS_RESTING;
     }
     else {
         damage(ch, victim, 0, gsn_trip, DAM_BASH, true);
@@ -2656,7 +2226,9 @@ void do_backstab(Mobile* ch, char* argument)
 
     check_killer(ch, victim);
     WAIT_STATE(ch, skill_table[gsn_backstab].beats);
-    if (number_percent() < get_skill(ch, gsn_backstab)
+    
+    /* Use skill check seam for testability */
+    if (skill_ops->check(ch, gsn_backstab, victim)
         || (get_skill(ch, gsn_backstab) >= 2 && !IS_AWAKE(victim))) {
         check_improve(ch, gsn_backstab, true, 1);
         multi_hit(ch, victim, gsn_backstab);
@@ -2763,7 +2335,8 @@ void do_rescue(Mobile* ch, char* argument)
     }
 
     WAIT_STATE(ch, skill_table[gsn_rescue].beats);
-    if (number_percent() > get_skill(ch, gsn_rescue)) {
+    /* Use skill check seam for testability */
+    if (!skill_ops->check_simple(ch, gsn_rescue)) {
         send_to_char("You fail the rescue.\n\r", ch);
         check_improve(ch, gsn_rescue, false, 1);
         return;
@@ -2801,7 +2374,8 @@ void do_kick(Mobile* ch, char* argument)
     }
 
     WAIT_STATE(ch, skill_table[gsn_kick].beats);
-    if (get_skill(ch, gsn_kick) > number_percent()) {
+    /* Use skill check seam for testability */
+    if (skill_ops->check_simple(ch, gsn_kick)) {
         damage(ch, victim, number_range(1, ch->level), gsn_kick, DAM_BASH,
                true);
         check_improve(ch, gsn_kick, true, 1);
@@ -2867,7 +2441,8 @@ void do_disarm(Mobile* ch, char* argument)
     chance += (ch->level - victim->level) * 2;
 
     /* and now the attack */
-    if (number_percent() < chance) {
+    /* Use skill check seam for testability */
+    if (skill_ops->check_modified(ch, gsn_disarm, chance)) {
         WAIT_STATE(ch, skill_table[gsn_disarm].beats);
         disarm(ch, victim);
         check_improve(ch, gsn_disarm, true, 1);

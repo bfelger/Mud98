@@ -23,6 +23,7 @@ Mud98 isn't a MUD; it's a codebase. These docs outline how to take Mud98 and, wi
 - [Unit Test Guide](unit-test-guide.md): how to add tests consistent with `src/tests/`.
 - [JSON Schemas](json/index.md): schema used when saving JSON files.
 - [Mud98 Lox](lox/index.md): reference material for Mud98's flavor of the Lox scripting language.
+- [Abstraction Boundaries](abstraction-boundaries.md): Architectural overview of how to implement "seams" in Mud98 code.
 
 ## Other topics
 

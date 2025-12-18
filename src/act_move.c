@@ -35,6 +35,7 @@
 #include "interp.h"
 #include "mob_prog.h"
 #include "note.h"
+#include "skill_ops.h"
 #include "skills.h"
 #include "update.h"
 
@@ -368,7 +369,7 @@ void do_open(Mobile* ch, char* argument)
             return;
         }
 
-        REMOVE_BIT(obj->value[1], CONT_CLOSED);
+        REMOVE_BIT(obj->container.flags, CONT_CLOSED);
         act("You open $p.", ch, obj, NULL, TO_CHAR);
         act("$n opens $p.", ch, obj, NULL, TO_ROOM);
         return;
@@ -757,7 +758,8 @@ void do_pick(Mobile* ch, char* argument)
         }
     }
 
-    if (!IS_NPC(ch) && number_percent() > get_skill(ch, gsn_pick_lock)) {
+    /* Use skill check seam for testability */
+    if (!IS_NPC(ch) && !skill_ops->check_simple(ch, gsn_pick_lock)) {
         send_to_char("You failed.\n\r", ch);
         check_improve(ch, gsn_pick_lock, false, 2);
         return;
@@ -766,27 +768,27 @@ void do_pick(Mobile* ch, char* argument)
     if ((obj = get_obj_here(ch, arg)) != NULL) {
         /* portal stuff */
         if (obj->item_type == ITEM_PORTAL) {
-            if (!IS_SET(obj->value[1], EX_ISDOOR)) {
+            if (!IS_SET(obj->portal.exit_flags, EX_ISDOOR)) {
                 send_to_char("You can't do that.\n\r", ch);
                 return;
             }
 
-            if (!IS_SET(obj->value[1], EX_CLOSED)) {
+            if (!IS_SET(obj->portal.exit_flags, EX_CLOSED)) {
                 send_to_char("It's not closed.\n\r", ch);
                 return;
             }
 
-            if (obj->value[4] < 0) {
+            if (obj->portal.key_vnum < 0) {
                 send_to_char("It can't be unlocked.\n\r", ch);
                 return;
             }
 
-            if (IS_SET(obj->value[1], EX_PICKPROOF)) {
+            if (IS_SET(obj->portal.exit_flags, EX_PICKPROOF)) {
                 send_to_char("You failed.\n\r", ch);
                 return;
             }
 
-            REMOVE_BIT(obj->value[1], EX_LOCKED);
+            REMOVE_BIT(obj->portal.exit_flags, EX_LOCKED);
             act("You pick the lock on $p.", ch, obj, NULL, TO_CHAR);
             act("$n picks the lock on $p.", ch, obj, NULL, TO_ROOM);
             check_improve(ch, gsn_pick_lock, true, 2);
@@ -798,24 +800,24 @@ void do_pick(Mobile* ch, char* argument)
             send_to_char("That's not a container.\n\r", ch);
             return;
         }
-        if (!IS_SET(obj->value[1], CONT_CLOSED)) {
+        if (!IS_SET(obj->container.flags, CONT_CLOSED)) {
             send_to_char("It's not closed.\n\r", ch);
             return;
         }
-        if (obj->value[2] < 0) {
+        if (obj->container.key_vnum < 0) {
             send_to_char("It can't be unlocked.\n\r", ch);
             return;
         }
-        if (!IS_SET(obj->value[1], CONT_LOCKED)) {
+        if (!IS_SET(obj->container.flags, CONT_LOCKED)) {
             send_to_char("It's already unlocked.\n\r", ch);
             return;
         }
-        if (IS_SET(obj->value[1], CONT_PICKPROOF)) {
+        if (IS_SET(obj->container.flags, CONT_PICKPROOF)) {
             send_to_char("You failed.\n\r", ch);
             return;
         }
 
-        REMOVE_BIT(obj->value[1], CONT_LOCKED);
+        REMOVE_BIT(obj->container.flags, CONT_LOCKED);
         act("You pick the lock on $p.", ch, obj, NULL, TO_CHAR);
         act("$n picks the lock on $p.", ch, obj, NULL, TO_ROOM);
         check_improve(ch, gsn_pick_lock, true, 2);
@@ -877,13 +879,13 @@ void do_stand(Mobile* ch, char* argument)
             return;
         }
         if (obj->item_type != ITEM_FURNITURE
-            || (!IS_SET(obj->value[2], STAND_AT)
-                && !IS_SET(obj->value[2], STAND_ON)
-                && !IS_SET(obj->value[2], STAND_IN))) {
+            || (!IS_SET(obj->furniture.flags, STAND_AT)
+                && !IS_SET(obj->furniture.flags, STAND_ON)
+                && !IS_SET(obj->furniture.flags, STAND_IN))) {
             send_to_char("You can't seem to find a place to stand.\n\r", ch);
             return;
         }
-        if (ch->on != obj && count_users(obj) >= obj->value[0]) {
+        if (ch->on != obj && count_users(obj) >= obj->furniture.max_people) {
             act_pos("There's no room to stand on $p.", ch, obj, NULL, TO_CHAR, POS_DEAD);
             return;
         }
@@ -902,11 +904,11 @@ void do_stand(Mobile* ch, char* argument)
             act("$n wakes and stands up.", ch, NULL, NULL, TO_ROOM);
             ch->on = NULL;
         }
-        else if (IS_SET(obj->value[2], STAND_AT)) {
+        else if (IS_SET(obj->furniture.flags, STAND_AT)) {
             act_pos("You wake and stand at $p.", ch, obj, NULL, TO_CHAR, POS_DEAD);
             act("$n wakes and stands at $p.", ch, obj, NULL, TO_ROOM);
         }
-        else if (IS_SET(obj->value[2], STAND_ON)) {
+        else if (IS_SET(obj->furniture.flags, STAND_ON)) {
             act_pos("You wake and stand on $p.", ch, obj, NULL, TO_CHAR, POS_DEAD);
             act("$n wakes and stands on $p.", ch, obj, NULL, TO_ROOM);
         }
@@ -925,11 +927,11 @@ void do_stand(Mobile* ch, char* argument)
             act("$n stands up.", ch, NULL, NULL, TO_ROOM);
             ch->on = NULL;
         }
-        else if (IS_SET(obj->value[2], STAND_AT)) {
+        else if (IS_SET(obj->furniture.flags, STAND_AT)) {
             act("You stand at $p.", ch, obj, NULL, TO_CHAR);
             act("$n stands at $p.", ch, obj, NULL, TO_ROOM);
         }
-        else if (IS_SET(obj->value[2], STAND_ON)) {
+        else if (IS_SET(obj->furniture.flags, STAND_ON)) {
             act("You stand on $p.", ch, obj, NULL, TO_CHAR);
             act("$n stands on $p.", ch, obj, NULL, TO_ROOM);
         }
@@ -993,14 +995,14 @@ void do_rest(Mobile* ch, char* argument)
 
     if (obj != NULL) {
         if (obj->item_type != ITEM_FURNITURE
-            || (!IS_SET(obj->value[2], REST_ON)
-                && !IS_SET(obj->value[2], REST_IN)
-                && !IS_SET(obj->value[2], REST_AT))) {
+            || (!IS_SET(obj->furniture.flags, REST_ON)
+                && !IS_SET(obj->furniture.flags, REST_IN)
+                && !IS_SET(obj->furniture.flags, REST_AT))) {
             send_to_char("You can't rest on that.\n\r", ch);
             return;
         }
 
-        if (obj != NULL && ch->on != obj && count_users(obj) >= obj->value[0]) {
+        if (obj != NULL && ch->on != obj && count_users(obj) >= obj->furniture.max_people) {
             act_pos("There's no more room on $p.", ch, obj, NULL, TO_CHAR,
                     POS_DEAD);
             return;
@@ -1020,12 +1022,12 @@ void do_rest(Mobile* ch, char* argument)
             send_to_char("You wake up and start resting.\n\r", ch);
             act("$n wakes up and starts resting.", ch, NULL, NULL, TO_ROOM);
         }
-        else if (IS_SET(obj->value[2], REST_AT)) {
+        else if (IS_SET(obj->furniture.flags, REST_AT)) {
             act_pos("You wake up and rest at $p.", ch, obj, NULL, TO_CHAR,
                     POS_SLEEPING);
             act("$n wakes up and rests at $p.", ch, obj, NULL, TO_ROOM);
         }
-        else if (IS_SET(obj->value[2], REST_ON)) {
+        else if (IS_SET(obj->furniture.flags, REST_ON)) {
             act_pos("You wake up and rest on $p.", ch, obj, NULL, TO_CHAR,
                     POS_SLEEPING);
             act("$n wakes up and rests on $p.", ch, obj, NULL, TO_ROOM);
@@ -1047,11 +1049,11 @@ void do_rest(Mobile* ch, char* argument)
             send_to_char("You rest.\n\r", ch);
             act("$n sits down and rests.", ch, NULL, NULL, TO_ROOM);
         }
-        else if (IS_SET(obj->value[2], REST_AT)) {
+        else if (IS_SET(obj->furniture.flags, REST_AT)) {
             act("You sit down at $p and rest.", ch, obj, NULL, TO_CHAR);
             act("$n sits down at $p and rests.", ch, obj, NULL, TO_ROOM);
         }
-        else if (IS_SET(obj->value[2], REST_ON)) {
+        else if (IS_SET(obj->furniture.flags, REST_ON)) {
             act("You sit on $p and rest.", ch, obj, NULL, TO_CHAR);
             act("$n sits on $p and rests.", ch, obj, NULL, TO_ROOM);
         }
@@ -1067,11 +1069,11 @@ void do_rest(Mobile* ch, char* argument)
             send_to_char("You rest.\n\r", ch);
             act("$n rests.", ch, NULL, NULL, TO_ROOM);
         }
-        else if (IS_SET(obj->value[2], REST_AT)) {
+        else if (IS_SET(obj->furniture.flags, REST_AT)) {
             act("You rest at $p.", ch, obj, NULL, TO_CHAR);
             act("$n rests at $p.", ch, obj, NULL, TO_ROOM);
         }
-        else if (IS_SET(obj->value[2], REST_ON)) {
+        else if (IS_SET(obj->furniture.flags, REST_ON)) {
             act("You rest on $p.", ch, obj, NULL, TO_CHAR);
             act("$n rests on $p.", ch, obj, NULL, TO_ROOM);
         }
@@ -1131,13 +1133,13 @@ void do_sit(Mobile* ch, char* argument)
 
     if (obj != NULL) {
         if (obj->item_type != ITEM_FURNITURE
-            || (!IS_SET(obj->value[2], SIT_ON) && !IS_SET(obj->value[2], SIT_IN)
-                && !IS_SET(obj->value[2], SIT_AT))) {
+            || (!IS_SET(obj->furniture.flags, SIT_ON) && !IS_SET(obj->furniture.flags, SIT_IN)
+                && !IS_SET(obj->furniture.flags, SIT_AT))) {
             send_to_char("You can't sit on that.\n\r", ch);
             return;
         }
 
-        if (obj != NULL && ch->on != obj && count_users(obj) >= obj->value[0]) {
+        if (obj != NULL && ch->on != obj && count_users(obj) >= obj->furniture.max_people) {
             act_pos("There's no more room on $p.", ch, obj, NULL, TO_CHAR,
                     POS_DEAD);
             return;
@@ -1156,12 +1158,12 @@ void do_sit(Mobile* ch, char* argument)
             send_to_char("You wake and sit up.\n\r", ch);
             act("$n wakes and sits up.", ch, NULL, NULL, TO_ROOM);
         }
-        else if (IS_SET(obj->value[2], SIT_AT)) {
+        else if (IS_SET(obj->furniture.flags, SIT_AT)) {
             act_pos("You wake and sit at $p.", ch, obj, NULL, TO_CHAR,
                     POS_DEAD);
             act("$n wakes and sits at $p.", ch, obj, NULL, TO_ROOM);
         }
-        else if (IS_SET(obj->value[2], SIT_ON)) {
+        else if (IS_SET(obj->furniture.flags, SIT_ON)) {
             act_pos("You wake and sit on $p.", ch, obj, NULL, TO_CHAR,
                     POS_DEAD);
             act("$n wakes and sits at $p.", ch, obj, NULL, TO_ROOM);
@@ -1177,12 +1179,12 @@ void do_sit(Mobile* ch, char* argument)
     case POS_RESTING:
         if (obj == NULL)
             send_to_char("You stop resting.\n\r", ch);
-        else if (IS_SET(obj->value[2], SIT_AT)) {
+        else if (IS_SET(obj->furniture.flags, SIT_AT)) {
             act("You sit at $p.", ch, obj, NULL, TO_CHAR);
             act("$n sits at $p.", ch, obj, NULL, TO_ROOM);
         }
 
-        else if (IS_SET(obj->value[2], SIT_ON)) {
+        else if (IS_SET(obj->furniture.flags, SIT_ON)) {
             act("You sit on $p.", ch, obj, NULL, TO_CHAR);
             act("$n sits on $p.", ch, obj, NULL, TO_ROOM);
         }
@@ -1205,11 +1207,11 @@ void do_sit(Mobile* ch, char* argument)
             send_to_char("You sit down.\n\r", ch);
             act("$n sits down on the ground.", ch, NULL, NULL, TO_ROOM);
         }
-        else if (IS_SET(obj->value[2], SIT_AT)) {
+        else if (IS_SET(obj->furniture.flags, SIT_AT)) {
             act("You sit down at $p.", ch, obj, NULL, TO_CHAR);
             act("$n sits down at $p.", ch, obj, NULL, TO_ROOM);
         }
-        else if (IS_SET(obj->value[2], SIT_ON)) {
+        else if (IS_SET(obj->furniture.flags, SIT_ON)) {
             act("You sit on $p.", ch, obj, NULL, TO_CHAR);
             act("$n sits on $p.", ch, obj, NULL, TO_ROOM);
         }
@@ -1260,25 +1262,25 @@ void do_sleep(Mobile* ch, char* argument)
                 return;
             }
             if (obj->item_type != ITEM_FURNITURE
-                || (!IS_SET(obj->value[2], SLEEP_ON)
-                    && !IS_SET(obj->value[2], SLEEP_IN)
-                    && !IS_SET(obj->value[2], SLEEP_AT))) {
+                || (!IS_SET(obj->furniture.flags, SLEEP_ON)
+                    && !IS_SET(obj->furniture.flags, SLEEP_IN)
+                    && !IS_SET(obj->furniture.flags, SLEEP_AT))) {
                 send_to_char("You can't sleep on that!\n\r", ch);
                 return;
             }
 
-            if (ch->on != obj && count_users(obj) >= obj->value[0]) {
+            if (ch->on != obj && count_users(obj) >= obj->furniture.max_people) {
                 act_pos("There is no room on $p for you.", ch, obj, NULL,
                         TO_CHAR, POS_DEAD);
                 return;
             }
 
             ch->on = obj;
-            if (IS_SET(obj->value[2], SLEEP_AT)) {
+            if (IS_SET(obj->furniture.flags, SLEEP_AT)) {
                 act("You go to sleep at $p.", ch, obj, NULL, TO_CHAR);
                 act("$n goes to sleep at $p.", ch, obj, NULL, TO_ROOM);
             }
-            else if (IS_SET(obj->value[2], SLEEP_ON)) {
+            else if (IS_SET(obj->furniture.flags, SLEEP_ON)) {
                 act("You go to sleep on $p.", ch, obj, NULL, TO_CHAR);
                 act("$n goes to sleep on $p.", ch, obj, NULL, TO_ROOM);
             }
@@ -1362,7 +1364,8 @@ void do_sneak(Mobile* ch, char* argument)
 
     if (IS_AFFECTED(ch, AFF_SNEAK)) return;
 
-    if (number_percent() < get_skill(ch, gsn_sneak)) {
+    /* Use skill check seam for testability */
+    if (skill_ops->check_simple(ch, gsn_sneak)) {
         check_improve(ch, gsn_sneak, true, 3);
         af.where = TO_AFFECTS;
         af.type = gsn_sneak;
@@ -1385,7 +1388,8 @@ void do_hide(Mobile* ch, char* argument)
 
     if (IS_AFFECTED(ch, AFF_HIDE)) REMOVE_BIT(ch->affect_flags, AFF_HIDE);
 
-    if (number_percent() < get_skill(ch, gsn_hide)) {
+    /* Use skill check seam for testability */
+    if (skill_ops->check_simple(ch, gsn_hide)) {
         SET_BIT(ch->affect_flags, AFF_HIDE);
         check_improve(ch, gsn_hide, true, 3);
     }

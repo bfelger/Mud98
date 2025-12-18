@@ -23,6 +23,9 @@
 
 #include <lox/array.h>
 
+// Forward declarations
+typedef struct combat_ops_t CombatOps;
+
 // Internal GC-tracked array of all mocks
 ValueArray* mocks();
 
@@ -82,6 +85,7 @@ void mock_disconnect_player_descriptor(Mobile* player);
 // mock_obj_proto: Creates ObjPrototype (template)
 // mock_obj: Creates Object instance (generic item)
 // mock_sword: Creates weapon with specific damage
+// mock_shield: Creates shield armor for blocking tests
 // 
 // CRITICAL: Object header.name field must contain searchable keywords!
 // get_obj_carry() searches this field, so name="sword blade" allows
@@ -89,6 +93,11 @@ void mock_disconnect_player_descriptor(Mobile* player);
 ObjPrototype* mock_obj_proto(VNUM vnum);
 Object* mock_obj(const char* name, VNUM vnum, ObjPrototype* op);
 Object* mock_sword(const char* name, VNUM vnum, LEVEL level, int dam_dice, int dam_size);
+Object* mock_shield(const char* name, VNUM vnum, LEVEL level);
+
+// MOBILE SKILL MOCKING
+// Sets skill value for PC (pcdata->learned) or NPC (atk_flags for defensive skills)
+void mock_skill(Mobile* ch, SKNUM sn, int value);
 
 // DESCRIPTOR MOCKING
 // Creates network connection stub for player tests
@@ -97,5 +106,24 @@ Descriptor* mock_descriptor();
 // FACTION SYSTEM MOCKING
 Faction* mock_faction(const char* name, VNUM vnum);
 void mock_player_reputation(Mobile* ch, VNUM faction_vnum, int value);
+// RNG MOCKING
+// Switch to deterministic RNG for predictable combat/event testing
+// Call before tests that depend on RNG (damage rolls, percent checks, etc.)
+extern RngOps mock_rng;
+void reset_mock_rng(void);
+void set_mock_rng_sequence(int* sequence, int length);
+
+// COMBAT MOCKING
+// Switch to mock combat for observing damage/healing without side effects
+// Provides tracking and configuration for combat tests
+extern CombatOps mock_combat;
+void reset_mock_combat(void);
+void set_mock_always_hit(bool value);
+void set_mock_damage_override(int damage);
+void set_mock_prevent_death(bool value);
+int get_mock_damage_dealt(void);
+int get_mock_healing_done(void);
+int get_mock_deaths(void);
+bool get_mock_last_attack_hit(void);
 
 #endif  // !MUD98__TESTS__MOCK_H

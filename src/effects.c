@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stï¿½rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -478,7 +478,8 @@ void poison_effect(void* vo, LEVEL level, int dam, SpellTarget target)
         case ITEM_FOOD:
             break;
         case ITEM_DRINK_CON:
-            if (obj->value[0] == obj->value[1]) return;
+            if (obj->drink_con.current == obj->drink_con.capacity)
+                return;
             break;
         }
 
@@ -486,7 +487,7 @@ void poison_effect(void* vo, LEVEL level, int dam, SpellTarget target)
 
         if (number_percent() > chance) return;
 
-        obj->value[3] = 1;
+        obj->drink_con.poisoned = 1;
         return;
     }
 }

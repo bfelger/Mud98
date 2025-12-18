@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stï¿½rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -36,6 +36,7 @@
 #include "interp.h"
 #include "handler.h"
 #include "recycle.h"
+#include "skill_ops.h"
 #include "skills.h"
 #include "spell_list.h"
 #include "update.h"
@@ -474,7 +475,7 @@ void do_cast(Mobile* ch, char* argument)
 
     WAIT_STATE(ch, skill_table[sn].beats);
 
-    if (number_percent() > get_skill(ch, sn)) {
+    if (!skill_ops->check_simple(ch, sn)) {
         send_to_char("You lost your concentration.\n\r", ch);
         check_improve(ch, sn, false, 1);
         ch->mana -= (int16_t)mana / 2;
@@ -1286,8 +1287,8 @@ void spell_create_food(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget 
     Object* mushroom;
 
     mushroom = create_object(get_object_prototype(OBJ_VNUM_MUSHROOM), 0);
-    mushroom->value[0] = level / 2;
-    mushroom->value[1] = level;
+    mushroom->food.hours_full = level / 2;
+    mushroom->food.hours_hunger = level;
     obj_to_room(mushroom, ch->in_room);
     act("$p suddenly appears.", ch, mushroom, NULL, TO_ROOM);
     act("$p suddenly appears.", ch, mushroom, NULL, TO_CHAR);
@@ -1326,17 +1327,17 @@ void spell_create_water(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget
         return;
     }
 
-    if (obj->value[2] != LIQ_WATER && obj->value[1] != 0) {
+    if (obj->drink_con.liquid_type != LIQ_WATER && obj->drink_con.current != 0) {
         send_to_char("It contains some other liquid.\n\r", ch);
         return;
     }
 
     water = UMIN(level * (weather_info.sky >= SKY_RAINING ? 4 : 2),
-                 obj->value[0] - obj->value[1]);
+                 obj->drink_con.capacity - obj->drink_con.current);
 
     if (water > 0) {
-        obj->value[2] = LIQ_WATER;
-        obj->value[1] += water;
+        obj->drink_con.liquid_type = LIQ_WATER;
+        obj->drink_con.current += water;
         if (!is_name("water", NAME_STR(obj))) {
             char buf[MAX_STRING_LENGTH];
 
@@ -2423,8 +2424,8 @@ void spell_floating_disc(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarge
     }
 
     disc = create_object(get_object_prototype(OBJ_VNUM_DISC), 0);
-    disc->value[0] = ch->level * 10; /* 10 pounds per level capacity */
-    disc->value[3] = ch->level * 5; /* 5 pounds per level max per item */
+    disc->container.capacity = ch->level * 10; /* 10 pounds per level capacity */
+    disc->container.max_item_weight = ch->level * 5; /* 5 pounds per level max per item */
     disc->timer = ch->level * 2 - (int16_t)number_range(0, level / 2);
 
     act("$n has created a floating black disc.", ch, NULL, NULL, TO_ROOM);

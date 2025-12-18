@@ -64,11 +64,15 @@ void register_login_tests();
 void register_persist_tests();
 void register_player_persist_tests();
 void register_fight_tests();
+void register_damage_tests();
+void register_tohit_tests();
+void register_combat_state_tests();
 void register_skills_tests();
 void register_buffer_tests();
 void register_stringbuffer_tests();
 void register_mem_watchpoint_tests();
 void register_daycycle_tests();
+void register_multihit_tests();
 
 void run_unit_tests();
 
@@ -93,6 +97,10 @@ void test_lox_string_eq(const char* expected, Value actual, const char* file, in
 void test_lox_string_contains(const char* substring, Value actual, const char* file, int line);
 #define ASSERT_LOX_STR_CONTAINS(substring, actual) test_lox_string_contains(substring, actual, __FILE__, __LINE__)
 
+void test_lox_string_contains_any(const char** substrings, size_t substring_count, Value actual, const char* file, int line);
+#define ASSERT_LOX_STR_CONTAINS_ANY(substrings, substring_count, actual) \
+    test_lox_string_contains_any(substrings, substring_count, actual, __FILE__, __LINE__)
+
 #define ASSERT_OUTPUT_EQ(expected) \
     ASSERT(IS_STRING(test_output_buffer)); \
     if (IS_STRING(test_output_buffer) && AS_STRING(test_output_buffer) != NULL) \
@@ -107,6 +115,11 @@ void test_lox_string_contains(const char* substring, Value actual, const char* f
     ASSERT(IS_STRING(test_output_buffer)); \
     if (IS_STRING(test_output_buffer) && AS_STRING(test_output_buffer) != NULL) \
         ASSERT_LOX_STR_CONTAINS(substring, test_output_buffer); 
+
+#define ASSERT_OUTPUT_CONTAINS_ANY(substrings, substring_count) \
+    ASSERT(IS_STRING(test_output_buffer)); \
+    if (IS_STRING(test_output_buffer) && AS_STRING(test_output_buffer) != NULL) \
+        ASSERT_LOX_STR_CONTAINS_ANY(substrings, substring_count, test_output_buffer);
 
 #define ASSERT_LOX_OUTPUT_EQ(expected) \
     ASSERT(result == INTERPRET_OK); \

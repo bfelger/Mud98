@@ -496,7 +496,7 @@ void affect_remove_obj(Object* obj, Affect* affect)
         break;
     case TO_WEAPON:
         if (obj->item_type == ITEM_WEAPON)
-            REMOVE_BIT(obj->value[4], affect->bitvector);
+            REMOVE_BIT(obj->weapon.flags, affect->bitvector);
         break;
     default:
         break;
@@ -573,7 +573,7 @@ void affect_to_obj(Object* obj, Affect* affect)
     if (affect->bitvector && affect->where == TO_OBJECT)
         SET_BIT(obj->extra_flags, affect->bitvector);
     else if (affect->where == TO_WEAPON && obj->item_type == ITEM_WEAPON)
-        SET_BIT(obj->value[4], affect->bitvector);
+        SET_BIT(obj->weapon.flags, affect->bitvector);
 }
 
 bool is_affected(Mobile* ch, SKNUM sn)
