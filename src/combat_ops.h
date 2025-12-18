@@ -156,15 +156,4 @@ extern CombatOps combat_rom;
 #define COMBAT_DEATH(victim) \
     (combat->handle_death((victim)))
 
-// Legacy function wrappers for gradual migration.
-// These allow existing code to work unchanged while we migrate to ops table.
-static inline bool damage(Mobile* ch, Mobile* victim, int dam, 
-                          int16_t dt, DamageType dam_type, bool show) {
-    return combat->apply_damage(ch, victim, dam, dt, dam_type, show);
-}
-
-static inline void raw_kill(Mobile* victim) {
-    combat->handle_death(victim);
-}
-
 #endif // !MUD98__COMBAT_OPS_H

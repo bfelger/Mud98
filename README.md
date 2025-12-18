@@ -226,9 +226,9 @@ Use the `-d` argument to specify the folder containing `mud98.cfg` if you don't 
   - [x] Persistence
   - [x] RNG
   - [ ] Combat
-    - [ ] Hit/miss resolution
-    - [ ] Damage calculation
-    - [ ] AC/Defense
+    - [x] Hit/miss resolution
+    - [x] Damage calculation
+    - [x] AC/Defense
     - [ ] Status effects
     - [ ] Action economy
     - [ ] Stats/attributes
