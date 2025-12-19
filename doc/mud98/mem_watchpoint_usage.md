@@ -1,4 +1,4 @@
-// mem_watchpoint_usage.md - How to use memory watchpoints to debug corruption
+# Debugging Memory Corruption with Watchpoints
 
 ## Quick Start
 

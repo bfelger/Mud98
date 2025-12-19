@@ -7,6 +7,7 @@
 #define MUD98__TESTS__BENCHMARKS_H
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <time.h>
 
 typedef struct {
@@ -14,6 +15,13 @@ typedef struct {
     struct timespec stop;
     bool running;
 } Timer;
+
+typedef void (*BenchmarkFn)();
+
+typedef struct {
+    const char* name;
+    BenchmarkFn fn;
+} BenchmarkEntry;
 
 struct timespec elapsed(Timer* timer);
 void reset_timer(Timer* timer);
@@ -23,6 +31,8 @@ void stop_timer(Timer* timer);
 void benchmark_containers();
 void benchmark_formatting();
 
+const BenchmarkEntry* benchmark_registry(size_t* count);
+bool run_benchmark_by_name(const char* name);
 void run_benchmarks();
 
 #endif // !MUD98__TESTS__BENCHMARKS_H

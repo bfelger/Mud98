@@ -14,7 +14,7 @@
 #include <lox/segvec.h>
 #include <lox/table.h>
 
-#define ITERATIONS 100000
+#define ITERATIONS 10000
 
 #if  defined(__GNUC__) || defined(__clang__)
 #  define UNUSED __attribute__((unused))
@@ -200,6 +200,9 @@ static inline Item* pop_item_lox_array()
     return item;
 }
 
+
+// LoxArrays have a relatively now upper-limit, as they are
+// backed by alloc_mem. So we cant't benchmark very large sizes here.
 void benchmark_lox_array(const char* msg)
 {
     printf("%s", msg);
@@ -207,26 +210,26 @@ void benchmark_lox_array(const char* msg)
     Timer timer = { 0 };
     Item* item;
 
-    const int array_iters = ITERATIONS / 10;
+    const int array_iters = ITERATIONS;
 
-    printf("Adding %d items:   ", array_iters * 10);
-
+    printf("Adding %d items:   ", array_iters);
     START_TIMER();
     for (int i = 0; i < array_iters; i++) {
         item = &slab[i];
 
         persist_item_lox_array(item);
     }
- 
-    stop_timer(&timer);
-    struct timespec timer_res = elapsed(&timer);
-    printf("%10ldns", timer_res.tv_nsec * 10);
-#ifdef COUNT_SIZE_ALLOCS
-    printf(", alloced: %5zu perm, %8zu temp, %7zu freed.\n", 
-        amt_perm_alloced * 10, amt_temp_alloced * 10, amt_temp_freed * 10);
-#else
-    printf(".\n");
-#endif
+    END_TIMER();
+    END_TEST();
+//    stop_timer(&timer);
+//    struct timespec timer_res = elapsed(&timer);
+//    printf("%10ldns", timer_res.tv_nsec * 10);
+//#ifdef COUNT_SIZE_ALLOCS
+//    printf(", alloced: %5zu perm, %8zu temp, %7zu freed.\n", 
+//        amt_perm_alloced * 10, amt_temp_alloced * 10, amt_temp_freed * 10);
+//#else
+//    printf(".\n");
+//#endif
 
     START_TEST();
     printf("            Indexing %d items: ", ITERATIONS);
@@ -241,26 +244,31 @@ void benchmark_lox_array(const char* msg)
             exit(1);
         }
     }
-    stop_timer(&timer);
-    timer_res = elapsed(&timer);
-    printf("%10ldns", timer_res.tv_nsec * 10);
+    
+    END_TIMER();
+    END_TEST()
     printf("\n");
+    //stop_timer(&timer);
+    //timer_res = elapsed(&timer);
+    //printf("%10ldns", timer_res.tv_nsec * 10);
+    //printf("\n");
 
     START_TEST()
-    printf("            Freeing %d items:  ", array_iters * 10);
+    printf("            Freeing %d items:  ", array_iters);
     START_TIMER();
     while ((item = pop_item_lox_array()) != NULL) {
     }
-
-    stop_timer(&timer);
-    timer_res = elapsed(&timer);
-    printf("%10ldns", timer_res.tv_nsec * 10);
-#ifdef COUNT_SIZE_ALLOCS
-    printf(", alloced: %5zu perm, %8zu temp, %7zu freed.\n",
-        amt_perm_alloced * 10, amt_temp_alloced * 10, amt_temp_freed * 10);
-#else
-    printf(".\n");
-#endif
+    END_TIMER();
+    END_TEST()
+//    stop_timer(&timer);
+//    timer_res = elapsed(&timer);
+//    printf("%10ldns", timer_res.tv_nsec * 10);
+//#ifdef COUNT_SIZE_ALLOCS
+//    printf(", alloced: %5zu perm, %8zu temp, %7zu freed.\n",
+//        amt_perm_alloced * 10, amt_temp_alloced * 10, amt_temp_freed * 10);
+//#else
+//    printf(".\n");
+//#endif
 }
 
 static void benchmark_segvec(const char* msg)

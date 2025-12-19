@@ -7,6 +7,7 @@
 #include <merc.h>
 
 #include <string.h>
+#include <time.h>
 
 #ifdef _MSC_VER
 #define WIN32_LEAN_AND_MEAN
@@ -94,8 +95,40 @@ void stop_timer(Timer* timer)
     }
 }
 
+static const BenchmarkEntry benchmark_entries[] = {
+    { "containers", benchmark_containers },
+    { "formatting", benchmark_formatting },
+};
+
+const BenchmarkEntry* benchmark_registry(size_t* count)
+{
+    if (count) {
+        *count = sizeof(benchmark_entries) / sizeof(benchmark_entries[0]);
+    }
+    return benchmark_entries;
+}
+
+bool run_benchmark_by_name(const char* name)
+{
+    size_t count = 0;
+    const BenchmarkEntry* entries = benchmark_registry(&count);
+
+    for (size_t i = 0; i < count; i++) {
+        if (!strcmp(entries[i].name, name)) {
+            entries[i].fn();
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void run_benchmarks()
 {
-    benchmark_containers();
-    //benchmark_formatting();
+    size_t count = 0;
+    const BenchmarkEntry* entries = benchmark_registry(&count);
+
+    for (size_t i = 0; i < count; i++) {
+        entries[i].fn();
+    }
 }
