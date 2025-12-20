@@ -68,7 +68,7 @@ void msdp_update_all(char* var, char* fmt, ...)
 	va_list args;
 
 	va_start(args, fmt);
-	vsprintf(buf, fmt, args);
+	vsnprintf(buf, sizeof(buf), fmt, args);
 	va_end(args);
 
 	Descriptor* d;
@@ -97,7 +97,7 @@ void msdp_update_var(Descriptor* d, char* var, char* fmt, ...)
 	}
 
 	va_start(args, fmt);
-	vsprintf(buf, fmt, args);
+	vsnprintf(buf, sizeof(buf), fmt, args);
 	va_end(args);
 
 	if (strcmp(d->mth->msdp_data[index]->value, buf)) {
@@ -131,7 +131,7 @@ void msdp_update_var_instant(Descriptor* d, char* var, char* fmt, ...)
 	}
 
 	va_start(args, fmt);
-	vsprintf(buf, fmt, args);
+	vsnprintf(buf, sizeof(buf), fmt, args);
 	va_end(args);
 
 	if (strcmp(d->mth->msdp_data[index]->value, buf)) {

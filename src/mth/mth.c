@@ -86,7 +86,7 @@ void log_descriptor_printf(Descriptor* d, char* fmt, ...)
 
 	va_start(args, fmt);
 
-	vsprintf(buf, fmt, args);
+	vsnprintf(buf, sizeof(buf), fmt, args);
 
 	va_end(args);
 
@@ -102,7 +102,7 @@ int cat_sprintf(char* dest, char* fmt, ...)
 	va_list args;
 
 	va_start(args, fmt);
-	size = vsprintf(buf, fmt, args);
+	size = vsnprintf(buf, sizeof(buf), fmt, args);
 	va_end(args);
 
 	strcat(dest, buf);
