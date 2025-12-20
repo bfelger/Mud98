@@ -108,6 +108,7 @@ target_compile_options(Mud98CompilerSettings INTERFACE
         /wd4668  # Until MS fixes their own macros
         /wd4996  # Stupid deprecation warnings
         /wd4191  # Fix your SDK, Microsoft
+        /wd4711  # function selected for automatic inline expansion
     >
     # GCC/Clang options
     $<$<NOT:$<C_COMPILER_ID:MSVC>>:

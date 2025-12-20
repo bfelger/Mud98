@@ -415,14 +415,21 @@ void load_config()
     }
 
     if (!file_exists(cfg_get_config_file()) && !_config_file[0] && !_base_dir[0]) {
-        // No config file or based dir was passed in. Maybe we're in the area
-        // folder? Look in the parent.
+        // No config file or base dir was passed in. Search up to two levels up
+        // in the directory structure to find it.
         sprintf(cfg_path, "%s%s", "../", cfg_get_config_file());
-        if (file_exists(cfg_path))
+        if (file_exists(cfg_path)) {
             change_dir("../");
+        }
         else {
-            fprintf(stderr, "WARNING: No configuration file found; taking defaults.\n");
-            return;
+            sprintf(cfg_path, "%s%s", "../../", cfg_get_config_file());
+            if (file_exists(cfg_path)) {
+                change_dir("../../");
+            }
+            else {
+                fprintf(stderr, "WARNING: No configuration file found; taking defaults.\n");
+                return;
+            }
         }
     }
 
