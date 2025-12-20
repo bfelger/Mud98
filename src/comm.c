@@ -1689,15 +1689,15 @@ void nanny(Descriptor * d, char* argument)
             || ch->pcdata->learned[*weapon_table[weapon].gsn] <= 0) {
             write_to_buffer(d, "That's not a valid selection. Choices are:\n\r",
                 0);
-            StringBuffer* sb = sb_new();
+            StringBuffer* sb_weapon = sb_new();
             for (i = 1; i < WEAPON_TYPE_COUNT; i++)
                 if (ch->pcdata->learned[*weapon_table[i].gsn] > 0) {
-                    sb_append(sb, weapon_table[i].name);
-                    sb_append(sb, " ");
+                    sb_append(sb_weapon, weapon_table[i].name);
+                    sb_append(sb_weapon, " ");
                 }
-            sb_append(sb, "\n\rYour choice? ");
-            write_to_buffer(d, sb_string(sb), 0);
-            sb_free(sb);
+            sb_append(sb_weapon, "\n\rYour choice? ");
+            write_to_buffer(d, sb_string(sb_weapon), 0);
+            sb_free(sb_weapon);
             return;
         }
 

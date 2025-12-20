@@ -57,3 +57,41 @@ target_include_directories(Mud98PersistRomOlc
         $<$<BOOL:${OPENSSL_FOUND}>:${OPENSSL_INCLUDE_DIR}>
         $<$<BOOL:${ZLIB_FOUND}>:${ZLIB_INCLUDE_DIRS}>
 )
+
+# Compiler-specific options
+target_compile_options(Mud98PersistRomOlc PRIVATE
+    # MSVC options
+    $<$<C_COMPILER_ID:MSVC>:
+        /Wall /WX /std:c17
+        /wd4061  # enumerator not explicitly handled
+        /wd4068  # unknown pragma
+        /wd4100  # unreferenced parameter
+        /wd4152  # function/data pointer conversion
+        /wd4255  # no function prototype
+        /wd4706  # assignment in conditional
+        /wd4710  # function not inlined
+        /wd4820  # padding after data member
+        /wd5045  # Spectre mitigation
+        /wd4668  # Until MS fixes their own macros
+        /wd4996  # Stupid deprecation warnings
+        /wd4191  # Fix your SDK, Microsoft
+    >
+    # GCC/Clang options
+    $<$<NOT:$<C_COMPILER_ID:MSVC>>:
+        -Wall -Werror -Wextra -pedantic
+        -Wno-unused-parameter -Wno-unknown-pragmas
+    >
+    # GCC-specific
+    $<$<C_COMPILER_ID:GNU>:-std=gnu2x>
+    # Clang-specific
+    $<$<C_COMPILER_ID:Clang>:-std=c2x>
+)
+
+# Compile definitions
+target_compile_definitions(Mud98PersistRomOlc PRIVATE
+    $<$<C_COMPILER_ID:MSVC>:_CRT_SECURE_NO_WARNINGS>
+    $<$<NOT:$<C_COMPILER_ID:MSVC>>:_GNU_SOURCE>
+    $<$<NOT:$<BOOL:${OPENSSL_FOUND}>>:NO_OPENSSL>
+    $<$<AND:$<NOT:$<BOOL:${OPENSSL_FOUND}>>,$<BOOL:${CYGWIN}>>:NO_ENCRYPTION>
+    $<$<NOT:$<BOOL:${ZLIB_FOUND}>>:NO_ZLIB>
+)
