@@ -37,6 +37,7 @@
 #include "note.h"
 #include "skill_ops.h"
 #include "skills.h"
+#include "stringbuffer.h"
 #include "update.h"
 
 #include <entities/descriptor.h>
@@ -1493,7 +1494,6 @@ void do_recall(Mobile* ch, char* argument)
 
 void do_train(Mobile* ch, char* argument)
 {
-    char buf[MAX_STRING_LENGTH];
     int16_t stat = -1;
     char* pOutput = NULL;
     int cost;
@@ -1564,26 +1564,28 @@ void do_train(Mobile* ch, char* argument)
         cost = 1;
 
     else {
-        strcpy(buf, "You can train:");
+        StringBuffer* sb = sb_new();
+        sb_append(sb, "You can train:");
         if (ch->perm_stat[STAT_STR] < get_max_train(ch, STAT_STR))
-            strcat(buf, " str");
+            sb_append(sb, " str");
         if (ch->perm_stat[STAT_INT] < get_max_train(ch, STAT_INT))
-            strcat(buf, " int");
+            sb_append(sb, " int");
         if (ch->perm_stat[STAT_WIS] < get_max_train(ch, STAT_WIS))
-            strcat(buf, " wis");
+            sb_append(sb, " wis");
         if (ch->perm_stat[STAT_DEX] < get_max_train(ch, STAT_DEX))
-            strcat(buf, " dex");
+            sb_append(sb, " dex");
         if (ch->perm_stat[STAT_CON] < get_max_train(ch, STAT_CON))
-            strcat(buf, " con");
-        strcat(buf, " hp mana");
+            sb_append(sb, " con");
+        sb_append(sb, " hp mana");
 
-        if (buf[strlen(buf) - 1] != ':') {
-            strcat(buf, ".\n\r");
-            send_to_char(buf, ch);
+        if (sb->length > 0 && sb->data[sb->length - 1] != ':') {
+            sb_append(sb, ".\n\r");
+            send_to_char(sb_string(sb), ch);
         }
         else {
             send_to_char("You have nothing left to train.\n\r", ch);
         }
+        sb_free(sb);
 
         return;
     }

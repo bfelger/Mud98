@@ -30,6 +30,7 @@
 #include "tables.h"
 
 #include "comm.h"
+#include "stringbuffer.h"
 
 #include <entities/descriptor.h>
 
@@ -861,19 +862,18 @@ const struct flag_type inst_type_table[] = {
 
 void show_flags_to_char(Mobile* ch, const struct flag_type* flags)
 {
-    char line[25];
     int col = 0;
-    char buf[MAX_STRING_LENGTH] = { 0 };
+    StringBuffer* sb = sb_new();
     for (int i = 0; flags[i].name != NULL; ++i) {
         if (!flags[i].settable)
             continue;
-        sprintf(line, COLOR_ALT_TEXT_1 "%15s" COLOR_CLEAR , flags[i].name);
-        strcat(buf, line);
+        sb_appendf(sb, COLOR_ALT_TEXT_1 "%15s" COLOR_CLEAR , flags[i].name);
         if (++col == 4) {
             col = 0;
-            strcat(buf, "\r\n");
+            sb_append(sb, "\r\n");
         }
     }
-    strcat(buf, "\r\n");
-    send_to_char(buf, ch);
+    sb_append(sb, "\r\n");
+    send_to_char(sb_string(sb), ch);
+    sb_free(sb);
 }

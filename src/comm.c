@@ -1031,7 +1031,6 @@ void bust_a_prompt(Mobile* ch)
     const char* i;
     char* point;
     char* pbuff;
-    char doors[MAX_INPUT_LENGTH] = "";
     RoomExitData* room_exit_data;
     bool found;
     int door;
@@ -1062,21 +1061,24 @@ void bust_a_prompt(Mobile* ch)
             break;
         case 'e':
             found = false;
-            doors[0] = '\0';
-            for (door = 0; door < DIR_MAX; door++) {
-                if ((room_exit_data = ch->in_room->data->exit_data[door]) != NULL
-                    && room_exit_data->to_room != NULL
-                    && (can_see_room(ch, room_exit_data->to_room)
-                        || (IS_AFFECTED(ch, AFF_INFRARED)
-                            && !IS_AFFECTED(ch, AFF_BLIND)))
-                    && !IS_SET(ch->in_room->exit[door]->exit_flags, EX_CLOSED)) {
-                    found = true;
-                    strcat(doors, dir_list[door].name_abbr);
+            {
+                StringBuffer* sb_doors = sb_new();
+                for (door = 0; door < DIR_MAX; door++) {
+                    if ((room_exit_data = ch->in_room->data->exit_data[door]) != NULL
+                        && room_exit_data->to_room != NULL
+                        && (can_see_room(ch, room_exit_data->to_room)
+                            || (IS_AFFECTED(ch, AFF_INFRARED)
+                                && !IS_AFFECTED(ch, AFF_BLIND)))
+                        && !IS_SET(ch->in_room->exit[door]->exit_flags, EX_CLOSED)) {
+                        found = true;
+                        sb_append(sb_doors, dir_list[door].name_abbr);
+                    }
                 }
+                if (!found) 
+                    sb_append(sb_doors, "none");
+                sprintf(BUF(temp2), "%s", sb_string(sb_doors));
+                sb_free(sb_doors);
             }
-            if (!found) 
-                strcat(doors, "none");
-            sprintf(BUF(temp2), "%s", doors);
             i = BUF(temp2);
             break;
         case 'c':
@@ -1247,17 +1249,18 @@ void write_to_buffer(Descriptor* d, const char* txt, size_t length)
 
 static void nanny_weapon_prompt(Descriptor* d, Mobile* ch)
 {
-    char buf[MAX_STRING_LENGTH] = "";
+    StringBuffer* sb = sb_new();
     write_to_buffer(d, "\n\r", 2);
     write_to_buffer(d, "Please pick a weapon from the following choices:\n\r", 0);
     // Skip exotic. No one is trained in it.
     for (int i = 1; i < WEAPON_TYPE_COUNT; i++)
         if (ch->pcdata->learned[*weapon_table[i].gsn] > 0) {
-            strcat(buf, weapon_table[i].name);
-            strcat(buf, " ");
+            sb_append(sb, weapon_table[i].name);
+            sb_append(sb, " ");
         }
-    strcat(buf, "\n\rYour choice? ");
-    write_to_buffer(d, buf, 0);
+    sb_append(sb, "\n\rYour choice? ");
+    write_to_buffer(d, sb_string(sb), 0);
+    sb_free(sb);
 }
 
 // Deal with sockets that haven't logged in yet.
@@ -1576,14 +1579,16 @@ void nanny(Descriptor * d, char* argument)
             return;
         }
 
-        strcpy(buf, "Select a class [");
+        StringBuffer* sb = sb_new();
+        sb_append(sb, "Select a class [");
         for (iClass = 0; iClass < class_count; iClass++) {
             if (iClass > 0) 
-                strcat(buf, " ");
-            strcat(buf, class_table[iClass].name);
+                sb_append(sb, " ");
+            sb_append(sb, class_table[iClass].name);
         }
-        strcat(buf, "]: ");
-        write_to_buffer(d, buf, 0);
+        sb_append(sb, "]: ");
+        write_to_buffer(d, sb_string(sb), 0);
+        sb_free(sb);
         d->connected = CON_GET_NEW_CLASS;
         break;
 
@@ -1684,14 +1689,15 @@ void nanny(Descriptor * d, char* argument)
             || ch->pcdata->learned[*weapon_table[weapon].gsn] <= 0) {
             write_to_buffer(d, "That's not a valid selection. Choices are:\n\r",
                 0);
-            buf[0] = '\0';
+            StringBuffer* sb = sb_new();
             for (i = 1; i < WEAPON_TYPE_COUNT; i++)
                 if (ch->pcdata->learned[*weapon_table[i].gsn] > 0) {
-                    strcat(buf, weapon_table[i].name);
-                    strcat(buf, " ");
+                    sb_append(sb, weapon_table[i].name);
+                    sb_append(sb, " ");
                 }
-            strcat(buf, "\n\rYour choice? ");
-            write_to_buffer(d, buf, 0);
+            sb_append(sb, "\n\rYour choice? ");
+            write_to_buffer(d, sb_string(sb), 0);
+            sb_free(sb);
             return;
         }
 
