@@ -1,0 +1,42 @@
+{
+    "version": 8,
+    "configurePresets": [
+        {
+            "name": "GCC",
+            "displayName": "GCC",
+            "description": "Using compilers: C = /usr/bin/gcc",
+            "generator": "Ninja Multi-Config",
+            "binaryDir": "${sourceDir}/.build-gcc",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "/usr/bin/gcc",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "Clang",
+            "displayName": "Clang",
+            "description": "Using compilers: C = /usr/bin/clang",
+            "generator": "Ninja Multi-Config",
+            "binaryDir": "${sourceDir}/.build-clang",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "/usr/bin/clang",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "MSVC",
+            "description": "User compilers: C = cl.exe",
+            "generator": "Ninja Multi-Config",
+            "binaryDir": "${sourceDir}/.build-msvc",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "cl.exe",
+                "CMAKE_CXX_COMPILER": "cl.exe"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        }
+    ]
+}
