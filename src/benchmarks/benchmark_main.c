@@ -13,9 +13,13 @@
 
 #include <benchmarks/benchmarks.h>
 
+#include <ctype.h>
+
 #ifdef _MSC_VER
 #include <stdint.h>
 #include <io.h>
+#include <string.h>
+#include <stdlib.h>
 #else
 #include <stdlib.h>
 #include <string.h>
@@ -40,11 +44,114 @@ struct timezone {
 int gettimeofday(struct timeval* tp, struct timezone* unused);
 #endif
 
+#define MAX_SELECTED_BENCHMARKS 32
+#define MAX_BENCHMARK_LISTS 32
+
+#ifdef _MSC_VER
+static char* dup_arg(const char* value)
+{
+    return _strdup(value);
+}
+#else
+static char* dup_arg(const char* value)
+{
+    return strdup(value);
+}
+#endif
+
+static char* trim_space(char* value)
+{
+    char* start = value;
+    char* end = NULL;
+
+    while (*start && isspace((unsigned char)*start)) {
+        start++;
+    }
+
+    end = start + strlen(start);
+    while (end > start && isspace((unsigned char)end[-1])) {
+        end--;
+    }
+    *end = '\0';
+
+    return start;
+}
+
+static void print_available_benchmarks(void)
+{
+    size_t count = 0;
+    const BenchmarkEntry* entries = benchmark_registry(&count);
+
+    fprintf(stderr, "Available benchmarks:");
+    for (size_t i = 0; i < count; i++) {
+        fprintf(stderr, " %s", entries[i].name);
+    }
+    fprintf(stderr, "\n");
+}
+
+static void print_usage(const char* argv0)
+{
+    fprintf(stderr, "Usage: %s [-d|--dir=<rundir>] [-a|--area-dir=<areadir>] [-b|--bench=<list>]\n", argv0);
+    fprintf(stderr, "       %s [--bench <list>]\n", argv0);
+    fprintf(stderr, "  <list> is a comma-separated list of benchmark names.\n");
+    print_available_benchmarks();
+}
+
+static bool benchmark_exists(const char* name)
+{
+    size_t count = 0;
+    const BenchmarkEntry* entries = benchmark_registry(&count);
+
+    for (size_t i = 0; i < count; i++) {
+        if (!strcmp(entries[i].name, name)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+static void add_benchmark_list(const char* list,
+                               char** selected,
+                               size_t* selected_count,
+                               char** buffers,
+                               size_t* buffer_count)
+{
+    if (*buffer_count >= MAX_BENCHMARK_LISTS) {
+        fprintf(stderr, "Too many --bench arguments.\n");
+        exit(1);
+    }
+
+    char* copy = dup_arg(list);
+    if (!copy) {
+        fprintf(stderr, "Out of memory while parsing benchmark list.\n");
+        exit(1);
+    }
+    buffers[(*buffer_count)++] = copy;
+
+    char* token = strtok(copy, ",");
+    while (token) {
+        char* trimmed = trim_space(token);
+        if (*trimmed != '\0') {
+            if (*selected_count >= MAX_SELECTED_BENCHMARKS) {
+                fprintf(stderr, "Too many benchmark selections (max %d).\n", MAX_SELECTED_BENCHMARKS);
+                exit(1);
+            }
+            selected[(*selected_count)++] = trimmed;
+        }
+        token = strtok(NULL, ",");
+    }
+}
+
 int main(int argc, char** argv)
 {
     struct timeval now_time = { 0 };
     char run_dir[256] = { 0 };
     char area_dir[256] = { 0 };
+    char* selected_benchmarks[MAX_SELECTED_BENCHMARKS] = { 0 };
+    char* benchmark_buffers[MAX_BENCHMARK_LISTS] = { 0 };
+    size_t selected_count = 0;
+    size_t buffer_count = 0;
 
     // Parse command line arguments
     if (argc > 1) {
@@ -68,11 +175,46 @@ int main(int argc, char** argv)
                     strcpy(area_dir, argv[i]);
                 }
             }
+            else if (!strncmp(argv[i], "--bench=", 8)) {
+                if (argv[i][8] == '\0') {
+                    fprintf(stderr, "Empty benchmark list provided.\n");
+                    print_usage(argv[0]);
+                    exit(1);
+                }
+                add_benchmark_list(argv[i] + 8, selected_benchmarks, &selected_count, benchmark_buffers, &buffer_count);
+            }
+            else if (!strcmp(argv[i], "--bench") || !strcmp(argv[i], "-b")) {
+                if (++i < argc && argv[i][0] != '\0') {
+                    add_benchmark_list(argv[i], selected_benchmarks, &selected_count, benchmark_buffers, &buffer_count);
+                }
+                else {
+                    fprintf(stderr, "Missing benchmark list after %s.\n", argv[i - 1]);
+                    print_usage(argv[0]);
+                    exit(1);
+                }
+            }
             else {
                 fprintf(stderr, "Unknown argument '%s'.\n", argv[i]);
-                fprintf(stderr, "Usage: %s [-d|--dir=<rundir>] [-a|--area-dir=<areadir>]\n", argv[0]);
+                print_usage(argv[0]);
                 exit(1);
             }
+        }
+    }
+
+    if (selected_count > 0) {
+        size_t missing = 0;
+        for (size_t i = 0; i < selected_count; i++) {
+            if (!benchmark_exists(selected_benchmarks[i])) {
+                fprintf(stderr, "Unknown benchmark '%s'.\n", selected_benchmarks[i]);
+                missing++;
+            }
+        }
+        if (missing > 0) {
+            print_available_benchmarks();
+            for (size_t i = 0; i < buffer_count; i++) {
+                free(benchmark_buffers[i]);
+            }
+            return 1;
         }
     }
 
@@ -104,8 +246,19 @@ int main(int argc, char** argv)
 
     print_memory();
 
-    // Run all benchmarks
-    run_benchmarks();
+    // Run benchmarks (optionally filtered)
+    if (selected_count > 0) {
+        for (size_t i = 0; i < selected_count; i++) {
+            run_benchmark_by_name(selected_benchmarks[i]);
+        }
+    }
+    else {
+        run_benchmarks();
+    }
+
+    for (size_t i = 0; i < buffer_count; i++) {
+        free(benchmark_buffers[i]);
+    }
 
     // Cleanup
     free_vm();

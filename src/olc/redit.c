@@ -20,6 +20,7 @@
 #include <magic.h>
 #include <recycle.h>
 #include <save.h>
+#include <stringbuffer.h>
 #include <tables.h>
 #include <string.h>
 
@@ -195,7 +196,7 @@ REDIT(redit_rlist)
 {
     RoomData* pRoomIndex;
     AreaData* area;
-    Buffer* buf1;
+    StringBuffer* sb;
     char arg[MAX_INPUT_LENGTH]  = { 0 };
     bool found;
     VNUM vnum;
@@ -204,30 +205,30 @@ REDIT(redit_rlist)
     one_argument(argument, arg);
 
     area = ch->in_room->area->data;
-    buf1 = new_buf();
+    sb = sb_new();
     found = false;
 
     for (vnum = area->min_vnum; vnum <= area->max_vnum; vnum++) {
         if ((pRoomIndex = get_room_data(vnum))) {
             found = true;
-            addf_buf(buf1, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-17.17s ",
+            sb_appendf(sb, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-17.17s ",
                 vnum, capitalize(NAME_STR(pRoomIndex)));
             if (++col % 3 == 0)
-                add_buf(buf1, "\n\r");
+                sb_append(sb, "\n\r");
         }
     }
 
     if (!found) {
-        free_buf(buf1);
+        sb_free(sb);
         send_to_char(COLOR_INFO "Room(s) not found in this area." COLOR_EOL, ch);
         return false;
     }
 
     if (col % 3 != 0)
-        add_buf(buf1, "\n\r");
+        sb_append(sb, "\n\r");
 
-    page_to_char(BUF(buf1), ch);
-    free_buf(buf1);
+    page_to_char(sb_string(sb), ch);
+    sb_free(sb);
     return false;
 }
 
@@ -235,8 +236,7 @@ REDIT(redit_mlist)
 {
     MobPrototype* p_mob_proto;
     AreaData* area;
-    char        buf[MAX_STRING_LENGTH];
-    Buffer* buf1;
+    StringBuffer* sb;
     char        arg[MAX_INPUT_LENGTH];
     bool fAll, found;
     VNUM vnum;
@@ -248,7 +248,7 @@ REDIT(redit_mlist)
         return false;
     }
 
-    buf1 = new_buf();
+    sb = sb_new();
     area = ch->in_room->area->data;
     fAll = !str_cmp(arg, "all");
     found = false;
@@ -257,26 +257,25 @@ REDIT(redit_mlist)
         if ((p_mob_proto = get_mob_prototype(vnum)) != NULL) {
             if (fAll || is_name(arg, NAME_STR(p_mob_proto))) {
                 found = true;
-                sprintf(buf, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-17.17s",
+                sb_appendf(sb, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-17.17s",
                     VNUM_FIELD(p_mob_proto), capitalize(p_mob_proto->short_descr));
-                add_buf(buf1, buf);
                 if (++col % 3 == 0)
-                    add_buf(buf1, "\n\r");
+                    sb_append(sb, "\n\r");
             }
         }
     }
 
     if (!found) {
-        free_buf(buf1);
+        sb_free(sb);
         send_to_char(COLOR_CLEAR "Mobile(s) not found in this area.\n\r" COLOR_CLEAR , ch);
         return false;
     }
 
     if (col % 3 != 0)
-        add_buf(buf1, "\n\r");
+        sb_append(sb, "\n\r");
 
-    page_to_char(BUF(buf1), ch);
-    free_buf(buf1);
+    page_to_char(sb_string(sb), ch);
+    sb_free(sb);
     return false;
 }
 

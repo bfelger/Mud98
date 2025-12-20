@@ -34,6 +34,7 @@
 #include "magic.h"
 #include "spell_list.h"
 #include "recycle.h"
+#include "stringbuffer.h"
 #include "update.h"
 
 #include "entities/mobile.h"
@@ -56,7 +57,6 @@
 /* used to get new skills */
 void do_gain(Mobile* ch, char* argument)
 {
-    char buf[MAX_STRING_LENGTH];
     char arg[MAX_INPUT_LENGTH];
     Mobile* trainer = NULL;
     SKNUM gn = 0, sn = 0;
@@ -83,32 +83,30 @@ void do_gain(Mobile* ch, char* argument)
 
     if (!str_prefix(arg, "list")) {
         int col = 0;
+        StringBuffer* sb = sb_new();
 
-        sprintf(buf, "%-18s %-5s %-18s %-5s %-18s %-5s\n\r", "group", "cost",
+        sb_appendf(sb, "%-18s %-5s %-18s %-5s %-18s %-5s\n\r", "group", "cost",
                 "group", "cost", "group", "cost");
-        send_to_char(buf, ch);
 
         for (gn = 0; gn < skill_group_count; gn++) {
             if (skill_group_table[gn].name == NULL) break;
 
             if (!ch->pcdata->group_known[gn]
                 && SKILL_GROUP_RATING(gn, ch) > 0) {
-                sprintf(buf, "%-18s %-5d ", skill_group_table[gn].name,
+                sb_appendf(sb, "%-18s %-5d ", skill_group_table[gn].name,
                     SKILL_GROUP_RATING(gn, ch));
-                send_to_char(buf, ch);
-                if (++col % 3 == 0) send_to_char("\n\r", ch);
+                if (++col % 3 == 0) sb_append(sb, "\n\r");
             }
         }
         if (col % 3 != 0) 
-            send_to_char("\n\r", ch);
+            sb_append(sb, "\n\r");
 
-        send_to_char("\n\r", ch);
+        sb_append(sb, "\n\r");
 
         col = 0;
 
-        sprintf(buf, "%-18s %-5s %-18s %-5s %-18s %-5s\n\r", "skill", "cost",
+        sb_appendf(sb, "%-18s %-5s %-18s %-5s %-18s %-5s\n\r", "skill", "cost",
                 "skill", "cost", "skill", "cost");
-        send_to_char(buf, ch);
 
         for (sn = 0; sn < skill_count; sn++) {
             if (skill_table[sn].name == NULL) break;
@@ -116,15 +114,17 @@ void do_gain(Mobile* ch, char* argument)
             if (!ch->pcdata->learned[sn]
                 && SKILL_RATING(sn, ch) > 0
                 && !HAS_SPELL_FUNC(sn)) {
-                sprintf(buf, "%-18s %-5d ", skill_table[sn].name,
+                sb_appendf(sb, "%-18s %-5d ", skill_table[sn].name,
                         SKILL_RATING(sn, ch));
-                send_to_char(buf, ch);
                 if (++col % 3 == 0) 
-                    send_to_char("\n\r", ch);
+                    sb_append(sb, "\n\r");
             }
         }
         if (col % 3 != 0) 
-            send_to_char("\n\r", ch);
+            sb_append(sb, "\n\r");
+        
+        send_to_char(sb_string(sb), ch);
+        sb_free(sb);
         return;
     }
 
@@ -479,38 +479,36 @@ void do_skills(Mobile* ch, char* argument)
 /* shows skills, groups and costs (only if not bought) */
 void list_group_costs(Mobile* ch)
 {
-    char buf[100];
     SKNUM gn, sn;
     int col;
+    StringBuffer* sb;
 
     if (IS_NPC(ch)) 
         return;
 
+    sb = sb_new();
     col = 0;
 
-    sprintf(buf, "%-18s %-5s %-18s %-5s %-18s %-5s\n\r", "group", "cp", "group",
+    sb_appendf(sb, "%-18s %-5s %-18s %-5s %-18s %-5s\n\r", "group", "cp", "group",
             "cp", "group", "cp");
-    send_to_char(buf, ch);
 
     for (gn = 0; gn < skill_group_count; gn++) {
         if (skill_group_table[gn].name == NULL) break;
 
         if (!ch->gen_data->group_chosen[gn] && !ch->pcdata->group_known[gn]
             && SKILL_GROUP_RATING(gn, ch) > 0) {
-            sprintf(buf, "%-18s %-5d ", skill_group_table[gn].name,
+            sb_appendf(sb, "%-18s %-5d ", skill_group_table[gn].name,
                     SKILL_GROUP_RATING(gn, ch));
-            send_to_char(buf, ch);
-            if (++col % 3 == 0) send_to_char("\n\r", ch);
+            if (++col % 3 == 0) sb_append(sb, "\n\r");
         }
     }
-    if (col % 3 != 0) send_to_char("\n\r", ch);
-    send_to_char("\n\r", ch);
+    if (col % 3 != 0) sb_append(sb, "\n\r");
+    sb_append(sb, "\n\r");
 
     col = 0;
 
-    sprintf(buf, "%-18s %-5s %-18s %-5s %-18s %-5s\n\r", "skill", "cp", "skill",
+    sb_appendf(sb, "%-18s %-5s %-18s %-5s %-18s %-5s\n\r", "skill", "cp", "skill",
             "cp", "skill", "cp");
-    send_to_char(buf, ch);
 
     for (sn = 0; sn < skill_count; sn++) {
         if (skill_table[sn].name == NULL) break;
@@ -518,76 +516,74 @@ void list_group_costs(Mobile* ch)
         if (!ch->gen_data->skill_chosen[sn] && ch->pcdata->learned[sn] == 0
             && !HAS_SPELL_FUNC(sn)
             && SKILL_RATING(sn, ch) > 0) {
-            sprintf(buf, "%-18s %-5d ", skill_table[sn].name,
+            sb_appendf(sb, "%-18s %-5d ", skill_table[sn].name,
                 SKILL_RATING(sn, ch));
-            send_to_char(buf, ch);
-            if (++col % 3 == 0) send_to_char("\n\r", ch);
+            if (++col % 3 == 0) sb_append(sb, "\n\r");
         }
     }
-    if (col % 3 != 0) send_to_char("\n\r", ch);
-    send_to_char("\n\r", ch);
+    if (col % 3 != 0) sb_append(sb, "\n\r");
+    sb_append(sb, "\n\r");
 
-    sprintf(buf, "Creation points: %d\n\r", ch->pcdata->points);
-    send_to_char(buf, ch);
-    sprintf(buf, "Experience per level: %d\n\r",
+    sb_appendf(sb, "Creation points: %d\n\r", ch->pcdata->points);
+    sb_appendf(sb, "Experience per level: %d\n\r",
             exp_per_level(ch, ch->gen_data->points_chosen));
-    send_to_char(buf, ch);
+    
+    send_to_char(sb_string(sb), ch);
+    sb_free(sb);
     return;
 }
 
 void list_group_chosen(Mobile* ch)
 {
-    char buf[100];
     SKNUM gn, sn;
     int col;
+    StringBuffer* sb;
 
     if (IS_NPC(ch)) return;
 
+    sb = sb_new();
     col = 0;
 
-    sprintf(buf, "%-18s %-5s %-18s %-5s %-18s %-5s", "group", "cp", "group",
+    sb_appendf(sb, "%-18s %-5s %-18s %-5s %-18s %-5s", "group", "cp", "group",
             "cp", "group", "cp\n\r");
-    send_to_char(buf, ch);
 
     for (gn = 0; gn < skill_group_count; gn++) {
         if (skill_group_table[gn].name == NULL) break;
 
         if (ch->gen_data->group_chosen[gn]
             && SKILL_GROUP_RATING(gn, ch) > 0) {
-            sprintf(buf, "%-18s %-5d ", skill_group_table[gn].name,
+            sb_appendf(sb, "%-18s %-5d ", skill_group_table[gn].name,
                     SKILL_GROUP_RATING(gn, ch));
-            send_to_char(buf, ch);
-            if (++col % 3 == 0) send_to_char("\n\r", ch);
+            if (++col % 3 == 0) sb_append(sb, "\n\r");
         }
     }
-    if (col % 3 != 0) send_to_char("\n\r", ch);
-    send_to_char("\n\r", ch);
+    if (col % 3 != 0) sb_append(sb, "\n\r");
+    sb_append(sb, "\n\r");
 
     col = 0;
 
-    sprintf(buf, "%-18s %-5s %-18s %-5s %-18s %-5s", "skill", "cp", "skill",
+    sb_appendf(sb, "%-18s %-5s %-18s %-5s %-18s %-5s", "skill", "cp", "skill",
             "cp", "skill", "cp\n\r");
-    send_to_char(buf, ch);
 
     for (sn = 0; sn < skill_count; sn++) {
         if (skill_table[sn].name == NULL) break;
 
         if (ch->gen_data->skill_chosen[sn]
             && SKILL_RATING(sn, ch) > 0) {
-            sprintf(buf, "%-18s %-5d ", skill_table[sn].name,
+            sb_appendf(sb, "%-18s %-5d ", skill_table[sn].name,
                 SKILL_RATING(sn, ch));
-            send_to_char(buf, ch);
-            if (++col % 3 == 0) send_to_char("\n\r", ch);
+            if (++col % 3 == 0) sb_append(sb, "\n\r");
         }
     }
-    if (col % 3 != 0) send_to_char("\n\r", ch);
-    send_to_char("\n\r", ch);
+    if (col % 3 != 0) sb_append(sb, "\n\r");
+    sb_append(sb, "\n\r");
 
-    sprintf(buf, "Creation points: %d\n\r", ch->gen_data->points_chosen);
-    send_to_char(buf, ch);
-    sprintf(buf, "Experience per level: %d\n\r",
+    sb_appendf(sb, "Creation points: %d\n\r", ch->gen_data->points_chosen);
+    sb_appendf(sb, "Experience per level: %d\n\r",
             exp_per_level(ch, ch->gen_data->points_chosen));
-    send_to_char(buf, ch);
+    
+    send_to_char(sb_string(sb), ch);
+    sb_free(sb);
     return;
 }
 

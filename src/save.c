@@ -116,15 +116,23 @@ static void build_player_path(char* out, size_t out_len, const char* dir,
     const char* capitalized_name, PlayerPersistFormat fmt, bool is_temp)
 {
     const char* ext = player_persist_format_extension(fmt);
-    snprintf(out, out_len, "%s%s%s%s", dir, capitalized_name, ext ? ext : "",
-        is_temp ? ".temp" : "");
+    int written = snprintf(out, out_len, "%s%s%s%s", dir, capitalized_name, 
+        ext ? ext : "", is_temp ? ".temp" : "");
+    if (written < 0 || (size_t)written >= out_len) {
+        bugf("build_player_path: buffer overflow avoided for %s", capitalized_name);
+        out[0] = '\0';
+    }
 }
 
 static void maybe_decompress(const char* path)
 {
 #ifndef _MSC_VER
     char gz_path[MIL];
-    snprintf(gz_path, sizeof gz_path, "%s.gz", path);
+    int written = snprintf(gz_path, sizeof gz_path, "%s.gz", path);
+    if (written < 0 || (size_t)written >= sizeof gz_path) {
+        bugf("maybe_decompress: path too long: %s", path);
+        return;
+    }
     if (!file_exists(gz_path))
         return;
 

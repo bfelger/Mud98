@@ -135,7 +135,7 @@ void act_pos_new(const char* format, Obj* target, Obj* arg1, Obj* arg2,
 void printf_to_char(Mobile*, const char*, ...);
 void bugf(char*, ...);
 void printf_log(char*, ...);
-size_t colour(char type, Mobile* ch, char* string);
+size_t colour(char type, Mobile* ch, char* string, size_t string_size);
 int colourconv(char* buffer, const char* txt, Mobile* ch);
 void send_to_char_bw(const char* txt, Mobile* ch);
 void page_to_char_bw(const char* txt, Mobile* ch);

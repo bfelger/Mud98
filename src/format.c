@@ -45,7 +45,7 @@ static inline bool is_sentence_punct(char c)
     return c == '.' || c == '?' || c == '!';
 }
 
-static size_t normalize_text(const char* input, char* output, size_t capacity)
+static size_t normalize_text(const char* restrict input, char* restrict output, size_t capacity)
 {
 #ifdef BENCHMARK_FMT_PROCS
     start_timer(&norm_timer);
@@ -236,7 +236,7 @@ static size_t normalize_text(const char* input, char* output, size_t capacity)
     return out_len;
 }
 
-static size_t append_range(char* dest, size_t dest_len, size_t capacity, const char* src, size_t count)
+static size_t append_range(char* restrict dest, size_t dest_len, size_t capacity, const char* restrict src, size_t count)
 {
     if (count == 0 || dest_len >= capacity - 1)
         return dest_len;
@@ -250,12 +250,12 @@ static size_t append_range(char* dest, size_t dest_len, size_t capacity, const c
     return dest_len;
 }
 
-static inline size_t append_literal(char* dest, size_t dest_len, size_t capacity, const char* literal)
+static inline size_t append_literal(char* restrict dest, size_t dest_len, size_t capacity, const char* restrict literal)
 {
     return append_range(dest, dest_len, capacity, literal, strlen(literal));
 }
 
-static size_t wrap_paragraph(char* text, char* out, size_t capacity, size_t out_len, bool keep_leading_spaces)
+static size_t wrap_paragraph(char* restrict text, char* restrict out, size_t capacity, size_t out_len, bool keep_leading_spaces)
 {
     if (!keep_leading_spaces)
         while (*text == ' ')
@@ -340,7 +340,7 @@ static size_t wrap_paragraph(char* text, char* out, size_t capacity, size_t out_
     return out_len;
 }
 
-static size_t wrap_text(char* text, char* out, size_t capacity)
+static size_t wrap_text(char* restrict text, char* restrict out, size_t capacity)
 {
 #ifdef BENCHMARK_FMT_PROCS
     start_timer(&wrap_timer);

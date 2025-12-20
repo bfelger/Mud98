@@ -41,12 +41,22 @@ if (ENABLE_JSON_PERSISTENCE)
     FetchContent_MakeAvailable(jansson)
     
     # Workaround: Jansson doesn't properly expose its include directories
-    # Use BUILD_INTERFACE so it only applies during build, not install
+    # Expose both source and binary directories for jansson.h and jansson_config.h
     FetchContent_GetProperties(jansson)
     if(jansson_POPULATED)
         target_include_directories(jansson INTERFACE 
             $<BUILD_INTERFACE:${jansson_SOURCE_DIR}/src>
+            $<BUILD_INTERFACE:${jansson_BINARY_DIR}/include>
         )
+        # Suppress MSVC warnings for Jansson
+        if(MSVC)
+            target_compile_definitions(jansson PRIVATE _CRT_SECURE_NO_WARNINGS)
+            target_compile_options(jansson PRIVATE 
+                /wd4996  # Deprecated function warnings
+                /wd4244  # Conversion warnings
+                /wd4267  # Size_t conversion warnings
+            )
+        endif()
     endif()
 endif()
 
@@ -76,6 +86,51 @@ if (NOT ZLIB_FOUND)
 endif()
 
 # ============================================================================
+# Common Compiler Settings (Interface Library)
+# ============================================================================
+# Create an interface library to hold common compile options/definitions
+add_library(Mud98CompilerSettings INTERFACE)
+
+# Compiler-specific options
+target_compile_options(Mud98CompilerSettings INTERFACE
+    # MSVC options
+    $<$<C_COMPILER_ID:MSVC>:
+        /Wall /WX /std:c17
+        /wd4061  # enumerator not explicitly handled
+        /wd4068  # unknown pragma
+        /wd4100  # unreferenced parameter
+        /wd4152  # function/data pointer conversion
+        /wd4255  # no function prototype
+        /wd4706  # assignment in conditional
+        /wd4710  # function not inlined
+        /wd4820  # padding after data member
+        /wd5045  # Spectre mitigation
+        /wd4668  # Until MS fixes their own macros
+        /wd4996  # Stupid deprecation warnings
+        /wd4191  # Fix your SDK, Microsoft
+        /wd4711  # function selected for automatic inline expansion
+    >
+    # GCC/Clang options
+    $<$<NOT:$<C_COMPILER_ID:MSVC>>:
+        -Wall -Werror -Wextra -pedantic
+        -Wno-unused-parameter -Wno-unknown-pragmas
+    >
+    # GCC-specific
+    $<$<C_COMPILER_ID:GNU>:-std=gnu2x>
+    # Clang-specific
+    $<$<C_COMPILER_ID:Clang>:-std=c2x>
+)
+
+# Compile definitions
+target_compile_definitions(Mud98CompilerSettings INTERFACE
+    $<$<C_COMPILER_ID:MSVC>:_CRT_SECURE_NO_WARNINGS>
+    $<$<NOT:$<C_COMPILER_ID:MSVC>>:_GNU_SOURCE>
+    $<$<NOT:$<BOOL:${OPENSSL_FOUND}>>:NO_OPENSSL>
+    $<$<AND:$<NOT:$<BOOL:${OPENSSL_FOUND}>>,$<BOOL:${CYGWIN}>>:NO_ENCRYPTION>
+    $<$<NOT:$<BOOL:${ZLIB_FOUND}>>:NO_ZLIB>
+)
+
+# ============================================================================
 # Mud98Core Library
 # ============================================================================
 # Add persist subdirectory first so its object libraries are available
@@ -94,8 +149,9 @@ add_library(Mud98Core STATIC "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
     "mob_prog.h" "mob_prog.c" "music.c" "note.h" "note.c" "pcg_basic.c" 
     "recycle.c" "reload.h" "reload.c" "rng.h" "rng.c" "save.h" "save.c" "scan.c"
     "skill_ops.h" "skill_ops.c" "skills.h" "skills.c" "socket.h" "special.h" 
-    "special.c" "spell_list.h" "stringbuffer.h" "stringbuffer.c" "tables.c" 
-    "tablesave.c" "update.h" "update.c" "weather.h" "weather.c"
+    "special.c" "spell_list.h" "stringbuffer.h" "stringbuffer.c" "stringutils.h" 
+    "stringutils.c" "tables.c" "tablesave.c" "update.h" "update.c" "weather.h" 
+    "weather.c"
 
     "olc/aedit.c" "olc/bit.h" "olc/bit.c" "olc/cedit.c" "olc/cmdedit.c" 
     "olc/event_edit.h" "olc/event_edit.c" "olc/gedit.c" "olc/hedit.c" 
@@ -192,55 +248,18 @@ target_link_libraries(Mud98Core
         $<$<BOOL:${ENABLE_JSON_PERSISTENCE}>:Mud98PersistJson>
         $<$<BOOL:${ENABLE_JSON_PERSISTENCE}>:jansson>
     PRIVATE
+        Mud98CompilerSettings
         $<$<BOOL:${OPENSSL_FOUND}>:$<IF:$<BOOL:${MSVC}>,OpenSSL::Crypto;OpenSSL::SSL;OpenSSL::applink,OpenSSL::SSL>>
         $<$<BOOL:${ZLIB_FOUND}>:ZLIB::ZLIB>
         $<$<NOT:$<BOOL:${MSVC}>>:Threads::Threads>
         $<$<NOT:$<BOOL:${MSVC}>>:m>
 )
 
-# Compiler-specific options
-target_compile_options(Mud98Core PRIVATE
-    # MSVC options
-    $<$<C_COMPILER_ID:MSVC>:
-        /Wall /WX /std:c17
-        /wd4061  # enumerator not explicitly handled
-        /wd4068  # unknown pragma
-        /wd4100  # unreferenced parameter
-        /wd4152  # function/data pointer conversion
-        /wd4255  # no function prototype
-        /wd4706  # assignment in conditional
-        /wd4710  # function not inlined
-        /wd4820  # padding after data member
-        /wd5045  # Spectre mitigation
-        /wd4668  # Until MS fixes their own macros
-        /wd4996  # Stupid deprecation warnings
-        /wd4191  # Fix your SDK, Microsoft
-    >
-    # GCC/Clang options
-    $<$<NOT:$<C_COMPILER_ID:MSVC>>:
-        -Wall -Werror -Wextra -pedantic
-        -Wno-unused-parameter -Wno-unknown-pragmas
-    >
-    # GCC-specific
-    $<$<C_COMPILER_ID:GNU>:-std=gnu2x>
-    # Clang-specific
-    $<$<C_COMPILER_ID:Clang>:-std=c2x>
-)
-
-# Compile definitions
-target_compile_definitions(Mud98Core PRIVATE
-    $<$<C_COMPILER_ID:MSVC>:_CRT_SECURE_NO_WARNINGS>
-    $<$<NOT:$<C_COMPILER_ID:MSVC>>:_GNU_SOURCE>
-    $<$<NOT:$<BOOL:${OPENSSL_FOUND}>>:NO_OPENSSL>
-    $<$<AND:$<NOT:$<BOOL:${OPENSSL_FOUND}>>,$<BOOL:${CYGWIN}>>:NO_ENCRYPTION>
-    $<$<NOT:$<BOOL:${ZLIB_FOUND}>>:NO_ZLIB>
-)
-
 # ============================================================================
 # Mud98 Main Executable
 # ============================================================================
 add_executable(Mud98 "main.c" "test_stubs.c")
-target_link_libraries(Mud98 PRIVATE Mud98Core)
+target_link_libraries(Mud98 PRIVATE Mud98Core Mud98CompilerSettings)
 
 # ============================================================================
 # Mud98Tests Executable
@@ -265,60 +284,7 @@ add_executable(Mud98Tests
     "tests/multihit_tests.c" "tests/thief_tests.c" "tests/magic_tests.c"
 )
 
-# Compiler-specific options
-target_compile_options(Mud98Tests PRIVATE
-    # MSVC options
-    $<$<C_COMPILER_ID:MSVC>:
-        /Wall /WX /std:c17
-        /wd4061  # enumerator not explicitly handled
-        /wd4068  # unknown pragma
-        /wd4100  # unreferenced parameter
-        /wd4152  # function/data pointer conversion
-        /wd4255  # no function prototype
-        /wd4706  # assignment in conditional
-        /wd4710  # function not inlined
-        /wd4820  # padding after data member
-        /wd5045  # Spectre mitigation
-        /wd4668  # Until MS fixes their own macros
-        /wd4996  # Stupid deprecation warnings
-        /wd4191  # Fix your SDK, Microsoft
-    >
-    # GCC/Clang options
-    $<$<NOT:$<C_COMPILER_ID:MSVC>>:
-        -Wall -Werror -Wextra -pedantic
-        -Wno-unused-parameter -Wno-unknown-pragmas
-    >
-    # GCC-specific
-    $<$<C_COMPILER_ID:GNU>:-std=gnu2x>
-    # Clang-specific
-    $<$<C_COMPILER_ID:Clang>:-std=c2x>
-)
-
-# Compile definitions
-target_compile_definitions(Mud98Tests PRIVATE
-    $<$<C_COMPILER_ID:MSVC>:_CRT_SECURE_NO_WARNINGS>
-    $<$<NOT:$<C_COMPILER_ID:MSVC>>:_GNU_SOURCE>
-    $<$<NOT:$<BOOL:${OPENSSL_FOUND}>>:NO_OPENSSL>
-    $<$<AND:$<NOT:$<BOOL:${OPENSSL_FOUND}>>,$<BOOL:${CYGWIN}>>:NO_ENCRYPTION>
-    $<$<NOT:$<BOOL:${ZLIB_FOUND}>>:NO_ZLIB>
-)
-
-# Configure library includes (PUBLIC so consumers get them)
-target_include_directories(Mud98Core
-    PUBLIC
-        ${CMAKE_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/entities
-        ${CMAKE_CURRENT_SOURCE_DIR}/data
-        ${CMAKE_CURRENT_SOURCE_DIR}/lox
-        ${CMAKE_CURRENT_SOURCE_DIR}/olc
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/persist
-        $<$<BOOL:${OPENSSL_FOUND}>:${OPENSSL_INCLUDE_DIR}>
-        $<$<BOOL:${ZLIB_FOUND}>:${ZLIB_INCLUDE_DIRS}>
-)
-
-target_link_libraries(Mud98Tests PRIVATE Mud98Core)
+target_link_libraries(Mud98Tests PRIVATE Mud98Core Mud98CompilerSettings)
 
 # Register with CTest
 add_test(NAME AllUnitTests COMMAND $<TARGET_FILE:Mud98Tests>)
@@ -335,7 +301,8 @@ add_executable(Mud98Benchmarks
     "benchmarks/benchmarks.h" "benchmarks/benchmarks.c" 
     "benchmarks/container_benchmarks.c" "benchmarks/format_benchmarks.c"
 )
-target_link_libraries(Mud98Benchmarks PRIVATE Mud98Core)
+
+target_link_libraries(Mud98Benchmarks PRIVATE Mud98Core Mud98CompilerSettings)
 
 message("Config summary:")
 message("")

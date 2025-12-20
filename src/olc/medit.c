@@ -19,6 +19,7 @@
 #include <mob_cmds.h>
 #include <recycle.h>
 #include <save.h>
+#include <stringbuffer.h>
 #include <tables.h>
 
 #include <data/mobile_data.h>
@@ -465,8 +466,6 @@ MEDIT(medit_group)
     MobPrototype* pMob;
     MobPrototype* pMTemp;
     char arg[MAX_STRING_LENGTH];
-    char buf[MAX_STRING_LENGTH];
-    Buffer* buffer;
     bool found = false;
 
     EDIT_MOB(ch, pMob);
@@ -487,13 +486,15 @@ MEDIT(medit_group)
     READ_ARG(arg);
 
     if (!strcmp(arg, "list")) {
-        send_to_char(COLOR_TITLE   " Group VNUM  Group Name" COLOR_EOL, ch);
-        send_to_char(COLOR_DECOR_2 " ========== ============" COLOR_EOL, ch);
+        StringBuffer* sb = sb_new();
+        sb_append(sb, COLOR_TITLE   " Group VNUM  Group Name" COLOR_EOL);
+        sb_append(sb, COLOR_DECOR_2 " ========== ============" COLOR_EOL);
         for (int i = 0; i < mob_group_count; i++) {
-            sprintf(buf, COLOR_DECOR_1 "  [ " COLOR_ALT_TEXT_1 "%6d" COLOR_DECOR_1 " ] " COLOR_ALT_TEXT_2 "%s" COLOR_EOL, mob_groups[i].vnum, mob_groups[i].name);
-            send_to_char(buf, ch);
+            sb_appendf(sb, COLOR_DECOR_1 "  [ " COLOR_ALT_TEXT_1 "%6d" COLOR_DECOR_1 " ] " COLOR_ALT_TEXT_2 "%s" COLOR_EOL, 
+                mob_groups[i].vnum, mob_groups[i].name);
         }
-
+        send_to_char(sb_string(sb), ch);
+        sb_free(sb);
         return false;
     }
 
@@ -503,39 +504,37 @@ MEDIT(medit_group)
             return false;
         }
 
-        buffer = new_buf();
-
         VNUM vnum = atoi(argument);
 
         int i;
         for (i = 0; i < mob_group_count; i++) {
             if (mob_groups[i].vnum == vnum) {
-                sprintf(buf, COLOR_TITLE "Mob Group %d (%s)" COLOR_EOL, mob_groups[i].vnum, mob_groups[i].name);
-                add_buf(buffer, buf);
                 break;
             }
         }
 
         if (i == mob_group_count) {
             send_to_char(COLOR_INFO "That mob group does not exist. Use GROUP LIST to see all groups." COLOR_EOL, ch);
-            free_buf(buffer);
             return false;
         }
+
+        StringBuffer* sb = sb_new();
+        sb_appendf(sb, COLOR_TITLE "Mob Group %d (%s)" COLOR_EOL, mob_groups[i].vnum, mob_groups[i].name);
 
         FOR_EACH_MOB_PROTO(pMTemp) {
             if (pMTemp->group == vnum) {
                 found = true;
-                sprintf(buf, COLOR_DECOR_1 "  [ " COLOR_ALT_TEXT_1 "%6d" COLOR_DECOR_1 " ] " COLOR_ALT_TEXT_2 "%s" COLOR_EOL, VNUM_FIELD(pMTemp), NAME_STR(pMTemp));
-                add_buf(buffer, buf);
+                sb_appendf(sb, COLOR_DECOR_1 "  [ " COLOR_ALT_TEXT_1 "%6d" COLOR_DECOR_1 " ] " COLOR_ALT_TEXT_2 "%s" COLOR_EOL, 
+                    VNUM_FIELD(pMTemp), NAME_STR(pMTemp));
             }
         }
 
         if (found)
-            page_to_char(BUF(buffer), ch);
+            page_to_char(sb_string(sb), ch);
         else
             send_to_char(COLOR_INFO "There are no mobs in that group." COLOR_EOL, ch);
 
-        free_buf(buffer);
+        sb_free(sb);
         return false;
     }
 

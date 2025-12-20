@@ -219,7 +219,7 @@ void interpret(Mobile* ch, char* argument)
      * Special parsing so ' can be a command,
      *   also no spaces needed after punctuation.
      */
-    strcpy(logline, argument);
+    snprintf(logline, sizeof(logline), "%s", argument);
     if (!ISALPHA(argument[0]) && !ISDIGIT(argument[0])) {
         command[0] = argument[0];
         command[1] = '\0';
@@ -245,7 +245,7 @@ void interpret(Mobile* ch, char* argument)
 
     // Log and snoop.
     if (cmd_table[cmd].log == LOG_NEVER) 
-        strcpy(logline, "");
+        logline[0] = '\0';
 
     if ((!IS_NPC(ch) && IS_SET(ch->act_flags, PLR_LOG)) || fLogAll
         || cmd_table[cmd].log == LOG_ALWAYS) {

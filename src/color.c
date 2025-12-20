@@ -11,6 +11,7 @@
 #include "digest.h"
 #include "handler.h"
 #include "save.h"
+#include "stringbuffer.h"
 #include "vt.h"
 
 #include <olc/olc.h>
@@ -183,11 +184,15 @@ static void list_theme_entry(Mobile* ch, ColorTheme* theme, const char* owner, b
     strcat(name, theme->name);
     if (owner != NULL) {
         size_t pad = strlen(owner) + strlen(name) + 2;
-        char owner_buf[150] = { 0 };
-        snprintf(owner_buf, 150, "%s@%s%s", COLOR2STR(theme, SLOT_ALT_TEXT_1, xterm), owner, fg_code);
-        sprintf(buf, "%s%s    %s %s", bg_code, fg_code, owner_buf, name);
+        StringBuffer* owner_sb = sb_new();
+        sb_appendf(owner_sb, "%s@%s%s", COLOR2STR(theme, SLOT_ALT_TEXT_1, xterm), owner, fg_code);
+        StringBuffer* line_sb = sb_new();
+        sb_appendf(line_sb, "%s%s    %s %s", bg_code, fg_code, sb_string(owner_sb), name);
         for (size_t i = pad; i < 30; ++i)
-            strcat(buf, " ");
+            sb_append(line_sb, " ");
+        add_buf(out, (char*)sb_string(line_sb));
+        sb_free(owner_sb);
+        sb_free(line_sb);
     }
     else
         sprintf(buf, "%s%s    %-30s", bg_code, fg_code, name);
@@ -203,9 +208,12 @@ static void list_theme_entry(Mobile* ch, ColorTheme* theme, const char* owner, b
     // Third line, mode type and second row of color boxes
     if (show_public && theme->is_public) {
         size_t pad = strlen(mode) + 9;
-        sprintf(buf, "%s%s    %s%s", COLOR2STR(theme, SLOT_ALT_TEXT_1, xterm), bg_code, mode, public_buf);
+        StringBuffer* line_sb = sb_new();
+        sb_appendf(line_sb, "%s%s    %s%s", COLOR2STR(theme, SLOT_ALT_TEXT_1, xterm), bg_code, mode, public_buf);
         for (size_t i = pad; i < 30; ++i)
-            strcat(buf, " ");
+            sb_append(line_sb, " ");
+        add_buf(out, (char*)sb_string(line_sb));
+        sb_free(line_sb);
     }
     else
         sprintf(buf, "%s%s    %-30s", COLOR2STR(theme, SLOT_ALT_TEXT_1, xterm), bg_code, mode);
@@ -1173,7 +1181,7 @@ void theme_show_theme(Mobile* ch, ColorTheme* theme)
 
     bool xterm = ch->pcdata->theme_config.xterm;
 
-    char out[MAX_STRING_LENGTH];
+    StringBuffer* out = sb_new();
     char buf[MAX_STRING_LENGTH];
 
     char bg_code[50];
@@ -1198,40 +1206,33 @@ void theme_show_theme(Mobile* ch, ColorTheme* theme)
     sprintf(bg_code, "%s", BGCOLOR2STR(theme, xterm));
 
     // First line, blank BG color
-    sprintf(out, "\n\r%s" COLOR_ALT_TEXT_2 "                                   00  02  04  06  08  10  12  14      " COLOR_EOL, bg_code);
+    sb_appendf(out, "\n\r%s" COLOR_ALT_TEXT_2 "                                   00  02  04  06  08  10  12  14      " COLOR_EOL, bg_code);
 
     // Second line, name and first row of color boxes
-    sprintf(buf, "%s" COLOR_TEXT "    %-30s", bg_code, theme->name);
-    strcat(out, buf);
+    sb_appendf(out, "%s" COLOR_TEXT "    %-30s", bg_code, theme->name);
     for (int i = 0; i < PALETTE_SIZE; i += 2) {
         if (i <= theme->palette_max)
-            sprintf(buf, "%s    ", bg_color_to_str(theme, &theme->palette[i], xterm));
+            sb_appendf(out, "%s    ", bg_color_to_str(theme, &theme->palette[i], xterm));
         else
-            sprintf(buf, "%s    ", bg_code);
-        strcat(out, buf);
+            sb_appendf(out, "%s    ", bg_code);
     }
-    sprintf(buf, "%s    " COLOR_EOL, bg_code);
-    strcat(out, buf);
+    sb_appendf(out, "%s    " COLOR_EOL, bg_code);
 
     // Third line, mode type and second row of color boxes
-    sprintf(buf, "%s" COLOR_ALT_TEXT_1 "    %-20s          ", bg_code, mode);
-    strcat(out, buf);
+    sb_appendf(out, "%s" COLOR_ALT_TEXT_1 "    %-20s          ", bg_code, mode);
     for (int i = 1; i < PALETTE_SIZE; i += 2) {
         if (i <= theme->palette_max)
-            sprintf(buf, "%s    ", bg_color_to_str(theme, &theme->palette[i], xterm));
+            sb_appendf(out, "%s    ", bg_color_to_str(theme, &theme->palette[i], xterm));
         else
-            sprintf(buf, "%s    ", bg_code);
-        strcat(out, buf);
+            sb_appendf(out, "%s    ", bg_code);
     }
-    sprintf(buf, "%s    " COLOR_EOL, bg_code);
-    strcat(out, buf);
+    sb_appendf(out, "%s    " COLOR_EOL, bg_code);
 
     // Fourth line, blank BG color
-    sprintf(buf, "%s" COLOR_ALT_TEXT_2 "                                   01  03  05  07  09  11  13  15      " COLOR_CLEAR "\n\r\n\r", bg_code);
-    strcat(out, buf);
+    sb_appendf(out, "%s" COLOR_ALT_TEXT_2 "                                   01  03  05  07  09  11  13  15      " COLOR_CLEAR "\n\r\n\r", bg_code);
 
     int row = 0;
-    strcat(out, COLOR_TITLE "Palette Swatches:" COLOR_CLEAR " (edit with " COLOR_ALT_TEXT_1 "palette" COLOR_CLEAR " in THEME EDIT)\n\r");
+    sb_append(out, COLOR_TITLE "Palette Swatches:" COLOR_CLEAR " (edit with " COLOR_ALT_TEXT_1 "palette" COLOR_CLEAR " in THEME EDIT)\n\r");
     for (int i = 0; i < theme->palette_max; ++i) {
         Color* color = &theme->palette[i];
         switch (color->mode) {
@@ -1262,16 +1263,18 @@ void theme_show_theme(Mobile* ch, ColorTheme* theme)
 
         if (++row == 3) {
             row = 0;
-            strcat(buf, "\n\r");
+            sb_append(out, buf);
+            sb_append(out, "\n\r");
         }
-        else
-            strcat(buf, "    ");
-        strcat(out, buf);
+        else {
+            sb_append(out, buf);
+            sb_append(out, "    ");
+        }
     }
-    strcat(out, "\n\r\n\r");
+    sb_append(out, "\n\r\n\r");
 
     row = 0;
-    strcat(out, COLOR_TITLE "Channel Assignments:" COLOR_CLEAR " (edit with " COLOR_ALT_TEXT_1 "channel" COLOR_CLEAR " in THEME EDIT)\n\r");
+    sb_append(out, COLOR_TITLE "Channel Assignments:" COLOR_CLEAR " (edit with " COLOR_ALT_TEXT_1 "channel" COLOR_CLEAR " in THEME EDIT)\n\r");
     for (int i = 0; i < COLOR_SLOT_COUNT; ++i) {
         Color* color = &theme->channels[i];
         switch (color->mode) {
@@ -1308,15 +1311,18 @@ void theme_show_theme(Mobile* ch, ColorTheme* theme)
 
         if (++row == 2) {
             row = 0;
-            strcat(buf, "\n\r");
+            sb_append(out, buf);
+            sb_append(out, "\n\r");
         }
-        else
-            strcat(buf, "    ");
-        strcat(out, buf);
+        else {
+            sb_append(out, buf);
+            sb_append(out, "    ");
+        }
     }
-    strcat(out, "\n\r");
+    sb_append(out, "\n\r");
 
-    send_to_char(out, ch);
+    send_to_char(sb_string(out), ch);
+    sb_free(out);
 }
 
 static void do_theme_show(Mobile* ch, char* argument)

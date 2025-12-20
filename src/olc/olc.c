@@ -754,7 +754,7 @@ const char* olc_inline_text(const char* str, int width)
     if (width > len)
         width = len;
 
-    strncpy(buf, str, width);
+    memcpy(buf, str, width);
     buf[width] = '\0';
 
     for (int i = 0; i < width; ++i) {

@@ -1316,7 +1316,7 @@ void descriptor_printf(Descriptor* d, char* fmt, ...)
 
 	va_start(args, fmt);
 
-	size = vsprintf(buf, fmt, args);
+	size = vsnprintf(buf, sizeof(buf), fmt, args);
 
 	va_end(args);
 

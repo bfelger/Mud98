@@ -1031,7 +1031,6 @@ void bust_a_prompt(Mobile* ch)
     const char* i;
     char* point;
     char* pbuff;
-    char doors[MAX_INPUT_LENGTH] = "";
     RoomExitData* room_exit_data;
     bool found;
     int door;
@@ -1062,21 +1061,24 @@ void bust_a_prompt(Mobile* ch)
             break;
         case 'e':
             found = false;
-            doors[0] = '\0';
-            for (door = 0; door < DIR_MAX; door++) {
-                if ((room_exit_data = ch->in_room->data->exit_data[door]) != NULL
-                    && room_exit_data->to_room != NULL
-                    && (can_see_room(ch, room_exit_data->to_room)
-                        || (IS_AFFECTED(ch, AFF_INFRARED)
-                            && !IS_AFFECTED(ch, AFF_BLIND)))
-                    && !IS_SET(ch->in_room->exit[door]->exit_flags, EX_CLOSED)) {
-                    found = true;
-                    strcat(doors, dir_list[door].name_abbr);
+            {
+                StringBuffer* sb_doors = sb_new();
+                for (door = 0; door < DIR_MAX; door++) {
+                    if ((room_exit_data = ch->in_room->data->exit_data[door]) != NULL
+                        && room_exit_data->to_room != NULL
+                        && (can_see_room(ch, room_exit_data->to_room)
+                            || (IS_AFFECTED(ch, AFF_INFRARED)
+                                && !IS_AFFECTED(ch, AFF_BLIND)))
+                        && !IS_SET(ch->in_room->exit[door]->exit_flags, EX_CLOSED)) {
+                        found = true;
+                        sb_append(sb_doors, dir_list[door].name_abbr);
+                    }
                 }
+                if (!found) 
+                    sb_append(sb_doors, "none");
+                sprintf(BUF(temp2), "%s", sb_string(sb_doors));
+                sb_free(sb_doors);
             }
-            if (!found) 
-                strcat(doors, "none");
-            sprintf(BUF(temp2), "%s", doors);
             i = BUF(temp2);
             break;
         case 'c':
@@ -1247,17 +1249,18 @@ void write_to_buffer(Descriptor* d, const char* txt, size_t length)
 
 static void nanny_weapon_prompt(Descriptor* d, Mobile* ch)
 {
-    char buf[MAX_STRING_LENGTH] = "";
+    StringBuffer* sb = sb_new();
     write_to_buffer(d, "\n\r", 2);
     write_to_buffer(d, "Please pick a weapon from the following choices:\n\r", 0);
     // Skip exotic. No one is trained in it.
     for (int i = 1; i < WEAPON_TYPE_COUNT; i++)
         if (ch->pcdata->learned[*weapon_table[i].gsn] > 0) {
-            strcat(buf, weapon_table[i].name);
-            strcat(buf, " ");
+            sb_append(sb, weapon_table[i].name);
+            sb_append(sb, " ");
         }
-    strcat(buf, "\n\rYour choice? ");
-    write_to_buffer(d, buf, 0);
+    sb_append(sb, "\n\rYour choice? ");
+    write_to_buffer(d, sb_string(sb), 0);
+    sb_free(sb);
 }
 
 // Deal with sockets that haven't logged in yet.
@@ -1576,14 +1579,16 @@ void nanny(Descriptor * d, char* argument)
             return;
         }
 
-        strcpy(buf, "Select a class [");
+        StringBuffer* sb = sb_new();
+        sb_append(sb, "Select a class [");
         for (iClass = 0; iClass < class_count; iClass++) {
             if (iClass > 0) 
-                strcat(buf, " ");
-            strcat(buf, class_table[iClass].name);
+                sb_append(sb, " ");
+            sb_append(sb, class_table[iClass].name);
         }
-        strcat(buf, "]: ");
-        write_to_buffer(d, buf, 0);
+        sb_append(sb, "]: ");
+        write_to_buffer(d, sb_string(sb), 0);
+        sb_free(sb);
         d->connected = CON_GET_NEW_CLASS;
         break;
 
@@ -1684,14 +1689,15 @@ void nanny(Descriptor * d, char* argument)
             || ch->pcdata->learned[*weapon_table[weapon].gsn] <= 0) {
             write_to_buffer(d, "That's not a valid selection. Choices are:\n\r",
                 0);
-            buf[0] = '\0';
+            StringBuffer* sb_weapon = sb_new();
             for (i = 1; i < WEAPON_TYPE_COUNT; i++)
                 if (ch->pcdata->learned[*weapon_table[i].gsn] > 0) {
-                    strcat(buf, weapon_table[i].name);
-                    strcat(buf, " ");
+                    sb_append(sb_weapon, weapon_table[i].name);
+                    sb_append(sb_weapon, " ");
                 }
-            strcat(buf, "\n\rYour choice? ");
-            write_to_buffer(d, buf, 0);
+            sb_append(sb_weapon, "\n\rYour choice? ");
+            write_to_buffer(d, sb_string(sb_weapon), 0);
+            sb_free(sb_weapon);
             return;
         }
 
@@ -2133,7 +2139,8 @@ void send_to_desc(const char* txt, Descriptor* desc)
         for (point = txt; *point; point++) {
             if (*point == COLOR_ESC_CHAR) {
                 point++;
-                skip = colour(*point, NULL, point2);
+                size_t remaining = (size_t)(temp + sizeof(temp) - point2);
+                skip = colour(*point, NULL, point2, remaining);
                 while (skip-- > 0) 
                     ++point2;
                 continue;
@@ -2175,29 +2182,51 @@ void send_to_char(const char* txt, Mobile * ch)
     point2 = BUF(temp);
     if (txt && ch->desc) {
         if (IS_SET(ch->act_flags, PLR_COLOUR)) {
-            for (point = txt; *point; point++) {
+            for (point = txt; *point; ) {
+                const char* chunk_start = point;
+                while (*point != '\0' && *point != COLOR_ESC_CHAR) {
+                    point++;
+                }
+                
+                if (point > chunk_start) {
+                    size_t chunk_len = (size_t)(point - chunk_start);
+                    memcpy(point2, chunk_start, chunk_len);
+                    point2 += chunk_len;
+                }
+                
                 if (*point == COLOR_ESC_CHAR) {
                     point++;
-                    skip = colour(*point, ch, point2);
-                    point2 += skip;
-                    continue;
+                    if (*point != '\0') {
+                        size_t remaining = (size_t)(BUF(temp) + (MAX_STRING_LENGTH * 4) - point2);
+                        skip = colour(*point, ch, point2, remaining);
+                        point2 += skip;
+                        point++;
+                    }
                 }
-
-                *point2 = *point;
-                *++point2 = '\0';
             }
             *point2 = '\0';
         }
         else {
-            for (point = txt; *point; point++) {
+            for (point = txt; *point; ) {
+                const char* chunk_start = point;
+                while (*point != '\0' && *point != COLOR_ESC_CHAR) {
+                    point++;
+                }
+                
+                if (point > chunk_start) {
+                    size_t chunk_len = (size_t)(point - chunk_start);
+                    memcpy(point2, chunk_start, chunk_len);
+                    point2 += chunk_len;
+                }
+                
                 if (*point == COLOR_ESC_CHAR) {
                     point++;
-                    continue;
+                    if (*point != '\0') {
+                        point++;
+                    }
                 }
-                *point2 = *point;
-                *++point2 = '\0';
             }
-            *point2 = '\0';;
+            *point2 = '\0';
         }
         write_to_buffer(ch->desc, BUF(temp), point2 - BUF(temp));
     }
@@ -2234,28 +2263,44 @@ void page_to_char(const char* txt, Mobile * ch)
     const char* point;
     
     if (IS_SET(ch->act_flags, PLR_COLOUR)) {
-        // Process color codes
-        for (point = txt; *point; point++) {
+        for (point = txt; *point; ) {
+            const char* chunk_start = point;
+            while (*point != '\0' && *point != COLOR_ESC_CHAR) {
+                point++;
+            }
+            
+            if (point > chunk_start) {
+                sb_append_n(sb, chunk_start, (size_t)(point - chunk_start));
+            }
+            
             if (*point == COLOR_ESC_CHAR) {
                 point++;
-                // colour() expands color code into temp buffer
-                char color_buf[256];  // Plenty of space for expanded color codes
-                size_t len = colour(*point, ch, color_buf);
-                sb_append_n(sb, color_buf, len);
-            }
-            else {
-                sb_append_char(sb, *point);
+                if (*point != '\0') {
+                    char color_buf[256];
+                    size_t len = colour(*point, ch, color_buf, sizeof(color_buf));
+                    sb_append_n(sb, color_buf, len);
+                    point++;
+                }
             }
         }
     }
     else {
-        // Strip color codes
-        for (point = txt; *point; point++) {
-            if (*point == COLOR_ESC_CHAR) {
-                point++;  // Skip color code character
-                continue;
+        for (point = txt; *point; ) {
+            const char* chunk_start = point;
+            while (*point != '\0' && *point != COLOR_ESC_CHAR) {
+                point++;
             }
-            sb_append_char(sb, *point);
+            
+            if (point > chunk_start) {
+                sb_append_n(sb, chunk_start, (size_t)(point - chunk_start));
+            }
+            
+            if (*point == COLOR_ESC_CHAR) {
+                point++;
+                if (*point != '\0') {
+                    point++;
+                }
+            }
         }
     }
     
@@ -2370,10 +2415,6 @@ void act_pos_new(const char* format, Obj* target, Obj* arg1, Obj* arg2,
 
     const char* str;
     const char* i = NULL;
-    char* point;
-    char* pbuff;
-    char buffer[MAX_STRING_LENGTH * 2] = "";
-    char buf[MAX_STRING_LENGTH] = "";
     char fname[MAX_INPUT_LENGTH] = "";
 
     // Discard null and zero-length messages.
@@ -2417,14 +2458,28 @@ void act_pos_new(const char* format, Obj* target, Obj* arg1, Obj* arg2,
         // Display "you" forms to victim.
         int vch_sex = (vch != NULL && to != vch) ? vch->sex : SEX_YOU;
 
-        point = buf;
+        // Use StringBuffer for safe, efficient message building
+        StringBuffer* sb = sb_new();
         str = format;
+        
         while (*str != '\0') {
-            if (*str != '$') {
-                *point++ = *str++;
-                continue;
+            // Fast path: find next $ or end of string and append chunk at once
+            const char* chunk_start = str;
+            while (*str != '\0' && *str != '$') {
+                str++;
             }
-
+            
+            // Append literal text chunk (vectorizable memcpy inside sb_append_n)
+            if (str > chunk_start) {
+                sb_append_n(sb, chunk_start, (size_t)(str - chunk_start));
+            }
+            
+            // If we hit end of string, we're done
+            if (*str == '\0') {
+                break;
+            }
+            
+            // Handle $ code
             ++str;
             i = " <@@@> ";
             if (!arg2 && *str >= 'A' && *str <= 'Z') {
@@ -2490,35 +2545,64 @@ void act_pos_new(const char* format, Obj* target, Obj* arg1, Obj* arg2,
             }
 
             ++str;
-            while ((*point = *i) != '\0') {
-                ++point;
-                ++i;
+            sb_append(sb, i);
+        }
+
+        // Add newline and capitalize first character
+        sb_append(sb, "\n\r");
+        
+        // Get final string and capitalize first char
+        char* message = (char*)sb_string(sb);  // Cast away const for legacy API
+        size_t msg_len = sb_length(sb);
+        
+        if (msg_len > 0 && message[0] >= 'a' && message[0] <= 'z') {
+            // Create capitalized version - need mutable copy
+            char* cap_msg = alloc_mem(msg_len + 1);
+            memcpy(cap_msg, message, msg_len + 1);
+            cap_msg[0] = UPPER(cap_msg[0]);
+            
+            if (test_act_output_enabled) {
+                lox_printf("%s", cap_msg);
+            }
+            else if (to->desc != NULL) {
+                char* colorbuf = alloc_mem(msg_len * 2 + 1);  // Color codes can expand
+                colourconv(colorbuf, cap_msg, to);
+                write_to_buffer(to->desc, colorbuf, 0);
+                free_mem(colorbuf, msg_len * 2 + 1);
+            }
+            else if (events_enabled) {
+                if (HAS_EVENT_TRIGGER(to, TRIG_ACT))
+                    raise_act_event((Entity*)to, TRIG_ACT, (Entity*)ch, cap_msg);
+                if (HAS_MPROG_TRIGGER(to, TRIG_ACT)) 
+                    mp_act_trigger(cap_msg, to, ch, arg1, arg2, TRIG_ACT);
+            }
+            
+            free_mem(cap_msg, msg_len + 1);
+        }
+        else {
+            // No capitalization needed or empty message
+            if (test_act_output_enabled) {
+                lox_printf("%s", message);
+            }
+            else if (to->desc != NULL) {
+                char* colorbuf = alloc_mem(msg_len * 2 + 1);
+                colourconv(colorbuf, message, to);
+                write_to_buffer(to->desc, colorbuf, 0);
+                free_mem(colorbuf, msg_len * 2 + 1);
+            }
+            else if (events_enabled) {
+                if (HAS_EVENT_TRIGGER(to, TRIG_ACT))
+                    raise_act_event((Entity*)to, TRIG_ACT, (Entity*)ch, message);
+                if (HAS_MPROG_TRIGGER(to, TRIG_ACT)) 
+                    mp_act_trigger(message, to, ch, arg1, arg2, TRIG_ACT);
             }
         }
-
-        *point++ = '\n';
-        *point++ = '\r';
-        *point = '\0';
-        buf[0] = UPPER(buf[0]);
-
-        if (test_act_output_enabled) {
-            lox_printf("%s", buf);
-        }
-        else if (to->desc != NULL) {
-            pbuff = buffer;
-            colourconv(pbuff, buf, to);
-            write_to_buffer(to->desc, pbuff, 0);
-        }
-        else if (events_enabled) {
-            if (HAS_EVENT_TRIGGER(to, TRIG_ACT))
-                raise_act_event((Entity*)to, TRIG_ACT, (Entity*)ch, buf);
-            if (HAS_MPROG_TRIGGER(to, TRIG_ACT)) 
-                mp_act_trigger(buf, to, ch, arg1, arg2, TRIG_ACT);
-        }
+        
+        sb_free(sb);
     }
 }
 
-size_t colour(char type, Mobile * ch, char* string)
+size_t colour(char type, Mobile * ch, char* string, size_t string_size)
 {
     char code[50] = { 0 };
     bool xterm = ch->pcdata->theme_config.xterm;
@@ -2539,16 +2623,16 @@ size_t colour(char type, Mobile * ch, char* string)
         if (pal < 0) {
             switch (type) {
             case '/':
-                sprintf(code, "%s", "\n\r");
+                snprintf(code, sizeof(code), "%s", "\n\r");
                 break;
             case '-':
-                sprintf(code, "%c", '~');
+                snprintf(code, sizeof(code), "%c", '~');
                 break;
             case COLOR_ESC_CHAR:
-                sprintf(code, "%c", type);
+                snprintf(code, sizeof(code), "%c", type);
                 break;
             case 'x':
-                sprintf(code, VT_NORMALT "%s%s",
+                snprintf(code, sizeof(code), VT_NORMALT "%s%s",
                     color_to_str(theme, &theme->channels[SLOT_TEXT], xterm),
                     bg_color_to_str(theme, &theme->channels[SLOT_BACKGROUND], xterm)
                 );
@@ -2560,21 +2644,29 @@ size_t colour(char type, Mobile * ch, char* string)
     }
 
     if (slot >= 0) {
-        sprintf(code, "%s", color_to_str(ch->pcdata->current_theme, 
+        snprintf(code, sizeof(code), "%s", color_to_str(ch->pcdata->current_theme, 
             &ch->pcdata->current_theme->channels[slot], xterm));
     }
     else if (pal >= 0) {
-        sprintf(code, "%s", color_to_str(ch->pcdata->current_theme, 
+        snprintf(code, sizeof(code), "%s", color_to_str(ch->pcdata->current_theme, 
             &ch->pcdata->current_theme->palette[pal], xterm));
     }
 
-    char* p = code;
-    while (*p != '\0') {
-        *string++ = *p++;
+    size_t code_len = strlen(code);
+    if (code_len >= string_size) {
+        bug("colour: code too long for buffer", 0);
+        return 0;
     }
-    *string = '\0';
 
-    return (strlen(code));
+    // Safe copy with bounds check
+    char* p = code;
+    size_t i = 0;
+    while (*p != '\0' && i < string_size - 1) {
+        string[i++] = *p++;
+    }
+    string[i] = '\0';
+
+    return code_len;
 }
 
 int colourconv(char* buffer, const char* txt, Mobile * ch)
@@ -2586,20 +2678,44 @@ int colourconv(char* buffer, const char* txt, Mobile * ch)
 
     if (ch->desc && txt) {
         if (IS_SET(ch->act_flags, PLR_COLOUR)) {
-            for (point = txt; *point; point++) {
+            for (point = txt; *point; ) {
+                const char* chunk_start = point;
+                while (*point != '\0' && *point != COLOR_ESC_CHAR) {
+                    point++;
+                }
+                
+                if (point > chunk_start) {
+                    size_t chunk_len = (size_t)(point - chunk_start);
+                    memcpy(buffer, chunk_start, chunk_len);
+                    buffer += chunk_len;
+                }
+                
                 if (*point == COLOR_ESC_CHAR) {
                     point++;
-                    skip = colour(*point, ch, buffer);
-                    while (skip-- > 0) ++buffer;
-                    continue;
+                    if (*point != '\0') {
+                        char color_temp[256];
+                        skip = colour(*point, ch, color_temp, sizeof(color_temp));
+                        memcpy(buffer, color_temp, skip);
+                        buffer += skip;
+                        point++;
+                    }
                 }
-                *buffer = *point;
-                *++buffer = '\0';
             }
             *buffer = '\0';
         }
         else {
-            for (point = txt; *point; point++) {
+            for (point = txt; *point; ) {
+                const char* chunk_start = point;
+                while (*point != '\0' && *point != COLOR_ESC_CHAR) {
+                    point++;
+                }
+                
+                if (point > chunk_start) {
+                    size_t chunk_len = (size_t)(point - chunk_start);
+                    memcpy(buffer, chunk_start, chunk_len);
+                    buffer += chunk_len;
+                }
+                
                 if (*point == COLOR_ESC_CHAR) {
                     point++;
                     continue;
@@ -2619,7 +2735,7 @@ void printf_to_char(Mobile* ch, const char* fmt, ...)
     char buf[MAX_STRING_LENGTH];
     va_list args;
     va_start(args, fmt);
-    vsprintf(buf, fmt, args);
+    vsnprintf(buf, sizeof(buf), fmt, args);
     va_end(args);
 
     send_to_char(buf, ch);
@@ -2630,7 +2746,7 @@ void bugf(char* fmt, ...)
     char buf[2 * MSL];
     va_list args;
     va_start(args, fmt);
-    vsprintf(buf, fmt, args);
+    vsnprintf(buf, sizeof(buf), fmt, args);
     va_end(args);
 
     bug(buf, 0);
@@ -2641,7 +2757,7 @@ void printf_log(char* fmt, ...)
     char buf[2 * MSL];
     va_list args;
     va_start(args, fmt);
-    vsprintf(buf, fmt, args);
+    vsnprintf(buf, sizeof(buf), fmt, args);
     va_end(args);
 
     log_string(buf);

@@ -43,6 +43,7 @@
 #include "save.h"
 #include "skill_ops.h"
 #include "skills.h"
+#include "stringbuffer.h"
 #include "stringutils.h"
 #include "tables.h"
 #include "weather.h"
@@ -82,43 +83,40 @@
 int max_on = 0;
 
 // Local functions.
-char* format_obj_to_char(Object * obj, Mobile* ch, bool fShort);
+void format_obj_to_char(StringBuffer* sb, Object* obj, Mobile* ch, bool fShort);
 void show_list_to_char(List* list, Mobile* ch, bool fShort, bool fShowNothing);
 void show_char_to_char_0(Mobile * victim, Mobile* ch);
 void show_char_to_char_1(Mobile * victim, Mobile* ch);
 void show_char_to_char(List* list, Mobile* ch);
 bool check_blind(Mobile * ch);
 
-char* format_obj_to_char(Object* obj, Mobile* ch, bool fShort)
+void format_obj_to_char(StringBuffer* sb, Object* obj, Mobile* ch, bool fShort)
 {
-    static char buf[MAX_STRING_LENGTH];
-
-    buf[0] = '\0';
-
     if ((fShort && (obj->short_descr == NULL || obj->short_descr[0] == '\0'))
         || (obj->description == NULL || obj->description[0] == '\0'))
-        return buf;
+        return;
 
-    if (IS_OBJ_STAT(obj, ITEM_INVIS)) strcat(buf, COLOR_ALT_TEXT_1 "(Invis)" COLOR_CLEAR " ");
+    if (IS_OBJ_STAT(obj, ITEM_INVIS)) 
+        sb_append(sb, COLOR_ALT_TEXT_1 "(Invis)" COLOR_CLEAR " ");
     if (IS_AFFECTED(ch, AFF_DETECT_EVIL) && IS_OBJ_STAT(obj, ITEM_EVIL))
-        strcat(buf, COLOR_RED "(Red Aura)" COLOR_CLEAR " ");
+        sb_append(sb, COLOR_RED "(Red Aura)" COLOR_CLEAR " ");
     if (IS_AFFECTED(ch, AFF_DETECT_GOOD) && IS_OBJ_STAT(obj, ITEM_BLESS))
-        strcat(buf, COLOR_B_BLUE "(Blue Aura)" COLOR_CLEAR " ");
+        sb_append(sb, COLOR_B_BLUE "(Blue Aura)" COLOR_CLEAR " ");
     if (IS_AFFECTED(ch, AFF_DETECT_MAGIC) && IS_OBJ_STAT(obj, ITEM_MAGIC))
-        strcat(buf, COLOR_ALT_TEXT_1 "(Magical)" COLOR_CLEAR " ");
-    if (IS_OBJ_STAT(obj, ITEM_GLOW)) strcat(buf, COLOR_ALT_TEXT_2 "(Glowing)" COLOR_CLEAR " ");
-    if (IS_OBJ_STAT(obj, ITEM_HUM)) strcat(buf, COLOR_ALT_TEXT_2 "(Humming)" COLOR_CLEAR " ");
+        sb_append(sb, COLOR_ALT_TEXT_1 "(Magical)" COLOR_CLEAR " ");
+    if (IS_OBJ_STAT(obj, ITEM_GLOW)) 
+        sb_append(sb, COLOR_ALT_TEXT_2 "(Glowing)" COLOR_CLEAR " ");
+    if (IS_OBJ_STAT(obj, ITEM_HUM)) 
+        sb_append(sb, COLOR_ALT_TEXT_2 "(Humming)" COLOR_CLEAR " ");
 
     if (fShort) {
         if (obj->short_descr != NULL) 
-            strcat(buf, obj->short_descr);
+            sb_append(sb, obj->short_descr);
     }
     else {
         if (obj->description != NULL) 
-            strcat(buf, obj->description);
+            sb_append(sb, obj->description);
     }
-
-    return buf;
 }
 
 /*
@@ -129,10 +127,9 @@ void show_list_to_char(List* list, Mobile* ch, bool fShort,
                        bool fShowNothing)
 {
     char buf[MAX_STRING_LENGTH];
-    Buffer* output;
     char** prgpstrShow;
     int* prgnShow;
-    char* pstrShow;
+    const char* pstrShow;
     Object* obj;
     int nShow;
     int iShow;
@@ -142,18 +139,19 @@ void show_list_to_char(List* list, Mobile* ch, bool fShort,
     if (ch->desc == NULL) return;
 
     // Alloc space for output lines.
-    output = new_buf();
-
     count = list->count;
     prgpstrShow = alloc_mem(count * sizeof(char*));
     prgnShow = alloc_mem(count * sizeof(int));
     nShow = 0;
 
     // Format the list of objects.
+    StringBuffer* sb = sb_new();
     for (Node* node = list->front; node != NULL; node = node->next) {
         obj = AS_OBJECT(node->value);
         if (obj->wear_loc == WEAR_UNHELD && can_see_obj(ch, obj)) {
-            pstrShow = format_obj_to_char(obj, ch, fShort);
+            sb_clear(sb);
+            format_obj_to_char(sb, obj, ch, fShort);
+            pstrShow = sb_string(sb);
 
             fCombine = false;
 
@@ -190,14 +188,14 @@ void show_list_to_char(List* list, Mobile* ch, bool fShort,
         if (IS_NPC(ch) || IS_SET(ch->comm_flags, COMM_COMBINE)) {
             if (prgnShow[iShow] != 1) {
                 sprintf(buf, "(%2d) ", prgnShow[iShow]);
-                add_buf(output, buf);
+                send_to_char(buf, ch);
             }
             else {
-                add_buf(output, "     ");
+                send_to_char("     ", ch);
             }
         }
-        add_buf(output, prgpstrShow[iShow]);
-        add_buf(output, "\n\r");
+        send_to_char(prgpstrShow[iShow], ch);
+        send_to_char("\n\r", ch);
         free_string(prgpstrShow[iShow]);
     }
 
@@ -206,10 +204,9 @@ void show_list_to_char(List* list, Mobile* ch, bool fShort,
             send_to_char("     ", ch);
         send_to_char("Nothing.\n\r", ch);
     }
-    page_to_char(BUF(output), ch);
 
-    // Clean up.
-    free_buf(output);
+    // Clean up.  The local data will disappear on its own.
+    sb_free(sb);
     free_mem(prgpstrShow, count * sizeof(char*));
     free_mem(prgnShow, count * sizeof(int));
 
@@ -218,171 +215,161 @@ void show_list_to_char(List* list, Mobile* ch, bool fShort,
 
 void show_char_to_char_0(Mobile* victim, Mobile* ch)
 {
-    char buf[MAX_STRING_LENGTH] = "";
-    char message[MAX_STRING_LENGTH] = "";
-
-    strcat(buf, "  ");
+    StringBuffer* sb = sb_new();
+    
+    sb_append(sb, "  ");
 
     bool is_npc = IS_NPC(victim);
 
     if (is_npc) {
         QuestTarget* qt = get_quest_targ_end(ch, VNUM_FIELD(victim->prototype));
         if (qt && can_finish_quest(ch, qt->quest_vnum)) {
-            strcat(buf, COLOR_ALT_TEXT_1 "[" COLOR_B_YELLOW "?" COLOR_CLEAR COLOR_ALT_TEXT_1 "]" COLOR_CLEAR " ");
+            sb_append(sb, COLOR_ALT_TEXT_1 "[" COLOR_B_YELLOW "?" COLOR_CLEAR COLOR_ALT_TEXT_1 "]" COLOR_CLEAR " ");
         }
         else if ((qt = get_quest_targ_mob(ch, VNUM_FIELD(victim->prototype))) != NULL) {
             if (qt->type != QUEST_KILL_MOB)
-                strcat(buf, COLOR_ALT_TEXT_1 "[" COLOR_B_YELLOW "!" COLOR_CLEAR COLOR_ALT_TEXT_1 "]" COLOR_CLEAR " ");
+                sb_append(sb, COLOR_ALT_TEXT_1 "[" COLOR_B_YELLOW "!" COLOR_CLEAR COLOR_ALT_TEXT_1 "]" COLOR_CLEAR " ");
             else
-                strcat(buf, COLOR_ALT_TEXT_1 "[" COLOR_B_RED "X" COLOR_CLEAR COLOR_ALT_TEXT_1 "]" COLOR_CLEAR " ");
+                sb_append(sb, COLOR_ALT_TEXT_1 "[" COLOR_B_RED "X" COLOR_CLEAR COLOR_ALT_TEXT_1 "]" COLOR_CLEAR " ");
         }
     }
 
-    if (IS_SET(victim->comm_flags, COMM_AFK)) strcat(buf, COLOR_ALT_TEXT_2 "[AFK]" COLOR_CLEAR " ");
-    if (IS_AFFECTED(victim, AFF_INVISIBLE)) strcat(buf, COLOR_ALT_TEXT_1 "(Invis)" COLOR_CLEAR " ");
-    if (victim->invis_level >= LEVEL_HERO) strcat(buf, COLOR_ALT_TEXT_1 "(Wizi)" COLOR_CLEAR " ");
-    if (IS_AFFECTED(victim, AFF_HIDE)) strcat(buf, COLOR_ALT_TEXT_1 "(Hide)" COLOR_CLEAR " ");
-    if (IS_AFFECTED(victim, AFF_CHARM)) strcat(buf, COLOR_ALT_TEXT_1 "(Charmed)" COLOR_CLEAR " ");
-    if (IS_AFFECTED(victim, AFF_PASS_DOOR)) strcat(buf, COLOR_ALT_TEXT_1 "(Translucent)" COLOR_CLEAR " ");
-    if (IS_AFFECTED(victim, AFF_FAERIE_FIRE)) strcat(buf, COLOR_B_RED "(Pink Aura)" COLOR_CLEAR " ");
+    if (IS_SET(victim->comm_flags, COMM_AFK)) sb_append(sb, COLOR_ALT_TEXT_2 "[AFK]" COLOR_CLEAR " ");
+    if (IS_AFFECTED(victim, AFF_INVISIBLE)) sb_append(sb, COLOR_ALT_TEXT_1 "(Invis)" COLOR_CLEAR " ");
+    if (victim->invis_level >= LEVEL_HERO) sb_append(sb, COLOR_ALT_TEXT_1 "(Wizi)" COLOR_CLEAR " ");
+    if (IS_AFFECTED(victim, AFF_HIDE)) sb_append(sb, COLOR_ALT_TEXT_1 "(Hide)" COLOR_CLEAR " ");
+    if (IS_AFFECTED(victim, AFF_CHARM)) sb_append(sb, COLOR_ALT_TEXT_1 "(Charmed)" COLOR_CLEAR " ");
+    if (IS_AFFECTED(victim, AFF_PASS_DOOR)) sb_append(sb, COLOR_ALT_TEXT_1 "(Translucent)" COLOR_CLEAR " ");
+    if (IS_AFFECTED(victim, AFF_FAERIE_FIRE)) sb_append(sb, COLOR_B_RED "(Pink Aura)" COLOR_CLEAR " ");
     if (IS_EVIL(victim) && IS_AFFECTED(ch, AFF_DETECT_EVIL))
-        strcat(buf, COLOR_RED "(Red Aura)" COLOR_CLEAR " ");
+        sb_append(sb, COLOR_RED "(Red Aura)" COLOR_CLEAR " ");
     if (IS_GOOD(victim) && IS_AFFECTED(ch, AFF_DETECT_GOOD))
-        strcat(buf, COLOR_B_YELLOW "(Golden Aura)" COLOR_CLEAR " ");
-    if (IS_AFFECTED(victim, AFF_SANCTUARY)) strcat(buf, COLOR_B_WHITE "(White Aura)" COLOR_CLEAR " ");
+        sb_append(sb, COLOR_B_YELLOW "(Golden Aura)" COLOR_CLEAR " ");
+    if (IS_AFFECTED(victim, AFF_SANCTUARY)) sb_append(sb, COLOR_B_WHITE "(White Aura)" COLOR_CLEAR " ");
     if (!is_npc && IS_SET(victim->act_flags, PLR_KILLER))
-        strcat(buf, COLOR_B_RED "(KILLER)" COLOR_CLEAR " ");
+        sb_append(sb, COLOR_B_RED "(KILLER)" COLOR_CLEAR " ");
     if (!is_npc && IS_SET(victim->act_flags, PLR_THIEF))
-        strcat(buf, COLOR_B_RED "(THIEF)" COLOR_CLEAR " ");
+        sb_append(sb, COLOR_B_RED "(THIEF)" COLOR_CLEAR " ");
     if (victim->position == victim->start_pos
         && victim->long_descr[0] != '\0') {
-        strcat(buf, victim->long_descr);
-        printf_to_char(ch, "%s" COLOR_CLEAR, buf);
+        sb_append(sb, victim->long_descr);
+        printf_to_char(ch, "%s" COLOR_CLEAR, sb_string(sb));
+        sb_free(sb);
         return;
     }
 
-    strcat(buf, PERS(victim, ch));
+    sb_append(sb, PERS(victim, ch));
     if (!is_npc && !IS_SET(ch->comm_flags, COMM_BRIEF)
         && victim->position == POS_STANDING && ch->on == NULL)
-        strcat(buf, victim->pcdata->title);
+        sb_append(sb, victim->pcdata->title);
 
     switch (victim->position) {
     case POS_DEAD:
-        strcat(buf, " is DEAD!!");
+        sb_append(sb, " is DEAD!!");
         break;
     case POS_MORTAL:
-        strcat(buf, " is mortally wounded.");
+        sb_append(sb, " is mortally wounded.");
         break;
     case POS_INCAP:
-        strcat(buf, " is incapacitated.");
+        sb_append(sb, " is incapacitated.");
         break;
     case POS_STUNNED:
-        strcat(buf, " is lying here stunned.");
+        sb_append(sb, " is lying here stunned.");
         break;
     case POS_SLEEPING:
         if (victim->on != NULL) {
             if (IS_SET(victim->on->furniture.flags, SLEEP_AT)) {
-                sprintf(message, " is sleeping at %s.",
+                sb_appendf(sb, " is sleeping at %s.",
                         victim->on->short_descr);
-                strcat(buf, message);
             }
             else if (IS_SET(victim->on->furniture.flags, SLEEP_ON)) {
-                sprintf(message, " is sleeping on %s.",
+                sb_appendf(sb, " is sleeping on %s.",
                         victim->on->short_descr);
-                strcat(buf, message);
             }
             else {
-                sprintf(message, " is sleeping in %s.",
+                sb_appendf(sb, " is sleeping in %s.",
                         victim->on->short_descr);
-                strcat(buf, message);
             }
         }
         else
-            strcat(buf, " is sleeping here.");
+            sb_append(sb, " is sleeping here.");
         break;
     case POS_RESTING:
         if (victim->on != NULL) {
             if (IS_SET(victim->on->furniture.flags, REST_AT)) {
-                sprintf(message, " is resting at %s.", victim->on->short_descr);
-                strcat(buf, message);
+                sb_appendf(sb, " is resting at %s.", victim->on->short_descr);
             }
             else if (IS_SET(victim->on->furniture.flags, REST_ON)) {
-                sprintf(message, " is resting on %s.", victim->on->short_descr);
-                strcat(buf, message);
+                sb_appendf(sb, " is resting on %s.", victim->on->short_descr);
             }
             else {
-                sprintf(message, " is resting in %s.", victim->on->short_descr);
-                strcat(buf, message);
+                sb_appendf(sb, " is resting in %s.", victim->on->short_descr);
             }
         }
         else
-            strcat(buf, " is resting here.");
+            sb_append(sb, " is resting here.");
         break;
     case POS_SITTING:
         if (victim->on != NULL) {
             if (IS_SET(victim->on->furniture.flags, SIT_AT)) {
-                sprintf(message, " is sitting at %s.", victim->on->short_descr);
-                strcat(buf, message);
+                sb_appendf(sb, " is sitting at %s.", victim->on->short_descr);
             }
             else if (IS_SET(victim->on->furniture.flags, SIT_ON)) {
-                sprintf(message, " is sitting on %s.", victim->on->short_descr);
-                strcat(buf, message);
+                sb_appendf(sb, " is sitting on %s.", victim->on->short_descr);
             }
             else {
-                sprintf(message, " is sitting in %s.", victim->on->short_descr);
-                strcat(buf, message);
+                sb_appendf(sb, " is sitting in %s.", victim->on->short_descr);
             }
         }
         else
-            strcat(buf, " is sitting here.");
+            sb_append(sb, " is sitting here.");
         break;
     case POS_STANDING:
         if (victim->on != NULL) {
             if (IS_SET(victim->on->furniture.flags, STAND_AT)) {
-                sprintf(message, " is standing at %s.",
+                sb_appendf(sb, " is standing at %s.",
                         victim->on->short_descr);
-                strcat(buf, message);
             }
             else if (IS_SET(victim->on->furniture.flags, STAND_ON)) {
-                sprintf(message, " is standing on %s.",
+                sb_appendf(sb, " is standing on %s.",
                         victim->on->short_descr);
-                strcat(buf, message);
             }
             else {
-                sprintf(message, " is standing in %s.",
+                sb_appendf(sb, " is standing in %s.",
                         victim->on->short_descr);
-                strcat(buf, message);
             }
         }
         else
-            strcat(buf, " is here.");
+            sb_append(sb, " is here.");
         break;
     case POS_FIGHTING:
-        strcat(buf, " is here, fighting ");
+        sb_append(sb, " is here, fighting ");
         if (victim->fighting == NULL)
-            strcat(buf, "thin air??");
+            sb_append(sb, "thin air??");
         else if (victim->fighting == ch)
-            strcat(buf, "YOU!");
+            sb_append(sb, "YOU!");
         else if (victim->in_room == victim->fighting->in_room) {
-            strcat(buf, PERS(victim->fighting, ch));
-            strcat(buf, ".");
+            sb_append(sb, PERS(victim->fighting, ch));
+            sb_append(sb, ".");
         }
         else
-            strcat(buf, "someone who left??");
+            sb_append(sb, "someone who left??");
         break;
     //case POS_UNKNOWN:
     //    break;
     }
 
-    strcat(buf, "\n\r");
-    buf[0] = UPPER(buf[0]);
-    send_to_char(buf, ch);
+    sb_append(sb, "\n\r");
+    const char* text = sb_string(sb);
+    char first_char = UPPER(text[0]);
+    send_to_char(&first_char, ch);
+    send_to_char(text + 1, ch);
+    sb_free(sb);
     return;
 }
 
 void show_char_to_char_1(Mobile* victim, Mobile* ch)
 {
-    char buf[MAX_STRING_LENGTH];
     Object* obj;
     int iWear;
     int percent;
@@ -409,29 +396,34 @@ void show_char_to_char_1(Mobile* victim, Mobile* ch)
     else
         percent = -1;
 
-    strcpy(buf, PERS(victim, ch));
+    StringBuffer* sb = sb_new();
+    sb_append(sb, PERS(victim, ch));
 
     if (percent >= 100)
-        strcat(buf, " is in excellent condition.\n\r");
+        sb_append(sb, " is in excellent condition.\n\r");
     else if (percent >= 90)
-        strcat(buf, " has a few scratches.\n\r");
+        sb_append(sb, " has a few scratches.\n\r");
     else if (percent >= 75)
-        strcat(buf, " has some small wounds and bruises.\n\r");
+        sb_append(sb, " has some small wounds and bruises.\n\r");
     else if (percent >= 50)
-        strcat(buf, " has quite a few wounds.\n\r");
+        sb_append(sb, " has quite a few wounds.\n\r");
     else if (percent >= 30)
-        strcat(buf, " has some big nasty wounds and scratches.\n\r");
+        sb_append(sb, " has some big nasty wounds and scratches.\n\r");
     else if (percent >= 15)
-        strcat(buf, " looks pretty hurt.\n\r");
+        sb_append(sb, " looks pretty hurt.\n\r");
     else if (percent >= 0)
-        strcat(buf, " is in awful condition.\n\r");
+        sb_append(sb, " is in awful condition.\n\r");
     else
-        strcat(buf, " is bleeding to death.\n\r");
+        sb_append(sb, " is bleeding to death.\n\r");
 
-    buf[0] = UPPER(buf[0]);
-    send_to_char(buf, ch);
+    const char* text = sb_string(sb);
+    char first_char = UPPER(text[0]);
+    send_to_char(&first_char, ch);
+    send_to_char(text + 1, ch);
+    sb_free(sb);
 
     found = false;
+    sb = sb_new();
     for (iWear = 0; iWear < WEAR_LOC_COUNT; iWear++) {
         if ((obj = get_eq_char(victim, iWear)) != NULL
             && can_see_obj(ch, obj)) {
@@ -441,10 +433,13 @@ void show_char_to_char_1(Mobile* victim, Mobile* ch)
                 found = true;
             }
             send_to_char(where_name[iWear], ch);
-            send_to_char(format_obj_to_char(obj, ch, true), ch);
+            sb_clear(sb);
+            format_obj_to_char(sb, obj, ch, true);
+            send_to_char(sb_string(sb), ch);
             send_to_char("\n\r", ch);
         }
     }
+    sb_free(sb);
 
     // Use skill check seam for testability
     if (victim != ch && !IS_NPC(ch)
@@ -791,13 +786,20 @@ void do_prompt(Mobile* ch, char* argument)
         return;
     }
 
-    if (!strcmp(argument, "all"))
-        strcpy(buf, "<%hhp %mm %vmv> ");
+    if (!strcmp(argument, "all")) {
+        snprintf(buf, sizeof(buf), "%s", "<%hhp %mm %vmv> ");
+    }
     else {
         if (strlen(argument) > 150) argument[150] = '\0';
-        strcpy(buf, argument);
+        snprintf(buf, sizeof(buf), "%s", argument);
         smash_tilde(buf);
-        if (str_suffix("%c", buf)) strcat(buf, " ");
+        if (str_suffix("%c", buf)) {
+            size_t len = strlen(buf);
+            if (len + 2 < sizeof(buf)) {
+                buf[len] = ' ';
+                buf[len + 1] = '\0';
+            }
+        }
     }
 
     free_string(ch->prompt);
@@ -1606,7 +1608,6 @@ void do_help(Mobile* ch, char* argument)
     HelpData* pHelp;
     Buffer* output;
     bool found = false;
-    char argall[MAX_INPUT_LENGTH] = "";
     char argone[MAX_INPUT_LENGTH] = "";
     LEVEL level;
 
@@ -1616,20 +1617,21 @@ void do_help(Mobile* ch, char* argument)
         argument = "summary";
 
     /* this parts handles help a b so that it returns help 'a b' */
-    argall[0] = '\0';
+    StringBuffer* argall_sb = sb_new();
     while (argument[0] != '\0') {
         READ_ARG(argone);
-        if (argall[0] != '\0') 
-            strcat(argall, " ");
-        strcat(argall, argone);
+        if (sb_length(argall_sb) > 0) 
+            sb_append(argall_sb, " ");
+        sb_append(argall_sb, argone);
     }
+    const char* argall = sb_string(argall_sb);
 
     FOR_EACH(pHelp, help_first) {
         level = (pHelp->level < 0) ? -1 * pHelp->level - 1 : pHelp->level;
 
         if (level > get_trust(ch)) continue;
 
-        if (is_name(argall, pHelp->keyword)) {
+        if (is_name((char*)argall, pHelp->keyword)) {
             /* add seperator if found */
             if (found)
                 add_buf(output, "\n\r" COLOR_DECOR_2 "========================="
@@ -1657,6 +1659,7 @@ void do_help(Mobile* ch, char* argument)
     else
         page_to_char(BUF(output), ch);
     free_buf(output);
+    sb_free(argall_sb);
 }
 
 /* whois command */
@@ -1915,13 +1918,16 @@ void do_equipment(Mobile* ch, char* argument)
 
     send_to_char("You are using:\n\r", ch);
     found = false;
+    StringBuffer* sb = sb_new();
     for (iWear = 0; iWear < WEAR_LOC_COUNT; iWear++) {
         if ((obj = get_eq_char(ch, iWear)) == NULL) 
             continue;
 
         send_to_char(where_name[iWear], ch);
         if (can_see_obj(ch, obj)) {
-            send_to_char(format_obj_to_char(obj, ch, true), ch);
+            sb_clear(sb);
+            format_obj_to_char(sb, obj, ch, true);
+            send_to_char(sb_string(sb), ch);
             send_to_char("\n\r", ch);
         }
         else {
@@ -1929,6 +1935,7 @@ void do_equipment(Mobile* ch, char* argument)
         }
         found = true;
     }
+    sb_free(sb);
 
     if (!found)
         send_to_char("Nothing.\n\r", ch);
@@ -2134,10 +2141,10 @@ void set_title(Mobile* ch, char* title)
 
     if (title[0] != '.' && title[0] != ',' && title[0] != '!' && title[0] != '?') {
         buf[0] = ' ';
-        strcpy(buf + 1, title);
+        snprintf(buf + 1, sizeof(buf) - 1, "%s", title);
     }
     else {
-        strcpy(buf, title);
+        snprintf(buf, sizeof(buf), "%s", title);
     }
 
     free_string(ch->pcdata->title);
@@ -2163,10 +2170,7 @@ void do_title(Mobile* ch, char* argument)
 
 void do_description(Mobile* ch, char* argument)
 {
-    char buf[MAX_STRING_LENGTH] = "";
-
     if (argument[0] != '\0') {
-        buf[0] = '\0';
         smash_tilde(argument);
 
         if (argument[0] == '-') {
@@ -2177,10 +2181,13 @@ void do_description(Mobile* ch, char* argument)
                 return;
             }
 
-            strcpy(buf, ch->description);
+            StringBuffer* sb = sb_new();
+            sb_append(sb, ch->description);
+            const char* text = sb_string(sb);
+            size_t len = strlen(text);
 
-            for (size_t len = strlen(buf); len > 0; len--) {
-                if (buf[len] == '\r') {
+            for (; len > 0; len--) {
+                if (text[len] == '\r') {
                     if (!found) {
                         /* back it up */
                         if (len > 0) 
@@ -2189,9 +2196,11 @@ void do_description(Mobile* ch, char* argument)
                     }
                     else  {
                         /* found the second one */
-                        buf[len + 1] = '\0';
+                        char* result = strndup(text, len + 1);
                         free_string(ch->description);
-                        ch->description = str_dup(buf);
+                        ch->description = str_dup(result);
+                        free(result);
+                        sb_free(sb);
                         send_to_char("Your description is:\n\r", ch);
                         send_to_char(ch->description ? ch->description
                                                      : "(None).\n\r",
@@ -2200,30 +2209,34 @@ void do_description(Mobile* ch, char* argument)
                     }
                 }
             }
-            buf[0] = '\0';
             free_string(ch->description);
-            ch->description = str_dup(buf);
+            ch->description = str_dup("");
+            sb_free(sb);
             send_to_char("Description cleared.\n\r", ch);
             return;
         }
+        
+        StringBuffer* sb = sb_new();
         if (argument[0] == '+') {
             if (ch->description != NULL) {
-                strcat(buf, ch->description);
+                sb_append(sb, ch->description);
             }
             argument++;
             while (ISSPACE(*argument))
                 argument++;
         }
 
-        if (strlen(buf) >= 1024) {
+        if (sb_length(sb) + strlen(argument) >= 1024) {
             send_to_char("Description too long.\n\r", ch);
+            sb_free(sb);
             return;
         }
 
-        strcat(buf, argument);
-        strcat(buf, "\n\r");
+        sb_append(sb, argument);
+        sb_append(sb, "\n\r");
         free_string(ch->description);
-        ch->description = str_dup(buf);
+        ch->description = str_dup(sb_string(sb));
+        sb_free(sb);
     }
 
     send_to_char("Your description is:\n\r", ch);

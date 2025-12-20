@@ -683,7 +683,7 @@ static Object* object_from_json(json_t* node)
     obj->wear_loc = (WearLocation)json_int_or_default(node, "wearLoc", obj->wear_loc);
     obj->level = (LEVEL)json_int_or_default(node, "level", obj->level);
     obj->timer = (int16_t)json_int_or_default(node, "timer", obj->timer);
-    obj->cost = json_int_or_default(node, "cost", obj->cost);
+    obj->cost = (int)json_int_or_default(node, "cost", obj->cost);
 
     json_t* values = json_object_get(node, "values");
     if (json_is_array(values)) {
@@ -1189,7 +1189,7 @@ static void player_from_json(json_t* player_obj, Mobile* ch)
         ch->copper = (int16_t)json_int_or_default(money, "copper", ch->copper);
     }
 
-    ch->exp = json_int_or_default(player_obj, "exp", ch->exp);
+    ch->exp = (int)json_int_or_default(player_obj, "exp", ch->exp);
     ch->act_flags = (FLAGS)json_int_or_default(player_obj, "actFlags", ch->act_flags);
     ch->affect_flags = (FLAGS)json_int_or_default(player_obj, "affectFlags", ch->affect_flags);
     ch->comm_flags = (FLAGS)json_int_or_default(player_obj, "commFlags", ch->comm_flags);

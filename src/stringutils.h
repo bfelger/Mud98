@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// strings.h
+// stringutils.h
 // 
 // Helper functions for string handling.
 ////////////////////////////////////////////////////////////////////////////////
@@ -10,6 +10,7 @@
 
 #include <ctype.h>
 #include <inttypes.h>
+#include <stddef.h>
 
 // All strings in Mud98 are 7-bit POSIX Locale, with the sign bit reserved for 
 // special telnet characters. These macros keep 'ctype.h' functions copacetic
@@ -42,5 +43,12 @@
 #define TIME_FMT "%ld"
 #endif
 
+// Platform-independent strndup implementation
+char* mud98_strndup(const char* s, size_t n);
+
+// Use our implementation on platforms that don't have strndup
+#if defined(_MSC_VER) || defined(__MINGW32__) || defined(__MINGW64__)
+    #define strndup mud98_strndup
+#endif
 
 #endif // !MUD98__STRINGS_H

@@ -32,6 +32,7 @@
 #include <recycle.h>
 #include <skills.h>
 #include <special.h>
+#include <stringbuffer.h>
 #include <stringutils.h>
 #include <tables.h>
 
@@ -131,26 +132,24 @@ const struct olc_help_type help_table[] =
  ****************************************************************************/
 void show_flag_cmds(Mobile* ch, const struct flag_type* flag_table)
 {
-    char buf[MAX_STRING_LENGTH] = "";
-    char buf1[MAX_STRING_LENGTH] = "";
+    StringBuffer* sb = sb_new();
     int  flag;
     int  col;
 
-    buf1[0] = '\0';
     col = 0;
     for (flag = 0; flag_table[flag].name != NULL; flag++) {
         if (flag_table[flag].settable) {
-            sprintf(buf, "%-19.18s", flag_table[flag].name);
-            strcat(buf1, buf);
+            sb_appendf(sb, "%-19.18s", flag_table[flag].name);
             if (++col % 4 == 0)
-                strcat(buf1, "\n\r");
+                sb_append(sb, "\n\r");
         }
     }
 
     if (col % 4 != 0)
-        strcat(buf1, "\n\r");
+        sb_append(sb, "\n\r");
 
-    send_to_char(buf1, ch);
+    send_to_char(sb_string(sb), ch);
+    sb_free(sb);
     return;
 }
 
@@ -165,12 +164,10 @@ void show_flag_cmds(Mobile* ch, const struct flag_type* flag_table)
  ****************************************************************************/
 void show_skill_cmds(Mobile* ch, SkillTarget tar)
 {
-    char buf[MAX_STRING_LENGTH] = "";
-    char buf1[MAX_STRING_LENGTH * 2] = "";
+    StringBuffer* sb = sb_new();
     int  sn;
     int  col;
 
-    buf1[0] = '\0';
     col = 0;
     for (sn = 0; sn < skill_count; sn++) {
         if (!skill_table[sn].name)
@@ -181,17 +178,17 @@ void show_skill_cmds(Mobile* ch, SkillTarget tar)
             continue;
 
         if (tar == SKILL_TARGET_ALL || skill_table[sn].target == tar) {
-            sprintf(buf, "%-19.18s", skill_table[sn].name);
-            strcat(buf1, buf);
+            sb_appendf(sb, "%-19.18s", skill_table[sn].name);
             if (++col % 4 == 0)
-                strcat(buf1, "\n\r");
+                sb_append(sb, "\n\r");
         }
     }
 
     if (col % 4 != 0)
-        strcat(buf1, "\n\r");
+        sb_append(sb, "\n\r");
 
-    printf_to_char(ch, COLOR_INFO "%s" COLOR_EOL, buf1);
+    printf_to_char(ch, COLOR_INFO "%s" COLOR_EOL, sb_string(sb));
+    sb_free(sb);
     return;
 }
 
@@ -202,25 +199,23 @@ void show_skill_cmds(Mobile* ch, SkillTarget tar)
  ****************************************************************************/
 void show_spec_cmds(Mobile* ch)
 {
-    char buf[MAX_STRING_LENGTH] = "";
-    char buf1[MAX_STRING_LENGTH] = "";
+    StringBuffer* sb = sb_new();
     int  spec;
     int  col;
 
-    buf1[0] = '\0';
     col = 0;
     send_to_char(COLOR_INFO "Precede special functions with 'spec_'\n\r" COLOR_EOL, ch);
     for (spec = 0; spec_table[spec].function != NULL; spec++) {
-        sprintf(buf, "%-19.18s", &spec_table[spec].name[5]);
-        strcat(buf1, buf);
+        sb_appendf(sb, "%-19.18s", &spec_table[spec].name[5]);
         if (++col % 4 == 0)
-            strcat(buf1, "\n\r");
+            sb_append(sb, "\n\r");
     }
 
     if (col % 4 != 0)
-        strcat(buf1, "\n\r");
+        sb_append(sb, "\n\r");
 
-    send_to_char(buf1, ch);
+    send_to_char(sb_string(sb), ch);
+    sb_free(sb);
     return;
 }
 
@@ -336,27 +331,23 @@ bool show_help(Mobile* ch, char* argument)
 void show_liqlist(Mobile* ch)
 {
     int liq;
-    Buffer* buffer;
-    char buf[MAX_STRING_LENGTH];
-
-    buffer = new_buf();
+    StringBuffer* sb = sb_new();
 
     for (liq = 0; liq < LIQ_COUNT; liq++) {
         if ((liq % 21) == 0)
-            add_buf(buffer, COLOR_TITLE "Name                 Color          Proof Full Thirst Food Ssize" COLOR_ALT_TEXT_1);
+            sb_append(sb, COLOR_TITLE "Name                 Color          Proof Full Thirst Food Ssize" COLOR_ALT_TEXT_1);
 
-        sprintf(buf, "%-20s %-14s %5d %4d %6d %4d %5d\n\r",
+        sb_appendf(sb, "%-20s %-14s %5d %4d %6d %4d %5d\n\r",
             liquid_table[liq].name, liquid_table[liq].color,
             liquid_table[liq].proof, liquid_table[liq].full,
             liquid_table[liq].thirst, liquid_table[liq].food,
             liquid_table[liq].sip_size);
-        add_buf(buffer, buf);
     }
 
-    add_buf(buffer, COLOR_EOL);
+    sb_append(sb, COLOR_EOL);
 
-    page_to_char(BUF(buffer), ch);
-    free_buf(buffer);
+    page_to_char(sb_string(sb), ch);
+    sb_free(sb);
 
     return;
 }
@@ -364,22 +355,18 @@ void show_liqlist(Mobile* ch)
 void show_damlist(Mobile* ch)
 {
     int att;
-    Buffer* buffer;
-    char buf[MAX_STRING_LENGTH];
-
-    buffer = new_buf();
+    StringBuffer* sb = sb_new();
 
     for (att = 0; att < ATTACK_COUNT; att++) {
         if ((att % 21) == 0)
-            add_buf(buffer, COLOR_TITLE "Name                 Noun" COLOR_EOL);
+            sb_append(sb, COLOR_TITLE "Name                 Noun" COLOR_EOL);
 
-        sprintf(buf, COLOR_ALT_TEXT_1 "%-20s %-20s" COLOR_EOL,
+        sb_appendf(sb, COLOR_ALT_TEXT_1 "%-20s %-20s" COLOR_EOL,
             attack_table[att].name, attack_table[att].noun);
-        add_buf(buffer, buf);
     }
 
-    page_to_char(BUF(buffer), ch);
-    free_buf(buffer);
+    page_to_char(sb_string(sb), ch);
+    sb_free(sb);
 
     return;
 }
@@ -387,22 +374,18 @@ void show_damlist(Mobile* ch)
 void show_poslist(Mobile* ch)
 {
     int pos;
-    Buffer* buffer;
-    char buf[MAX_STRING_LENGTH];
-
-    buffer = new_buf();
+    StringBuffer* sb = sb_new();
 
     for (pos = 0; pos < POS_MAX; pos++) {
         if ((pos % 21) == 0)
-            add_buf(buffer, COLOR_TITLE "Name                 Short Name" COLOR_EOL);
+            sb_append(sb, COLOR_TITLE "Name                 Short Name" COLOR_EOL);
 
-        sprintf(buf, COLOR_ALT_TEXT_1 "%-20s %-20s" COLOR_EOL,
+        sb_appendf(sb, COLOR_ALT_TEXT_1 "%-20s %-20s" COLOR_EOL,
             position_table[pos].name, position_table[pos].short_name);
-        add_buf(buffer, buf);
     }
 
-    page_to_char(BUF(buffer), ch);
-    free_buf(buffer);
+    page_to_char(sb_string(sb), ch);
+    sb_free(sb);
 
     return;
 }
@@ -410,20 +393,16 @@ void show_poslist(Mobile* ch)
 void show_sexlist(Mobile* ch)
 {
     int sex;
-    Buffer* buffer;
-    char buf[MAX_STRING_LENGTH];
-
-    buffer = new_buf();
+    StringBuffer* sb = sb_new();
 
     for (sex = 0; sex < SEX_COUNT; sex++) {
-        sprintf(buf, COLOR_ALT_TEXT_1 "%-20s " COLOR_EOL,
+        sb_appendf(sb, COLOR_ALT_TEXT_1 "%-20s " COLOR_EOL,
             sex_table[sex].name);
-        add_buf(buffer, buf);
     }
 
-    add_buf(buffer, "\n\r");
-    page_to_char(BUF(buffer), ch);
-    free_buf(buffer);
+    sb_append(sb, "\n\r");
+    page_to_char(sb_string(sb), ch);
+    sb_free(sb);
 
     return;
 }
@@ -431,22 +410,18 @@ void show_sexlist(Mobile* ch)
 void show_sizelist(Mobile* ch)
 {
     int size;
-    Buffer* buffer;
-    char buf[MAX_STRING_LENGTH];
-
-    buffer = new_buf();
+    StringBuffer* sb = sb_new();
 
     for (size = 0; size < MOB_SIZE_COUNT; size++) {
         if ((size % 3) == 0)
-            add_buf(buffer, "\n\r");
+            sb_append(sb, "\n\r");
 
-        sprintf(buf, COLOR_ALT_TEXT_1 "%-20s " COLOR_EOL, mob_size_table[size].name);
-        add_buf(buffer, buf);
+        sb_appendf(sb, COLOR_ALT_TEXT_1 "%-20s " COLOR_EOL, mob_size_table[size].name);
     }
 
-    add_buf(buffer, "\n\r");
-    page_to_char(BUF(buffer), ch);
-    free_buf(buffer);
+    sb_append(sb, "\n\r");
+    page_to_char(sb_string(sb), ch);
+    sb_free(sb);
 
     return;
 }
