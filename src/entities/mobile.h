@@ -132,6 +132,8 @@ typedef struct mobile_t {
 #define IS_TESTER(ch) (IS_IMMORTAL(ch) || \
      (!IS_NPC(ch) && IS_SET((ch)->act_flags, PLR_TESTER)))
 
+#define IS_BOT(ch) (!IS_NPC(ch) && IS_SET((ch)->act_flags, PLR_BOT))
+
 #define GET_AGE(ch)                                                            \
     ((int)(17 + ((ch)->played + current_time - (ch)->logon) / 72000))
 

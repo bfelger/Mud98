@@ -1,0 +1,56 @@
+# Multi-bot stress test configuration
+
+connection:
+  host: localhost
+  port: 4000
+  use_tls: false
+  timeout: 30
+
+# Number of bots to spawn
+bot_count: 10
+
+# Stagger bot startup (seconds between each)
+startup_delay: 1.0
+
+# Bot name pattern (use {n} for number)
+username_pattern: "StressBot{n}"
+password: "stress123"
+
+# New character settings (will create if doesn't exist)
+new_character:
+  race: human
+  class: warrior
+  sex: male
+  alignment: neutral
+
+behaviors:
+  explore:
+    enabled: true
+    max_rooms: 100
+    avoid_rooms: []
+
+  combat:
+    enabled: true
+    flee_hp_percent: 25
+    max_level_diff: 2
+    use_skills: []
+
+  loot:
+    enabled: true
+    auto_sacrifice: true
+
+  heal:
+    rest_hp_percent: 60
+    sleep_hp_percent: 40
+
+throttle:
+  min_command_delay_ms: 500
+  max_commands_per_second: 2
+
+metrics:
+  enabled: true
+  report_interval: 30
+  
+logging:
+  level: INFO
+  file: stress_test.log

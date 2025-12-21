@@ -1,0 +1,44 @@
+# Single bot configuration for development/testing
+
+connection:
+  host: localhost
+  port: 4000
+  use_tls: false
+  timeout: 30
+
+credentials:
+  username: TestBot
+  password: testbot123
+
+# Character creation settings (if new character)
+new_character:
+  race: human
+  class: warrior
+  sex: male
+  alignment: neutral
+
+behaviors:
+  explore:
+    enabled: true
+    max_level_diff: 3
+
+  combat:
+    enabled: true
+    flee_hp_percent: 20
+    use_skills: []
+
+  loot:
+    enabled: true
+    auto_sacrifice: true
+
+  heal:
+    rest_hp_percent: 50
+    sleep_hp_percent: 30
+
+throttle:
+  min_command_delay_ms: 250
+  max_commands_per_second: 4
+
+logging:
+  level: INFO
+  file: null  # stdout only

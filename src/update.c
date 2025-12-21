@@ -378,19 +378,43 @@ void gain_condition(Mobile* ch, int iCond, int value)
 
 static void update_msdp_vars(Descriptor* d)
 {
-    msdp_update_var(d, "ALIGNMENT", "%d", CH(d)->alignment);
-    msdp_update_var(d, "EXPERIENCE", "%d", CH(d)->exp);
-    //msdp_update_var(d, "EXPERIENCE_MAX", "%d", exp_per_level(CH(d)->ch_class, CH(d)->level) - exp_per_level(CH(d)->ch_class, CH(d)->level - 1));
-    msdp_update_var(d, "EXPERIENCE_MAX", "%d", exp_per_level(CH(d), CH(d)->pcdata->points));
-    msdp_update_var(d, "HEALTH", "%d", CH(d)->hit);
-    msdp_update_var(d, "HEALTH_MAX", "%d", CH(d)->max_hit);
-    msdp_update_var(d, "LEVEL", "%d", CH(d)->level);
-    msdp_update_var(d, "MANA", "%d", CH(d)->mana);
-    msdp_update_var(d, "MANA_MAX", "%d", CH(d)->max_mana);
-    //msdp_update_var(d, "MONEY", "%d", CH(d)->gold);
-    msdp_update_var(d, "MONEY", "%ld", mobile_total_copper(CH(d)));
-    msdp_update_var(d, "MOVEMENT", "%d", CH(d)->move);
-    msdp_update_var(d, "MOVEMENT_MAX", "%d", CH(d)->max_move);
+    Mobile* ch = CH(d);
+    Mobile* victim = ch->fighting;
+
+    msdp_update_var(d, "ALIGNMENT", "%d", ch->alignment);
+    msdp_update_var(d, "EXPERIENCE", "%d", ch->exp);
+    //msdp_update_var(d, "EXPERIENCE_MAX", "%d", exp_per_level(ch->ch_class, ch->level) - exp_per_level(ch->ch_class, ch->level - 1));
+    msdp_update_var(d, "EXPERIENCE_MAX", "%d", exp_per_level(ch, ch->pcdata->points));
+    msdp_update_var(d, "HEALTH", "%d", ch->hit);
+    msdp_update_var(d, "HEALTH_MAX", "%d", ch->max_hit);
+    msdp_update_var(d, "LEVEL", "%d", ch->level);
+    msdp_update_var(d, "MANA", "%d", ch->mana);
+    msdp_update_var(d, "MANA_MAX", "%d", ch->max_mana);
+    //msdp_update_var(d, "MONEY", "%d", ch->gold);
+    msdp_update_var(d, "MONEY", "%ld", mobile_total_copper(ch));
+    msdp_update_var(d, "MOVEMENT", "%d", ch->move);
+    msdp_update_var(d, "MOVEMENT_MAX", "%d", ch->max_move);
+
+    // Combat info for bot support
+    msdp_update_var(d, "IN_COMBAT", "%d", victim != NULL ? 1 : 0);
+    if (victim != NULL) {
+        msdp_update_var(d, "OPPONENT_NAME", "%s", 
+            IS_NPC(victim) ? victim->short_descr : NAME_STR(victim));
+        msdp_update_var(d, "OPPONENT_LEVEL", "%d", victim->level);
+        msdp_update_var(d, "OPPONENT_HEALTH", "%d", victim->hit);
+        msdp_update_var(d, "OPPONENT_HEALTH_MAX", "%d", victim->max_hit);
+    }
+    else {
+        msdp_update_var(d, "OPPONENT_NAME", "");
+        msdp_update_var(d, "OPPONENT_LEVEL", "0");
+        msdp_update_var(d, "OPPONENT_HEALTH", "0");
+        msdp_update_var(d, "OPPONENT_HEALTH_MAX", "0");
+    }
+
+    // Room VNUM for easy navigation
+    if (ch->in_room != NULL) {
+        msdp_update_var(d, "ROOM_VNUM", "%d", VNUM_FIELD(ch->in_room));
+    }
 
     msdp_send_update(d);
 }
