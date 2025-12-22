@@ -59,6 +59,13 @@ class BotConfig:
     auto_subscribe_msdp: bool = True
 
 
+# Direction commands for VNUM transition logging
+DIRECTION_COMMANDS = {
+    'north', 'south', 'east', 'west', 'up', 'down',
+    'n', 's', 'e', 'w', 'u', 'd'
+}
+
+
 class Bot:
     """
     High-level MUD bot client.
@@ -68,6 +75,10 @@ class Bot:
     
     def __init__(self, config: Optional[BotConfig] = None):
         self.config = config or BotConfig()
+        
+        # Per-bot logger with username in the name
+        bot_name = self.config.username or "unnamed"
+        self._logger = logging.getLogger(f'mud98bot.client({bot_name})')
         
         # Components
         self._conn = Connection(ConnectionConfig(
@@ -200,19 +211,27 @@ class Bot:
                     self._state = BotState.PLAYING
                     
             elif self._state == BotState.PLAYING:
-                logger.info("Login successful - now playing")
+                self._logger.info("Login successful - now playing")
                 
                 # Subscribe to MSDP updates if enabled
                 if self.config.auto_subscribe_msdp and self._telnet.state.msdp_enabled:
                     self._subscribe_msdp()
+                
+                # Send initial 'look' to get room data for BOT protocol
+                self._send_line("look")
+                # Wait a moment for response and process it
+                time.sleep(0.3)
+                data = self._conn.recv(timeout=1.0)
+                if data:
+                    self._process_data(data)
                     
                 return True
                 
             elif self._state == BotState.ERROR:
-                logger.error("Login failed - error state")
+                self._logger.error("Login failed - error state")
                 return False
             
-        logger.error(f"Login timeout after {timeout}s")
+        self._logger.error(f"Login timeout after {timeout}s")
         return False
     
     def _process_data(self, data: bytes) -> None:
@@ -232,7 +251,7 @@ class Bot:
             if self._parser.has_bot_data(text):
                 self._bot_mode = True
                 self._bot_data = self._parser.parse_bot_data(text)
-                logger.debug(f"BOT data parsed: room={self._bot_data.room}, "
+                self._logger.debug(f"BOT data parsed: room={self._bot_data.room}, "
                            f"exits={len(self._bot_data.exits)}, "
                            f"mobs={len(self._bot_data.mobs)}, "
                            f"objects={len(self._bot_data.objects)}")
@@ -242,7 +261,7 @@ class Bot:
                 try:
                     callback(text)
                 except Exception as e:
-                    logger.error(f"Text callback error: {e}")
+                    self._logger.error(f"Text callback error: {e}")
             
             # Check for prompt
             if self._detect_prompt(text):
@@ -251,11 +270,17 @@ class Bot:
                     try:
                         callback(text)
                     except Exception as e:
-                        logger.error(f"Prompt callback error: {e}")
+                        self._logger.error(f"Prompt callback error: {e}")
     
     def _on_msdp_data(self, data: bytes) -> None:
         """Handle MSDP subnegotiation data."""
+        old_vnum = self._msdp.stats.room_vnum
         self._msdp.parse(data)
+        new_vnum = self._msdp.stats.room_vnum
+        
+        # Log room transitions
+        if new_vnum != old_vnum and old_vnum != 0:
+            self._logger.debug(f"ROOM: {old_vnum} -> {new_vnum}")
     
     def _detect_prompt(self, text: str) -> bool:
         """Check if text contains a prompt."""
@@ -291,9 +316,12 @@ class Bot:
             if self._check_text("hit return to continue", "press enter", "[hit return", "message of the day"):
                 self._state = BotState.AWAITING_MOTD
                 # Don't clear buffer - action handler needs to detect MOTD prompts
+            elif self._check_text("reconnecting"):
+                # Character was already logged in - we're now playing
+                self._state = BotState.PLAYING
             elif self._check_text("wrong password"):
                 self._state = BotState.ERROR
-                logger.error("Wrong password")
+                self._logger.error("Wrong password")
     
     def _handle_character_creation(self) -> bool:
         """Handle character creation prompts. Returns True when done."""
@@ -371,19 +399,29 @@ class Bot:
             "LEVEL", "EXPERIENCE",
             "ALIGNMENT", "MONEY",
             "ROOM_EXITS", "ROOM_VNUM",
+            "POSITION",  # Character position (standing, sitting, resting, sleeping, fighting)
             "IN_COMBAT", "OPPONENT_NAME",
             "OPPONENT_LEVEL", "OPPONENT_HEALTH", "OPPONENT_HEALTH_MAX"
         ]
         
-        logger.info(f"Subscribing to MSDP: {variables}")
+        self._logger.info(f"Subscribing to MSDP: {variables}")
         request = self._telnet.build_msdp_report(*variables)
         self._conn.send(request)
     
     def send_command(self, command: str) -> bool:
         """Send a game command."""
         if not self.is_playing:
-            logger.warning("Cannot send command: not playing")
+            self._logger.warning("Cannot send command: not playing")
             return False
+        
+        # For direction commands, show VNUM transition
+        cmd_lower = command.lower().split()[0] if command else ""
+        if cmd_lower in DIRECTION_COMMANDS:
+            current_vnum = self.stats.room_vnum
+            self._logger.debug(f"CMD: {command} ({current_vnum}->?)")
+        else:
+            self._logger.debug(f"CMD: {command}")
+        
         return self._send_line(command)
     
     def read_text(self, timeout: float = 1.0) -> str:

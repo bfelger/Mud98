@@ -394,6 +394,7 @@ static void update_msdp_vars(Descriptor* d)
     msdp_update_var(d, "MONEY", "%ld", mobile_total_copper(ch));
     msdp_update_var(d, "MOVEMENT", "%d", ch->move);
     msdp_update_var(d, "MOVEMENT_MAX", "%d", ch->max_move);
+    msdp_update_var(d, "POSITION", "%d", ch->position);
 
     // Combat info for bot support
     msdp_update_var(d, "IN_COMBAT", "%d", victim != NULL ? 1 : 0);

@@ -928,6 +928,9 @@ static void update_mdsp_room(Mobile* ch)
     }
     cat_sprintf(exits, "%c", MSDP_ARRAY_CLOSE);
 
+    // Send ROOM_VNUM instantly for bot navigation
+    msdp_update_var_instant(ch->desc, "ROOM_VNUM", "%d", VNUM_FIELD(ch->in_room));
+
     msdp_update_var_instant(ch->desc, "ROOM", 
         "%c\001%s\002%d\001%s\002%s\001%s\002%s\001%s\002%s\001%s\002%s%c",
         MSDP_TABLE_OPEN,
@@ -966,7 +969,7 @@ void mob_to_room(Mobile* ch, Room* room)
     ch->in_room = room;
     list_push_back(&room->mobiles, OBJ_VAL(ch));
 
-    if (!test_output_enabled) {
+    if (!test_output_enabled && ch->desc != NULL && ch->desc->mth != NULL) {
         if (!IS_NPC(ch) && ch->desc->mth->msdp_data && cfg_get_msdp_enabled())
             update_mdsp_room(ch);
     }

@@ -16,6 +16,8 @@ if TYPE_CHECKING:
     from .client import Bot
     from .parser import BotMob, BotObj, BotExit, BotRoom
 
+from .msdp import Position
+
 logger = logging.getLogger(__name__)
 
 
@@ -43,6 +45,9 @@ class BehaviorContext:
     # Room state
     room_vnum: int = 0
     room_exits: list[str] = field(default_factory=list)
+    
+    # Character position state
+    position: Position = Position.STANDING
     
     # Parsed from text
     room_mobs: list[str] = field(default_factory=list)
@@ -202,7 +207,7 @@ class CombatBehavior(Behavior):
 
 
 class HealBehavior(Behavior):
-    """Rest/sleep to recover HP when out of combat."""
+    """Rest/sleep to recover HP and movement when out of combat."""
     
     priority = 70
     name = "Heal"
@@ -210,21 +215,43 @@ class HealBehavior(Behavior):
     
     def __init__(self, rest_hp_percent: float = 50.0, 
                  sleep_hp_percent: float = 30.0,
-                 target_hp_percent: float = 90.0):
+                 target_hp_percent: float = 90.0,
+                 rest_move_percent: float = 20.0,
+                 target_move_percent: float = 80.0):
         super().__init__()
         self.rest_hp_percent = rest_hp_percent
         self.sleep_hp_percent = sleep_hp_percent
         self.target_hp_percent = target_hp_percent
+        self.rest_move_percent = rest_move_percent
+        self.target_move_percent = target_move_percent
         self._is_resting = False
+        self._reason = ""  # Track why we're resting
     
     def can_start(self, ctx: BehaviorContext) -> bool:
-        return (not ctx.in_combat and 
-                ctx.hp_percent < self.rest_hp_percent)
+        if ctx.in_combat:
+            return False
+        # Start if HP is low
+        if ctx.hp_percent < self.rest_hp_percent:
+            return True
+        # Start if movement is low
+        if ctx.move_percent < self.rest_move_percent:
+            return True
+        # Continue if we're already resting and haven't recovered
+        if self._is_resting:
+            if ctx.hp_percent < self.target_hp_percent:
+                return True
+            if ctx.move_percent < self.target_move_percent:
+                return True
+        return False
     
     def start(self, bot: 'Bot', ctx: BehaviorContext) -> None:
         super().start(bot, ctx)
         self._is_resting = False
-        logger.info(f"Need to heal (HP: {ctx.hp_percent:.0f}%)")
+        if ctx.hp_percent < self.rest_hp_percent:
+            self._reason = f"HP: {ctx.hp_percent:.0f}%"
+        else:
+            self._reason = f"Move: {ctx.move_percent:.0f}%"
+        logger.info(f"Need to rest ({self._reason})")
     
     def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
         if ctx.in_combat:
@@ -232,19 +259,27 @@ class HealBehavior(Behavior):
                 bot.send_command("wake")
             return BehaviorResult.FAILED
         
-        if ctx.hp_percent >= self.target_hp_percent:
+        # Check if we've recovered enough
+        hp_ok = ctx.hp_percent >= self.target_hp_percent
+        move_ok = ctx.move_percent >= self.target_move_percent
+        
+        if hp_ok and move_ok:
             if self._is_resting:
-                bot.send_command("wake")
+                bot.send_command("stand")
                 self._is_resting = False
-            logger.info(f"Healed to {ctx.hp_percent:.0f}%")
+            logger.info(f"Recovered (HP: {ctx.hp_percent:.0f}%, Move: {ctx.move_percent:.0f}%)")
             return BehaviorResult.COMPLETED
         
         if not self._is_resting:
             if ctx.hp_percent < self.sleep_hp_percent:
+                logger.debug(f"Sleeping (HP: {ctx.hp_percent:.0f}%)")
                 bot.send_command("sleep")
             else:
+                logger.debug(f"Resting (HP: {ctx.hp_percent:.0f}%, Move: {ctx.move_percent:.0f}%)")
                 bot.send_command("rest")
             self._is_resting = True
+        else:
+            logger.debug(f"Still resting... HP: {ctx.hp_percent:.0f}%, Move: {ctx.move_percent:.0f}%")
         
         return BehaviorResult.CONTINUE
     
@@ -324,6 +359,9 @@ class AttackBehavior(Behavior):
         if ctx.in_combat:
             return False
         if ctx.hp_percent < 50:  # Don't start fights when low HP
+            return False
+        # Can't attack if not standing
+        if not ctx.position.can_move:
             return False
         
         # Prefer bot data if available
@@ -434,6 +472,215 @@ class AttackBehavior(Behavior):
                     return BehaviorResult.COMPLETED
         
         return BehaviorResult.FAILED
+
+
+# =============================================================================
+# Navigation Routes
+# =============================================================================
+# Route maps: from_vnum -> direction to reach a target
+# These define waypoints for goal-oriented navigation
+
+# Route from temple (3001) or recall to Mud School Cage Room (3712)
+ROUTE_TO_CAGE_ROOM: dict[int, str] = {
+    3001: "up",       # Temple -> Mud School Entrance
+    3700: "north",    # Entrance -> First Hallway
+    3757: "north",    # Continue north (west cage entrance)
+    3701: "west",     # Turn west
+    3702: "north",    # Continue north
+    3703: "north",    # Continue north
+    3709: "west",     # Turn west
+    3711: "down",     # Go down
+    # 3712 is the Cage Room - target reached
+}
+
+# Routes to individual cages from Cage Room (3712)
+# These include return paths from other cages so bots can navigate between cages
+# Cage layout based on school.are:
+# - 3713: North cage (aggressive monster) - exit south to 3712
+# - 3714: West cage (aggressive wimpy monster) - exit east to 3712
+# - 3715: South cage (wimpy monster) - exit north to 3712
+# - 3716: East cage (unmodified monster) - exit west to 3712
+
+ROUTE_TO_NORTH_CAGE: dict[int, str] = {
+    3712: "north",   # Cage room -> North cage (3713)
+    3714: "east",    # West cage -> Cage room
+    3715: "north",   # South cage -> Cage room
+    3716: "west",    # East cage -> Cage room
+}
+
+ROUTE_TO_SOUTH_CAGE: dict[int, str] = {
+    3712: "south",   # Cage room -> South cage (3715)
+    3713: "south",   # North cage -> Cage room
+    3714: "east",    # West cage -> Cage room
+    3716: "west",    # East cage -> Cage room
+}
+
+ROUTE_TO_EAST_CAGE: dict[int, str] = {
+    3712: "east",    # Cage room -> East cage (3716)
+    3713: "south",   # North cage -> Cage room
+    3714: "east",    # West cage -> Cage room
+    3715: "north",   # South cage -> Cage room
+}
+
+ROUTE_TO_WEST_CAGE: dict[int, str] = {
+    3712: "west",    # Cage room -> West cage (3714)
+    3713: "south",   # North cage -> Cage room
+    3715: "north",   # South cage -> Cage room
+    3716: "west",    # East cage -> Cage room
+}
+
+
+class NavigateBehavior(Behavior):
+    """
+    Goal-oriented navigation using waypoint maps.
+    
+    Instead of following a sequential path, this behavior uses a route map
+    that says "if you're in room X, go direction Y to reach the goal."
+    This makes navigation recoverable - if the bot gets displaced, it can
+    find its way back.
+    """
+    
+    priority = 45  # Higher than Explore, lower than Attack
+    name = "Navigate"
+    tick_delay = 0.5
+    
+    def __init__(self, 
+                 target_vnum: int,
+                 route: dict[int, str],
+                 on_arrival: Optional[callable] = None):
+        """
+        Args:
+            target_vnum: The goal room VNUM
+            route: Dict mapping from_vnum -> direction
+            on_arrival: Optional callback when target is reached
+        """
+        super().__init__()
+        self.target_vnum = target_vnum
+        self.route = route
+        self.on_arrival = on_arrival
+        self._arrived = False
+        self._stuck_count = 0
+        self._last_vnum = 0
+    
+    def can_start(self, ctx: BehaviorContext) -> bool:
+        # Don't navigate if already at target
+        if ctx.room_vnum == self.target_vnum:
+            return False
+        # Don't navigate during combat
+        if ctx.in_combat:
+            return False
+        # Don't navigate with very low movement
+        if ctx.move_percent < 10:
+            return False
+        # Only navigate if we know where we are and have a route
+        return ctx.room_vnum in self.route
+    
+    def start(self, bot: 'Bot', ctx: BehaviorContext) -> None:
+        super().start(bot, ctx)
+        self._arrived = False
+        self._stuck_count = 0
+        self._last_vnum = ctx.room_vnum
+        logger.info(f"Navigating to room {self.target_vnum} from {ctx.room_vnum}")
+    
+    def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
+        # Check if we've arrived
+        if ctx.room_vnum == self.target_vnum:
+            if not self._arrived:
+                logger.info(f"Arrived at target room {self.target_vnum}")
+                self._arrived = True
+                if self.on_arrival:
+                    try:
+                        self.on_arrival()
+                    except Exception as e:
+                        logger.error(f"on_arrival callback error: {e}")
+            return BehaviorResult.COMPLETED
+        
+        # Combat interrupts navigation
+        if ctx.in_combat:
+            return BehaviorResult.FAILED
+        
+        # Check position - can't move if not standing
+        if not ctx.position.can_move:
+            logger.debug(f"Cannot move - position is {ctx.position.name}, waking up")
+            bot.send_command("wake")  # Wake handles sleeping, resting, sitting
+            bot.send_command("stand")
+            return BehaviorResult.CONTINUE  # Wait for next tick
+        
+        # Check if we're stuck (same room multiple ticks)
+        if ctx.room_vnum == self._last_vnum and ctx.room_vnum != 0:
+            self._stuck_count += 1
+            if self._stuck_count >= 5:
+                logger.warning(f"Stuck at room {ctx.room_vnum}, cannot navigate")
+                return BehaviorResult.FAILED
+        else:
+            self._stuck_count = 0
+            self._last_vnum = ctx.room_vnum
+        
+        # Find direction from current room
+        if ctx.room_vnum not in self.route:
+            # We're off the route - can't navigate from here
+            logger.warning(f"Room {ctx.room_vnum} not in route to {self.target_vnum}")
+            return BehaviorResult.FAILED
+        
+        direction = self.route[ctx.room_vnum]
+        
+        # Verify the exit exists
+        if direction not in ctx.room_exits:
+            logger.warning(f"Exit '{direction}' not available from room {ctx.room_vnum}, "
+                         f"available exits: {ctx.room_exits}")
+            return BehaviorResult.FAILED
+        
+        # Move!
+        logger.debug(f"Navigating: {ctx.room_vnum} -> {direction} -> {self.target_vnum}")
+        bot.send_command(direction)
+        # Send look to update BOT data after movement
+        bot.send_command("look")
+        return BehaviorResult.CONTINUE
+    
+    def reset(self) -> None:
+        """Reset for reuse."""
+        self._arrived = False
+        self._stuck_count = 0
+        self._last_vnum = 0
+
+
+class NavigationTask:
+    """
+    A high-level navigation task that can chain multiple waypoints.
+    
+    Example usage:
+        task = NavigationTask()
+        task.add_waypoint(3712, ROUTE_TO_CAGE_ROOM)  # Get to cage room
+        task.add_waypoint(3716, ROUTE_TO_EAST_CAGE)  # Then go to east cage
+    """
+    
+    def __init__(self):
+        self.waypoints: list[tuple[int, dict[int, str]]] = []
+        self.current_index = 0
+    
+    def add_waypoint(self, target_vnum: int, route: dict[int, str]) -> 'NavigationTask':
+        """Add a waypoint to the task."""
+        self.waypoints.append((target_vnum, route))
+        return self
+    
+    def get_current_target(self) -> Optional[tuple[int, dict[int, str]]]:
+        """Get current waypoint (target_vnum, route)."""
+        if self.current_index < len(self.waypoints):
+            return self.waypoints[self.current_index]
+        return None
+    
+    def advance(self) -> bool:
+        """Move to next waypoint. Returns True if there are more."""
+        self.current_index += 1
+        return self.current_index < len(self.waypoints)
+    
+    def is_complete(self) -> bool:
+        """Check if all waypoints have been reached."""
+        return self.current_index >= len(self.waypoints)
+    
+    def reset(self) -> None:
+        """Reset to start."""
+        self.current_index = 0
 
 
 class ExploreBehavior(Behavior):
@@ -586,23 +833,30 @@ class ShopBehavior(Behavior):
 
 
 class RecallBehavior(Behavior):
-    """Recall to temple when movement is low or need to reset."""
+    """Emergency recall when flee fails - last resort escape."""
     
-    priority = 55
+    priority = 95  # Very high - emergency only
     name = "Recall"
     tick_delay = 1.0
     
-    def __init__(self, low_move_percent: float = 15.0):
+    def __init__(self):
         super().__init__()
-        self.low_move_percent = low_move_percent
+        self._flee_failed = False
+        self._flee_attempts = 0
+    
+    def notify_flee_failed(self) -> None:
+        """Called by SurviveBehavior when flee fails."""
+        self._flee_failed = True
+        self._flee_attempts += 1
     
     def can_start(self, ctx: BehaviorContext) -> bool:
-        return (not ctx.in_combat and 
-                ctx.move_percent < self.low_move_percent)
+        # Only activate if flee has failed and we're in danger
+        return self._flee_failed and ctx.hp_percent < 30.0
     
     def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
-        logger.info("Low movement, recalling to temple")
+        logger.info(f"EMERGENCY RECALL! (Flee failed, HP: {ctx.hp_percent:.0f}%)")
         bot.send_command("recall")
+        self._flee_failed = False
         return BehaviorResult.COMPLETED
 
 
@@ -682,12 +936,13 @@ class BehaviorEngine:
             opponent_level=stats.opponent_level,
             room_vnum=stats.room_vnum,
             room_exits=room.exits.copy(),
+            position=stats.position,
             room_mobs=[],
             room_items=[],
             has_corpse=False,
         )
         
-        # Use BOT protocol data if available (more reliable)
+        # Use BOT protocol data if available (more reliable for room contents)
         if self.bot.bot_mode and self.bot.bot_data:
             bot_data = self.bot.bot_data
             ctx.bot_mode = True
@@ -698,11 +953,12 @@ class BehaviorEngine:
             if bot_data.room:
                 ctx.bot_room_flags = bot_data.room.flags
                 ctx.bot_sector = bot_data.room.sector
-                # Use room VNUM from bot data if available
-                if bot_data.room.vnum > 0:
-                    ctx.room_vnum = bot_data.room.vnum
+                # NOTE: We do NOT override room_vnum from BOT data because 
+                # BOT data is only updated on 'look', while MSDP ROOM_VNUM
+                # updates instantly on room change. For navigation, we need
+                # the instant update from MSDP.
             
-            # Populate exits from bot data
+            # Populate exits from bot data (still useful for exit checking)
             if bot_data.exits:
                 ctx.room_exits = [e.direction for e in bot_data.exits]
             
@@ -800,20 +1056,39 @@ def create_default_engine(
     bot: 'Bot',
     flee_hp_percent: float = 20.0,
     rest_hp_percent: float = 50.0,
+    rest_move_percent: float = 20.0,
     use_skills: Optional[list[str]] = None,
-    target_mobs: Optional[list[str]] = None
+    target_mobs: Optional[list[str]] = None,
+    include_explore: bool = True
 ) -> BehaviorEngine:
-    """Create a behavior engine with default behaviors."""
+    """Create a behavior engine with default behaviors.
+    
+    Args:
+        bot: The bot to control
+        flee_hp_percent: HP percentage to flee at
+        rest_hp_percent: HP percentage to rest at
+        rest_move_percent: Move percentage to rest at
+        use_skills: Skills to use in combat
+        target_mobs: Specific mobs to target
+        include_explore: If True, include ExploreBehavior (disable when using navigation)
+    """
     engine = BehaviorEngine(bot)
     
     # Add behaviors in priority order (will be sorted anyway)
     engine.add_behavior(SurviveBehavior(flee_hp_percent))
     engine.add_behavior(CombatBehavior(use_skills))
     engine.add_behavior(LootBehavior())
-    engine.add_behavior(HealBehavior(rest_hp_percent))
+    engine.add_behavior(HealBehavior(
+        rest_hp_percent=rest_hp_percent,
+        rest_move_percent=rest_move_percent
+    ))
     engine.add_behavior(AttackBehavior(target_mobs))
     engine.add_behavior(RecallBehavior())
-    engine.add_behavior(ExploreBehavior())
+    
+    # Only add explore if requested (disable when using navigation)
+    if include_explore:
+        engine.add_behavior(ExploreBehavior())
+    
     engine.add_behavior(IdleBehavior())
     
     return engine

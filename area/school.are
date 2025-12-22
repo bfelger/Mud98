@@ -1,5 +1,5 @@
 #AREADATA
-Version 2
+Version 3
 Name mud school~
 Builders ~
 VNUMs 3700 3799
@@ -7,6 +7,7 @@ Credits Hatchet~
 Security 9
 Low 1
 High 5
+InstType 1
 End
 
 

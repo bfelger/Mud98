@@ -46,6 +46,8 @@ logging.getLogger('mud98bot.msdp').setLevel(logging.INFO)
 PATH_TO_CAGES = ['up', 'north', 'north', 'west', 'north', 'north', 'west', 'down', 'east']
 
 
+
+
 class AutonomousRunner:
     """Runs the bot autonomously with the behavior engine."""
     

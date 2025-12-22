@@ -22,6 +22,39 @@ class MSDPCode(IntEnum):
     ARRAY_CLOSE = 6
 
 
+class Position(IntEnum):
+    """Character position states (matches server's Position enum)."""
+    DEAD = 0
+    MORTAL = 1
+    INCAP = 2
+    STUNNED = 3
+    SLEEPING = 4
+    RESTING = 5
+    SITTING = 6
+    FIGHTING = 7
+    STANDING = 8
+    
+    @property
+    def is_awake(self) -> bool:
+        """Return True if character is awake (not sleeping or worse)."""
+        return self > Position.SLEEPING
+    
+    @property
+    def can_act(self) -> bool:
+        """Return True if character can perform actions."""
+        return self >= Position.RESTING
+    
+    @property
+    def can_move(self) -> bool:
+        """Return True if character can move between rooms."""
+        return self >= Position.STANDING
+    
+    @property
+    def is_fighting(self) -> bool:
+        """Return True if character is fighting."""
+        return self == Position.FIGHTING
+
+
 @dataclass
 class CharacterStats:
     """Current character statistics from MSDP."""
@@ -42,6 +75,7 @@ class CharacterStats:
     opponent_health: int = 0
     opponent_health_max: int = 0
     room_vnum: int = 0
+    position: Position = Position.STANDING
     
     @property
     def hp_percent(self) -> float:
@@ -243,6 +277,10 @@ class MSDPParser:
                 self.stats.opponent_health_max = int(value)
             elif name == "ROOM_VNUM":
                 self.stats.room_vnum = int(value)
+            elif name == "POSITION":
+                pos_val = int(value)
+                if 0 <= pos_val <= 8:
+                    self.stats.position = Position(pos_val)
             elif name == "ROOM":
                 if isinstance(value, dict):
                     self.room.name = value.get("NAME", "")
