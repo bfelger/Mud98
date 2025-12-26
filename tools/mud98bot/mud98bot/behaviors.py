@@ -195,6 +195,8 @@ class CombatBehavior(Behavior):
     def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
         if not ctx.in_combat:
             logger.info(f"[{bot.bot_id}] Combat ended - victory!")
+            # Refresh room data to clear stale mob info
+            bot.send_command("look")
             return BehaviorResult.COMPLETED
         
         # Use skills occasionally (30% chance)
@@ -327,9 +329,12 @@ class LootBehavior(Behavior):
         # Wear any new equipment
         bot.send_command("wear all")
         
+        # Refresh room data to update has_corpse and bot_mobs
+        bot.send_command("look")
+        
         # Cooldown to avoid re-triggering on stale room text
         import time
-        self._cooldown_until = time.time() + 10.0
+        self._cooldown_until = time.time() + 5.0
         
         return BehaviorResult.COMPLETED
 
@@ -346,7 +351,9 @@ class AttackBehavior(Behavior):
                       'shopkeeper', 'healer', 'receptionist']
     
     # Mob act flags that indicate we should not attack
-    AVOID_FLAGS = ['sentinel', 'aggressive', 'pet']  # sentinel might be fine, aggressive warns us
+    # Note: 'aggressive' is NOT here - we're happy to attack aggressive mobs!
+    # 'pet' - someone's pet, don't attack
+    AVOID_FLAGS = ['pet', 'train', 'practice', 'healer', 'changer', 'skill_train']
     
     def __init__(self, target_keywords: Optional[list[str]] = None, 
                  max_level_diff: int = 5):
@@ -354,21 +361,36 @@ class AttackBehavior(Behavior):
         # If specified, only attack these mobs
         self.target_keywords = target_keywords
         self.max_level_diff = max_level_diff
+        self._cooldown_until: float = 0.0
     
     def can_start(self, ctx: BehaviorContext) -> bool:
+        import time
+        if time.time() < self._cooldown_until:
+            return False
         if ctx.in_combat:
             return False
         if ctx.hp_percent < 50:  # Don't start fights when low HP
+            logger.debug(f"AttackBehavior: HP too low ({ctx.hp_percent}%)")
             return False
         # Can't attack if not standing
         if not ctx.position.can_move:
+            logger.debug(f"AttackBehavior: Can't move (position={ctx.position})")
             return False
         
         # Prefer bot data if available
         if ctx.bot_mode and ctx.bot_mobs:
+            logger.info(f"AttackBehavior: Checking {len(ctx.bot_mobs)} bot_mobs: {[m.name for m in ctx.bot_mobs]}")
             for mob in ctx.bot_mobs:
                 if self._can_attack_bot_mob(mob, ctx.level):
+                    logger.info(f"AttackBehavior: Can attack mob '{mob.name}'")
                     return True
+                else:
+                    logger.info(f"AttackBehavior: Cannot attack mob '{mob.name}' (flags={mob.flags})")
+        elif ctx.bot_mode:
+            # Bot mode but no mob data yet - don't start, let other behaviors run
+            # The NavigateBehavior sends 'look' on arrival which will populate data
+            logger.debug(f"AttackBehavior: bot_mode=True but no bot_mobs available, waiting for data")
+            return False
         else:
             # Check for attackable mobs from text parsing
             for mob in ctx.room_mobs:
@@ -450,6 +472,8 @@ class AttackBehavior(Behavior):
         return keywords[-1] if keywords else "mob"
     
     def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
+        import time
+        
         if ctx.in_combat:
             return BehaviorResult.COMPLETED
         
@@ -461,6 +485,8 @@ class AttackBehavior(Behavior):
                     keyword = mob.name.split()[0]  # First word is usually the keyword
                     logger.info(f"[{bot.bot_id}] Attacking: {mob.name} lvl{mob.level} hp={mob.hp_percent}% (using '{keyword}')")
                     bot.send_command(f"kill {keyword}")
+                    # Short cooldown to let server respond and 'look' refresh data
+                    self._cooldown_until = time.time() + 2.0
                     return BehaviorResult.COMPLETED
         else:
             # Fall back to text-based targeting
@@ -469,6 +495,8 @@ class AttackBehavior(Behavior):
                     keyword = self._get_target_keyword(mob)
                     logger.info(f"[{bot.bot_id}] Attacking: {mob} (using '{keyword}')")
                     bot.send_command(f"kill {keyword}")
+                    # Short cooldown to let server respond
+                    self._cooldown_until = time.time() + 2.0
                     return BehaviorResult.COMPLETED
         
         return BehaviorResult.FAILED
@@ -482,7 +510,9 @@ class AttackBehavior(Behavior):
 
 # Route from temple (3001) or recall to Mud School Cage Room (3712)
 # Also includes routes from Training Room (3758) and Practice Room (3759)
+# And death respawn point (3054 - Temple Altar, north of temple)
 ROUTE_TO_CAGE_ROOM: dict[int, str] = {
+    3054: "south",    # Temple Altar (death respawn) -> Temple (3001)
     3001: "up",       # Temple -> Mud School Entrance
     3700: "north",    # Entrance -> Hub Room (3757)
     3757: "north",    # Hub -> First Hallway (3701)
@@ -538,6 +568,7 @@ TRAIN_ROOM_VNUM = 3758
 PRACTICE_ROOM_VNUM = 3759
 
 ROUTE_TO_TRAIN_ROOM: dict[int, str] = {
+    3054: "south",    # Temple Altar (death respawn) -> Temple (3001)
     3001: "up",       # Temple -> Mud School Entrance (3700)
     3700: "north",    # Entrance -> Hub room (3757)
     3757: "west",     # Hub -> Training Room (3758)
@@ -546,6 +577,7 @@ ROUTE_TO_TRAIN_ROOM: dict[int, str] = {
 }
 
 ROUTE_TO_PRACTICE_ROOM: dict[int, str] = {
+    3054: "south",    # Temple Altar (death respawn) -> Temple (3001)
     3001: "up",       # Temple -> Mud School Entrance (3700)
     3700: "north",    # Entrance -> Hub room (3757)
     3757: "east",     # Hub -> Practice Room (3759)
@@ -612,6 +644,8 @@ class NavigateBehavior(Behavior):
             if not self._arrived:
                 logger.info(f"[{bot.bot_id}] Arrived at target room {self.target_vnum}")
                 self._arrived = True
+                # Send look to ensure bot_data is populated for this room
+                bot.send_command("look")
                 if self.on_arrival:
                     try:
                         self.on_arrival()
@@ -666,6 +700,117 @@ class NavigateBehavior(Behavior):
         self._arrived = False
         self._stuck_count = 0
         self._last_vnum = 0
+
+
+class ReturnToCageBehavior(Behavior):
+    """
+    Detects when the bot has been displaced (e.g., death, recall) and 
+    navigates back to the cage room.
+    
+    This behavior activates when:
+    - Not in combat
+    - Not already at the target cage
+    - HP is above threshold (not dying/dead)
+    """
+    
+    priority = 35  # Lower than Navigate (45), higher than Explore (40)
+    name = "ReturnToCage"
+    tick_delay = 1.0
+    
+    def __init__(self, 
+                 cage_vnum: int,
+                 route: dict[int, str],
+                 hp_threshold: float = 30.0):
+        """
+        Args:
+            cage_vnum: The cage room to return to
+            route: Combined route that can navigate from common respawn points
+            hp_threshold: Don't navigate if HP below this (recovering from death)
+        """
+        super().__init__()
+        self.cage_vnum = cage_vnum
+        self.route = route
+        self.hp_threshold = hp_threshold
+        self._navigating = False
+        self._stuck_count = 0
+        self._last_vnum = 0
+    
+    def can_start(self, ctx: BehaviorContext) -> bool:
+        # Don't interfere with combat
+        if ctx.in_combat:
+            return False
+        # Already at cage - nothing to do
+        if ctx.room_vnum == self.cage_vnum:
+            return False
+        # Wait until HP recovers after death
+        if ctx.hp_percent < self.hp_threshold:
+            return False
+        # Can't move if not standing
+        if not ctx.position.can_move:
+            return False
+        # Only activate if we know where we are
+        if ctx.room_vnum == 0:
+            return False
+        # Activate if we're off-course (not at cage and not in route that leads to cage)
+        # This catches respawn situations
+        return ctx.room_vnum != self.cage_vnum
+    
+    def start(self, bot: 'Bot', ctx: BehaviorContext) -> None:
+        super().start(bot, ctx)
+        self._navigating = True
+        self._stuck_count = 0
+        self._last_vnum = ctx.room_vnum
+        logger.info(f"[{bot.bot_id}] Displaced to room {ctx.room_vnum}, returning to cage {self.cage_vnum}")
+    
+    def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
+        # Arrived at cage
+        if ctx.room_vnum == self.cage_vnum:
+            logger.info(f"[{bot.bot_id}] Returned to cage {self.cage_vnum}")
+            self._navigating = False
+            bot.send_command("look")  # Refresh bot_data
+            return BehaviorResult.COMPLETED
+        
+        # Combat interrupts
+        if ctx.in_combat:
+            return BehaviorResult.FAILED
+        
+        # Need to stand/wake up
+        if not ctx.position.can_move:
+            bot.send_command("wake")
+            bot.send_command("stand")
+            return BehaviorResult.CONTINUE
+        
+        # HP too low - wait for recovery
+        if ctx.hp_percent < self.hp_threshold:
+            logger.debug(f"[{bot.bot_id}] HP too low ({ctx.hp_percent}%), waiting to return")
+            return BehaviorResult.WAITING
+        
+        # Stuck detection
+        if ctx.room_vnum == self._last_vnum and ctx.room_vnum != 0:
+            self._stuck_count += 1
+            if self._stuck_count >= 5:
+                logger.warning(f"[{bot.bot_id}] Stuck at room {ctx.room_vnum} returning to cage")
+                # Try recall as escape hatch
+                bot.send_command("recall")
+                self._stuck_count = 0
+                return BehaviorResult.CONTINUE
+        else:
+            self._stuck_count = 0
+            self._last_vnum = ctx.room_vnum
+        
+        # Check if current room is in route
+        if ctx.room_vnum in self.route:
+            direction = self.route[ctx.room_vnum]
+            logger.debug(f"[{bot.bot_id}] Returning: {ctx.room_vnum} -> {direction}")
+            bot.send_command(direction)
+            bot.send_command("look")
+            return BehaviorResult.CONTINUE
+        
+        # Not in route - recall to get to known location
+        logger.warning(f"[{bot.bot_id}] Room {ctx.room_vnum} not in return route, recalling")
+        bot.send_command("recall")
+        bot.send_command("look")
+        return BehaviorResult.CONTINUE
 
 
 class NavigationTask:
@@ -822,10 +967,14 @@ class BotResetBehavior(Behavior):
     name = "BotReset"
     tick_delay = 0.5
     
+    # VNUM of MUD school entrance where botreset teleports the player
+    MUD_SCHOOL_ENTRANCE = 3700
+    
     def __init__(self):
         super().__init__()
         self._completed = False
         self._sent_reset = False
+        self._wait_ticks = 0
     
     def can_start(self, ctx: BehaviorContext) -> bool:
         # One-shot behavior - only run if not completed
@@ -842,11 +991,31 @@ class BotResetBehavior(Behavior):
         
         if not self._sent_reset:
             bot.send_command("botreset hard")
+            # Send look to trigger MSDP/BOT updates after teleport
+            bot.send_command("look")
             logger.info(f"[{bot.bot_id}] Sent 'botreset hard' to reset character to level 1")
             self._sent_reset = True
             return BehaviorResult.CONTINUE
         
-        # Done - reset is complete
+        # Wait for MSDP to confirm we're at MUD school entrance
+        # This prevents race conditions where TrainBehavior starts before
+        # the server has processed our teleport
+        if ctx.room_vnum != self.MUD_SCHOOL_ENTRANCE:
+            self._wait_ticks += 1
+            if self._wait_ticks > 20:  # 10 seconds at 0.5s tick_delay
+                logger.warning(f"[{bot.bot_id}] Timeout waiting for teleport to {self.MUD_SCHOOL_ENTRANCE}, "
+                             f"currently at {ctx.room_vnum}")
+                # Complete anyway to avoid being stuck
+                self._completed = True
+                return BehaviorResult.COMPLETED
+            # Send periodic look to ensure we get updates
+            if self._wait_ticks % 4 == 0:  # Every 2 seconds
+                bot.send_command("look")
+            logger.debug(f"[{bot.bot_id}] Waiting for teleport to {self.MUD_SCHOOL_ENTRANCE}, "
+                        f"currently at {ctx.room_vnum}")
+            return BehaviorResult.CONTINUE
+        
+        # Done - reset is complete and we're at the right room
         logger.info(f"[{bot.bot_id}] Bot reset complete - character is now at MUD school entrance")
         self._completed = True
         return BehaviorResult.COMPLETED
@@ -855,6 +1024,7 @@ class BotResetBehavior(Behavior):
         """Reset for re-use."""
         self._completed = False
         self._sent_reset = False
+        self._wait_ticks = 0
 
 
 class TrainBehavior(Behavior):
@@ -1219,6 +1389,14 @@ class BehaviorEngine:
             ctx.bot_objects = bot_data.objects
             ctx.bot_exits = bot_data.exits
             
+            if bot_data.mobs:
+                logger.info(f"[{self.bot.bot_id}] BOT data: room={ctx.room_vnum}, "
+                           f"mobs={[m.name for m in bot_data.mobs]}")
+            elif ctx.room_vnum == 3713:
+                # Debug: why no mobs in the cage room?
+                logger.info(f"[{self.bot.bot_id}] BOT data: room=3713 but NO MOBS! "
+                           f"objects={len(bot_data.objects)}, exits={len(bot_data.exits)}")
+            
             if bot_data.room:
                 ctx.bot_room_flags = bot_data.room.flags
                 ctx.bot_sector = bot_data.room.sector
@@ -1237,11 +1415,15 @@ class BehaviorEngine:
             
             # Check for corpses in objects
             for obj in bot_data.objects:
-                if 'corpse' in obj.item_type.lower():
+                # Item types are 'npccorpse' or 'pc_corpse'
+                if 'corpse' in obj.item_type.lower() or 'corpse' in obj.name.lower():
                     ctx.has_corpse = True
                     break
         else:
             # Fall back to text parsing
+            if ctx.room_vnum == 3713:
+                logger.info(f"[{self.bot.bot_id}] At room 3713 but NO BOT MODE! "
+                           f"bot_mode={self.bot.bot_mode}, bot_data={self.bot.bot_data}")
             self._update_context_from_text(ctx, self._last_room_text)
         
         return ctx
@@ -1281,9 +1463,22 @@ class BehaviorEngine:
         """
         ctx = self.get_context()
         
+        # Log context state for debugging (INFO level for room 3713)
+        if ctx.room_vnum == 3713:
+            logger.info(f"[{self.bot.bot_id}] Tick at 3713: bot_mode={ctx.bot_mode}, "
+                       f"bot_mobs={len(ctx.bot_mobs) if ctx.bot_mobs else 0}, "
+                       f"in_combat={ctx.in_combat}, position={ctx.position.name}, "
+                       f"current={self._current_behavior.name if self._current_behavior else 'None'}")
+        else:
+            logger.debug(f"[{self.bot.bot_id}] Tick: room={ctx.room_vnum}, bot_mode={ctx.bot_mode}, "
+                        f"bot_mobs={len(ctx.bot_mobs) if ctx.bot_mobs else 0}, "
+                        f"in_combat={ctx.in_combat}, position={ctx.position.name}")
+        
         # Check for higher priority behaviors that should interrupt
         for behavior in self._behaviors:
-            if behavior.can_start(ctx):
+            can_start = behavior.can_start(ctx)
+            logger.debug(f"[{self.bot.bot_id}] Behavior {behavior.name} (pri={behavior.priority}): can_start={can_start}")
+            if can_start:
                 if (self._current_behavior is None or 
                     behavior.priority > self._current_behavior.priority):
                     

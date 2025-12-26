@@ -957,14 +957,15 @@ void stop_fighting(Mobile* ch, bool fBoth)
 void make_corpse(Mobile* ch)
 {
     char buf[MAX_STRING_LENGTH];
+    char name_buf[MAX_INPUT_LENGTH];
     Object* corpse = NULL;
     Object* obj = NULL;
-    String* name;
 
     if (IS_NPC(ch)) {
-        name = lox_string(ch->short_descr);
+        // Include "corpse" keyword so players can "get all corpse", "sacrifice corpse", etc.
+        snprintf(name_buf, sizeof(name_buf), "corpse %s", ch->short_descr);
         corpse = create_object(get_object_prototype(OBJ_VNUM_CORPSE_NPC), 0);
-        SET_NAME(corpse, name);
+        SET_NAME(corpse, lox_string(name_buf));
         corpse->timer = (int16_t)number_range(3, 6);
         long total_copper = mobile_total_copper(ch);
         if (total_copper > 0) {
@@ -976,9 +977,10 @@ void make_corpse(Mobile* ch)
         corpse->cost = 0;
     }
     else {
-        name = NAME_FIELD(ch);
+        // Include "corpse" keyword so players can interact with it by keyword
+        snprintf(name_buf, sizeof(name_buf), "corpse %s", NAME_STR(ch));
         corpse = create_object(get_object_prototype(OBJ_VNUM_CORPSE_PC), 0);
-        SET_NAME(corpse, name);
+        SET_NAME(corpse, lox_string(name_buf));
         corpse->timer = (int16_t)number_range(25, 40);
         REMOVE_BIT(ch->act_flags, PLR_CANLOOT);
         if (!is_clan(ch))
@@ -1002,11 +1004,13 @@ void make_corpse(Mobile* ch)
 
     corpse->level = ch->level;
 
-    SPRINTF_CORPSE_SDESC(buf, DESC_CORPSE, C_STR(name));
+    // For short_descr and description, use the mob's display name
+    const char* mob_name = IS_NPC(ch) ? ch->short_descr : NAME_STR(ch);
+    SPRINTF_CORPSE_SDESC(buf, DESC_CORPSE, mob_name);
     free_string(corpse->short_descr);
     corpse->short_descr = str_dup(buf);
 
-    SPRINTF_CORPSE_DESC(buf, DESC_CORPSE, C_STR(name));
+    SPRINTF_CORPSE_DESC(buf, DESC_CORPSE, mob_name);
     free_string(corpse->description);
     corpse->description = str_dup(buf);
 

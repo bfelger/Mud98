@@ -482,11 +482,17 @@ class TextParser:
         
         Returns BotRoomData with room, exits, mobs, and objects populated.
         Use this after 'look' command when PLR_BOT is enabled.
+        
+        If multiple 'look' outputs are in the same text (e.g., from buffered reads),
+        only the LAST room's data is kept.
         """
         data = BotRoomData()
         
         for line in text.split('\n'):
             if '[BOT:ROOM|' in line:
+                # New room header - clear previous data to avoid accumulating
+                # multiple look outputs
+                data = BotRoomData()
                 data.room = self.parse_bot_room(line)
             elif '[BOT:EXIT|' in line:
                 exit_ = self.parse_bot_exit(line)

@@ -21,7 +21,8 @@ from .behaviors import (
     ROUTE_TO_NORTH_CAGE, ROUTE_TO_SOUTH_CAGE,
     ROUTE_TO_EAST_CAGE, ROUTE_TO_WEST_CAGE,
     BotResetBehavior, TrainBehavior, PracticeBehavior,
-    ROUTE_TO_TRAIN_ROOM, ROUTE_TO_PRACTICE_ROOM
+    ROUTE_TO_TRAIN_ROOM, ROUTE_TO_PRACTICE_ROOM,
+    ReturnToCageBehavior
 )
 from .metrics import MetricsCollector, BotMetrics, get_collector, reset_collector
 
@@ -510,8 +511,9 @@ class Coordinator:
                 
                 # Then distribute to individual cages
                 if self.config.distribute_to_cages:
-                    cage_names = list(CAGE_ROUTES.keys())
-                    cage_name = cage_names[bot_index % len(cage_names)]
+                    # With multi-instance MUD school, all bots can go to the same cage
+                    # Use north cage (3713) with aggressive monster for reliable combat
+                    cage_name = 'north'  # Always use north cage
                     cage_vnum = CAGE_VNUMS[cage_name]
                     cage_route = CAGE_ROUTES[cage_name]
                     
@@ -523,6 +525,13 @@ class Coordinator:
                         route=full_route
                     ))
                     logger.info(f"[{bot_id}] Will navigate to {cage_name} cage (room {cage_vnum})")
+                    
+                    # Add return-to-cage behavior to recover from death/displacement
+                    managed.engine.add_behavior(ReturnToCageBehavior(
+                        cage_vnum=cage_vnum,
+                        route=full_route,
+                        hp_threshold=30.0  # Wait until HP recovers after death
+                    ))
             else:
                 # Legacy path-based navigation
                 if self.config.navigate_path:

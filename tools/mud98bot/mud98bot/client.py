@@ -283,9 +283,11 @@ class Bot:
         self._msdp.parse(data)
         new_vnum = self._msdp.stats.room_vnum
         
-        # Log room transitions
+        # On room change, clear stale bot_data (will be repopulated on next 'look')
         if new_vnum != old_vnum and old_vnum != 0:
             self._logger.debug(f"ROOM: {old_vnum} -> {new_vnum}")
+            # Clear bot_data to prevent stale mob/object info
+            self._bot_data = BotRoomData()
     
     def _detect_prompt(self, text: str) -> bool:
         """Check if text contains a prompt."""

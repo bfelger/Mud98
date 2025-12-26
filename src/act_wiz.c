@@ -441,7 +441,8 @@ void do_botreset(Mobile* ch, char* argument)
     obj_to_char(create_object(get_object_prototype(OBJ_VNUM_MAP), 0), ch);
     
     // 10. Teleport to MUD school entrance
-    target_room = get_room(NULL, mud_school_vnum);
+    // Use get_room_for_player() to handle multi-instance areas correctly
+    target_room = get_room_for_player(ch, mud_school_vnum);
     if (target_room == NULL) {
         send_to_char("Warning: Could not find MUD school room, staying in current location.\n\r", ch);
     } else {

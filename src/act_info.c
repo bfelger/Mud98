@@ -2347,7 +2347,7 @@ void do_practice(Mobile* ch, char* argument)
 
     // Bot-only reset command: restores skills and practice points to starting values
     if (!str_cmp(argument, "reset") && (IS_BOT(ch) || IS_TESTER(ch))) {
-        
+
         // Clear all skills/groups and set to 0 (unknown)
         memset(ch->pcdata->learned, 0, sizeof(int16_t) * skill_count);
         memset(ch->pcdata->group_known, 0, sizeof(bool) * skill_group_count);
