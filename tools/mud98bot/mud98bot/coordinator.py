@@ -19,7 +19,9 @@ from .behaviors import (
     BehaviorEngine, create_default_engine,
     NavigateBehavior, ROUTE_TO_CAGE_ROOM,
     ROUTE_TO_NORTH_CAGE, ROUTE_TO_SOUTH_CAGE,
-    ROUTE_TO_EAST_CAGE, ROUTE_TO_WEST_CAGE
+    ROUTE_TO_EAST_CAGE, ROUTE_TO_WEST_CAGE,
+    BotResetBehavior, TrainBehavior, PracticeBehavior,
+    ROUTE_TO_TRAIN_ROOM, ROUTE_TO_PRACTICE_ROOM
 )
 from .metrics import MetricsCollector, BotMetrics, get_collector, reset_collector
 
@@ -170,6 +172,12 @@ class CoordinatorConfig:
     use_navigate_behavior: bool = True  # Use NavigateBehavior instead of path commands
     cage_room_vnum: int = 3712  # Target for initial navigation
     distribute_to_cages: bool = True  # Send bots to different cages
+    
+    # Startup behaviors
+    hard_reset_on_startup: bool = True  # Send 'botreset hard' to reset to level 1
+    train_on_startup: bool = True  # Visit Training Room and train stats
+    practice_on_startup: bool = True  # Visit Practice Room and practice skills
+    reset_on_startup: bool = True  # Reset stats/skills to starting values (bot-only)
     
     # Legacy navigation (used if use_navigate_behavior is False)
     navigate_path: list[str] = field(default_factory=lambda: PATH_TO_CAGE_ROOM.copy())
@@ -469,7 +477,32 @@ class Coordinator:
             
             # Add navigation behavior if using route-based navigation
             if self.config.use_navigate_behavior:
-                # First navigate to cage room
+                # Add hard reset behavior first (resets character to level 1 at MUD school)
+                if self.config.hard_reset_on_startup:
+                    managed.engine.add_behavior(BotResetBehavior())
+                    logger.info(f"[{bot_id}] Will perform hard reset to level 1 at startup")
+                
+                # Add startup behaviors (train/practice before going to cages)
+                # If hard_reset is enabled, skip individual reset commands (they're redundant)
+                do_individual_resets = self.config.reset_on_startup and not self.config.hard_reset_on_startup
+                
+                if self.config.train_on_startup:
+                    managed.engine.add_behavior(TrainBehavior(
+                        route=ROUTE_TO_TRAIN_ROOM,
+                        reset_first=do_individual_resets
+                    ))
+                    reset_msg = " (with reset)" if do_individual_resets else ""
+                    logger.info(f"[{bot_id}] Will train stats{reset_msg} before navigating to cages")
+                
+                if self.config.practice_on_startup:
+                    managed.engine.add_behavior(PracticeBehavior(
+                        route=ROUTE_TO_PRACTICE_ROOM,
+                        reset_first=do_individual_resets
+                    ))
+                    reset_msg = " (with reset)" if do_individual_resets else ""
+                    logger.info(f"[{bot_id}] Will practice skills{reset_msg} before navigating to cages")
+                
+                # Then navigate to cage room
                 managed.engine.add_behavior(NavigateBehavior(
                     target_vnum=self.config.cage_room_vnum,
                     route=ROUTE_TO_CAGE_ROOM
@@ -498,7 +531,8 @@ class Coordinator:
             managed.status = BotStatus.PLAYING
             
             # Track XP for kill detection
-            last_xp = managed.bot.stats.experience
+            # Initialize to -1 so first MSDP reading sets baseline (don't count existing XP as kills)
+            last_xp = -1
             
             # Behavior loop
             while not managed.should_stop() and managed.bot.is_playing:
@@ -521,7 +555,11 @@ class Coordinator:
                     metrics.current_room_vnum = stats.room_vnum
                     
                     # Track kills via XP changes
-                    if stats.experience > last_xp:
+                    # First reading establishes baseline, subsequent increases are kills
+                    if last_xp < 0:
+                        # First valid XP reading - set baseline
+                        last_xp = stats.experience
+                    elif stats.experience > last_xp:
                         xp_gain = stats.experience - last_xp
                         metrics.record_kill(xp_gain)
                         logger.debug(f"[{bot_id}] Kill! +{xp_gain} XP")

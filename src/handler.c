@@ -445,7 +445,8 @@ void reset_char(Mobile* ch)
     Affect* af;
     int i;
 
-    if (IS_NPC(ch)) return;
+    if (IS_NPC(ch)) 
+        return;
 
     if (ch->pcdata->perm_hit == 0 || ch->pcdata->perm_mana == 0
         || ch->pcdata->perm_move == 0 || ch->pcdata->last_level == 0) {

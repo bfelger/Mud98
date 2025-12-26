@@ -10,7 +10,7 @@
 # from the server (if the server supports it).
 
 # Test accounts
-# Botrick:botpass  # Currently corrupted - skip
+Botrick:botpass
 Botnik:botpass
 Botley:botpass
 Bottoms:botpass

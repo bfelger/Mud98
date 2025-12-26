@@ -127,7 +127,7 @@ class Behavior(ABC):
     def start(self, bot: 'Bot', ctx: BehaviorContext) -> None:
         """Called when behavior is starting."""
         self._started = True
-        logger.debug(f"Starting behavior: {self.name}")
+        logger.debug(f"[{bot.bot_id}] Starting behavior: {self.name}")
     
     def stop(self) -> None:
         """Called when behavior is being stopped."""
@@ -160,20 +160,20 @@ class SurviveBehavior(Behavior):
     def start(self, bot: 'Bot', ctx: BehaviorContext) -> None:
         super().start(bot, ctx)
         self._flee_attempts = 0
-        logger.warning(f"HP critical ({ctx.hp_percent:.0f}%) - initiating flee!")
+        logger.warning(f"[{bot.bot_id}] HP critical ({ctx.hp_percent:.0f}%) - initiating flee!")
     
     def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
         if not ctx.in_combat:
-            logger.info("Successfully escaped combat!")
+            logger.info(f"[{bot.bot_id}] Successfully escaped combat!")
             return BehaviorResult.COMPLETED
         
         if self._flee_attempts >= 5:
-            logger.error("Could not flee after 5 attempts!")
+            logger.error(f"[{bot.bot_id}] Could not flee after 5 attempts!")
             bot.send_command("recall")
             return BehaviorResult.FAILED
         
         self._flee_attempts += 1
-        logger.warning(f"Fleeing (attempt {self._flee_attempts})...")
+        logger.warning(f"[{bot.bot_id}] Fleeing (attempt {self._flee_attempts})...")
         bot.send_command("flee")
         return BehaviorResult.CONTINUE
 
@@ -194,7 +194,7 @@ class CombatBehavior(Behavior):
     
     def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
         if not ctx.in_combat:
-            logger.info("Combat ended - victory!")
+            logger.info(f"[{bot.bot_id}] Combat ended - victory!")
             return BehaviorResult.COMPLETED
         
         # Use skills occasionally (30% chance)
@@ -251,7 +251,7 @@ class HealBehavior(Behavior):
             self._reason = f"HP: {ctx.hp_percent:.0f}%"
         else:
             self._reason = f"Move: {ctx.move_percent:.0f}%"
-        logger.info(f"Need to rest ({self._reason})")
+        logger.info(f"[{bot.bot_id}] Need to rest ({self._reason})")
     
     def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
         if ctx.in_combat:
@@ -267,19 +267,19 @@ class HealBehavior(Behavior):
             if self._is_resting:
                 bot.send_command("stand")
                 self._is_resting = False
-            logger.info(f"Recovered (HP: {ctx.hp_percent:.0f}%, Move: {ctx.move_percent:.0f}%)")
+            logger.info(f"[{bot.bot_id}] Recovered (HP: {ctx.hp_percent:.0f}%, Move: {ctx.move_percent:.0f}%)")
             return BehaviorResult.COMPLETED
         
         if not self._is_resting:
             if ctx.hp_percent < self.sleep_hp_percent:
-                logger.debug(f"Sleeping (HP: {ctx.hp_percent:.0f}%)")
+                logger.debug(f"[{bot.bot_id}] Sleeping (HP: {ctx.hp_percent:.0f}%)")
                 bot.send_command("sleep")
             else:
-                logger.debug(f"Resting (HP: {ctx.hp_percent:.0f}%, Move: {ctx.move_percent:.0f}%)")
+                logger.debug(f"[{bot.bot_id}] Resting (HP: {ctx.hp_percent:.0f}%, Move: {ctx.move_percent:.0f}%)")
                 bot.send_command("rest")
             self._is_resting = True
         else:
-            logger.debug(f"Still resting... HP: {ctx.hp_percent:.0f}%, Move: {ctx.move_percent:.0f}%")
+            logger.debug(f"[{bot.bot_id}] Still resting... HP: {ctx.hp_percent:.0f}%, Move: {ctx.move_percent:.0f}%")
         
         return BehaviorResult.CONTINUE
     
@@ -311,7 +311,7 @@ class LootBehavior(Behavior):
         super().start(bot, ctx)
         self._looted = False
         self._sacrificed = False
-        logger.info("Looting corpse...")
+        logger.info(f"[{bot.bot_id}] Looting corpse...")
     
     def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
         if not self._looted:
@@ -459,7 +459,7 @@ class AttackBehavior(Behavior):
                 if self._can_attack_bot_mob(mob, ctx.level):
                     # Use mob's name directly as keyword (it's from prototype name)
                     keyword = mob.name.split()[0]  # First word is usually the keyword
-                    logger.info(f"Attacking: {mob.name} lvl{mob.level} hp={mob.hp_percent}% (using '{keyword}')")
+                    logger.info(f"[{bot.bot_id}] Attacking: {mob.name} lvl{mob.level} hp={mob.hp_percent}% (using '{keyword}')")
                     bot.send_command(f"kill {keyword}")
                     return BehaviorResult.COMPLETED
         else:
@@ -467,7 +467,7 @@ class AttackBehavior(Behavior):
             for mob in ctx.room_mobs:
                 if self._can_attack(mob):
                     keyword = self._get_target_keyword(mob)
-                    logger.info(f"Attacking: {mob} (using '{keyword}')")
+                    logger.info(f"[{bot.bot_id}] Attacking: {mob} (using '{keyword}')")
                     bot.send_command(f"kill {keyword}")
                     return BehaviorResult.COMPLETED
         
@@ -481,10 +481,13 @@ class AttackBehavior(Behavior):
 # These define waypoints for goal-oriented navigation
 
 # Route from temple (3001) or recall to Mud School Cage Room (3712)
+# Also includes routes from Training Room (3758) and Practice Room (3759)
 ROUTE_TO_CAGE_ROOM: dict[int, str] = {
     3001: "up",       # Temple -> Mud School Entrance
-    3700: "north",    # Entrance -> First Hallway
-    3757: "north",    # Continue north (west cage entrance)
+    3700: "north",    # Entrance -> Hub Room (3757)
+    3757: "north",    # Hub -> First Hallway (3701)
+    3758: "east",     # Training Room -> Hub (3757)
+    3759: "west",     # Practice Room -> Hub (3757)
     3701: "west",     # Turn west
     3702: "north",    # Continue north
     3703: "north",    # Continue north
@@ -527,6 +530,27 @@ ROUTE_TO_WEST_CAGE: dict[int, str] = {
     3713: "south",   # North cage -> Cage room
     3715: "north",   # South cage -> Cage room
     3716: "west",    # East cage -> Cage room
+}
+
+# Routes to Training Room (3758) and Practice Room (3759) from temple
+# These are early-game rooms for using train/practice points
+TRAIN_ROOM_VNUM = 3758
+PRACTICE_ROOM_VNUM = 3759
+
+ROUTE_TO_TRAIN_ROOM: dict[int, str] = {
+    3001: "up",       # Temple -> Mud School Entrance (3700)
+    3700: "north",    # Entrance -> Hub room (3757)
+    3757: "west",     # Hub -> Training Room (3758)
+    # From practice room, go back to hub first
+    3759: "west",     # Practice Room -> Hub (3757)
+}
+
+ROUTE_TO_PRACTICE_ROOM: dict[int, str] = {
+    3001: "up",       # Temple -> Mud School Entrance (3700)
+    3700: "north",    # Entrance -> Hub room (3757)
+    3757: "east",     # Hub -> Practice Room (3759)
+    # From training room, go back to hub first
+    3758: "east",     # Training Room -> Hub (3757)
 }
 
 
@@ -580,19 +604,19 @@ class NavigateBehavior(Behavior):
         self._arrived = False
         self._stuck_count = 0
         self._last_vnum = ctx.room_vnum
-        logger.info(f"Navigating to room {self.target_vnum} from {ctx.room_vnum}")
+        logger.info(f"[{bot.bot_id}] Navigating to room {self.target_vnum} from {ctx.room_vnum}")
     
     def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
         # Check if we've arrived
         if ctx.room_vnum == self.target_vnum:
             if not self._arrived:
-                logger.info(f"Arrived at target room {self.target_vnum}")
+                logger.info(f"[{bot.bot_id}] Arrived at target room {self.target_vnum}")
                 self._arrived = True
                 if self.on_arrival:
                     try:
                         self.on_arrival()
                     except Exception as e:
-                        logger.error(f"on_arrival callback error: {e}")
+                        logger.error(f"[{bot.bot_id}] on_arrival callback error: {e}")
             return BehaviorResult.COMPLETED
         
         # Combat interrupts navigation
@@ -601,7 +625,7 @@ class NavigateBehavior(Behavior):
         
         # Check position - can't move if not standing
         if not ctx.position.can_move:
-            logger.debug(f"Cannot move - position is {ctx.position.name}, waking up")
+            logger.debug(f"[{bot.bot_id}] Cannot move - position is {ctx.position.name}, waking up")
             bot.send_command("wake")  # Wake handles sleeping, resting, sitting
             bot.send_command("stand")
             return BehaviorResult.CONTINUE  # Wait for next tick
@@ -610,7 +634,7 @@ class NavigateBehavior(Behavior):
         if ctx.room_vnum == self._last_vnum and ctx.room_vnum != 0:
             self._stuck_count += 1
             if self._stuck_count >= 5:
-                logger.warning(f"Stuck at room {ctx.room_vnum}, cannot navigate")
+                logger.warning(f"[{bot.bot_id}] Stuck at room {ctx.room_vnum}, cannot navigate")
                 return BehaviorResult.FAILED
         else:
             self._stuck_count = 0
@@ -619,19 +643,19 @@ class NavigateBehavior(Behavior):
         # Find direction from current room
         if ctx.room_vnum not in self.route:
             # We're off the route - can't navigate from here
-            logger.warning(f"Room {ctx.room_vnum} not in route to {self.target_vnum}")
+            logger.warning(f"[{bot.bot_id}] Room {ctx.room_vnum} not in route to {self.target_vnum}")
             return BehaviorResult.FAILED
         
         direction = self.route[ctx.room_vnum]
         
         # Verify the exit exists
         if direction not in ctx.room_exits:
-            logger.warning(f"Exit '{direction}' not available from room {ctx.room_vnum}, "
+            logger.warning(f"[{bot.bot_id}] Exit '{direction}' not available from room {ctx.room_vnum}, "
                          f"available exits: {ctx.room_exits}")
             return BehaviorResult.FAILED
         
         # Move!
-        logger.debug(f"Navigating: {ctx.room_vnum} -> {direction} -> {self.target_vnum}")
+        logger.debug(f"[{bot.bot_id}] Navigating: {ctx.room_vnum} -> {direction} -> {self.target_vnum}")
         bot.send_command(direction)
         # Send look to update BOT data after movement
         bot.send_command("look")
@@ -717,11 +741,11 @@ class ExploreBehavior(Behavior):
             return BehaviorResult.COMPLETED  # Let combat behavior take over
         
         if ctx.move_percent < 20:
-            logger.info("Low movement, stopping exploration")
+            logger.info(f"[{bot.bot_id}] Low movement, stopping exploration")
             return BehaviorResult.COMPLETED
         
         if len(self.visited_vnums) >= self.max_rooms:
-            logger.info(f"Explored {self.max_rooms} rooms, done")
+            logger.info(f"[{bot.bot_id}] Explored {self.max_rooms} rooms, done")
             return BehaviorResult.COMPLETED
         
         # Record current room
@@ -733,7 +757,7 @@ class ExploreBehavior(Behavior):
         if not direction:
             self._stuck_count += 1
             if self._stuck_count >= 3:
-                logger.warning("Stuck, recalling to temple")
+                logger.warning(f"[{bot.bot_id}] Stuck, recalling to temple")
                 bot.send_command("recall")
                 self._stuck_count = 0
                 return BehaviorResult.CONTINUE
@@ -742,7 +766,7 @@ class ExploreBehavior(Behavior):
         self._stuck_count = 0
         self._last_direction = direction
         bot.send_command(direction)
-        logger.debug(f"Moving {direction} (visited {len(self.visited_vnums)} rooms)")
+        logger.debug(f"[{bot.bot_id}] Moving {direction} (visited {len(self.visited_vnums)} rooms)")
         return BehaviorResult.CONTINUE
     
     def _choose_direction(self, ctx: BehaviorContext) -> Optional[str]:
@@ -764,7 +788,7 @@ class ExploreBehavior(Behavior):
                         unvisited.append(exit.direction)
             if unvisited:
                 direction = random.choice(unvisited)
-                logger.debug(f"BOT: Choosing unexplored direction {direction}")
+                logger.debug(f"[{bot.bot_id}] BOT: Choosing unexplored direction {direction}")
                 return direction
         
         # Fall back to random selection
@@ -781,33 +805,278 @@ class ExploreBehavior(Behavior):
         return opposites.get(direction)
 
 
-class TrainBehavior(Behavior):
-    """Train stats when we have training sessions."""
+class BotResetBehavior(Behavior):
+    """
+    Perform a hard reset of the bot character at startup.
     
-    priority = 50
+    This is a one-shot startup behavior that sends 'botreset hard' to
+    completely reset the character to level 1 with fresh equipment,
+    skills, and stats. After the reset, the character will be at the
+    MUD school entrance (VNUM 3700).
+    
+    This replaces the need for separate train reset / practice reset
+    commands and ensures each test session starts from a known baseline.
+    """
+    
+    priority = 65  # Higher than Train/Practice so it runs first
+    name = "BotReset"
+    tick_delay = 0.5
+    
+    def __init__(self):
+        super().__init__()
+        self._completed = False
+        self._sent_reset = False
+    
+    def can_start(self, ctx: BehaviorContext) -> bool:
+        # One-shot behavior - only run if not completed
+        if self._completed:
+            return False
+        # Don't start if in combat
+        if ctx.in_combat:
+            return False
+        return True
+    
+    def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
+        if ctx.in_combat:
+            return BehaviorResult.WAITING
+        
+        if not self._sent_reset:
+            bot.send_command("botreset hard")
+            logger.info(f"[{bot.bot_id}] Sent 'botreset hard' to reset character to level 1")
+            self._sent_reset = True
+            return BehaviorResult.CONTINUE
+        
+        # Done - reset is complete
+        logger.info(f"[{bot.bot_id}] Bot reset complete - character is now at MUD school entrance")
+        self._completed = True
+        return BehaviorResult.COMPLETED
+    
+    def reset(self) -> None:
+        """Reset for re-use."""
+        self._completed = False
+        self._sent_reset = False
+
+
+class TrainBehavior(Behavior):
+    """
+    Navigate to training room and train stats.
+    
+    This is a one-shot startup behavior that:
+    1. Navigates to the Training Room (VNUM 3758)
+    2. Optionally sends 'train reset' to reset stats/training points (bot-only)
+    3. Sends 'train' commands for each stat in priority order
+    4. Completes when done (allowing next startup behaviors to run)
+    
+    The behavior completes after attempting to train all stats once,
+    regardless of whether the character had training sessions available.
+    """
+    
+    priority = 62  # Above Navigate (50), but below Heal (70) so healing can interrupt
     name = "Train"
     tick_delay = 0.5
+    
+    # Yield to healing if movement drops below this threshold
+    CRITICAL_MOVE_PERCENT = 15.0
     
     # Priority order for stats to train
     DEFAULT_TRAIN_ORDER = ['str', 'con', 'dex', 'wis', 'int']
     
-    # VNUM of training room (Furey's Training Room in Mud School)
-    TRAIN_ROOM_VNUM = 3758
-    
-    def __init__(self, stat_priority: Optional[list[str]] = None):
+    def __init__(self, stat_priority: Optional[list[str]] = None, 
+                 route: Optional[dict[int, str]] = None,
+                 reset_first: bool = True,
+                 train_per_stat: int = 5):
         super().__init__()
         self.stat_priority = stat_priority or self.DEFAULT_TRAIN_ORDER
-        self._navigating = False
-        self._at_trainer = False
+        self.route = route or ROUTE_TO_TRAIN_ROOM
+        self.reset_first = reset_first  # Send 'train reset' before training
+        self.train_per_stat = train_per_stat  # Times to train each stat
+        self._navigating = True
+        self._completed = False
+        self._reset_sent = False
     
     def can_start(self, ctx: BehaviorContext) -> bool:
-        # Would need training sessions - can't detect via MSDP currently
-        # For now, always return False (training is done manually)
-        return False
+        # One-shot behavior - only run if not completed
+        if self._completed:
+            return False
+        # Don't start if in combat
+        if ctx.in_combat:
+            return False
+        # Yield to healing if movement is critical (let HealBehavior take over)
+        if ctx.move_percent < self.CRITICAL_MOVE_PERCENT:
+            return False
+        # Must be able to move
+        if not ctx.position.can_move:
+            return False
+        return True
     
     def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
-        # Future: navigate to trainer and train stats
-        return BehaviorResult.FAILED
+        # If we were interrupted by combat, bail
+        if ctx.in_combat:
+            return BehaviorResult.WAITING
+        
+        # Phase 1: Navigate to training room
+        if self._navigating:
+            if ctx.room_vnum == TRAIN_ROOM_VNUM:
+                # We've arrived at the training room
+                logger.info(f"[{bot.bot_id}] Arrived at Training Room (VNUM {TRAIN_ROOM_VNUM})")
+                self._navigating = False
+                return BehaviorResult.CONTINUE
+            
+            # Need to make sure we're standing
+            if not ctx.position.can_move:
+                bot.send_command("wake")
+                bot.send_command("stand")
+                return BehaviorResult.CONTINUE
+            
+            # Navigate toward training room
+            if ctx.room_vnum in self.route:
+                direction = self.route[ctx.room_vnum]
+                logger.debug(f"[{bot.bot_id}] Training nav: room {ctx.room_vnum} -> {direction}")
+                bot.send_command(direction)
+                return BehaviorResult.CONTINUE
+            else:
+                # Not on route - try recalling to get to temple
+                logger.warning(f"[{bot.bot_id}] Training: room {ctx.room_vnum} not in route, recalling")
+                bot.send_command("recall")
+                return BehaviorResult.CONTINUE
+        
+        # Phase 2: Send reset command if enabled
+        if self.reset_first and not self._reset_sent:
+            bot.send_command("train reset")
+            logger.info(f"[{bot.bot_id}] Sent 'train reset' to reset stats and training points")
+            self._reset_sent = True
+            return BehaviorResult.CONTINUE
+        
+        # Phase 3: Train stats - batch all commands in one tick
+        # Bots are exempt from spam protection, so we can send many commands at once
+        total_trained = 0
+        for stat in self.stat_priority:
+            for _ in range(self.train_per_stat):
+                bot.send_command(f"train {stat}")
+                total_trained += 1
+        
+        logger.info(f"[{bot.bot_id}] Training complete (sent {total_trained} train commands)")
+        self._completed = True
+        return BehaviorResult.COMPLETED
+    
+    def reset(self) -> None:
+        """Reset for re-use."""
+        self._navigating = True
+        self._completed = False
+        self._reset_sent = False
+
+
+class PracticeBehavior(Behavior):
+    """
+    Navigate to practice room and practice skills.
+    
+    This is a one-shot startup behavior that:
+    1. Navigates to the Practice Room (VNUM 3759)
+    2. Optionally sends 'practice reset' to reset skills/practice points (bot-only)
+    3. Sends 'practice' commands for each skill in the list
+    4. Completes when done (allowing next startup behaviors to run)
+    
+    The behavior completes after attempting to practice all skills once.
+    """
+    
+    priority = 61  # Slightly lower than Train (62), but above Navigate (50)
+    name = "Practice"
+    tick_delay = 0.5
+    
+    # Yield to healing if movement drops below this threshold
+    CRITICAL_MOVE_PERCENT = 15.0
+    
+    # Default skills to practice (common combat skills)
+    DEFAULT_SKILLS = [
+        'sword', 'dagger', 'mace', 'axe', 'spear', 'polearm', 'whip', 'flail',
+        'parry', 'dodge', 'shield block', 'second attack', 'third attack',
+        'enhanced damage', 'fast healing', 'meditation',
+        'recall', 'scrolls', 'staves', 'wands',
+    ]
+    
+    def __init__(self, skills: Optional[list[str]] = None,
+                 route: Optional[dict[int, str]] = None,
+                 reset_first: bool = True,
+                 practice_per_skill: int = 3):
+        super().__init__()
+        self.skills = skills or self.DEFAULT_SKILLS
+        self.route = route or ROUTE_TO_PRACTICE_ROOM
+        self.reset_first = reset_first  # Send 'practice reset' before practicing
+        self.practice_per_skill = practice_per_skill  # Times to practice each skill
+        self._navigating = True
+        self._completed = False
+        self._reset_sent = False
+    
+    def can_start(self, ctx: BehaviorContext) -> bool:
+        # One-shot behavior - only run if not completed
+        if self._completed:
+            return False
+        # Don't start if in combat
+        if ctx.in_combat:
+            return False
+        # Yield to healing if movement is critical (let HealBehavior take over)
+        if ctx.move_percent < self.CRITICAL_MOVE_PERCENT:
+            return False
+        # Must be able to move
+        if not ctx.position.can_move:
+            return False
+        return True
+    
+    def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
+        # If we were interrupted by combat, bail
+        if ctx.in_combat:
+            return BehaviorResult.WAITING
+        
+        # Phase 1: Navigate to practice room
+        if self._navigating:
+            if ctx.room_vnum == PRACTICE_ROOM_VNUM:
+                # We've arrived at the practice room
+                logger.info(f"[{bot.bot_id}] Arrived at Practice Room (VNUM {PRACTICE_ROOM_VNUM})")
+                self._navigating = False
+                return BehaviorResult.CONTINUE
+            
+            # Need to make sure we're standing
+            if not ctx.position.can_move:
+                bot.send_command("wake")
+                bot.send_command("stand")
+                return BehaviorResult.CONTINUE
+            
+            # Navigate toward practice room
+            if ctx.room_vnum in self.route:
+                direction = self.route[ctx.room_vnum]
+                logger.debug(f"[{bot.bot_id}] Practice nav: room {ctx.room_vnum} -> {direction}")
+                bot.send_command(direction)
+                return BehaviorResult.CONTINUE
+            else:
+                # Not on route - try recalling to get to temple
+                logger.warning(f"[{bot.bot_id}] Practice: room {ctx.room_vnum} not in route, recalling")
+                bot.send_command("recall")
+                return BehaviorResult.CONTINUE
+        
+        # Phase 2: Send reset command if enabled
+        if self.reset_first and not self._reset_sent:
+            bot.send_command("practice reset")
+            logger.info(f"[{bot.bot_id}] Sent 'practice reset' to reset skills and practice points")
+            self._reset_sent = True
+            return BehaviorResult.CONTINUE
+        
+        # Phase 3: Practice skills - batch all commands in one tick
+        # Bots are exempt from spam protection, so we can send many commands at once
+        total_practiced = 0
+        for skill in self.skills:
+            for _ in range(self.practice_per_skill):
+                bot.send_command(f"practice {skill}")
+                total_practiced += 1
+        
+        logger.info(f"[{bot.bot_id}] Practice complete (sent {total_practiced} practice commands)")
+        self._completed = True
+        return BehaviorResult.COMPLETED
+    
+    def reset(self) -> None:
+        """Reset for re-use."""
+        self._navigating = True
+        self._completed = False
+        self._reset_sent = False
 
 
 class ShopBehavior(Behavior):
@@ -854,7 +1123,7 @@ class RecallBehavior(Behavior):
         return self._flee_failed and ctx.hp_percent < 30.0
     
     def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
-        logger.info(f"EMERGENCY RECALL! (Flee failed, HP: {ctx.hp_percent:.0f}%)")
+        logger.info(f"[{bot.bot_id}] EMERGENCY RECALL! (Flee failed, HP: {ctx.hp_percent:.0f}%)")
         bot.send_command("recall")
         self._flee_failed = False
         return BehaviorResult.COMPLETED
@@ -904,7 +1173,7 @@ class BehaviorEngine:
         self._behaviors.append(behavior)
         # Keep sorted by priority (highest first)
         self._behaviors.sort(key=lambda b: -b.priority)
-        logger.debug(f"Added behavior: {behavior.name} (priority {behavior.priority})")
+        logger.debug(f"[{self.bot.bot_id}] Added behavior: {behavior.name} (priority {behavior.priority})")
     
     def remove_behavior(self, behavior_name: str) -> None:
         """Remove a behavior by name."""
@@ -1020,7 +1289,7 @@ class BehaviorEngine:
                     
                     # Interrupt current behavior
                     if self._current_behavior and self._current_behavior != behavior:
-                        logger.debug(f"Interrupting {self._current_behavior.name} "
+                        logger.debug(f"[{self.bot.bot_id}] Interrupting {self._current_behavior.name} "
                                    f"with {behavior.name}")
                         self._current_behavior.stop()
                     

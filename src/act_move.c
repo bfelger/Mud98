@@ -51,6 +51,7 @@
 #include <data/direction.h>
 #include <data/events.h>
 #include <data/mobile_data.h>
+#include <data/race.h>
 #include <data/skill.h>
 
 #include <stdio.h>
@@ -1480,7 +1481,11 @@ void do_recall(Mobile* ch, char* argument)
         stop_fighting(ch, true);
     }
 
-    ch->move /= 2;
+    if (IS_BOT(ch))
+        ch->move = ch->max_move;
+    else
+        ch->move /= 2;
+
     act("$n disappears.", ch, NULL, NULL, TO_ROOM);
     transfer_mob(ch, location);
     act("$n appears in the room.", ch, NULL, NULL, TO_ROOM);
@@ -1500,6 +1505,45 @@ void do_train(Mobile* ch, char* argument)
 
     if (IS_NPC(ch))
         return;
+
+    // Bot-only reset command: restores stats and training points to starting values
+    if (!str_cmp(argument, "reset") && (IS_BOT(ch) || IS_IMMORTAL(ch))) {
+
+        // Reset permanent stats to racial base + class prime stat bonus
+        for (int i = 0; i < STAT_COUNT; i++) {
+            ch->perm_stat[i] = race_table[ch->race].stats[i];
+        }
+        // Add prime stat bonus (given at level 1)
+        ch->perm_stat[class_table[ch->ch_class].prime_stat] += 3;
+
+        // Calculate how much HP/mana was added through training
+        // Original perm values are based on class roll + level bonuses
+        // For simplicity, we reset perm_hit and perm_mana to base values
+        // Level 1 base: class dice roll (average) 
+        int16_t base_hp = class_table[ch->ch_class].hp_min 
+            + (class_table[ch->ch_class].hp_max - class_table[ch->ch_class].hp_min) / 2;
+        int16_t base_mana = (class_table[ch->ch_class].fMana) 
+            ? (100 + ch->perm_stat[STAT_INT] + ch->perm_stat[STAT_WIS]) / 2
+            : 0;
+        
+        // For level 1, these are the starting values
+        if (ch->level == 1) {
+            ch->pcdata->perm_hit = base_hp;
+            ch->pcdata->perm_mana = base_mana + 100;  // Base mana pool
+        }
+        // For higher levels, just reset to current max (preserving level gains)
+        // and subtract any trained bonuses beyond natural progression
+        // This is complex, so we just reset trains and let the player re-train
+        
+        // Reset training sessions to starting value
+        ch->train = 3;
+        
+        // Recalculate current HP/mana/move
+        reset_char(ch);
+        
+        send_to_char("Your stats and training sessions have been reset to starting values.\n\r", ch);
+        return;
+    }
 
     if (!cfg_get_train_anywhere()) {
         // Check for trainer.

@@ -2345,6 +2345,35 @@ void do_practice(Mobile* ch, char* argument)
     if (IS_NPC(ch))
         return;
 
+    // Bot-only reset command: restores skills and practice points to starting values
+    if (!str_cmp(argument, "reset") && (IS_BOT(ch) || IS_TESTER(ch))) {
+        
+        // Clear all skills/groups and set to 0 (unknown)
+        memset(ch->pcdata->learned, 0, sizeof(int16_t) * skill_count);
+        memset(ch->pcdata->group_known, 0, sizeof(bool) * skill_group_count);
+        
+        // Re-add racial skills/groups
+        for (int i = 0; i < RACE_NUM_SKILLS; i++) {
+            if (race_table[ch->race].skills[i] == NULL)
+                break;
+            group_add(ch, race_table[ch->race].skills[i], false);
+        }
+        
+        // Re-add class base group
+        if (class_table[ch->ch_class].base_group != NULL) {
+            group_add(ch, class_table[ch->ch_class].base_group, false);
+        }
+        
+        // Recall skill is always given at 50%
+        ch->pcdata->learned[gsn_recall] = 50;
+        
+        // Reset practice sessions to starting value
+        ch->practice = 5;
+        
+        send_to_char("Your skills and practice sessions have been reset to starting values.\n\r", ch);
+        return;
+    }
+
     if (argument[0] == '\0') {
         int col;
 

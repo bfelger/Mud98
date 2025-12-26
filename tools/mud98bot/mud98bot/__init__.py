@@ -10,8 +10,11 @@ from .parser import TextParser, BotRoomData
 from .behaviors import (
     BehaviorEngine, Behavior, BehaviorResult, create_default_engine,
     NavigateBehavior, NavigationTask,
+    BotResetBehavior, TrainBehavior, PracticeBehavior,
     ROUTE_TO_CAGE_ROOM, ROUTE_TO_NORTH_CAGE, ROUTE_TO_SOUTH_CAGE,
-    ROUTE_TO_EAST_CAGE, ROUTE_TO_WEST_CAGE
+    ROUTE_TO_EAST_CAGE, ROUTE_TO_WEST_CAGE,
+    ROUTE_TO_TRAIN_ROOM, ROUTE_TO_PRACTICE_ROOM,
+    TRAIN_ROOM_VNUM, PRACTICE_ROOM_VNUM
 )
 from .metrics import MetricsCollector, BotMetrics, get_collector
 from .coordinator import (
@@ -32,8 +35,11 @@ __all__ = [
     # Behaviors
     "BehaviorEngine", "Behavior", "BehaviorResult", "create_default_engine",
     "NavigateBehavior", "NavigationTask",
+    "BotResetBehavior", "TrainBehavior", "PracticeBehavior",
     "ROUTE_TO_CAGE_ROOM", "ROUTE_TO_NORTH_CAGE", "ROUTE_TO_SOUTH_CAGE",
     "ROUTE_TO_EAST_CAGE", "ROUTE_TO_WEST_CAGE",
+    "ROUTE_TO_TRAIN_ROOM", "ROUTE_TO_PRACTICE_ROOM",
+    "TRAIN_ROOM_VNUM", "PRACTICE_ROOM_VNUM",
     # Metrics
     "MetricsCollector", "BotMetrics", "get_collector",
     # Coordinator

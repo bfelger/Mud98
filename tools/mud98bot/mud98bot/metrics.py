@@ -295,7 +295,7 @@ class MetricsCollector:
               f"Lat: {agg.avg_latency_ms:5.1f}ms | "
               f"Kills: {agg.total_kills} | "
               f"Deaths: {agg.total_deaths}",
-              end='', flush=True)
+              end='\n', flush=True)
     
     def to_dict(self) -> dict:
         """Export metrics as dictionary (for JSON output)."""

@@ -113,6 +113,11 @@ class Bot:
         return self._state
     
     @property
+    def bot_id(self) -> str:
+        """Return the bot identifier (username)."""
+        return self.config.username or "unnamed"
+    
+    @property
     def is_playing(self) -> bool:
         return self._state == BotState.PLAYING
     
