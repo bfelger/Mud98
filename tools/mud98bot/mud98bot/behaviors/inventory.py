@@ -160,14 +160,17 @@ class ShopBehavior(Behavior):
 
 class BuySuppliesBehavior(Behavior):
     """
-    Navigate to shop, buy food/drink when hungry/thirsty, then return.
+    Navigate to shop, buy food/drink/lantern, then return.
     
     This is an emergent, transient behavior - only activates when the bot
     detects it is hungry or thirsty and has enough money to buy supplies.
     Also supports proactive shopping after patrol circuit completion.
     
     Shop is in room 3718 (south from 3717, which is down from 3712).
-    Sells soup (VNUM 3151) and water skin (VNUM 3138) from midgaard.are.
+    Sells soup (VNUM 3151), water skin (VNUM 3138), and lantern.
+    
+    The lantern is needed to see in dark rooms like 3720 where the
+    "big creature" with the key to MUD school is located.
     """
     
     priority = PRIORITY_BUY_SUPPLIES
@@ -178,6 +181,7 @@ class BuySuppliesBehavior(Behavior):
     STATE_GO_TO_SHOP = 'go_to_shop'
     STATE_BUY_FOOD = 'buy_food'
     STATE_BUY_DRINK = 'buy_drink'
+    STATE_BUY_LANTERN = 'buy_lantern'
     STATE_EAT = 'eat'
     STATE_DRINK = 'drink'
     STATE_RETURN = 'return'
@@ -185,13 +189,16 @@ class BuySuppliesBehavior(Behavior):
     # Costs (approximate)
     SOUP_COST = 10
     WATER_COST = 10
+    LANTERN_COST = 20
     
-    def __init__(self):
+    def __init__(self, buy_lantern: bool = True):
         super().__init__()
+        self.buy_lantern = buy_lantern
         self._state = self.STATE_GO_TO_SHOP
         self._wait_ticks = 0
         self._bought_food = False
         self._bought_drink = False
+        self._bought_lantern = False
         self._start_room: int = 0
         self._is_proactive = False
     
@@ -230,6 +237,7 @@ class BuySuppliesBehavior(Behavior):
         self._wait_ticks = 0
         self._bought_food = False
         self._bought_drink = False
+        self._bought_lantern = False
         self._start_room = ctx.room_vnum
         self._is_proactive = ctx.should_proactive_shop and not ctx.is_hungry and not ctx.is_thirsty
         
@@ -241,11 +249,15 @@ class BuySuppliesBehavior(Behavior):
         if self._is_proactive:
             needs.append("food (proactive)")
             needs.append("drink (proactive)")
+            if self.buy_lantern:
+                needs.append("lantern (proactive)")
         else:
             if ctx.is_hungry:
                 needs.append("food")
             if ctx.is_thirsty:
                 needs.append("drink")
+            if self.buy_lantern:
+                needs.append("lantern")
         logger.info(f"[{bot.bot_id}] Going to shop to buy: {', '.join(needs)} (money: {ctx.money})")
     
     def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
@@ -255,6 +267,8 @@ class BuySuppliesBehavior(Behavior):
             return self._buy_food(bot, ctx)
         elif self._state == self.STATE_BUY_DRINK:
             return self._buy_drink(bot, ctx)
+        elif self._state == self.STATE_BUY_LANTERN:
+            return self._buy_lantern(bot, ctx)
         elif self._state == self.STATE_EAT:
             return self._eat(bot, ctx)
         elif self._state == self.STATE_DRINK:
@@ -318,9 +332,33 @@ class BuySuppliesBehavior(Behavior):
         
         self._wait_ticks += 1
         if self._wait_ticks >= 2:
-            if self._bought_food and not self._is_proactive:
+            # Next: buy lantern if needed, otherwise eat/drink or return
+            if self.buy_lantern and not self._bought_lantern:
+                self._state = self.STATE_BUY_LANTERN
+            elif self._bought_food and not self._is_proactive:
                 self._state = self.STATE_EAT
             elif not self._is_proactive:
+                self._state = self.STATE_DRINK
+            else:
+                # Proactive: skip consuming
+                self._state = self.STATE_RETURN
+        return BehaviorResult.CONTINUE
+    
+    def _buy_lantern(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
+        """Buy lantern at the shop for dark rooms."""
+        if not self._bought_lantern:
+            bot.send_command('buy lantern')
+            bot.send_command('hold lantern')  # Equip it immediately
+            self._bought_lantern = True
+            self._wait_ticks = 0
+            logger.info(f"[{bot.bot_id}] Bought and equipped lantern for dark rooms")
+            return BehaviorResult.CONTINUE
+        
+        self._wait_ticks += 1
+        if self._wait_ticks >= 2:
+            if self._bought_food and not self._is_proactive:
+                self._state = self.STATE_EAT
+            elif self._bought_drink and not self._is_proactive:
                 self._state = self.STATE_DRINK
             else:
                 # Proactive: skip consuming

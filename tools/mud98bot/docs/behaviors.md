@@ -188,7 +188,7 @@ class Behavior(ABC):
 **BuySuppliesBehavior** (priority 56)
 - Activates when hungry/thirsty OR proactive shop flag set
 - Navigates to shop (3718)
-- Buys soup and water skin
+- Buys soup, water skin, and lantern (for dark rooms)
 - Returns to cage area
 
 ### Navigation Behaviors
