@@ -812,24 +812,41 @@ class NavigateBehavior(Behavior):
     def __init__(self, 
                  target_vnum: int,
                  route: dict[int, str],
-                 on_arrival: Optional[callable] = None):
+                 on_arrival: Optional[callable] = None,
+                 one_shot: bool = False):
         """
         Args:
             target_vnum: The goal room VNUM
             route: Dict mapping from_vnum -> direction
             on_arrival: Optional callback when target is reached
+            one_shot: If True, disable behavior after reaching target once
         """
         super().__init__()
         self.target_vnum = target_vnum
         self.route = route
         self.on_arrival = on_arrival
+        self.one_shot = one_shot
         self._arrived = False
+        self._permanently_done = False  # For one_shot mode
+        self._ever_at_target = False  # Track if we've ever been at target
         self._stuck_count = 0
         self._last_vnum = 0
     
     def can_start(self, ctx: BehaviorContext) -> bool:
-        # Don't navigate if already at target
+        # If one_shot and we've already reached target, never run again
+        if self._permanently_done:
+            return False
+        # Track if we've ever been at the target room
         if ctx.room_vnum == self.target_vnum:
+            self._ever_at_target = True
+            # For one_shot, mark as done so we don't keep re-checking
+            if self.one_shot:
+                self._permanently_done = True
+            return False
+        # For one_shot, also check if we've EVER been at target (handles
+        # case where bot passed through target and left before tick completed)
+        if self.one_shot and self._ever_at_target:
+            self._permanently_done = True
             return False
         # Don't navigate during combat
         if ctx.in_combat:
@@ -853,6 +870,9 @@ class NavigateBehavior(Behavior):
             if not self._arrived:
                 logger.info(f"[{bot.bot_id}] Arrived at target room {self.target_vnum}")
                 self._arrived = True
+                # If one_shot, mark as permanently done so we never run again
+                if self.one_shot:
+                    self._permanently_done = True
                 # Send look to ensure bot_data is populated for this room
                 bot.send_command("look")
                 if self.on_arrival:
@@ -944,12 +964,21 @@ class ReturnToCageBehavior(Behavior):
         self._stuck_count = 0
         self._last_vnum = 0
     
+    # All cage rooms - don't try to return if already in a cage
+    CAGE_ROOMS = {3713, 3714, 3715, 3716}
+    
     def can_start(self, ctx: BehaviorContext) -> bool:
         # Don't interfere with combat
         if ctx.in_combat:
             return False
-        # Already at cage - nothing to do
+        # Already at target cage - nothing to do
         if ctx.room_vnum == self.cage_vnum:
+            return False
+        # Also don't trigger if in ANY cage room - let PatrolCagesBehavior handle that
+        if ctx.room_vnum in self.CAGE_ROOMS:
+            return False
+        # Also don't trigger if in the central cage room
+        if ctx.room_vnum == 3712:
             return False
         # Wait until HP recovers after death
         if ctx.hp_percent < self.hp_threshold:
@@ -960,9 +989,8 @@ class ReturnToCageBehavior(Behavior):
         # Only activate if we know where we are
         if ctx.room_vnum == 0:
             return False
-        # Activate if we're off-course (not at cage and not in route that leads to cage)
-        # This catches respawn situations
-        return ctx.room_vnum != self.cage_vnum
+        # Activate if we're off-course (displaced by death/recall)
+        return True
     
     def start(self, bot: 'Bot', ctx: BehaviorContext) -> None:
         super().start(bot, ctx)
@@ -1020,6 +1048,139 @@ class ReturnToCageBehavior(Behavior):
         bot.send_command("recall")
         bot.send_command("look")
         return BehaviorResult.CONTINUE
+
+
+class PatrolCagesBehavior(Behavior):
+    """
+    Patrol all 4 cage rooms in a circuit when the current cage has no mobs.
+    
+    Circuit: 3713 (north) → 3714 (west) → 3715 (south) → 3716 (east) → repeat
+    
+    This behavior activates when:
+    - Not in combat
+    - In a cage room with no attackable mobs
+    - Corpse has been handled (no corpse present)
+    """
+    
+    priority = 55  # Lower than Attack (60), higher than Navigate (45)
+    name = "PatrolCages"
+    tick_delay = 0.5
+    
+    # Circuit order: north -> west -> south -> east -> north
+    CAGE_CIRCUIT = [3713, 3714, 3715, 3716]
+    
+    # Directions from central room 3712 to each cage
+    CAGE_DIRECTIONS = {
+        3713: 'north',
+        3714: 'west', 
+        3715: 'south',
+        3716: 'east',
+    }
+    
+    # Directions from each cage back to central room 3712
+    EXIT_DIRECTIONS = {
+        3713: 'south',
+        3714: 'east',
+        3715: 'north',
+        3716: 'west',
+    }
+    
+    def __init__(self):
+        super().__init__()
+        self._moving = False
+        self._target_cage: int = 0
+        self._wait_ticks = 0
+        self._last_move_time: float = 0.0
+    
+    def can_start(self, ctx: BehaviorContext) -> bool:
+        import time
+        
+        # Don't interfere with combat
+        if ctx.in_combat:
+            return False
+        
+        # Don't patrol if there's a corpse to loot
+        if ctx.has_corpse:
+            return False
+        
+        # Must be in a cage room
+        if ctx.room_vnum not in self.CAGE_CIRCUIT:
+            return False
+        
+        # Can't move if not standing
+        if not ctx.position.can_move:
+            return False
+        
+        # Cooldown to prevent rapid movement
+        if time.time() - self._last_move_time < 3.0:
+            return False
+        
+        # Check if there are attackable mobs in this cage
+        if ctx.bot_mode and ctx.bot_mobs:
+            # There are mobs - let AttackBehavior handle them
+            return False
+        
+        # No mobs in this cage, time to move on
+        return True
+    
+    def _get_next_cage(self, current_vnum: int) -> int:
+        """Get the next cage in the circuit."""
+        try:
+            current_idx = self.CAGE_CIRCUIT.index(current_vnum)
+            next_idx = (current_idx + 1) % len(self.CAGE_CIRCUIT)
+            return self.CAGE_CIRCUIT[next_idx]
+        except ValueError:
+            # Not in a cage, default to north
+            return 3713
+    
+    def start(self, bot: 'Bot', ctx: BehaviorContext) -> None:
+        super().start(bot, ctx)
+        self._moving = True
+        self._target_cage = self._get_next_cage(ctx.room_vnum)
+        self._wait_ticks = 0
+        logger.info(f"[{bot.bot_id}] No mobs in cage {ctx.room_vnum}, moving to cage {self._target_cage}")
+    
+    def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
+        import time
+        
+        # Check if we've arrived at target cage
+        if ctx.room_vnum == self._target_cage:
+            logger.info(f"[{bot.bot_id}] Arrived at cage {self._target_cage}")
+            self._moving = False
+            self._last_move_time = time.time()
+            bot.send_command("look")  # Refresh room data
+            return BehaviorResult.COMPLETED
+        
+        # Combat interrupts patrol
+        if ctx.in_combat:
+            self._moving = False
+            return BehaviorResult.FAILED
+        
+        # Currently at a cage, need to go to central room first
+        if ctx.room_vnum in self.CAGE_CIRCUIT:
+            exit_dir = self.EXIT_DIRECTIONS[ctx.room_vnum]
+            logger.debug(f"[{bot.bot_id}] Exiting cage {ctx.room_vnum} via {exit_dir}")
+            bot.send_command(exit_dir)
+            self._wait_ticks = 0
+            return BehaviorResult.CONTINUE
+        
+        # At central room 3712, move to target cage
+        if ctx.room_vnum == 3712:
+            enter_dir = self.CAGE_DIRECTIONS[self._target_cage]
+            logger.debug(f"[{bot.bot_id}] Entering cage {self._target_cage} via {enter_dir}")
+            bot.send_command(enter_dir)
+            bot.send_command("look")  # Refresh on arrival
+            self._last_move_time = time.time()
+            return BehaviorResult.CONTINUE
+        
+        # Somewhere unexpected - wait for navigation to fix
+        self._wait_ticks += 1
+        if self._wait_ticks > 5:
+            logger.warning(f"[{bot.bot_id}] Lost during patrol at room {ctx.room_vnum}")
+            self._moving = False
+            return BehaviorResult.FAILED
+        
+        return BehaviorResult.WAITING
 
 
 class NavigationTask:

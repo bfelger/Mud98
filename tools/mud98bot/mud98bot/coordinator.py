@@ -22,7 +22,7 @@ from .behaviors import (
     ROUTE_TO_EAST_CAGE, ROUTE_TO_WEST_CAGE,
     BotResetBehavior, TrainBehavior, PracticeBehavior,
     ROUTE_TO_TRAIN_ROOM, ROUTE_TO_PRACTICE_ROOM,
-    ReturnToCageBehavior
+    ReturnToCageBehavior, PatrolCagesBehavior
 )
 from .metrics import MetricsCollector, BotMetrics, get_collector, reset_collector
 
@@ -506,7 +506,8 @@ class Coordinator:
                 # Then navigate to cage room
                 managed.engine.add_behavior(NavigateBehavior(
                     target_vnum=self.config.cage_room_vnum,
-                    route=ROUTE_TO_CAGE_ROOM
+                    route=ROUTE_TO_CAGE_ROOM,
+                    one_shot=True  # Don't repeat after reaching cage room
                 ))
                 
                 # Then distribute to individual cages
@@ -522,7 +523,8 @@ class Coordinator:
                     
                     managed.engine.add_behavior(NavigateBehavior(
                         target_vnum=cage_vnum,
-                        route=full_route
+                        route=full_route,
+                        one_shot=True  # Don't repeat - let PatrolCagesBehavior handle movement
                     ))
                     logger.info(f"[{bot_id}] Will navigate to {cage_name} cage (room {cage_vnum})")
                     
@@ -532,6 +534,10 @@ class Coordinator:
                         route=full_route,
                         hp_threshold=30.0  # Wait until HP recovers after death
                     ))
+                    
+                    # Add patrol behavior to cycle through all cages when current is empty
+                    managed.engine.add_behavior(PatrolCagesBehavior())
+                    logger.info(f"[{bot_id}] Will patrol all 4 cage rooms in circuit")
             else:
                 # Legacy path-based navigation
                 if self.config.navigate_path:
