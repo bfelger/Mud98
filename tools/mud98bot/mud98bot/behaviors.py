@@ -62,6 +62,9 @@ class BehaviorContext:
     bot_room_flags: list[str] = field(default_factory=list)
     bot_sector: str = ""
     
+    # Last received text (for parsing commands output)
+    last_text: str = ""
+    
     @property
     def hp_percent(self) -> float:
         if self.health_max <= 0:
@@ -371,17 +374,43 @@ class HealBehavior(Behavior):
 
 
 class LootBehavior(Behavior):
-    """Loot and sacrifice corpses after combat."""
+    """
+    Loot corpses after combat and intelligently equip better items.
+    
+    Workflow:
+    1. Get all items from corpse
+    2. For each looted item, compare to equipped gear
+    3. Wear items that are better or fill empty slots
+    4. Drop items that are worse (to avoid inventory clutter)
+    5. Sacrifice the corpse for gold
+    """
     
     priority = 75  # Higher than heal so we loot before resting
     name = "Loot"
     tick_delay = 0.5
     
+    # Compare command output patterns
+    COMPARE_BETTER = "looks better than"
+    COMPARE_WORSE = "looks worse than"
+    COMPARE_SAME = "look about the same"
+    COMPARE_NOTHING = "aren't wearing anything comparable"
+    COMPARE_CANT = "can't compare"
+    
+    # States for the loot workflow
+    STATE_LOOT = 0
+    STATE_WAIT_LOOT = 1
+    STATE_COMPARE = 2
+    STATE_WAIT_COMPARE = 3
+    STATE_SACRIFICE = 4
+    STATE_DONE = 5
+    
     def __init__(self):
         super().__init__()
-        self._looted = False
-        self._sacrificed = False
+        self._state = self.STATE_LOOT
+        self._looted_items: list[str] = []
+        self._current_item_index = 0
         self._cooldown_until = 0.0
+        self._wait_ticks = 0
     
     def can_start(self, ctx: BehaviorContext) -> bool:
         import time
@@ -391,32 +420,132 @@ class LootBehavior(Behavior):
     
     def start(self, bot: 'Bot', ctx: BehaviorContext) -> None:
         super().start(bot, ctx)
-        self._looted = False
-        self._sacrificed = False
+        self._state = self.STATE_LOOT
+        self._looted_items = []
+        self._current_item_index = 0
+        self._wait_ticks = 0
         logger.info(f"[{bot.bot_id}] Looting corpse...")
     
+    def _parse_looted_items(self, text: str) -> list[str]:
+        """Parse 'You get X from the corpse' messages to extract item names."""
+        import re
+        items = []
+        # Match "You get <item> from the corpse" or "You get <item> from corpse"
+        pattern = re.compile(r"You get (.+?) from (?:the )?corpse", re.IGNORECASE)
+        for match in pattern.finditer(text):
+            item_name = match.group(1).strip()
+            # Skip gold/coins (e.g., "(6cp)", "gold", "coins")
+            if 'gold' in item_name.lower() or 'coin' in item_name.lower():
+                continue
+            # Skip items in parentheses (usually coins like "(6cp)")
+            if item_name.startswith('(') and item_name.endswith(')'):
+                continue
+            # Extract first keyword for commands (e.g., "a small sword" -> "sword")
+            # The MUD uses the last word as the primary keyword
+            words = item_name.split()
+            if words:
+                # Remove articles and get the main noun
+                keyword = words[-1].rstrip('.')
+                if keyword not in ('a', 'an', 'the', 'some'):
+                    items.append(keyword)
+        return items
+    
+    def _parse_compare_result(self, text: str) -> str:
+        """Parse compare command output to determine action."""
+        if self.COMPARE_NOTHING in text:
+            return "wear"  # Nothing comparable equipped, wear it
+        elif self.COMPARE_BETTER in text:
+            return "wear"  # New item is better
+        elif self.COMPARE_WORSE in text:
+            return "drop"  # New item is worse
+        elif self.COMPARE_SAME in text:
+            return "keep"  # About the same, just keep in inventory
+        elif self.COMPARE_CANT in text:
+            return "keep"  # Can't compare (different types), keep for now
+        else:
+            return "unknown"
+    
     def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
-        if not self._looted:
-            bot.send_command("get all corpse")
-            self._looted = True
-            return BehaviorResult.CONTINUE
-        
-        if not self._sacrificed:
-            bot.send_command("sacrifice corpse")
-            self._sacrificed = True
-            return BehaviorResult.CONTINUE
-        
-        # Wear any new equipment
-        bot.send_command("wear all")
-        
-        # Refresh room data to update has_corpse and bot_mobs
-        bot.send_command("look")
-        
-        # Cooldown to avoid re-triggering on stale room text
         import time
-        self._cooldown_until = time.time() + 5.0
         
-        return BehaviorResult.COMPLETED
+        if self._state == self.STATE_LOOT:
+            # Send loot command
+            bot.send_command("get all corpse")
+            self._state = self.STATE_WAIT_LOOT
+            self._wait_ticks = 0
+            return BehaviorResult.CONTINUE
+        
+        elif self._state == self.STATE_WAIT_LOOT:
+            # Wait a tick for loot response
+            self._wait_ticks += 1
+            if self._wait_ticks >= 2:  # Wait 2 ticks (1 second)
+                # Parse looted items from context's last_text
+                self._looted_items = self._parse_looted_items(ctx.last_text)
+                if self._looted_items:
+                    logger.info(f"[{bot.bot_id}] Looted items: {self._looted_items}")
+                    self._state = self.STATE_COMPARE
+                    self._current_item_index = 0
+                else:
+                    # No items looted, go straight to sacrifice
+                    self._state = self.STATE_SACRIFICE
+            return BehaviorResult.CONTINUE
+        
+        elif self._state == self.STATE_COMPARE:
+            if self._current_item_index >= len(self._looted_items):
+                # Done comparing all items
+                self._state = self.STATE_SACRIFICE
+                return BehaviorResult.CONTINUE
+            
+            # Compare current item
+            item = self._looted_items[self._current_item_index]
+            bot.send_command(f"compare {item}")
+            self._state = self.STATE_WAIT_COMPARE
+            self._wait_ticks = 0
+            return BehaviorResult.CONTINUE
+        
+        elif self._state == self.STATE_WAIT_COMPARE:
+            self._wait_ticks += 1
+            if self._wait_ticks >= 2:  # Wait 2 ticks for compare response
+                item = self._looted_items[self._current_item_index]
+                
+                action = self._parse_compare_result(ctx.last_text)
+                
+                if action == "wear":
+                    logger.info(f"[{bot.bot_id}] Equipping better item: {item}")
+                    bot.send_command(f"wear {item}")
+                elif action == "drop":
+                    logger.info(f"[{bot.bot_id}] Dropping worse item: {item}")
+                    bot.send_command(f"drop {item}")
+                elif action == "keep":
+                    logger.info(f"[{bot.bot_id}] Keeping comparable item: {item}")
+                elif action == "unknown":
+                    # Fallback: just try to wear it
+                    logger.debug(f"[{bot.bot_id}] Unknown compare result for {item}, trying to wear")
+                    bot.send_command(f"wear {item}")
+                # "keep" and "same" - do nothing, leave in inventory
+                
+                self._current_item_index += 1
+                self._state = self.STATE_COMPARE
+            return BehaviorResult.CONTINUE
+        
+        elif self._state == self.STATE_SACRIFICE:
+            bot.send_command("sacrifice corpse")
+            self._state = self.STATE_DONE
+            return BehaviorResult.CONTINUE
+        
+        elif self._state == self.STATE_DONE:
+            # Refresh room data
+            bot.send_command("look")
+            
+            # Clear the text buffer after processing loot
+            if hasattr(bot, '_behavior_engine'):
+                bot._behavior_engine.clear_text_buffer()
+            
+            # Set cooldown to avoid re-triggering on stale data
+            self._cooldown_until = time.time() + 5.0
+            return BehaviorResult.COMPLETED
+        
+        return BehaviorResult.CONTINUE
 
 
 class AttackBehavior(Behavior):
@@ -1417,6 +1546,9 @@ class BehaviorEngine:
         self._behaviors: list[Behavior] = []
         self._current_behavior: Optional[Behavior] = None
         self._last_room_text: str = ""
+        # Accumulate recent text for behaviors that need to parse multiple chunks
+        self._text_buffer: list[str] = []
+        self._max_buffer_lines = 50  # Keep last 50 lines
     
     def add_behavior(self, behavior: Behavior) -> None:
         """Add a behavior to the engine."""
@@ -1432,6 +1564,21 @@ class BehaviorEngine:
     def update_room_text(self, text: str) -> None:
         """Update the last room text for mob/item parsing."""
         self._last_room_text = text
+        # Also append to buffer for behaviors that need recent history
+        if text:
+            lines = text.split('\n')
+            self._text_buffer.extend(lines)
+            # Trim to max size
+            if len(self._text_buffer) > self._max_buffer_lines:
+                self._text_buffer = self._text_buffer[-self._max_buffer_lines:]
+    
+    def clear_text_buffer(self) -> None:
+        """Clear the text buffer (e.g., after processing loot)."""
+        self._text_buffer.clear()
+    
+    def get_text_buffer(self) -> str:
+        """Get all accumulated text as a single string."""
+        return '\n'.join(self._text_buffer)
     
     def get_context(self) -> BehaviorContext:
         """Build current behavior context from bot state."""
@@ -1505,6 +1652,10 @@ class BehaviorEngine:
                 logger.warning(f"[{self.bot.bot_id}] At room 3713 but NO BOT MODE! "
                            f"bot_mode={self.bot.bot_mode}, bot_data={self.bot.bot_data}")
             self._update_context_from_text(ctx, self._last_room_text)
+        
+        # Add last received text for behaviors that need to parse output
+        # Use the accumulated buffer for more complete text history
+        ctx.last_text = self.get_text_buffer()
         
         return ctx
     
