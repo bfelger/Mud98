@@ -41,6 +41,7 @@ void init_test_group(TestGroup* group, const char* name);
 void register_lox_tests();
 void register_lox_ext_tests();
 void register_entity_tests();
+void register_area_instancing_tests();
 void register_container_tests();
 void register_act_tests();
 void register_act_comm_tests();

@@ -2564,11 +2564,11 @@ void act_pos_new(const char* format, Obj* target, Obj* arg1, Obj* arg2,
                     break;
 
                 case 'd':
-                    if (arg2 == NULL || ((char*)arg2)[0] == '\0') {
+                    if (string2 == NULL || string2[0] == '\0') {
                         i = "door";
                     }
                     else {
-                        one_argument((char*)arg2, fname);
+                        one_argument(string2, fname);
                         i = fname;
                     }
                     break;
