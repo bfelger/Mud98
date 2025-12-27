@@ -459,13 +459,13 @@ class AttackBehavior(Behavior):
         
         # Prefer bot data if available
         if ctx.bot_mode and ctx.bot_mobs:
-            logger.info(f"AttackBehavior: Checking {len(ctx.bot_mobs)} bot_mobs: {[m.name for m in ctx.bot_mobs]}")
+            logger.debug(f"AttackBehavior: Checking {len(ctx.bot_mobs)} bot_mobs: {[m.name for m in ctx.bot_mobs]}")
             for mob in ctx.bot_mobs:
                 if self._can_attack_bot_mob(mob, ctx.level):
-                    logger.info(f"AttackBehavior: Can attack mob '{mob.name}'")
+                    logger.debug(f"AttackBehavior: Can attack mob '{mob.name}'")
                     return True
                 else:
-                    logger.info(f"AttackBehavior: Cannot attack mob '{mob.name}' (flags={mob.flags})")
+                    logger.debug(f"AttackBehavior: Cannot attack mob '{mob.name}' (flags={mob.flags})")
         elif ctx.bot_mode:
             # Bot mode but no mob data yet - don't start, let other behaviors run
             # The NavigateBehavior sends 'look' on arrival which will populate data
@@ -1470,11 +1470,11 @@ class BehaviorEngine:
             ctx.bot_exits = bot_data.exits
             
             if bot_data.mobs:
-                logger.info(f"[{self.bot.bot_id}] BOT data: room={ctx.room_vnum}, "
+                logger.debug(f"[{self.bot.bot_id}] BOT data: room={ctx.room_vnum}, "
                            f"mobs={[m.name for m in bot_data.mobs]}")
             elif ctx.room_vnum == 3713:
                 # Debug: why no mobs in the cage room?
-                logger.info(f"[{self.bot.bot_id}] BOT data: room=3713 but NO MOBS! "
+                logger.debug(f"[{self.bot.bot_id}] BOT data: room=3713 but NO MOBS! "
                            f"objects={len(bot_data.objects)}, exits={len(bot_data.exits)}")
             
             if bot_data.room:
@@ -1502,7 +1502,7 @@ class BehaviorEngine:
         else:
             # Fall back to text parsing
             if ctx.room_vnum == 3713:
-                logger.info(f"[{self.bot.bot_id}] At room 3713 but NO BOT MODE! "
+                logger.warning(f"[{self.bot.bot_id}] At room 3713 but NO BOT MODE! "
                            f"bot_mode={self.bot.bot_mode}, bot_data={self.bot.bot_data}")
             self._update_context_from_text(ctx, self._last_room_text)
         
@@ -1545,7 +1545,7 @@ class BehaviorEngine:
         
         # Log context state for debugging (INFO level for room 3713)
         if ctx.room_vnum == 3713:
-            logger.info(f"[{self.bot.bot_id}] Tick at 3713: bot_mode={ctx.bot_mode}, "
+            logger.debug(f"[{self.bot.bot_id}] Tick at 3713: bot_mode={ctx.bot_mode}, "
                        f"bot_mobs={len(ctx.bot_mobs) if ctx.bot_mobs else 0}, "
                        f"in_combat={ctx.in_combat}, position={ctx.position.name}, "
                        f"current={self._current_behavior.name if self._current_behavior else 'None'}")
