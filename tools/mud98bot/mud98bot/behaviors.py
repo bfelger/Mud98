@@ -65,6 +65,10 @@ class BehaviorContext:
     # Last received text (for parsing commands output)
     last_text: str = ""
     
+    # Hunger/thirst state (detected from game messages)
+    is_hungry: bool = False
+    is_thirsty: bool = False
+    
     @property
     def hp_percent(self) -> float:
         if self.health_max <= 0:
@@ -1669,6 +1673,209 @@ class RecallBehavior(Behavior):
         return BehaviorResult.COMPLETED
 
 
+class BuySuppliesBehavior(Behavior):
+    """
+    Navigate to shop, buy food/drink when hungry/thirsty, then return.
+    
+    This is an emergent, transient behavior - only activates when the bot
+    detects it is hungry or thirsty and has enough money to buy supplies.
+    
+    Shop is in room 3718 (south from 3717, which is down from 3712).
+    Sells soup (VNUM 3151) and water skin (VNUM 3138) from midgaard.are.
+    """
+    
+    priority = 56  # Higher than patrol (55) but lower than attack (60)
+    name = "BuySupplies"
+    tick_delay = 0.5
+    
+    # Route from cage area (3712) to shop (3718)
+    SHOP_ROOM = 3718
+    CENTRAL_ROOM = 3712
+    INTERMEDIATE_ROOM = 3717  # Between central and shop
+    
+    # All cage rooms - treat as "home" area
+    CAGE_ROOMS = {3713, 3714, 3715, 3716}
+    
+    # State machine states
+    STATE_GO_TO_SHOP = 'go_to_shop'
+    STATE_BUY_FOOD = 'buy_food'
+    STATE_BUY_DRINK = 'buy_drink'
+    STATE_EAT = 'eat'
+    STATE_DRINK = 'drink'
+    STATE_RETURN = 'return'
+    
+    # Costs (approximate - shops charge 100-150% of base price)
+    SOUP_COST = 10  # Actually cheap
+    WATER_COST = 10
+    MIN_MONEY = 10  # Minimum money to attempt shopping trip (soup is only ~5 coins)
+    
+    def __init__(self):
+        super().__init__()
+        self._state = self.STATE_GO_TO_SHOP
+        self._wait_ticks = 0
+        self._bought_food = False
+        self._bought_drink = False
+        self._start_room: int = 0
+    
+    def can_start(self, ctx: BehaviorContext) -> bool:
+        # If already running, continue (don't interrupt mid-shopping)
+        if self._started:
+            return True
+        
+        # Only start if hungry or thirsty
+        if not ctx.is_hungry and not ctx.is_thirsty:
+            return False
+        
+        # Need money to buy supplies
+        if ctx.money < self.MIN_MONEY:
+            return False
+        
+        # Don't shop during combat
+        if ctx.in_combat:
+            return False
+        
+        # Only start from cage area or central room
+        if ctx.room_vnum not in self.CAGE_ROOMS and ctx.room_vnum != self.CENTRAL_ROOM:
+            return False
+        
+        return True
+    
+    def start(self, bot: 'Bot', ctx: BehaviorContext) -> None:
+        super().start(bot, ctx)
+        self._state = self.STATE_GO_TO_SHOP
+        self._wait_ticks = 0
+        self._bought_food = False
+        self._bought_drink = False
+        self._start_room = ctx.room_vnum
+        
+        needs = []
+        if ctx.is_hungry:
+            needs.append("food")
+        if ctx.is_thirsty:
+            needs.append("drink")
+        logger.info(f"[{bot.bot_id}] Going to shop to buy: {', '.join(needs)} (money: {ctx.money})")
+    
+    def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
+        if self._state == self.STATE_GO_TO_SHOP:
+            return self._navigate_to_shop(bot, ctx)
+        elif self._state == self.STATE_BUY_FOOD:
+            return self._buy_food(bot, ctx)
+        elif self._state == self.STATE_BUY_DRINK:
+            return self._buy_drink(bot, ctx)
+        elif self._state == self.STATE_EAT:
+            return self._eat(bot, ctx)
+        elif self._state == self.STATE_DRINK:
+            return self._drink(bot, ctx)
+        elif self._state == self.STATE_RETURN:
+            return self._return_to_start(bot, ctx)
+        
+        return BehaviorResult.FAILED
+    
+    def _navigate_to_shop(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
+        """Navigate from cage area to shop."""
+        if ctx.room_vnum == self.SHOP_ROOM:
+            # Arrived at shop
+            logger.debug(f"[{bot.bot_id}] Arrived at shop")
+            if ctx.is_hungry:
+                self._state = self.STATE_BUY_FOOD
+            elif ctx.is_thirsty:
+                self._state = self.STATE_BUY_DRINK
+            else:
+                # No longer need anything
+                self._state = self.STATE_RETURN
+            return BehaviorResult.CONTINUE
+        
+        # Navigate to shop
+        if ctx.room_vnum in self.CAGE_ROOMS:
+            # Exit cage to central room
+            exit_dirs = {3713: 'south', 3714: 'east', 3715: 'north', 3716: 'west'}
+            direction = exit_dirs.get(ctx.room_vnum, 'south')
+            bot.send_command(direction)
+        elif ctx.room_vnum == self.CENTRAL_ROOM:
+            # Go down to intermediate room
+            bot.send_command('down')
+        elif ctx.room_vnum == self.INTERMEDIATE_ROOM:
+            # Go south to shop
+            bot.send_command('south')
+        else:
+            # Unknown location - try to get back
+            logger.warning(f"[{bot.bot_id}] Lost while shopping at room {ctx.room_vnum}")
+            bot.send_command('recall')
+            return BehaviorResult.FAILED
+        
+        return BehaviorResult.CONTINUE
+    
+    def _buy_food(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
+        """Buy soup at the shop."""
+        if not self._bought_food:
+            bot.send_command('buy soup')
+            self._bought_food = True
+            self._wait_ticks = 0
+            return BehaviorResult.CONTINUE
+        
+        self._wait_ticks += 1
+        if self._wait_ticks >= 2:
+            # Move to next step
+            if ctx.is_thirsty:
+                self._state = self.STATE_BUY_DRINK
+            else:
+                self._state = self.STATE_EAT
+        return BehaviorResult.CONTINUE
+    
+    def _buy_drink(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
+        """Buy water skin at the shop."""
+        if not self._bought_drink:
+            bot.send_command('buy skin')
+            self._bought_drink = True
+            self._wait_ticks = 0
+            return BehaviorResult.CONTINUE
+        
+        self._wait_ticks += 1
+        if self._wait_ticks >= 2:
+            # Move to eat/drink
+            if self._bought_food:
+                self._state = self.STATE_EAT
+            else:
+                self._state = self.STATE_DRINK
+        return BehaviorResult.CONTINUE
+    
+    def _eat(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
+        """Eat the soup."""
+        bot.send_command('eat soup')
+        self._wait_ticks = 0
+        if self._bought_drink:
+            self._state = self.STATE_DRINK
+        else:
+            self._state = self.STATE_RETURN
+        return BehaviorResult.CONTINUE
+    
+    def _drink(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
+        """Drink from the water skin."""
+        bot.send_command('drink skin')
+        self._wait_ticks += 1
+        # May need multiple drinks to satisfy thirst
+        if self._wait_ticks >= 3:
+            self._state = self.STATE_RETURN
+        return BehaviorResult.CONTINUE
+    
+    def _return_to_start(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
+        """Return to the cage area."""
+        if ctx.room_vnum == self.CENTRAL_ROOM or ctx.room_vnum in self.CAGE_ROOMS:
+            logger.info(f"[{bot.bot_id}] Finished shopping, returned to room {ctx.room_vnum}")
+            return BehaviorResult.COMPLETED
+        
+        # Navigate back
+        if ctx.room_vnum == self.SHOP_ROOM:
+            bot.send_command('north')
+        elif ctx.room_vnum == self.INTERMEDIATE_ROOM:
+            bot.send_command('up')
+        else:
+            # Lost - recall
+            bot.send_command('recall')
+        
+        return BehaviorResult.CONTINUE
+
+
 class IdleBehavior(Behavior):
     """Fallback behavior when nothing else to do."""
     
@@ -1710,6 +1917,9 @@ class BehaviorEngine:
         # Accumulate recent text for behaviors that need to parse multiple chunks
         self._text_buffer: list[str] = []
         self._max_buffer_lines = 50  # Keep last 50 lines
+        # Hunger/thirst state persists until eating/drinking
+        self._is_hungry: bool = False
+        self._is_thirsty: bool = False
     
     def add_behavior(self, behavior: Behavior) -> None:
         """Add a behavior to the engine."""
@@ -1732,6 +1942,26 @@ class BehaviorEngine:
             # Trim to max size
             if len(self._text_buffer) > self._max_buffer_lines:
                 self._text_buffer = self._text_buffer[-self._max_buffer_lines:]
+            
+            # Check for hunger/thirst messages
+            text_lower = text.lower()
+            if 'you are hungry' in text_lower:
+                if not self._is_hungry:
+                    logger.info(f"[{self.bot.bot_id}] Detected: hungry!")
+                self._is_hungry = True
+            if 'you are thirsty' in text_lower:
+                if not self._is_thirsty:
+                    logger.info(f"[{self.bot.bot_id}] Detected: thirsty!")
+                self._is_thirsty = True
+            # Check for eating/drinking messages to clear state
+            if 'you are no longer hungry' in text_lower or 'you eat' in text_lower:
+                if self._is_hungry:
+                    logger.info(f"[{self.bot.bot_id}] No longer hungry")
+                self._is_hungry = False
+            if 'you are no longer thirsty' in text_lower or 'you drink' in text_lower:
+                if self._is_thirsty:
+                    logger.info(f"[{self.bot.bot_id}] No longer thirsty")
+                self._is_thirsty = False
     
     def clear_text_buffer(self) -> None:
         """Clear the text buffer (e.g., after processing loot)."""
@@ -1817,6 +2047,10 @@ class BehaviorEngine:
         # Add last received text for behaviors that need to parse output
         # Use the accumulated buffer for more complete text history
         ctx.last_text = self.get_text_buffer()
+        
+        # Set hunger/thirst state
+        ctx.is_hungry = self._is_hungry
+        ctx.is_thirsty = self._is_thirsty
         
         return ctx
     

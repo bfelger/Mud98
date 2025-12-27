@@ -22,7 +22,8 @@ from .behaviors import (
     ROUTE_TO_EAST_CAGE, ROUTE_TO_WEST_CAGE,
     BotResetBehavior, TrainBehavior, PracticeBehavior,
     ROUTE_TO_TRAIN_ROOM, ROUTE_TO_PRACTICE_ROOM,
-    ReturnToCageBehavior, PatrolCagesBehavior
+    ReturnToCageBehavior, PatrolCagesBehavior,
+    BuySuppliesBehavior
 )
 from .metrics import MetricsCollector, BotMetrics, get_collector, reset_collector
 
@@ -538,6 +539,10 @@ class Coordinator:
                     # Add patrol behavior to cycle through all cages when current is empty
                     managed.engine.add_behavior(PatrolCagesBehavior())
                     logger.info(f"[{bot_id}] Will patrol all 4 cage rooms in circuit")
+                    
+                    # Add buy supplies behavior for hunger/thirst
+                    managed.engine.add_behavior(BuySuppliesBehavior())
+                    logger.info(f"[{bot_id}] Will buy food/drink when hungry/thirsty")
             else:
                 # Legacy path-based navigation
                 if self.config.navigate_path:
