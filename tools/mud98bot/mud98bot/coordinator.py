@@ -477,6 +477,9 @@ class Coordinator:
                 include_explore=include_explore
             )
             
+            # Store back-reference to engine on bot for behaviors to access
+            managed.bot._behavior_engine = managed.engine
+            
             # Add navigation behavior if using route-based navigation
             if self.config.use_navigate_behavior:
                 # Add hard reset behavior first (resets character to level 1 at MUD school)

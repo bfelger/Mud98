@@ -69,6 +69,9 @@ class BehaviorContext:
     is_hungry: bool = False
     is_thirsty: bool = False
     
+    # Proactive shopping trigger (set when patrol circuit completes)
+    should_proactive_shop: bool = False
+    
     @property
     def hp_percent(self) -> float:
         if self.health_max <= 0:
@@ -1062,7 +1065,7 @@ class PatrolCagesBehavior(Behavior):
     
     This behavior activates when:
     - Not in combat
-    - In a cage room with no attackable mobs
+    - In a cage room or central room with no attackable mobs
     - Corpse has been handled (no corpse present)
     """
     
@@ -1070,8 +1073,14 @@ class PatrolCagesBehavior(Behavior):
     name = "PatrolCages"
     tick_delay = 0.5
     
-    # Circuit order: north -> west -> south -> east -> north
+    # Circuit order: north -> west -> south -> east
     CAGE_CIRCUIT = [3713, 3714, 3715, 3716]
+    
+    # Central room that connects all cages
+    CENTRAL_ROOM = 3712
+    
+    # All valid patrol rooms (cages + central)
+    PATROL_ROOMS = set([3712, 3713, 3714, 3715, 3716])
     
     # Directions from central room 3712 to each cage
     CAGE_DIRECTIONS = {
@@ -1095,6 +1104,8 @@ class PatrolCagesBehavior(Behavior):
         self._target_cage: int = 0
         self._wait_ticks = 0
         self._last_move_time: float = 0.0
+        self._visited_cages: set[int] = set()  # Track cages visited this circuit
+        self._circuit_completed: bool = False  # Signals proactive shopping
     
     def can_start(self, ctx: BehaviorContext) -> bool:
         import time
@@ -1107,8 +1118,8 @@ class PatrolCagesBehavior(Behavior):
         if ctx.has_corpse:
             return False
         
-        # Must be in a cage room
-        if ctx.room_vnum not in self.CAGE_CIRCUIT:
+        # Must be in a cage room or central room
+        if ctx.room_vnum not in self.PATROL_ROOMS:
             return False
         
         # Can't move if not standing
@@ -1119,16 +1130,57 @@ class PatrolCagesBehavior(Behavior):
         if time.time() - self._last_move_time < 3.0:
             return False
         
-        # Check if there are attackable mobs in this cage
+        # Check if there are attackable mobs in this room
+        # Use the same logic as AttackBehavior to avoid blocking on non-attackable mobs
         if ctx.bot_mode and ctx.bot_mobs:
-            # There are mobs - let AttackBehavior handle them
-            return False
+            # Only block patrol if there are actually attackable mobs
+            if self._has_attackable_mob(ctx):
+                return False
         
-        # No mobs in this cage, time to move on
+        # No attackable mobs in this room, time to move on
         return True
+    
+    def _has_attackable_mob(self, ctx: BehaviorContext) -> bool:
+        """Check if there are any attackable mobs in the current room."""
+        # Use same avoid logic as AttackBehavior
+        AVOID_KEYWORDS = ['guard', 'cityguard', 'hassan', 'acolyte', 'adept', 
+                          'shopkeeper', 'healer', 'receptionist']
+        AVOID_FLAGS = ['pet', 'train', 'practice', 'healer', 'changer', 'skill_train']
+        MAX_LEVEL_DIFF = 5
+        
+        for mob in ctx.bot_mobs:
+            # Check level
+            if ctx.level > 0 and mob.level > ctx.level + MAX_LEVEL_DIFF:
+                continue
+            
+            # Check avoid flags
+            avoid = False
+            for flag in AVOID_FLAGS:
+                if flag in mob.flags:
+                    avoid = True
+                    break
+            if avoid:
+                continue
+                
+            # Check avoid keywords
+            mob_lower = mob.name.lower()
+            for keyword in AVOID_KEYWORDS:
+                if keyword in mob_lower:
+                    avoid = True
+                    break
+            if avoid:
+                continue
+            
+            # Found an attackable mob
+            return True
+        
+        return False
     
     def _get_next_cage(self, current_vnum: int) -> int:
         """Get the next cage in the circuit."""
+        # If in central room, go to north cage (start of circuit)
+        if current_vnum == self.CENTRAL_ROOM:
+            return 3713
         try:
             current_idx = self.CAGE_CIRCUIT.index(current_vnum)
             next_idx = (current_idx + 1) % len(self.CAGE_CIRCUIT)
@@ -1142,7 +1194,10 @@ class PatrolCagesBehavior(Behavior):
         self._moving = True
         self._target_cage = self._get_next_cage(ctx.room_vnum)
         self._wait_ticks = 0
-        logger.info(f"[{bot.bot_id}] No mobs in cage {ctx.room_vnum}, moving to cage {self._target_cage}")
+        if ctx.room_vnum == self.CENTRAL_ROOM:
+            logger.info(f"[{bot.bot_id}] Starting patrol from central room, moving to cage {self._target_cage}")
+        else:
+            logger.info(f"[{bot.bot_id}] No mobs in cage {ctx.room_vnum}, moving to cage {self._target_cage}")
     
     def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
         import time
@@ -1152,6 +1207,19 @@ class PatrolCagesBehavior(Behavior):
             logger.info(f"[{bot.bot_id}] Arrived at cage {self._target_cage}")
             self._moving = False
             self._last_move_time = time.time()
+            
+            # Track visited cages for circuit completion
+            self._visited_cages.add(self._target_cage)
+            
+            # Check if we've completed a full circuit (visited all 4 cages)
+            if len(self._visited_cages) >= 4:
+                logger.info(f"[{bot.bot_id}] Completed full patrol circuit - triggering proactive shopping")
+                self._circuit_completed = True
+                self._visited_cages.clear()  # Reset for next circuit
+                # Signal proactive shopping via bot's behavior engine
+                if hasattr(bot, '_behavior_engine') and bot._behavior_engine:
+                    bot._behavior_engine._should_proactive_shop = True
+            
             bot.send_command("look")  # Refresh room data
             return BehaviorResult.COMPLETED
         
@@ -1369,6 +1437,11 @@ class BotResetBehavior(Behavior):
             bot.send_command("look")
             logger.info(f"[{bot.bot_id}] Sent 'botreset hard' to reset character to level 1")
             self._sent_reset = True
+            
+            # Reset hunger/thirst/proactive shopping state
+            if hasattr(bot, '_behavior_engine') and bot._behavior_engine:
+                bot._behavior_engine.reset_needs_state()
+            
             return BehaviorResult.CONTINUE
         
         # Wait for MSDP to confirm we're at MUD school entrance
@@ -1716,18 +1789,26 @@ class BuySuppliesBehavior(Behavior):
         self._bought_food = False
         self._bought_drink = False
         self._start_room: int = 0
+        self._is_proactive = False  # Track if this is a proactive shopping trip
     
     def can_start(self, ctx: BehaviorContext) -> bool:
         # If already running, continue (don't interrupt mid-shopping)
         if self._started:
             return True
         
-        # Only start if hungry or thirsty
-        if not ctx.is_hungry and not ctx.is_thirsty:
+        # Start for reactive reasons (hungry/thirsty) or proactive (circuit complete)
+        needs_reactive = ctx.is_hungry or ctx.is_thirsty
+        needs_proactive = ctx.should_proactive_shop
+        
+        if not needs_reactive and not needs_proactive:
             return False
         
         # Need money to buy supplies
         if ctx.money < self.MIN_MONEY:
+            if needs_proactive:
+                logger.debug(f"BuySuppliesBehavior: not enough money ({ctx.money} < {self.MIN_MONEY})")
+                # Clear proactive flag if we can't afford it - prevent spam
+                # The flag will be set again on next circuit completion
             return False
         
         # Don't shop during combat
@@ -1736,8 +1817,12 @@ class BuySuppliesBehavior(Behavior):
         
         # Only start from cage area or central room
         if ctx.room_vnum not in self.CAGE_ROOMS and ctx.room_vnum != self.CENTRAL_ROOM:
+            if needs_proactive:
+                logger.debug(f"BuySuppliesBehavior: not in cage area (room {ctx.room_vnum})")
             return False
         
+        if needs_proactive:
+            logger.info(f"BuySuppliesBehavior: proactive shopping approved!")
         return True
     
     def start(self, bot: 'Bot', ctx: BehaviorContext) -> None:
@@ -1747,12 +1832,21 @@ class BuySuppliesBehavior(Behavior):
         self._bought_food = False
         self._bought_drink = False
         self._start_room = ctx.room_vnum
+        self._is_proactive = ctx.should_proactive_shop and not ctx.is_hungry and not ctx.is_thirsty
+        
+        # Clear the proactive shopping flag since we're handling it
+        if ctx.should_proactive_shop and hasattr(bot, '_behavior_engine') and bot._behavior_engine:
+            bot._behavior_engine._should_proactive_shop = False
         
         needs = []
-        if ctx.is_hungry:
-            needs.append("food")
-        if ctx.is_thirsty:
-            needs.append("drink")
+        if self._is_proactive:
+            needs.append("food (proactive)")
+            needs.append("drink (proactive)")
+        else:
+            if ctx.is_hungry:
+                needs.append("food")
+            if ctx.is_thirsty:
+                needs.append("drink")
         logger.info(f"[{bot.bot_id}] Going to shop to buy: {', '.join(needs)} (money: {ctx.money})")
     
     def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
@@ -1776,12 +1870,14 @@ class BuySuppliesBehavior(Behavior):
         if ctx.room_vnum == self.SHOP_ROOM:
             # Arrived at shop
             logger.debug(f"[{bot.bot_id}] Arrived at shop")
-            if ctx.is_hungry:
+            # For proactive shopping, buy both food and drink
+            # For reactive, only buy what's needed
+            if self._is_proactive or ctx.is_hungry:
                 self._state = self.STATE_BUY_FOOD
             elif ctx.is_thirsty:
                 self._state = self.STATE_BUY_DRINK
             else:
-                # No longer need anything
+                # No longer need anything (shouldn't happen but handle gracefully)
                 self._state = self.STATE_RETURN
             return BehaviorResult.CONTINUE
         
@@ -1815,8 +1911,8 @@ class BuySuppliesBehavior(Behavior):
         
         self._wait_ticks += 1
         if self._wait_ticks >= 2:
-            # Move to next step
-            if ctx.is_thirsty:
+            # Move to next step - also buy drink for proactive shopping
+            if self._is_proactive or ctx.is_thirsty:
                 self._state = self.STATE_BUY_DRINK
             else:
                 self._state = self.STATE_EAT
@@ -1832,18 +1928,21 @@ class BuySuppliesBehavior(Behavior):
         
         self._wait_ticks += 1
         if self._wait_ticks >= 2:
-            # Move to eat/drink
-            if self._bought_food:
+            # Move to eat/drink - for proactive, skip eating (not hungry yet)
+            if self._bought_food and not self._is_proactive:
                 self._state = self.STATE_EAT
-            else:
+            elif not self._is_proactive:
                 self._state = self.STATE_DRINK
+            else:
+                # Proactive: bought both, skip consuming (not hungry/thirsty yet)
+                self._state = self.STATE_RETURN
         return BehaviorResult.CONTINUE
     
     def _eat(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
         """Eat the soup."""
         bot.send_command('eat soup')
         self._wait_ticks = 0
-        if self._bought_drink:
+        if self._bought_drink and not self._is_proactive:
             self._state = self.STATE_DRINK
         else:
             self._state = self.STATE_RETURN
@@ -1861,7 +1960,10 @@ class BuySuppliesBehavior(Behavior):
     def _return_to_start(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
         """Return to the cage area."""
         if ctx.room_vnum == self.CENTRAL_ROOM or ctx.room_vnum in self.CAGE_ROOMS:
-            logger.info(f"[{bot.bot_id}] Finished shopping, returned to room {ctx.room_vnum}")
+            if self._is_proactive:
+                logger.info(f"[{bot.bot_id}] Finished proactive shopping, returned to room {ctx.room_vnum}")
+            else:
+                logger.info(f"[{bot.bot_id}] Finished shopping, returned to room {ctx.room_vnum}")
             return BehaviorResult.COMPLETED
         
         # Navigate back
@@ -1920,6 +2022,8 @@ class BehaviorEngine:
         # Hunger/thirst state persists until eating/drinking
         self._is_hungry: bool = False
         self._is_thirsty: bool = False
+        # Proactive shopping trigger (set when patrol circuit completes)
+        self._should_proactive_shop: bool = False
     
     def add_behavior(self, behavior: Behavior) -> None:
         """Add a behavior to the engine."""
@@ -1931,6 +2035,16 @@ class BehaviorEngine:
     def remove_behavior(self, behavior_name: str) -> None:
         """Remove a behavior by name."""
         self._behaviors = [b for b in self._behaviors if b.name != behavior_name]
+    
+    def reset_needs_state(self) -> None:
+        """Reset hunger, thirst, and proactive shopping state.
+        
+        Called during hard bot reset to ensure a clean slate.
+        """
+        self._is_hungry = False
+        self._is_thirsty = False
+        self._should_proactive_shop = False
+        logger.debug(f"[{self.bot.bot_id}] Reset hunger/thirst/proactive shop state")
     
     def update_room_text(self, text: str) -> None:
         """Update the last room text for mob/item parsing."""
@@ -2051,6 +2165,9 @@ class BehaviorEngine:
         # Set hunger/thirst state
         ctx.is_hungry = self._is_hungry
         ctx.is_thirsty = self._is_thirsty
+        
+        # Set proactive shopping flag
+        ctx.should_proactive_shop = self._should_proactive_shop
         
         return ctx
     
