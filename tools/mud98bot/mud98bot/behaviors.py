@@ -142,6 +142,72 @@ class Behavior(ABC):
         return False
 
 
+class DeathRecoveryBehavior(Behavior):
+    """
+    Highest priority behavior - handles death/dying states.
+    
+    Activates when:
+    - Position is DEAD, MORTAL, or INCAP (truly dying)
+    - OR Position is STUNNED AND HP <= 0 (combat death)
+    
+    Does NOT activate for STUNNED with normal HP (e.g., after login/teleport).
+    Waits for respawn (position becomes RESTING/STANDING with HP > 0).
+    """
+    
+    priority = 200  # Highest priority - nothing else matters when dead
+    name = "DeathRecovery"
+    tick_delay = 1.0
+    
+    def __init__(self):
+        super().__init__()
+        self._wait_count = 0
+        self._death_recorded = False
+    
+    @staticmethod
+    def _is_truly_dead(ctx: BehaviorContext) -> bool:
+        """Check if the character is truly dead/dying, not just stunned."""
+        # Definitely dead if position is DEAD, MORTAL, or INCAP
+        if ctx.position.is_dead:
+            return True
+        # Stunned with zero or negative HP is also death
+        if ctx.position.is_stunned_or_worse and ctx.hp_percent <= 0:
+            return True
+        return False
+    
+    def can_start(self, ctx: BehaviorContext) -> bool:
+        return self._is_truly_dead(ctx)
+    
+    def start(self, bot: 'Bot', ctx: BehaviorContext) -> None:
+        super().start(bot, ctx)
+        self._wait_count = 0
+        self._death_recorded = False
+        logger.error(f"[{bot.bot_id}] DIED! Position={ctx.position.name}, HP={ctx.hp_percent:.0f}%")
+    
+    def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
+        # Record death once (metrics may not exist on bot, handle gracefully)
+        if not self._death_recorded:
+            if hasattr(bot, 'metrics') and bot.metrics:
+                bot.metrics.record_death()
+            self._death_recorded = True
+        
+        # Check if we've respawned (not dead AND HP > 0)
+        if not self._is_truly_dead(ctx) and ctx.hp_percent > 0:
+            logger.info(f"[{bot.bot_id}] Respawned! Position={ctx.position.name}, HP={ctx.hp_percent:.0f}%, room={ctx.room_vnum}")
+            bot.send_command("look")  # Refresh room state
+            return BehaviorResult.COMPLETED
+        
+        self._wait_count += 1
+        if self._wait_count % 5 == 0:
+            logger.debug(f"[{bot.bot_id}] Waiting for respawn... (position={ctx.position.name}, HP={ctx.hp_percent:.0f}%)")
+        
+        # Timeout after 30 seconds - something is very wrong
+        if self._wait_count > 30:
+            logger.error(f"[{bot.bot_id}] Respawn timeout! Still dead after 30s")
+            return BehaviorResult.FAILED
+        
+        return BehaviorResult.WAITING
+
+
 class SurviveBehavior(Behavior):
     """Emergency survival - flee when HP is critical."""
     
@@ -163,6 +229,13 @@ class SurviveBehavior(Behavior):
         logger.warning(f"[{bot.bot_id}] HP critical ({ctx.hp_percent:.0f}%) - initiating flee!")
     
     def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
+        # Check if we died while trying to flee (truly dead, not just stunned)
+        if ctx.position.is_dead or (ctx.position.is_stunned_or_worse and ctx.hp_percent <= 0):
+            logger.error(f"[{bot.bot_id}] Died while trying to flee! (position={ctx.position.name}, HP={ctx.hp_percent:.0f}%)")
+            if hasattr(bot, 'metrics') and bot.metrics:
+                bot.metrics.record_death()
+            return BehaviorResult.FAILED
+        
         if not ctx.in_combat:
             logger.info(f"[{bot.bot_id}] Successfully escaped combat!")
             return BehaviorResult.COMPLETED
@@ -193,6 +266,13 @@ class CombatBehavior(Behavior):
         return ctx.in_combat
     
     def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
+        # Check if we died (truly dead: DEAD/MORTAL/INCAP, or STUNNED with HP <= 0)
+        if ctx.position.is_dead or (ctx.position.is_stunned_or_worse and ctx.hp_percent <= 0):
+            logger.error(f"[{bot.bot_id}] Combat ended - DIED! (position={ctx.position.name}, HP={ctx.hp_percent:.0f}%)")
+            if hasattr(bot, 'metrics') and bot.metrics:
+                bot.metrics.record_death()
+            return BehaviorResult.FAILED
+        
         if not ctx.in_combat:
             logger.info(f"[{bot.bot_id}] Combat ended - victory!")
             # Refresh room data to clear stale mob info
@@ -1539,6 +1619,7 @@ def create_default_engine(
     engine = BehaviorEngine(bot)
     
     # Add behaviors in priority order (will be sorted anyway)
+    engine.add_behavior(DeathRecoveryBehavior())  # Highest priority
     engine.add_behavior(SurviveBehavior(flee_hp_percent))
     engine.add_behavior(CombatBehavior(use_skills))
     engine.add_behavior(LootBehavior())

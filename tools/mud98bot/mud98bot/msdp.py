@@ -53,6 +53,26 @@ class Position(IntEnum):
     def is_fighting(self) -> bool:
         """Return True if character is fighting."""
         return self == Position.FIGHTING
+    
+    @property
+    def is_dead(self) -> bool:
+        """Return True if character is truly dead or dying (DEAD/MORTAL/INCAP).
+        
+        Note: STUNNED is NOT included here because characters can be stunned
+        temporarily without dying (e.g., after login, teleport, or certain spells).
+        Use is_dying to include STUNNED with HP check.
+        """
+        return self <= Position.INCAP
+    
+    @property
+    def is_stunned_or_worse(self) -> bool:
+        """Return True if position is STUNNED or worse (could be dying)."""
+        return self <= Position.STUNNED
+    
+    @property
+    def is_incapacitated(self) -> bool:
+        """Return True if character cannot take actions (dying states)."""
+        return self <= Position.INCAP
 
 
 @dataclass

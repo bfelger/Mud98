@@ -52,5 +52,5 @@ metrics:
   report_interval: 30
   
 logging:
-  level: INFO
+  level: WARNING
   file: stress_test.log

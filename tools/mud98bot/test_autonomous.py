@@ -23,7 +23,7 @@ sys.path.insert(0, '.')
 from mud98bot.client import Bot, BotConfig
 from mud98bot.behaviors import (
     BehaviorEngine, BehaviorContext, BehaviorResult,
-    SurviveBehavior, CombatBehavior, HealBehavior, LootBehavior,
+    DeathRecoveryBehavior, SurviveBehavior, CombatBehavior, HealBehavior, LootBehavior,
     AttackBehavior, ExploreBehavior, RecallBehavior, IdleBehavior
 )
 
@@ -72,6 +72,7 @@ class AutonomousRunner:
         engine = BehaviorEngine(self.bot)
         
         # Add behaviors tuned for Mud School
+        engine.add_behavior(DeathRecoveryBehavior())  # Highest priority - handle death
         engine.add_behavior(SurviveBehavior(flee_hp_percent=20.0))
         engine.add_behavior(CombatBehavior())
         engine.add_behavior(LootBehavior())
