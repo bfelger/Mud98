@@ -226,7 +226,9 @@ class BotResetBehavior(Behavior):
     Performs initial setup:
     1. Navigate to train room and train stats
     2. Navigate to practice room and practice skills
-    3. Navigate to cage area for patrolling
+    3. Buy supplies (food, water, lantern)
+    4. Navigate to dark creature room and kill creature for key/equipment
+    5. Navigate to cage area for patrolling
     
     This is a one-shot behavior that only runs once after bot creation.
     """
@@ -238,7 +240,12 @@ class BotResetBehavior(Behavior):
     # Phases of reset
     PHASE_TRAIN = 'train'
     PHASE_PRACTICE = 'practice'
-    PHASE_GO_TO_CAGE = 'go_to_cage'
+    PHASE_BUY_SUPPLIES = 'buy_supplies'
+    PHASE_GO_TO_CREATURE = 'go_to_creature'
+    PHASE_KILL_CREATURE = 'kill_creature'
+    PHASE_LOOT_CREATURE = 'loot_creature'
+    PHASE_UNLOCK_DOOR = 'unlock_door'
+    PHASE_ENTER_SCHOOL = 'enter_school'
     PHASE_COMPLETE = 'complete'
     
     def __init__(self):
@@ -247,6 +254,9 @@ class BotResetBehavior(Behavior):
         self._train_behavior: Optional[TrainBehavior] = None
         self._practice_behavior: Optional[PracticeBehavior] = None
         self._completed = False
+        self._wait_ticks = 0
+        self._creature_killed = False
+        self._looted = False
     
     def can_start(self, ctx: BehaviorContext) -> bool:
         """Start if not completed."""
@@ -264,14 +274,27 @@ class BotResetBehavior(Behavior):
     
     def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
         if ctx.in_combat:
+            # If we're in the kill creature phase and in combat, that's expected
+            if self._phase == self.PHASE_KILL_CREATURE:
+                return BehaviorResult.WAITING  # Let combat behavior handle it
             return BehaviorResult.WAITING
         
         if self._phase == self.PHASE_TRAIN:
             return self._do_train(bot, ctx)
         elif self._phase == self.PHASE_PRACTICE:
             return self._do_practice(bot, ctx)
-        elif self._phase == self.PHASE_GO_TO_CAGE:
-            return self._go_to_cage(bot, ctx)
+        elif self._phase == self.PHASE_BUY_SUPPLIES:
+            return self._do_buy_supplies(bot, ctx)
+        elif self._phase == self.PHASE_GO_TO_CREATURE:
+            return self._go_to_creature(bot, ctx)
+        elif self._phase == self.PHASE_KILL_CREATURE:
+            return self._kill_creature(bot, ctx)
+        elif self._phase == self.PHASE_LOOT_CREATURE:
+            return self._loot_creature(bot, ctx)
+        elif self._phase == self.PHASE_UNLOCK_DOOR:
+            return self._unlock_door(bot, ctx)
+        elif self._phase == self.PHASE_ENTER_SCHOOL:
+            return self._enter_school(bot, ctx)
         elif self._phase == self.PHASE_COMPLETE:
             logger.info(f"[{bot.bot_id}] BotReset complete!")
             self._completed = True
@@ -304,18 +327,66 @@ class BotResetBehavior(Behavior):
         
         if result == BehaviorResult.COMPLETED:
             logger.info(f"[{bot.bot_id}] BotReset: Practice phase complete")
-            self._phase = self.PHASE_GO_TO_CAGE
+            self._phase = self.PHASE_BUY_SUPPLIES
             return BehaviorResult.CONTINUE
         
         return BehaviorResult.CONTINUE
     
-    def _go_to_cage(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
-        """Navigate to cage area."""
-        from ..config import CENTRAL_ROOM, ROUTE_TO_CAGE_ROOM
+    def _do_buy_supplies(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
+        """Navigate to shop and buy supplies (food, water, lantern)."""
+        from ..config import SHOP_ROOM, PRACTICE_ROOM, INTERMEDIATE_ROOM
         
-        if ctx.room_vnum == CENTRAL_ROOM:
-            logger.info(f"[{bot.bot_id}] BotReset: Arrived at cage area")
-            self._phase = self.PHASE_COMPLETE
+        # First navigate to the shop
+        if ctx.room_vnum == SHOP_ROOM:
+            # At shop - buy supplies
+            if self._wait_ticks == 0:
+                logger.info(f"[{bot.bot_id}] BotReset: At shop, buying supplies")
+                bot.send_command('buy soup')
+                bot.send_command('buy skin')
+                bot.send_command('buy lantern')
+                bot.send_command('hold lantern')
+                self._wait_ticks = 1
+                return BehaviorResult.CONTINUE
+            
+            self._wait_ticks += 1
+            if self._wait_ticks >= 3:
+                logger.info(f"[{bot.bot_id}] BotReset: Supplies purchased, heading to creature")
+                self._wait_ticks = 0
+                self._phase = self.PHASE_GO_TO_CREATURE
+            return BehaviorResult.CONTINUE
+        
+        # Navigate from practice room to shop
+        if not ctx.position.can_move:
+            bot.send_command("wake")
+            bot.send_command("stand")
+            return BehaviorResult.CONTINUE
+        
+        # Route: Practice (3759) -> Train (3758) -> ... -> Shop (3718)
+        if ctx.room_vnum == PRACTICE_ROOM:
+            bot.send_command('east')  # Practice -> Train
+        elif ctx.room_vnum == 3758:  # Train room
+            bot.send_command('east')  # Train -> 3721
+        elif ctx.room_vnum == 3721:
+            bot.send_command('east')  # -> 3720
+        elif ctx.room_vnum == 3720:
+            bot.send_command('south')  # -> 3719
+        elif ctx.room_vnum == 3719:
+            bot.send_command('west')  # -> 3717
+        elif ctx.room_vnum == INTERMEDIATE_ROOM:  # 3717
+            bot.send_command('south')  # -> Shop (3718)
+        else:
+            logger.warning(f"[{bot.bot_id}] BotReset buy: unexpected room {ctx.room_vnum}, recalling")
+            bot.send_command("recall")
+        
+        return BehaviorResult.CONTINUE
+    
+    def _go_to_creature(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
+        """Navigate from shop to dark creature room."""
+        from ..config import DARK_CREATURE_ROOM, ROUTE_SHOP_TO_CREATURE
+        
+        if ctx.room_vnum == DARK_CREATURE_ROOM:
+            logger.info(f"[{bot.bot_id}] BotReset: Arrived at dark creature room")
+            self._phase = self.PHASE_KILL_CREATURE
             return BehaviorResult.CONTINUE
         
         if not ctx.position.can_move:
@@ -323,12 +394,125 @@ class BotResetBehavior(Behavior):
             bot.send_command("stand")
             return BehaviorResult.CONTINUE
         
-        if ctx.room_vnum in ROUTE_TO_CAGE_ROOM:
-            direction = ROUTE_TO_CAGE_ROOM[ctx.room_vnum]
-            logger.debug(f"[{bot.bot_id}] BotReset nav: room {ctx.room_vnum} -> {direction}")
+        if ctx.room_vnum in ROUTE_SHOP_TO_CREATURE:
+            direction = ROUTE_SHOP_TO_CREATURE[ctx.room_vnum]
+            logger.debug(f"[{bot.bot_id}] BotReset creature nav: room {ctx.room_vnum} -> {direction}")
             bot.send_command(direction)
         else:
-            logger.warning(f"[{bot.bot_id}] BotReset: room {ctx.room_vnum} not in route")
+            logger.warning(f"[{bot.bot_id}] BotReset creature: unexpected room {ctx.room_vnum}")
             bot.send_command("recall")
         
+        return BehaviorResult.CONTINUE
+    
+    def _kill_creature(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
+        """Kill the big creature in the dark room."""
+        from ..config import DARK_CREATURE_ROOM
+        
+        # Make sure we're in the right room
+        if ctx.room_vnum != DARK_CREATURE_ROOM:
+            logger.warning(f"[{bot.bot_id}] BotReset: Not in creature room, navigating back")
+            self._phase = self.PHASE_GO_TO_CREATURE
+            return BehaviorResult.CONTINUE
+        
+        # If we just finished combat, creature is dead
+        if self._creature_killed:
+            logger.info(f"[{bot.bot_id}] BotReset: Creature killed, looting")
+            self._phase = self.PHASE_LOOT_CREATURE
+            return BehaviorResult.CONTINUE
+        
+        # Look for creature to attack
+        if ctx.bot_mode and ctx.bot_mobs:
+            for mob in ctx.bot_mobs:
+                name_lower = mob.name.lower()
+                if 'creature' in name_lower or 'big' in name_lower:
+                    logger.info(f"[{bot.bot_id}] BotReset: Attacking {mob.name}")
+                    bot.send_command(f"kill {mob.name.split()[0]}")
+                    self._creature_killed = True
+                    return BehaviorResult.CONTINUE
+        
+        # Fall back to text-based attack
+        for mob_desc in ctx.room_mobs:
+            if 'creature' in mob_desc.lower() or 'big' in mob_desc.lower():
+                logger.info(f"[{bot.bot_id}] BotReset: Attacking creature")
+                bot.send_command("kill creature")
+                self._creature_killed = True
+                return BehaviorResult.CONTINUE
+        
+        # Creature might already be dead or not visible
+        # Try attacking anyway
+        if not self._creature_killed:
+            logger.info(f"[{bot.bot_id}] BotReset: Trying to attack creature (blind)")
+            bot.send_command("kill creature")
+            self._wait_ticks += 1
+            if self._wait_ticks >= 3:
+                # Maybe creature is dead already, move on
+                logger.info(f"[{bot.bot_id}] BotReset: No creature found, proceeding to loot")
+                self._creature_killed = True
+                self._wait_ticks = 0
+                self._phase = self.PHASE_LOOT_CREATURE
+        
+        return BehaviorResult.CONTINUE
+    
+    def _loot_creature(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
+        """Loot the creature's corpse for key and equipment."""
+        if not self._looted:
+            logger.info(f"[{bot.bot_id}] BotReset: Looting corpse")
+            bot.send_command("get all corpse")
+            bot.send_command("get key corpse")
+            bot.send_command("wear all")
+            self._looted = True
+            self._wait_ticks = 0
+            return BehaviorResult.CONTINUE
+        
+        self._wait_ticks += 1
+        if self._wait_ticks >= 2:
+            logger.info(f"[{bot.bot_id}] BotReset: Looting complete, going to unlock door")
+            self._wait_ticks = 0
+            self._phase = self.PHASE_UNLOCK_DOOR
+        
+        return BehaviorResult.CONTINUE
+    
+    def _unlock_door(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
+        """Go back to corridor and unlock the door to the east."""
+        from ..config import CORRIDOR_ROOM, DARK_CREATURE_ROOM
+        
+        # Navigate back to corridor room (3719)
+        if ctx.room_vnum == DARK_CREATURE_ROOM:
+            bot.send_command('south')
+            return BehaviorResult.CONTINUE
+        
+        if ctx.room_vnum == CORRIDOR_ROOM:
+            # Unlock and open the door
+            if self._wait_ticks == 0:
+                logger.info(f"[{bot.bot_id}] BotReset: Unlocking door to the east")
+                bot.send_command('unlock east')
+                bot.send_command('open east')
+                self._wait_ticks = 1
+                return BehaviorResult.CONTINUE
+            
+            self._wait_ticks += 1
+            if self._wait_ticks >= 2:
+                self._wait_ticks = 0
+                self._phase = self.PHASE_ENTER_SCHOOL
+            return BehaviorResult.CONTINUE
+        
+        logger.warning(f"[{bot.bot_id}] BotReset unlock: unexpected room {ctx.room_vnum}")
+        return BehaviorResult.CONTINUE
+    
+    def _enter_school(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
+        """Walk through the unlocked door to room 3721."""
+        from ..config import CORRIDOR_ROOM
+        
+        MUD_SCHOOL_ROOM = 3721
+        
+        if ctx.room_vnum == MUD_SCHOOL_ROOM:
+            logger.info(f"[{bot.bot_id}] BotReset: Entered MUD school (room {MUD_SCHOOL_ROOM})")
+            self._phase = self.PHASE_COMPLETE
+            return BehaviorResult.CONTINUE
+        
+        if ctx.room_vnum == CORRIDOR_ROOM:
+            bot.send_command('east')
+            return BehaviorResult.CONTINUE
+        
+        logger.warning(f"[{bot.bot_id}] BotReset enter school: unexpected room {ctx.room_vnum}")
         return BehaviorResult.CONTINUE

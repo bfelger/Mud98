@@ -216,7 +216,7 @@ class Behavior(ABC):
 
 **BotResetBehavior** (priority 65)
 - One-shot initial setup at bot startup
-- Phases: Train → Practice → Navigate to cage
+- Phases: Train → Practice → Buy supplies (food, water, lantern) → Kill creature in dark room → Loot key/equipment → Unlock door → Enter MUD school (3721)
 - Clears hunger/thirst state for clean start
 
 **TrainBehavior** (priority 62)

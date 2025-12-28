@@ -74,10 +74,37 @@ PRACTICE_ROOM: Final[int] = 3759
 # =============================================================================
 
 SHOP_ROOM: Final[int] = 3718
-"""General store - sells food (soup) and drink (water skin)."""
+"""General store - sells food (soup), drink (water skin), and lantern."""
 
 INTERMEDIATE_ROOM: Final[int] = 3717
 """Room between central room and shop (down from 3712)."""
+
+
+# =============================================================================
+# MUD SCHOOL PROGRESSION
+# =============================================================================
+
+CORRIDOR_ROOM: Final[int] = 3719
+"""Corridor room with locked door to east (needs key from creature)."""
+
+DARK_CREATURE_ROOM: Final[int] = 3720
+"""Dark room containing 'big creature' with key. Requires light source."""
+
+# Route from shop (3718) to dark creature room (3720)
+# Path: 3718 -> north -> 3717 -> east -> 3719 -> north -> 3720
+ROUTE_SHOP_TO_CREATURE: Final[dict[int, str]] = {
+    3718: 'north',   # Shop -> Intermediate
+    3717: 'east',    # Intermediate -> Corridor
+    3719: 'north',   # Corridor -> Dark creature room
+}
+
+# Route back from creature room to cage area
+# Path: 3720 -> south -> 3719 -> west -> 3717 -> up -> 3712
+ROUTE_CREATURE_TO_CAGE: Final[dict[int, str]] = {
+    3720: 'south',   # Dark room -> Corridor
+    3719: 'west',    # Corridor -> Intermediate
+    3717: 'up',      # Intermediate -> Central cage room
+}
 
 
 # =============================================================================
