@@ -23,8 +23,10 @@ from .behaviors import (
     BotResetBehavior, TrainBehavior, PracticeBehavior,
     ROUTE_TO_TRAIN_ROOM, ROUTE_TO_PRACTICE_ROOM,
     ReturnToCageBehavior, PatrolCagesBehavior,
-    BuySuppliesBehavior
+    BuySuppliesBehavior, FightDarkCreatureBehavior,
+    LightSourceBehavior
 )
+from .config.constants import PRIORITY_INITIAL_NAVIGATE
 from .metrics import MetricsCollector, BotMetrics, get_collector, reset_collector
 
 logger = logging.getLogger(__name__)
@@ -507,45 +509,46 @@ class Coordinator:
                     reset_msg = " (with reset)" if do_individual_resets else ""
                     logger.info(f"[{bot_id}] Will practice skills{reset_msg} before navigating to cages")
                 
-                # Then navigate to cage room
+                # Navigate to cage room (3712) - patrol behavior will handle entering cages
+                # Use one_shot=True so this behavior never re-activates after reaching 3712
+                # (otherwise it would try to navigate from cage rooms back to 3712)
+                # Use PRIORITY_INITIAL_NAVIGATE to run before AttackBehavior kicks in
                 managed.engine.add_behavior(NavigateBehavior(
-                    target_vnum=self.config.cage_room_vnum,
+                    destination_vnum=self.config.cage_room_vnum,
                     route=ROUTE_TO_CAGE_ROOM,
-                    one_shot=True  # Don't repeat after reaching cage room
+                    one_shot=True,
+                    priority_override=PRIORITY_INITIAL_NAVIGATE,
                 ))
+                logger.info(f"[{bot_id}] Will navigate to cage room ({self.config.cage_room_vnum}) (one-shot)")
                 
-                # Then distribute to individual cages
+                # Set up patrol and return-to-cage behaviors
                 if self.config.distribute_to_cages:
-                    # With multi-instance MUD school, all bots can go to the same cage
-                    # Use north cage (3713) with aggressive monster for reliable combat
-                    cage_name = 'north'  # Always use north cage
-                    cage_vnum = CAGE_VNUMS[cage_name]
-                    cage_route = CAGE_ROUTES[cage_name]
-                    
-                    # Merge cage room route with cage route
-                    full_route = {**ROUTE_TO_CAGE_ROOM, **cage_route}
-                    
-                    managed.engine.add_behavior(NavigateBehavior(
-                        target_vnum=cage_vnum,
-                        route=full_route,
-                        one_shot=True  # Don't repeat - let PatrolCagesBehavior handle movement
-                    ))
-                    logger.info(f"[{bot_id}] Will navigate to {cage_name} cage (room {cage_vnum})")
+                    # Build full route for returning to cage area from anywhere
+                    # Merge cage room route with routes from individual cages
+                    full_route = {**ROUTE_TO_CAGE_ROOM}
+                    for cage_route in CAGE_ROUTES.values():
+                        full_route.update(cage_route)
                     
                     # Add return-to-cage behavior to recover from death/displacement
                     managed.engine.add_behavior(ReturnToCageBehavior(
-                        cage_vnum=cage_vnum,
                         route=full_route,
-                        hp_threshold=30.0  # Wait until HP recovers after death
                     ))
                     
-                    # Add patrol behavior to cycle through all cages when current is empty
+                    # Add patrol behavior to cycle through all cages
                     managed.engine.add_behavior(PatrolCagesBehavior())
                     logger.info(f"[{bot_id}] Will patrol all 4 cage rooms in circuit")
                     
                     # Add buy supplies behavior for hunger/thirst
                     managed.engine.add_behavior(BuySuppliesBehavior())
                     logger.info(f"[{bot_id}] Will buy food/drink when hungry/thirsty")
+                    
+                    # Add dark creature behavior (fights creature in 3720 after proactive shopping)
+                    managed.engine.add_behavior(FightDarkCreatureBehavior())
+                    logger.info(f"[{bot_id}] Will fight dark creature after proactive shopping")
+                    
+                    # Add light source behavior for dark rooms
+                    managed.engine.add_behavior(LightSourceBehavior())
+                    logger.info(f"[{bot_id}] Will handle light sources in dark rooms")
             else:
                 # Legacy path-based navigation
                 if self.config.navigate_path:

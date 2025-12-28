@@ -51,6 +51,8 @@ class BehaviorEngine:
         self._is_thirsty: bool = False
         # Proactive shopping trigger (set when patrol circuit completes)
         self._should_proactive_shop: bool = False
+        # Dark creature fight trigger (set after proactive shopping with lantern)
+        self._should_fight_dark_creature: bool = False
     
     def add_behavior(self, behavior: Behavior) -> None:
         """Add a behavior to the engine."""
@@ -71,14 +73,15 @@ class BehaviorEngine:
         return None
     
     def reset_needs_state(self) -> None:
-        """Reset hunger, thirst, and proactive shopping state.
+        """Reset hunger, thirst, proactive shopping, and dark creature state.
         
         Called during hard bot reset to ensure a clean slate.
         """
         self._is_hungry = False
         self._is_thirsty = False
         self._should_proactive_shop = False
-        logger.debug(f"[{self.bot.bot_id}] Reset hunger/thirst/proactive shop state")
+        self._should_fight_dark_creature = False
+        logger.debug(f"[{self.bot.bot_id}] Reset hunger/thirst/proactive shop/dark creature state")
     
     def update_room_text(self, text: str) -> None:
         """Update the last room text for mob/item parsing."""
@@ -202,6 +205,9 @@ class BehaviorEngine:
         
         # Set proactive shopping flag
         ctx.should_proactive_shop = self._should_proactive_shop
+        
+        # Set dark creature fight flag
+        ctx.should_fight_dark_creature = self._should_fight_dark_creature
         
         return ctx
     

@@ -10,6 +10,7 @@ Quick Reference:
         - DeathRecoveryBehavior (200) - Handle death/ghost state
         - SurviveBehavior (100) - Emergency flee
         - RecallBehavior (95) - Emergency recall when flee fails
+        - LightSourceBehavior (85) - Handle light in dark rooms
     
     Combat:
         - CombatBehavior (80) - Continue ongoing fight
@@ -25,6 +26,7 @@ Quick Reference:
         - PracticeBehavior (61) - Practice skills
     
     Logistics:
+        - FightDarkCreatureBehavior (57) - Fight creature in dark room after shopping
         - BuySuppliesBehavior (56) - Shop for food/water
         - PatrolCagesBehavior (55) - Patrol cage circuit
     
@@ -68,6 +70,7 @@ from .combat import (
 from .survival import (
     DeathRecoveryBehavior,
     HealBehavior,
+    LightSourceBehavior,
     RecallBehavior,
     SurviveBehavior,
 )
@@ -80,6 +83,7 @@ from .inventory import (
 
 from .navigation import (
     ExploreBehavior,
+    FightDarkCreatureBehavior,
     NavigateBehavior,
     NavigationTask,
     PatrolCagesBehavior,
@@ -178,6 +182,7 @@ __all__ = [
     # Survival
     'DeathRecoveryBehavior',
     'HealBehavior',
+    'LightSourceBehavior',
     'RecallBehavior',
     'SurviveBehavior',
     
@@ -188,6 +193,7 @@ __all__ = [
     
     # Navigation
     'ExploreBehavior',
+    'FightDarkCreatureBehavior',
     'NavigateBehavior',
     'NavigationTask',
     'PatrolCagesBehavior',

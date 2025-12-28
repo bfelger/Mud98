@@ -50,6 +50,11 @@ class Position(IntEnum):
         return self >= Position.STANDING
     
     @property
+    def can_fight(self) -> bool:
+        """Return True if character can engage in combat."""
+        return self >= Position.FIGHTING
+    
+    @property
     def is_fighting(self) -> bool:
         """Return True if character is fighting."""
         return self == Position.FIGHTING
@@ -286,7 +291,10 @@ class MSDPParser:
             elif name == "MONEY":
                 self.stats.money = int(value)
             elif name == "IN_COMBAT":
-                self.stats.in_combat = int(value) != 0
+                new_combat = int(value) != 0
+                if new_combat != self.stats.in_combat:
+                    logger.info(f"IN_COMBAT changed: {self.stats.in_combat} -> {new_combat}")
+                self.stats.in_combat = new_combat
             elif name == "OPPONENT_NAME":
                 self.stats.opponent_name = str(value)
             elif name == "OPPONENT_LEVEL":

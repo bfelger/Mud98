@@ -90,6 +90,9 @@ CORRIDOR_ROOM: Final[int] = 3719
 DARK_CREATURE_ROOM: Final[int] = 3720
 """Dark room containing 'big creature' with key. Requires light source."""
 
+MUD_SCHOOL_ENTRY: Final[int] = 3721
+"""First room inside MUD School proper (east of corridor, through locked door)."""
+
 # Route from shop (3718) to dark creature room (3720)
 # Path: 3718 -> north -> 3717 -> east -> 3719 -> north -> 3720
 ROUTE_SHOP_TO_CREATURE: Final[dict[int, str]] = {
@@ -106,77 +109,95 @@ ROUTE_CREATURE_TO_CAGE: Final[dict[int, str]] = {
     3717: 'up',      # Intermediate -> Central cage room
 }
 
+# Route from Temple (3001) or death respawn to Corridor (3719)
+# Used when bot dies after defeating creature but before reaching corridor
+# Path: Temple -> up -> 3700 -> north -> 3757 -> north -> 3701 -> west -> 3702 -> 
+#       north -> 3703 -> north -> 3709 -> west -> 3711 -> down -> 3712 -> down -> 3717 -> east -> 3719
+ROUTE_TEMPLE_TO_CORRIDOR: Final[dict[int, str]] = {
+    3054: 'south',   # Temple Altar (death respawn) -> Temple (3001)
+    3001: 'up',      # Temple -> Mud School Entrance (3700)
+    3700: 'north',   # Entrance -> Hub Room (3757)
+    3757: 'north',   # Hub -> First Hallway (3701)
+    3701: 'west',    # Turn west
+    3702: 'north',   # Continue north
+    3703: 'north',   # Continue north
+    3709: 'west',    # Turn west
+    3711: 'down',    # Go down to Cage Room
+    3712: 'down',    # Cage Room -> Intermediate (3717)
+    3717: 'east',    # Intermediate -> Corridor (must open door first!)
+    # 3719 is the Corridor - target reached
+}
+
 
 # =============================================================================
 # NAVIGATION ROUTES
 # =============================================================================
 
-# Route from Temple (3001) to Mob Factory central room (3712)
+# Route from Temple (3001) or death respawn to Cage Room (3712)
+# Also includes routes from Training Room (3758) and Practice Room (3759)
 ROUTE_TO_CAGE_ROOM: Final[dict[int, str]] = {
-    3001: 'south',  # Temple -> Temple Square
-    3005: 'south',  # Temple Square -> Market Square
-    3014: 'west',   # Market Square -> West of Market
-    3049: 'south',  # West of Market -> continues south...
-    3050: 'south',
-    3051: 'south',
-    3052: 'south',
-    3053: 'south',
-    3054: 'west',   # Turn west toward Mob Factory
-    3738: 'west',
-    3737: 'west',
-    3736: 'west',
-    3735: 'west',
-    3734: 'north',  # Turn north
-    3733: 'north',
-    3732: 'north',
-    3731: 'north',
-    3730: 'north',
-    3729: 'north',
-    3728: 'east',   # Enter Mob Factory
-    3761: 'east',
-    3760: 'east',
-    3759: 'east',
-    3758: 'east',
-    3721: 'east',
-    3720: 'east',
-    3719: 'up',     # Go up to central
-    3717: 'up',
-    # 3712 is the destination
+    3054: 'south',   # Temple Altar (death respawn) -> Temple (3001)
+    3001: 'up',      # Temple -> Mud School Entrance (3700)
+    3700: 'north',   # Entrance -> Hub Room (3757)
+    3757: 'north',   # Hub -> First Hallway (3701)
+    3758: 'east',    # Training Room -> Hub (3757)
+    3759: 'west',    # Practice Room -> Hub (3757)
+    3701: 'west',    # Turn west
+    3702: 'north',   # Continue north
+    3703: 'north',   # Continue north
+    3709: 'west',    # Turn west
+    3711: 'down',    # Go down
+    # 3712 is the Cage Room - target reached
 }
 
 # Routes from central room (3712) to each cage
+# Include return paths from other cages so bots can navigate between cages
 ROUTE_TO_NORTH_CAGE: Final[dict[int, str]] = {
-    3712: 'north',  # Central -> North cage
+    3712: 'north',   # Cage room -> North cage (3713)
+    3714: 'east',    # West cage -> Cage room
+    3715: 'north',   # South cage -> Cage room
+    3716: 'west',    # East cage -> Cage room
 }
 
 ROUTE_TO_SOUTH_CAGE: Final[dict[int, str]] = {
-    3712: 'west',   # Central -> South cage (confusing naming, but west leads to 3714)
+    3712: 'south',   # Cage room -> South cage (3715)
+    3713: 'south',   # North cage -> Cage room
+    3714: 'east',    # West cage -> Cage room
+    3716: 'west',    # East cage -> Cage room
 }
 
 ROUTE_TO_EAST_CAGE: Final[dict[int, str]] = {
-    3712: 'south',  # Central -> East cage (south leads to 3715)
+    3712: 'east',    # Cage room -> East cage (3716)
+    3713: 'south',   # North cage -> Cage room
+    3714: 'east',    # West cage -> Cage room
+    3715: 'north',   # South cage -> Cage room
 }
 
 ROUTE_TO_WEST_CAGE: Final[dict[int, str]] = {
-    3712: 'east',   # Central -> West cage (east leads to 3716)
+    3712: 'west',    # Cage room -> West cage (3714)
+    3713: 'south',   # North cage -> Cage room
+    3715: 'north',   # South cage -> Cage room
+    3716: 'west',    # East cage -> Cage room
 }
 
-# Route to training room
+# Route to training room (3758)
 ROUTE_TO_TRAIN_ROOM: Final[dict[int, str]] = {
-    **ROUTE_TO_CAGE_ROOM,
-    3712: 'down',   # From central to below
-    3717: 'down',
-    3719: 'west',
-    3720: 'west',
-    3721: 'west',
-    # 3758 is the destination
+    3054: 'south',   # Temple Altar (death respawn) -> Temple (3001)
+    3001: 'up',      # Temple -> Mud School Entrance (3700)
+    3700: 'north',   # Entrance -> Hub room (3757)
+    3757: 'west',    # Hub -> Training Room (3758)
+    # From practice room, go back to hub first
+    3759: 'west',    # Practice Room -> Hub (3757)
 }
 
-# Route to practice room  
+# Route to practice room (3759)
 ROUTE_TO_PRACTICE_ROOM: Final[dict[int, str]] = {
-    **ROUTE_TO_TRAIN_ROOM,
-    3758: 'west',   # Train room -> Practice room
-    # 3759 is the destination
+    3054: 'south',   # Temple Altar (death respawn) -> Temple (3001)
+    3001: 'up',      # Temple -> Mud School Entrance (3700)
+    3700: 'north',   # Entrance -> Hub room (3757)
+    3757: 'east',    # Hub -> Practice Room (3759)
+    # From training room, go back to hub first
+    3758: 'east',    # Training Room -> Hub (3757)
 }
 
 
@@ -185,12 +206,12 @@ ROUTE_TO_PRACTICE_ROOM: Final[dict[int, str]] = {
 # =============================================================================
 
 PATROL_SEQUENCE: Final[list[int]] = [
-    NORTH_CAGE_ROOM,  # 3713
-    EAST_CAGE_ROOM,   # 3715 (actually south of central)
-    SOUTH_CAGE_ROOM,  # 3714 (actually west of central)
-    WEST_CAGE_ROOM,   # 3716 (actually east of central)
+    EAST_CAGE_ROOM,   # 3715 - south cage (wimpy monster) - easiest
+    SOUTH_CAGE_ROOM,  # 3714 - west cage (wimpy aggressive monster)
+    WEST_CAGE_ROOM,   # 3716 - east cage (normal monster)
+    NORTH_CAGE_ROOM,  # 3713 - north cage (aggressive monster) - hardest
 ]
-"""Order of cage rooms to visit during patrol."""
+"""Order of cage rooms to visit during patrol (easiest to hardest)."""
 
 CAGE_EXIT_DIRECTIONS: Final[dict[int, str]] = {
     NORTH_CAGE_ROOM: 'south',  # Exit north cage

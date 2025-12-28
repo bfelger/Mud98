@@ -102,6 +102,9 @@ class BehaviorContext:
     # Proactive shopping (set when patrol circuit completes)
     should_proactive_shop: bool = False
     
+    # Dark creature fight trigger (set after proactive shopping with lantern)
+    should_fight_dark_creature: bool = False
+    
     @property
     def hp_percent(self) -> float:
         """Current HP as percentage of max."""

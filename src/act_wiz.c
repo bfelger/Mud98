@@ -435,12 +435,23 @@ void do_botreset(Mobile* ch, char* argument)
     ch->copper = 0;
     send_to_char("Currency reset to 0.\n\r", ch);
     
-    // 9. Give starting equipment
+    // 9. Reset hunger/thirst to full
+    ch->pcdata->condition[COND_HUNGER] = 48;
+    ch->pcdata->condition[COND_THIRST] = 48;
+    ch->pcdata->condition[COND_FULL] = 48;
+    ch->pcdata->condition[COND_DRUNK] = 0;
+    send_to_char("Hunger/thirst reset to full.\n\r", ch);
+    
+    // 10. Reset recall point to default (Temple)
+    ch->pcdata->recall = cfg_get_default_recall();
+    send_to_char("Recall point reset to Temple.\n\r", ch);
+    
+    // 11. Give starting equipment
     // First, ensure level is low enough for do_outfit to work
     do_function(ch, &do_outfit, "");
     obj_to_char(create_object(get_object_prototype(OBJ_VNUM_MAP), 0), ch);
     
-    // 10. Teleport to MUD school entrance
+    // 11. Teleport to MUD school entrance
     // Use get_room_for_player() to handle multi-instance areas correctly
     target_room = get_room_for_player(ch, mud_school_vnum);
     if (target_room == NULL) {

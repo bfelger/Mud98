@@ -22,6 +22,9 @@ PRIORITY_SURVIVE: Final[int] = 100
 PRIORITY_RECALL: Final[int] = 95
 """Emergency recall when flee fails."""
 
+PRIORITY_LIGHT_SOURCE: Final[int] = 85
+"""Handle light sources when in dark rooms."""
+
 PRIORITY_COMBAT: Final[int] = 80
 """Continue an ongoing fight."""
 
@@ -40,8 +43,14 @@ PRIORITY_TRAIN: Final[int] = 62
 PRIORITY_PRACTICE: Final[int] = 61
 """Navigate to practitioner and practice skills."""
 
+PRIORITY_INITIAL_NAVIGATE: Final[int] = 60
+"""Initial one-shot navigation to combat area (same priority as attack)."""
+
 PRIORITY_ATTACK: Final[int] = 60
 """Initiate combat with appropriate targets."""
+
+PRIORITY_DARK_CREATURE: Final[int] = 57
+"""Navigate to dark room and fight creature after getting lantern."""
 
 PRIORITY_BUY_SUPPLIES: Final[int] = 56
 """Go to shop when hungry/thirsty or proactively after patrol."""

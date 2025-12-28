@@ -17,7 +17,7 @@ from .base import Behavior, BehaviorContext, BehaviorResult
 from ..config import (
     PRIORITY_LOOT, PRIORITY_SHOP, PRIORITY_BUY_SUPPLIES,
     MIN_SHOPPING_MONEY, CENTRAL_ROOM, CAGE_ROOMS,
-    SHOP_ROOM, INTERMEDIATE_ROOM,
+    SHOP_ROOM, INTERMEDIATE_ROOM, CORRIDOR_ROOM,
 )
 
 if TYPE_CHECKING:
@@ -28,109 +28,168 @@ logger = logging.getLogger(__name__)
 
 class LootBehavior(Behavior):
     """
-    Loot corpses after combat.
+    Loot corpses after combat and intelligently equip better items.
     
-    After killing a mob, loot gold and items from the corpse.
-    Can optionally auto-equip weapons and armor.
+    Workflow:
+    1. Get all items from corpse
+    2. For each looted item, compare to equipped gear
+    3. Wear items that are better or fill empty slots
+    4. Drop items that are worse (to avoid inventory clutter)
+    5. Sacrifice the corpse for gold
     """
     
     priority = PRIORITY_LOOT
     name = "Loot"
     tick_delay = 0.5
     
-    # Patterns to match dropped/got items
-    ITEM_PATTERNS = [
-        re.compile(r'You get (.+) from the corpse'),
-        re.compile(r'You get (.+) from corpse'),
-        re.compile(r'You get (.+)\.'),
-    ]
+    # Compare command output patterns
+    COMPARE_BETTER = "looks better than"
+    COMPARE_WORSE = "looks worse than"
+    COMPARE_SAME = "look about the same"
+    COMPARE_NOTHING = "aren't wearing anything comparable"
+    COMPARE_CANT = "can't compare"
     
-    # Item types to auto-equip
-    EQUIP_SLOTS = {
-        'sword': 'wield',
-        'dagger': 'wield', 
-        'mace': 'wield',
-        'axe': 'wield',
-        'staff': 'wield',
-        'armor': 'wear',
-        'helmet': 'wear',
-        'shield': 'wear',
-        'boots': 'wear',
-        'gloves': 'wear',
-        'cloak': 'wear',
-        'ring': 'wear',
-        'bracelet': 'wear',
-        'amulet': 'wear',
-        'belt': 'wear',
-        'leggings': 'wear',
-    }
+    # States for the loot workflow
+    STATE_LOOT = 0
+    STATE_WAIT_LOOT = 1
+    STATE_COMPARE = 2
+    STATE_WAIT_COMPARE = 3
+    STATE_SACRIFICE = 4
+    STATE_DONE = 5
     
-    def __init__(self, auto_equip: bool = True, auto_get_gold: bool = True):
+    def __init__(self):
         super().__init__()
-        self.auto_equip = auto_equip
-        self.auto_get_gold = auto_get_gold
-        self._looted = False
-        self._equipped = False
+        self._state = self.STATE_LOOT
+        self._looted_items: list[str] = []
+        self._current_item_index = 0
+        self._cooldown_until = 0.0
         self._wait_ticks = 0
-        self._pending_items: list[str] = []
     
     def can_start(self, ctx: BehaviorContext) -> bool:
         """Start when there's a corpse and not in combat."""
+        import time
+        if time.time() < self._cooldown_until:
+            return False
         if ctx.in_combat:
             return False
         return ctx.has_corpse
     
+    def start(self, bot: 'Bot', ctx: BehaviorContext) -> None:
+        super().start(bot, ctx)
+        self._state = self.STATE_LOOT
+        self._looted_items = []
+        self._current_item_index = 0
+        self._wait_ticks = 0
+        logger.info(f"[{bot.bot_id}] Looting corpse...")
+    
+    def _parse_looted_items(self, text: str) -> list[str]:
+        """Parse 'You get X from the corpse' messages to extract item names."""
+        items = []
+        pattern = re.compile(r"You get (.+?) from (?:the )?corpse", re.IGNORECASE)
+        for match in pattern.finditer(text):
+            item_name = match.group(1).strip()
+            # Skip gold/coins
+            if 'gold' in item_name.lower() or 'coin' in item_name.lower():
+                continue
+            # Skip items in parentheses (usually coins like "(6cp)")
+            if item_name.startswith('(') and item_name.endswith(')'):
+                continue
+            # Extract keyword (last word is usually the primary keyword)
+            words = item_name.split()
+            if words:
+                keyword = words[-1].rstrip('.')
+                if keyword not in ('a', 'an', 'the', 'some'):
+                    items.append(keyword)
+        return items
+    
+    def _parse_compare_result(self, text: str) -> str:
+        """Parse compare command output to determine action."""
+        if self.COMPARE_NOTHING in text:
+            return "wear"  # Nothing comparable equipped, wear it
+        elif self.COMPARE_BETTER in text:
+            return "wear"  # New item is better
+        elif self.COMPARE_WORSE in text:
+            return "drop"  # New item is worse
+        elif self.COMPARE_SAME in text:
+            return "keep"  # About the same, just keep in inventory
+        elif self.COMPARE_CANT in text:
+            return "keep"  # Can't compare (different types), keep for now
+        else:
+            return "unknown"
+    
     def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
-        if ctx.in_combat:
-            # Interrupted by combat
-            return BehaviorResult.COMPLETED
+        import time
         
-        # Phase 1: Loot the corpse
-        if not self._looted:
+        if self._state == self.STATE_LOOT:
             bot.send_command("get all corpse")
-            if self.auto_get_gold:
-                bot.send_command("get gold corpse")
-            self._looted = True
+            self._state = self.STATE_WAIT_LOOT
             self._wait_ticks = 0
             return BehaviorResult.CONTINUE
         
-        # Phase 2: Wait for loot output
-        self._wait_ticks += 1
-        if self._wait_ticks < 2:
+        elif self._state == self.STATE_WAIT_LOOT:
+            self._wait_ticks += 1
+            if self._wait_ticks >= 2:
+                self._looted_items = self._parse_looted_items(ctx.last_text)
+                if self._looted_items:
+                    logger.info(f"[{bot.bot_id}] Looted items: {self._looted_items}")
+                    self._state = self.STATE_COMPARE
+                    self._current_item_index = 0
+                else:
+                    self._state = self.STATE_SACRIFICE
             return BehaviorResult.CONTINUE
         
-        # Phase 3: Parse items from text and equip
-        if self.auto_equip and not self._equipped:
-            items = self._parse_looted_items(ctx.last_text)
-            for item in items:
-                self._try_equip_item(bot, item)
-            self._equipped = True
+        elif self._state == self.STATE_COMPARE:
+            if self._current_item_index >= len(self._looted_items):
+                self._state = self.STATE_SACRIFICE
+                return BehaviorResult.CONTINUE
+            
+            item = self._looted_items[self._current_item_index]
+            bot.send_command(f"compare {item}")
+            self._state = self.STATE_WAIT_COMPARE
+            self._wait_ticks = 0
             return BehaviorResult.CONTINUE
         
-        # Done looting
-        self._looted = False
-        self._equipped = False
-        self._wait_ticks = 0
-        return BehaviorResult.COMPLETED
-    
-    def _parse_looted_items(self, text: str) -> list[str]:
-        """Parse item names from loot output."""
-        items = []
-        for pattern in self.ITEM_PATTERNS:
-            matches = pattern.findall(text)
-            items.extend(matches)
-        return items
-    
-    def _try_equip_item(self, bot: 'Bot', item_name: str) -> None:
-        """Try to equip an item if it's equipment."""
-        item_lower = item_name.lower()
-        for keyword, command in self.EQUIP_SLOTS.items():
-            if keyword in item_lower:
-                # Extract first word as keyword for command
-                first_word = item_name.split()[0]
-                logger.info(f"[{bot.bot_id}] Equipping: {first_word}")
-                bot.send_command(f"{command} {first_word}")
-                break
+        elif self._state == self.STATE_WAIT_COMPARE:
+            self._wait_ticks += 1
+            if self._wait_ticks >= 2:
+                item = self._looted_items[self._current_item_index]
+                action = self._parse_compare_result(ctx.last_text)
+                
+                if action == "wear":
+                    logger.info(f"[{bot.bot_id}] Equipping better item: {item}")
+                    bot.send_command(f"wear {item}")
+                elif action == "drop":
+                    logger.info(f"[{bot.bot_id}] Dropping worse item: {item}")
+                    bot.send_command(f"drop {item}")
+                elif action == "keep":
+                    logger.debug(f"[{bot.bot_id}] Keeping comparable item: {item}")
+                elif action == "unknown":
+                    logger.debug(f"[{bot.bot_id}] Unknown compare result for {item}, trying to wear")
+                    bot.send_command(f"wear {item}")
+                
+                self._current_item_index += 1
+                self._state = self.STATE_COMPARE
+            return BehaviorResult.CONTINUE
+        
+        elif self._state == self.STATE_SACRIFICE:
+            bot.send_command("sacrifice corpse")
+            self._state = self.STATE_DONE
+            return BehaviorResult.CONTINUE
+        
+        elif self._state == self.STATE_DONE:
+            # Refresh room data
+            bot.send_command("look")
+            
+            # Clear the text buffer after processing loot
+            if hasattr(bot, '_behavior_engine'):
+                bot._behavior_engine.clear_text_buffer()
+            
+            # Set cooldown to avoid re-triggering on stale data
+            self._cooldown_until = time.time() + 5.0
+            logger.info(f"[{bot.bot_id}] Looting complete")
+            return BehaviorResult.COMPLETED
+        
+        return BehaviorResult.CONTINUE
 
 
 class ShopBehavior(Behavior):
@@ -348,7 +407,7 @@ class BuySuppliesBehavior(Behavior):
         """Buy lantern at the shop for dark rooms."""
         if not self._bought_lantern:
             bot.send_command('buy lantern')
-            bot.send_command('hold lantern')  # Equip it immediately
+            bot.send_command('wear lantern')  # Equip it immediately
             self._bought_lantern = True
             self._wait_ticks = 0
             logger.info(f"[{bot.bot_id}] Bought and equipped lantern for dark rooms")
@@ -361,7 +420,8 @@ class BuySuppliesBehavior(Behavior):
             elif self._bought_drink and not self._is_proactive:
                 self._state = self.STATE_DRINK
             else:
-                # Proactive: skip consuming
+                # Proactive: skip consuming, go to return
+                logger.info(f"[{bot.bot_id}] Lantern bought, transitioning to RETURN state (proactive={self._is_proactive})")
                 self._state = self.STATE_RETURN
         return BehaviorResult.CONTINUE
     
@@ -384,7 +444,29 @@ class BuySuppliesBehavior(Behavior):
         return BehaviorResult.CONTINUE
     
     def _return_to_start(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
-        """Return to the cage area."""
+        """Return to patrol area or navigate to dark creature room."""
+        logger.debug(f"[{bot.bot_id}] _return_to_start: room={ctx.room_vnum}, proactive={self._is_proactive}, bought_lantern={self._bought_lantern}")
+        
+        # After proactive shopping with lantern, go to corridor (3719) for dark creature fight
+        if self._is_proactive and self._bought_lantern:
+            if ctx.room_vnum == CORRIDOR_ROOM:
+                logger.info(f"[{bot.bot_id}] Finished proactive shopping, now at corridor (3719) for dark creature")
+                # Set the flag to trigger FightDarkCreatureBehavior
+                if hasattr(bot, '_behavior_engine') and bot._behavior_engine:
+                    bot._behavior_engine._should_fight_dark_creature = True
+                return BehaviorResult.COMPLETED
+            elif ctx.room_vnum == SHOP_ROOM:
+                bot.send_command('north')
+            elif ctx.room_vnum == INTERMEDIATE_ROOM:
+                # The east door to corridor may be closed - try opening first
+                bot.send_command('open east')
+                bot.send_command('east')  # Go east to corridor (3719), not up to cage (3712)
+            else:
+                # Somewhere unexpected, try to get back on route
+                bot.send_command('recall')
+            return BehaviorResult.CONTINUE
+        
+        # Normal shopping: return to cage area
         if ctx.room_vnum == CENTRAL_ROOM or ctx.room_vnum in CAGE_ROOMS:
             if self._is_proactive:
                 logger.info(f"[{bot.bot_id}] Finished proactive shopping, returned to room {ctx.room_vnum}")

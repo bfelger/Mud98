@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Optional
 from .base import Behavior, BehaviorContext, BehaviorResult
 from ..config import (
     PRIORITY_DEATH_RECOVERY, PRIORITY_SURVIVE, PRIORITY_HEAL, PRIORITY_RECALL,
+    PRIORITY_LIGHT_SOURCE,
     DEFAULT_FLEE_HP_PERCENT, DEFAULT_REST_HP_PERCENT,
     DEFAULT_REST_MANA_PERCENT, DEFAULT_REST_MOVE_PERCENT,
     CRITICAL_HP_PERCENT, MAX_FLEE_ATTEMPTS,
@@ -29,63 +30,75 @@ logger = logging.getLogger(__name__)
 
 class DeathRecoveryBehavior(Behavior):
     """
-    Handle death/ghost state.
+    Highest priority behavior - handles death/dying states.
     
-    When the character dies, they become a ghost and need to navigate
-    back to their corpse or a healer. This behavior handles the recovery
-    process.
+    Activates when:
+    - Position is DEAD, MORTAL, or INCAP (truly dying)
+    - OR Position is STUNNED AND HP <= 0 (combat death)
+    
+    Does NOT activate for STUNNED with normal HP (e.g., after login/teleport).
+    Waits for respawn (position becomes RESTING/STANDING with HP > 0).
     """
     
     priority = PRIORITY_DEATH_RECOVERY  # Highest priority
     name = "DeathRecovery"
-    tick_delay = 2.0
+    tick_delay = 1.0
     
     def __init__(self):
         super().__init__()
-        self._death_count = 0
-        self._recovery_attempts = 0
+        self._wait_count = 0
+        self._death_recorded = False
     
-    def can_start(self, ctx: BehaviorContext) -> bool:
-        """Start if position indicates death."""
-        # Check if we're dead/ghost
-        if ctx.position and ctx.position.name.lower() in ('dead', 'ghost'):
+    @staticmethod
+    def _is_truly_dead(ctx: BehaviorContext) -> bool:
+        """Check if the character is truly dead/dying, not just stunned."""
+        # Definitely dead if position is DEAD, MORTAL, or INCAP
+        if ctx.position.is_dead:
             return True
-        # Also check for 0 HP (shouldn't happen but safety check)
-        if ctx.health <= 0 and ctx.health_max > 0:
+        # Stunned with zero or negative HP is also death
+        if ctx.position.is_stunned_or_worse and ctx.hp_percent <= 0:
             return True
         return False
     
+    def can_start(self, ctx: BehaviorContext) -> bool:
+        """Start if truly dead (not just stunned with normal HP)."""
+        return self._is_truly_dead(ctx)
+    
+    def start(self, bot: 'Bot', ctx: BehaviorContext) -> None:
+        super().start(bot, ctx)
+        self._wait_count = 0
+        self._death_recorded = False
+        logger.error(f"[{bot.bot_id}] DIED! Position={ctx.position.name}, HP={ctx.hp_percent:.0f}%")
+        
+        # Clear dark creature flag on death - we'll need to restart the quest
+        if hasattr(bot, '_behavior_engine') and bot._behavior_engine:
+            bot._behavior_engine._should_fight_dark_creature = False
+            logger.info(f"[{bot.bot_id}] Cleared dark creature flag on death")
+    
     def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
-        self._recovery_attempts += 1
+        # Record death once (metrics may not exist on bot, handle gracefully)
+        if not self._death_recorded:
+            if hasattr(bot, 'metrics') and bot.metrics:
+                bot.metrics.record_death()
+                logger.info(f"[{bot.bot_id}] Death recorded in metrics")
+            self._death_recorded = True
         
-        if self._recovery_attempts == 1:
-            self._death_count += 1
-            logger.warning(f"[{bot.bot_id}] DEATH #{self._death_count}! Attempting recovery...")
+        # Check if we've respawned (not dead AND HP > 0)
+        if not self._is_truly_dead(ctx) and ctx.hp_percent > 0:
+            logger.info(f"[{bot.bot_id}] Respawned! Position={ctx.position.name}, HP={ctx.hp_percent:.0f}%, room={ctx.room_vnum}")
+            bot.send_command("look")  # Refresh room state
+            return BehaviorResult.COMPLETED
         
-        # Try various recovery methods
-        if self._recovery_attempts <= 3:
-            # Try standing up first
-            bot.send_command("wake")
-            bot.send_command("stand")
-        elif self._recovery_attempts <= 6:
-            # Try recalling
-            bot.send_command("recall")
-        elif self._recovery_attempts <= 10:
-            # Try pray (some MUDs have this)
-            bot.send_command("pray")
-        else:
-            # Give up and wait
-            logger.error(f"[{bot.bot_id}] Death recovery failed after {self._recovery_attempts} attempts")
-            self._recovery_attempts = 0
+        self._wait_count += 1
+        if self._wait_count % 5 == 0:
+            logger.debug(f"[{bot.bot_id}] Waiting for respawn... (position={ctx.position.name}, HP={ctx.hp_percent:.0f}%)")
+        
+        # Timeout after 30 seconds - something is very wrong
+        if self._wait_count > 30:
+            logger.error(f"[{bot.bot_id}] Respawn timeout! Still dead after 30s")
             return BehaviorResult.FAILED
         
-        return BehaviorResult.CONTINUE
-    
-    def stop(self) -> None:
-        super().stop()
-        if self._recovery_attempts > 0:
-            logger.info(f"[{self.name}] Recovered from death after {self._recovery_attempts} attempts")
-        self._recovery_attempts = 0
+        return BehaviorResult.WAITING
 
 
 class SurviveBehavior(Behavior):
@@ -110,21 +123,27 @@ class SurviveBehavior(Behavior):
         return ctx.in_combat and ctx.hp_percent < self.flee_hp_percent
     
     def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
+        # Check if we died while trying to flee (truly dead, not just stunned)
+        if ctx.position.is_dead or (ctx.position.is_stunned_or_worse and ctx.hp_percent <= 0):
+            logger.error(f"[{bot.bot_id}] Died while trying to flee! "
+                        f"(position={ctx.position.name}, HP={ctx.hp_percent:.0f}%)")
+            if hasattr(bot, 'metrics') and bot.metrics:
+                bot.metrics.record_death()
+            return BehaviorResult.FAILED
+        
         if not ctx.in_combat:
-            logger.info(f"[{bot.bot_id}] Escaped combat!")
+            logger.info(f"[{bot.bot_id}] Successfully escaped combat!")
             self._flee_attempts = 0
             return BehaviorResult.COMPLETED
         
         self._flee_attempts += 1
-        logger.warning(f"[{bot.bot_id}] FLEE attempt #{self._flee_attempts} "
-                      f"(HP: {ctx.hp_percent:.0f}%)")
+        logger.warning(f"[{bot.bot_id}] Fleeing (attempt {self._flee_attempts})...")
         
         bot.send_command("flee")
         
         if self._flee_attempts >= MAX_FLEE_ATTEMPTS:
-            logger.error(f"[{bot.bot_id}] Flee failed after {MAX_FLEE_ATTEMPTS} attempts!")
-            # Notify RecallBehavior to take over
-            # This is handled by checking _flee_attempts in RecallBehavior
+            logger.error(f"[{bot.bot_id}] Could not flee after {MAX_FLEE_ATTEMPTS} attempts!")
+            bot.send_command("recall")
             self._flee_attempts = 0
             return BehaviorResult.FAILED
         
@@ -242,3 +261,98 @@ class RecallBehavior(Behavior):
         bot.send_command("recall")
         self._flee_failed = False
         return BehaviorResult.COMPLETED
+
+
+class LightSourceBehavior(Behavior):
+    """
+    Handle light sources when entering/exiting dark rooms.
+    
+    When entering a dark room (room has 'dark' flag):
+    1. Remember currently held off-hand item (if any)
+    2. Hold lantern if we have one
+    
+    When leaving a dark room (entering lit room):
+    1. Remove lantern
+    2. Re-equip the remembered off-hand item
+    
+    This behavior is emergent - it activates automatically based on
+    room lighting conditions and whether we have a lantern.
+    """
+    
+    priority = PRIORITY_LIGHT_SOURCE
+    name = "LightSource"
+    tick_delay = 0.3
+    
+    def __init__(self):
+        super().__init__()
+        self._previous_offhand: Optional[str] = None
+        self._holding_lantern: bool = False
+        self._in_dark_room: bool = False
+        self._wait_ticks: int = 0
+    
+    def can_start(self, ctx: BehaviorContext) -> bool:
+        """Start when entering/exiting a dark room."""
+        is_dark = 'dark' in ctx.bot_room_flags
+        
+        # Need to equip lantern: dark room and not holding lantern
+        if is_dark and not self._holding_lantern:
+            return True
+        
+        # Need to re-equip offhand: left dark room and still holding lantern
+        if not is_dark and self._holding_lantern:
+            return True
+        
+        return False
+    
+    def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
+        is_dark = 'dark' in ctx.bot_room_flags
+        
+        if is_dark and not self._holding_lantern:
+            return self._equip_lantern(bot, ctx)
+        elif not is_dark and self._holding_lantern:
+            return self._restore_offhand(bot, ctx)
+        
+        return BehaviorResult.COMPLETED
+    
+    def _equip_lantern(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
+        """Equip lantern when entering dark room."""
+        self._wait_ticks += 1
+        
+        if self._wait_ticks == 1:
+            # First, save current offhand if any (we'll use inventory check later)
+            # For now, just try to remove offhand and hold lantern
+            logger.info(f"[{bot.bot_id}] Dark room detected - equipping lantern")
+            bot.send_command("remove held")  # Remove current offhand if any
+            return BehaviorResult.CONTINUE
+        
+        if self._wait_ticks == 2:
+            bot.send_command("wear lantern")
+            self._holding_lantern = True
+            self._in_dark_room = True
+            logger.info(f"[{bot.bot_id}] Now wearing lantern for light")
+            self._wait_ticks = 0
+            return BehaviorResult.COMPLETED
+        
+        return BehaviorResult.CONTINUE
+    
+    def _restore_offhand(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
+        """Restore previous offhand when leaving dark room."""
+        self._wait_ticks += 1
+        
+        if self._wait_ticks == 1:
+            logger.info(f"[{bot.bot_id}] Left dark room - removing lantern")
+            bot.send_command("remove lantern")
+            return BehaviorResult.CONTINUE
+        
+        if self._wait_ticks == 2:
+            # Try to re-equip a shield or other offhand item
+            # The bot should auto-equip best gear via compare/wear
+            # For now just put lantern away
+            bot.send_command("put lantern bag")  # Attempt to store in bag
+            self._holding_lantern = False
+            self._in_dark_room = False
+            logger.info(f"[{bot.bot_id}] Lantern stowed, back in light")
+            self._wait_ticks = 0
+            return BehaviorResult.COMPLETED
+        
+        return BehaviorResult.CONTINUE
