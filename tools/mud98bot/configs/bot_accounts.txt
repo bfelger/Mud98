@@ -1,0 +1,34 @@
+# Mud98Bot Account List
+# 
+# Format: username:password
+# One account per line. Lines starting with # are comments.
+# 
+# These accounts should be pre-created on the server, or the bot
+# will attempt to create new characters using default settings.
+#
+# You can also use "random" as a username to get a random name
+# from the server (if the server supports it).
+
+# Test accounts
+Botrick:botpass
+Botnik:botpass
+Botley:botpass
+Bottoms:botpass
+Botsworth:botpass
+
+# More test bots (add as needed)
+# Botham:botpass
+# Botson:botpass
+# Botley:botpass
+# Botnik:botpass
+# Bogart:botpass
+# Borden:botpass
+# Boswell:botpass
+# Bowman:botpass
+# Braxton:botpass
+# Bremen:botpass
+
+# Random name bots (server generates name)
+# random:botpass
+# random:botpass
+# random:botpass

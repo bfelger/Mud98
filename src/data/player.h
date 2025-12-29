@@ -19,7 +19,7 @@ typedef enum plr_act_flags_t {
     PLR_AUTOGOLD            = BIT(6),
     PLR_AUTOSPLIT           = BIT(7),
     PLR_TESTER              = BIT(8),
-    // Unused                 BIT(9)
+    PLR_BOT                 = BIT(9),  // Automated bot client - show structured data
     // Unused                 BIT(10)
     // Unused                 BIT(11)
     // Unused                 BIT(12)

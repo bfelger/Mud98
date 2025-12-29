@@ -537,6 +537,7 @@ static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
             send_to_desc(help_greeting + 1, dnew);
         else
             send_to_desc(help_greeting, dnew);
+        send_to_desc("By what name do you wish to be known?\n\r", dnew);
     }
 
     rc = 0; // OK
@@ -895,7 +896,8 @@ void read_from_buffer(Descriptor* d)
         }
         else {
             if (++d->repeat >= 25 && d->character
-                && d->connected == CON_PLAYING) {
+                && d->connected == CON_PLAYING 
+                && !IS_IMMORTAL(d->character) && !IS_BOT(d->character)) {
                 sprintf(log_buf, "%s input spamming!", d->host);
                 log_string(log_buf);
                 wiznet("Spam spam spam $N spam spam spam spam spam!",
@@ -1263,6 +1265,23 @@ static void nanny_weapon_prompt(Descriptor* d, Mobile* ch)
     sb_free(sb);
 }
 
+static void random_name(char* name, size_t max_length)
+{
+    const char* syllables[] = {
+        "al", "an", "ar", "bel", "cor", "dan", "el", "fin", "gar",
+        "hal", "in", "jor", "kel", "lin", "mor", "nel", "or", "pel",
+        "quil", "ran", "sel", "tor", "ul", "val", "wen", "yor", "zen"
+    };
+    int syllable_count = sizeof(syllables) / sizeof(syllables[0]);
+    int num_syllables = 2 + (rand() % 3); // 2 to 4 syllables
+
+    name[0] = '\0';
+    for (int i = 0; i < num_syllables; i++) {
+        strncat(name, syllables[rand() % syllable_count], max_length - strlen(name) - 1);
+    }
+    name[0] = UPPER(name[0]);
+}
+
 // Deal with sockets that haven't logged in yet.
 void nanny(Descriptor * d, char* argument)
 {
@@ -1290,6 +1309,18 @@ void nanny(Descriptor * d, char* argument)
         if (argument[0] == '\0') {
             close_socket(d);
             return;
+        }
+
+        if (str_cmp(argument, "random") == 0) {
+            file_exists = true;
+            while (file_exists) {
+                random_name(arg, MAX_INPUT_LENGTH);
+                file_exists = load_char_obj(d, arg);
+                if (!file_exists) {
+                    strcpy(argument, arg);
+                    ch = d->character;
+                }
+            }
         }
 
         argument[0] = UPPER(argument[0]);
@@ -2533,11 +2564,11 @@ void act_pos_new(const char* format, Obj* target, Obj* arg1, Obj* arg2,
                     break;
 
                 case 'd':
-                    if (arg2 == NULL || ((char*)arg2)[0] == '\0') {
+                    if (string2 == NULL || string2[0] == '\0') {
                         i = "door";
                     }
                     else {
-                        one_argument((char*)arg2, fname);
+                        one_argument(string2, fname);
                         i = fname;
                     }
                     break;

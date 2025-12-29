@@ -2224,7 +2224,8 @@ int get_cost(Mobile* keeper, Object* obj, bool fBuy)
     ShopData* pShop;
     int cost;
 
-    if (obj == NULL || (pShop = keeper->prototype->pShop) == NULL) return 0;
+    if (obj == NULL || (pShop = keeper->prototype->pShop) == NULL)
+        return 0;
 
     if (fBuy) {
         cost = obj->cost * pShop->profit_buy / 100; 
@@ -2408,7 +2409,7 @@ void do_buy(Mobile* ch, char* argument)
             }
         }
 
-        long price_per_item = (long)cost * COPPER_PER_SILVER;
+        long price_per_item = (long)cost /** COPPER_PER_SILVER*/;
         long total_price = price_per_item * number;
 
         if (mobile_total_copper(ch) < total_price) {
@@ -2448,7 +2449,7 @@ void do_buy(Mobile* ch, char* argument)
             check_improve(ch, gsn_haggle, true, 4);
         }
 
-        price_per_item = (long)cost * COPPER_PER_SILVER;
+        price_per_item = (long)cost /** COPPER_PER_SILVER*/;
         total_price = price_per_item * number;
 
         if (number > 1) {
@@ -2553,7 +2554,7 @@ void do_list(Mobile* ch, char* argument)
                 }
 
                 char price_buf[32];
-                describe_money_amount((long)cost * COPPER_PER_SILVER, price_buf, sizeof(price_buf), true);
+                describe_money_amount((long)cost /* * COPPER_PER_SILVER*/, price_buf, sizeof(price_buf), true);
 
                 if (IS_OBJ_STAT(obj, ITEM_INVENTORY))
                     sprintf(buf, "[%2d %10s -- ] %s\n\r", obj->level, price_buf,
@@ -2623,7 +2624,7 @@ void do_sell(Mobile* ch, char* argument)
         return;
     }
 
-    long cost_copper = (long)cost * COPPER_PER_SILVER;
+    long cost_copper = (long)cost /* * COPPER_PER_SILVER*/;
     long keeper_funds = mobile_total_copper(keeper);
     if (cost_copper > keeper_funds) {
         act("$n tells you 'I'm afraid I don't have enough wealth to buy $p.",
@@ -2639,11 +2640,11 @@ void do_sell(Mobile* ch, char* argument)
         send_to_char("You haggle with the shopkeeper.\n\r", ch);
         cost += obj->cost / 2 * roll / 100;
         cost = UMIN(cost, 95 * get_cost(keeper, obj, true) / 100);
-        int max_affordable = (int)(keeper_funds / COPPER_PER_SILVER);
+        int max_affordable = (int)(keeper_funds /* / COPPER_PER_SILVER*/);
         cost = UMIN(cost, max_affordable);
         check_improve(ch, gsn_haggle, true, 4);
     }
-    cost_copper = (long)cost * COPPER_PER_SILVER;
+    cost_copper = (long)cost /* * COPPER_PER_SILVER*/;
     char payout_buf[64];
     describe_money_amount(cost_copper, payout_buf, sizeof(payout_buf), false);
     sprintf(buf, "You sell $p for %s.", payout_buf);
@@ -2706,7 +2707,7 @@ void do_value(Mobile* ch, char* argument)
     }
 
     char value_buf[64];
-    describe_money_amount((long)cost * COPPER_PER_SILVER, value_buf, sizeof(value_buf), false);
+    describe_money_amount((long)cost /* * COPPER_PER_SILVER*/, value_buf, sizeof(value_buf), false);
     sprintf(buf, "$n tells you 'I'll give you %s for $p'.", value_buf);
     act(buf, keeper, obj, ch, TO_VICT);
     ch->reply = keeper;

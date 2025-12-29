@@ -39,3 +39,13 @@ src/.build-clang/*
 **/*.code-workspace
 test_output.txt
 .vscode/settings.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+*.egg
+.venv/
+venv/

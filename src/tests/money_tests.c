@@ -169,8 +169,7 @@ static int test_buy_from_shop_updates_money()
     mobile_set_money_from_copper(buyer, initial_player);
     long initial_keeper = mobile_total_copper(keeper);
 
-    int expected_silver = sword->cost * shop->profit_buy / 100;
-    long expected_copper = (long)expected_silver * COPPER_PER_SILVER;
+    long expected_copper = (long)sword->cost * shop->profit_buy / 100;
 
     do_buy(buyer, safe_arg("practice"));
 
@@ -233,9 +232,8 @@ static int test_sell_to_shop_updates_money()
     mobile_set_money_from_copper(keeper, keeper_initial);
     long seller_initial = mobile_total_copper(seller);
 
-    int expected_silver = sword->cost * shop->profit_sell / 100;
-    ASSERT(expected_silver > 0);
-    long expected_copper = (long)expected_silver * COPPER_PER_SILVER;
+    long expected_copper = (long)sword->cost * shop->profit_sell / 100;
+    ASSERT(expected_copper > 0);
 
     do_sell(seller, "merchant");
 

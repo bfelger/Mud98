@@ -1,4 +1,4 @@
-273
+274
 
 #COMMAND
 name .~
@@ -246,6 +246,15 @@ show undef~
 #COMMAND
 name bug~
 do_fun do_bug~
+position dead~
+level 0
+log log_normal~
+show undef~
+#END
+
+#COMMAND
+name botreset~
+do_fun do_botreset~
 position dead~
 level 0
 log log_normal~

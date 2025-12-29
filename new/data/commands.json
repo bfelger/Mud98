@@ -147,6 +147,10 @@
       "position": "fighting"
     },
     {
+      "name": "botreset",
+      "function": "do_botreset"
+    },
+    {
       "name": "bs",
       "function": "do_backstab",
       "position": "fighting"

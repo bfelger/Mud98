@@ -38,6 +38,7 @@ void run_unit_tests()
     register_lox_ext_tests();
     register_container_tests();
     register_entity_tests();
+    register_area_instancing_tests();
     register_act_tests();
     register_act_comm_tests();
     register_act_enter_tests();

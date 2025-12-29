@@ -313,6 +313,162 @@ void do_outfit(Mobile* ch, char* argument)
     send_to_char("You have been equipped by Mota.\n\r", ch);
 }
 
+// do_botreset - Hard reset for bots and testers
+// 
+// Resets a bot/tester character to a completely fresh level 1 state,
+// as if they had just exited character creation. This includes:
+// - Stops all combat
+// - Removes all equipment and inventory
+// - Resets all skills to starting values
+// - Resets all stats to racial base + prime stat bonus
+// - Resets to level 1 with 0 XP
+// - Restores HP/mana/move to max
+// - Gives starting equipment via do_outfit
+// - Teleports to MUD school entrance (VNUM 3700)
+// 
+// Usage: botreset [hard]
+//   Without argument: shows current status
+//   "hard": performs the full reset
+void do_botreset(Mobile* ch, char* argument)
+{
+    VNUM mud_school_vnum = 3700;  // MUD School entrance
+    Room* target_room;
+    
+    if (IS_NPC(ch)) {
+        send_to_char("NPCs cannot use this command.\n\r", ch);
+        return;
+    }
+    
+    // Only bots and testers can use this command
+    if (!IS_BOT(ch) && !IS_TESTER(ch)) {
+        send_to_char("This command is only available to bots and testers.\n\r", ch);
+        return;
+    }
+    
+    // Require explicit "hard" argument to perform the reset
+    if (str_cmp(argument, "hard") && str_cmp(argument, "full") && str_cmp(argument, "all")) {
+        send_to_char("Bot Reset Command\n\r", ch);
+        send_to_char("-----------------\n\r", ch);
+        send_to_char("This command will completely reset your character to a fresh level 1 state.\n\r", ch);
+        send_to_char("All equipment, experience, skills, and stats will be reset.\n\r", ch);
+        send_to_char("\n\rUsage: botreset hard\n\r", ch);
+        send_to_char("\n\rCurrent Status:\n\r", ch);
+        printf_to_char(ch, "  Level: %d\n\r", ch->level);
+        printf_to_char(ch, "  Experience: %d\n\r", ch->exp);
+        printf_to_char(ch, "  Gold: %ld silver, %ld gold\n\r", ch->silver, ch->gold);
+        return;
+    }
+    
+    // 1. Stop all combat
+    if (ch->fighting != NULL) {
+        stop_fighting(ch, true);
+        send_to_char("Combat ended.\n\r", ch);
+    }
+    
+    // 2. Remove all affects
+    while (ch->affected != NULL)
+        affect_remove(ch, ch->affected);
+    
+    // 3. Remove all equipment and inventory
+    while (ch->objects.count > 0)
+        extract_obj(AS_OBJECT(ch->objects.front->value));
+    send_to_char("All equipment and inventory removed.\n\r", ch);
+    
+    // 4. Reset skills to starting values (same as practice reset)
+    memset(ch->pcdata->learned, 0, sizeof(int16_t) * skill_count);
+    memset(ch->pcdata->group_known, 0, sizeof(bool) * skill_group_count);
+    
+    // Re-add rom basics
+    group_add(ch, "rom basics", false);
+    
+    // Re-add racial skills/groups
+    for (int i = 0; i < RACE_NUM_SKILLS; i++) {
+        if (race_table[ch->race].skills[i] == NULL)
+            break;
+        group_add(ch, race_table[ch->race].skills[i], false);
+    }
+    
+    // Re-add class base group
+    if (class_table[ch->ch_class].base_group != NULL) {
+        group_add(ch, class_table[ch->ch_class].base_group, false);
+    }
+    
+    // Recall skill is always given at 50%
+    ch->pcdata->learned[gsn_recall] = 50;
+    
+    // Reset practice sessions
+    ch->practice = 5;
+    send_to_char("Skills reset to starting values.\n\r", ch);
+    
+    // 5. Reset stats to racial base + class prime stat bonus (same as train reset)
+    for (int i = 0; i < STAT_COUNT; i++) {
+        ch->perm_stat[i] = race_table[ch->race].stats[i];
+    }
+    ch->perm_stat[class_table[ch->ch_class].prime_stat] += 3;
+    
+    // Reset training sessions
+    ch->train = 3;
+    send_to_char("Stats reset to racial base + prime stat bonus.\n\r", ch);
+    
+    // 6. Reset to level 1 with appropriate XP
+    ch->level = 1;
+    ch->exp = 0; //exp_per_level(ch, ch->pcdata->points);
+    send_to_char("Level reset to 1.\n\r", ch);
+    
+    // 7. Reset HP/mana/move to level 1 values
+    int16_t base_hp = class_table[ch->ch_class].hp_min 
+        + (class_table[ch->ch_class].hp_max - class_table[ch->ch_class].hp_min) / 2;
+    ch->pcdata->perm_hit = base_hp;
+    ch->pcdata->perm_mana = 100;  // Base mana pool
+    ch->pcdata->perm_move = 100;  // Base move pool
+    
+    // Reset current values and recalculate
+    reset_char(ch);
+    ch->hit = ch->max_hit;
+    ch->mana = ch->max_mana;
+    ch->move = ch->max_move;
+    send_to_char("HP/Mana/Move restored to maximum.\n\r", ch);
+    
+    // 8. Reset gold/silver
+    ch->gold = 0;
+    ch->silver = 0;
+    ch->copper = 0;
+    send_to_char("Currency reset to 0.\n\r", ch);
+    
+    // 9. Reset hunger/thirst to full
+    ch->pcdata->condition[COND_HUNGER] = 48;
+    ch->pcdata->condition[COND_THIRST] = 48;
+    ch->pcdata->condition[COND_FULL] = 48;
+    ch->pcdata->condition[COND_DRUNK] = 0;
+    send_to_char("Hunger/thirst reset to full.\n\r", ch);
+    
+    // 10. Reset recall point to default (Temple)
+    ch->pcdata->recall = cfg_get_default_recall();
+    send_to_char("Recall point reset to Temple.\n\r", ch);
+    
+    // 11. Give starting equipment
+    // First, ensure level is low enough for do_outfit to work
+    do_function(ch, &do_outfit, "");
+    obj_to_char(create_object(get_object_prototype(OBJ_VNUM_MAP), 0), ch);
+    
+    // 11. Teleport to MUD school entrance
+    // Use get_room_for_player() to handle multi-instance areas correctly
+    target_room = get_room_for_player(ch, mud_school_vnum);
+    if (target_room == NULL) {
+        send_to_char("Warning: Could not find MUD school room, staying in current location.\n\r", ch);
+    } else {
+        if (ch->in_room != NULL) {
+            act("$n vanishes in a puff of smoke.", ch, NULL, NULL, TO_ROOM);
+            mob_from_room(ch);
+        }
+        mob_to_room(ch, target_room);
+        act("$n appears in a puff of smoke.", ch, NULL, NULL, TO_ROOM);
+        do_function(ch, &do_look, "auto");
+    }
+    
+    send_to_char("\n\r{GYour character has been completely reset to level 1.{x\n\r", ch);
+}
+
 /* RT nochannels command, for those spammers */
 void do_nochannels(Mobile* ch, char* argument)
 {

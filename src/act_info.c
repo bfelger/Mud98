@@ -64,6 +64,8 @@
 #include <data/skill.h>
 #include <data/social.h>
 
+#include <olc/bit.h>
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -851,6 +853,71 @@ void do_nofollow(Mobile* ch, char* argument)
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Bot structured output
+// Machine-readable data for automated clients
+////////////////////////////////////////////////////////////////////////////////
+
+// Send structured bot data when PLR_BOT is set
+// Format: [BOT:<type>|<data>]
+// This allows bots to parse room/mob/object info without text parsing
+static void send_bot_room_data(Mobile* ch)
+{
+    char buf[MAX_STRING_LENGTH * 2];
+    Room* room = ch->in_room;
+    RoomData* data = room->data;
+    
+    // Room header: VNUM, flags, sector
+    sprintf(buf, "[BOT:ROOM|vnum=%"PRVNUM"|flags=%s|sector=%s]\n\r",
+            VNUM_FIELD(room),
+            flag_string(room_flag_table, data->room_flags),
+            flag_string(sector_flag_table, data->sector_type));
+    send_to_char(buf, ch);
+    
+    // Exits: direction, destination vnum, exit flags
+    for (int door = 0; door < DIR_MAX; ++door) {
+        RoomExit* exit = room->exit[door];
+        if (exit == NULL || exit->to_room == NULL)
+            continue;
+        
+        sprintf(buf, "[BOT:EXIT|dir=%s|vnum=%"PRVNUM"|flags=%s]\n\r",
+                dir_list[door].name,
+                VNUM_FIELD(exit->to_room),
+                flag_string(exit_flag_table, exit->exit_flags));
+        send_to_char(buf, ch);
+    }
+    
+    // Mobs in room (excluding self)
+    for (Node* node = room->mobiles.front; node != NULL; node = node->next) {
+        Mobile* mob = AS_MOBILE(node->value);
+        if (mob == ch)
+            continue;
+        
+        // Include key info for targeting: keywords, vnum, level, flags, HP%
+        int hp_pct = mob->max_hit > 0 ? (mob->hit * 100 / mob->max_hit) : 100;
+        sprintf(buf, "[BOT:MOB|name=%s|vnum=%"PRVNUM"|level=%d|flags=%s|hp=%d%%|align=%d]\n\r",
+                IS_NPC(mob) ? NAME_STR(mob->prototype) : NAME_STR(mob),
+                IS_NPC(mob) ? VNUM_FIELD(mob->prototype) : 0,
+                mob->level,
+                IS_NPC(mob) ? flag_string(act_flag_table, mob->act_flags) : "player",
+                hp_pct,
+                mob->alignment);
+        send_to_char(buf, ch);
+    }
+    
+    // Objects in room
+    for (Node* node = room->objects.front; node != NULL; node = node->next) {
+        Object* obj = AS_OBJECT(node->value);
+        sprintf(buf, "[BOT:OBJ|name=%s|vnum=%"PRVNUM"|type=%s|flags=%s|wear=%s]\n\r",
+                NAME_STR(obj->prototype),
+                VNUM_FIELD(obj->prototype),
+                flag_string(type_flag_table, obj->item_type),
+                flag_string(extra_flag_table, obj->extra_flags),
+                flag_string(wear_flag_table, obj->wear_flags));
+        send_to_char(buf, ch);
+    }
+}
+
 void do_nosummon(Mobile* ch, char* argument)
 {
     if (IS_NPC(ch)) {
@@ -922,12 +989,19 @@ void do_look(Mobile* ch, char* argument)
         send_to_char(buf, ch);
 
         if ((IS_IMMORTAL(ch) && (IS_NPC(ch) || IS_SET(ch->act_flags, PLR_HOLYLIGHT)))
-            || IS_BUILDER(ch, ch->in_room->area->data)) {
+            || IS_BUILDER(ch, ch->in_room->area->data)
+            || IS_TESTER(ch)) {
             sprintf(buf, " " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "Room %"PRVNUM COLOR_DECOR_1 "]" COLOR_CLEAR, VNUM_FIELD(ch->in_room));
             send_to_char(buf, ch);
         }
 
         send_to_char(COLOR_EOL, ch);
+
+        // Bot clients get structured data instead of text descriptions
+        if (IS_BOT(ch)) {
+            send_bot_room_data(ch);
+            return;
+        }
 
         const char* room_desc = room_description_for_hour(ch->in_room->data, time_info.hour);
         if (room_desc[0] && !IS_NPC(ch) && !IS_SET(ch->comm_flags, COMM_BRIEF)) {
@@ -2270,6 +2344,35 @@ void do_practice(Mobile* ch, char* argument)
 
     if (IS_NPC(ch))
         return;
+
+    // Bot-only reset command: restores skills and practice points to starting values
+    if (!str_cmp(argument, "reset") && (IS_BOT(ch) || IS_TESTER(ch))) {
+
+        // Clear all skills/groups and set to 0 (unknown)
+        memset(ch->pcdata->learned, 0, sizeof(int16_t) * skill_count);
+        memset(ch->pcdata->group_known, 0, sizeof(bool) * skill_group_count);
+        
+        // Re-add racial skills/groups
+        for (int i = 0; i < RACE_NUM_SKILLS; i++) {
+            if (race_table[ch->race].skills[i] == NULL)
+                break;
+            group_add(ch, race_table[ch->race].skills[i], false);
+        }
+        
+        // Re-add class base group
+        if (class_table[ch->ch_class].base_group != NULL) {
+            group_add(ch, class_table[ch->ch_class].base_group, false);
+        }
+        
+        // Recall skill is always given at 50%
+        ch->pcdata->learned[gsn_recall] = 50;
+        
+        // Reset practice sessions to starting value
+        ch->practice = 5;
+        
+        send_to_char("Your skills and practice sessions have been reset to starting values.\n\r", ch);
+        return;
+    }
 
     if (argument[0] == '\0') {
         int col;

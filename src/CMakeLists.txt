@@ -12,7 +12,7 @@ if (NOT MSVC)
 endif()
 
 # Persistence layer options (must come before dependencies)
-option(ENABLE_JSON_PERSISTENCE "Build JSON persistence support (requires Jansson)" ON)
+option(ENABLE_JSON_PERSISTENCE "Build JSON persistence support" ON)
 option(ENABLE_ROM_OLC_PERSISTENCE "Build ROM-OLC persistence support (legacy text format)" ON)
 
 # Conditionally fetch Jansson only if JSON persistence is enabled
@@ -270,7 +270,7 @@ add_executable(Mud98Tests
     "tests/mock.c" "tests/mock_rng.c" "tests/mock_combat.c" 
     "tests/mock_skill_ops.h" "tests/mock_skill_ops.c" "tests/lox_tests.h"
     "tests/lox_tests.c" "tests/lox_ext_tests.c" "tests/persist_tests.c" 
-    "tests/entity_tests.c" "tests/container_tests.c" "tests/act_tests.c" 
+    "tests/entity_tests.c" "tests/area_instancing_tests.c" "tests/container_tests.c" "tests/act_tests.c" 
     "tests/act_comm_tests.c" "tests/act_enter_tests.c" "tests/act_obj_tests.c"
     "tests/act_move_tests.c" "tests/act_wiz_tests.c" "tests/act_wiz2_tests.c" 
     "tests/act_wiz3_tests.c" "tests/act_wiz4_tests.c" "tests/act_wiz5_tests.c" 

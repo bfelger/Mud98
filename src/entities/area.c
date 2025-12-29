@@ -42,6 +42,7 @@ Area* new_area(AreaData* area_data)
 
     area->data = area_data;
     area->empty = true;
+    area->empty_timer = 0;
     area->owner_list = str_empty;
     area->teardown_in_progress = false;
     area->reset_timer = area->data->reset_thresh;

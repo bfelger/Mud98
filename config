@@ -17,6 +17,6 @@ do
 
 done
 
-mkdir -p .build
-rm .build/* -rf
-cmake -G "Ninja Multi-Config" -B .build . $compiler
+mkdir -p .build-$compiler
+rm .build-$compiler/* -rf
+cmake -G "Ninja Multi-Config" -B .build-$compiler . $compiler
