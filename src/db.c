@@ -113,6 +113,7 @@
 void load_lox_public_scripts();
 void run_post_lox_public_scripts();
 MobProgCode* pedit_prog(VNUM);
+void load_global_loot_db();
 
 // Globals.
 
@@ -248,6 +249,7 @@ void boot_db()
     load_race_table();
     load_command_table();
     load_tutorials();
+    load_global_loot_db();
 
     // We need the commands before we can add them to Lox.
     init_native_cmds();
@@ -1675,13 +1677,13 @@ char* str_append(char* str1, const char* str2)
  * Null is legal here to simplify callers.
  * Read-only shared strings are not touched.
  */
-void free_string(char* pstr)
+void free_string(const char* pstr)
 {
     if (pstr == NULL || pstr == &str_empty[0]
         || (pstr >= string_space && pstr < top_string))
         return;
 
-    free_mem(pstr, strlen(pstr) + 1);
+    free_mem((void*)pstr, strlen(pstr) + 1);
     return;
 }
 
