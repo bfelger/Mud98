@@ -74,6 +74,7 @@ void register_stringbuffer_tests();
 void register_mem_watchpoint_tests();
 void register_daycycle_tests();
 void register_multihit_tests();
+void register_loot_tests();
 
 void run_unit_tests();
 

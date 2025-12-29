@@ -271,7 +271,8 @@ add_executable(Mud98Tests
     "tests/mock.c" "tests/mock_rng.c" "tests/mock_combat.c" 
     "tests/mock_skill_ops.h" "tests/mock_skill_ops.c" "tests/lox_tests.h"
     "tests/lox_tests.c" "tests/lox_ext_tests.c" "tests/persist_tests.c" 
-    "tests/entity_tests.c" "tests/area_instancing_tests.c" "tests/container_tests.c" "tests/act_tests.c" 
+    "tests/entity_tests.c" "tests/area_instancing_tests.c" 
+    "tests/container_tests.c" "tests/act_tests.c" 
     "tests/act_comm_tests.c" "tests/act_enter_tests.c" "tests/act_obj_tests.c"
     "tests/act_move_tests.c" "tests/act_wiz_tests.c" "tests/act_wiz2_tests.c" 
     "tests/act_wiz3_tests.c" "tests/act_wiz4_tests.c" "tests/act_wiz5_tests.c" 
@@ -282,7 +283,8 @@ add_executable(Mud98Tests
     "tests/mem_watchpoint_tests.c" "tests/login_tests.c" 
     "tests/player_persist_tests.c" "tests/quest_tests.c" "tests/fmt_tests.c" 
     "tests/theme_tests.c" "tests/util_tests.c" "tests/daycycle_tests.c" 
-    "tests/multihit_tests.c" "tests/thief_tests.c" "tests/magic_tests.c"
+    "tests/multihit_tests.c" "tests/loot_tests.c" "tests/thief_tests.c" 
+    "tests/magic_tests.c"
 )
 
 target_link_libraries(Mud98Tests PRIVATE Mud98Core Mud98CompilerSettings)

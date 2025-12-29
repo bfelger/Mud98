@@ -96,6 +96,9 @@ void add_loot_to_mobile(LootDrop* drops, size_t drop_count, Mobile* mob);
 void parse_loot_section(LootDB* db, StringBuffer* sb);
 void load_global_loot_db();
 
+// Internal API for testing
+void resolve_all_loot_tables(LootDB* db);
+
 extern LootDB* global_loot_db;
 
 #endif // !MUD98__DATA__LOOT_H

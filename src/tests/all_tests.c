@@ -70,6 +70,7 @@ void run_unit_tests()
     register_player_persist_tests();
     register_daycycle_tests();
     register_multihit_tests();
+    register_loot_tests();
     register_thief_tests();
     register_magic_tests();
 

@@ -13,6 +13,8 @@
 #include <stdio.h>
 #include <stdint.h>
 
+extern bool test_output_enabled;
+
 LootDB* global_loot_db = NULL;
 
 // Alloc helpers ///////////////////////////////////////////////////////////////
@@ -232,8 +234,9 @@ static void append_loop_ops(LootOp** dest_ops, size_t* dest_count,
 static void resolve_loot_table_dfs(LootDB* db, LootTable* table) 
 {
     if (table->_visit == 1) {
-        bugf("Cycle detected in loot table inheritance for table "
-            "'%s'\n", table->name);
+        if (!test_output_enabled)
+            bugf("Cycle detected in loot table inheritance for table '%s'\n", 
+                table->name);
         return;
     }
     if (table->_visit == 2) {
@@ -273,7 +276,7 @@ static void resolve_loot_table_dfs(LootDB* db, LootTable* table)
     table->_visit = 2; // Mark as visited
 }
 
-static void resolve_all_loot_tables(LootDB* db) 
+void resolve_all_loot_tables(LootDB* db) 
 {
     for (int i = 0; i < db->table_count; i++)
         db->tables[i]._visit = 0;
@@ -305,7 +308,6 @@ static void parse_group(LootDB* db, Tok* tok)
         size_t save_pos = tok->pos;
         int save_line = tok->line;
         if (!tok_next(tok, s)) {
-            bugf("loot: unexpected end of file in group '%s'\n", s);
             return;
         }
 
@@ -589,7 +591,8 @@ void generate_loot(LootDB* db, const char* table_name,
     *drop_count = 0;
     LootTable* table = loot_db_find_table(db, table_name);
     if (!table) {
-        bugf("generate_loot: unknown loot table '%s'\n", table_name);
+        if (!test_output_enabled)
+            bugf("generate_loot: unknown loot table '%s'\n", table_name);
         return;
     }
 
@@ -805,4 +808,29 @@ void loot_db_free(LootDB* db)
     free(db->tables);
     free(db);
     db = NULL;
+}
+
+// Naive implementation ////////////////////////////////////////////////////////
+
+static void print_drops(const LootDrop* out, int n) {
+  for (int i = 0; i < n; i++) {
+    if (out[i].type == LOOT_CP) {
+      printf("  cp: %d\n", out[i].qty);
+    } else {
+      printf("  item vnum=%d x%d\n", out[i].item_vnum, out[i].qty);
+    }
+  }
+}
+
+// Naive test function
+void test_print() 
+{
+    LootDrop drops[MAX_LOOT_DROPS];
+    size_t drop_count = 0;
+
+    for (int i = 0; i < 10; i++) {
+        generate_loot(global_loot_db, "GLOBAL_T1", drops, &drop_count);
+        printf("Kill %d (%s):\n", i + 1, "GLOBAL_T1");
+        print_drops(drops, drop_count);
+    }
 }
