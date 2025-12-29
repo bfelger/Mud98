@@ -647,19 +647,33 @@ void area_update()
     Area* area;
     char buf[MAX_STRING_LENGTH];
 
+    // Grace period before deleting empty multi-instance areas (in area_update pulses)
+    // At 2 minutes per pulse, 3 pulses = 6 minutes grace period
+    const int INSTANCE_GRACE_PERIOD = 3;
+
     FOR_EACH_AREA(area_data) {
         int thresh = area_data->reset_thresh;
         FOR_EACH_AREA_INST(area, area_data) {
-            if (area->nplayer == 0)
+            if (area->nplayer == 0) {
                 thresh /= 2;
+                ++area->empty_timer;
+            } else {
+                area->empty_timer = 0;
+            }
 
             ++area->reset_timer;
 
             if (area->reset_timer >= thresh) {
                 if (area->data->inst_type == AREA_INST_MULTI && area->nplayer == 0) {
-                    // If the area is "instanced": delete, don't reset.
-                    list_remove_node(&area_data->instances, area_loop.node);
-                    free_area(area);
+                    // For multi-instance areas: only delete after grace period
+                    if (area->empty_timer >= INSTANCE_GRACE_PERIOD) {
+                        list_remove_node(&area_data->instances, area_loop.node);
+                        free_area(area);
+                    }
+                    // If grace period not met, just reset the timer and wait
+                    else {
+                        area->reset_timer = 0;
+                    }
                 }
                 else {
                     resetting = true;

@@ -69,6 +69,7 @@ typedef struct area_t {
     Table rooms;
     char* owner_list;
     int16_t reset_timer;
+    int16_t empty_timer;    // Time since nplayer became 0 (for instance cleanup grace period)
     int nplayer;
     bool empty;
     bool teardown_in_progress;  // Skip inbound exit cleanup during bulk teardown

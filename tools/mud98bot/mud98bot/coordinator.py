@@ -440,6 +440,7 @@ class Coordinator:
         try:
             # Create bot
             managed.bot = Bot(managed.config)
+            managed.bot.metrics = metrics  # Wire up metrics for behaviors to access
             managed.status = BotStatus.CONNECTING
             
             if metrics:

@@ -86,6 +86,12 @@ class DeathRecoveryBehavior(Behavior):
         # Check if we've respawned (not dead AND HP > 0)
         if not self._is_truly_dead(ctx) and ctx.hp_percent > 0:
             logger.info(f"[{bot.bot_id}] Respawned! Position={ctx.position.name}, HP={ctx.hp_percent:.0f}%, room={ctx.room_vnum}")
+            
+            # Use outfit command to recover lost equipment (only works for level < 5)
+            if ctx.level < 5:
+                bot.send_command("outfit")
+                logger.info(f"[{bot.bot_id}] Sent 'outfit' to recover starter equipment (level {ctx.level})")
+            
             bot.send_command("look")  # Refresh room state
             return BehaviorResult.COMPLETED
         
@@ -101,12 +107,18 @@ class DeathRecoveryBehavior(Behavior):
         return BehaviorResult.WAITING
 
 
+# Don't flee if opponent is below this HP% - we're about to win
+OPPONENT_LOW_HP_PERCENT = 15.0
+
+
 class SurviveBehavior(Behavior):
     """
     Emergency flee when HP is critical.
     
     When HP drops below the flee threshold, attempt to flee combat.
     This is a high-priority emergency behavior.
+    
+    Exception: Don't flee if the opponent is nearly dead - we're about to win!
     """
     
     priority = PRIORITY_SURVIVE
@@ -119,8 +131,20 @@ class SurviveBehavior(Behavior):
         self._flee_attempts = 0
     
     def can_start(self, ctx: BehaviorContext) -> bool:
-        """Start when HP is critical and in combat."""
-        return ctx.in_combat and ctx.hp_percent < self.flee_hp_percent
+        """Start when HP is critical and in combat, unless opponent is nearly dead."""
+        if not ctx.in_combat:
+            return False
+        if ctx.hp_percent >= self.flee_hp_percent:
+            return False
+        
+        # Don't flee if opponent is nearly dead - we're about to win!
+        if ctx.opponent_health_max > 0:
+            opponent_hp_pct = (ctx.opponent_health / ctx.opponent_health_max) * 100
+            if opponent_hp_pct < OPPONENT_LOW_HP_PERCENT:
+                logger.debug(f"Opponent at {opponent_hp_pct:.0f}% HP - staying to finish the fight!")
+                return False
+        
+        return True
     
     def tick(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
         # Check if we died while trying to flee (truly dead, not just stunned)

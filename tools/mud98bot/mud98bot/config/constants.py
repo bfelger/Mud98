@@ -145,13 +145,14 @@ MAX_TEXT_BUFFER_LINES: Final[int] = 50
 # PRACTICE DEFAULTS
 # =============================================================================
 
-DEFAULT_PRACTICE_PER_SKILL: Final[int] = 3
-"""Default number of times to practice each skill."""
+DEFAULT_PRACTICE_PER_SKILL: Final[int] = 1
+"""Default number of times to practice each skill (when using uniform count)."""
 
-DEFAULT_PRACTICE_SKILLS: Final[tuple[str, ...]] = (
-    'sword', 'dagger', 'mace', 'axe', 'spear', 'polearm', 'whip', 'flail',
-    'parry', 'dodge', 'shield block', 'second attack', 'third attack',
-    'enhanced damage', 'fast healing', 'meditation',
-    'recall', 'scrolls', 'staves', 'wands',
+# Warriors start with 5 practice points. Optimal allocation:
+# - sword x3 = 75% (max reachable via practice) for primary damage
+# - shield block x2 = ~50% for defense with shield
+DEFAULT_PRACTICE_SKILLS: Final[tuple[tuple[str, int], ...]] = (
+    ('sword', 3),          # 3 practices -> 75% (max from practice command)
+    ('shield block', 2),   # 2 practices -> ~50% for defense
 )
-"""Default skills to practice (common combat skills)."""
+"""Default skills to practice with counts (skill, times) for focused warrior build."""

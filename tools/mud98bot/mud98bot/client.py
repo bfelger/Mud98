@@ -104,6 +104,9 @@ class Bot:
         self._bot_data: BotRoomData = BotRoomData()
         self._bot_mode: bool = False  # Set True if we detect BOT protocol output
         
+        # Metrics (assigned by coordinator after bot creation)
+        self.metrics: 'BotMetrics | None' = None
+        
         # Callbacks
         self._text_callbacks: list[Callable[[str], None]] = []
         self._prompt_callbacks: list[Callable[[str], None]] = []

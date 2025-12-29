@@ -41,14 +41,15 @@ class TrainBehavior(Behavior):
     # Yield to healing if movement drops below this threshold
     CRITICAL_MOVE_PERCENT = CRITICAL_MOVE_PERCENT
     
-    # Default stats to train in priority order
-    DEFAULT_STATS = ['con', 'str', 'dex', 'wis', 'int']
+    # Default stats to train in priority order (warriors: str first for damage, then con/hp for survivability)
+    # Warriors start with 3 training points
+    DEFAULT_STATS = ['str', 'con', 'hp']
     
     def __init__(
         self,
         stats: Optional[list[str]] = None,
         route: Optional[dict[int, str]] = None,
-        trains_per_stat: int = 5,
+        trains_per_stat: int = 1,
         reset_first: bool = False,
     ):
         """
@@ -135,7 +136,11 @@ class PracticeBehavior(Behavior):
     Navigate to practitioner and practice skills.
     
     One-shot behavior that navigates to the practice room and
-    practices specified skills.
+    practices specified skills with configurable counts per skill.
+    
+    Skills can be specified as:
+    - List of (skill_name, count) tuples for per-skill control
+    - List of skill names with uniform practice_per_skill count
     """
     
     priority = PRIORITY_PRACTICE
@@ -143,27 +148,33 @@ class PracticeBehavior(Behavior):
     tick_delay = 0.5
     
     CRITICAL_MOVE_PERCENT = CRITICAL_MOVE_PERCENT
-    DEFAULT_SKILLS = list(DEFAULT_PRACTICE_SKILLS)
     
     def __init__(
         self,
-        skills: Optional[list[str]] = None,
+        skills: Optional[list[tuple[str, int]] | list[str]] = None,
         route: Optional[dict[int, str]] = None,
         reset_first: bool = True,
         practice_per_skill: int = DEFAULT_PRACTICE_PER_SKILL,
     ):
         """
         Args:
-            skills: Skills to practice.
+            skills: Skills to practice. Can be list of (skill, count) tuples
+                   or list of skill names (uses practice_per_skill for each).
             route: Route to practice room.
             reset_first: Whether to send 'practice reset' first.
-            practice_per_skill: Times to practice each skill.
+            practice_per_skill: Times to practice each skill (when skills is a simple list).
         """
         super().__init__()
-        self.skills = skills or self.DEFAULT_SKILLS
+        # Normalize skills to list of (skill, count) tuples
+        if skills is None:
+            self.skills = list(DEFAULT_PRACTICE_SKILLS)
+        elif skills and isinstance(skills[0], tuple):
+            self.skills = list(skills)
+        else:
+            # Simple list of skill names - use uniform count
+            self.skills = [(s, practice_per_skill) for s in skills]
         self.route = route or ROUTE_TO_PRACTICE_ROOM
         self.reset_first = reset_first
-        self.practice_per_skill = practice_per_skill
         self._navigating = True
         self._completed = False
         self._reset_sent = False
@@ -215,12 +226,13 @@ class PracticeBehavior(Behavior):
         
         # Phase 3: Practice skills - batch all commands in one tick
         total_practiced = 0
-        for skill in self.skills:
-            for _ in range(self.practice_per_skill):
+        for skill, count in self.skills:
+            for _ in range(count):
                 bot.send_command(f"practice {skill}")
                 total_practiced += 1
         
-        logger.info(f"[{bot.bot_id}] Practice complete (sent {total_practiced} practice commands)")
+        skill_summary = ", ".join(f"{s}x{c}" for s, c in self.skills)
+        logger.info(f"[{bot.bot_id}] Practice complete: {skill_summary} ({total_practiced} total)")
         self._completed = True
         return BehaviorResult.COMPLETED
     

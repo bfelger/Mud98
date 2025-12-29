@@ -982,6 +982,7 @@ void mob_to_room(Mobile* ch, Room* room)
             if (!area->data->always_reset)
                 area->reset_timer = 0;
         }
+        area->empty_timer = 0;  // Reset grace period when player enters
         ++area->nplayer;
     }
 

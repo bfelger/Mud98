@@ -368,7 +368,7 @@ class PatrolCagesBehavior(Behavior):
         """Trigger proactive shopping after circuit completion."""
         if hasattr(bot, '_behavior_engine') and bot._behavior_engine:
             bot._behavior_engine._should_proactive_shop = True
-            logger.info(f"[{bot.bot_id}] Triggered proactive shopping")
+            logger.info(f"[{bot.bot_id}] Triggered proactive shopping (circuit #{self._circuits_completed})")
 
 
 class ReturnToCageBehavior(Behavior):
@@ -470,6 +470,9 @@ class FightDarkCreatureBehavior(Behavior):
         self._state = self.STATE_GO_TO_DARK_ROOM
         self._fight_started = False
         self._creature_defeated = False  # Track if we've beaten the creature
+        self._combat_entered = False     # Track if combat started
+        self._no_creature_count = 0      # Track failed creature searches
+        self._checking_for_corpse = False  # Track if we need to verify a possible kill
         self._wait_ticks = 0
     
     def can_start(self, ctx: BehaviorContext) -> bool:
@@ -490,6 +493,9 @@ class FightDarkCreatureBehavior(Behavior):
         
         self._state = self.STATE_GO_TO_DARK_ROOM
         self._fight_started = False
+        self._combat_entered = False  # Reset so flee detection works correctly
+        self._no_creature_count = 0   # Reset creature search counter
+        self._checking_for_corpse = False  # Reset corpse check flag
         self._wait_ticks = 0
         logger.info(f"[{bot.bot_id}] Starting dark creature hunt from room {ctx.room_vnum}")
     
@@ -511,7 +517,7 @@ class FightDarkCreatureBehavior(Behavior):
         return BehaviorResult.FAILED
     
     def _navigate_to_dark_room(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
-        """Navigate from corridor (3719) to dark room (3720)."""
+        """Navigate from anywhere to dark room (3720)."""
         if ctx.room_vnum == DARK_CREATURE_ROOM:
             logger.info(f"[{bot.bot_id}] Entered dark creature room (3720)")
             self._state = self.STATE_FIGHT
@@ -526,21 +532,29 @@ class FightDarkCreatureBehavior(Behavior):
             bot.send_command("north")
             return BehaviorResult.CONTINUE
         
-        # Somewhere unexpected - try to navigate via route
-        logger.warning(f"[{bot.bot_id}] Unexpected room {ctx.room_vnum} on way to dark room")
-        # If we're at intermediate (3717), go east
-        if ctx.room_vnum == 3717:
-            bot.send_command("east")
-        else:
-            bot.send_command("recall")
+        # Check if we're on the Temple-to-Corridor route
+        if ctx.room_vnum in ROUTE_TEMPLE_TO_CORRIDOR:
+            direction = ROUTE_TEMPLE_TO_CORRIDOR[ctx.room_vnum]
+            logger.debug(f"[{bot.bot_id}] Dark creature nav: room {ctx.room_vnum} -> {direction}")
+            
+            # Special case: room 3717 requires opening the door first
+            if ctx.room_vnum == 3717:
+                bot.send_command("open east")
+                
+            if not ctx.position.can_move:
+                bot.send_command("wake")
+                bot.send_command("stand")
+                return BehaviorResult.CONTINUE
+            bot.send_command(direction)
+            return BehaviorResult.CONTINUE
+        
+        # Somewhere unexpected - recall to get back on route
+        logger.warning(f"[{bot.bot_id}] Unexpected room {ctx.room_vnum} on way to dark room, recalling")
+        bot.send_command("recall")
         return BehaviorResult.CONTINUE
     
     def _fight_creature(self, bot: 'Bot', ctx: BehaviorContext) -> BehaviorResult:
         """Fight the creature in the dark room."""
-        # Track if we've entered combat (combat has started at least once)
-        if not hasattr(self, '_combat_entered'):
-            self._combat_entered = False
-        
         # If we're in combat, mark that combat has started and wait
         if ctx.in_combat:
             self._combat_entered = True
@@ -561,27 +575,85 @@ class FightDarkCreatureBehavior(Behavior):
                 self._wait_ticks = 0
                 return BehaviorResult.CONTINUE
             else:
-                # We fled or died - reset and abandon the dark creature quest for now
-                logger.warning(f"[{bot.bot_id}] Fled/died during dark creature fight, resetting behavior")
-                self._fight_started = False
-                self._creature_defeated = False
-                # Clear the dark creature flag so patrol can resume
-                if hasattr(bot, '_behavior_engine') and bot._behavior_engine:
-                    bot._behavior_engine._should_fight_dark_creature = False
-                return BehaviorResult.FAILED
+                # We're not in the dark room - but did we actually flee, or did we
+                # kill the creature at the same moment we fled?
+                # Go back to the dark room to check for a corpse before giving up.
+                logger.warning(f"[{bot.bot_id}] Left dark room during combat - returning to check for corpse")
+                self._state = self.STATE_GO_TO_DARK_ROOM
+                self._fight_started = False  # Will re-evaluate when we get there
+                self._checking_for_corpse = True  # Flag to check for corpse on arrival
+                return BehaviorResult.CONTINUE
         
         # If not in combat and haven't started fight, start it
         if not self._fight_started:
-            # Look for creature to attack
+            # First, check if we're here to verify a possible kill (fled at moment of victory)
+            if hasattr(self, '_checking_for_corpse') and self._checking_for_corpse:
+                self._checking_for_corpse = False
+                
+                # Look for a corpse in the room
+                has_corpse = False
+                if ctx.bot_mode and ctx.bot_objects:
+                    for obj in ctx.bot_objects:
+                        if 'corpse' in obj.name.lower() or 'corpse' in obj.item_type.lower():
+                            has_corpse = True
+                            break
+                
+                if has_corpse:
+                    # We killed it! The corpse is here.
+                    logger.info(f"[{bot.bot_id}] Found corpse - we killed the creature before fleeing!")
+                    self._creature_defeated = True
+                    self._state = self.STATE_WAIT_LOOT
+                    self._wait_ticks = 0
+                    return BehaviorResult.CONTINUE
+                else:
+                    # No corpse, no creature - we really fled
+                    logger.warning(f"[{bot.bot_id}] No corpse found - we truly fled. Abandoning quest.")
+                    if hasattr(bot, '_behavior_engine') and bot._behavior_engine:
+                        bot._behavior_engine._should_fight_dark_creature = False
+                    return BehaviorResult.FAILED
+            
+            # Normal flow: look for creature to attack
             target = None
             if ctx.bot_mode and ctx.bot_mobs:
                 for mob in ctx.bot_mobs:
-                    if 'creature' in mob.name.lower():
+                    if 'creature' in mob.name.lower() or 'big' in mob.name.lower():
                         target = mob.name.split()[0]
                         break
+            
             if not target:
-                # Fall back to generic "creature" keyword
-                target = "creature"
+                # No creature found - check for corpse first (maybe another bot killed it)
+                has_corpse = False
+                if ctx.bot_mode and ctx.bot_objects:
+                    for obj in ctx.bot_objects:
+                        if 'corpse' in obj.name.lower() or 'corpse' in obj.item_type.lower():
+                            has_corpse = True
+                            break
+                
+                if has_corpse:
+                    # Corpse found! Proceed to loot (get the key)
+                    logger.info(f"[{bot.bot_id}] Creature already dead - found corpse, proceeding to loot")
+                    self._creature_defeated = True
+                    self._state = self.STATE_WAIT_LOOT
+                    self._wait_ticks = 0
+                    return BehaviorResult.CONTINUE
+                
+                # No creature and no corpse - wait for respawn
+                self._no_creature_count += 1
+                
+                if self._no_creature_count >= 3:
+                    logger.warning(f"[{bot.bot_id}] No creature found after 3 checks, abandoning dark creature quest")
+                    # Clear the dark creature flag so patrol can resume
+                    if hasattr(bot, '_behavior_engine') and bot._behavior_engine:
+                        bot._behavior_engine._should_fight_dark_creature = False
+                    return BehaviorResult.FAILED
+                
+                logger.info(f"[{bot.bot_id}] No creature in room, waiting for respawn... (check {self._no_creature_count}/3)")
+                # Send look to refresh BOT data
+                bot.send_command("look")
+                return BehaviorResult.CONTINUE
+            
+            # Reset no-creature counter since we found one
+            self._no_creature_count = 0
             
             logger.info(f"[{bot.bot_id}] Attacking dark creature: '{target}'")
             bot.send_command(f"kill {target}")
@@ -596,9 +668,10 @@ class FightDarkCreatureBehavior(Behavior):
         
         # If combat hasn't started after 10 seconds (20 ticks), something's wrong
         if self._wait_ticks > 20:
-            logger.warning(f"[{bot.bot_id}] Combat never started after 10 seconds, retrying attack")
+            logger.warning(f"[{bot.bot_id}] Combat never started after 10 seconds, resetting fight state")
             self._fight_started = False
             self._wait_ticks = 0
+            # This will trigger the target search again on next tick
         
         return BehaviorResult.CONTINUE
     
