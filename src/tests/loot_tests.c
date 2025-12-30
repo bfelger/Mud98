@@ -34,7 +34,7 @@ static void parse_test_loot(LootDB* db, const char* config)
 {
     StringBuffer* sb = sb_new();
     sb_append(sb, config);
-    parse_loot_section(db, sb);
+    parse_loot_section(db, sb, NULL);  // NULL owner for test data
     sb_free(sb);
 }
 
@@ -883,6 +883,109 @@ static int test_loot_complex_scenario()
 }
 
 // ============================================================================
+// Persistence Tests
+// ============================================================================
+
+static int test_loot_save_load_roundtrip()
+{
+    LootDB* db = test_create_db();
+
+    const char* config = 
+        "group PERSIST_TEST 2\n"
+        "  item 5001 1 1 weight 40\n"
+        "  cp 60 10 weight 20\n"
+        "table PERSIST_TABLE\n"
+        "  use_group PERSIST_TEST 100\n"
+        "  add_cp 50 5 10\n"
+        "#ENDLOOT\n";
+
+    parse_test_loot(db, config);
+
+    // Save to a temp file
+    FILE* fp = tmpfile();
+    ASSERT(fp != NULL);
+
+    // Manually write the section (simulating save_loot_section)
+    fprintf(fp, "#LOOT\n");
+    for (int i = 0; i < db->group_count; i++) {
+        LootGroup* g = &db->groups[i];
+        fprintf(fp, "group %s %d\n", g->name, g->rolls);
+        for (int j = 0; j < g->entry_count; j++) {
+            LootEntry* e = &g->entries[j];
+            if (e->type == LOOT_ITEM) {
+                fprintf(fp, "  item %"PRVNUM" %d %d weight %d\n", 
+                    e->item_vnum, e->min_qty, e->max_qty, e->weight);
+            }
+            else if (e->type == LOOT_CP) {
+                fprintf(fp, "  cp %d %d weight %d\n", 
+                    e->min_qty, e->max_qty, e->weight);
+            }
+        }
+    }
+    for (int i = 0; i < db->table_count; i++) {
+        LootTable* t = &db->tables[i];
+        if (t->parent_name) {
+            fprintf(fp, "table %s : %s\n", t->name, t->parent_name);
+        }
+        else {
+            fprintf(fp, "table %s\n", t->name);
+        }
+        for (int j = 0; j < t->op_count; j++) {
+            LootOp* op = &t->ops[j];
+            switch (op->type) {
+            case LOOT_OP_USE_GROUP:
+                fprintf(fp, "  use_group %s %d\n", op->group_name, op->a);
+                break;
+            case LOOT_OP_ADD_CP:
+                fprintf(fp, "  add_cp %d %d %d\n", op->a, op->b, op->c);
+                break;
+            default:
+                break;
+            }
+        }
+    }
+    fprintf(fp, "#ENDLOOT\n");
+
+    // Rewind and read it back
+    rewind(fp);
+    LootDB* db2 = test_create_db();
+    
+    StringBuffer* sb = sb_new();
+    char line[1024];
+    bool in_loot = false;
+    while (fgets(line, sizeof(line), fp)) {
+        if (strncmp(line, "#LOOT", 5) == 0) {
+            in_loot = true;
+            continue;
+        }
+        if (strncmp(line, "#ENDLOOT", 8) == 0) {
+            break;
+        }
+        if (in_loot) {
+            sb_append(sb, line);
+        }
+    }
+    
+    parse_loot_section(db2, sb, NULL);
+    sb_free(sb);
+    fclose(fp);
+
+    // Verify the loaded data matches
+    ASSERT(db2->group_count == 1);
+    ASSERT(!strcmp(db2->groups[0].name, "PERSIST_TEST"));
+    ASSERT(db2->groups[0].rolls == 2);
+    ASSERT(db2->groups[0].entry_count == 2);
+    
+    ASSERT(db2->table_count == 1);
+    ASSERT(!strcmp(db2->tables[0].name, "PERSIST_TABLE"));
+    ASSERT(db2->tables[0].op_count == 2);
+
+    loot_db_free(db);
+    loot_db_free(db2);
+    return 0;
+}
+
+// ============================================================================
 // Test Registration
 // ============================================================================
 
@@ -932,6 +1035,9 @@ void register_loot_tests()
     REGISTER("Edge: Zero Weight Item", test_loot_group_with_zero_weight);
     REGISTER("Edge: Zero Chance", test_loot_zero_chance_add_item);
     REGISTER("Edge: Complex Scenario", test_loot_complex_scenario);
+
+    // Persistence
+    REGISTER("Persist: Save/Load Roundtrip", test_loot_save_load_roundtrip);
 
 #undef REGISTER
 }

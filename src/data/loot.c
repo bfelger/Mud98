@@ -4,6 +4,8 @@
 
 #include "loot.h"
 
+#include <entities/entity.h>
+
 #include <comm.h>
 #include <config.h>
 #include <stringbuffer.h>
@@ -53,7 +55,7 @@ static void loot_table_push_op(LootTable* table, LootOp op)
 
 // Lookup helpers //////////////////////////////////////////////////////////////
 
-static LootGroup* loot_db_find_group(LootDB* db, const char* name) 
+LootGroup* loot_db_find_group(LootDB* db, const char* name) 
 {
     for (int i = 0; i < db->group_count; i++) {
         if (strcmp(db->groups[i].name, name) == 0) {
@@ -63,7 +65,7 @@ static LootGroup* loot_db_find_group(LootDB* db, const char* name)
     return NULL;
 }
 
-static LootTable* loot_db_find_table(LootDB* db, const char* name) 
+LootTable* loot_db_find_table(LootDB* db, const char* name) 
 {
     for (int i = 0; i < db->table_count; i++) {
         if (strcmp(db->tables[i].name, name) == 0) {
@@ -73,7 +75,7 @@ static LootTable* loot_db_find_table(LootDB* db, const char* name)
     return NULL;
 }
 
-static LootGroup* loot_db_add_group(LootDB* db, const char* name, int rolls) 
+static LootGroup* loot_db_add_group(LootDB* db, const char* name, int rolls, Entity* owner) 
 {
     // Check for existing
     LootGroup* group = loot_db_find_group(db, name);
@@ -91,6 +93,7 @@ static LootGroup* loot_db_add_group(LootDB* db, const char* name, int rolls)
 
     // Add new group
     group = &db->groups[db->group_count++];
+    group->owner = owner;
     group->name = str_dup(name);
     group->rolls = rolls;
     group->entries = NULL;
@@ -100,7 +103,7 @@ static LootGroup* loot_db_add_group(LootDB* db, const char* name, int rolls)
 }
 
 static LootTable* loot_db_add_table(LootDB* db, const char* name, 
-    const char* parent_name) 
+    const char* parent_name, Entity* owner) 
 {
     // Check for existing
     LootTable* table = loot_db_find_table(db, name);
@@ -118,6 +121,7 @@ static LootTable* loot_db_add_table(LootDB* db, const char* name,
 
     // Add new table
     table = &db->tables[db->table_count++];
+    table->owner = owner;
     table->name = str_dup(name);
     table->parent_name = parent_name ? str_dup(parent_name) : NULL;
     table->ops = NULL;
@@ -286,7 +290,7 @@ void resolve_all_loot_tables(LootDB* db)
 
 // Parsing helpers /////////////////////////////////////////////////////////////
 
-static void parse_group(LootDB* db, Tok* tok)
+static void parse_group(LootDB* db, Tok* tok, Entity* owner)
 {
     char s[MIL];
     char name[MIL];
@@ -297,7 +301,7 @@ static void parse_group(LootDB* db, Tok* tok)
 
     int rolls = tok_int(tok, "group rolls");
 
-    LootGroup* group = loot_db_add_group(db, name, rolls);
+    LootGroup* group = loot_db_add_group(db, name, rolls, owner);
     if (!group) {
         bugf("loot: failed to add group '%s' at line %d\n", name, tok->line);
         return;
@@ -351,7 +355,7 @@ static void parse_group(LootDB* db, Tok* tok)
     }
 }
 
-static void parse_table(LootDB* db, Tok* tok)
+static void parse_table(LootDB* db, Tok* tok, Entity* owner)
 {
     char s[MIL];
     char name[MIL];
@@ -381,7 +385,7 @@ static void parse_table(LootDB* db, Tok* tok)
         tok->line = save_line;
     }
 
-    LootTable* table = loot_db_add_table(db, name, has_parent ? parent : NULL);
+    LootTable* table = loot_db_add_table(db, name, has_parent ? parent : NULL, owner);
     if (!table) {
         bugf("loot: failed to add table '%s' at line %d\n", name, tok->line);
         return;
@@ -454,7 +458,7 @@ static void parse_table(LootDB* db, Tok* tok)
     }
 }
 
-void parse_loot_section(LootDB* db, StringBuffer* sb)
+void parse_loot_section(LootDB* db, StringBuffer* sb, Entity* owner)
 {
     size_t len = sb->length;
     char* buf = sb->data;
@@ -464,10 +468,10 @@ void parse_loot_section(LootDB* db, StringBuffer* sb)
 
     while (tok_next(&tok, s)) {
         if (strcmp(s, "group") == 0) {
-            parse_group(db, &tok);
+            parse_group(db, &tok, owner);
         }
         else if (strcmp(s, "table") == 0) {
-            parse_table(db, &tok);
+            parse_table(db, &tok, owner);
         }
         else if (strcmp(s, "#ENDLOOT") == 0) {
             // End of loot section
@@ -496,7 +500,7 @@ void load_global_loot_db()
 
     LootDB* db = (LootDB*)xrealloc(NULL, sizeof(LootDB));
     memset(db, 0, sizeof(LootDB));
-    parse_loot_section(db, sb);
+    parse_loot_section(db, sb, NULL);
     sb_free(sb);
 
     resolve_all_loot_tables(db);
@@ -833,4 +837,30 @@ void test_print()
         printf("Kill %d (%s):\n", i + 1, "GLOBAL_T1");
         print_drops(drops, drop_count);
     }
+}
+
+// Per-area loot support ///////////////////////////////////////////////////////
+
+LootDB* loot_db_new()
+{
+    LootDB* db = (LootDB*)xrealloc(NULL, sizeof(LootDB));
+    memset(db, 0, sizeof(LootDB));
+    return db;
+}
+
+void load_area_loot(FILE* fp, Entity* owner)
+{
+    if (!global_loot_db) {
+        bug("load_area_loot: global_loot_db not initialized.", 0);
+        return;
+    }
+
+    // Read loot section until #ENDLOOT
+    StringBuffer* sb = sb_new();
+    scarf_loot_section(fp, sb);
+    parse_loot_section(global_loot_db, sb, owner);
+    sb_free(sb);
+
+    // Resolve inheritance after adding new groups/tables
+    resolve_all_loot_tables(global_loot_db);
 }

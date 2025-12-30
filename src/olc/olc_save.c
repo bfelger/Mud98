@@ -49,6 +49,7 @@
 #include <data/quest.h>
 #include <data/race.h>
 #include <data/skill.h>
+#include <data/loot.h>
 
 #include <ctype.h>
 #include <stdio.h>
@@ -1075,6 +1076,11 @@ void save_area_daycycle(FILE* fp, AreaData* area)
     }
 
     fprintf(fp, "S\n\n\n\n");
+}
+
+void save_area_loot(FILE* fp, AreaData* area)
+{
+    save_loot_section(fp, &area->header);
 }
 
 void save_helps(FILE* fp, HelpArea* ha)

@@ -8,6 +8,7 @@
 
 #include <merc.h>
 
+#include <entities/entity.h>
 #include <entities/object.h>
 #include <entities/mobile.h>
 
@@ -29,6 +30,7 @@ typedef struct loot_entry_t {
 } LootEntry;
 
 typedef struct loot_group_t {
+    Entity* owner;        // NULL=global, AreaData*, MobPrototype*, etc.
     const char* name;
     int rolls;          // Number of times to roll on this group.
     LootEntry* entries;
@@ -56,6 +58,7 @@ typedef struct loot_op_t {
 } LootOp;
 
 typedef struct loot_table_t {
+    Entity* owner;        // NULL=global, AreaData*, MobPrototype*, etc.
     const char* name;
     const char* parent_name;
     
@@ -93,8 +96,15 @@ void generate_loot(LootDB* db, const char* table_name,
     LootDrop drops[MAX_LOOT_DROPS], size_t* drop_count);
 void add_loot_to_container(LootDrop* drops, size_t drop_count, Object* container);
 void add_loot_to_mobile(LootDrop* drops, size_t drop_count, Mobile* mob);
-void parse_loot_section(LootDB* db, StringBuffer* sb);
+void parse_loot_section(LootDB* db, StringBuffer* sb, Entity* owner);
 void load_global_loot_db();
+
+// Per-area/mob loot support (merged into global DB with owner tagging)
+void load_area_loot(FILE* fp, Entity* owner);
+void save_loot_section(FILE* fp, Entity* owner);
+void save_global_loot_db();
+LootGroup* loot_db_find_group(LootDB* db, const char* name);
+LootTable* loot_db_find_table(LootDB* db, const char* name);
 
 // Internal API for testing
 void resolve_all_loot_tables(LootDB* db);
