@@ -71,6 +71,7 @@ const OlcCmdEntry mob_olc_comm_table[] = {
     { "manadice",	U(&xMob.mana[0]),		ed_dice,		    0		        },
     { "damdice",	U(&xMob.damage[0]),	    ed_dice,		    0		        },
     { "hitroll",	U(&xMob.hitroll),		ed_number_s_pos,	0		        },
+    { "loot_table", U(&xMob.loot_table),    ed_line_string,     0               },
     { "wealth",	    0,                      ed_olded,           U(medit_wealth)  },
     { "addprog",	U(&xMob.mprogs),		ed_addprog,		    0		        },
     { "delprog",	U(&xMob.mprogs),		ed_delprog,		    0		        },
@@ -310,6 +311,8 @@ MEDIT(medit_show)
     
     if (!hide_unused || pMob->spec_fun != NULL)
         olc_print_str_box(ch, "Spec Fun", pMob->spec_fun ? spec_name(pMob->spec_fun) : "(none)", "");
+    if (!hide_unused || !IS_NULLSTR(pMob->loot_table))
+        olc_print_str(ch, "Loot Table", pMob->loot_table ? pMob->loot_table : "(none)");
 
     Entity* entity = &pMob->header;
     olc_display_entity_class_info(ch, entity);

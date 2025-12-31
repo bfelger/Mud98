@@ -368,6 +368,9 @@ void save_mobile(FILE* fp, MobPrototype* p_mob_proto)
     if (p_mob_proto->faction_vnum != 0)
         fprintf(fp, "Faction %" PRVNUM "\n", p_mob_proto->faction_vnum);
 
+    if (!IS_NULLSTR(p_mob_proto->loot_table))
+        fprintf(fp, "LootTable %s~\n", p_mob_proto->loot_table);
+
     FOR_EACH(pMprog, p_mob_proto->mprogs) {
         fprintf(fp, "M '%s' %"PRVNUM" %s~\n",
             event_trigger_name(pMprog->trig_type), pMprog->vnum,

@@ -70,6 +70,7 @@ const OlcCmdEntry area_olc_comm_table[] = {
     { "reset", 		    U(&xArea.reset_thresh), ed_number_s_pos,    0	                },
     { "sector",	        U(&xArea.sector),	    ed_flag_set_sh,		U(sector_flag_table)},
     { "credits", 	    U(&xArea.credits),      ed_line_string,     0                   },
+    { "loot_table",     U(&xArea.loot_table),   ed_line_string,     0                   },
     { "alwaysreset",    U(&xArea.always_reset), ed_bool,            0                   },
     { "instancetype",   U(&xArea.inst_type),    ed_flag_set_sh,     U(inst_type_table)  },
     { "period",         0,                      ed_olded,           U(aedit_period)     },
@@ -440,6 +441,7 @@ AEDIT(aedit_show)
     olc_print_num(ch, "Security", area->security);
     olc_print_str(ch, "Builders", area->builders);
     olc_print_str(ch, "Credits", area->credits);
+    olc_print_str(ch, "Loot Table", area->loot_table ? area->loot_table : "(none)");
     olc_print_flags(ch, "Flags", area_flag_table, area->area_flags);
     
     Entity* entity = &area->header;

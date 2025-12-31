@@ -236,6 +236,8 @@ PersistResult persist_area_rom_olc_save(const AreaPersistSaveParams* params)
         fprintf(fp, "AlwaysReset %d\n", (int)area->always_reset);
     if (area->inst_type != AREA_INST_SINGLE)
         fprintf(fp, "InstType %d\n", area->inst_type);
+    if (!IS_NULLSTR(area->loot_table))
+        fprintf(fp, "LootTable %s~\n", area->loot_table);
     fprintf(fp, "End\n\n\n\n");
 
     save_area_daycycle(fp, (AreaData*)area);

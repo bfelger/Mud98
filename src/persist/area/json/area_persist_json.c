@@ -238,6 +238,8 @@ static json_t* build_areadata(const AreaData* area)
     json_object_set_new(obj, "alwaysReset", json_boolean(area->always_reset));
     if (area->inst_type == AREA_INST_MULTI)
         JSON_SET_STRING(obj, "instType", "multi");
+    if (!IS_NULLSTR(area->loot_table))
+        JSON_SET_STRING(obj, "lootTable", area->loot_table);
     return obj;
 }
 
@@ -527,6 +529,9 @@ static PersistResult parse_areadata(json_t* root, const AreaPersistLoadParams* p
     }
     else
         area->inst_type = (InstanceType)json_int_or_default(areadata, "instType", area->inst_type);
+
+    const char* loot_table = JSON_STRING(areadata, "lootTable");
+    JSON_INTERN(loot_table, area->loot_table)
 
     parse_story_beats(json_object_get(root, "storyBeats"), area);
     parse_checklist(json_object_get(root, "checklist"), area);
@@ -988,6 +993,8 @@ static json_t* build_mobiles(const AreaData* area)
         JSON_SET_STRING(obj, "material", mob->material ? mob->material : "");
         if (mob->faction_vnum != 0)
             JSON_SET_INT(obj, "factionVnum", mob->faction_vnum);
+        if (!IS_NULLSTR(mob->loot_table))
+            JSON_SET_STRING(obj, "lootTable", mob->loot_table);
 
         Entity* ent = (Entity*)mob;
         if (ent->script && ent->script->chars && ent->script->length > 0)
@@ -1103,6 +1110,8 @@ static PersistResult parse_mobiles(json_t* root, AreaData* area)
         const char* mat = JSON_STRING(m, "material");
         JSON_INTERN(mat, mob->material)
         mob->faction_vnum = (VNUM)json_int_or_default(m, "factionVnum", mob->faction_vnum);
+        const char* loot_table = JSON_STRING(m, "lootTable");
+        JSON_INTERN(loot_table, mob->loot_table)
 
         const char* script = JSON_STRING(m, "loxScript");
         if (script && script[0] != '\0')
