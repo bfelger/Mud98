@@ -14,6 +14,7 @@
 #include "olc.h"
 
 #include "bit.h"
+#include "loot_edit.h"
 
 #include <act_comm.h>
 #include <act_move.h>
@@ -60,9 +61,45 @@ void set_editor(Descriptor* d, int editor, uintptr_t param)
     InitScreen(d);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Sub-editor support (for nested editors like loot within aedit/medit)
+////////////////////////////////////////////////////////////////////////////////
+
+void push_sub_editor(Descriptor* d, int sub_ed_type, uintptr_t sub_pEdit)
+{
+    d->sub_editor = (int16_t)sub_ed_type;
+    d->sub_pEdit = sub_pEdit;
+}
+
+bool pop_sub_editor(Descriptor* d)
+{
+    if (d->sub_editor == ED_NONE) {
+        return false;
+    }
+    d->sub_editor = ED_NONE;
+    d->sub_pEdit = 0;
+    return true;
+}
+
+bool in_sub_editor(Descriptor* d)
+{
+    return d->sub_editor != ED_NONE;
+}
+
 /* Executed from comm.c.  Minimizes compiling when changes are made. */
 bool run_olc_editor(Descriptor* d, char* incomm)
 {
+    // Check sub-editor first - if active, route commands there
+    if (in_sub_editor(d)) {
+        switch (d->sub_editor) {
+        case ED_LOOT:
+            ledit(d->character, incomm);
+            return true;
+        default:
+            break;
+        }
+    }
+
     switch (d->editor) {
     case ED_AREA:
         aedit(d->character, incomm);
@@ -111,6 +148,9 @@ bool run_olc_editor(Descriptor* d, char* incomm)
         break;
     case ED_SCRIPT:
         scredit(d->character, incomm);
+        break;
+    case ED_LOOT:
+        ledit(d->character, incomm);
         break;
     default:
         return false;
@@ -172,10 +212,25 @@ char* olc_ed_name(Mobile* ch)
     case ED_SCRIPT:
         sprintf(buf, "ScrEdit");
         break;
+    case ED_LOOT:
+        sprintf(buf, "LEdit");
+        break;
     default:
         sprintf(buf, " ");
         break;
     }
+
+    // Append sub-editor indicator if in sub-editor mode
+    if (in_sub_editor(ch->desc)) {
+        switch (ch->desc->sub_editor) {
+        case ED_LOOT:
+            strcat(buf, "/Loot");
+            break;
+        default:
+            break;
+        }
+    }
+
     return buf;
 }
 
@@ -258,6 +313,9 @@ char* olc_ed_vnum(Mobile* ch)
             sprintf(buf, "%zu", (size_t)ch->desc->pEdit);
         else
             sprintf(buf, " ");
+        break;
+    case ED_LOOT:
+        sprintf(buf, "global");
         break;
     default:
         sprintf(buf, " ");
@@ -371,6 +429,13 @@ bool show_commands(Mobile* ch, char* argument)
  ****************************************************************************/
 bool edit_done(Mobile* ch)
 {
+    // If in a sub-editor, pop back to parent editor instead of exiting
+    if (in_sub_editor(ch->desc)) {
+        send_to_char("Exiting sub-editor.\n\r", ch);
+        pop_sub_editor(ch->desc);
+        return false;
+    }
+
     if (ch->desc->editor != ED_NONE)
         send_to_char("Exiting the editor.\n\r", ch);
     ch->desc->pEdit = 0;
@@ -402,9 +467,10 @@ const EditCmd editor_table[] =
    {	"group",	do_gedit	},
    {    "class",    do_cedit    },
    {	"help",		do_hedit	},
+   {    "loot",     do_ledit    },
    {	"quest",    do_qedit	},
-   {    "script",  do_scredit  },
-   {    "tutorial", do_tedit   },
+   {    "script",   do_scredit  },
+   {    "tutorial", do_tedit    },
    {	NULL,		0		    }
 };
 

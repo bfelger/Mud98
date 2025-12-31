@@ -106,6 +106,18 @@ void save_global_loot_db();
 LootGroup* loot_db_find_group(LootDB* db, const char* name);
 LootTable* loot_db_find_table(LootDB* db, const char* name);
 
+// OLC editing support
+LootGroup* loot_db_create_group(LootDB* db, const char* name, int rolls, Entity* owner);
+LootTable* loot_db_create_table(LootDB* db, const char* name, const char* parent, Entity* owner);
+bool loot_db_delete_group(LootDB* db, const char* name, Entity* owner);
+bool loot_db_delete_table(LootDB* db, const char* name, Entity* owner);
+bool loot_group_add_item(LootGroup* group, VNUM vnum, int weight, int min_qty, int max_qty);
+bool loot_group_add_cp(LootGroup* group, int weight, int min_qty, int max_qty);
+bool loot_group_remove_entry(LootGroup* group, int index);
+bool loot_table_add_op(LootTable* table, LootOp op);
+bool loot_table_remove_op(LootTable* table, int index);
+bool loot_table_set_parent(LootTable* table, const char* parent_name);
+
 // Internal API for testing
 void resolve_all_loot_tables(LootDB* db);
 

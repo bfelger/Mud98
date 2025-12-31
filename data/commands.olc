@@ -1,4 +1,4 @@
-274
+275
 
 #COMMAND
 name .~
@@ -1785,6 +1785,15 @@ show undef~
 #COMMAND
 name tedit~
 do_fun do_tedit~
+position dead~
+level 0
+log log_normal~
+show undef~
+#END
+
+#COMMAND
+name ledit~
+do_fun do_ledit~
 position dead~
 level 0
 log log_normal~

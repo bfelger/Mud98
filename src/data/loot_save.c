@@ -123,7 +123,7 @@ static void write_loot_table(FILE* fp, const LootTable* table)
             break;
 
         case LOOT_OP_ADD_CP:
-            fprintf(fp, "  add_cp %d %d %d\n", op->a, op->b, op->c);
+            fprintf(fp, "  add_cp %d %d %d\n", op->a, op->c, op->d);
             break;
 
         case LOOT_OP_MUL_CP:

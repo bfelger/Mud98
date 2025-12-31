@@ -59,10 +59,12 @@ typedef struct descriptor_t {
     char** pString;
     ObjString* pLoxScript;
     uintptr_t pEdit;
+    uintptr_t sub_pEdit;            // Sub-editor context (for nested editors)
     char* screenmap;
     char* oldscreenmap;
     int repeat;
     int16_t editor;
+    int16_t sub_editor;             // Sub-editor type (for nested editors)
     int16_t page;
     bool fcommand;
     bool valid;

@@ -7,6 +7,7 @@
 #include "bit.h"
 #include "event_edit.h"
 #include "lox_edit.h"
+#include "loot_edit.h"
 #include "olc.h"
 
 #include <comm.h>
@@ -20,6 +21,8 @@
 
 #include <entities/event.h>
 #include <entities/object.h>
+
+#include <data/loot.h>
 
 #define OEDIT(fun) bool fun( Mobile *ch, char *argument )
 
@@ -54,6 +57,7 @@ const OlcCmdEntry obj_olc_comm_table[] = {
     { "create",	    0,				        ed_new_obj,		    0		        },
     { "event",      0,                      ed_olded,           U(olc_edit_event)   },
     { "lox",        0,                      ed_olded,           U(olc_edit_lox)     },
+    { "loot",       0,                      ed_olded,           U(olc_edit_loot)    },
     { "mshow",	    0,				        ed_olded,		    U(medit_show)   },
     { "oshow",	    0,				        ed_olded,		    U(oedit_show)   },
     { "olist",	    U(&xObj.area),		    ed_olist,		    0		        },

@@ -9,6 +9,7 @@
 #include "bit.h"
 #include "event_edit.h"
 #include "lox_edit.h"
+#include "loot_edit.h"
 #include "olc.h"
 
 #include <comm.h>
@@ -79,6 +80,7 @@ const OlcCmdEntry mob_olc_comm_table[] = {
     { "olist",	    U(&xMob.area),		    ed_olist,		    0		        },
     { "event",      0,                      ed_olded,           U(olc_edit_event)   },
     { "lox",        0,                      ed_olded,           U(olc_edit_lox)     },
+    { "loot",       0,                      ed_olded,           U(olc_edit_loot)    },
     { "copy",	    0,				        ed_olded,		    U(medit_copy)	},
     { "commands",	0,				        ed_olded,		    U(show_commands)},
     { "?",		    0,				        ed_olded,		    U(show_help)	},

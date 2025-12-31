@@ -96,6 +96,7 @@ typedef enum editor_t {
     ED_THEME    = 15,
     ED_TUTORIAL = 16,
     ED_SCRIPT   = 17,
+    ED_LOOT     = 18,
 } EditorType;
 
 // Interpreter Prototypes
@@ -128,6 +129,7 @@ void    scredit     (Mobile* ch, char* argument);
 #define MIN_SEDIT_SECURITY	    3
 #define MIN_QEDIT_SECURITY      3
 #define MIN_TEDIT_SECURITY      5
+#define MIN_LEDIT_SECURITY      5
 #define MIN_SCREDIT_SECURITY    5
 
 // Structure for an OLC editor command.
@@ -171,6 +173,11 @@ FLAGS flag_value(const struct flag_type* flag_table, char* argument);
 void add_reset(RoomData*, Reset*, int);
 void set_editor(Descriptor*, int, uintptr_t);
 
+// Sub-editor support (for nested editors like loot within aedit/medit)
+void push_sub_editor(Descriptor* d, int sub_ed_type, uintptr_t sub_pEdit);
+bool pop_sub_editor(Descriptor* d);
+bool in_sub_editor(Descriptor* d);
+
 bool run_olc_editor(Descriptor* d, char* incomm);
 char* olc_ed_name(Mobile* ch);
 char* olc_ed_vnum(Mobile* ch);
@@ -201,6 +208,7 @@ DECLARE_DO_FUN(do_cedit);
 DECLARE_DO_FUN(do_cmdedit);
 DECLARE_DO_FUN(do_gedit);
 DECLARE_DO_FUN(do_hedit);
+DECLARE_DO_FUN(do_ledit);
 DECLARE_DO_FUN(do_medit);
 DECLARE_DO_FUN(do_oedit);
 DECLARE_DO_FUN(do_pedit);

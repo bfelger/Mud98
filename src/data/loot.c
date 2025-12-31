@@ -58,7 +58,7 @@ static void loot_table_push_op(LootTable* table, LootOp op)
 LootGroup* loot_db_find_group(LootDB* db, const char* name) 
 {
     for (int i = 0; i < db->group_count; i++) {
-        if (strcmp(db->groups[i].name, name) == 0) {
+        if (!str_prefix(name, db->groups[i].name)) {
             return &db->groups[i];
         }
     }
@@ -68,7 +68,7 @@ LootGroup* loot_db_find_group(LootDB* db, const char* name)
 LootTable* loot_db_find_table(LootDB* db, const char* name) 
 {
     for (int i = 0; i < db->table_count; i++) {
-        if (strcmp(db->tables[i].name, name) == 0) {
+        if (!str_prefix(name, db->tables[i].name)) {
             return &db->tables[i];
         }
     }
@@ -863,4 +863,230 @@ void load_area_loot(FILE* fp, Entity* owner)
 
     // Resolve inheritance after adding new groups/tables
     resolve_all_loot_tables(global_loot_db);
+}
+
+// OLC Editing API /////////////////////////////////////////////////////////////
+
+LootGroup* loot_db_create_group(LootDB* db, const char* name, int rolls, 
+    Entity* owner)
+{
+    if (!db || !name || !*name) {
+        return NULL;
+    }
+
+    // Check for existing
+    LootGroup* existing = loot_db_find_group(db, name);
+    if (existing) {
+        return NULL;  // Already exists
+    }
+
+    return loot_db_add_group(db, name, rolls, owner);
+}
+
+LootTable* loot_db_create_table(LootDB* db, const char* name, 
+    const char* parent, Entity* owner)
+{
+    if (!db || !name || !*name) {
+        return NULL;
+    }
+
+    // Check for existing
+    LootTable* existing = loot_db_find_table(db, name);
+    if (existing) {
+        return NULL;  // Already exists
+    }
+
+    LootTable* table = loot_db_add_table(db, name, parent, owner);
+    if (table && parent && *parent) {
+        resolve_all_loot_tables(db);
+    }
+    return table;
+}
+
+bool loot_db_delete_group(LootDB* db, const char* name, Entity* owner)
+{
+    if (!db || !name || !*name) {
+        return false;
+    }
+
+    // Find the group
+    int index = -1;
+    for (int i = 0; i < db->group_count; i++) {
+        if (db->groups[i].owner == owner && 
+            strcmp(db->groups[i].name, name) == 0) {
+            index = i;
+            break;
+        }
+    }
+
+    if (index == -1) {
+        return false;
+    }
+
+    // Free the group
+    LootGroup* group = &db->groups[index];
+    free_string(group->name);
+    if (group->entries) {
+        free(group->entries);
+    }
+
+    // Shift remaining groups down
+    memmove(&db->groups[index], &db->groups[index + 1], 
+        sizeof(LootGroup) * (db->group_count - index - 1));
+    db->group_count--;
+
+    return true;
+}
+
+bool loot_db_delete_table(LootDB* db, const char* name, Entity* owner)
+{
+    if (!db || !name || !*name) {
+        return false;
+    }
+
+    // Find the table
+    int index = -1;
+    for (int i = 0; i < db->table_count; i++) {
+        if (db->tables[i].owner == owner && 
+            strcmp(db->tables[i].name, name) == 0) {
+            index = i;
+            break;
+        }
+    }
+
+    if (index == -1) {
+        return false;
+    }
+
+    // Free the table
+    LootTable* table = &db->tables[index];
+    free_string(table->name);
+    if (table->parent_name) {
+        free_string(table->parent_name);
+    }
+    if (table->ops) {
+        for (int i = 0; i < table->op_count; i++) {
+            if (table->ops[i].type == LOOT_OP_USE_GROUP) {
+                free_string(table->ops[i].group_name);
+            } else if (table->ops[i].type == LOOT_OP_REMOVE_GROUP) {
+                free_string(table->ops[i].group_name);
+            }
+        }
+        free(table->ops);
+    }
+    if (table->resolved_ops) {
+        free(table->resolved_ops);
+    }
+
+    // Shift remaining tables down
+    memmove(&db->tables[index], &db->tables[index + 1], 
+        sizeof(LootTable) * (db->table_count - index - 1));
+    db->table_count--;
+
+    return true;
+}
+
+bool loot_group_add_item(LootGroup* group, VNUM vnum, int weight, 
+    int min_qty, int max_qty)
+{
+    if (!group || vnum < 0 || weight < 0 || min_qty < 0 || max_qty < min_qty) {
+        return false;
+    }
+
+    LootEntry entry = {
+        .type = LOOT_ITEM,
+        .weight = weight,
+        .item_vnum = vnum,
+        .min_qty = min_qty,
+        .max_qty = max_qty
+    };
+
+    loot_group_push_entry(group, entry);
+    return true;
+}
+
+bool loot_group_add_cp(LootGroup* group, int weight, int min_qty, int max_qty)
+{
+    if (!group || weight < 0 || min_qty < 0 || max_qty < min_qty) {
+        return false;
+    }
+
+    LootEntry entry = {
+        .type = LOOT_CP,
+        .weight = weight,
+        .min_qty = min_qty,
+        .max_qty = max_qty
+    };
+
+    loot_group_push_entry(group, entry);
+    return true;
+}
+
+bool loot_group_remove_entry(LootGroup* group, int index)
+{
+    if (!group || index < 0 || index >= group->entry_count) {
+        return false;
+    }
+
+    // Shift remaining entries down
+    memmove(&group->entries[index], &group->entries[index + 1],
+        sizeof(LootEntry) * (group->entry_count - index - 1));
+    group->entry_count--;
+
+    return true;
+}
+
+bool loot_table_add_op(LootTable* table, LootOp op)
+{
+    if (!table) {
+        return false;
+    }
+
+    // Duplicate strings if needed
+    if (op.type == LOOT_OP_USE_GROUP || op.type == LOOT_OP_REMOVE_GROUP) {
+        op.group_name = str_dup(op.group_name);
+    }
+
+    loot_table_push_op(table, op);
+    return true;
+}
+
+bool loot_table_remove_op(LootTable* table, int index)
+{
+    if (!table || index < 0 || index >= table->op_count) {
+        return false;
+    }
+
+    // Free string if needed
+    LootOp* op = &table->ops[index];
+    if (op->type == LOOT_OP_USE_GROUP || op->type == LOOT_OP_REMOVE_GROUP) {
+        free_string(op->group_name);
+    }
+
+    // Shift remaining ops down
+    memmove(&table->ops[index], &table->ops[index + 1],
+        sizeof(LootOp) * (table->op_count - index - 1));
+    table->op_count--;
+
+    return true;
+}
+
+bool loot_table_set_parent(LootTable* table, const char* parent_name)
+{
+    if (!table) {
+        return false;
+    }
+
+    // Free old parent name
+    if (table->parent_name) {
+        free_string(table->parent_name);
+        table->parent_name = NULL;
+    }
+
+    // Set new parent
+    if (parent_name && *parent_name) {
+        table->parent_name = str_dup(parent_name);
+    }
+
+    return true;
 }

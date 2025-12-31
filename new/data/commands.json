@@ -547,6 +547,10 @@
       "position": "fighting"
     },
     {
+      "name": "ledit",
+      "function": "do_ledit"
+    },
+    {
       "name": "look",
       "function": "do_look",
       "position": "resting"

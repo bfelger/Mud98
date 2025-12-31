@@ -7,6 +7,7 @@
 #include "bit.h"
 #include "event_edit.h"
 #include "lox_edit.h"
+#include "loot_edit.h"
 #include "olc.h"
 #include "period_edit.h"
 #include "string_edit.h"
@@ -28,6 +29,8 @@
 #include <entities/area.h>
 #include <entities/faction.h>
 #include <entities/mob_prototype.h>
+
+#include <data/loot.h>
 
 #define AEDIT(fun) bool fun( Mobile *ch, char *argument )
 
@@ -72,6 +75,7 @@ const OlcCmdEntry area_olc_comm_table[] = {
     { "period",         0,                      ed_olded,           U(aedit_period)     },
     { "event",          0,                      ed_olded,           U(olc_edit_event)   },
     { "lox",            0,                      ed_olded,           U(olc_edit_lox)     },
+    { "loot",           0,                      ed_olded,           U(olc_edit_loot)    },
     { "story",          0,                      ed_olded,           U(aedit_story)      },
     { "checklist",      0,                      ed_olded,           U(aedit_checklist)  },
     { "period",         0,                      ed_olded,           U(aedit_period)     },
