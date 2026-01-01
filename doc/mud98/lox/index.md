@@ -23,4 +23,3 @@ No prior knowledge of ["vanilla" Lox](https://craftinginterpreters.com/) is requ
 - [API Reference](api.md): native functions, entity methods, globals, commands, and enums exposed to Lox.
 - [Recipes](recipes.md): practical walkthroughs derived from the Faladrin Forest tutorial and other examples.
 
-Use this index as your landing page; each section cross-links to relevant source files and builder docs so both humans and AI code assistants can navigate the scripting ecosystem efficiently.

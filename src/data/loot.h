@@ -98,11 +98,12 @@ void add_loot_to_container(LootDrop* drops, size_t drop_count, Object* container
 void add_loot_to_mobile(LootDrop* drops, size_t drop_count, Mobile* mob);
 void parse_loot_section(LootDB* db, StringBuffer* sb, Entity* owner);
 void load_global_loot_db();
+void save_global_loot_db();
+void save_global_loot_db_as(const char* filename);  // Force specific format via extension
 
 // Per-area/mob loot support (merged into global DB with owner tagging)
 void load_area_loot(FILE* fp, Entity* owner);
 void save_loot_section(FILE* fp, Entity* owner);
-void save_global_loot_db();
 LootGroup* loot_db_find_group(LootDB* db, const char* name);
 LootTable* loot_db_find_table(LootDB* db, const char* name);
 

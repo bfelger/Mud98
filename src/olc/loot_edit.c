@@ -12,6 +12,7 @@
 #include <data/loot.h>
 
 #include <comm.h>
+#include <config.h>
 #include <stringutils.h>
 
 #include <stdio.h>
@@ -32,6 +33,7 @@ static bool lootedit_remove_entry(Mobile* ch, char* argument);
 static bool lootedit_add_op(Mobile* ch, char* argument);
 static bool lootedit_remove_op(Mobile* ch, char* argument);
 static bool lootedit_parent(Mobile* ch, char* argument);
+static bool lootedit_save(Mobile* ch, char* argument);
 static bool lootedit_help(Mobile* ch, char* argument);
 
 typedef struct {
@@ -50,6 +52,7 @@ static const LooteditHelpEntry lootedit_help_table[] = {
     { "add",         "add item|cp|op <args>",              "Add an item, cp, or operation." },
     { "remove",      "remove entry|op <args>",             "Remove an entry or operation." },
     { "parent",      "parent <table> [parent|none]",       "Set or clear a table's parent." },
+    { "save",        "save [json|olc]",                    "Save loot data (optionally force format)." },
     { "help",        "help [command]",                     "Show help for loot editor commands." },
     { "?",           "?",                                  "Alias for 'help'." },
     { "done",        "done",                               "Exit the loot editor." },
@@ -184,6 +187,11 @@ void ledit(Mobile* ch, char* argument)
 
     if (!str_cmp(command, "parent")) {
         lootedit_parent(ch, rest);
+        return;
+    }
+
+    if (!str_cmp(command, "save")) {
+        lootedit_save(ch, rest);
         return;
     }
 
@@ -498,6 +506,60 @@ static bool lootedit_table_list(Mobile* ch, char* argument)
 
     return true;
 #undef PRETTY_IDX
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// lootedit_save - Save loot data
+////////////////////////////////////////////////////////////////////////////////
+
+static bool lootedit_save(Mobile* ch, char* argument)
+{
+    Entity* owner = get_loot_owner(ch);
+    
+    // For global loot (owner == NULL), we can save to a specific format
+    if (owner == NULL) {
+        const char* filename = cfg_get_loot_file();
+        char new_filename[MSL];
+        
+        if (!IS_NULLSTR(argument)) {
+            // User specified format
+            if (!str_cmp(argument, "json")) {
+                // Replace extension with .json
+                strncpy(new_filename, filename, sizeof(new_filename) - 1);
+                new_filename[sizeof(new_filename) - 1] = '\0';
+                char* ext = strrchr(new_filename, '.');
+                if (ext) {
+                    strcpy(ext, ".json");
+                } else {
+                    strcat(new_filename, ".json");
+                }
+                filename = new_filename;
+            } else if (!str_cmp(argument, "olc")) {
+                // Replace extension with .olc
+                strncpy(new_filename, filename, sizeof(new_filename) - 1);
+                new_filename[sizeof(new_filename) - 1] = '\0';
+                char* ext = strrchr(new_filename, '.');
+                if (ext) {
+                    strcpy(ext, ".olc");
+                } else {
+                    strcat(new_filename, ".olc");
+                }
+                filename = new_filename;
+            } else {
+                printf_to_char(ch, COLOR_INFO "Usage: save [json|olc]" COLOR_EOL);
+                return false;
+            }
+        }
+        
+        save_global_loot_db_as(filename);
+        printf_to_char(ch, COLOR_INFO "Global loot saved to %s." COLOR_EOL, filename);
+        return true;
+    }
+    
+    // For area/mob loot, the data is saved with the area
+    printf_to_char(ch, COLOR_INFO "Loot for this entity will be saved with its area." COLOR_EOL);
+    printf_to_char(ch, COLOR_INFO "Use 'asave area' to save the area file." COLOR_EOL);
+    return true;
 }
 
 static bool lootedit_help(Mobile* ch, char* argument)

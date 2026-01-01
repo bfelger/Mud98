@@ -1,0 +1,79 @@
+{
+  "formatVersion": 1,
+  "groups": [
+    {
+      "name": "COINS_T1",
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "cp",
+          "minQty": 0,
+          "maxQty": 10,
+          "weight": 100
+        }
+      ]
+    },
+    {
+      "name": "GLOBAL_COMMON_T1",
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "item",
+          "vnum": 4003,
+          "minQty": 1,
+          "maxQty": 1,
+          "weight": 60
+        },
+        {
+          "type": "item",
+          "vnum": 1601,
+          "minQty": 1,
+          "maxQty": 1,
+          "weight": 30
+        },
+        {
+          "type": "item",
+          "vnum": 3421,
+          "minQty": 1,
+          "maxQty": 1,
+          "weight": 10
+        }
+      ]
+    },
+    {
+      "name": "GLOBAL_RARE_T1",
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "item",
+          "vnum": 1602,
+          "minQty": 1,
+          "maxQty": 1,
+          "weight": 100
+        }
+      ]
+    }
+  ],
+  "tables": [
+    {
+      "name": "GLOBAL_T1",
+      "ops": [
+        {
+          "op": "use_group",
+          "group": "COINS_T1",
+          "chance": 100
+        },
+        {
+          "op": "use_group",
+          "group": "GLOBAL_COMMON_T1",
+          "chance": 35
+        },
+        {
+          "op": "use_group",
+          "group": "GLOBAL_RARE_T1",
+          "chance": 1
+        }
+      ]
+    }
+  ]
+}

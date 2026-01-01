@@ -6,6 +6,8 @@
 
 #include <entities/entity.h>
 
+#include <persist/loot/loot_persist.h>
+
 #include <comm.h>
 #include <config.h>
 #include <stringbuffer.h>
@@ -485,30 +487,18 @@ void parse_loot_section(LootDB* db, StringBuffer* sb, Entity* owner)
 
 void load_global_loot_db()
 {
-    char loot_file_path[MIL];
-    sprintf(loot_file_path, "%s%s", cfg_get_data_dir(), cfg_get_loot_file());
-
-    FILE* fp = fopen(loot_file_path, "r");
-    if (!fp) {
-        fprintf(stderr, "Could not open loot file: %s\n", loot_file_path);
+    const char* filename = cfg_get_loot_file();
+    
+    // Use persistence layer for format detection
+    PersistResult res = loot_persist_load(filename);
+    if (!persist_succeeded(res)) {
+        fprintf(stderr, "Could not load loot file: %s (%s)\n", filename, 
+            res.message ? res.message : "unknown error");
         exit(1);
     }
 
-    StringBuffer* sb = sb_new();
-    scarf_loot_section(fp, sb);
-    fclose(fp);
-
-    LootDB* db = (LootDB*)xrealloc(NULL, sizeof(LootDB));
-    memset(db, 0, sizeof(LootDB));
-    parse_loot_section(db, sb, NULL);
-    sb_free(sb);
-
-    resolve_all_loot_tables(db);
-
-    global_loot_db = db;
-
     printf_log("Loaded global loot DB: %d groups, %d tables", 
-        db->group_count, db->table_count);
+        global_loot_db->group_count, global_loot_db->table_count);
 }
 
 // Loot exec helpers ///////////////////////////////////////////////////////////
