@@ -478,9 +478,7 @@ static INIT_DESC_RET init_descriptor(INIT_DESC_PARAM lp_data)
     dnew->showstr_point = NULL;
     dnew->outsize = 2000;
     dnew->outbuf = alloc_mem(dnew->outsize);
-    dnew->pEdit = 0;        // OLC
-    dnew->pString = NULL;   // OLC
-    dnew->editor = 0;       // OLC
+    editor_stack_init(&dnew->editor_stack);  // OLC
 
     init_mth_socket(dnew);
 
@@ -829,9 +827,9 @@ void process_client_input(SockServer* server, PollData* poll_data)
 
             if (d->showstr_point && *d->showstr_point != '\0')
                 show_string(d, d->incomm);
-            else if (d->pString)
+            else if (in_string_editor(d))
                 string_add(d->character, d->incomm);    // OLC
-            else if (d->pLoxScript)
+            else if (in_lox_editor(d))
                 lox_script_add(d->character, d->incomm);
             else if (d->connected == CON_PLAYING)
                 substitute_alias(d, d->incomm);
@@ -936,7 +934,7 @@ bool process_descriptor_output(Descriptor* d, bool fPrompt)
         if (d->showstr_point && *d->showstr_point != '\0')
             write_to_buffer(d, "[Hit Return to continue]\n\r", 0);
         else if (fPrompt && d->connected == CON_PLAYING) {
-            if (d->pString)
+            if (in_string_editor(d) || in_lox_editor(d))
                 write_to_buffer(d, "> ", 2);    // OLC
             else {
                 Mobile* ch;
@@ -990,8 +988,8 @@ bool process_descriptor_output(Descriptor* d, bool fPrompt)
                     write_to_buffer(d, (const char*)go_ahead_str, 0);
 
                 if (IS_SET(ch->comm_flags, COMM_OLCX)
-                    && d->editor != ED_NONE
-                    && d->pString == NULL)
+                    && in_editor(d)
+                    && !in_string_editor(d) && !in_lox_editor(d))
                     UpdateOLCScreen(d);
             }
         }

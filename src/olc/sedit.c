@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Original Diku Mud copyright (C) 1990, 1991 by Sebastian Hammer,        *
- *  Michael Seifert, Hans Henrik Stærfeldt, Tom Madsen, and Katja Nyboe.   *
+ *  Michael Seifert, Hans Henrik Stï¿½rfeldt, Tom Madsen, and Katja Nyboe.   *
  *                                                                         *
  *  Merc Diku Mud improvments copyright (C) 1992, 1993 by Michael          *
  *  Chastain, Michael Quan, and Mitchell Tse.                              *
@@ -205,8 +205,7 @@ void do_sedit(Mobile* ch, char* argument)
 
     pSocial = &social_table[social];
 
-    ch->desc->pEdit = U(pSocial);
-    ch->desc->editor = ED_SOCIAL;
+    set_editor(ch->desc, ED_SOCIAL, U(pSocial));
 
     return;
 }
@@ -270,7 +269,7 @@ SEDIT(sedit_new)
         if (d->connected != CON_PLAYING || (tch = CH(d)) == NULL || tch->desc == NULL)
             continue;
 
-        if (tch->desc->editor == ED_SOCIAL)
+        if (get_editor(tch->desc) == ED_SOCIAL)
             edit_done(ch);
     }
 
@@ -298,8 +297,7 @@ SEDIT(sedit_new)
     social_table[social_count - 1].others_auto = str_dup("");
     social_table[social_count].name = str_dup(""); /* 'terminating' empty string */
 
-    ch->desc->editor = ED_SOCIAL;
-    ch->desc->pEdit = U(&social_table[social_count - 1]);
+    set_editor(ch->desc, ED_SOCIAL, U(&social_table[social_count - 1]));
 
     send_to_char("New social created.\n\r", ch);
     return true;
@@ -328,7 +326,7 @@ SEDIT(sedit_delete)
         if (d->connected != CON_PLAYING || (tch = CH(d)) == NULL || tch->desc == NULL)
             continue;
 
-        if (tch->desc->editor == ED_SOCIAL)
+        if (get_editor(tch->desc) == ED_SOCIAL)
             edit_done(ch);
     }
 

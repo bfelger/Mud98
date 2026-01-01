@@ -39,15 +39,15 @@ MobPrototype xMob;
 #define U(x)    (uintptr_t)(x)
 
 const OlcCmdEntry mob_olc_comm_table[] = {
-    { "name",	    U(&xMob.header.name),   ed_line_lox_string, 0		        },
-    { "short",	    U(&xMob.short_descr),	ed_line_string,		0		        },
-    { "long",	    U(&xMob.long_descr),	ed_line_string,		0	            },
-    { "material",	U(&xMob.material),	    ed_line_string,		0		        },
-    { "desc",	    U(&xMob.description),	ed_desc,		    0		        },
-    { "level",	    U(&xMob.level),		    ed_number_level,    0		        },
-    { "align",	    U(&xMob.alignment),	    ed_number_align,	0		        },
-    { "group",	    U(&xMob.group),		    ed_olded,		    U(medit_group)	},
-    { "faction",    0,                      ed_olded,          U(medit_faction) },
+    { "name",	    U(&xMob.header.name),   ed_line_lox_string, 0		            },
+    { "short",	    U(&xMob.short_descr),	ed_line_string,		0		            },
+    { "long",	    U(&xMob.long_descr),	ed_line_string,		0	                },
+    { "material",	U(&xMob.material),	    ed_line_string,		0		            },
+    { "desc",	    U(&xMob.description),	ed_desc,		    0		            },
+    { "level",	    U(&xMob.level),		    ed_number_level,    0		            },
+    { "align",	    U(&xMob.alignment),	    ed_number_align,	0		            },
+    { "group",	    U(&xMob.group),		    ed_olded,		    U(medit_group)	    },
+    { "faction",    0,                      ed_olded,          U(medit_faction)     },
     { "imm",	    U(&xMob.imm_flags),	    ed_flag_toggle,		U(imm_flag_table)	},
     { "res",	    U(&xMob.res_flags),	    ed_flag_toggle,		U(res_flag_table)	},
     { "vuln",	    U(&xMob.vuln_flags),	ed_flag_toggle,		U(vuln_flag_table)	},
@@ -56,37 +56,37 @@ const OlcCmdEntry mob_olc_comm_table[] = {
     { "off",	    U(&xMob.atk_flags),	    ed_flag_toggle,		U(off_flag_table)	},
     { "form",	    U(&xMob.form),		    ed_flag_toggle,		U(form_flag_table)	},
     { "parts",	    U(&xMob.parts),		    ed_flag_toggle,		U(part_flag_table)	},
-    { "shop",	    U(&xMob),			    ed_shop,		    0		        },
-    { "create",	    0,				        ed_new_mob,		    0		        },
-    { "spec",	    U(&xMob.spec_fun),	    ed_gamespec,		0		        },
-    { "recval",	    U(&xMob),			    ed_recval,		    0		        },
-    { "sex",	    U(&xMob.sex),		    ed_int16lookup,		U(sex_lookup)	},
-    { "size",	    U(&xMob.size),		    ed_int16lookup,		U(size_lookup)	},
-    { "startpos",	U(&xMob.start_pos),	    ed_int16lookup,		U(position_lookup)},
-    { "defaultpos", U(&xMob.default_pos),	ed_int16lookup,		U(position_lookup)},
-    { "damtype",	U(&xMob.dam_type),	    ed_int16poslookup,	U(attack_lookup)},
-    { "race",	    U(&xMob),			    ed_race,		    0		        },
-    { "ac",	    U(&xMob),			    ed_ac,			    0		        },
-    { "hitdice",	U(&xMob.hit[0]),        ed_dice,		    0		        },
-    { "manadice",	U(&xMob.mana[0]),		ed_dice,		    0		        },
-    { "damdice",	U(&xMob.damage[0]),	    ed_dice,		    0		        },
-    { "hitroll",	U(&xMob.hitroll),		ed_number_s_pos,	0		        },
-    { "loot_table", U(&xMob.loot_table),    ed_line_string,     0               },
-    { "wealth",	    0,                      ed_olded,           U(medit_wealth)  },
-    { "addprog",	U(&xMob.mprogs),		ed_addprog,		    0		        },
-    { "delprog",	U(&xMob.mprogs),		ed_delprog,		    0		        },
-    { "show",       0,				        ed_olded,		    U(medit_show)	},
-    { "mshow",	    0,				        ed_olded,		    U(medit_show)	},
-    { "oshow",	    0,				        ed_olded,		    U(oedit_show)	},
-    { "olist",	    U(&xMob.area),		    ed_olist,		    0		        },
+    { "shop",	    U(&xMob),			    ed_shop,		    0		            },
+    { "create",	    0,				        ed_new_mob,		    0		            },
+    { "spec",	    U(&xMob.spec_fun),	    ed_gamespec,		0		            },
+    { "recval",	    U(&xMob),			    ed_recval,		    0		            },
+    { "sex",	    U(&xMob.sex),		    ed_int16lookup,		U(sex_lookup)	    },
+    { "size",	    U(&xMob.size),		    ed_int16lookup,		U(size_lookup)	    },
+    { "startpos",	U(&xMob.start_pos),	    ed_int16lookup,		U(position_lookup)  },
+    { "defaultpos", U(&xMob.default_pos),	ed_int16lookup,		U(position_lookup)  },
+    { "damtype",	U(&xMob.dam_type),	    ed_int16poslookup,	U(attack_lookup)    },
+    { "race",	    U(&xMob),			    ed_race,		    0		            },
+    { "ac",	        U(&xMob),			    ed_ac,			    0		            },
+    { "hitdice",	U(&xMob.hit[0]),        ed_dice,		    0		            },
+    { "manadice",	U(&xMob.mana[0]),		ed_dice,		    0		            },
+    { "damdice",	U(&xMob.damage[0]),	    ed_dice,		    0		            },
+    { "hitroll",	U(&xMob.hitroll),		ed_number_s_pos,	0		            },
+    { "loot_table", U(&xMob.loot_table),    ed_loot_string,     0                   },
+    { "wealth",	    0,                      ed_olded,           U(medit_wealth)     },
+    { "addprog",	U(&xMob.mprogs),		ed_addprog,		    0		            },
+    { "delprog",	U(&xMob.mprogs),		ed_delprog,		    0		            },
+    { "show",       0,				        ed_olded,		    U(medit_show)	    },
+    { "mshow",	    0,				        ed_olded,		    U(medit_show)	    },
+    { "oshow",	    0,				        ed_olded,		    U(oedit_show)	    },
+    { "olist",	    U(&xMob.area),		    ed_olist,		    0		            },
     { "event",      0,                      ed_olded,           U(olc_edit_event)   },
     { "lox",        0,                      ed_olded,           U(olc_edit_lox)     },
-    { "loot",       0,                      ed_olded,           U(olc_edit_loot)    },
-    { "copy",	    0,				        ed_olded,		    U(medit_copy)	},
-    { "commands",	0,				        ed_olded,		    U(show_commands)},
-    { "?",		    0,				        ed_olded,		    U(show_help)	},
-    { "version",	0,				        ed_olded,		    U(show_version)	},
-    { NULL,	        0,				        NULL,			    0		        }
+    { "loot_edit",  0,                      ed_olded,           U(olc_edit_loot)    },
+    { "copy",	    0,				        ed_olded,		    U(medit_copy)	    },
+    { "commands",	0,				        ed_olded,		    U(show_commands)    },
+    { "?",		    0,				        ed_olded,		    U(show_help)	    },
+    { "version",	0,				        ed_olded,		    U(show_version)	    },
+    { NULL,	        0,				        NULL,			    0		            }
 };
 
 /* Entry point for editing mob_prototype_data. */
@@ -140,7 +140,7 @@ void do_medit(Mobile* ch, char* argument)
 
             if (ed_new_mob("create", ch, argument, 0, 0)) {
                 SET_BIT(area->area_flags, AREA_CHANGED);
-                ch->desc->editor = ED_MOBILE;
+                set_pEdit(ch->desc, get_pEdit(ch->desc));
                 medit_show(ch, "");
             }
             return;
@@ -194,7 +194,7 @@ MEDIT(medit_show)
     READ_ARG(arg);
 
     if (IS_NULLSTR(arg) || !str_cmp(arg, "all")) {
-        if (ch->desc->editor == ED_MOBILE)
+        if (get_editor(ch->desc) == ED_MOBILE)
             EDIT_MOB(ch, pMob);
         else {
             send_to_char(COLOR_INFO "You must specify a vnum to look at." COLOR_EOL, ch);
@@ -905,7 +905,7 @@ ED_FUN_DEC(ed_addprog)
         return false;
     }
 
-    switch (ch->desc->editor) {
+    switch (get_editor(ch->desc)) {
     case ED_MOBILE:
         flagtable = mprog_flag_table;
         break;
@@ -933,10 +933,13 @@ ED_FUN_DEC(ed_addprog)
     list->next = *mprogs;
     *mprogs = list;
 
-    switch (ch->desc->editor) {
+    switch (get_editor(ch->desc)) {
     case ED_MOBILE:
         EDIT_MOB(ch, pMob);
         SET_BIT(pMob->mprog_flags, value);
+        break;
+
+    default:
         break;
     }
 
@@ -994,10 +997,13 @@ ED_FUN_DEC(ed_delprog)
         }
     }
 
-    switch (ch->desc->editor) {
+    switch (get_editor(ch->desc)) {
     case ED_MOBILE:
         EDIT_MOB(ch, pMob);
         REMOVE_BIT(pMob->mprog_flags, t2rem);
+        break;
+
+    default:
         break;
     }
 

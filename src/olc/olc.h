@@ -21,6 +21,8 @@
 #ifndef MUD98__OLC__OLC_H
 #define MUD98__OLC__OLC_H
 
+#include "editor_stack.h"
+
 #include <tables.h>
 #include <tablesave.h>
 
@@ -75,29 +77,7 @@ typedef bool EditFunc(char*, Mobile*, char*, uintptr_t, const uintptr_t);
 DECLARE_DO_FUN(do_help);
 DECLARE_SPELL_FUN(spell_null);
 
-// Connected states for editor.
-
-typedef enum editor_t {
-    ED_NONE     = 0,
-    ED_AREA     = 1,
-    ED_ROOM     = 2,
-    ED_OBJECT   = 3,
-    ED_MOBILE	= 4,
-    ED_PROG     = 5,
-    ED_CLAN     = 6,
-    ED_RACE     = 7,
-    ED_SOCIAL   = 8,
-    ED_SKILL    = 9,
-    ED_CMD      = 10,
-    ED_GROUP    = 11,
-    ED_CLASS    = 12,
-    ED_HELP     = 13,
-    ED_QUEST    = 14,
-    ED_THEME    = 15,
-    ED_TUTORIAL = 16,
-    ED_SCRIPT   = 17,
-    ED_LOOT     = 18,
-} EditorType;
+// EditorType enum is defined in editor_stack.h
 
 // Interpreter Prototypes
 void    aedit       (Mobile* ch, char* argument);
@@ -171,12 +151,42 @@ AreaData* get_vnum_area(VNUM vnum);
 AreaData* get_area_data(VNUM vnum);
 FLAGS flag_value(const struct flag_type* flag_table, char* argument);
 void add_reset(RoomData*, Reset*, int);
-void set_editor(Descriptor*, int, uintptr_t);
+void set_editor(Descriptor*, EditorType, uintptr_t);
 
-// Sub-editor support (for nested editors like loot within aedit/medit)
-void push_sub_editor(Descriptor* d, int sub_ed_type, uintptr_t sub_pEdit);
-bool pop_sub_editor(Descriptor* d);
-bool in_sub_editor(Descriptor* d);
+// Editor stack API - replaces old sub-editor system
+// Push a new editor onto the stack (entering a sub-editor)
+void push_editor(Descriptor* d, EditorType ed_type, uintptr_t pEdit);
+// Pop the current editor from the stack (exiting via "done")
+bool pop_editor(Descriptor* d);
+// Get current editor type from top of stack (ED_NONE if empty)
+EditorType get_editor(Descriptor* d);
+// Get current pEdit from top of stack (0 if empty)
+uintptr_t get_pEdit(Descriptor* d);
+// Set current pEdit on top of stack (for updating edited object)
+bool set_pEdit(Descriptor* d, uintptr_t pEdit);
+// Check if there's a parent editor to return to
+bool has_parent_editor(Descriptor* d);
+// Check if we're in any editor at all
+bool in_editor(Descriptor* d);
+// Get the editor stack depth (0 = not editing)
+int editor_depth(Descriptor* d);
+
+// String/Lox script editing helpers
+// Check if in string editing mode (ED_STRING on top of stack)
+bool in_string_editor(Descriptor* d);
+// Check if in Lox script editing mode (ED_LOX_SCRIPT on top of stack)
+bool in_lox_editor(Descriptor* d);
+// Get the string pointer being edited (NULL if not in ED_STRING mode)
+char** get_string_pEdit(Descriptor* d);
+// Get the Lox script being edited (NULL if not in ED_LOX_SCRIPT mode)
+ObjString* get_lox_pEdit(Descriptor* d);
+// Set/update the Lox script being edited (only valid in ED_LOX_SCRIPT mode)
+void set_lox_pEdit(Descriptor* d, ObjString* script);
+
+// Legacy compatibility macros (deprecated - use stack API instead)
+#define push_sub_editor(d, type, edit) push_editor(d, type, edit)
+#define pop_sub_editor(d)              pop_editor(d)
+#define in_sub_editor(d)               has_parent_editor(d)
 
 bool run_olc_editor(Descriptor* d, char* incomm);
 char* olc_ed_name(Mobile* ch);
@@ -369,6 +379,7 @@ DECLARE_OLC_FUN(qedit_reward_item);
 
 // Editors.
 DECLARE_ED_FUN(ed_line_string);
+DECLARE_ED_FUN(ed_loot_string);
 DECLARE_ED_FUN(ed_line_lox_string);
 DECLARE_ED_FUN(ed_desc);
 DECLARE_ED_FUN(ed_bool);
@@ -410,23 +421,23 @@ DECLARE_ED_FUN(ed_objrecval);
 // Macros
 
 /* Return pointers to what is being edited. */
-#define EDIT_AREA(ch, area)	    ( area = (AreaData*)ch->desc->pEdit )
-#define EDIT_CLASS(ch, class_)  ( class_ = (Class*)ch->desc->pEdit )
-#define EDIT_CMD(ch, cmd)       ( cmd = (CmdInfo*)ch->desc->pEdit )
-#define EDIT_GROUP(ch, grp)     ( grp = (SkillGroup*)ch->desc->pEdit )
-#define EDIT_HELP(ch, help)     ( help = (HelpData*)ch->desc->pEdit )
-#define EDIT_MOB(ch, mob)       ( mob = (MobPrototype*)ch->desc->pEdit )
-#define EDIT_OBJ(ch, obj)       ( obj = (ObjPrototype*)ch->desc->pEdit )
-#define EDIT_PROG(ch, code)     ( code = (MobProgCode*)ch->desc->pEdit )
-#define EDIT_QUEST(ch, quest)   ( quest = (Quest*)ch->desc->pEdit )
-#define EDIT_RACE(ch, race)	    ( race = (Race*)ch->desc->pEdit )
-#define EDIT_ROOM(ch, room)     ( room = (RoomData*)ch->desc->pEdit )
-#define EDIT_SKILL(ch, skill)   ( skill = (Skill*)ch->desc->pEdit )
-#define EDIT_SOCIAL(ch, social)	( social = (Social*)ch->desc->pEdit )
-#define EDIT_ENTITY(ch, room)   ( entity = (Entity*)ch->desc->pEdit )
-#define EDIT_SCRIPT(ch, entry)  ( entry = lox_script_entry_get((size_t)ch->desc->pEdit) )
-#define EDIT_THEME(ch, theme)   ( theme = (ColorTheme*)ch->desc->pEdit )
-#define EDIT_TUTORIAL(ch, tutorial) ( tutorial = (Tutorial*)ch->desc->pEdit )
+#define EDIT_AREA(ch, area)	    ( area = (AreaData*)get_pEdit(ch->desc) )
+#define EDIT_CLASS(ch, class_)  ( class_ = (Class*)get_pEdit(ch->desc) )
+#define EDIT_CMD(ch, cmd)       ( cmd = (CmdInfo*)get_pEdit(ch->desc) )
+#define EDIT_GROUP(ch, grp)     ( grp = (SkillGroup*)get_pEdit(ch->desc) )
+#define EDIT_HELP(ch, help)     ( help = (HelpData*)get_pEdit(ch->desc) )
+#define EDIT_MOB(ch, mob)       ( mob = (MobPrototype*)get_pEdit(ch->desc) )
+#define EDIT_OBJ(ch, obj)       ( obj = (ObjPrototype*)get_pEdit(ch->desc) )
+#define EDIT_PROG(ch, code)     ( code = (MobProgCode*)get_pEdit(ch->desc) )
+#define EDIT_QUEST(ch, quest)   ( quest = (Quest*)get_pEdit(ch->desc) )
+#define EDIT_RACE(ch, race)	    ( race = (Race*)get_pEdit(ch->desc) )
+#define EDIT_ROOM(ch, room)     ( room = (RoomData*)get_pEdit(ch->desc) )
+#define EDIT_SKILL(ch, skill)   ( skill = (Skill*)get_pEdit(ch->desc) )
+#define EDIT_SOCIAL(ch, social)	( social = (Social*)get_pEdit(ch->desc) )
+#define EDIT_ENTITY(ch, room)   ( entity = (Entity*)get_pEdit(ch->desc) )
+#define EDIT_SCRIPT(ch, entry)  ( entry = lox_script_entry_get((size_t)get_pEdit(ch->desc)) )
+#define EDIT_THEME(ch, theme)   ( theme = (ColorTheme*)get_pEdit(ch->desc) )
+#define EDIT_TUTORIAL(ch, tutorial) ( tutorial = (Tutorial*)get_pEdit(ch->desc) )
 
 void show_liqlist(Mobile* ch);
 void show_poslist(Mobile* ch);

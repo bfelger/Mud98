@@ -651,8 +651,8 @@ bool theme_discard_personal(Mobile* ch)
 
     free_color_theme(current_theme);
     ch->pcdata->current_theme = dup_color_theme(theme);
-    if (ch->desc && ch->desc->editor == ED_THEME)
-        ch->desc->pEdit = (uintptr_t)ch->pcdata->current_theme;
+    if (ch->desc && get_editor(ch->desc) == ED_THEME)
+        set_pEdit(ch->desc, (uintptr_t)ch->pcdata->current_theme);
     return true;
 }
 

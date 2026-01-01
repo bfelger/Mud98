@@ -432,7 +432,7 @@ ED_FUN_DEC(ed_line_string)
     char buf[MIL];
 
     if (IS_NULLSTR(argument)) {
-        sprintf(buf, "Syntax : %s <string>\n\r", n_fun);
+        sprintf(buf, COLOR_INFO "Syntax : %s <string>" COLOR_EOL, n_fun);
         send_to_char(buf, ch);
         return false;
     }
@@ -451,6 +451,19 @@ ED_FUN_DEC(ed_line_string)
     send_to_char("Ok.\n\r", ch);
 
     return true;
+}
+
+ED_FUN_DEC(ed_loot_string)
+{
+    if (ed_line_string(n_fun, ch, argument, arg, par))
+        return true;
+    
+    printf_to_char(ch, COLOR_INFO "The" COLOR_TITLE "LOOT_TABLE" COLOR_INFO 
+        " command sets the loot table for this entity to roll on." COLOR_EOL);
+    printf_to_char(ch, COLOR_INFO "If you meant to edit loot tables associated "
+        "with this entity, use the " COLOR_TITLE "LOOT_EDIT" COLOR_INFO 
+        " command." COLOR_EOL);
+    return false;
 }
 
 ED_FUN_DEC(ed_line_lox_string)

@@ -115,7 +115,7 @@ void do_redit(Mobile* ch, char* argument)
 
         if (redit_create(ch, argument)) {
             mob_from_room(ch);
-            room_data = (RoomData*)ch->desc->pEdit;
+            room_data = (RoomData*)get_pEdit(ch->desc);
             Room* room = get_room_for_player(ch, VNUM_FIELD(room_data));
             mob_to_room(ch, room);
             SET_BIT(room_data->area_data->area_flags, AREA_CHANGED);
@@ -602,7 +602,7 @@ bool change_exit(Mobile* ch, char* argument, Direction door)
         Room* new_room = get_room_for_player(ch, vnum);
 
         // ...go back to the old room and create the exit...
-        ch->desc->pEdit = U(room_data);
+        set_pEdit(ch->desc, U(room_data));
         sprintf(buf, "link %s", arg);
         change_exit(ch, buf, door);
 

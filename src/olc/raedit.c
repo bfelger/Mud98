@@ -173,8 +173,7 @@ void do_raedit(Mobile* ch, char* argument)
 
     pRace = &race_table[race];
 
-    ch->desc->pEdit = U(pRace);
-    ch->desc->editor = ED_RACE;
+    set_editor(ch->desc, ED_RACE, U(pRace));
 
     raedit_show(ch, "");
 
@@ -296,7 +295,7 @@ RAEDIT(raedit_new)
         if (d->connected != CON_PLAYING || (tch = CH(d)) == NULL || tch->desc == NULL)
             continue;
 
-        if (tch->desc->editor == ED_RACE)
+        if (get_editor(tch->desc) == ED_RACE)
             edit_done(ch);
     }
 
@@ -342,8 +341,7 @@ RAEDIT(raedit_new)
 
     race_table[maxRace].name = NULL;
 
-    ch->desc->editor = ED_RACE;
-    ch->desc->pEdit = U(&race_table[maxRace - 2]);
+    set_editor(ch->desc, ED_RACE, U(&race_table[maxRace - 2]));
 
     send_to_char(COLOR_INFO "New race created." COLOR_CLEAR, ch);
     return true;

@@ -14,6 +14,7 @@
 #include "olc.h"
 
 #include "bit.h"
+#include "editor_stack.h"
 #include "loot_edit.h"
 
 #include <act_comm.h>
@@ -52,55 +53,99 @@ extern const OlcCmd theme_edit_table[];
 #endif
 #define U(x)    (uintptr_t)(x)
 
-void set_editor(Descriptor* d, int editor, uintptr_t param)
+////////////////////////////////////////////////////////////////////////////////
+// Editor Stack API
+////////////////////////////////////////////////////////////////////////////////
+
+void set_editor(Descriptor* d, EditorType editor, uintptr_t pEdit)
 {
-    d->editor = (int16_t)editor;
-    d->pEdit = param;
+    // Clear stack and push the new editor as the base
+    editor_stack_clear(&d->editor_stack);
+    editor_stack_push(&d->editor_stack, editor, pEdit);
     if (d->page < 1)
         d->page = 1;
     InitScreen(d);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Sub-editor support (for nested editors like loot within aedit/medit)
-////////////////////////////////////////////////////////////////////////////////
-
-void push_sub_editor(Descriptor* d, int sub_ed_type, uintptr_t sub_pEdit)
+void push_editor(Descriptor* d, EditorType ed_type, uintptr_t pEdit)
 {
-    d->sub_editor = (int16_t)sub_ed_type;
-    d->sub_pEdit = sub_pEdit;
+    editor_stack_push(&d->editor_stack, ed_type, pEdit);
 }
 
-bool pop_sub_editor(Descriptor* d)
+bool pop_editor(Descriptor* d)
 {
-    if (d->sub_editor == ED_NONE) {
-        return false;
+    return editor_stack_pop(&d->editor_stack);
+}
+
+EditorType get_editor(Descriptor* d)
+{
+    EditorFrame* frame = editor_stack_top(&d->editor_stack);
+    return frame ? frame->editor : ED_NONE;
+}
+
+uintptr_t get_pEdit(Descriptor* d)
+{
+    EditorFrame* frame = editor_stack_top(&d->editor_stack);
+    return frame ? frame->pEdit : 0;
+}
+
+bool set_pEdit(Descriptor* d, uintptr_t pEdit)
+{
+    return editor_stack_set_pEdit(&d->editor_stack, pEdit);
+}
+
+bool has_parent_editor(Descriptor* d)
+{
+    return editor_stack_depth(&d->editor_stack) > 1;
+}
+
+bool in_editor(Descriptor* d)
+{
+    return !editor_stack_empty(&d->editor_stack);
+}
+
+int editor_depth(Descriptor* d)
+{
+    return editor_stack_depth(&d->editor_stack);
+}
+
+bool in_string_editor(Descriptor* d)
+{
+    return get_editor(d) == ED_STRING;
+}
+
+bool in_lox_editor(Descriptor* d)
+{
+    return get_editor(d) == ED_LOX_SCRIPT;
+}
+
+char** get_string_pEdit(Descriptor* d)
+{
+    if (get_editor(d) != ED_STRING) return NULL;
+    return (char**)get_pEdit(d);
+}
+
+ObjString* get_lox_pEdit(Descriptor* d)
+{
+    if (get_editor(d) != ED_LOX_SCRIPT) return NULL;
+    return (ObjString*)get_pEdit(d);
+}
+
+void set_lox_pEdit(Descriptor* d, ObjString* script)
+{
+    if (get_editor(d) != ED_LOX_SCRIPT) {
+        bug("set_lox_pEdit: not in ED_LOX_SCRIPT mode");
+        return;
     }
-    d->sub_editor = ED_NONE;
-    d->sub_pEdit = 0;
-    return true;
-}
-
-bool in_sub_editor(Descriptor* d)
-{
-    return d->sub_editor != ED_NONE;
+    set_pEdit(d, (uintptr_t)script);
 }
 
 /* Executed from comm.c.  Minimizes compiling when changes are made. */
 bool run_olc_editor(Descriptor* d, char* incomm)
 {
-    // Check sub-editor first - if active, route commands there
-    if (in_sub_editor(d)) {
-        switch (d->sub_editor) {
-        case ED_LOOT:
-            ledit(d->character, incomm);
-            return true;
-        default:
-            break;
-        }
-    }
-
-    switch (d->editor) {
+    int16_t editor = get_editor(d);
+    
+    switch (editor) {
     case ED_AREA:
         aedit(d->character, incomm);
         break;
@@ -160,74 +205,43 @@ bool run_olc_editor(Descriptor* d, char* incomm)
 
 char* olc_ed_name(Mobile* ch)
 {
-    static char buf[10];
-
+    static char buf[64];
     buf[0] = '\0';
-    switch (ch->desc->editor) {
-    case ED_AREA:
-        sprintf(buf, "AEdit");
-        break;
-    case ED_ROOM:
-        sprintf(buf, "REdit");
-        break;
-    case ED_OBJECT:
-        sprintf(buf, "OEdit");
-        break;
-    case ED_MOBILE:
-        sprintf(buf, "MEdit");
-        break;
-    case ED_PROG:
-        sprintf(buf, "MPEdit");
-        break;
-    case ED_RACE:
-        sprintf(buf, "RAEdit");
-        break;
-    case ED_SOCIAL:
-        sprintf(buf, "SEdit");
-        break;
-    case ED_SKILL:
-        sprintf(buf, "SKEdit");
-        break;
-    case ED_CMD:
-        sprintf(buf, "CMDEdit");
-        break;
-    case ED_CLASS:
-        sprintf(buf, "CEdit");
-        break;
-    case ED_GROUP:
-        sprintf(buf, "GEdit");
-        break;
-    case ED_HELP:
-        sprintf(buf, "HEdit");
-        break;
-    case ED_QUEST:
-        sprintf(buf, "QEdit");
-        break;
-    case ED_THEME:
-        sprintf(buf, "ThemeEd");
-        break;
-    case ED_TUTORIAL:
-        sprintf(buf, "TEdit");
-        break;
-    case ED_SCRIPT:
-        sprintf(buf, "ScrEdit");
-        break;
-    case ED_LOOT:
-        sprintf(buf, "LEdit");
-        break;
-    default:
+    
+    int depth = editor_depth(ch->desc);
+    if (depth == 0) {
         sprintf(buf, " ");
-        break;
+        return buf;
     }
-
-    // Append sub-editor indicator if in sub-editor mode
-    if (in_sub_editor(ch->desc)) {
-        switch (ch->desc->sub_editor) {
-        case ED_LOOT:
-            strcat(buf, "/Loot");
-            break;
-        default:
-            break;
+    
+    // Build name from bottom of stack to top (e.g., "AEdit/Loot/Table")
+    for (int i = 0; i < depth; i++) {
+        EditorFrame* frame = editor_stack_at(&ch->desc->editor_stack, i);
+        if (!frame) continue;
+        
+        if (i > 0) strcat(buf, "/");
+        
+        switch (frame->editor) {
+        case ED_AREA:     strcat(buf, "AEdit"); break;
+        case ED_ROOM:     strcat(buf, "REdit"); break;
+        case ED_OBJECT:   strcat(buf, "OEdit"); break;
+        case ED_MOBILE:   strcat(buf, "MEdit"); break;
+        case ED_PROG:     strcat(buf, "MPEdit"); break;
+        case ED_RACE:     strcat(buf, "RAEdit"); break;
+        case ED_SOCIAL:   strcat(buf, "SEdit"); break;
+        case ED_SKILL:    strcat(buf, "SKEdit"); break;
+        case ED_CMD:      strcat(buf, "CMDEdit"); break;
+        case ED_CLASS:    strcat(buf, "CEdit"); break;
+        case ED_GROUP:    strcat(buf, "GEdit"); break;
+        case ED_HELP:     strcat(buf, "HEdit"); break;
+        case ED_QUEST:    strcat(buf, "QEdit"); break;
+        case ED_THEME:    strcat(buf, "ThemeEd"); break;
+        case ED_TUTORIAL: strcat(buf, "TEdit"); break;
+        case ED_SCRIPT:   strcat(buf, "ScrEdit"); break;
+        case ED_LOOT:     strcat(buf, "LEdit"); break;
+        case ED_STRING:   strcat(buf, "Str"); break;
+        case ED_LOX_SCRIPT: strcat(buf, "Lox"); break;
+        default:          strcat(buf, "?"); break;
         }
     }
 
@@ -253,10 +267,13 @@ char* olc_ed_vnum(Mobile* ch)
     LoxScriptEntry* script;
     static char buf[10];
 
+    int16_t editor = get_editor(ch->desc);
+    uintptr_t pEdit = get_pEdit(ch->desc);
+
     buf[0] = '\0';
-    switch (ch->desc->editor) {
+    switch (editor) {
     case ED_AREA:
-        area = (AreaData*)ch->desc->pEdit;
+        area = (AreaData*)pEdit;
         sprintf(buf, "%"PRVNUM, area ? VNUM_FIELD(area) : 0);
         break;
     case ED_ROOM:
@@ -264,53 +281,53 @@ char* olc_ed_vnum(Mobile* ch)
         sprintf(buf, "%"PRVNUM, pRoom ? VNUM_FIELD(pRoom) : 0);
         break;
     case ED_OBJECT:
-        pObj = (ObjPrototype*)ch->desc->pEdit;
+        pObj = (ObjPrototype*)pEdit;
         sprintf(buf, "%"PRVNUM, pObj ? VNUM_FIELD(pObj) : 0);
         break;
     case ED_MOBILE:
-        pMob = (MobPrototype*)ch->desc->pEdit;
+        pMob = (MobPrototype*)pEdit;
         sprintf(buf, "%"PRVNUM, pMob ? VNUM_FIELD(pMob) : 0);
         break;
     case ED_PROG:
-        pMcode = (MobProgCode*)ch->desc->pEdit;
+        pMcode = (MobProgCode*)pEdit;
         sprintf(buf, "%"PRVNUM, pMcode ? pMcode->vnum : 0);
         break;
     case ED_QUEST:
-        pQuest = (Quest*)ch->desc->pEdit;
+        pQuest = (Quest*)pEdit;
         sprintf(buf, "%d", pQuest ? pQuest->vnum : 0);
         break;
     case ED_RACE:
-        pRace = (Race*)ch->desc->pEdit;
+        pRace = (Race*)pEdit;
         sprintf(buf, "%s", pRace ? pRace->name : "");
         break;
     case ED_SOCIAL:
-        pSocial = (Social*)ch->desc->pEdit;
+        pSocial = (Social*)pEdit;
         sprintf(buf, "%s", pSocial ? pSocial->name : "");
         break;
     case ED_SKILL:
-        pSkill = (Skill*)ch->desc->pEdit;
+        pSkill = (Skill*)pEdit;
         sprintf(buf, "%s", pSkill ? pSkill->name : "");
         break;
     case ED_CMD:
-        pCmd = (CmdInfo*)ch->desc->pEdit;
+        pCmd = (CmdInfo*)pEdit;
         sprintf(buf, "%s", pCmd ? pCmd->name : "");
         break;
     case ED_HELP:
-        pHelp = (HelpData*)ch->desc->pEdit;
+        pHelp = (HelpData*)pEdit;
         sprintf(buf, "%s", pHelp ? pHelp->keyword : "");
         break;
     case ED_CLASS:
-        pClass = (Class*)ch->desc->pEdit;
+        pClass = (Class*)pEdit;
         sprintf(buf, "%s", pClass ? pClass->name : "");
         break;
     case ED_TUTORIAL:
-        pTutorial = (Tutorial*)ch->desc->pEdit;
+        pTutorial = (Tutorial*)pEdit;
         sprintf(buf, "%s", pTutorial ? pTutorial->name : "");
         break;
     case ED_SCRIPT:
-        script = lox_script_entry_get((size_t)ch->desc->pEdit);
+        script = lox_script_entry_get((size_t)pEdit);
         if (script)
-            sprintf(buf, "%zu", (size_t)ch->desc->pEdit);
+            sprintf(buf, "%zu", (size_t)pEdit);
         else
             sprintf(buf, " ");
         break;
@@ -359,7 +376,7 @@ void show_olc_cmds(Mobile* ch)
     buf1[0] = '\0';
     col = 0;
 
-    if (ch->desc->editor == ED_THEME) {
+    if (get_editor(ch->desc) == ED_THEME) {
         for (int cmd = 0; theme_edit_table[cmd].name != NULL; cmd++) {
             sprintf(buf, "%-15.15s", theme_edit_table[cmd].name);
             strcat(buf1, buf);
@@ -388,11 +405,11 @@ void show_olc_cmds(Mobile* ch)
     //    return;
     //}
 
-    table = get_olc_table(ch->desc->editor);
+    table = get_olc_table(get_editor(ch->desc));
 
     if (table == NULL) {
         bugf("slow_olc_cmds : NULL table, editor %d",
-            ch->desc->editor);
+            get_editor(ch->desc));
         return;
     }
 
@@ -429,17 +446,18 @@ bool show_commands(Mobile* ch, char* argument)
  ****************************************************************************/
 bool edit_done(Mobile* ch)
 {
-    // If in a sub-editor, pop back to parent editor instead of exiting
-    if (in_sub_editor(ch->desc)) {
-        send_to_char("Exiting sub-editor.\n\r", ch);
-        pop_sub_editor(ch->desc);
+    // Pop one level from the editor stack
+    if (has_parent_editor(ch->desc)) {
+        // There's a parent editor to return to
+        pop_editor(ch->desc);
+        send_to_char("Returning to parent editor.\n\r", ch);
         return false;
     }
 
-    if (ch->desc->editor != ED_NONE)
+    // No parent - exiting OLC entirely
+    if (in_editor(ch->desc))
         send_to_char("Exiting the editor.\n\r", ch);
-    ch->desc->pEdit = 0;
-    ch->desc->editor = ED_NONE;
+    editor_stack_clear(&ch->desc->editor_stack);
     ch->desc->page = 0;
     if (IS_SET(ch->comm_flags, COMM_OLCX)) {
         do_clear(ch, "reset");
@@ -524,7 +542,7 @@ bool process_olc_command(Mobile* ch, char* argument, const OlcCmdEntry* table)
     for (temp = 0; table[temp].name; temp++) {
         if (LOWER(arg[0]) == LOWER(table[temp].name[0])
             && !str_prefix(arg, table[temp].name)) {
-            switch (ch->desc->editor) {
+            switch (get_editor(ch->desc)) {
             case ED_AREA:
                 EDIT_AREA(ch, area);
                 if (table[temp].argument)
@@ -669,6 +687,9 @@ bool process_olc_command(Mobile* ch, char* argument, const OlcCmdEntry* table)
                     save_tutorials();
                 return true;
                 break;
+
+            default:
+                break;
             }
         }
     }
@@ -682,7 +703,7 @@ void do_page(Mobile* ch, char* argument)
 
     if (IS_NPC(ch)
         || ch->desc == NULL
-        || ch->desc->editor == ED_NONE) {
+        || get_editor(ch->desc) == ED_NONE) {
         send_to_char("You are not in an editor.\n\r", ch);
         return;
     }

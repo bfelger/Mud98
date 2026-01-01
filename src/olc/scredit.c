@@ -222,7 +222,7 @@ SCREDIT(scredit_show)
         return false;
     }
 
-    scredit_show_entry(ch, (size_t)ch->desc->pEdit, entry);
+    scredit_show_entry(ch, (size_t)get_pEdit(ch->desc), entry);
     return false;
 }
 
@@ -378,7 +378,7 @@ SCREDIT(scredit_select)
         return false;
     }
 
-    ch->desc->pEdit = (uintptr_t)index;
+    set_pEdit(ch->desc, (uintptr_t)index);
     scredit_show(ch, "");
     return false;
 }
@@ -413,14 +413,14 @@ SCREDIT(scredit_create)
         return false;
     }
 
-    ch->desc->pEdit = (uintptr_t)(lox_script_entry_count() - 1);
+    set_pEdit(ch->desc, (uintptr_t)(lox_script_entry_count() - 1));
     scredit_show(ch, "");
     return false;
 }
 
 SCREDIT(scredit_delete)
 {
-    size_t current = (size_t)ch->desc->pEdit;
+    size_t current = (size_t)get_pEdit(ch->desc);
     size_t target = current;
 
     char arg[MAX_INPUT_LENGTH];
@@ -456,11 +456,11 @@ SCREDIT(scredit_delete)
     if (current == target) {
         if (target >= count)
             target = count - 1;
-        ch->desc->pEdit = (uintptr_t)target;
+        set_pEdit(ch->desc, (uintptr_t)target);
         scredit_show(ch, "");
     }
     else if (current > target) {
-        ch->desc->pEdit = (uintptr_t)(current - 1);
+        set_pEdit(ch->desc, (uintptr_t)(current - 1));
     }
 
     return false;

@@ -1363,7 +1363,7 @@ void do_asave(Mobile* ch, char* argument)
     /* -------------------------------------- */
     if (!str_cmp(arg1, "area")) {
     /* Is character currently editing. */
-        if (ch->desc->editor == 0) {
+        if (get_editor(ch->desc) == ED_NONE) {
             send_to_char("You are not editing an area, "
                 "therefore an area vnum is required.\n\r", ch);
             save_lox_public_scripts_if_dirty();
@@ -1371,18 +1371,18 @@ void do_asave(Mobile* ch, char* argument)
         }
 
         /* Find the area to save. */
-        switch (ch->desc->editor) {
+        switch (get_editor(ch->desc)) {
         case ED_AREA:
-            area = (AreaData*)ch->desc->pEdit;
+            area = (AreaData*)get_pEdit(ch->desc);
             break;
         case ED_ROOM:
             area = ch->in_room->area->data;
             break;
         case ED_OBJECT:
-            area = ((ObjPrototype*)ch->desc->pEdit)->area;
+            area = ((ObjPrototype*)get_pEdit(ch->desc))->area;
             break;
         case ED_MOBILE:
-            area = ((MobPrototype*)ch->desc->pEdit)->area;
+            area = ((MobPrototype*)get_pEdit(ch->desc))->area;
             break;
         default:
             area = ch->in_room->area->data;

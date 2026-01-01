@@ -5,6 +5,7 @@
 
 #include "loot_edit.h"
 
+#include "editor_stack.h"
 #include "olc.h"
 #include "string_edit.h"
 
@@ -53,6 +54,7 @@ static const LooteditHelpEntry lootedit_help_table[] = {
     { "remove",      "remove entry|op <args>",             "Remove an entry or operation." },
     { "parent",      "parent <table> [parent|none]",       "Set or clear a table's parent." },
     { "save",        "save [json|olc]",                    "Save loot data (optionally force format)." },
+    { "olist",       "olist",                              "List all objects in the edited loot area." },
     { "help",        "help [command]",                     "Show help for loot editor commands." },
     { "?",           "?",                                  "Alias for 'help'." },
     { "done",        "done",                               "Exit the loot editor." },
@@ -60,18 +62,25 @@ static const LooteditHelpEntry lootedit_help_table[] = {
 };
 
 // Helper to get the owner entity for the current editing context
+// When editing loot from within aedit/medit/oedit, the parent editor's
+// pEdit contains the owner entity.
 static Entity* get_loot_owner(Mobile* ch)
 {
-    // If in sub-editor mode, use sub_pEdit as the owner entity
-    if (in_sub_editor(ch->desc)) {
-        return (Entity*)ch->desc->sub_pEdit;
+    // If we have a parent editor, get the owner from there
+    if (has_parent_editor(ch->desc)) {
+        // Parent is at depth-2 (stack is 0-indexed, top is depth-1)
+        int depth = editor_depth(ch->desc);
+        EditorFrame* parent = editor_stack_at(&ch->desc->editor_stack, depth - 2);
+        if (parent) {
+            return (Entity*)parent->pEdit;
+        }
     }
-    // If in main ED_LOOT mode, pEdit is the owner (NULL for global)
-    if (ch->desc->editor == ED_LOOT) {
-        return (Entity*)ch->desc->pEdit;
+    // In main ED_LOOT mode (global loot edit), pEdit is the owner (NULL for global)
+    if (get_editor(ch->desc) == ED_LOOT) {
+        return (Entity*)get_pEdit(ch->desc);
     }
-    // Fallback: use pEdit as entity (parent editor context)
-    return (Entity*)ch->desc->pEdit;
+    // Fallback: no owner (global)
+    return NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -128,6 +137,36 @@ void ledit(Mobile* ch, char* argument)
 
     if (!str_cmp(command, "tables")) {
         lootedit_table_list(ch, rest);
+        return;
+    }
+
+    if (!str_cmp(command, "olist")) {
+        // Check loot owner; if NULL, we're in global mode and can't list area 
+        // objects. If we have an owner entity, get its area.
+        Entity* owner = get_loot_owner(ch);
+        if (!owner) {
+            printf_to_char(ch, COLOR_INFO "OList: You must be editing loot for an"
+                " entity to list its area's objects." COLOR_EOL);
+            return;
+        }
+        // We have an owner. Determine if it's AreaData, ObjPrototype, or MobPrototype
+        AreaData* area = NULL;
+        if (owner->obj.type == OBJ_AREA_DATA) {
+            area = (AreaData*)owner;
+        } else if (owner->obj.type == OBJ_OBJ_PROTO) {
+            ObjPrototype* obj_proto = (ObjPrototype*)owner;
+            area = obj_proto->area;
+        } else if (owner->obj.type == OBJ_MOB_PROTO) {
+            MobPrototype* mob_proto = (MobPrototype*)owner;
+            area = mob_proto->area;
+        }  
+        if (!area) {
+            printf_to_char(ch, COLOR_INFO "OList: Unable to determine area for"
+                " the current loot owner entity." COLOR_EOL);
+            return;
+        }
+        // Now list objects in the area
+        ed_olist("olist", ch, rest, (uintptr_t)&area, 0);
         return;
     }
 
@@ -395,6 +434,7 @@ static bool lootedit_group_list(Mobile* ch, char* argument)
     bool found = false;
     for (int i = 0; i < global_loot_db->group_count; i++) {
         if (global_loot_db->groups[i].owner == entity) {
+            found = true;
             LootGroup* g = &global_loot_db->groups[i];
             if (g->rolls == 1)
                 printf_to_char(ch, "%s " COLOR_ALT_TEXT_1 "(1 roll) " COLOR_CLEAR ":\n\r", g->name);
@@ -424,7 +464,6 @@ static bool lootedit_group_list(Mobile* ch, char* argument)
                 }
             }
             printf_to_char(ch, "\n\r");
-            found = true;
         }
     }
 

@@ -154,6 +154,7 @@ add_library(Mud98Core STATIC "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
     "weather.c"
 
     "olc/aedit.c" "olc/bit.h" "olc/bit.c" "olc/cedit.c" "olc/cmdedit.c" 
+    "olc/editor_stack.h" "olc/editor_stack.c"
     "olc/event_edit.h" "olc/event_edit.c" "olc/gedit.c" "olc/hedit.c" 
     "olc/medit.c" "olc/oedit.c" "olc/olc.h" "olc/olc.c" "olc/olc_act.c" 
     "olc/olc_save.c" "olc/pedit.c" "olc/period_edit.h" "olc/period_edit.c"
