@@ -245,8 +245,8 @@ void boot_db()
     init_const_natives();
     load_lox_public_scripts();
 
-    load_skill_table();
     load_class_table();
+    load_skill_table();
     load_race_table();
     load_command_table();
     load_tutorials();
