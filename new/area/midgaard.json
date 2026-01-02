@@ -7723,7 +7723,7 @@
     {
       "vnum": 3006,
       "name": "stone",
-      "shortDescr": "A Clan Stone",
+      "shortDescr": "a Clan Stone",
       "description": "Somebody left their Clan Stone here.",
       "material": "adamite",
       "itemType": "food",

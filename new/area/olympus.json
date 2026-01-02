@@ -1499,7 +1499,7 @@
     {
       "vnum": 909,
       "name": "oldstyle handmaid golden",
-      "shortDescr": "A Golden Maiden",
+      "shortDescr": "a Golden Maiden",
       "longDescr": "A Handmaid of gold is here, assisting the smith.\n\r",
       "description": "As you gaze upon this creation, you realize that she is made from solid\n\rgold.  She seems to be very lifelike as she assists the smith in his work.\n\r",
       "race": "human",
@@ -1562,7 +1562,7 @@
     {
       "vnum": 910,
       "name": "oldstyle soldier",
-      "shortDescr": "A Soldier",
+      "shortDescr": "a Soldier",
       "longDescr": "A soldier is here, assisting Ares.\n\r",
       "description": "This man is waiting on Ares.  Although he does not look very strong, you\n\rrealize that Ares would not have any weaklings working for him.\n\r",
       "race": "human",
@@ -1679,7 +1679,7 @@
     {
       "vnum": 912,
       "name": "oldstyle boy serving servant",
-      "shortDescr": "A serving boy",
+      "shortDescr": "a serving boy",
       "longDescr": "A servant is here, feeding Athena her grapes.\n\r",
       "description": "This boy is truly lucky to be able to serve Athena herself.\n\r",
       "race": "human",
@@ -1737,7 +1737,7 @@
     {
       "vnum": 913,
       "name": "oldstyle hound dog war",
-      "shortDescr": "A hound of war",
+      "shortDescr": "a hound of war",
       "longDescr": "A large hound snarls at you.\n\r",
       "description": "This great beast can barely be called a dog.  It has been bred to cause fear\n\ron the battle field, and you have no doubt that it does its job well.\n\r",
       "race": "human",
@@ -2329,7 +2329,7 @@
     {
       "vnum": 923,
       "name": "oldstyle citizen resident",
-      "shortDescr": "A citizen",
+      "shortDescr": "a citizen",
       "longDescr": "A citizen of this town is strolling down the street here.\n\r",
       "description": "He looks happy and carefree.  He smiles and tips his hat to you.\n\r",
       "race": "human",
@@ -2448,7 +2448,7 @@
     {
       "vnum": 925,
       "name": "oldstyle cook",
-      "shortDescr": "A Cook",
+      "shortDescr": "a Cook",
       "longDescr": "A cook is here, hard at work.\n\r",
       "description": "This man looks as is he has been spending WAY too much time in the kitchen.\n\r",
       "race": "human",
@@ -2507,7 +2507,7 @@
     {
       "vnum": 926,
       "name": "oldstyle jailer",
-      "shortDescr": "The Jailer",
+      "shortDescr": "the Jailer",
       "longDescr": "The jailer is here, watching for intruders.\n\r",
       "description": "He looks as though he has spent a lot of time underground, guarding the\n\rprisoners.\n\r",
       "race": "human",

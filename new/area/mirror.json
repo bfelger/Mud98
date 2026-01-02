@@ -2914,7 +2914,7 @@
     {
       "vnum": 5320,
       "name": "oldstyle guard imperial cityguard",
-      "shortDescr": "An imperial cityguard",
+      "shortDescr": "an imperial cityguard",
       "longDescr": "An imperial cityguard overseeing patrols in the city.\n\r",
       "description": "He is dressed in plate, and he looks quite formidable.  At the moment,\n\rhe is looking at a map of Thalos aside his fellow co-workers keeping\n\rtrack of each city patrol.\n\r",
       "race": "human",

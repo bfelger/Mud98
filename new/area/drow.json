@@ -1456,7 +1456,7 @@
     {
       "vnum": 5105,
       "name": "oldstyle drow master",
-      "shortDescr": "The drow master",
+      "shortDescr": "the drow master",
       "longDescr": "The drow master stares at you angrily.\n\r",
       "description": "The drow master is ALWAYS ready for a fight.\n\r",
       "race": "human",
@@ -1510,7 +1510,7 @@
     {
       "vnum": 5106,
       "name": "oldstyle drow weapons master",
-      "shortDescr": "The weapons master",
+      "shortDescr": "the weapons master",
       "longDescr": "The drow weapons master is here shadow boxing.\n\r",
       "description": "He definitely knows his way around in combat.\n\r",
       "race": "human",

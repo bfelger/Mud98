@@ -1105,7 +1105,7 @@
     {
       "vnum": 5000,
       "name": "oldstyle dervish raggity",
-      "shortDescr": "The dervish",
+      "shortDescr": "the dervish",
       "longDescr": "The raggity dervish walks on aimlessly.\n\r",
       "description": "Dressed in loose fitting rags, this man looks like he could use\n\rsome rest.\n\r",
       "race": "human",
@@ -1160,7 +1160,7 @@
     {
       "vnum": 5001,
       "name": "oldstyle dervish large",
-      "shortDescr": "The dervish",
+      "shortDescr": "the dervish",
       "longDescr": "The large dervish watches for signs of trouble.\n\r",
       "description": "Dressed in loose fitting rags, this man looks like he could use\n\rLOTS of rest.\n\r",
       "race": "human",
@@ -1214,7 +1214,7 @@
     {
       "vnum": 5002,
       "name": "oldstyle snake coral",
-      "shortDescr": "The coral snake",
+      "shortDescr": "the coral snake",
       "longDescr": "A brightly colored snake slithers along the sands.\n\r",
       "description": "This relatively harmless snake has bright alternating bands of red, yellow\n\rand black.\n\r",
       "race": "snake",
@@ -1270,7 +1270,7 @@
     {
       "vnum": 5003,
       "name": "oldstyle scorpion small",
-      "shortDescr": "The small scorpion",
+      "shortDescr": "the small scorpion",
       "longDescr": "A small, red scorpion scuttles away at your approach.\n\r",
       "description": "The little tail is mighty dangerous for such a small creature.\n\r",
       "race": "human",
@@ -1319,7 +1319,7 @@
     {
       "vnum": 5004,
       "name": "oldstyle worm giant purple",
-      "shortDescr": "The giant, purple sand worm",
+      "shortDescr": "the giant, purple sand worm",
       "longDescr": "A giant, purple sand worm thrusts up out of the sand and attacks!\n\r",
       "description": "He's big, mean, and purple. Watch out!\n\r",
       "race": "human",
@@ -1437,7 +1437,7 @@
     {
       "vnum": 5006,
       "name": "oldstyle nomad leader",
-      "shortDescr": "The nomad leader",
+      "shortDescr": "the nomad leader",
       "longDescr": "The nomad leader sits silently in prayer.\n\r",
       "description": "He is clad in silk robes lined with gold thread. At his side\n\ris a large, engraved cutlass. He has an especially haughty air\n\rabout him.\n\r",
       "race": "human",
@@ -1489,7 +1489,7 @@
     {
       "vnum": 5007,
       "name": "oldstyle nomad commander",
-      "shortDescr": "The nomad commander",
+      "shortDescr": "the nomad commander",
       "longDescr": "The nomad commander stands here staring suspiciously at you.\n\r",
       "description": "This is the nomad leader's second in command. His clothes are richly\n\rwoven of silk and gold thread. A nasty cutlass hangs at his side.\n\r",
       "race": "human",
@@ -1540,7 +1540,7 @@
     {
       "vnum": 5008,
       "name": "oldstyle nomad warrior",
-      "shortDescr": "The nomad warrior",
+      "shortDescr": "the nomad warrior",
       "longDescr": "A proud nomad warrior stands here.\n\r",
       "description": "",
       "race": "human",
@@ -1590,7 +1590,7 @@
     {
       "vnum": 5009,
       "name": "oldstyle slave young",
-      "shortDescr": "The slave",
+      "shortDescr": "the slave",
       "longDescr": "A young slave sits here staring at you with pleading eyes.\n\r",
       "description": "",
       "race": "human",
@@ -1640,7 +1640,7 @@
     {
       "vnum": 5010,
       "name": "oldstyle dracolich lich",
-      "shortDescr": "The dracolich",
+      "shortDescr": "the dracolich",
       "longDescr": "A pile of bones rises up to form a skeletal dracolich.\n\r",
       "description": "The dracolich is now only bone with pieces of flesh hanging from it.\n\rObviously it no longer fears death.\n\r",
       "race": "human",
@@ -1696,7 +1696,7 @@
     {
       "vnum": 5011,
       "name": "oldstyle drider drow",
-      "shortDescr": "The drider",
+      "shortDescr": "the drider",
       "longDescr": "The drider looks at you viciously while it draws its sword.\n\r",
       "description": "This half-spider, half-drow creature is a formidable opponent.\n\r",
       "race": "human",
@@ -1750,7 +1750,7 @@
     {
       "vnum": 5012,
       "name": "oldstyle duergar dwarf",
-      "shortDescr": "The dark dwarf",
+      "shortDescr": "the dark dwarf",
       "longDescr": "A duergar is here mining precious stones with his pick.\n\r",
       "description": "The duergar could crush your head as easily as it does those rocks.\n\r",
       "race": "human",
@@ -1858,7 +1858,7 @@
     {
       "vnum": 5014,
       "name": "oldstyle myconoid shaman",
-      "shortDescr": "The myconoid shaman",
+      "shortDescr": "the myconoid shaman",
       "longDescr": "A rather large myconoid stands here chanting in a strange tongue.\n\r",
       "description": "The shaman shoots spores into the air.\n\r",
       "race": "human",
@@ -1914,7 +1914,7 @@
     {
       "vnum": 5015,
       "name": "oldstyle dustdigger",
-      "shortDescr": "The dustdigger",
+      "shortDescr": "the dustdigger",
       "longDescr": "A small oasis invites you to dive in.\n\r",
       "description": "",
       "race": "human",
@@ -1966,7 +1966,7 @@
     {
       "vnum": 5017,
       "name": "oldstyle camel",
-      "shortDescr": "The rabid camel",
+      "shortDescr": "the rabid camel",
       "longDescr": "A very dangerous rabid camel snorts at you.\n\r",
       "description": "Don't mess with this animal.\n\r",
       "race": "human",

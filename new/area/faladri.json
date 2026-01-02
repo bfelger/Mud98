@@ -873,7 +873,7 @@
     {
       "vnum": 12010,
       "name": "sick deer",
-      "shortDescr": "A sick deer",
+      "shortDescr": "a sick deer",
       "longDescr": "A sick deer drags a limp leg along the ground.\n\r",
       "description": "This deer has been poisoned, and is near death.  Its eyes are bloodshot\n\rand crazed.  It eyes you warily.  \n\r",
       "race": "fido",
@@ -929,7 +929,7 @@
     {
       "vnum": 12011,
       "name": "blighted fox",
-      "shortDescr": "A blighted fox",
+      "shortDescr": "a blighted fox",
       "longDescr": "A hairless, blighted fox twitches and stares at you.\n\r",
       "description": "This fox has lost all of its hair, and whatever senses it has.  It\n\rtwitches and scratches nervously.  It is clearly in great discomfort.  \n\r",
       "race": "fido",
@@ -979,7 +979,7 @@
     {
       "vnum": 12012,
       "name": "rabid bobcat",
-      "shortDescr": "A rabid bobcat",
+      "shortDescr": "a rabid bobcat",
       "longDescr": "A rabid bobcat is here, biting and attacking anything it can.\n\r",
       "description": "This bobcat is clearly crazed and in incredible pain.  You need to put it\n\rdown before it puts you down!  \n\r",
       "race": "fido",
@@ -1029,7 +1029,7 @@
     {
       "vnum": 12013,
       "name": "crazed black bear",
-      "shortDescr": "A crazed black bear",
+      "shortDescr": "a crazed black bear",
       "longDescr": "A crazed black bear is howling in anger and pain.\n\r",
       "description": "This black bear is covered in oozing pustules.  It is obviously in pain,\n\rand lashing out.  It needs to be put down.  \n\r",
       "race": "fido",
@@ -1086,7 +1086,7 @@
     {
       "vnum": 12014,
       "name": "wild weasel",
-      "shortDescr": "A wild weasel",
+      "shortDescr": "a wild weasel",
       "longDescr": "A wild weasel runs around, foaming at the mouth.\n\r",
       "description": "This weasel has been infected with something and is flitting all around\n\ryou, leaving a trail of sickly green slobber and mucus.  \n\r",
       "race": "fido",
@@ -1136,7 +1136,7 @@
     {
       "vnum": 12015,
       "name": "mutant coyote",
-      "shortDescr": "A mutant coyote",
+      "shortDescr": "a mutant coyote",
       "longDescr": "A mutant, blood-drenched coyote is here, screaming. \n\r",
       "description": "This horribly mutated coyote's fur is matted with blood.  Given its open\n\rwounds and sores, you imagine a not-insignificant amount of it is its own.  \n\r",
       "race": "fido",
@@ -1193,7 +1193,7 @@
     {
       "vnum": 12016,
       "name": "angry badger",
-      "shortDescr": "An angry badger",
+      "shortDescr": "an angry badger",
       "longDescr": "An angry badger is here, howling in pain.\n\r",
       "description": "This temperamental beast is covered in blisters and sores.  It seems\n\rquite upset.  \n\r",
       "race": "fido",
@@ -1250,7 +1250,7 @@
     {
       "vnum": 12017,
       "name": "feral rabbit",
-      "shortDescr": "A feral rabbit",
+      "shortDescr": "a feral rabbit",
       "longDescr": "A feral rabbit is here, gnawing on what appears to be an elven femur.\n\r",
       "description": "Is that an elven femur in its mouth?  This rabbit is a menace!  You know\n\rwhat to do.  \n\r",
       "race": "fido",
@@ -1300,7 +1300,7 @@
     {
       "vnum": 12018,
       "name": "agonized boar",
-      "shortDescr": "An agonized boar",
+      "shortDescr": "an agonized boar",
       "longDescr": "An agonized boar is here, randomly charging and striking trees.\n\r",
       "description": "This boar is clearly in pain, and taking it out on the entire forest.  It\n\ris randomly charging trees and striking them with its tusks.  You can see\n\rthe body of other creatures strewn about it that it has gored to death.  \n\r",
       "race": "fido",

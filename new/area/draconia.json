@@ -1512,7 +1512,7 @@
     {
       "vnum": 2207,
       "name": "oldstyle bodyguard draconian",
-      "shortDescr": "A bodyguard",
+      "shortDescr": "a bodyguard",
       "longDescr": "A bodyguard is here, staring at you menacingly. \n\r",
       "description": "This creature has devoted its life to defending the king.  Your intrusion has\n\rnot pleased it.\n\r",
       "race": "human",
@@ -1966,7 +1966,7 @@
     {
       "vnum": 2227,
       "name": "oldstyle slave human",
-      "shortDescr": "A human slave",
+      "shortDescr": "a human slave",
       "longDescr": "A Human slave is here, hard at work.          \n\r",
       "description": "He looks like he's under a lot of stress.  He would probably like it if you\n\rleft him alone.\n\r",
       "race": "human",

@@ -2600,7 +2600,7 @@
     {
       "vnum": 7700,
       "name": "oldstyle astral guardian",
-      "shortDescr": "The Astral Guardian",
+      "shortDescr": "the Astral Guardian",
       "longDescr": "A grey figure guards the entrance to the astral plane.\n\r",
       "description": "You see a slate grey vaguely humanoid shape, devoid of any true features.\n\rIt stands before you with arms folded, seemingly uninterested in you.\n\r",
       "race": "human",
@@ -2657,7 +2657,7 @@
     {
       "vnum": 7701,
       "name": "oldstyle nightmare",
-      "shortDescr": "A pitch-black nightmare",
+      "shortDescr": "a pitch-black nightmare",
       "longDescr": "A nightmare is here, kicking at you with its flaming hooves.\n\r",
       "description": "The nightmare is a wholly evil being, sent out by the rulers of the lower \n\rplanes to torment mortals.  It vaguely resembles a horse, with a hide blacker\n\rthan the darkest night, and hooves that burn with unholy fires.\n\r",
       "race": "human",
@@ -2712,7 +2712,7 @@
     {
       "vnum": 7702,
       "name": "oldstyle night hag",
-      "shortDescr": "An evil night hag",
+      "shortDescr": "an evil night hag",
       "longDescr": "A night hag reaches out to steal your soul.\n\r",
       "description": "You see a shadowy creature with long talons and an evil grin, whose sole \n\rpurpose is to hunt down and slay mortals in order to obtain souls for her foul\n\rmaster to torment.\n\r",
       "race": "human",
@@ -2766,7 +2766,7 @@
     {
       "vnum": 7703,
       "name": "oldstyle stalker invisible",
-      "shortDescr": "An invisible stalker",
+      "shortDescr": "an invisible stalker",
       "longDescr": "You see a wavy distortion in the air.\n\r",
       "description": "You see only a wavy distortion in the air.  You reach out to touch it, and\n\rfeel nothing, not even the slightest of motions.\n\r",
       "race": "human",
@@ -2820,7 +2820,7 @@
     {
       "vnum": 7704,
       "name": "oldstyle soulless one",
-      "shortDescr": "A poor soulless being",
+      "shortDescr": "a poor soulless being",
       "longDescr": "The soulless one wanders mindlessly.\n\r",
       "description": "This unfortunate being has had its very soul torn from its body.  It now roams\n\rmindlessly, unaware of its surroundings.\n\r",
       "race": "human",
@@ -2869,7 +2869,7 @@
     {
       "vnum": 7705,
       "name": "oldstyle githyanki hunter",
-      "shortDescr": "A githyanki hunter",
+      "shortDescr": "a githyanki hunter",
       "longDescr": "A githyanki hunter searches for signs of the githzerai.\n\r",
       "description": "You see a leathery-skinned humanoid creature that stands almost as tall as a\n\rnormal man.  Like all githyanki, his teeth are fanged and his eyes hollow\n\rand sunken.\n\r",
       "race": "human",
@@ -2928,7 +2928,7 @@
     {
       "vnum": 7706,
       "name": "oldstyle githyanki warrior",
-      "shortDescr": "A githyanki warrior",
+      "shortDescr": "a githyanki warrior",
       "longDescr": "You see a humanoid figure clad in splinted armor.\n\r",
       "description": "You see a leathery-skinned humanoid creature that stands as tall as a normal\n\rman.  Like all githyanki, his teeth are fanged and his eyes hollow and sunken.\n\rHe is clad in ornately designed splinted armor, and wields a sword that\n\rwhistles through the air as it slices towards your neck.\n\r",
       "race": "human",
@@ -2980,7 +2980,7 @@
     {
       "vnum": 7707,
       "name": "oldstyle githyanki guardian",
-      "shortDescr": "A githyanki guardian",
+      "shortDescr": "a githyanki guardian",
       "longDescr": "A humanoid figure clad in splinted armor blocks your way.\n\r",
       "description": "You see a leathery-skinned humanoid creature that stands as tall as a normal\n\rman.  Like all githyanki, his teeth are fanged and his eyes hollow and sunken.\n\rHe is clad in ornately designed splinted armor, and wields a sword that\n\rwhistles through the air as it slices towards your neck.\n\r",
       "race": "human",
@@ -3034,7 +3034,7 @@
     {
       "vnum": 7708,
       "name": "oldstyle githyanki knight",
-      "shortDescr": "A githyanki knight",
+      "shortDescr": "a githyanki knight",
       "longDescr": "A tall figure armored in black observes you quietly.\n\r",
       "description": "You see a leathery-skinned humanoid creature that stands a full foot taller\n\rthan a normal man.  His features are obscured by a suit of ornately designed\n\rsplinted armor -- you only hear the hissing of his breath and the scraping\n\rof his sword against its scabbard as it is unsheathed.\n\r",
       "race": "human",
@@ -3086,7 +3086,7 @@
     {
       "vnum": 7709,
       "name": "oldstyle githyanki protector",
-      "shortDescr": "A githyanki protector",
+      "shortDescr": "a githyanki protector",
       "longDescr": "A black knight of the githyanki protects his queen.\n\r",
       "description": "You see a leathery-skinned humanoid creature that stands a full foot taller\n\rthan a normal man.  His features are obscured by a suit of ornately designed\n\rsplinted armor -- you only hear the hissing of his breath and the scraping\n\rof his sword against its scabbard as it is unsheathed.\n\r",
       "race": "human",
@@ -3140,7 +3140,7 @@
     {
       "vnum": 7710,
       "name": "oldstyle githyanki gish",
-      "shortDescr": "An evil gish",
+      "shortDescr": "an evil gish",
       "longDescr": "A small githyanki laughs at you through fanged teeth.\n\r",
       "description": "You see a leathery-skinned humanoid creature that stands nearly as tall as a\n\rnormal man.  Like all githyanki, his teeth are fanged and his eyes hollow and\n\rsunken.  The gish are well-versed in the arcane arts, unlike the normal gith\n\rpeople.  You notice this from the blast of lightning headed towards you.\n\r",
       "race": "human",
@@ -3191,7 +3191,7 @@
     {
       "vnum": 7711,
       "name": "oldstyle githyanki gish",
-      "shortDescr": "An evil gish",
+      "shortDescr": "an evil gish",
       "longDescr": "A gish laughs as flame leaps from his hands towards your face.\n\r",
       "description": "You see a leathery-skinned humanoid creature that stands nearly as tall as a\n\rnormal man.  Like all githyanki, his teeth are fanged and his eyes hollow and\n\rsunken.  The gish are well-versed in the arcane arts, unlike the normal gith\n\rpeople.  You notice this from the blast of lightning headed towards you.\n\r",
       "race": "human",
@@ -3244,7 +3244,7 @@
     {
       "vnum": 7712,
       "name": "oldstyle githyanki warlock",
-      "shortDescr": "A warlock of the Gith",
+      "shortDescr": "a warlock of the Gith",
       "longDescr": "A humanoid figure stands here, holding a silvery sword.\n\r",
       "description": "You see a leathery-skinned creature, clad all in black and bearing a silvery-\n\rcolored sword.  Like all githyanki, his teeth are fanged and his eyes hollow\n\rand sunken.  As you turn to flee, you feel the impact of a fireball against\n\ryour back.\n\r",
       "race": "human",
@@ -3298,7 +3298,7 @@
     {
       "vnum": 7713,
       "name": "oldstyle githyanki lich queen",
-      "shortDescr": "The lich-queen",
+      "shortDescr": "the lich-queen",
       "longDescr": "The evil lich-queen of the Gith reaches out to destroy you.\n\r",
       "description": "The lich-queen of the githyanki was once human, but no longer.  Her skin has\n\rcompletely shrunken around her skull, held together solely by the force of\n\runholy magic and the powers of this plane of existence.  The cold glare of her\n\rhollow eyes sends you into paroxysms of fright.\n\r",
       "race": "human",
@@ -3414,7 +3414,7 @@
     {
       "vnum": 7715,
       "name": "oldstyle ghost",
-      "shortDescr": "An insubstantial ghost",
+      "shortDescr": "an insubstantial ghost",
       "longDescr": "A ghost wanders here, intent on destroying all life.\n\r",
       "description": "The ghost makes no sound.  It is a shadowy shell of its former self, cursed\n\rnow to roam forever without rest.  The mind of this creature has been twisted\n\rand destroyed in this torment, and it now envys and intends to destroy all the\n\rtrue living beings it encounters, including you.\n\r",
       "race": "human",
@@ -3468,7 +3468,7 @@
     {
       "vnum": 7716,
       "name": "oldstyle githzerai prisoner",
-      "shortDescr": "An imprisoned githzerai",
+      "shortDescr": "an imprisoned githzerai",
       "longDescr": "A githzerai plots his escape plan.\n\r",
       "description": "You see a conniving humanoid, a descendant of a race of humans once enslaved\n\rby the mindflayers and related to the githyanki.  Unfortunately, the two races\n\rare bitter enemies, and this one happened to get caught.  He intends to escape.\n\r",
       "race": "human",
@@ -3520,7 +3520,7 @@
     {
       "vnum": 7717,
       "name": "oldstyle mindflayer prisoner",
-      "shortDescr": "A tortured mindflayer prisoner",
+      "shortDescr": "a tortured mindflayer prisoner",
       "longDescr": "A mindflayer lies here, scarred from the torture inflicted by the Gith.\n\r",
       "description": "You see a formerly tall humanoid creature, with four tentacles hanging from the\n\rmiddle of its head.  It is hunched over, bent and scarred from torture inflicted\n\rby the githyanki.  It cringes as you approach.\n\r",
       "race": "human",
@@ -3569,7 +3569,7 @@
     {
       "vnum": 7718,
       "name": "oldstyle dragon red slave",
-      "shortDescr": "The enslaved red dragon",
+      "shortDescr": "the enslaved red dragon",
       "longDescr": "A giant red dragon is chained here, his breath heating the furnace.\n\r",
       "description": "The mighty scaled beast has been magically bound and subdued by the residents\n\rof the keep.  Nevertheless, he is still an impressive sight, some twenty feet\n\rin length with an even more massive wingspan.  He watches you, smoke drifting\n\rfrom his open mouth.\n\r",
       "race": "dragon",
@@ -3632,7 +3632,7 @@
     {
       "vnum": 7719,
       "name": "oldstyle fire furnace flame",
-      "shortDescr": "A massive blast of fire",
+      "shortDescr": "a massive blast of fire",
       "longDescr": "The fires of the furnace burn away at your skin!\n\r",
       "description": "The fire feeds on your skin like a living being, licking out at your hair.\n\r",
       "race": "human",
