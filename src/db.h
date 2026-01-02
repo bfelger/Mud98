@@ -71,7 +71,7 @@ void free_mem(void* pMem, size_t sMem);
 char* boot_intern_string(const char* str);
 char* str_dup(const char* str);
 char* str_append(char* str1, const char* str2);
-void free_string(char* pstr);
+void free_string(const char* pstr);
 void print_memory();
 int interpolate(int level, int value_00, int value_32);
 void smash_tilde(char* str);

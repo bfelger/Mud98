@@ -1801,7 +1801,7 @@
     {
       "vnum": 3402,
       "name": "oldstyle undead ghoul",
-      "shortDescr": "The ghoul",
+      "shortDescr": "the ghoul",
       "longDescr": "A ghoul is here staring at you hungrily.\n\r",
       "description": "The ghoul no longer resembles the adventurer he once was.  Nonetheless\n\rhe looks like he hasn't forgot his fighting skills.\n\r",
       "race": "human",
@@ -1854,7 +1854,7 @@
     {
       "vnum": 3403,
       "name": "oldstyle undead wraith",
-      "shortDescr": "The wraith",
+      "shortDescr": "the wraith",
       "longDescr": "You spot a wraith advancing towards you from the shadows.\n\r",
       "description": "The wraith no longer has a material form.  He is wearing a tattered\n\rblack robe which hides all but the darkness of his face and the glimmer\n\rin his eyes.\n\r",
       "race": "human",
@@ -1910,7 +1910,7 @@
     {
       "vnum": 3404,
       "name": "oldstyle undead guardian vampire",
-      "shortDescr": "The guardian vampire",
+      "shortDescr": "the guardian vampire",
       "longDescr": "A vampire is here hiding his face from your light source.\n\r",
       "description": "The guardian vampire looks quite EVIL.  Just by looking at him the hair on your\n\rarms raises. He looks mighty tough to be just a minor minion.\n\r",
       "race": "human",
@@ -2072,7 +2072,7 @@
     {
       "vnum": 3407,
       "name": "oldstyle nightgaunt",
-      "shortDescr": "The nightgaunt",
+      "shortDescr": "the nightgaunt",
       "longDescr": "A nightgaunt is standing here\n\r",
       "description": "... shocking and uncouth black thing with smooth, oily, skin, unpleasant horns\n\rthat curve inward toward each other, bat wings whose beating make no sound,\n\rugly prehensile paws, and a barbed tail that lashes disquietingly.  And worst\n\rof all, it makes absolutely no sound or speech and smiles not at all because\n\rit has no face, only a suggestive blackness where a face ought to be ...\n\r",
       "race": "human",
@@ -2127,7 +2127,7 @@
     {
       "vnum": 3408,
       "name": "oldstyle hunting horror",
-      "shortDescr": "The hunting horror",
+      "shortDescr": "the hunting horror",
       "longDescr": "The hunting horror is here in wait of an unwary traveler.\n\r",
       "description": "Serving Nyarlathotep and Roch'tar, these beings are hunting for victims.\n\rThey resemble enormous ropy black serpents or worms possessing bat-like or\n\rumbrella-like wings.  Their forms continually shift and change, twitching\n\rand writhing, so it is hard to look at them.  They speak in great harsh\n\rvoices.  A hunting horror is HUGE, normally around 40 feet long.\n\r",
       "race": "human",
@@ -2290,7 +2290,7 @@
     {
       "vnum": 3411,
       "name": "oldstyle X-ist eater",
-      "shortDescr": "The X-ist flesh eater",
+      "shortDescr": "the X-ist flesh eater",
       "longDescr": "An X-ist flesh eater is sitting here munching on some coffin remains\n\r",
       "description": "A large hairy monstrous beast, the only LIVE thing you have seen down here.\n\rIt stands approximately 8 feet tall and hunches over to fit in this\n\rsmall room.  It has a pair of tremendous claws that it uses to rip and tear.\n\rIt has dog-like face except ... different.  Bright glowing eyes and a grimace\n\rlead you to believe that he knew that you were coming.\n\r",
       "race": "human",
@@ -2446,7 +2446,7 @@
     {
       "vnum": 3414,
       "name": "oldstyle etcher",
-      "shortDescr": "The mad etcher",
+      "shortDescr": "the mad etcher",
       "longDescr": "The mad etcher is sitting here babbling to himself and working on the wall.\n\r",
       "description": "Quite insane, the mad etcher has been here for two decades.  His hair is\n\rwhite; he babbles nonsense to himself; a layer of dust covers his out-of-date\n\rclothing; and he seems to be working on the same portion of the wall near\n\rthe base ... oh and he seems quite blind.\n\r\n\rHe leers insanely at you and says 'heh heh what can I do for you children?\n\rPlease don't mind my wife, she is always like that ... hello dear can you\n\rmake some tea for our company?  Oh good!  Now sit right down will you?\n\rWould you like hot or cold tea?  Yes the weather is ...'\n\r\n\rAnd on he babbles ...\n\r",
       "race": "human",
@@ -2497,7 +2497,7 @@
     {
       "vnum": 3415,
       "name": "oldstyle wife ghost specter",
-      "shortDescr": "The spectral etcher's wife",
+      "shortDescr": "the spectral etcher's wife",
       "longDescr": "The spectral wife of the etcher is very faintly floating here.\n\r",
       "description": "You can barely make her out ... though it almost makes you vomit.\n\rShe is missing half her head.  The remaining half is smashed in horribly like\n\rshe took a nasty fall.  Her one damaged eye hangs on its own.  She smiles\n\rinsanely at you thru a broken jaw and missing teeth.  One hand of hers is\n\rresting on the shoulder of the etcher ... her husband.\n\r",
       "race": "human",
@@ -2550,7 +2550,7 @@
     {
       "vnum": 3416,
       "name": "oldstyle body",
-      "shortDescr": "The half-decomposed body",
+      "shortDescr": "the half-decomposed body",
       "longDescr": "A half-decomposed body is lying in the corner here.\n\r",
       "description": "YUK! It's ugly, disgusting ... it smells ... it also moves a bit!\n\r",
       "race": "human",

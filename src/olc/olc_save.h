@@ -36,6 +36,7 @@ void save_helps(FILE* fp, HelpArea* ha);
 void save_story_beats(FILE* fp, AreaData* area);
 void save_checklist(FILE* fp, AreaData* area);
 void save_area_daycycle(FILE* fp, AreaData* area);
+void save_area_loot(FILE* fp, AreaData* area);
 
 // Helpers shared by persistence bridge.
 char* fix_string(const char* str);

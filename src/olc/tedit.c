@@ -125,8 +125,7 @@ void do_tedit(Mobile* ch, char* argument)
         return;
     }
 
-    ch->desc->pEdit = U(tut);
-    ch->desc->editor = ED_TUTORIAL;
+    set_editor(ch->desc, ED_TUTORIAL, U(tut));
 
     tedit_show(ch, "");
 }
@@ -301,7 +300,7 @@ static void detach_editors_from_tutorial(const Tutorial* tut)
 
     Descriptor* d;
     FOR_EACH(d, descriptor_list) {
-        if (d->editor == ED_TUTORIAL && d->pEdit == (uintptr_t)tut && d->character)
+        if (get_editor(d) == ED_TUTORIAL && get_pEdit(d) == (uintptr_t)tut && d->character)
             edit_done(d->character);
     }
 }
@@ -423,8 +422,7 @@ TEDIT(tedit_new)
     tutorials[tutorial_count] = tut;
     tutorial_count++;
 
-    ch->desc->editor = ED_TUTORIAL;
-    ch->desc->pEdit = U(tut);
+    set_editor(ch->desc, ED_TUTORIAL, U(tut));
 
     send_to_char(COLOR_INFO "Tutorial created." COLOR_EOL, ch);
     tedit_show(ch, "");

@@ -534,7 +534,7 @@ void InitScreen(Descriptor* d)
 
     send_to_char(VT_HOMECLR, ch);
 
-    if (d->editor != ED_NONE && IS_SET(ch->comm_flags, COMM_OLCX)) {
+    if (get_editor(d) != ED_NONE && IS_SET(ch->comm_flags, COMM_OLCX)) {
         InitScreenMap(d);
         sprintf(buf, VT_MARGSET, size - 4, size);
         send_to_char(buf, ch);
@@ -575,7 +575,7 @@ void UpdateOLCScreen(Descriptor* d)
     if (d->screenmap == NULL || d->oldscreenmap == NULL)
         InitScreenMap(d);
 
-    switch (d->editor) {
+    switch (get_editor(d)) {
     default:	return;
     case ED_ROOM:	
         table = redit_olc_show_table;
@@ -598,7 +598,7 @@ void UpdateOLCScreen(Descriptor* d)
     d->screenmap = tmpstr;
 
     for (i = 0; table[i].name != NULL; i++) {
-        point = (void*)(table[i].point - blah + d->pEdit);
+        point = (void*)(table[i].point - blah + get_pEdit(d));
 
         if (table[i].page != d->page)
             continue;

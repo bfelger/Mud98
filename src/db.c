@@ -59,6 +59,7 @@
 #include <persist/area/rom-olc/area_persist_rom_olc.h>
 #endif
 
+#include <olc/bit.h>
 #include <olc/olc.h>
 
 #include <entities/area.h>
@@ -113,6 +114,7 @@
 void load_lox_public_scripts();
 void run_post_lox_public_scripts();
 MobProgCode* pedit_prog(VNUM);
+void load_global_loot_db();
 
 // Globals.
 
@@ -243,11 +245,12 @@ void boot_db()
     init_const_natives();
     load_lox_public_scripts();
 
-    load_skill_table();
     load_class_table();
+    load_skill_table();
     load_race_table();
     load_command_table();
     load_tutorials();
+    load_global_loot_db();
 
     // We need the commands before we can add them to Lox.
     init_native_cmds();
@@ -1675,13 +1678,13 @@ char* str_append(char* str1, const char* str2)
  * Null is legal here to simplify callers.
  * Read-only shared strings are not touched.
  */
-void free_string(char* pstr)
+void free_string(const char* pstr)
 {
     if (pstr == NULL || pstr == &str_empty[0]
         || (pstr >= string_space && pstr < top_string))
         return;
 
-    free_mem(pstr, strlen(pstr) + 1);
+    free_mem((void*)pstr, strlen(pstr) + 1);
     return;
 }
 
@@ -1763,6 +1766,36 @@ void do_memory(Mobile* ch, char* argument)
     free_buf(buf);
 }
 
+static bool dump_obj_csv(Mobile* ch) {
+    // Iterate through all ObjPrototypes and print select fields in CSV format.
+    FILE* fp = open_write_obj_dump_file();
+    if (fp == NULL) {
+        send_to_char("Could not open object dump file.\n\r", ch);
+        return false;
+    }
+
+    fprintf(fp, "VNUM,ShortDescr,Type,Level,Cost,Weight,V0,V1,V2,V3,V4\n");
+    ObjPrototype* obj_proto;
+    FOR_EACH_OBJ_PROTO(obj_proto) {
+        fprintf(fp, "%d,\"%s\",%s,%d,%d,%d,%d,%d,%d,%d,%d\n",
+            VNUM_FIELD(obj_proto),
+            obj_proto->short_descr,
+            flag_string(type_flag_table, obj_proto->item_type),
+            obj_proto->level,
+            obj_proto->cost,
+            obj_proto->weight,
+            obj_proto->value[0],
+            obj_proto->value[1],
+            obj_proto->value[2],
+            obj_proto->value[3],
+            obj_proto->value[4]
+        );
+    }
+    
+    close_file(fp);
+    return true;
+}
+
 void do_dump(Mobile* ch, char* argument)
 {
     int count, count2, num_pcs, aff_count;
@@ -1777,6 +1810,17 @@ void do_dump(Mobile* ch, char* argument)
     Affect* af;
     FILE* fp;
     int nMatch = 0;
+    char arg[MAX_INPUT_LENGTH];
+
+    READ_ARG(arg);
+    if (!str_prefix(arg, "objcsv")) {
+        if (dump_obj_csv(ch)) {
+            send_to_char("Object CSV dump completed.\n\r", ch);
+        } else {
+            send_to_char("Object CSV dump failed.\n\r", ch);
+        }
+        return;
+    }
 
     OPEN_OR_RETURN(fp = open_write_mem_dump_file());
 

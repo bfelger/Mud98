@@ -52,6 +52,10 @@ add_library(Mud98PersistJson OBJECT
     
     # Player persistence
     ../player/json/player_persist_json.c
+    
+    # Loot persistence
+    ../loot/json/loot_persist_json.h
+    ../loot/json/loot_persist_json.c
 )
 
 target_include_directories(Mud98PersistJson

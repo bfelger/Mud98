@@ -46,7 +46,7 @@ void lox_script_append(Mobile* ch, ObjString* script)
     }
     send_to_char(prettify_lox_script(script->chars), ch);
 
-    ch->desc->pLoxScript = script;
+    push_editor(ch->desc, ED_LOX_SCRIPT, (uintptr_t)script);
 
     return;
 }
@@ -55,24 +55,24 @@ static bool lox_script_entry_compile(Mobile* ch, bool assign);
 
 static bool lox_script_compile(Mobile* ch, bool assign)
 {
-    if (ch->desc->editor == ED_SCRIPT)
+    if (get_editor(ch->desc) == ED_SCRIPT)
         return lox_script_entry_compile(ch, assign);
 
     Entity* entity = NULL;
     char* entity_type_name = NULL;
 
-    if (ch->desc->pEdit) {
-        switch (ch->desc->editor) {
+    if (get_pEdit(ch->desc)) {
+        switch (get_editor(ch->desc)) {
         case ED_ROOM:
-            entity = (Entity*)ch->desc->pEdit;
+            entity = (Entity*)get_pEdit(ch->desc);
             entity_type_name = "room";
             break;
         case ED_MOBILE:
-            entity = (Entity*)ch->desc->pEdit;
+            entity = (Entity*)get_pEdit(ch->desc);
             entity_type_name = "mob";
             break;
         case ED_OBJECT:
-            entity = (Entity*)ch->desc->pEdit;
+            entity = (Entity*)get_pEdit(ch->desc);
             entity_type_name = "obj";
             break;
         default:
@@ -82,16 +82,17 @@ static bool lox_script_compile(Mobile* ch, bool assign)
 
     if (entity == NULL) {
         bug("Attempt to save Lox script to non-Entity.");
-        ch->desc->pLoxScript = NULL;
+        pop_editor(ch->desc);
         return false;
     }
 
+    ObjString* pLoxScript = get_lox_pEdit(ch->desc);
     char class_name[MAX_INPUT_LENGTH];
 
     sprintf(class_name, "%s_%" PRVNUM, entity_type_name, entity->vnum);
 
     compile_context.me = ch;
-    ObjClass* klass = create_entity_class(entity, class_name, ch->desc->pLoxScript->chars);
+    ObjClass* klass = create_entity_class(entity, class_name, pLoxScript->chars);
     compile_context.me = NULL;
     if (!klass) {
         bugf("lox_script_add: failed to create class for %s %" PRVNUM, 
@@ -103,8 +104,8 @@ static bool lox_script_compile(Mobile* ch, bool assign)
     }
     else if (assign) {
         entity->klass = klass;
-        entity->script = ch->desc->pLoxScript;
-        ch->desc->pLoxScript = NULL;
+        entity->script = pLoxScript;
+        pop_editor(ch->desc);
         printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_GREEN "***" COLOR_DECOR_1 "]"
             COLOR_INFO "Class \"%s\" for %s %d compiled successfully and "
             "assigned.\n\r"
@@ -131,12 +132,14 @@ static bool lox_script_entry_compile(Mobile* ch, bool assign)
 
     if (!entry) {
         bug("lox_script_entry_compile: missing entry context.");
-        ch->desc->pLoxScript = NULL;
+        pop_editor(ch->desc);
         return false;
     }
 
+    ObjString* pLoxScript = get_lox_pEdit(ch->desc);
+
     if (!assign) {
-        InterpretResult result = interpret_code(ch->desc->pLoxScript->chars);
+        InterpretResult result = interpret_code(pLoxScript->chars);
         if (result == INTERPRET_OK) {
             printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_GREEN "***" COLOR_DECOR_1 "]"
                 COLOR_INFO "Script compiled successfully.\n\r" COLOR_CLEAR);
@@ -148,13 +151,13 @@ static bool lox_script_entry_compile(Mobile* ch, bool assign)
         return false;
     }
 
-    if (!lox_script_entry_update_source(entry, ch->desc->pLoxScript->chars)) {
+    if (!lox_script_entry_update_source(entry, pLoxScript->chars)) {
         printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_RED "!!!" COLOR_DECOR_1 "]"
             COLOR_INFO "Failed to update script contents.\n\r" COLOR_CLEAR);
         return false;
     }
 
-    ch->desc->pLoxScript = NULL;
+    pop_editor(ch->desc);
     entry->executed = false;
     printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_GREEN "***" COLOR_DECOR_1 "]"
         COLOR_INFO "Script saved. Use the EXECUTE command in SCREDIT to run it.\n\r"
@@ -165,6 +168,13 @@ static bool lox_script_entry_compile(Mobile* ch, bool assign)
 void lox_script_add(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
+    ObjString* pLoxScript = get_lox_pEdit(ch->desc);
+
+    if (pLoxScript == NULL) {
+        bug("lox_script_add: NULL pLoxScript");
+        pop_editor(ch->desc);
+        return;
+    }
 
     if (*argument == '.') {
         char arg1[MAX_INPUT_LENGTH];
@@ -173,12 +183,12 @@ void lox_script_add(Mobile* ch, char* argument)
 
         if (!str_cmp(arg1, ".clear")) {
             printf_to_char(ch, "Script cleared.\n\r");
-            ch->desc->pLoxScript = lox_string("");
+            set_lox_pEdit(ch->desc, lox_string(""));
             return;
         }
         else if (!str_cmp(arg1, ".s")) {
             printf_to_char(ch, "Script so far:\n\r");
-            send_to_char(prettify_lox_script(ch->desc->pLoxScript->chars), ch);
+            send_to_char(prettify_lox_script(pLoxScript->chars), ch);
             return;
         }
         else if (!str_cmp(arg1, ".r")) {
@@ -192,8 +202,8 @@ void lox_script_add(Mobile* ch, char* argument)
                 return;
             }
 
-            char* script = string_replace(ch->desc->pLoxScript->chars, arg2, arg3);
-            ch->desc->pLoxScript = lox_string(script);
+            char* script = string_replace(pLoxScript->chars, arg2, arg3);
+            set_lox_pEdit(ch->desc, lox_string(script));
             free_string(script);
             sprintf(buf, "'%s' replaced with '%s'.\n\r", arg2, arg3);
             write_to_buffer(ch->desc, buf, 0);
@@ -201,16 +211,14 @@ void lox_script_add(Mobile* ch, char* argument)
         }
         else if (!str_cmp(arg1, ".f")) {
             //TODO: This is coming. But not quite yet.
-            //*ch->desc->pLoxScript = format_string(*ch->desc->pLoxScript);
-            //write_to_buffer(ch->desc, "Script formatted.\n\r", 0);
             printf_to_char(ch, "Lox script formatting not yet supported.\n\r");
             return;
         }
         else if (!str_cmp(arg1, ".ld")) {
             char arg2[MAX_INPUT_LENGTH];
             argument = first_arg(argument, arg2, false);
-            char* str = linedel(ch->desc->pLoxScript->chars, atoi(arg2));
-            ch->desc->pLoxScript = lox_string(str);
+            char* str = linedel(pLoxScript->chars, atoi(arg2));
+            set_lox_pEdit(ch->desc, lox_string(str));
             free_string(str);
             printf_to_char(ch, "Line deleted.\n\r");
             return;
@@ -224,14 +232,14 @@ void lox_script_add(Mobile* ch, char* argument)
             while (ISSPACE(*(argument-1)))
                 argument--;
 
-            if (ch->desc->pLoxScript->length + strlen(argument) >=
+            if (pLoxScript->length + strlen(argument) >=
                 (MAX_STRING_LENGTH - 4)) {
                 printf_to_char(ch, "That would make the full text too long; delete a line first.\n\r");
                 return;
             }
 
-            char* str = lineadd(ch->desc->pLoxScript->chars, argument, line_num);
-            ch->desc->pLoxScript = lox_string(str);
+            char* str = lineadd(pLoxScript->chars, argument, line_num);
+            set_lox_pEdit(ch->desc, lox_string(str));
             free_string(str);
             printf_to_char(ch, "Line inserted.\n\r");
             return;
@@ -243,10 +251,10 @@ void lox_script_add(Mobile* ch, char* argument)
 
             argument = first_arg(argument, arg2, false);
             strcpy(tmparg3, argument);
-            char* str = str_dup(ch->desc->pLoxScript->chars);
+            char* str = str_dup(pLoxScript->chars);
             str = linedel(str, atoi(arg2));
             str = lineadd(str, tmparg3, atoi(arg2));
-            ch->desc->pLoxScript = lox_string(str);
+            set_lox_pEdit(ch->desc, lox_string(str));
             printf_to_char(ch, "Line replaced.\n\r");
             return;
         }
@@ -255,7 +263,7 @@ void lox_script_add(Mobile* ch, char* argument)
             return;
         }
         else if (!str_cmp(arg1, ".x")) {
-            ch->desc->pLoxScript = NULL;
+            pop_editor(ch->desc);
             send_to_char(COLOR_INFO "Script changes discarded." COLOR_EOL, ch);
             return;
         }
@@ -292,20 +300,22 @@ void lox_script_add(Mobile* ch, char* argument)
         return;
     }
 
-    strcpy(buf, ch->desc->pLoxScript->chars);
+    // Get fresh pointer in case it changed
+    pLoxScript = get_lox_pEdit(ch->desc);
+    strcpy(buf, pLoxScript->chars);
 
     // Truncate strings to MAX_STRING_LENGTH.
     if (strlen(buf) + strlen(argument) >= (MAX_STRING_LENGTH - 4)) {
         printf_to_char(ch, "String too long, last line skipped.\n\r");
 
         /* Force character out of editing mode. */
-        ch->desc->pLoxScript = NULL;
+        pop_editor(ch->desc);
         return;
     }
 
     strcat(buf, argument);
     strcat(buf, "\n");
-    ch->desc->pLoxScript = lox_string(buf);
+    set_lox_pEdit(ch->desc, lox_string(buf));
 
     return;
 }

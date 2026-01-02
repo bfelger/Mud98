@@ -7,6 +7,7 @@
 #include "bit.h"
 #include "event_edit.h"
 #include "lox_edit.h"
+#include "loot_edit.h"
 #include "olc.h"
 
 #include <comm.h>
@@ -20,6 +21,8 @@
 
 #include <entities/event.h>
 #include <entities/object.h>
+
+#include <data/loot.h>
 
 #define OEDIT(fun) bool fun( Mobile *ch, char *argument )
 
@@ -54,6 +57,7 @@ const OlcCmdEntry obj_olc_comm_table[] = {
     { "create",	    0,				        ed_new_obj,		    0		        },
     { "event",      0,                      ed_olded,           U(olc_edit_event)   },
     { "lox",        0,                      ed_olded,           U(olc_edit_lox)     },
+    { "loot_edit",  0,                      ed_olded,           U(olc_edit_loot)    },
     { "mshow",	    0,				        ed_olded,		    U(medit_show)   },
     { "oshow",	    0,				        ed_olded,		    U(oedit_show)   },
     { "olist",	    U(&xObj.area),		    ed_olist,		    0		        },
@@ -116,7 +120,7 @@ void do_oedit(Mobile* ch, char* argument)
 
             if (oedit_create(ch, argument)) {
                 SET_BIT(area->area_flags, AREA_CHANGED);
-                ch->desc->editor = ED_OBJECT;
+                set_pEdit(ch->desc, get_pEdit(ch->desc));
                 oedit_show(ch, "");
             }
             return;
@@ -659,7 +663,7 @@ OEDIT(oedit_show)
     READ_ARG(buf);
 
     if (IS_NULLSTR(buf)) {
-        if (ch->desc->editor == ED_OBJECT)
+        if (get_editor(ch->desc) == ED_OBJECT)
             EDIT_OBJ(ch, pObj);
         else {
             send_to_char(COLOR_INFO "Syntax : " COLOR_ALT_TEXT_1 "OSHOW [VNUM]" COLOR_EOL, ch);
@@ -1138,7 +1142,18 @@ ED_FUN_DEC(ed_olist)
         return false;
     }
 
-    area = *(AreaData**)arg;
+    if (arg == 0) {
+        // Check if we are in AREA_EDIT mode
+        if (get_editor(ch->desc) == ED_AREA) {
+            area = (AreaData*)get_pEdit(ch->desc);
+        }
+        else {
+            send_to_char(COLOR_INFO "OList:  You must be in an area to list its objects." COLOR_EOL, ch);
+            return false;
+        }
+    }
+    else
+        area = *(AreaData**)arg;
     buf1 = new_buf();
     fAll = !str_cmp(blarg, "all");
     found = false;

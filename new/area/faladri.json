@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "Faladrin Forest",
     "builders": "Halivar",
     "vnumRange": [
@@ -15,7 +15,8 @@
     "highLevel": 5,
     "reset": 1,
     "alwaysReset": false,
-    "instType": "multi"
+    "instType": "multi",
+    "lootTable": "faladrin_t0"
   },
   "storyBeats": [
     {
@@ -872,7 +873,7 @@
     {
       "vnum": 12010,
       "name": "sick deer",
-      "shortDescr": "A sick deer",
+      "shortDescr": "a sick deer",
       "longDescr": "A sick deer drags a limp leg along the ground.\n\r",
       "description": "This deer has been poisoned, and is near death.  Its eyes are bloodshot\n\rand crazed.  It eyes you warily.  \n\r",
       "race": "fido",
@@ -928,7 +929,7 @@
     {
       "vnum": 12011,
       "name": "blighted fox",
-      "shortDescr": "A blighted fox",
+      "shortDescr": "a blighted fox",
       "longDescr": "A hairless, blighted fox twitches and stares at you.\n\r",
       "description": "This fox has lost all of its hair, and whatever senses it has.  It\n\rtwitches and scratches nervously.  It is clearly in great discomfort.  \n\r",
       "race": "fido",
@@ -978,7 +979,7 @@
     {
       "vnum": 12012,
       "name": "rabid bobcat",
-      "shortDescr": "A rabid bobcat",
+      "shortDescr": "a rabid bobcat",
       "longDescr": "A rabid bobcat is here, biting and attacking anything it can.\n\r",
       "description": "This bobcat is clearly crazed and in incredible pain.  You need to put it\n\rdown before it puts you down!  \n\r",
       "race": "fido",
@@ -1028,7 +1029,7 @@
     {
       "vnum": 12013,
       "name": "crazed black bear",
-      "shortDescr": "A crazed black bear",
+      "shortDescr": "a crazed black bear",
       "longDescr": "A crazed black bear is howling in anger and pain.\n\r",
       "description": "This black bear is covered in oozing pustules.  It is obviously in pain,\n\rand lashing out.  It needs to be put down.  \n\r",
       "race": "fido",
@@ -1085,7 +1086,7 @@
     {
       "vnum": 12014,
       "name": "wild weasel",
-      "shortDescr": "A wild weasel",
+      "shortDescr": "a wild weasel",
       "longDescr": "A wild weasel runs around, foaming at the mouth.\n\r",
       "description": "This weasel has been infected with something and is flitting all around\n\ryou, leaving a trail of sickly green slobber and mucus.  \n\r",
       "race": "fido",
@@ -1135,7 +1136,7 @@
     {
       "vnum": 12015,
       "name": "mutant coyote",
-      "shortDescr": "A mutant coyote",
+      "shortDescr": "a mutant coyote",
       "longDescr": "A mutant, blood-drenched coyote is here, screaming. \n\r",
       "description": "This horribly mutated coyote's fur is matted with blood.  Given its open\n\rwounds and sores, you imagine a not-insignificant amount of it is its own.  \n\r",
       "race": "fido",
@@ -1192,7 +1193,7 @@
     {
       "vnum": 12016,
       "name": "angry badger",
-      "shortDescr": "An angry badger",
+      "shortDescr": "an angry badger",
       "longDescr": "An angry badger is here, howling in pain.\n\r",
       "description": "This temperamental beast is covered in blisters and sores.  It seems\n\rquite upset.  \n\r",
       "race": "fido",
@@ -1249,7 +1250,7 @@
     {
       "vnum": 12017,
       "name": "feral rabbit",
-      "shortDescr": "A feral rabbit",
+      "shortDescr": "a feral rabbit",
       "longDescr": "A feral rabbit is here, gnawing on what appears to be an elven femur.\n\r",
       "description": "Is that an elven femur in its mouth?  This rabbit is a menace!  You know\n\rwhat to do.  \n\r",
       "race": "fido",
@@ -1299,7 +1300,7 @@
     {
       "vnum": 12018,
       "name": "agonized boar",
-      "shortDescr": "An agonized boar",
+      "shortDescr": "an agonized boar",
       "longDescr": "An agonized boar is here, randomly charging and striking trees.\n\r",
       "description": "This boar is clearly in pain, and taking it out on the entire forest.  It\n\ris randomly charging trees and striking them with its tusks.  You can see\n\rthe body of other creatures strewn about it that it has gored to death.  \n\r",
       "race": "fido",
@@ -1914,12 +1915,12 @@
       "loxScript": "on_given(giver, taker) {\n\r    if (!taker.is_mob())\n\r        return;\n\r\n\r    if (taker.vnum == 12026) {\n\r        taker.say(giver, \"I will see your words carried to Valewyn.\");\n\r        taker.echo(giver, \"$n folds the writ with care and seals it under a palm of light.\");\n\r        if (giver.has_quest(12050)) {\n\r            giver.finish_quest(12050);\n\r            giver.send(\"^jCalendor gestures east toward the unfinished bridge.^x\");\n\r        }\n\r        return;\n\r    }\n\r\n\r    giver.send(\"^rThe writ crackles and slips from ${taker.name}'s grasp, unwilling to trust another.^x\");\n\r}\n\r\n\ron_dropped(dropper) {\n\r    if (!is_mob(dropper))\n\r        return;\n\r    dropper.send(\"^rThe writ flutters, then drifts back toward your pack as if tugged by unseen roots.^x\");\n\r}\n\r",
       "events": [
         {
-          "trigger": "given",
-          "callback": "on_given"
-        },
-        {
           "trigger": "dropped",
           "callback": "on_dropped"
+        },
+        {
+          "trigger": "given",
+          "callback": "on_given"
         }
       ]
     },
@@ -2343,5 +2344,84 @@
         0
       ]
     }
-  ]
+  ],
+  "loot": {
+    "groups": [
+      {
+        "name": "elf_gear_t0",
+        "rolls": 1,
+        "entries": [
+          {
+            "type": "item",
+            "vnum": 12000,
+            "minQty": 1,
+            "maxQty": 1,
+            "weight": 20
+          },
+          {
+            "type": "item",
+            "vnum": 12001,
+            "minQty": 1,
+            "maxQty": 1,
+            "weight": 20
+          },
+          {
+            "type": "item",
+            "vnum": 12002,
+            "minQty": 1,
+            "maxQty": 1,
+            "weight": 20
+          },
+          {
+            "type": "item",
+            "vnum": 12003,
+            "minQty": 1,
+            "maxQty": 1,
+            "weight": 20
+          },
+          {
+            "type": "item",
+            "vnum": 12004,
+            "minQty": 1,
+            "maxQty": 1,
+            "weight": 20
+          },
+          {
+            "type": "item",
+            "vnum": 12005,
+            "minQty": 1,
+            "maxQty": 1,
+            "weight": 20
+          },
+          {
+            "type": "item",
+            "vnum": 12006,
+            "minQty": 1,
+            "maxQty": 1,
+            "weight": 20
+          },
+          {
+            "type": "item",
+            "vnum": 12007,
+            "minQty": 1,
+            "maxQty": 1,
+            "weight": 20
+          }
+        ]
+      }
+    ],
+    "tables": [
+      {
+        "name": "faladrin_t0",
+        "parent": "global_t0",
+        "ops": [
+          {
+            "op": "use_group",
+            "group": "elf_gear_t0",
+            "chance": 20
+          }
+        ]
+      }
+    ]
+  }
 }

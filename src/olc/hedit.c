@@ -180,8 +180,7 @@ HEDIT(hedit_new)
     had->last = help;
     help->next_area = NULL;
 
-    ch->desc->pEdit = (uintptr_t)help;
-    ch->desc->editor = ED_HELP;
+    set_editor(ch->desc, ED_HELP, (uintptr_t)help);
 
     send_to_char("Ok.\n\r", ch);
     return false;
@@ -265,8 +264,7 @@ void do_hedit(Mobile* ch, char* argument)
         return;
     }
 
-    ch->desc->pEdit = (uintptr_t)pHelp;
-    ch->desc->editor = ED_HELP;
+    set_editor(ch->desc, ED_HELP, (uintptr_t)pHelp);
 
     return;
 }
@@ -281,7 +279,7 @@ HEDIT(hedit_delete)
     EDIT_HELP(ch, pHelp);
 
     FOR_EACH(d, descriptor_list)
-        if (d->editor == ED_HELP && pHelp == (HelpData*)d->pEdit)
+        if (get_editor(d) == ED_HELP && pHelp == (HelpData*)get_pEdit(d))
             edit_done(d->character);
 
     if (help_first == pHelp)

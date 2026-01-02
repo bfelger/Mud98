@@ -238,6 +238,7 @@ void load_area(FILE* fp)
             break;
         case 'L':
             KEY("Low", area_data->low_range, (LEVEL)fread_number(fp));
+            SKEY("LootTable", area_data->loot_table);
             break;
         case 'N':
             KEYLS("Name", area_data, name, fread_lox_string(fp));

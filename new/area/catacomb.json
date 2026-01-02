@@ -2190,7 +2190,7 @@
     {
       "vnum": 2013,
       "name": "oldstyle bat vampire",
-      "shortDescr": "The vampire",
+      "shortDescr": "the vampire",
       "longDescr": "A bat flaps wildly at you!\n\r",
       "description": "A rather LARGE \"bat\" ...\n\r",
       "race": "bat",
@@ -2411,7 +2411,7 @@
     {
       "vnum": 2017,
       "name": "oldstyle darken dark beast darkenbeast",
-      "shortDescr": "The DarkenBeast",
+      "shortDescr": "the DarkenBeast",
       "longDescr": "You hear and smell the presence of the darkenbeast.\n\r",
       "description": "You see nothing more than the sense of darkness and evil.\n\r",
       "race": "human",

@@ -309,8 +309,7 @@ void do_skedit(Mobile* ch, char* argument)
 
     pSkill = &skill_table[skill];
 
-    ch->desc->pEdit = U(pSkill);
-    ch->desc->editor = ED_SKILL;
+    set_editor(ch->desc, ED_SKILL, U(pSkill));
 
     skedit_show(ch, "");
 
@@ -734,7 +733,7 @@ SKEDIT(skedit_new)
         if (d->connected != CON_PLAYING || (tch = CH(d)) == NULL || tch->desc == NULL)
             continue;
 
-        if (tch->desc->editor == ED_SKILL)
+        if (get_editor(tch->desc) == ED_SKILL)
             edit_done(tch);
     }
 
@@ -801,8 +800,7 @@ SKEDIT(skedit_new)
 
     delete_skills_hash_table();
     create_skills_hash_table();
-    ch->desc->editor = ED_SKILL;
-    ch->desc->pEdit = U(&skill_table[skill_count - 1]);
+    set_editor(ch->desc, ED_SKILL, U(&skill_table[skill_count - 1]));
 
     send_to_char(COLOR_INFO "Skill created." COLOR_CLEAR, ch);
     return true;

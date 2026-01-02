@@ -231,8 +231,7 @@ void do_cmdedit(Mobile* ch, char* argument)
 
     pCmd = &cmd_table[iCmd];
 
-    ch->desc->pEdit = (uintptr_t)pCmd;
-    ch->desc->editor = ED_CMD;
+    set_editor(ch->desc, ED_CMD, (uintptr_t)pCmd);
 
     cmdedit_show(ch, "");
 
@@ -502,7 +501,7 @@ CMDEDIT(cmdedit_select)
         return false;
     }
 
-    ch->desc->pEdit = U(&cmd_table[cmd]);
+    set_pEdit(ch->desc, U(&cmd_table[cmd]));
     cmdedit_show(ch, "");
     return false;
 }
@@ -599,7 +598,7 @@ CMDEDIT(cmdedit_name)
 
     cmd = cmd_lookup(argument);
     if (cmd != -1)
-        ch->desc->pEdit = U(&cmd_table[cmd]);
+        set_pEdit(ch->desc, U(&cmd_table[cmd]));
     else
         bugf("Cmdedit_name : cmd_lookup returns -1 for %s!", argument);
 
@@ -630,7 +629,7 @@ CMDEDIT(cmdedit_new)
         if (d->connected != CON_PLAYING || (tch = CH(d)) == NULL || tch->desc == NULL)
             continue;
 
-        if (tch->desc->editor == ED_CMD)
+        if (get_editor(tch->desc) == ED_CMD)
             edit_done(tch);
     }
 
@@ -662,11 +661,9 @@ CMDEDIT(cmdedit_new)
 
     cmd = cmd_lookup(argument);
     if (cmd != -1)
-        ch->desc->pEdit = U(&cmd_table[cmd]);
+        set_editor(ch->desc, ED_CMD, U(&cmd_table[cmd]));
     else
         bugf("Cmdedit_new : cmd_lookup returns -1 for %s!", argument);
-
-    ch->desc->editor = ED_CMD;
 
     send_to_char("New command created.\n\r", ch);
     return true;
@@ -695,7 +692,7 @@ CMDEDIT(cmdedit_delete)
         if (d->connected != CON_PLAYING || (tch = CH(d)) == NULL || tch->desc == NULL)
             continue;
 
-        if (tch->desc->editor == ED_CMD)
+        if (get_editor(tch->desc) == ED_CMD)
             edit_done(tch);
     }
 

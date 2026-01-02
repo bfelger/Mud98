@@ -44,6 +44,10 @@ add_library(Mud98PersistRomOlc OBJECT
     
     # Player persistence
     ../player/rom-olc/player_persist_rom_olc.c
+    
+    # Loot persistence
+    ../loot/rom-olc/loot_persist_rom_olc.h
+    ../loot/rom-olc/loot_persist_rom_olc.c
 )
 
 target_include_directories(Mud98PersistRomOlc

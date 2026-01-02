@@ -1,0 +1,15 @@
+group COINS_T1 1
+  cp  0 10    weight 100
+
+group GLOBAL_COMMON_T1 1
+  item 4003 1 1  weight 60
+  item 1601 1 1  weight 30
+  item 3421 1 1  weight 10
+
+group GLOBAL_RARE_T1 1
+  item 1602 1 1  weight 100
+
+table GLOBAL_T1
+  use_group COINS_T1 100
+  use_group GLOBAL_COMMON_T1 35
+  use_group GLOBAL_RARE_T1 1

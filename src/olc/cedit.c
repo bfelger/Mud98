@@ -173,8 +173,7 @@ void do_cedit(Mobile* ch, char* argument)
 
     pClass = &class_table[class_];
 
-    ch->desc->pEdit = (uintptr_t)pClass;
-    ch->desc->editor = ED_CLASS;
+    set_editor(ch->desc, ED_CLASS, (uintptr_t)pClass);
 
     cedit_show(ch, "");
 
@@ -201,7 +200,7 @@ CEDIT(cedit_new)
         if (d->connected != CON_PLAYING || (tch = CH(d)) == NULL || tch->desc == NULL)
             continue;
 
-        if (tch->desc->editor == ED_CLASS)
+        if (get_editor(tch->desc) == ED_CLASS)
             edit_done(ch);
     }
 
@@ -248,8 +247,7 @@ CEDIT(cedit_new)
     pClass->titles[MAX_LEVEL][0] = str_dup("Implementor");
     pClass->titles[MAX_LEVEL][1] = str_dup("Implementor");
 
-    ch->desc->editor = ED_CLASS;
-    ch->desc->pEdit = U(&class_table[class_count - 1]);
+    set_editor(ch->desc, ED_CLASS, U(&class_table[class_count - 1]));
 
     send_to_char("New class created.\n\r", ch);
 

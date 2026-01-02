@@ -45,6 +45,8 @@ add_library(Mud98Persist OBJECT
     tutorial/tutorial_persist.c
     player/player_persist.h
     player/player_persist.c
+    loot/loot_persist.h
+    loot/loot_persist.c
 )
 
 target_include_directories(Mud98Persist

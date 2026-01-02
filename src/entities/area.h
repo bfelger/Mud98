@@ -97,6 +97,7 @@ typedef struct area_data_t {
     StoryBeat* story_beats;
     ChecklistItem* checklist;
     DayCyclePeriod* periods;
+    char* loot_table;           // Default loot table name for mobs in this area
     bool suppress_daycycle_messages;
 } AreaData;
 

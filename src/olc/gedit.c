@@ -154,8 +154,7 @@ void do_gedit(Mobile* ch, char* argument)
 
     pGroup = &skill_group_table[group];
 
-    ch->desc->pEdit = (uintptr_t)pGroup;
-    ch->desc->editor = ED_GROUP;
+    set_editor(ch->desc, ED_GROUP, (uintptr_t)pGroup);
 
     gedit_show(ch, "");
 

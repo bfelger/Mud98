@@ -56,7 +56,7 @@ void string_edit(Mobile* ch, char** pString)
         **pString = '\0';
     }
 
-    ch->desc->pString = pString;
+    push_editor(ch->desc, ED_STRING, (uintptr_t)pString);
 
     return;
 }
@@ -78,7 +78,7 @@ void string_append(Mobile* ch, char** pString)
     }
     send_to_char(numlineas(*pString), ch);
 
-    ch->desc->pString = pString;
+    push_editor(ch->desc, ED_STRING, (uintptr_t)pString);
 
     return;
 }
@@ -119,6 +119,12 @@ char* string_replace(char* orig, char* old, char* new_str)
 void string_add(Mobile* ch, char* argument)
 {
     char buf[MAX_STRING_LENGTH];
+    char** pString = get_string_pEdit(ch->desc);
+
+    if (!pString) {
+        // Not in string editing mode - shouldn't happen
+        return;
+    }
 
     if (*argument == '.') {
         char arg1[MAX_INPUT_LENGTH];
@@ -133,18 +139,14 @@ void string_add(Mobile* ch, char* argument)
 
         if (!str_cmp(arg1, ".clear")) {
             printf_to_char(ch, "String cleared.\n\r");
-            free_string(*ch->desc->pString);
-            *ch->desc->pString = str_dup("");
-            /*            **ch->desc->pString = '\0'; */
+            free_string(*pString);
+            *pString = str_dup("");
             return;
         }
 
         if (!str_cmp(arg1, ".s")) {
             printf_to_char(ch, COLOR_INFO "String so far:" COLOR_EOL);
-            char** show = ch->desc->pString;
-            ch->desc->pString = NULL;
-            printf_to_char(ch, numlineas(*show));
-            ch->desc->pString = show;
+            printf_to_char(ch, numlineas(*pString));
             return;
         }
 
@@ -154,41 +156,41 @@ void string_add(Mobile* ch, char* argument)
                 return;
             }
 
-            *ch->desc->pString = string_replace(*ch->desc->pString, arg2, arg3);
+            *pString = string_replace(*pString, arg2, arg3);
             sprintf(buf, "'%s' replaced with '%s'.\n\r", arg2, arg3);
             printf_to_char(ch, buf);
             return;
         }
 
         if (!str_cmp(arg1, ".f")) {
-            char* desc = format_string(*ch->desc->pString);
-            free_string(*ch->desc->pString);
-            *ch->desc->pString = desc;
+            char* desc = format_string(*pString);
+            free_string(*pString);
+            *pString = desc;
             printf_to_char(ch, "String formatted.\n\r");
             return;
         }
 
         if (!str_cmp(arg1, ".ld")) {
-            *ch->desc->pString = linedel(*ch->desc->pString, atoi(arg2));
+            *pString = linedel(*pString, atoi(arg2));
             printf_to_char(ch, "Line deleted.\n\r");
             return;
         }
 
         if (!str_cmp(arg1, ".li")) {
-            if (strlen(*ch->desc->pString) + strlen(tmparg3) >=
+            if (strlen(*pString) + strlen(tmparg3) >=
                 (MAX_STRING_LENGTH - 4)) {
                 printf_to_char(ch, "That would make the full text too long; delete a line first.\n\r");
                 return;
             }
 
-            *ch->desc->pString = lineadd(*ch->desc->pString, tmparg3, atoi(arg2));
+            *pString = lineadd(*pString, tmparg3, atoi(arg2));
             printf_to_char(ch, "Line inserted.\n\r");
             return;
         }
 
         if (!str_cmp(arg1, ".lr")) {
-            *ch->desc->pString = linedel(*ch->desc->pString, atoi(arg2));
-            *ch->desc->pString = lineadd(*ch->desc->pString, tmparg3, atoi(arg2));
+            *pString = linedel(*pString, atoi(arg2));
+            *pString = lineadd(*pString, tmparg3, atoi(arg2));
             printf_to_char(ch, "Line replaced.\n\r");
             return;
         }
@@ -214,14 +216,19 @@ void string_add(Mobile* ch, char* argument)
     }
 
     if (*argument == '@') {
-        ch->desc->pString = NULL;
+        // Pop the string editor from the stack
+        pop_editor(ch->desc);
 
-        switch (ch->desc->editor) {
+        // Check parent editor for auto-save behavior
+        switch (get_editor(ch->desc)) {
         case ED_SKILL:
             save_skill_table();
             break;
         case ED_TUTORIAL:
             save_tutorials();
+            break;
+
+        default:
             break;
         }
 
@@ -232,10 +239,10 @@ void string_add(Mobile* ch, char* argument)
             show_string(ch->desc, "");
         }
 
-        if (ch->desc->editor == ED_PROG && ch->desc->pEdit) {
+        if (get_editor(ch->desc) == ED_PROG && get_pEdit(ch->desc)) {
             MobPrototype* mob;
             MobProg* mp;
-            MobProgCode* mpc = (MobProgCode*)ch->desc->pEdit;
+            MobProgCode* mpc = (MobProgCode*)get_pEdit(ch->desc);
 
             mpc->changed = true;
 
@@ -250,21 +257,21 @@ void string_add(Mobile* ch, char* argument)
         return;
     }
 
-    strcpy(buf, *ch->desc->pString);
+    strcpy(buf, *pString);
 
     // Truncate strings to MAX_STRING_LENGTH.
     if (strlen(buf) + strlen(argument) >= (MAX_STRING_LENGTH - 4)) {
         printf_to_char(ch, "String too long, last line skipped.\n\r");
 
         /* Force character out of editing mode. */
-        ch->desc->pString = NULL;
+        pop_editor(ch->desc);
         return;
     }
 
     strcat(buf, argument);
     strcat(buf, "\n");
-    free_string(*ch->desc->pString);
-    *ch->desc->pString = str_dup(buf);
+    free_string(*pString);
+    *pString = str_dup(buf);
 
     return;
 }

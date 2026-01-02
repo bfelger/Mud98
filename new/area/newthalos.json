@@ -7489,7 +7489,7 @@
     {
       "vnum": 9533,
       "name": "oldstyle nomad merchant",
-      "shortDescr": "A nomad merchant",
+      "shortDescr": "a nomad merchant",
       "longDescr": "A nomad merchant looks you over.\n\r",
       "description": "This robust fellow returns your gaze with a smile, but something inside\n\rtells you not to trust him very far.\n\r",
       "race": "human",
@@ -7550,7 +7550,7 @@
     {
       "vnum": 9534,
       "name": "oldstyle bodyguard",
-      "shortDescr": "A bodyguard",
+      "shortDescr": "a bodyguard",
       "longDescr": "A bodyguard sizes you up.\n\r",
       "description": "The large half-orc quickly glances you over and returns to his duties.\n\r",
       "race": "human",
@@ -8525,7 +8525,7 @@
     {
       "vnum": 9550,
       "name": "oldstyle sultan",
-      "shortDescr": "The Sultan",
+      "shortDescr": "the Sultan",
       "longDescr": "The Sultan rests here on his throne.\n\r",
       "description": "You see a large wealthy man in red robes smiling at you.\n\r",
       "race": "human",
@@ -9338,7 +9338,7 @@
     {
       "vnum": 9563,
       "name": "oldstyle sultans guard chief",
-      "shortDescr": "The chief guard",
+      "shortDescr": "the chief guard",
       "longDescr": "The chief of the sultan's guard stands here.\n\r",
       "description": "You see a large man skilled in hunting and killing.\n\r",
       "race": "human",
@@ -10497,7 +10497,7 @@
     {
       "vnum": 9582,
       "name": "oldstyle royal guard elite",
-      "shortDescr": "The Royal Guard",
+      "shortDescr": "the Royal Guard",
       "longDescr": "An Elite Royal Guard stands here smiling happily.\n\r",
       "description": "You see one of the Royal Guards from Midgaard who seems to have gone\n\rthrough some training.\n\r",
       "race": "human",

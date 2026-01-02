@@ -231,17 +231,32 @@ void do_gain(Mobile* ch, char* argument)
     act("$N tells you 'I do not understand...'", ch, NULL, trainer, TO_CHAR);
 }
 
+// Helper for sorting skills/spells by level
+typedef struct {
+    SKNUM sn;
+    LEVEL level;
+} SkillEntry;
+
+static int compare_spell_entries(const void* a, const void* b)
+{
+    const SkillEntry* ea = (const SkillEntry*)a;
+    const SkillEntry* eb = (const SkillEntry*)b;
+    
+    // Primary sort by level
+    if (ea->level != eb->level)
+        return ea->level - eb->level;
+    
+    // Secondary sort by name for consistent ordering
+    return strcmp(skill_table[ea->sn].name, skill_table[eb->sn].name);
+}
+
 /* RT spells and skills show the players spells (or skills) */
 void do_spells(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    char spell_columns[LEVEL_HERO + 1] = { 0 };
     SKNUM sn;
-    LEVEL level, min_lev = 1, max_lev = LEVEL_HERO;
-    int mana;
-    bool fAll = false, found = false;
-    char buf[MAX_STRING_LENGTH];
-    int slot;
+    LEVEL min_lev = 0, max_lev = LEVEL_HERO;
+    bool fAll = false;
 
     if (IS_NPC(ch) || ch->desc == NULL) 
         return;
@@ -258,9 +273,8 @@ void do_spells(Mobile* ch, char* argument)
             max_lev = (LEVEL)atoi(arg);
 
             if (max_lev < 1 || max_lev > LEVEL_HERO) {
-                sprintf(buf, "Levels must be between 1 and %d.\n\r",
-                        LEVEL_HERO);
-                send_to_char(buf, ch);
+                printf_to_char(ch, "Levels must be between 1 and %d.\n\r",
+                    LEVEL_HERO);
                 return;
             }
 
@@ -274,9 +288,8 @@ void do_spells(Mobile* ch, char* argument)
                 max_lev = (LEVEL)atoi(arg);
 
                 if (max_lev < 1 || max_lev > LEVEL_HERO) {
-                    sprintf(buf, "Levels must be between 1 and %d.\n\r",
-                            LEVEL_HERO);
-                    send_to_char(buf, ch);
+                    printf_to_char(ch, "Levels must be between 1 and %d.\n\r",
+                        LEVEL_HERO);
                     return;
                 }
 
@@ -288,82 +301,103 @@ void do_spells(Mobile* ch, char* argument)
         }
     }
 
-    int range = 1 + max_lev - min_lev;
-    Buffer** spell_buf;
-    if ((spell_buf = calloc((size_t)range, sizeof(Buffer*))) == 0) {
-        send_to_char("Can't do that right now.\n\r", ch);
-        perror("do_spells: Cannot allocate spell bufs!");
+    // First pass: count matching spells
+    int count = 0;
+    for (sn = 0; sn < skill_count; sn++) {
+        if (skill_table[sn].name == NULL)
+            break;
+        LEVEL level = SKILL_LEVEL(sn, ch);
+        if (level <= LEVEL_HERO && (fAll || level <= ch->level)
+            && level >= min_lev && level <= max_lev
+            && HAS_SPELL_FUNC(sn) && ch->pcdata->learned[sn] > 0) {
+            count++;
+        }
+    }
+
+    if (count == 0) {
+        send_to_char("No spells found.\n\r", ch);
         return;
     }
 
-    for (int i = 0; i < range; i++)
-        spell_buf[i] = new_buf();
-    
-    for (level = 0; level < LEVEL_HERO + 1; level++) {
-        spell_columns[level] = 0;
+    // Collect matching spells into array
+    SkillEntry* entries = calloc((size_t)count, sizeof(SkillEntry));
+    if (entries == NULL) {
+        send_to_char("Can't do that right now.\n\r", ch);
+        perror("do_spells: Cannot allocate spell entries!");
+        return;
     }
 
-    for (sn = 0; sn < skill_count; sn++) {
-        if (skill_table[sn].name == NULL) 
+    int idx = 0;
+    for (sn = 0; sn < skill_count && idx < count; sn++) {
+        if (skill_table[sn].name == NULL)
             break;
-
-        if ((level = SKILL_LEVEL(sn, ch)) < LEVEL_HERO + 1
-            && (fAll || level <= ch->level) && level >= min_lev
-            && level <= max_lev && HAS_SPELL_FUNC(sn)
-            && ch->pcdata->learned[sn] > 0) {
-            found = true;
-
-            slot = level - min_lev;
-
-            if (BUF(spell_buf[slot])[0] == '\0') {
-                sprintf(buf, "\n\rLevel %2d: ", level);
-                add_buf(spell_buf[slot], buf);
-            }
-            else if (++spell_columns[level] % 2 == 0) {
-                add_buf(spell_buf[slot], "\n\r          ");
-            }
-
-            if (ch->level < level)
-                sprintf(buf, "%-18s n/a      ", skill_table[sn].name);
-            else {
-                mana = UMAX(skill_table[sn].min_mana,
-                            100 / (2 + ch->level - level));
-                sprintf(buf, "%-18s  %3d mana  ", skill_table[sn].name, mana);
-            }
-            add_buf(spell_buf[slot], buf);
-        } 
-    }
-    
-    /* return results */
-
-    if (!found) {
-        send_to_char("No spells found.\n\r", ch);
-    }
-    else {
-        Buffer* buffer = new_buf();
-        for (level = min_lev; level <= max_lev; level++) {
-            slot = level - min_lev;
-            if (BUF(spell_buf[slot])[0] != '\0')
-                add_buf(buffer, BUF(spell_buf[slot]));
+        LEVEL level = SKILL_LEVEL(sn, ch);
+        if (level <= LEVEL_HERO && (fAll || level <= ch->level)
+            && level >= min_lev && level <= max_lev
+            && HAS_SPELL_FUNC(sn) && ch->pcdata->learned[sn] > 0) {
+            entries[idx].sn = sn;
+            entries[idx].level = level;
+            idx++;
         }
-        add_buf(buffer, "\n\r");
-        page_to_char(BUF(buffer), ch);
-        free_buf(buffer);
     }
-    for (int i = 0; i < range; i++)
-        free_buf(spell_buf[i]);
-    free(spell_buf);
+
+    // Sort by level, then by name
+    qsort(entries, (size_t)count, sizeof(SkillEntry), compare_spell_entries);
+
+    // Stream output using single StringBuffer
+    StringBuffer* sb = sb_new();
+    LEVEL current_level = -1;
+    int col = 0;
+
+    for (int i = 0; i < count; i++) {
+        sn = entries[i].sn;
+        LEVEL level = entries[i].level;
+
+        if (level != current_level) {
+            // New level header
+            if (current_level != -1 && col % 2 != 0)
+                sb_append(sb, "\n\r");
+            sb_appendf(sb, "\n\rLevel %2d: ", level);
+            current_level = level;
+            col = 0;
+        } else if (++col % 2 == 0) {
+            sb_append(sb, "\n\r          ");
+        }
+
+        if (ch->level < level) {
+            sb_appendf(sb, "%-18s n/a      ", skill_table[sn].name);
+        } else {
+            int mana = UMAX(skill_table[sn].min_mana,
+                100 / (2 + ch->level - level));
+            sb_appendf(sb, "%-18s  %3d mana  ", skill_table[sn].name, mana);
+        }
+    }
+    sb_append(sb, "\n\r");
+
+    page_to_char(sb_string(sb), ch);
+    sb_free(sb);
+    free(entries);
+}
+
+static int compare_skill_entries(const void* a, const void* b)
+{
+    const SkillEntry* ea = (const SkillEntry*)a;
+    const SkillEntry* eb = (const SkillEntry*)b;
+    
+    // Primary sort by level
+    if (ea->level != eb->level)
+        return ea->level - eb->level;
+    
+    // Secondary sort by name for consistent ordering
+    return strcmp(skill_table[ea->sn].name, skill_table[eb->sn].name);
 }
 
 void do_skills(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    char skill_columns[LEVEL_HERO + 1] = { 0 };
     SKNUM sn;
-    LEVEL level, min_lev = 1, max_lev = LEVEL_HERO;
-    bool fAll = false, found = false;
-    char buf[MAX_STRING_LENGTH];
-    int slot;
+    LEVEL min_lev = 0, max_lev = LEVEL_HERO;
+    bool fAll = false;
 
     if (IS_NPC(ch))
         return;
@@ -380,9 +414,8 @@ void do_skills(Mobile* ch, char* argument)
             max_lev = (LEVEL)atoi(arg);
 
             if (max_lev < 1 || max_lev > LEVEL_HERO) {
-                sprintf(buf, "Levels must be between 1 and %d.\n\r",
-                        LEVEL_HERO);
-                send_to_char(buf, ch);
+                printf_to_char(ch, "Levels must be between 1 and %d.\n\r",
+                    LEVEL_HERO);
                 return;
             }
 
@@ -396,9 +429,8 @@ void do_skills(Mobile* ch, char* argument)
                 max_lev = (LEVEL)atoi(arg);
 
                 if (max_lev < 1 || max_lev > LEVEL_HERO) {
-                    sprintf(buf, "Levels must be between 1 and %d.\n\r",
-                            LEVEL_HERO);
-                    send_to_char(buf, ch);
+                    printf_to_char(ch, "Levels must be between 1 and %d.\n\r",
+                        LEVEL_HERO);
                     return;
                 }
 
@@ -410,70 +442,81 @@ void do_skills(Mobile* ch, char* argument)
         }
     }
 
-    int range = 1 + max_lev - min_lev;
-    Buffer** skill_buf;
-    if ((skill_buf = calloc((size_t)range, sizeof(Buffer*))) == 0) {
-        send_to_char("Can't do that right now.\n\r", ch);
-        perror("do_skills: Cannot allocate skill bufs!");
+    // First pass: count matching skills
+    int count = 0;
+    for (sn = 0; sn < skill_count; sn++) {
+        if (skill_table[sn].name == NULL)
+            break;
+        LEVEL level = SKILL_LEVEL(sn, ch);
+        if (level <= LEVEL_HERO && (fAll || level <= ch->level)
+            && level >= min_lev && level <= max_lev
+            && !HAS_SPELL_FUNC(sn) && ch->pcdata->learned[sn] > 0) {
+            count++;
+        }
+    }
+
+    if (count == 0) {
+        send_to_char("No skills found.\n\r", ch);
         return;
     }
 
-    for (int i = 0; i < range; i++)
-        skill_buf[i] = new_buf();
-
-    for (level = 0; level < LEVEL_HERO + 1; level++) {
-        skill_columns[level] = 0;
+    // Collect matching skills into array
+    SkillEntry* entries = calloc((size_t)count, sizeof(SkillEntry));
+    if (entries == NULL) {
+        send_to_char("Can't do that right now.\n\r", ch);
+        perror("do_skills: Cannot allocate skill entries!");
+        return;
     }
 
-    for (sn = 0; sn < skill_count; sn++) {
-        if (skill_table[sn].name == NULL) break;
-
-        if ((level = SKILL_RATING(sn, ch)) < LEVEL_HERO + 1
-            && (fAll || level <= ch->level) && level >= min_lev
-            && level <= max_lev && !HAS_SPELL_FUNC(sn)
-            && ch->pcdata->learned[sn] > 0) {
-            found = true;
-
-            slot = level - min_lev;
-
-            if (BUF(skill_buf[slot])[0] == '\0') {
-                sprintf(buf, "\n\rLevel %2d: ", level);
-                add_buf(skill_buf[slot], buf);
-            }
-            else if (++skill_columns[level] % 2 == 0) {
-                add_buf(skill_buf[slot], "\n\r          ");
-            }
-
-            if (ch->level < level)
-                sprintf(buf, "%-18s n/a      ", skill_table[sn].name);
-            else {
-                sprintf(buf, "%-18s %3d%%      ", skill_table[sn].name,
-                    ch->pcdata->learned[sn]);
-            }
-            add_buf(skill_buf[slot], buf);
+    int idx = 0;
+    for (sn = 0; sn < skill_count && idx < count; sn++) {
+        if (skill_table[sn].name == NULL)
+            break;
+        LEVEL level = SKILL_LEVEL(sn, ch);
+        if (level <= LEVEL_HERO && (fAll || level <= ch->level)
+            && level >= min_lev && level <= max_lev
+            && !HAS_SPELL_FUNC(sn) && ch->pcdata->learned[sn] > 0) {
+            entries[idx].sn = sn;
+            entries[idx].level = level;
+            idx++;
         }
     }
 
-    /* return results */
+    // Sort by level, then by name
+    qsort(entries, (size_t)count, sizeof(SkillEntry), compare_skill_entries);
 
-    if (!found) {
-        send_to_char("No skills found.\n\r", ch);
-    }
-    else {
-        Buffer* buffer = new_buf();
-        for (level = min_lev; level <= max_lev; level++) {
-            slot = level - min_lev;
-            if (BUF(skill_buf[slot])[0] != '\0')
-                add_buf(buffer, BUF(skill_buf[slot]));
+    // Stream output using single StringBuffer
+    StringBuffer* sb = sb_new();
+    LEVEL current_level = -1;
+    int col = 0;
+
+    for (int i = 0; i < count; i++) {
+        sn = entries[i].sn;
+        LEVEL level = entries[i].level;
+
+        if (level != current_level) {
+            // New level header
+            if (current_level != -1 && col % 2 != 0)
+                sb_append(sb, "\n\r");
+            sb_appendf(sb, "\n\rLevel %2d: ", level);
+            current_level = level;
+            col = 0;
+        } else if (++col % 2 == 0) {
+            sb_append(sb, "\n\r          ");
         }
-        add_buf(buffer, "\n\r");
-        page_to_char(BUF(buffer), ch);
-        free_buf(buffer);
-    }
 
-    for (int i = 0; i < range; i++)
-        free_buf(skill_buf[i]);
-    free(skill_buf);
+        if (ch->level < level) {
+            sb_appendf(sb, "%-18s n/a      ", skill_table[sn].name);
+        } else {
+            sb_appendf(sb, "%-18s %3d%%      ", skill_table[sn].name,
+                ch->pcdata->learned[sn]);
+        }
+    }
+    sb_append(sb, "\n\r");
+
+    page_to_char(sb_string(sb), ch);
+    sb_free(sb);
+    free(entries);
 }
 
 /* shows skills, groups and costs (only if not bought) */
@@ -625,7 +668,6 @@ int exp_per_level(Mobile* ch, int points)
 bool parse_gen_groups(Mobile* ch, char* argument)
 {
     char arg[MAX_INPUT_LENGTH];
-    char buf[100];
     SKNUM gn, sn;
     int i;
 
@@ -668,8 +710,7 @@ bool parse_gen_groups(Mobile* ch, char* argument)
                 return true;
             }
 
-            sprintf(buf, "%s group added\n\r", skill_group_table[gn].name);
-            send_to_char(buf, ch);
+            printf_to_char(ch, "%s group added\n\r", skill_group_table[gn].name);
             ch->gen_data->group_chosen[gn] = true;
             ch->gen_data->points_chosen += SKILL_GROUP_RATING(gn, ch);
             gn_add(ch, gn);
@@ -695,8 +736,7 @@ bool parse_gen_groups(Mobile* ch, char* argument)
                 send_to_char("You cannot take more than 300 creation points.\n\r", ch);
                 return true;
             }
-            sprintf(buf, "%s skill added\n\r", skill_table[sn].name);
-            send_to_char(buf, ch);
+            printf_to_char(ch, "%s skill added\n\r", skill_table[sn].name);
             ch->gen_data->skill_chosen[sn] = true;
             ch->gen_data->points_chosen += SKILL_RATING(sn, ch);
             ch->pcdata->learned[sn] = 1;
@@ -767,7 +807,6 @@ bool parse_gen_groups(Mobile* ch, char* argument)
 /* shows all groups, or the sub-members of a group */
 void do_groups(Mobile* ch, char* argument)
 {
-    char buf[100];
     SKNUM gn, sn;
     int col;
 
@@ -776,30 +815,32 @@ void do_groups(Mobile* ch, char* argument)
     col = 0;
 
     if (argument[0] == '\0') { /* show all groups */
-
+        StringBuffer* sb = sb_new();
         for (gn = 0; gn < skill_group_count; gn++) {
             if (skill_group_table[gn].name == NULL) break;
             if (ch->pcdata->group_known[gn]) {
-                sprintf(buf, "%-20s ", skill_group_table[gn].name);
-                send_to_char(buf, ch);
-                if (++col % 3 == 0) send_to_char("\n\r", ch);
+                sb_appendf(sb, "%-20s ", skill_group_table[gn].name);
+                if (++col % 3 == 0) sb_append(sb, "\n\r");
             }
         }
-        if (col % 3 != 0) send_to_char("\n\r", ch);
-        sprintf(buf, "Creation points: %d\n\r", ch->pcdata->points);
-        send_to_char(buf, ch);
+        if (col % 3 != 0) sb_append(sb, "\n\r");
+        sb_appendf(sb, "Creation points: %d\n\r", ch->pcdata->points);
+        send_to_char(sb_string(sb), ch);
+        sb_free(sb);
         return;
     }
 
     if (!str_cmp(argument, "all")) /* show all groups */
     {
+        StringBuffer* sb = sb_new();
         for (gn = 0; gn < skill_group_count; gn++) {
             if (skill_group_table[gn].name == NULL) break;
-            sprintf(buf, "%-20s ", skill_group_table[gn].name);
-            send_to_char(buf, ch);
-            if (++col % 3 == 0) send_to_char("\n\r", ch);
+            sb_appendf(sb, "%-20s ", skill_group_table[gn].name);
+            if (++col % 3 == 0) sb_append(sb, "\n\r");
         }
-        if (col % 3 != 0) send_to_char("\n\r", ch);
+        if (col % 3 != 0) sb_append(sb, "\n\r");
+        send_to_char(sb_string(sb), ch);
+        sb_free(sb);
         return;
     }
 
@@ -812,20 +853,21 @@ void do_groups(Mobile* ch, char* argument)
         return;
     }
 
+    StringBuffer* sb = sb_new();
     for (sn = 0; sn < MAX_IN_GROUP; sn++) {
         if (skill_group_table[gn].skills[sn] == NULL) break;
-        sprintf(buf, "%-20s ", skill_group_table[gn].skills[sn]);
-        send_to_char(buf, ch);
-        if (++col % 3 == 0) send_to_char("\n\r", ch);
+        sb_appendf(sb, "%-20s ", skill_group_table[gn].skills[sn]);
+        if (++col % 3 == 0) sb_append(sb, "\n\r");
     }
-    if (col % 3 != 0) send_to_char("\n\r", ch);
+    if (col % 3 != 0) sb_append(sb, "\n\r");
+    send_to_char(sb_string(sb), ch);
+    sb_free(sb);
 }
 
 /* checks for skill improvement */
 void check_improve(Mobile* ch, SKNUM sn, bool success, int multiplier)
 {
     int chance;
-    char buf[100];
 
     if (IS_NPC(ch))
         return;
@@ -848,9 +890,8 @@ void check_improve(Mobile* ch, SKNUM sn, bool success, int multiplier)
     if (success) {
         chance = URANGE(5, 100 - ch->pcdata->learned[sn], 95);
         if (number_percent() < chance) {
-            sprintf(buf, "You have become better at %s!\n\r",
-                    skill_table[sn].name);
-            send_to_char(buf, ch);
+            printf_to_char(ch, "You have become better at %s!\n\r",
+                skill_table[sn].name);
             ch->pcdata->learned[sn]++;
             gain_exp(ch, 2 * SKILL_RATING(sn, ch));
         }
@@ -858,11 +899,9 @@ void check_improve(Mobile* ch, SKNUM sn, bool success, int multiplier)
     else {
         chance = URANGE(5, ch->pcdata->learned[sn] / 2, 30);
         if (number_percent() < chance) {
-            sprintf(
-                buf,
+            printf_to_char(ch, 
                 "You learn from your mistakes, and your %s skill improves.\n\r",
                 skill_table[sn].name);
-            send_to_char(buf, ch);
             ch->pcdata->learned[sn] += (int16_t)number_range(1, 3);
             ch->pcdata->learned[sn] = UMIN(ch->pcdata->learned[sn], 100);
             gain_exp(ch, 2 * SKILL_RATING(sn, ch));

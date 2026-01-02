@@ -9,6 +9,7 @@ Definition: [optional] <required> (combined arguments)
 ^*ROOM        ^_REDIT      ^|- ^jRooms, exit, and reset editor
 ^*OBJECT      ^_OEDIT      ^|- ^jObject editor
 ^*MOBILE      ^_MEDIT      ^|- ^jMobile editor
+^*LOOT        ^_LEDIT      ^|- ^jLoot editor
 ^*SCRIPT      ^_SCREDIT    ^|- ^jLox script editor (for public scripts)
 ^*PROGRAM     ^_MPEDIT     ^|- ^jLegacy MobProg editor
 ^*RACE        ^_RAEDIT     ^|- ^jRace editor (for player and mobiles)
@@ -36,7 +37,7 @@ RESET^x resets the current room. Most commands with no arguments display syntax.
 Use ^jASAVE^x after making changes so that the updated data is written to disk.
 
 See also help: ^jAEDIT REDIT OEDIT TEDIT MEDIT PEDIT RAEDIT SEDIT SKEDIT CMDEDIT 
-      GEDIT CEDIT HEDIT QEDIT SCREDIT^x
+      GEDIT CEDIT HEDIT QEDIT SCREDIT LEDIT^x
 ~
 
 0 ALIST~
@@ -211,6 +212,55 @@ If not given a tutorial name:
 
 Use the multiline string editor commands (e.g., `.h`, `.s`, `@`) while editing
 BLURB, FINISH, or STEPPROMPT text.
+~
+
+0 LEDIT~
+^TSyntax: EDIT LOOT^x
+^TSyntax: LEDIT^x
+
+Definition: [optional] <required> (combined arguments)
+
+^TSubcommand                             Description
+^*(none)                               ^|- ^jSame as ^*SHOW
+^*SHOW                                 ^|- ^jShow loot group and table totals
+^*CREATE GROUP <name> <rolls>          ^|- ^jCreate a new loot group
+^*DELETE GROUP <name>                  ^|- ^jDelete loot group
+^*ADD ITEM <group> <vnum> <wt> <min>   ^|- ^jAdd item to loot group
+^*    <max>
+^*ADD CP <group> <wt> <min> <max>      ^|- ^jAdd coins (in cp) to loot group
+^*REMOVE ENTRY <group> <index>         ^|- ^jRemove entry from loot group
+^*CREATE TABLE <name> [parent]         ^|- ^jCreate a new loot table^x
+^*COMMANDS / HELP/? / DONE             ^|- ^jList commands, show help, or exit^x
+
+The following commands are "builder" operations that compose loot tables:
+
+^TSubcommand                             Description
+^*ADD OP <table> use_group <group>     ^|- ^jUse loot group
+^*    <chance%>
+^*ADD OP <table> add_item <vnum> <min> ^|- ^jAdd specific item (ad hoc)
+^*    <max> <chance%>
+^*ADD OP <table> add_cp <min> <max>    ^|- ^jAdd extra currency
+^*    <chance%>
+^*ADD OP <table> mul_cp <factor>       ^|- ^jMultiply currency amounts
+^*ADD OP <table> mul_all <factor>      ^|- ^jMultiply all chances
+^*ADD OP <table> remove_item <vnum>    ^|- ^jRemove specific item from loot
+^*ADD OP <table> remove_group <vnum>   ^|- ^jRemove entire loot group
+^*REMOVE OP <table> <index>            ^|- ^jRemove operation from loot table
+^*PARENT <table> [parent_name|none]    ^|- ^jSet (or unset) parent loot table^x
+
+The Mud98 loot database is composed of LOOT GROUPS and LOOT TABLES.
+
+Loot groups define lists of items and currency, assign them weights, and 
+specify the number of times to roll on that group.
+
+Loot tables collect loot groups and assign them a chance to roll. They can also
+specify a "parent" loot table as a form of inheritance. Loot tables can also 
+modify outcomes adding/removing specific items, culling loot groups (useful 
+when bringing in unwanted loot groups from a parent), and modifying loot roll 
+chances.
+
+Loot groups and tables can be assigned at the global level, by Area, or by 
+specific Mobile or Object.
 ~
 
 0 MEDIT~

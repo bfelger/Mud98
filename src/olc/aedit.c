@@ -7,6 +7,7 @@
 #include "bit.h"
 #include "event_edit.h"
 #include "lox_edit.h"
+#include "loot_edit.h"
 #include "olc.h"
 #include "period_edit.h"
 #include "string_edit.h"
@@ -28,6 +29,8 @@
 #include <entities/area.h>
 #include <entities/faction.h>
 #include <entities/mob_prototype.h>
+
+#include <data/loot.h>
 
 #define AEDIT(fun) bool fun( Mobile *ch, char *argument )
 
@@ -67,11 +70,13 @@ const OlcCmdEntry area_olc_comm_table[] = {
     { "reset", 		    U(&xArea.reset_thresh), ed_number_s_pos,    0	                },
     { "sector",	        U(&xArea.sector),	    ed_flag_set_sh,		U(sector_flag_table)},
     { "credits", 	    U(&xArea.credits),      ed_line_string,     0                   },
+    { "loot_table",     U(&xArea.loot_table),   ed_loot_string,     0                   },
     { "alwaysreset",    U(&xArea.always_reset), ed_bool,            0                   },
     { "instancetype",   U(&xArea.inst_type),    ed_flag_set_sh,     U(inst_type_table)  },
     { "period",         0,                      ed_olded,           U(aedit_period)     },
     { "event",          0,                      ed_olded,           U(olc_edit_event)   },
     { "lox",            0,                      ed_olded,           U(olc_edit_lox)     },
+    { "loot_edit",      0,                      ed_olded,           U(olc_edit_loot)    },
     { "story",          0,                      ed_olded,           U(aedit_story)      },
     { "checklist",      0,                      ed_olded,           U(aedit_checklist)  },
     { "period",         0,                      ed_olded,           U(aedit_period)     },
@@ -85,6 +90,7 @@ const OlcCmdEntry area_olc_comm_table[] = {
     { "show", 	        0,                      ed_olded,           U(aedit_show)	    },
     { "vnums", 	        0,                      ed_olded,           U(aedit_vnums)	    },
     { "levels",         0,                      ed_olded,           U(aedit_levels)     },
+    { "olist",	        0,                      ed_olist,           0                   },
     { "?",		        0,                      ed_olded,           U(show_help)	    },
     { "version", 	    0,                      ed_olded,           U(show_version)	    },
     { NULL, 		    0,                      NULL,               0		            }
@@ -436,6 +442,7 @@ AEDIT(aedit_show)
     olc_print_num(ch, "Security", area->security);
     olc_print_str(ch, "Builders", area->builders);
     olc_print_str(ch, "Credits", area->credits);
+    olc_print_str(ch, "Loot Table", area->loot_table ? area->loot_table : "(none)");
     olc_print_flags(ch, "Flags", area_flag_table, area->area_flags);
     
     Entity* entity = &area->header;
@@ -1257,6 +1264,21 @@ AEDIT(aedit_uvnum)
     return true;
 }
 
+// Comparators for qsort in do_alist
+static int compare_area_by_vnum(const void* a, const void* b)
+{
+    const AreaData* area_a = *(const AreaData**)a;
+    const AreaData* area_b = *(const AreaData**)b;
+    return (area_a->min_vnum > area_b->min_vnum) - (area_a->min_vnum < area_b->min_vnum);
+}
+
+static int compare_area_by_name(const void* a, const void* b)
+{
+    const AreaData* area_a = *(const AreaData**)a;
+    const AreaData* area_b = *(const AreaData**)b;
+    return strcasecmp(NAME_STR(area_a), NAME_STR(area_b));
+}
+
 /*****************************************************************************
  Name:		do_alist
  Purpose:	Normal command to list areas and display area information.
@@ -1294,14 +1316,10 @@ void do_alist(Mobile* ch, char* argument)
 
         READ_ARG(sort);
         if (!str_cmp(sort, "vnum")) {
-            SORT_ARRAY(AreaData*, alist, global_areas.count,
-                alist[i]->min_vnum < alist[lo]->min_vnum,
-                alist[i]->min_vnum > alist[hi]->min_vnum);
+            qsort(alist, (size_t)global_areas.count, sizeof(AreaData*), compare_area_by_vnum);
         }
         else if (!str_cmp(sort, "name")) {
-            SORT_ARRAY(AreaData*, alist, global_areas.count,
-                strcasecmp(NAME_STR(alist[i]), NAME_STR(alist[lo])) < 0,
-                strcasecmp(NAME_STR(alist[i]), NAME_STR(alist[hi])) > 0);
+            qsort(alist, (size_t)global_areas.count, sizeof(AreaData*), compare_area_by_name);
         }
         else {
             printf_to_char(ch, COLOR_INFO "Unknown sort option '" COLOR_ALT_TEXT_1 "%s" COLOR_INFO "'." COLOR_CLEAR "\n\r\n\r%s", sort, help);

@@ -98,8 +98,7 @@ void do_pedit(Mobile* ch, char* argument)
             send_to_char("PEdit : That prog does not yet exist.\n\r", ch);
             return;
         }
-        ch->desc->pEdit = U(pMcode);
-        ch->desc->editor = ED_PROG;
+        set_editor(ch->desc, ED_PROG, U(pMcode));
         pedit_show(ch, "");
         return;
     }

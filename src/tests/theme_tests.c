@@ -170,8 +170,8 @@ static int test_theme_edit_system_sets_editor()
     char cmd[] = "edit system Sunrise";
     do_theme(ch, cmd);
 
-    ASSERT(ch->desc->editor == ED_THEME);
-    ASSERT((ColorTheme*)ch->desc->pEdit == expected);
+    ASSERT(get_editor(ch->desc) == ED_THEME);
+    ASSERT((ColorTheme*)get_pEdit(ch->desc) == expected);
 
     test_output_buffer = NIL_VAL;
     return 0;

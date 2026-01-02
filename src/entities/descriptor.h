@@ -17,6 +17,8 @@ typedef struct descriptor_t Descriptor;
 
 #include <mth/mth.h>
 
+#include <olc/editor_stack.h>
+
 #include <stddef.h>
 #include <stdint.h>
 
@@ -56,13 +58,10 @@ typedef struct descriptor_t {
     ptrdiff_t outtop;
     char* showstr_head;
     char* showstr_point;
-    char** pString;
-    ObjString* pLoxScript;
-    uintptr_t pEdit;
+    EditorStack editor_stack;       // Stack of nested OLC editors
     char* screenmap;
     char* oldscreenmap;
     int repeat;
-    int16_t editor;
     int16_t page;
     bool fcommand;
     bool valid;

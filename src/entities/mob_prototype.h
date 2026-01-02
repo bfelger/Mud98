@@ -62,6 +62,7 @@ typedef struct mob_prototype_t {
     Sex sex;
     int16_t race;
     MobSize size;
+    char* loot_table;           // Loot table name (overrides area default)
     int16_t reset_num;
 } MobPrototype;
 

@@ -407,9 +407,29 @@ void load_mobiles(FILE* fp)
                 load_event(fp, &p_mob_proto->header);
             }
             else if (letter == 'L') {
-                if (!load_lox_class(fp, "mob", &p_mob_proto->header)) {
-                    bug("Load_mobiles: vnum %"PRVNUM" has malformed Lox script.", vnum);
-                    exit(1);
+                int next = getc(fp);
+                if (next == '\n' || next == '\r') {
+                    // Lox script format: L\n<script>~
+                    // Newline consumed, now read the script
+                    if (!load_lox_class(fp, "mob", &p_mob_proto->header)) {
+                        bug("Load_mobiles: vnum %"PRVNUM" has malformed Lox script.", vnum);
+                        exit(1);
+                    }
+                }
+                else if (next == 'o') {
+                    // LootTable format: LootTable <name>~
+                    // 'L' and 'o' consumed, skip rest of "otTable"
+                    char* word = fread_word(fp);
+                    if (!str_cmp(word, "otTable")) {
+                        p_mob_proto->loot_table = fread_string(fp);
+                    }
+                    else {
+                        bug("Load_mobiles: vnum %"PRVNUM" expected LootTable, got Lo%s.", vnum, word);
+                    }
+                }
+                else {
+                    bug("Load_mobiles: vnum %"PRVNUM" unexpected char after L: '%c'.", vnum, (char)next);
+                    ungetc(next, fp);
                 }
             }
             else {

@@ -9,6 +9,7 @@ Definition: [optional] <required> (combined arguments)
 ^*ROOM        ^_REDIT      ^|- ^jRooms, exit, and reset editor
 ^*OBJECT      ^_OEDIT      ^|- ^jObject editor
 ^*MOBILE      ^_MEDIT      ^|- ^jMobile editor
+^*LOOT        ^_LEDIT      ^|- ^jLoot editor
 ^*SCRIPT      ^_SCREDIT    ^|- ^jLox script editor (for public scripts)
 ^*PROGRAM     ^_MPEDIT     ^|- ^jLegacy MobProg editor
 ^*RACE        ^_RAEDIT     ^|- ^jRace editor (for player and mobiles)
@@ -36,7 +37,7 @@ RESET^x resets the current room. Most commands with no arguments display syntax.
 Use ^jASAVE^x after making changes so that the updated data is written to disk.
 
 See also help: ^jAEDIT REDIT OEDIT TEDIT MEDIT PEDIT RAEDIT SEDIT SKEDIT CMDEDIT 
-      GEDIT CEDIT HEDIT QEDIT SCREDIT^x
+      GEDIT CEDIT HEDIT QEDIT SCREDIT LEDIT^x
 ~
 
 0 ALIST~

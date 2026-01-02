@@ -20,7 +20,7 @@
 
 static bool theme_edit_check(Mobile* ch, ColorTheme** out_theme)
 {
-    if (!ch->desc || ch->desc->editor != ED_THEME || ch->desc->pEdit == 0) {
+    if (!ch->desc || get_editor(ch->desc) != ED_THEME || get_pEdit(ch->desc) == 0) {
         send_to_char(COLOR_INFO "You are not currently editing a theme." COLOR_EOL, ch);
         edit_done(ch);
         return false;
@@ -92,7 +92,7 @@ void theme_edit(Mobile* ch, char* argument)
         if (!str_prefix(command, theme_edit_table[cmd].name)) {
             if ((*theme_edit_table[cmd].olc_fun)(ch, argument)) {
                 ColorTheme* edited_theme = NULL;
-                if (ch->desc && ch->desc->editor == ED_THEME)
+                if (ch->desc && get_editor(ch->desc) == ED_THEME)
                     EDIT_THEME(ch, edited_theme);
                 if (edited_theme)
                     edited_theme->is_changed = true;

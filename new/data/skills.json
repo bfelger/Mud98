@@ -4,16 +4,16 @@
     {
       "name": "reserved",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 99,
+        "cleric": 99,
+        "thief": 99,
+        "warrior": 99
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 99,
+        "cleric": 99,
+        "thief": 99,
+        "warrior": 99
       },
       "target": "tar_ignore",
       "minPosition": "standing"
@@ -21,16 +21,16 @@
     {
       "name": "acid blast",
       "levels": {
-        "mage": 53,
+        "mage": 28,
         "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "thief": 35,
+        "warrior": 32
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_acid_blast",
       "target": "tar_char_offensive",
@@ -44,16 +44,16 @@
     {
       "name": "armor",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 7,
+        "cleric": 2,
+        "thief": 10,
+        "warrior": 5
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_armor",
       "target": "tar_char_defensive",
@@ -67,15 +67,15 @@
       "name": "bless",
       "levels": {
         "mage": 53,
-        "cleric": 53,
+        "cleric": 7,
         "thief": 53,
-        "warrior": 53
+        "warrior": 8
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_bless",
       "target": "tar_obj_char_def",
@@ -89,16 +89,16 @@
     {
       "name": "blindness",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 12,
+        "cleric": 8,
+        "thief": 17,
+        "warrior": 15
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_blindness",
       "target": "tar_char_offensive",
@@ -112,16 +112,16 @@
     {
       "name": "burning hands",
       "levels": {
-        "mage": 53,
+        "mage": 7,
         "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "thief": 10,
+        "warrior": 9
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_burning_hands",
       "target": "tar_char_offensive",
@@ -135,16 +135,16 @@
     {
       "name": "call lightning",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 26,
+        "cleric": 18,
+        "thief": 31,
+        "warrior": 22
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_call_lightning",
       "target": "tar_ignore",
@@ -158,16 +158,16 @@
     {
       "name": "calm",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 48,
+        "cleric": 16,
+        "thief": 50,
+        "warrior": 20
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_calm",
       "target": "tar_ignore",
@@ -180,16 +180,16 @@
     {
       "name": "cancellation",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 18,
+        "cleric": 26,
+        "thief": 34,
+        "warrior": 34
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_cancellation",
       "target": "tar_char_defensive",
@@ -203,15 +203,15 @@
       "name": "cause critical",
       "levels": {
         "mage": 53,
-        "cleric": 53,
+        "cleric": 13,
         "thief": 53,
-        "warrior": 53
+        "warrior": 19
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_cause_critical",
       "target": "tar_char_offensive",
@@ -226,15 +226,15 @@
       "name": "cause light",
       "levels": {
         "mage": 53,
-        "cleric": 53,
+        "cleric": 1,
         "thief": 53,
-        "warrior": 53
+        "warrior": 3
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_cause_light",
       "target": "tar_char_offensive",
@@ -249,15 +249,15 @@
       "name": "cause serious",
       "levels": {
         "mage": 53,
-        "cleric": 53,
+        "cleric": 7,
         "thief": 53,
-        "warrior": 53
+        "warrior": 10
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_cause_serious",
       "target": "tar_char_offensive",
@@ -271,16 +271,16 @@
     {
       "name": "chain lightning",
       "levels": {
-        "mage": 53,
+        "mage": 33,
         "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "thief": 39,
+        "warrior": 36
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_chain_lightning",
       "target": "tar_char_offensive",
@@ -300,10 +300,10 @@
         "warrior": 53
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_change_sex",
       "target": "tar_char_defensive",
@@ -316,16 +316,16 @@
     {
       "name": "charm person",
       "levels": {
-        "mage": 53,
+        "mage": 20,
         "cleric": 53,
-        "thief": 53,
+        "thief": 25,
         "warrior": 53
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_charm_person",
       "target": "tar_char_offensive",
@@ -339,16 +339,16 @@
     {
       "name": "chill touch",
       "levels": {
-        "mage": 53,
+        "mage": 4,
         "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "thief": 6,
+        "warrior": 6
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_chill_touch",
       "target": "tar_char_offensive",
@@ -362,16 +362,16 @@
     {
       "name": "colour spray",
       "levels": {
-        "mage": 53,
+        "mage": 16,
         "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "thief": 22,
+        "warrior": 20
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_colour_spray",
       "target": "tar_char_offensive",
@@ -385,16 +385,16 @@
     {
       "name": "continual light",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 6,
+        "cleric": 4,
+        "thief": 6,
+        "warrior": 9
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_continual_light",
       "target": "tar_ignore",
@@ -407,16 +407,16 @@
     {
       "name": "control weather",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 15,
+        "cleric": 19,
+        "thief": 28,
+        "warrior": 22
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_control_weather",
       "target": "tar_ignore",
@@ -427,18 +427,38 @@
       "msgOff": "!Control Weather!"
     },
     {
-      "name": "create food",
+      "name": "counter",
       "levels": {
         "mage": 53,
         "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "thief": 20,
+        "warrior": 25
       },
       "ratings": {
         "mage": 0,
         "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "thief": 6,
+        "warrior": 8
+      },
+      "target": "tar_ignore",
+      "minPosition": "fighting",
+      "gsn": "gsn_counter",
+      "nounDamage": "counter",
+      "msgOff": "!Counter!"
+    },
+    {
+      "name": "create food",
+      "levels": {
+        "mage": 10,
+        "cleric": 5,
+        "thief": 11,
+        "warrior": 12
+      },
+      "ratings": {
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_create_food",
       "target": "tar_ignore",
@@ -451,16 +471,16 @@
     {
       "name": "create rose",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 16,
+        "cleric": 11,
+        "thief": 10,
+        "warrior": 24
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_create_rose",
       "target": "tar_ignore",
@@ -473,16 +493,16 @@
     {
       "name": "create spring",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 14,
+        "cleric": 17,
+        "thief": 23,
+        "warrior": 20
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_create_spring",
       "target": "tar_ignore",
@@ -495,16 +515,16 @@
     {
       "name": "create water",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 8,
+        "cleric": 3,
+        "thief": 12,
+        "warrior": 11
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_create_water",
       "target": "tar_obj_inv",
@@ -518,15 +538,15 @@
       "name": "cure blindness",
       "levels": {
         "mage": 53,
-        "cleric": 53,
+        "cleric": 6,
         "thief": 53,
-        "warrior": 53
+        "warrior": 8
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_cure_blindness",
       "target": "tar_char_defensive",
@@ -540,15 +560,15 @@
       "name": "cure critical",
       "levels": {
         "mage": 53,
-        "cleric": 53,
+        "cleric": 13,
         "thief": 53,
-        "warrior": 53
+        "warrior": 19
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_cure_critical",
       "target": "tar_char_defensive",
@@ -562,15 +582,15 @@
       "name": "cure disease",
       "levels": {
         "mage": 53,
-        "cleric": 53,
+        "cleric": 13,
         "thief": 53,
-        "warrior": 53
+        "warrior": 14
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_cure_disease",
       "target": "tar_char_defensive",
@@ -584,15 +604,15 @@
       "name": "cure light",
       "levels": {
         "mage": 53,
-        "cleric": 53,
+        "cleric": 1,
         "thief": 53,
-        "warrior": 53
+        "warrior": 3
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_cure_light",
       "target": "tar_char_defensive",
@@ -606,15 +626,15 @@
       "name": "cure poison",
       "levels": {
         "mage": 53,
-        "cleric": 53,
+        "cleric": 14,
         "thief": 53,
-        "warrior": 53
+        "warrior": 16
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_cure_poison",
       "target": "tar_char_defensive",
@@ -628,15 +648,15 @@
       "name": "cure serious",
       "levels": {
         "mage": 53,
-        "cleric": 53,
+        "cleric": 7,
         "thief": 53,
-        "warrior": 53
+        "warrior": 10
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_cure_serious",
       "target": "tar_char_defensive",
@@ -649,16 +669,16 @@
     {
       "name": "curse",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 18,
+        "cleric": 18,
+        "thief": 26,
+        "warrior": 22
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_curse",
       "target": "tar_obj_char_off",
@@ -675,15 +695,15 @@
       "name": "demonfire",
       "levels": {
         "mage": 53,
-        "cleric": 53,
+        "cleric": 34,
         "thief": 53,
-        "warrior": 53
+        "warrior": 45
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_demonfire",
       "target": "tar_char_offensive",
@@ -697,16 +717,16 @@
     {
       "name": "detect evil",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
+        "mage": 11,
+        "cleric": 4,
+        "thief": 12,
         "warrior": 53
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_detect_evil",
       "target": "tar_char_self",
@@ -719,16 +739,16 @@
     {
       "name": "detect good",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
+        "mage": 11,
+        "cleric": 4,
+        "thief": 12,
         "warrior": 53
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_detect_good",
       "target": "tar_char_self",
@@ -741,16 +761,16 @@
     {
       "name": "detect hidden",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
+        "mage": 15,
+        "cleric": 11,
+        "thief": 12,
         "warrior": 53
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_detect_hidden",
       "target": "tar_char_self",
@@ -763,16 +783,16 @@
     {
       "name": "detect invis",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
+        "mage": 3,
+        "cleric": 8,
+        "thief": 6,
         "warrior": 53
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_detect_invis",
       "target": "tar_char_self",
@@ -785,16 +805,16 @@
     {
       "name": "detect magic",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
+        "mage": 2,
+        "cleric": 6,
+        "thief": 5,
         "warrior": 53
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_detect_magic",
       "target": "tar_char_self",
@@ -807,16 +827,16 @@
     {
       "name": "detect poison",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
+        "mage": 15,
+        "cleric": 7,
+        "thief": 9,
         "warrior": 53
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_detect_poison",
       "target": "tar_obj_inv",
@@ -830,15 +850,15 @@
       "name": "dispel evil",
       "levels": {
         "mage": 53,
-        "cleric": 53,
+        "cleric": 15,
         "thief": 53,
-        "warrior": 53
+        "warrior": 21
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_dispel_evil",
       "target": "tar_char_offensive",
@@ -853,15 +873,15 @@
       "name": "dispel good",
       "levels": {
         "mage": 53,
-        "cleric": 53,
+        "cleric": 15,
         "thief": 53,
-        "warrior": 53
+        "warrior": 21
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_dispel_good",
       "target": "tar_char_offensive",
@@ -875,16 +895,16 @@
     {
       "name": "dispel magic",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 16,
+        "cleric": 24,
+        "thief": 30,
+        "warrior": 30
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_dispel_magic",
       "target": "tar_char_offensive",
@@ -898,15 +918,15 @@
       "name": "earthquake",
       "levels": {
         "mage": 53,
-        "cleric": 53,
+        "cleric": 10,
         "thief": 53,
-        "warrior": 53
+        "warrior": 14
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_earthquake",
       "target": "tar_ignore",
@@ -920,16 +940,16 @@
     {
       "name": "enchant armor",
       "levels": {
-        "mage": 53,
+        "mage": 16,
         "cleric": 53,
         "thief": 53,
         "warrior": 53
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 2,
+        "cleric": 2,
+        "thief": 4,
+        "warrior": 4
       },
       "spell": "spell_enchant_armor",
       "target": "tar_obj_inv",
@@ -942,16 +962,16 @@
     {
       "name": "enchant weapon",
       "levels": {
-        "mage": 53,
+        "mage": 17,
         "cleric": 53,
         "thief": 53,
         "warrior": 53
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 2,
+        "cleric": 2,
+        "thief": 4,
+        "warrior": 4
       },
       "spell": "spell_enchant_weapon",
       "target": "tar_obj_inv",
@@ -964,16 +984,16 @@
     {
       "name": "energy drain",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 19,
+        "cleric": 22,
+        "thief": 26,
+        "warrior": 23
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_energy_drain",
       "target": "tar_char_offensive",
@@ -987,16 +1007,16 @@
     {
       "name": "faerie fire",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 6,
+        "cleric": 3,
+        "thief": 5,
+        "warrior": 8
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_faerie_fire",
       "target": "tar_char_offensive",
@@ -1010,16 +1030,16 @@
     {
       "name": "faerie fog",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 14,
+        "cleric": 21,
+        "thief": 16,
+        "warrior": 24
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_faerie_fog",
       "target": "tar_ignore",
@@ -1033,16 +1053,16 @@
     {
       "name": "farsight",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
+        "mage": 14,
+        "cleric": 16,
+        "thief": 16,
         "warrior": 53
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_farsight",
       "target": "tar_ignore",
@@ -1054,18 +1074,41 @@
       "msgOff": "!Farsight!"
     },
     {
-      "name": "fireball",
+      "name": "fire bolt",
       "levels": {
-        "mage": 53,
+        "mage": 10,
         "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "thief": 30,
+        "warrior": 26
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
+      },
+      "loxSpell": "spell_fire_bolt",
+      "target": "tar_char_offensive",
+      "minPosition": "fighting",
+      "slot": 71,
+      "minMana": 20,
+      "beats": 12,
+      "nounDamage": "fire bolt",
+      "msgOff": "!Fire Bolt!"
+    },
+    {
+      "name": "fireball",
+      "levels": {
+        "mage": 22,
+        "cleric": 53,
+        "thief": 30,
+        "warrior": 26
+      },
+      "ratings": {
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_fireball",
       "target": "tar_char_offensive",
@@ -1079,16 +1122,16 @@
     {
       "name": "fireproof",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 13,
+        "cleric": 12,
+        "thief": 19,
+        "warrior": 18
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_fireproof",
       "target": "tar_obj_inv",
@@ -1102,15 +1145,15 @@
       "name": "flamestrike",
       "levels": {
         "mage": 53,
-        "cleric": 53,
+        "cleric": 20,
         "thief": 53,
-        "warrior": 53
+        "warrior": 27
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_flamestrike",
       "target": "tar_char_offensive",
@@ -1124,16 +1167,16 @@
     {
       "name": "fly",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 10,
+        "cleric": 18,
+        "thief": 20,
+        "warrior": 22
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_fly",
       "target": "tar_char_defensive",
@@ -1146,16 +1189,16 @@
     {
       "name": "floating disc",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 4,
+        "cleric": 10,
+        "thief": 7,
+        "warrior": 16
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_floating_disc",
       "target": "tar_ignore",
@@ -1169,15 +1212,15 @@
       "name": "frenzy",
       "levels": {
         "mage": 53,
-        "cleric": 53,
+        "cleric": 24,
         "thief": 53,
-        "warrior": 53
+        "warrior": 26
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_frenzy",
       "target": "tar_char_defensive",
@@ -1190,16 +1233,16 @@
     {
       "name": "gate",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 27,
+        "cleric": 17,
+        "thief": 32,
+        "warrior": 28
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_gate",
       "target": "tar_ignore",
@@ -1212,16 +1255,16 @@
     {
       "name": "giant strength",
       "levels": {
-        "mage": 53,
+        "mage": 11,
         "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "thief": 22,
+        "warrior": 20
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_giant_strength",
       "target": "tar_char_defensive",
@@ -1235,15 +1278,15 @@
       "name": "harm",
       "levels": {
         "mage": 53,
-        "cleric": 53,
+        "cleric": 23,
         "thief": 53,
-        "warrior": 53
+        "warrior": 28
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_harm",
       "target": "tar_char_offensive",
@@ -1257,16 +1300,16 @@
     {
       "name": "haste",
       "levels": {
-        "mage": 53,
+        "mage": 21,
         "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "thief": 26,
+        "warrior": 29
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_haste",
       "target": "tar_char_defensive",
@@ -1280,15 +1323,15 @@
       "name": "heal",
       "levels": {
         "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "cleric": 21,
+        "thief": 33,
+        "warrior": 30
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_heal",
       "target": "tar_char_defensive",
@@ -1302,15 +1345,15 @@
       "name": "heat metal",
       "levels": {
         "mage": 53,
-        "cleric": 53,
+        "cleric": 16,
         "thief": 53,
-        "warrior": 53
+        "warrior": 23
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_heat_metal",
       "target": "tar_char_offensive",
@@ -1325,15 +1368,15 @@
       "name": "holy word",
       "levels": {
         "mage": 53,
-        "cleric": 53,
+        "cleric": 36,
         "thief": 53,
-        "warrior": 53
+        "warrior": 42
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 2,
+        "cleric": 2,
+        "thief": 4,
+        "warrior": 4
       },
       "spell": "spell_holy_word",
       "target": "tar_ignore",
@@ -1347,16 +1390,16 @@
     {
       "name": "identify",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
+        "mage": 15,
+        "cleric": 16,
+        "thief": 18,
         "warrior": 53
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_identify",
       "target": "tar_obj_inv",
@@ -1369,16 +1412,16 @@
     {
       "name": "infravision",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 9,
+        "cleric": 13,
+        "thief": 10,
+        "warrior": 16
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_infravision",
       "target": "tar_char_defensive",
@@ -1391,16 +1434,16 @@
     {
       "name": "invisibility",
       "levels": {
-        "mage": 53,
+        "mage": 5,
         "cleric": 53,
-        "thief": 53,
+        "thief": 9,
         "warrior": 53
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_invis",
       "target": "tar_obj_char_def",
@@ -1415,16 +1458,16 @@
     {
       "name": "know alignment",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
+        "mage": 12,
+        "cleric": 9,
+        "thief": 20,
         "warrior": 53
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_know_alignment",
       "target": "tar_char_defensive",
@@ -1437,16 +1480,16 @@
     {
       "name": "lightning bolt",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 13,
+        "cleric": 23,
+        "thief": 18,
+        "warrior": 16
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_lightning_bolt",
       "target": "tar_char_offensive",
@@ -1460,16 +1503,16 @@
     {
       "name": "locate object",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
+        "mage": 9,
+        "cleric": 15,
+        "thief": 11,
         "warrior": 53
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_locate_object",
       "target": "tar_ignore",
@@ -1482,16 +1525,16 @@
     {
       "name": "magic missile",
       "levels": {
-        "mage": 53,
+        "mage": 1,
         "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "thief": 2,
+        "warrior": 2
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_magic_missile",
       "target": "tar_char_offensive",
@@ -1506,15 +1549,15 @@
       "name": "mass healing",
       "levels": {
         "mage": 53,
-        "cleric": 53,
+        "cleric": 38,
         "thief": 53,
-        "warrior": 53
+        "warrior": 46
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 2,
+        "cleric": 2,
+        "thief": 4,
+        "warrior": 4
       },
       "spell": "spell_mass_healing",
       "target": "tar_ignore",
@@ -1527,16 +1570,16 @@
     {
       "name": "mass invis",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
+        "mage": 22,
+        "cleric": 25,
+        "thief": 31,
         "warrior": 53
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_mass_invis",
       "target": "tar_ignore",
@@ -1550,16 +1593,16 @@
     {
       "name": "nexus",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 40,
+        "cleric": 35,
+        "thief": 50,
+        "warrior": 45
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 2,
+        "cleric": 2,
+        "thief": 4,
+        "warrior": 4
       },
       "spell": "spell_nexus",
       "target": "tar_ignore",
@@ -1572,16 +1615,16 @@
     {
       "name": "pass door",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 24,
+        "cleric": 32,
+        "thief": 25,
+        "warrior": 37
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_pass_door",
       "target": "tar_char_self",
@@ -1594,16 +1637,16 @@
     {
       "name": "plague",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 23,
+        "cleric": 17,
+        "thief": 36,
+        "warrior": 26
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_plague",
       "target": "tar_char_offensive",
@@ -1618,16 +1661,16 @@
     {
       "name": "poison",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 17,
+        "cleric": 12,
+        "thief": 15,
+        "warrior": 21
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_poison",
       "target": "tar_obj_char_off",
@@ -1643,16 +1686,16 @@
     {
       "name": "portal",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 35,
+        "cleric": 30,
+        "thief": 45,
+        "warrior": 40
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 2,
+        "cleric": 2,
+        "thief": 4,
+        "warrior": 4
       },
       "spell": "spell_portal",
       "target": "tar_ignore",
@@ -1665,16 +1708,16 @@
     {
       "name": "protection evil",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 12,
+        "cleric": 9,
+        "thief": 17,
+        "warrior": 11
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_protection_evil",
       "target": "tar_char_self",
@@ -1687,16 +1730,16 @@
     {
       "name": "protection good",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 12,
+        "cleric": 9,
+        "thief": 17,
+        "warrior": 11
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_protection_good",
       "target": "tar_char_self",
@@ -1710,15 +1753,15 @@
       "name": "ray of truth",
       "levels": {
         "mage": 53,
-        "cleric": 53,
+        "cleric": 35,
         "thief": 53,
-        "warrior": 53
+        "warrior": 47
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_ray_of_truth",
       "target": "tar_char_offensive",
@@ -1732,16 +1775,16 @@
     {
       "name": "recharge",
       "levels": {
-        "mage": 53,
+        "mage": 9,
         "cleric": 53,
         "thief": 53,
         "warrior": 53
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_recharge",
       "target": "tar_obj_inv",
@@ -1754,16 +1797,16 @@
     {
       "name": "refresh",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 8,
+        "cleric": 5,
+        "thief": 12,
+        "warrior": 9
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_refresh",
       "target": "tar_char_defensive",
@@ -1778,15 +1821,15 @@
       "name": "remove curse",
       "levels": {
         "mage": 53,
-        "cleric": 53,
+        "cleric": 18,
         "thief": 53,
-        "warrior": 53
+        "warrior": 22
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_remove_curse",
       "target": "tar_obj_char_def",
@@ -1799,16 +1842,16 @@
     {
       "name": "sanctuary",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 36,
+        "cleric": 20,
+        "thief": 42,
+        "warrior": 30
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_sanctuary",
       "target": "tar_char_defensive",
@@ -1822,16 +1865,16 @@
     {
       "name": "shield",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 20,
+        "cleric": 35,
+        "thief": 35,
+        "warrior": 40
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_shield",
       "target": "tar_char_defensive",
@@ -1844,16 +1887,16 @@
     {
       "name": "shocking grasp",
       "levels": {
-        "mage": 53,
+        "mage": 10,
         "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "thief": 14,
+        "warrior": 13
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_shocking_grasp",
       "target": "tar_char_offensive",
@@ -1867,16 +1910,16 @@
     {
       "name": "sleep",
       "levels": {
-        "mage": 53,
+        "mage": 10,
         "cleric": 53,
-        "thief": 53,
+        "thief": 11,
         "warrior": 53
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_sleep",
       "target": "tar_char_offensive",
@@ -1890,16 +1933,16 @@
     {
       "name": "slow",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 23,
+        "cleric": 30,
+        "thief": 29,
+        "warrior": 32
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_slow",
       "target": "tar_char_offensive",
@@ -1912,16 +1955,16 @@
     {
       "name": "stone skin",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 25,
+        "cleric": 40,
+        "thief": 40,
+        "warrior": 45
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_stone_skin",
       "target": "tar_char_self",
@@ -1934,16 +1977,16 @@
     {
       "name": "summon",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 24,
+        "cleric": 12,
+        "thief": 29,
+        "warrior": 22
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_summon",
       "target": "tar_ignore",
@@ -1956,16 +1999,16 @@
     {
       "name": "teleport",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 13,
+        "cleric": 22,
+        "thief": 25,
+        "warrior": 36
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_teleport",
       "target": "tar_char_self",
@@ -1978,16 +2021,16 @@
     {
       "name": "ventriloquate",
       "levels": {
-        "mage": 53,
+        "mage": 1,
         "cleric": 53,
-        "thief": 53,
+        "thief": 2,
         "warrior": 53
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_ventriloquate",
       "target": "tar_ignore",
@@ -2000,16 +2043,16 @@
     {
       "name": "weaken",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 11,
+        "cleric": 14,
+        "thief": 16,
+        "warrior": 17
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_weaken",
       "target": "tar_char_offensive",
@@ -2023,16 +2066,16 @@
     {
       "name": "word of recall",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 32,
+        "cleric": 28,
+        "thief": 40,
+        "warrior": 30
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_word_of_recall",
       "target": "tar_char_self",
@@ -2045,16 +2088,16 @@
     {
       "name": "acid breath",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 31,
+        "cleric": 32,
+        "thief": 33,
+        "warrior": 34
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_acid_breath",
       "target": "tar_char_offensive",
@@ -2068,16 +2111,16 @@
     {
       "name": "fire breath",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 40,
+        "cleric": 45,
+        "thief": 50,
+        "warrior": 51
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_fire_breath",
       "target": "tar_char_offensive",
@@ -2091,16 +2134,16 @@
     {
       "name": "frost breath",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 34,
+        "cleric": 36,
+        "thief": 38,
+        "warrior": 40
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_frost_breath",
       "target": "tar_char_offensive",
@@ -2114,16 +2157,16 @@
     {
       "name": "gas breath",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 39,
+        "cleric": 43,
+        "thief": 47,
+        "warrior": 50
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_gas_breath",
       "target": "tar_ignore",
@@ -2137,16 +2180,16 @@
     {
       "name": "lightning breath",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 37,
+        "cleric": 40,
+        "thief": 43,
+        "warrior": 46
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 1,
+        "cleric": 1,
+        "thief": 2,
+        "warrior": 2
       },
       "spell": "spell_lightning_breath",
       "target": "tar_char_offensive",
@@ -2204,16 +2247,16 @@
     {
       "name": "axe",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 1,
+        "cleric": 1,
+        "thief": 1,
+        "warrior": 1
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 6,
+        "cleric": 6,
+        "thief": 5,
+        "warrior": 4
       },
       "target": "tar_ignore",
       "minPosition": "fighting",
@@ -2223,16 +2266,16 @@
     {
       "name": "dagger",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 1,
+        "cleric": 1,
+        "thief": 1,
+        "warrior": 1
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 2,
+        "cleric": 3,
+        "thief": 2,
+        "warrior": 2
       },
       "target": "tar_ignore",
       "minPosition": "fighting",
@@ -2242,16 +2285,16 @@
     {
       "name": "flail",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 1,
+        "cleric": 1,
+        "thief": 1,
+        "warrior": 1
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 6,
+        "cleric": 3,
+        "thief": 6,
+        "warrior": 4
       },
       "target": "tar_ignore",
       "minPosition": "fighting",
@@ -2261,16 +2304,16 @@
     {
       "name": "mace",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 1,
+        "cleric": 1,
+        "thief": 1,
+        "warrior": 1
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 5,
+        "cleric": 2,
+        "thief": 3,
+        "warrior": 3
       },
       "target": "tar_ignore",
       "minPosition": "fighting",
@@ -2280,16 +2323,16 @@
     {
       "name": "polearm",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 1,
+        "cleric": 1,
+        "thief": 1,
+        "warrior": 1
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 6,
+        "cleric": 6,
+        "thief": 6,
+        "warrior": 4
       },
       "target": "tar_ignore",
       "minPosition": "fighting",
@@ -2299,16 +2342,16 @@
     {
       "name": "shield block",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 1,
+        "cleric": 1,
+        "thief": 1,
+        "warrior": 1
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 6,
+        "cleric": 4,
+        "thief": 6,
+        "warrior": 2
       },
       "target": "tar_ignore",
       "minPosition": "fighting",
@@ -2318,16 +2361,16 @@
     {
       "name": "spear",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 1,
+        "cleric": 1,
+        "thief": 1,
+        "warrior": 1
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 4,
+        "cleric": 4,
+        "thief": 4,
+        "warrior": 3
       },
       "target": "tar_ignore",
       "minPosition": "fighting",
@@ -2337,16 +2380,16 @@
     {
       "name": "sword",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 1,
+        "cleric": 1,
+        "thief": 1,
+        "warrior": 1
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 5,
+        "cleric": 6,
+        "thief": 3,
+        "warrior": 2
       },
       "target": "tar_ignore",
       "minPosition": "fighting",
@@ -2356,16 +2399,16 @@
     {
       "name": "whip",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 1,
+        "cleric": 1,
+        "thief": 1,
+        "warrior": 1
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 6,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 4
       },
       "target": "tar_ignore",
       "minPosition": "fighting",
@@ -2377,13 +2420,13 @@
       "levels": {
         "mage": 53,
         "cleric": 53,
-        "thief": 53,
+        "thief": 1,
         "warrior": 53
       },
       "ratings": {
         "mage": 0,
         "cleric": 0,
-        "thief": 0,
+        "thief": 5,
         "warrior": 0
       },
       "target": "tar_ignore",
@@ -2399,13 +2442,13 @@
         "mage": 53,
         "cleric": 53,
         "thief": 53,
-        "warrior": 53
+        "warrior": 1
       },
       "ratings": {
         "mage": 0,
         "cleric": 0,
         "thief": 0,
-        "warrior": 0
+        "warrior": 4
       },
       "target": "tar_ignore",
       "minPosition": "fighting",
@@ -2420,13 +2463,13 @@
         "mage": 53,
         "cleric": 53,
         "thief": 53,
-        "warrior": 53
+        "warrior": 18
       },
       "ratings": {
         "mage": 0,
         "cleric": 0,
         "thief": 0,
-        "warrior": 0
+        "warrior": 5
       },
       "target": "tar_ignore",
       "minPosition": "fighting",
@@ -2439,14 +2482,14 @@
       "levels": {
         "mage": 53,
         "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "thief": 3,
+        "warrior": 3
       },
       "ratings": {
         "mage": 0,
         "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "thief": 4,
+        "warrior": 4
       },
       "target": "tar_ignore",
       "minPosition": "fighting",
@@ -2460,14 +2503,14 @@
       "levels": {
         "mage": 53,
         "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "thief": 12,
+        "warrior": 11
       },
       "ratings": {
         "mage": 0,
         "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "thief": 6,
+        "warrior": 4
       },
       "target": "tar_ignore",
       "minPosition": "fighting",
@@ -2478,16 +2521,16 @@
     {
       "name": "dodge",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 20,
+        "cleric": 22,
+        "thief": 1,
+        "warrior": 13
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 8,
+        "cleric": 8,
+        "thief": 4,
+        "warrior": 6
       },
       "target": "tar_ignore",
       "minPosition": "fighting",
@@ -2497,16 +2540,16 @@
     {
       "name": "enhanced damage",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 45,
+        "cleric": 30,
+        "thief": 25,
+        "warrior": 1
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 10,
+        "cleric": 9,
+        "thief": 5,
+        "warrior": 3
       },
       "target": "tar_ignore",
       "minPosition": "fighting",
@@ -2518,13 +2561,13 @@
       "levels": {
         "mage": 53,
         "cleric": 53,
-        "thief": 53,
+        "thief": 10,
         "warrior": 53
       },
       "ratings": {
         "mage": 0,
         "cleric": 0,
-        "thief": 0,
+        "thief": 4,
         "warrior": 0
       },
       "target": "tar_ignore",
@@ -2536,16 +2579,16 @@
     {
       "name": "hand to hand",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 25,
+        "cleric": 10,
+        "thief": 15,
+        "warrior": 6
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 8,
+        "cleric": 5,
+        "thief": 6,
+        "warrior": 4
       },
       "target": "tar_ignore",
       "minPosition": "fighting",
@@ -2556,15 +2599,15 @@
       "name": "kick",
       "levels": {
         "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "cleric": 12,
+        "thief": 14,
+        "warrior": 8
       },
       "ratings": {
         "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "cleric": 4,
+        "thief": 6,
+        "warrior": 3
       },
       "target": "tar_char_offensive",
       "minPosition": "fighting",
@@ -2576,16 +2619,16 @@
     {
       "name": "parry",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 22,
+        "cleric": 20,
+        "thief": 13,
+        "warrior": 1
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 8,
+        "cleric": 8,
+        "thief": 6,
+        "warrior": 4
       },
       "target": "tar_ignore",
       "minPosition": "fighting",
@@ -2598,13 +2641,13 @@
         "mage": 53,
         "cleric": 53,
         "thief": 53,
-        "warrior": 53
+        "warrior": 1
       },
       "ratings": {
         "mage": 0,
         "cleric": 0,
         "thief": 0,
-        "warrior": 0
+        "warrior": 4
       },
       "target": "tar_ignore",
       "minPosition": "fighting",
@@ -2617,14 +2660,14 @@
       "levels": {
         "mage": 53,
         "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "thief": 1,
+        "warrior": 15
       },
       "ratings": {
         "mage": 0,
         "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "thief": 4,
+        "warrior": 8
       },
       "target": "tar_ignore",
       "minPosition": "fighting",
@@ -2636,16 +2679,16 @@
     {
       "name": "second attack",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 30,
+        "cleric": 24,
+        "thief": 12,
+        "warrior": 5
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 10,
+        "cleric": 8,
+        "thief": 5,
+        "warrior": 3
       },
       "target": "tar_ignore",
       "minPosition": "fighting",
@@ -2657,14 +2700,14 @@
       "levels": {
         "mage": 53,
         "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "thief": 24,
+        "warrior": 12
       },
       "ratings": {
         "mage": 0,
         "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "thief": 10,
+        "warrior": 4
       },
       "target": "tar_ignore",
       "minPosition": "fighting",
@@ -2674,16 +2717,16 @@
     {
       "name": "fast healing",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 15,
+        "cleric": 9,
+        "thief": 16,
+        "warrior": 6
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 8,
+        "cleric": 5,
+        "thief": 6,
+        "warrior": 4
       },
       "target": "tar_ignore",
       "minPosition": "sleeping",
@@ -2693,16 +2736,16 @@
     {
       "name": "haggle",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 7,
+        "cleric": 18,
+        "thief": 1,
+        "warrior": 14
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 5,
+        "cleric": 8,
+        "thief": 3,
+        "warrior": 6
       },
       "target": "tar_ignore",
       "minPosition": "resting",
@@ -2714,14 +2757,14 @@
       "levels": {
         "mage": 53,
         "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "thief": 1,
+        "warrior": 12
       },
       "ratings": {
         "mage": 0,
         "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "thief": 4,
+        "warrior": 6
       },
       "target": "tar_ignore",
       "minPosition": "resting",
@@ -2732,16 +2775,16 @@
     {
       "name": "lore",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 10,
+        "cleric": 10,
+        "thief": 6,
+        "warrior": 20
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 6,
+        "cleric": 6,
+        "thief": 4,
+        "warrior": 8
       },
       "target": "tar_ignore",
       "minPosition": "resting",
@@ -2752,16 +2795,16 @@
     {
       "name": "meditation",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 6,
+        "cleric": 6,
+        "thief": 15,
+        "warrior": 15
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 5,
+        "cleric": 5,
+        "thief": 8,
+        "warrior": 8
       },
       "target": "tar_ignore",
       "minPosition": "sleeping",
@@ -2771,16 +2814,16 @@
     {
       "name": "peek",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 8,
+        "cleric": 21,
+        "thief": 1,
+        "warrior": 14
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 5,
+        "cleric": 7,
+        "thief": 3,
+        "warrior": 6
       },
       "target": "tar_ignore",
       "minPosition": "standing",
@@ -2790,16 +2833,16 @@
     {
       "name": "pick lock",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 25,
+        "cleric": 25,
+        "thief": 7,
+        "warrior": 25
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 8,
+        "cleric": 8,
+        "thief": 4,
+        "warrior": 8
       },
       "target": "tar_ignore",
       "minPosition": "standing",
@@ -2812,14 +2855,14 @@
       "levels": {
         "mage": 53,
         "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "thief": 4,
+        "warrior": 10
       },
       "ratings": {
         "mage": 0,
         "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "thief": 4,
+        "warrior": 6
       },
       "target": "tar_ignore",
       "minPosition": "standing",
@@ -2832,13 +2875,13 @@
       "levels": {
         "mage": 53,
         "cleric": 53,
-        "thief": 53,
+        "thief": 5,
         "warrior": 53
       },
       "ratings": {
         "mage": 0,
         "cleric": 0,
-        "thief": 0,
+        "thief": 4,
         "warrior": 0
       },
       "target": "tar_ignore",
@@ -2850,16 +2893,16 @@
     {
       "name": "scrolls",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 1,
+        "cleric": 1,
+        "thief": 1,
+        "warrior": 1
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 2,
+        "cleric": 3,
+        "thief": 5,
+        "warrior": 8
       },
       "target": "tar_ignore",
       "minPosition": "standing",
@@ -2870,16 +2913,16 @@
     {
       "name": "staves",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 1,
+        "cleric": 1,
+        "thief": 1,
+        "warrior": 1
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 2,
+        "cleric": 3,
+        "thief": 5,
+        "warrior": 8
       },
       "target": "tar_ignore",
       "minPosition": "standing",
@@ -2890,16 +2933,16 @@
     {
       "name": "wands",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 1,
+        "cleric": 1,
+        "thief": 1,
+        "warrior": 1
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 2,
+        "cleric": 3,
+        "thief": 5,
+        "warrior": 8
       },
       "target": "tar_ignore",
       "minPosition": "standing",
@@ -2910,16 +2953,16 @@
     {
       "name": "recall",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 1,
+        "cleric": 1,
+        "thief": 1,
+        "warrior": 1
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 2,
+        "cleric": 2,
+        "thief": 2,
+        "warrior": 2
       },
       "target": "tar_ignore",
       "minPosition": "standing",
@@ -2930,64 +2973,21 @@
     {
       "name": "dual-wield",
       "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
+        "mage": 30,
+        "cleric": 24,
+        "thief": 12,
+        "warrior": 5
       },
       "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
+        "mage": 10,
+        "cleric": 8,
+        "thief": 5,
+        "warrior": 3
       },
       "target": "tar_ignore",
       "minPosition": "resting",
       "gsn": "gsn_dual_wield",
       "msgOff": "!Dual-Wield!"
-    },
-    {
-      "name": "fire bolt",
-      "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 53,
-        "warrior": 53
-      },
-      "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 0,
-        "warrior": 0
-      },
-      "loxSpell": "spell_fire_bolt",
-      "target": "tar_char_offensive",
-      "minPosition": "fighting",
-      "slot": 71,
-      "minMana": 20,
-      "beats": 12,
-      "nounDamage": "fire bolt",
-      "msgOff": "!Fire Bolt!"
-    },
-    {
-      "name": "counter",
-      "levels": {
-        "mage": 53,
-        "cleric": 53,
-        "thief": 20,
-        "warrior": 25
-      },
-      "ratings": {
-        "mage": 0,
-        "cleric": 0,
-        "thief": 6,
-        "warrior": 8
-      },
-      "target": "tar_ignore",
-      "minPosition": "fighting",
-      "gsn": "gsn_counter",
-      "nounDamage": "counterattack",
-      "msgOff": "!Counter!"
     }
   ]
 }
