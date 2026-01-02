@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "Faladrin Forest",
     "builders": "Halivar",
     "vnumRange": [
@@ -15,7 +15,8 @@
     "highLevel": 5,
     "reset": 1,
     "alwaysReset": false,
-    "instType": "multi"
+    "instType": "multi",
+    "lootTable": "faladrin_t0"
   },
   "storyBeats": [
     {
@@ -1914,12 +1915,12 @@
       "loxScript": "on_given(giver, taker) {\n\r    if (!taker.is_mob())\n\r        return;\n\r\n\r    if (taker.vnum == 12026) {\n\r        taker.say(giver, \"I will see your words carried to Valewyn.\");\n\r        taker.echo(giver, \"$n folds the writ with care and seals it under a palm of light.\");\n\r        if (giver.has_quest(12050)) {\n\r            giver.finish_quest(12050);\n\r            giver.send(\"^jCalendor gestures east toward the unfinished bridge.^x\");\n\r        }\n\r        return;\n\r    }\n\r\n\r    giver.send(\"^rThe writ crackles and slips from ${taker.name}'s grasp, unwilling to trust another.^x\");\n\r}\n\r\n\ron_dropped(dropper) {\n\r    if (!is_mob(dropper))\n\r        return;\n\r    dropper.send(\"^rThe writ flutters, then drifts back toward your pack as if tugged by unseen roots.^x\");\n\r}\n\r",
       "events": [
         {
-          "trigger": "given",
-          "callback": "on_given"
-        },
-        {
           "trigger": "dropped",
           "callback": "on_dropped"
+        },
+        {
+          "trigger": "given",
+          "callback": "on_given"
         }
       ]
     },
@@ -2343,5 +2344,84 @@
         0
       ]
     }
-  ]
+  ],
+  "loot": {
+    "groups": [
+      {
+        "name": "elf_gear_t0",
+        "rolls": 1,
+        "entries": [
+          {
+            "type": "item",
+            "vnum": 12000,
+            "minQty": 1,
+            "maxQty": 1,
+            "weight": 20
+          },
+          {
+            "type": "item",
+            "vnum": 12001,
+            "minQty": 1,
+            "maxQty": 1,
+            "weight": 20
+          },
+          {
+            "type": "item",
+            "vnum": 12002,
+            "minQty": 1,
+            "maxQty": 1,
+            "weight": 20
+          },
+          {
+            "type": "item",
+            "vnum": 12003,
+            "minQty": 1,
+            "maxQty": 1,
+            "weight": 20
+          },
+          {
+            "type": "item",
+            "vnum": 12004,
+            "minQty": 1,
+            "maxQty": 1,
+            "weight": 20
+          },
+          {
+            "type": "item",
+            "vnum": 12005,
+            "minQty": 1,
+            "maxQty": 1,
+            "weight": 20
+          },
+          {
+            "type": "item",
+            "vnum": 12006,
+            "minQty": 1,
+            "maxQty": 1,
+            "weight": 20
+          },
+          {
+            "type": "item",
+            "vnum": 12007,
+            "minQty": 1,
+            "maxQty": 1,
+            "weight": 20
+          }
+        ]
+      }
+    ],
+    "tables": [
+      {
+        "name": "faladrin_t0",
+        "parent": "global_t0",
+        "ops": [
+          {
+            "op": "use_group",
+            "group": "elf_gear_t0",
+            "chance": 20
+          }
+        ]
+      }
+    ]
+  }
 }

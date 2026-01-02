@@ -197,6 +197,12 @@ bool run_olc_editor(Descriptor* d, char* incomm)
     case ED_LOOT:
         ledit(d->character, incomm);
         break;
+    case ED_LOOT_GROUP:
+        loot_group_edit(d->character, incomm);
+        break;
+    case ED_LOOT_TABLE:
+        loot_table_edit(d->character, incomm);
+        break;
     default:
         return false;
     }
@@ -239,6 +245,8 @@ char* olc_ed_name(Mobile* ch)
         case ED_TUTORIAL: strcat(buf, "TEdit"); break;
         case ED_SCRIPT:   strcat(buf, "ScrEdit"); break;
         case ED_LOOT:     strcat(buf, "LEdit"); break;
+        case ED_LOOT_GROUP: strcat(buf, "LGrp"); break;
+        case ED_LOOT_TABLE: strcat(buf, "LTbl"); break;
         case ED_STRING:   strcat(buf, "Str"); break;
         case ED_LOX_SCRIPT: strcat(buf, "Lox"); break;
         default:          strcat(buf, "?"); break;

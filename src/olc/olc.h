@@ -426,6 +426,8 @@ DECLARE_ED_FUN(ed_objrecval);
 #define EDIT_CMD(ch, cmd)       ( cmd = (CmdInfo*)get_pEdit(ch->desc) )
 #define EDIT_GROUP(ch, grp)     ( grp = (SkillGroup*)get_pEdit(ch->desc) )
 #define EDIT_HELP(ch, help)     ( help = (HelpData*)get_pEdit(ch->desc) )
+#define EDIT_LOOT_GROUP(ch, grp) ( grp = (LootGroup*)get_pEdit(ch->desc) )
+#define EDIT_LOOT_TABLE(ch, tbl) ( tbl = (LootTable*)get_pEdit(ch->desc) )
 #define EDIT_MOB(ch, mob)       ( mob = (MobPrototype*)get_pEdit(ch->desc) )
 #define EDIT_OBJ(ch, obj)       ( obj = (ObjPrototype*)get_pEdit(ch->desc) )
 #define EDIT_PROG(ch, code)     ( code = (MobProgCode*)get_pEdit(ch->desc) )

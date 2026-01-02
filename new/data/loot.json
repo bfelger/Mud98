@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "groups": [
     {
-      "name": "COINS_T1",
+      "name": "coins_t0",
       "rolls": 1,
       "entries": [
         {
@@ -14,7 +14,7 @@
       ]
     },
     {
-      "name": "GLOBAL_COMMON_T1",
+      "name": "global_common_t0",
       "rolls": 1,
       "entries": [
         {
@@ -41,7 +41,7 @@
       ]
     },
     {
-      "name": "GLOBAL_RARE_T1",
+      "name": "global_rare_t0",
       "rolls": 1,
       "entries": [
         {
@@ -56,21 +56,21 @@
   ],
   "tables": [
     {
-      "name": "GLOBAL_T1",
+      "name": "global_t0",
       "ops": [
         {
           "op": "use_group",
-          "group": "COINS_T1",
+          "group": "coins_t0",
           "chance": 100
         },
         {
           "op": "use_group",
-          "group": "GLOBAL_COMMON_T1",
+          "group": "global_common_t0",
           "chance": 35
         },
         {
           "op": "use_group",
-          "group": "GLOBAL_RARE_T1",
+          "group": "global_rare_t0",
           "chance": 1
         }
       ]

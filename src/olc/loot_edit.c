@@ -10,6 +10,7 @@
 #include "string_edit.h"
 
 #include <entities/entity.h>
+#include <entities/obj_prototype.h>
 #include <data/loot.h>
 
 #include <comm.h>
@@ -21,6 +22,7 @@
 
 // Forward declarations
 static bool lootedit_show(Mobile* ch, char* argument);
+static bool lootedit_edit(Mobile* ch, char* argument);
 static bool lootedit_list(Mobile* ch, char* argument);
 static bool lootedit_group_list(Mobile* ch, char* argument);
 static bool lootedit_table_list(Mobile* ch, char* argument);
@@ -36,6 +38,8 @@ static bool lootedit_remove_op(Mobile* ch, char* argument);
 static bool lootedit_parent(Mobile* ch, char* argument);
 static bool lootedit_save(Mobile* ch, char* argument);
 static bool lootedit_help(Mobile* ch, char* argument);
+static void enter_group_editor(Mobile* ch, LootGroup* group);
+static void enter_table_editor(Mobile* ch, LootTable* table);
 
 typedef struct {
     const char* name;
@@ -46,9 +50,10 @@ typedef struct {
 static const LooteditHelpEntry lootedit_help_table[] = {
     { "list",        "list",                               "Show all loot groups and tables for this entity." },
     { "show",        "show",                               "Display loot configuration summary." },
+    { "edit",        "edit <group|table>",                 "Edit a loot group or table." },
     { "groups",      "groups",                             "List all loot groups (detailed)." },
     { "tables",      "tables",                             "List all loot tables (detailed)." },
-    { "create",      "create group|table <args>",          "Create a new group or table." },
+    { "create",      "create group|table <args>",          "Create a new group or table (and edit it)." },
     { "delete",      "delete group|table <name>",          "Delete a group or table." },
     { "add",         "add item|cp|op <args>",              "Add an item, cp, or operation." },
     { "remove",      "remove entry|op <args>",             "Remove an entry or operation." },
@@ -81,6 +86,34 @@ static Entity* get_loot_owner(Mobile* ch)
     }
     // Fallback: no owner (global)
     return NULL;
+}
+
+static void ledit_olist(Mobile* ch, char* argument)
+{
+    Entity* owner = get_loot_owner(ch);
+    if (!owner) {
+        printf_to_char(ch, COLOR_INFO "OList: You must be editing loot for an"
+            " entity to list its area's objects." COLOR_EOL);
+        return;
+    }
+    // We have an owner. Determine if it's AreaData, ObjPrototype, or MobPrototype
+    AreaData* area = NULL;
+    if (owner->obj.type == OBJ_AREA_DATA) {
+        area = (AreaData*)owner;
+    } else if (owner->obj.type == OBJ_OBJ_PROTO) {
+        ObjPrototype* obj_proto = (ObjPrototype*)owner;
+        area = obj_proto->area;
+    } else if (owner->obj.type == OBJ_MOB_PROTO) {
+        MobPrototype* mob_proto = (MobPrototype*)owner;
+        area = mob_proto->area;
+    }  
+    if (!area) {
+        printf_to_char(ch, COLOR_INFO "OList: Unable to determine area for"
+            " the current loot owner entity." COLOR_EOL);
+        return;
+    }
+    // Now list objects in the area
+    ed_olist("olist", ch, argument, (uintptr_t)&area, 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -125,6 +158,11 @@ void ledit(Mobile* ch, char* argument)
         return;
     }
 
+    if (!str_cmp(command, "edit")) {
+        lootedit_edit(ch, rest);
+        return;
+    }
+
     if (!str_cmp(command, "list")) {
         lootedit_list(ch, rest);
         return;
@@ -141,32 +179,7 @@ void ledit(Mobile* ch, char* argument)
     }
 
     if (!str_cmp(command, "olist")) {
-        // Check loot owner; if NULL, we're in global mode and can't list area 
-        // objects. If we have an owner entity, get its area.
-        Entity* owner = get_loot_owner(ch);
-        if (!owner) {
-            printf_to_char(ch, COLOR_INFO "OList: You must be editing loot for an"
-                " entity to list its area's objects." COLOR_EOL);
-            return;
-        }
-        // We have an owner. Determine if it's AreaData, ObjPrototype, or MobPrototype
-        AreaData* area = NULL;
-        if (owner->obj.type == OBJ_AREA_DATA) {
-            area = (AreaData*)owner;
-        } else if (owner->obj.type == OBJ_OBJ_PROTO) {
-            ObjPrototype* obj_proto = (ObjPrototype*)owner;
-            area = obj_proto->area;
-        } else if (owner->obj.type == OBJ_MOB_PROTO) {
-            MobPrototype* mob_proto = (MobPrototype*)owner;
-            area = mob_proto->area;
-        }  
-        if (!area) {
-            printf_to_char(ch, COLOR_INFO "OList: Unable to determine area for"
-                " the current loot owner entity." COLOR_EOL);
-            return;
-        }
-        // Now list objects in the area
-        ed_olist("olist", ch, rest, (uintptr_t)&area, 0);
+        ledit_olist(ch, rest);
         return;
     }
 
@@ -419,6 +432,42 @@ static bool lootedit_list(Mobile* ch, char* argument)
     return true;
 }
 
+static void show_loot_group_entries(Mobile* ch, LootGroup* g)
+{
+    if (g->entry_count == 0) {
+        printf_to_char(ch, COLOR_ALT_TEXT_1 "    (no entries)\n\r" 
+            COLOR_EOL);
+        return;
+    }
+    else {
+        printf_to_char(ch, COLOR_TITLE   "     Idx  Type  Min-Max  Wt     VNUM" COLOR_EOL);
+        printf_to_char(ch, COLOR_DECOR_2 "    ===== ==== ========= === ===========" COLOR_EOL);
+    }
+
+    for (int j = 0; j < g->entry_count; j++) {
+        LootEntry* e = &g->entries[j];
+        if (e->type == LOOT_ITEM) {
+            ObjPrototype* obj_proto = get_object_prototype(e->item_vnum);
+            char* obj_name = obj_proto ? obj_proto->short_descr : "<unknown>";
+            printf_to_char(ch, "    " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%3d" COLOR_DECOR_1 "]" COLOR_CLEAR " Item " COLOR_ALT_TEXT_1 "%4d" COLOR_DECOR_1 "-" COLOR_ALT_TEXT_1 "%-4d %3d " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%7"PRVNUM COLOR_DECOR_1 " ] " COLOR_ALT_TEXT_2 "%-30.30s" COLOR_EOL,
+                j + 1, e->min_qty, e->max_qty, e->weight, e->item_vnum, obj_name);
+        } else if (e->type == LOOT_CP) {
+            printf_to_char(ch, "    " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%3d" COLOR_DECOR_1 "]" COLOR_CLEAR "  CP  " COLOR_ALT_TEXT_1 "%4d" COLOR_DECOR_1 "-" COLOR_ALT_TEXT_1 "%-4d %3d" COLOR_EOL,
+                j + 1, e->min_qty, e->max_qty, e->weight);
+        }
+    }
+    printf_to_char(ch, "\n\r");
+}
+
+static void show_loot_group(Mobile* ch, LootGroup* g)
+{
+    if (g->rolls == 1)
+        printf_to_char(ch, "%s " COLOR_ALT_TEXT_1 "(1 roll) " COLOR_CLEAR ":\n\r", g->name);
+    else
+        printf_to_char(ch, "%s " COLOR_ALT_TEXT_1 "(%d rolls) " COLOR_CLEAR ":\n\r", g->name, g->rolls);
+    show_loot_group_entries(ch, g);
+}
+
 static bool lootedit_group_list(Mobile* ch, char* argument)
 {
     Entity* entity = get_loot_owner(ch);
@@ -436,34 +485,7 @@ static bool lootedit_group_list(Mobile* ch, char* argument)
         if (global_loot_db->groups[i].owner == entity) {
             found = true;
             LootGroup* g = &global_loot_db->groups[i];
-            if (g->rolls == 1)
-                printf_to_char(ch, "%s " COLOR_ALT_TEXT_1 "(1 roll) " COLOR_CLEAR ":\n\r", g->name);
-            else
-                printf_to_char(ch, "%s " COLOR_ALT_TEXT_1 "(%d rolls) " COLOR_CLEAR ":\n\r", g->name, g->rolls);
-
-            if (g->entry_count == 0) {
-                printf_to_char(ch, COLOR_ALT_TEXT_1 "    (no entries)\n\r" 
-                    COLOR_EOL);
-                continue;
-            }
-            else {
-                printf_to_char(ch, COLOR_TITLE   "     Idx  Type  Min-Max  Wt     VNUM" COLOR_EOL);
-                printf_to_char(ch, COLOR_DECOR_2 "    ===== ==== ========= === ===========" COLOR_EOL);
-            }
-
-            for (int j = 0; j < g->entry_count; j++) {
-                LootEntry* e = &g->entries[j];
-                if (e->type == LOOT_ITEM) {
-                    ObjPrototype* obj_proto = get_object_prototype(e->item_vnum);
-                    char* obj_name = obj_proto ? obj_proto->header.name->chars : "<unknown>";
-                    printf_to_char(ch, "    " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%3d" COLOR_DECOR_1 "]" COLOR_CLEAR " Item " COLOR_ALT_TEXT_1 "%4d" COLOR_DECOR_1 "-" COLOR_ALT_TEXT_1 "%-4d %3d " COLOR_DECOR_1 "[ " COLOR_ALT_TEXT_1 "%7"PRVNUM COLOR_DECOR_1 " ] " COLOR_ALT_TEXT_2 "%-30.30s" COLOR_EOL,
-                        j + 1, e->min_qty, e->max_qty, e->weight, e->item_vnum, obj_name);
-                } else if (e->type == LOOT_CP) {
-                    printf_to_char(ch, "    " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%3d" COLOR_DECOR_1 "]" COLOR_CLEAR "  CP  " COLOR_ALT_TEXT_1 "%4d" COLOR_DECOR_1 "-" COLOR_ALT_TEXT_1 "%-4d %3d" COLOR_EOL,
-                        j + 1, e->min_qty, e->max_qty, e->weight);
-                }
-            }
-            printf_to_char(ch, "\n\r");
+            show_loot_group(ch, g);
         }
     }
 
@@ -669,6 +691,9 @@ static bool lootedit_create_group(Mobile* ch, char* argument)
     }
 
     printf_to_char(ch, COLOR_INFO "Created loot group '%s' with %d rolls." COLOR_EOL, name, rolls);
+    
+    // Enter sub-editor for the new group
+    enter_group_editor(ch, group);
     return true;
 }
 
@@ -709,6 +734,9 @@ static bool lootedit_create_table(Mobile* ch, char* argument)
     } else {
         printf_to_char(ch, COLOR_INFO "Created loot table '%s' with parent '%s'." COLOR_EOL, name, parent);
     }
+
+    // Enter sub-editor for the new table
+    enter_table_editor(ch, table);
     return true;
 }
 
@@ -1147,4 +1175,546 @@ static bool lootedit_parent(Mobile* ch, char* argument)
     return true;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Sub-editor helpers
+////////////////////////////////////////////////////////////////////////////////
 
+static const char* op_type_name(LootOpType type)
+{
+    switch (type) {
+        case LOOT_OP_USE_GROUP: return "use_group";
+        case LOOT_OP_ADD_ITEM: return "add_item";
+        case LOOT_OP_ADD_CP: return "add_cp";
+        case LOOT_OP_MUL_CP: return "mul_cp";
+        case LOOT_OP_MUL_ALL_CHANCES: return "mul_all";
+        case LOOT_OP_REMOVE_ITEM: return "remove_item";
+        case LOOT_OP_REMOVE_GROUP: return "remove_group";
+        default: return "unknown";
+    }
+}
+
+static void mark_area_changed(Mobile* ch)
+{
+    Entity* entity = get_loot_owner(ch);
+    if (entity != NULL && entity->obj.type == OBJ_AREA_DATA) {
+        AreaData* area = (AreaData*)entity;
+        SET_BIT(area->area_flags, AREA_CHANGED);
+    }
+}
+
+static void show_loot_group_long(Mobile* ch, LootGroup* group)
+{
+    olc_print_str_box(ch, "Loot Group", group->name, NULL);
+    if (group->owner) {
+        const char* owner_type = (group->owner->obj.type == OBJ_AREA_DATA) ? "Area" : 
+            (group->owner->obj.type == OBJ_MOB_PROTO) ? "Mobile" : "Entity";
+        olc_print_num_str(ch, owner_type, group->owner->vnum, group->owner->name->chars);
+    } else {
+        olc_print_str_box(ch, "Owner", "None (global)", NULL);
+    }
+    olc_print_num(ch, "Rolls", group->rolls);
+    
+    show_loot_group_entries(ch, group);
+}
+
+static void show_loot_table(Mobile* ch, LootTable* table)
+{
+    printf_to_char(ch, COLOR_INFO "Loot Table: %s" COLOR_EOL, table->name);
+    printf_to_char(ch, COLOR_INFO "Owner:      %s" COLOR_EOL, 
+        table->owner ? "Yes" : "None (global)");
+    printf_to_char(ch, COLOR_INFO "Parent:     %s" COLOR_EOL, 
+        IS_NULLSTR(table->parent_name) ? "(none)" : table->parent_name);
+    printf_to_char(ch, COLOR_INFO "Operations: %d" COLOR_EOL, table->op_count);
+    
+    if (table->op_count > 0) {
+        send_to_char(COLOR_INFO "\nOperations:\n\r", ch);
+        for (int i = 0; i < table->op_count; i++) {
+            LootOp* op = &table->ops[i];
+            const char* grp = IS_NULLSTR(op->group_name) ? "" : op->group_name;
+            printf_to_char(ch, "  [%2d] %s group=%s a=%d b=%d c=%d d=%d\n\r",
+                i + 1, op_type_name(op->type), grp, op->a, op->b, op->c, op->d);
+        }
+    }
+}
+
+static void enter_group_editor(Mobile* ch, LootGroup* group)
+{
+    push_editor(ch->desc, ED_LOOT_GROUP, (uintptr_t)group);
+    printf_to_char(ch, COLOR_INFO "Entering loot group editor. Type 'done' to exit, '?' for help." COLOR_EOL);
+    show_loot_group_long(ch, group);
+}
+
+static void enter_table_editor(Mobile* ch, LootTable* table)
+{
+    push_editor(ch->desc, ED_LOOT_TABLE, (uintptr_t)table);
+    printf_to_char(ch, COLOR_INFO "Entering loot table editor. Type 'done' to exit, '?' for help." COLOR_EOL);
+    show_loot_table(ch, table);
+}
+
+static bool lootedit_edit(Mobile* ch, char* argument)
+{
+    Entity* entity = get_loot_owner(ch);
+    char name[MSL];
+
+    if (!global_loot_db) {
+        printf_to_char(ch, COLOR_INFO "No global loot database loaded." COLOR_EOL);
+        return false;
+    }
+
+    one_argument(argument, name);
+    if (IS_NULLSTR(name)) {
+        printf_to_char(ch, COLOR_INFO "Usage: edit <group_name|table_name>" COLOR_EOL);
+        return false;
+    }
+
+    // Try to find as a group first
+    LootGroup* group = loot_db_find_group(global_loot_db, name);
+    if (group && group->owner == entity) {
+        enter_group_editor(ch, group);
+        return true;
+    }
+
+    // Try to find as a table
+    LootTable* table = loot_db_find_table(global_loot_db, name);
+    if (table && table->owner == entity) {
+        enter_table_editor(ch, table);
+        return true;
+    }
+
+    printf_to_char(ch, COLOR_INFO "No group or table named '%s' found for this entity." COLOR_EOL, name);
+    return false;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Loot Group Sub-editor
+////////////////////////////////////////////////////////////////////////////////
+
+// Forward declarations for group sub-editor
+static bool groupedit_add(Mobile* ch, LootGroup* group, char* argument);
+static bool groupedit_remove(Mobile* ch, LootGroup* group, char* argument);
+static bool groupedit_rolls(Mobile* ch, LootGroup* group, char* argument);
+
+void loot_group_edit(Mobile* ch, char* argument)
+{
+    LootGroup* group;
+    char command[MSL];
+
+    EDIT_LOOT_GROUP(ch, group);
+
+    argument = one_argument(argument, command);
+
+    if (!str_cmp(command, "?")) {
+        send_to_char(COLOR_INFO "Loot Group Editor Commands:\n\r", ch);
+        send_to_char("  show                                 - Show group details\n\r", ch);
+        send_to_char("  add item <vnum> <weight> <min> <max> - Add an item entry\n\r", ch);
+        send_to_char("  add cp <weight> <min> <max>          - Add a choice point\n\r", ch);
+        send_to_char("  remove <index>                       - Remove entry by index\n\r", ch);
+        send_to_char("  rolls <number>                       - Set number of rolls\n\r", ch);
+        send_to_char("  olist                               - List available items\n\r", ch);
+        send_to_char("  done                                 - Exit group editor\n\r", ch);
+        return;
+    }
+
+    if (!str_cmp(command, "show")) {
+        show_loot_group_long(ch, group);
+        return;
+    }
+
+    if (!str_cmp(command, "add")) {
+        if (groupedit_add(ch, group, argument)) {
+            mark_area_changed(ch);
+        }
+        return;
+    }
+
+    if (!str_cmp(command, "remove")) {
+        if (groupedit_remove(ch, group, argument)) {
+            mark_area_changed(ch);
+        }
+        return;
+    }
+
+    if (!str_cmp(command, "rolls")) {
+        if (groupedit_rolls(ch, group, argument)) {
+            mark_area_changed(ch);
+        }
+        return;
+    }
+
+    if (!str_cmp(command, "olist")) {
+        ledit_olist(ch, argument);
+        return;
+    }
+
+    if (!str_cmp(command, "done")) {
+        pop_editor(ch->desc);
+        printf_to_char(ch, COLOR_INFO "Exiting loot group editor." COLOR_EOL);
+        return;
+    }
+
+    printf_to_char(ch, COLOR_INFO "Unknown command '%s'. Type '?' for help." COLOR_EOL, command);
+}
+
+static bool groupedit_add(Mobile* ch, LootGroup* group, char* argument)
+{
+    char type[MSL];
+    char arg1[MSL];
+    char arg2[MSL];
+    char arg3[MSL];
+    char arg4[MSL];
+
+    argument = one_argument(argument, type);
+    argument = one_argument(argument, arg1);
+    argument = one_argument(argument, arg2);
+    argument = one_argument(argument, arg3);
+    argument = one_argument(argument, arg4);
+
+    if (!str_cmp(type, "item")) {
+        if (IS_NULLSTR(arg1) || IS_NULLSTR(arg2) || IS_NULLSTR(arg3) || IS_NULLSTR(arg4)) {
+            printf_to_char(ch, COLOR_INFO "Usage: add item <vnum> <weight> <min_qty> <max_qty>" COLOR_EOL);
+            return false;
+        }
+
+        VNUM vnum = (VNUM)atol(arg1);
+        ObjPrototype* obj = get_object_prototype(vnum);
+        if (!obj) {
+            printf_to_char(ch, COLOR_INFO "Object vnum %"PRVNUM" not found." COLOR_EOL, vnum);
+            return false;
+        }
+
+        int weight = atoi(arg2);
+        int min_qty = atoi(arg3);
+        int max_qty = atoi(arg4);
+
+        if (weight < 1) weight = 1;
+        if (min_qty < 1) min_qty = 1;
+        if (max_qty < min_qty) max_qty = min_qty;
+
+        if (!loot_group_add_item(group, vnum, weight, min_qty, max_qty)) {
+            printf_to_char(ch, COLOR_INFO "Failed to add item." COLOR_EOL);
+            return false;
+        }
+
+        printf_to_char(ch, COLOR_INFO "Added item [%"PRVNUM"] %s (w=%d q=%d-%d)." COLOR_EOL,
+            vnum, obj->short_descr, weight, min_qty, max_qty);
+        return true;
+    }
+
+    if (!str_cmp(type, "cp")) {
+        if (IS_NULLSTR(arg1) || IS_NULLSTR(arg2) || IS_NULLSTR(arg3)) {
+            printf_to_char(ch, COLOR_INFO "Usage: add cp <weight> <min> <max>" COLOR_EOL);
+            return false;
+        }
+
+        int weight = atoi(arg1);
+        int min_qty = atoi(arg2);
+        int max_qty = atoi(arg3);
+
+        if (weight < 1) weight = 1;
+        if (min_qty < 0) min_qty = 0;
+        if (max_qty < min_qty) max_qty = min_qty;
+
+        if (!loot_group_add_cp(group, weight, min_qty, max_qty)) {
+            printf_to_char(ch, COLOR_INFO "Failed to add choice point." COLOR_EOL);
+            return false;
+        }
+
+        printf_to_char(ch, COLOR_INFO "Added cp (w=%d q=%d-%d)." COLOR_EOL, weight, min_qty, max_qty);
+        return true;
+    }
+
+    printf_to_char(ch, COLOR_INFO "Usage: add <item|cp> ..." COLOR_EOL);
+    return false;
+}
+
+static bool groupedit_remove(Mobile* ch, LootGroup* group, char* argument)
+{
+    char arg[MSL];
+    one_argument(argument, arg);
+
+    if (IS_NULLSTR(arg)) {
+        printf_to_char(ch, COLOR_INFO "Usage: remove <index>" COLOR_EOL);
+        return false;
+    }
+
+    int index = atoi(arg) - 1;  // Convert to 0-based
+    if (index < 0 || index >= group->entry_count) {
+        printf_to_char(ch, COLOR_INFO "Invalid index. Use 1-%d." COLOR_EOL, group->entry_count);
+        return false;
+    }
+
+    if (!loot_group_remove_entry(group, index)) {
+        printf_to_char(ch, COLOR_INFO "Failed to remove entry." COLOR_EOL);
+        return false;
+    }
+
+    printf_to_char(ch, COLOR_INFO "Removed entry %d." COLOR_EOL, index + 1);
+    return true;
+}
+
+static bool groupedit_rolls(Mobile* ch, LootGroup* group, char* argument)
+{
+    char arg[MSL];
+    one_argument(argument, arg);
+
+    if (IS_NULLSTR(arg)) {
+        printf_to_char(ch, COLOR_INFO "Usage: rolls <number>" COLOR_EOL);
+        return false;
+    }
+
+    int rolls = atoi(arg);
+    if (rolls < 1) {
+        printf_to_char(ch, COLOR_INFO "Rolls must be at least 1." COLOR_EOL);
+        return false;
+    }
+
+    group->rolls = rolls;
+    printf_to_char(ch, COLOR_INFO "Set rolls to %d." COLOR_EOL, rolls);
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Loot Table Sub-editor
+////////////////////////////////////////////////////////////////////////////////
+
+// Forward declarations for table sub-editor
+static bool tableedit_add(Mobile* ch, LootTable* table, char* argument);
+static bool tableedit_remove(Mobile* ch, LootTable* table, char* argument);
+static bool tableedit_parent(Mobile* ch, LootTable* table, char* argument);
+
+void loot_table_edit(Mobile* ch, char* argument)
+{
+    LootTable* table;
+    char command[MSL];
+
+    EDIT_LOOT_TABLE(ch, table);
+
+    argument = one_argument(argument, command);
+
+    if (!str_cmp(command, "?")) {
+        send_to_char(COLOR_INFO "Loot Table Editor Commands:\n\r", ch);
+        send_to_char("  show                                          - Show table details\n\r", ch);
+        send_to_char("  add op use_group <group> [chance]             - Use a loot group\n\r", ch);
+        send_to_char("  add op add_item <vnum> [chance] [min] [max]   - Add item directly\n\r", ch);
+        send_to_char("  add op add_cp [chance] [min] [max]            - Add cp directly\n\r", ch);
+        send_to_char("  add op mul_cp <factor>                        - Multiply cp\n\r", ch);
+        send_to_char("  add op mul_all <factor>                       - Multiply all chances\n\r", ch);
+        send_to_char("  add op remove_item <vnum>                     - Remove an item\n\r", ch);
+        send_to_char("  add op remove_group <group>                   - Remove a group\n\r", ch);
+        send_to_char("  remove <index>                                - Remove operation by index\n\r", ch);
+        send_to_char("  parent [name|none]                            - Set or clear parent\n\r", ch);
+        send_to_char("  done                                          - Exit table editor\n\r", ch);
+        return;
+    }
+
+    if (!str_cmp(command, "show")) {
+        show_loot_table(ch, table);
+        return;
+    }
+
+    if (!str_cmp(command, "add")) {
+        if (tableedit_add(ch, table, argument)) {
+            mark_area_changed(ch);
+        }
+        return;
+    }
+
+    if (!str_cmp(command, "remove")) {
+        if (tableedit_remove(ch, table, argument)) {
+            mark_area_changed(ch);
+        }
+        return;
+    }
+
+    if (!str_cmp(command, "parent")) {
+        if (tableedit_parent(ch, table, argument)) {
+            mark_area_changed(ch);
+        }
+        return;
+    }
+
+    if (!str_cmp(command, "done")) {
+        pop_editor(ch->desc);
+        printf_to_char(ch, COLOR_INFO "Exiting loot table editor." COLOR_EOL);
+        return;
+    }
+
+    printf_to_char(ch, COLOR_INFO "Unknown command '%s'. Type '?' for help." COLOR_EOL, command);
+}
+
+static bool tableedit_add(Mobile* ch, LootTable* table, char* argument)
+{
+    char type_arg[MSL];
+    char op_type_str[MSL];
+    LootOp op = {0};
+    char* end;
+
+    argument = one_argument(argument, type_arg);
+    argument = one_argument(argument, op_type_str);
+
+    if (str_cmp(type_arg, "op")) {
+        printf_to_char(ch, COLOR_INFO "Usage: add op <type> ..." COLOR_EOL);
+        return false;
+    }
+
+    if (IS_NULLSTR(op_type_str)) {
+        printf_to_char(ch, COLOR_INFO "Usage: add op <type> ...\n\r" COLOR_EOL);
+        printf_to_char(ch, COLOR_INFO "Types: use_group, add_item, add_cp, mul_cp, mul_all, remove_item, remove_group" COLOR_EOL);
+        return false;
+    }
+
+    // Parse operation based on type
+    if (!str_cmp(op_type_str, "use_group")) {
+        char group_name[MSL];
+        char chance_str[MSL];
+        argument = one_argument(argument, group_name);
+        one_argument(argument, chance_str);
+        if (IS_NULLSTR(group_name)) {
+            printf_to_char(ch, COLOR_INFO "Usage: add op use_group <group_name> [chance]" COLOR_EOL);
+            return false;
+        }
+        op.type = LOOT_OP_USE_GROUP;
+        op.group_name = str_dup(group_name);
+        op.a = IS_NULLSTR(chance_str) ? 100 : atoi(chance_str);
+    }
+    else if (!str_cmp(op_type_str, "add_item")) {
+        char vnum_str[MSL];
+        char chance_str[MSL];
+        char min_str[MSL];
+        char max_str[MSL];
+        argument = one_argument(argument, vnum_str);
+        argument = one_argument(argument, chance_str);
+        argument = one_argument(argument, min_str);
+        one_argument(argument, max_str);
+        if (IS_NULLSTR(vnum_str)) {
+            printf_to_char(ch, COLOR_INFO "Usage: add op add_item <vnum> [chance] [min] [max]" COLOR_EOL);
+            return false;
+        }
+        op.type = LOOT_OP_ADD_ITEM;
+        op.a = strtol(vnum_str, &end, 10);
+        op.b = IS_NULLSTR(chance_str) ? 100 : atoi(chance_str);
+        op.c = IS_NULLSTR(min_str) ? 1 : atoi(min_str);
+        op.d = IS_NULLSTR(max_str) ? op.c : atoi(max_str);
+    }
+    else if (!str_cmp(op_type_str, "add_cp")) {
+        char chance_str[MSL];
+        char min_str[MSL];
+        char max_str[MSL];
+        argument = one_argument(argument, chance_str);
+        argument = one_argument(argument, min_str);
+        one_argument(argument, max_str);
+        op.type = LOOT_OP_ADD_CP;
+        op.a = IS_NULLSTR(chance_str) ? 100 : atoi(chance_str);
+        op.c = IS_NULLSTR(min_str) ? 1 : atoi(min_str);
+        op.d = IS_NULLSTR(max_str) ? op.c : atoi(max_str);
+    }
+    else if (!str_cmp(op_type_str, "mul_cp")) {
+        char factor_str[MSL];
+        one_argument(argument, factor_str);
+        if (IS_NULLSTR(factor_str)) {
+            printf_to_char(ch, COLOR_INFO "Usage: add op mul_cp <factor>" COLOR_EOL);
+            return false;
+        }
+        op.type = LOOT_OP_MUL_CP;
+        op.a = strtol(factor_str, &end, 10);
+    }
+    else if (!str_cmp(op_type_str, "mul_all")) {
+        char factor_str[MSL];
+        one_argument(argument, factor_str);
+        if (IS_NULLSTR(factor_str)) {
+            printf_to_char(ch, COLOR_INFO "Usage: add op mul_all <factor>" COLOR_EOL);
+            return false;
+        }
+        op.type = LOOT_OP_MUL_ALL_CHANCES;
+        op.a = strtol(factor_str, &end, 10);
+    }
+    else if (!str_cmp(op_type_str, "remove_item")) {
+        char vnum_str[MSL];
+        one_argument(argument, vnum_str);
+        if (IS_NULLSTR(vnum_str)) {
+            printf_to_char(ch, COLOR_INFO "Usage: add op remove_item <vnum>" COLOR_EOL);
+            return false;
+        }
+        op.type = LOOT_OP_REMOVE_ITEM;
+        op.a = strtol(vnum_str, &end, 10);
+    }
+    else if (!str_cmp(op_type_str, "remove_group")) {
+        char group_name[MSL];
+        one_argument(argument, group_name);
+        if (IS_NULLSTR(group_name)) {
+            printf_to_char(ch, COLOR_INFO "Usage: add op remove_group <group_name>" COLOR_EOL);
+            return false;
+        }
+        op.type = LOOT_OP_REMOVE_GROUP;
+        op.group_name = str_dup(group_name);
+    }
+    else {
+        printf_to_char(ch, COLOR_INFO "Unknown operation type '%s'." COLOR_EOL, op_type_str);
+        return false;
+    }
+
+    if (!loot_table_add_op(table, op)) {
+        printf_to_char(ch, COLOR_INFO "Failed to add operation." COLOR_EOL);
+        return false;
+    }
+
+    // Re-resolve inheritance
+    resolve_all_loot_tables(global_loot_db);
+
+    printf_to_char(ch, COLOR_INFO "Added %s operation." COLOR_EOL, op_type_str);
+    return true;
+}
+
+static bool tableedit_remove(Mobile* ch, LootTable* table, char* argument)
+{
+    char arg[MSL];
+    one_argument(argument, arg);
+
+    if (IS_NULLSTR(arg)) {
+        printf_to_char(ch, COLOR_INFO "Usage: remove <index>" COLOR_EOL);
+        return false;
+    }
+
+    int index = atoi(arg) - 1;  // Convert to 0-based
+    if (index < 0 || index >= table->op_count) {
+        printf_to_char(ch, COLOR_INFO "Invalid index. Use 1-%d." COLOR_EOL, table->op_count);
+        return false;
+    }
+
+    if (!loot_table_remove_op(table, index)) {
+        printf_to_char(ch, COLOR_INFO "Failed to remove operation." COLOR_EOL);
+        return false;
+    }
+
+    // Re-resolve inheritance
+    resolve_all_loot_tables(global_loot_db);
+
+    printf_to_char(ch, COLOR_INFO "Removed operation %d." COLOR_EOL, index + 1);
+    return true;
+}
+
+static bool tableedit_parent(Mobile* ch, LootTable* table, char* argument)
+{
+    char parent_name[MSL];
+    one_argument(argument, parent_name);
+
+    const char* parent = NULL;
+    if (!IS_NULLSTR(parent_name) && str_cmp(parent_name, "none")) {
+        parent = parent_name;
+    }
+
+    if (!loot_table_set_parent(table, parent)) {
+        printf_to_char(ch, COLOR_INFO "Failed to set parent." COLOR_EOL);
+        return false;
+    }
+
+    // Re-resolve inheritance
+    resolve_all_loot_tables(global_loot_db);
+
+    if (parent) {
+        printf_to_char(ch, COLOR_INFO "Set parent to '%s'." COLOR_EOL, parent);
+    } else {
+        printf_to_char(ch, COLOR_INFO "Cleared parent." COLOR_EOL);
+    }
+    return true;
+}

@@ -6,6 +6,7 @@
 #include "area_persist_json.h"
 
 #include <persist/json/persist_json.h>
+#include <persist/loot/json/loot_persist_json.h>
 
 #include <data/damage.h>
 #include <data/direction.h>
@@ -2406,6 +2407,14 @@ PersistResult json_load(const AreaPersistLoadParams* params)
         res = parse_resets(root);
     if (area_persist_succeeded(res))
         res = parse_helps(root, current_area_data);
+    
+    // Parse loot groups and tables for this area
+    if (area_persist_succeeded(res)) {
+        json_t* loot = json_object_get(root, "loot");
+        if (loot)
+            loot_persist_json_parse(loot, &current_area_data->header);
+    }
+
     if (area_persist_succeeded(res)
         && params->create_single_instance
         && current_area_data
@@ -2443,6 +2452,11 @@ PersistResult json_save(const AreaPersistSaveParams* params)
     else
         json_decref(helps);
     json_object_set_new(root, "quests", build_quests(params->area));
+    
+    // Build and add loot groups/tables for this area
+    json_t* loot = loot_persist_json_build(&params->area->header);
+    if (loot)
+        json_object_set_new(root, "loot", loot);
 
     char* dump = json_dumps(root, JSON_INDENT(2));
     json_decref(root);

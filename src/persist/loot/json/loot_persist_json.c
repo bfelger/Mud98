@@ -371,3 +371,91 @@ static bool parse_loot_table(json_t* obj, LootDB* db, Entity* owner)
 
     return true;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// Public API for embedding loot in area JSON
+////////////////////////////////////////////////////////////////////////////////
+
+json_t* loot_persist_json_build(const Entity* owner)
+{
+    if (!global_loot_db)
+        return NULL;
+
+    // Count how many groups and tables belong to this owner
+    int group_count = 0;
+    int table_count = 0;
+    for (int i = 0; i < global_loot_db->group_count; i++) {
+        if (global_loot_db->groups[i].owner == owner)
+            group_count++;
+    }
+    for (int i = 0; i < global_loot_db->table_count; i++) {
+        if (global_loot_db->tables[i].owner == owner)
+            table_count++;
+    }
+
+    // If no loot data for this owner, return NULL
+    if (group_count == 0 && table_count == 0)
+        return NULL;
+
+    json_t* obj = json_object();
+
+    // Build groups array
+    json_t* groups = json_array();
+    for (int i = 0; i < global_loot_db->group_count; i++) {
+        if (global_loot_db->groups[i].owner == owner) {
+            json_array_append_new(groups, build_loot_group(&global_loot_db->groups[i]));
+        }
+    }
+    json_object_set_new(obj, "groups", groups);
+
+    // Build tables array
+    json_t* tables = json_array();
+    for (int i = 0; i < global_loot_db->table_count; i++) {
+        if (global_loot_db->tables[i].owner == owner) {
+            json_array_append_new(tables, build_loot_table(&global_loot_db->tables[i]));
+        }
+    }
+    json_object_set_new(obj, "tables", tables);
+
+    return obj;
+}
+
+void loot_persist_json_parse(json_t* loot_obj, Entity* owner)
+{
+    if (!loot_obj || !json_is_object(loot_obj))
+        return;
+
+    // Initialize global_loot_db if needed
+    if (!global_loot_db) {
+        global_loot_db = calloc(1, sizeof(LootDB));
+        if (!global_loot_db)
+            return;
+    }
+
+    // Parse groups
+    json_t* groups = json_object_get(loot_obj, "groups");
+    if (json_is_array(groups)) {
+        size_t count = json_array_size(groups);
+        for (size_t i = 0; i < count; i++) {
+            json_t* g = json_array_get(groups, i);
+            if (json_is_object(g)) {
+                parse_loot_group(g, global_loot_db, owner);
+            }
+        }
+    }
+
+    // Parse tables
+    json_t* tables = json_object_get(loot_obj, "tables");
+    if (json_is_array(tables)) {
+        size_t count = json_array_size(tables);
+        for (size_t i = 0; i < count; i++) {
+            json_t* t = json_array_get(tables, i);
+            if (json_is_object(t)) {
+                parse_loot_table(t, global_loot_db, owner);
+            }
+        }
+    }
+
+    // Resolve inheritance after adding new groups/tables
+    resolve_all_loot_tables(global_loot_db);
+}

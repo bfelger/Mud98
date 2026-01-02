@@ -709,7 +709,8 @@ void generate_loot(LootDB* db, const char* table_name,
 
 void add_loot_to_container(LootDrop* drops, size_t drop_count, Object* container) 
 {
-    if (container->item_type != ITEM_CONTAINER) {
+    if (container->item_type != ITEM_CONTAINER 
+        && container->item_type != ITEM_CORPSE_NPC) {
         bugf("add_loot_container: object is not a container\n");
         return;
     }
