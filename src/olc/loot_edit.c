@@ -496,12 +496,62 @@ static bool lootedit_group_list(Mobile* ch, char* argument)
     return true;
 }
 
-static bool lootedit_table_list(Mobile* ch, char* argument)
+static void lootedit_show_table_entries(Mobile* ch, LootTable* t)
 {
 #define PRETTY_IDX  "    " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%3d" COLOR_DECOR_1 "]" COLOR_CLEAR
+    if (t->op_count == 0) {
+        printf_to_char(ch, COLOR_ALT_TEXT_1 "    (no operations)\n\r" 
+            COLOR_EOL);
+        return;
+    }
+
+    ObjPrototype* obj_proto = NULL;
+    for (int j = 0; j < t->op_count; j++) {
+        LootOp* op = &t->ops[j];
+        switch (op->type) {
+        case LOOT_OP_USE_GROUP:
+            printf_to_char(ch, PRETTY_IDX " use_group " COLOR_ALT_TEXT_1 "%s" COLOR_CLEAR " %d%%\n\r",
+                j + 1, op->group_name, op->a);
+            break;
+        case LOOT_OP_ADD_ITEM:
+            obj_proto = get_object_prototype(op->a);
+            printf_to_char(ch, PRETTY_IDX " add_item " COLOR_ALT_TEXT_1 "%d" COLOR_CLEAR " %d%% %d-%d "  COLOR_ALT_TEXT_2 "(%.30s)" COLOR_EOL,
+                j + 1, op->a, op->b, op->c, op->d, obj_proto ? obj_proto->header.name->chars : "unknown");
+            break;
+        case LOOT_OP_ADD_CP:
+            printf_to_char(ch, PRETTY_IDX " add_cp %d%% %d-%d\n\r",
+                j + 1, op->a, op->c, op->d);
+            break;
+        case LOOT_OP_MUL_CP:
+            printf_to_char(ch, PRETTY_IDX " mul_cp %d%%\n\r",
+                j + 1, op->a);
+            break;
+        case LOOT_OP_MUL_ALL_CHANCES:
+            printf_to_char(ch, PRETTY_IDX " mul_all_chances %d%%\n\r",
+                j + 1, op->a);
+            break;
+        case LOOT_OP_REMOVE_ITEM:
+            obj_proto = get_object_prototype(op->a);
+            printf_to_char(ch, PRETTY_IDX " remove_item " COLOR_ALT_TEXT_1 "%d " COLOR_ALT_TEXT_2 "(%-30.30s)" COLOR_EOL,
+                j + 1, op->a, obj_proto ? obj_proto->header.name->chars : "unknown");
+            break;
+        case LOOT_OP_REMOVE_GROUP:
+            printf_to_char(ch, PRETTY_IDX " remove_group " COLOR_ALT_TEXT_1 "%s" COLOR_EOL,
+                j + 1, op->group_name);
+            break;
+        default:
+            break;
+        }
+    }
+    printf_to_char(ch, "\n\r"); 
+#undef PRETTY_IDX
+}
+
+static bool lootedit_table_list(Mobile* ch, char* argument)
+{
     Entity* entity = get_loot_owner(ch);
 
-    if (!global_loot_db) {
+    if (entity == NULL && !global_loot_db) {
         printf_to_char(ch, COLOR_INFO "No global loot database loaded." COLOR_EOL);
         return false;
     }
@@ -510,7 +560,6 @@ static bool lootedit_table_list(Mobile* ch, char* argument)
         COLOR_DECOR_2 "===" COLOR_EOL);
 
     bool found = false;
-    ObjPrototype* obj_proto = NULL;
     for (int i = 0; i < global_loot_db->table_count; i++) {
         if (global_loot_db->tables[i].owner == entity) {
             LootTable* t = &global_loot_db->tables[i];
@@ -518,45 +567,7 @@ static bool lootedit_table_list(Mobile* ch, char* argument)
                 printf_to_char(ch, "%s " COLOR_ALT_TEXT_1 "(parent: %s)" COLOR_CLEAR ":\n\r", t->name, t->parent_name);
             else
                 printf_to_char(ch, "%s:\n\r", t->name);
-
-            for (int j = 0; j < t->op_count; j++) {
-                LootOp* op = &t->ops[j];
-                switch (op->type) {
-                case LOOT_OP_USE_GROUP:
-                    printf_to_char(ch, PRETTY_IDX " use_group " COLOR_ALT_TEXT_1 "%s" COLOR_CLEAR " %d%%\n\r",
-                        j + 1, op->group_name, op->a);
-                    break;
-                case LOOT_OP_ADD_ITEM:
-                    obj_proto = get_object_prototype(op->a);
-                    printf_to_char(ch, PRETTY_IDX " add_item " COLOR_ALT_TEXT_1 "%d" COLOR_CLEAR " %d%% %d-%d "  COLOR_ALT_TEXT_2 "(%.30s)" COLOR_EOL,
-                        j + 1, op->a, op->b, op->c, op->d, obj_proto ? obj_proto->header.name->chars : "unknown");
-                    break;
-                case LOOT_OP_ADD_CP:
-                    printf_to_char(ch, PRETTY_IDX " add_cp %d%% %d-%d\n\r",
-                        j + 1, op->a, op->c, op->d);
-                    break;
-                case LOOT_OP_MUL_CP:
-                    printf_to_char(ch, PRETTY_IDX " mul_cp %d%%\n\r",
-                        j + 1, op->a);
-                    break;
-                case LOOT_OP_MUL_ALL_CHANCES:
-                    printf_to_char(ch, PRETTY_IDX " mul_all_chances %d%%\n\r",
-                        j + 1, op->a);
-                    break;
-                case LOOT_OP_REMOVE_ITEM:
-                    obj_proto = get_object_prototype(op->a);
-                    printf_to_char(ch, PRETTY_IDX " remove_item " COLOR_ALT_TEXT_1 "%d " COLOR_ALT_TEXT_2 "(%-30.30s)" COLOR_EOL,
-                        j + 1, op->a, obj_proto ? obj_proto->header.name->chars : "unknown");
-                    break;
-                case LOOT_OP_REMOVE_GROUP:
-                    printf_to_char(ch, PRETTY_IDX " remove_group " COLOR_ALT_TEXT_1 "%s" COLOR_EOL,
-                        j + 1, op->group_name);
-                    break;
-                default:
-                    break;
-                }
-            }
-            printf_to_char(ch, "\n\r");
+            lootedit_show_table_entries(ch, t);
             found = true;
         }
     }
@@ -566,7 +577,6 @@ static bool lootedit_table_list(Mobile* ch, char* argument)
     }
 
     return true;
-#undef PRETTY_IDX
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1179,19 +1189,19 @@ static bool lootedit_parent(Mobile* ch, char* argument)
 // Sub-editor helpers
 ////////////////////////////////////////////////////////////////////////////////
 
-static const char* op_type_name(LootOpType type)
-{
-    switch (type) {
-        case LOOT_OP_USE_GROUP: return "use_group";
-        case LOOT_OP_ADD_ITEM: return "add_item";
-        case LOOT_OP_ADD_CP: return "add_cp";
-        case LOOT_OP_MUL_CP: return "mul_cp";
-        case LOOT_OP_MUL_ALL_CHANCES: return "mul_all";
-        case LOOT_OP_REMOVE_ITEM: return "remove_item";
-        case LOOT_OP_REMOVE_GROUP: return "remove_group";
-        default: return "unknown";
-    }
-}
+//static const char* op_type_name(LootOpType type)
+//{
+//    switch (type) {
+//        case LOOT_OP_USE_GROUP: return "use_group";
+//        case LOOT_OP_ADD_ITEM: return "add_item";
+//        case LOOT_OP_ADD_CP: return "add_cp";
+//        case LOOT_OP_MUL_CP: return "mul_cp";
+//        case LOOT_OP_MUL_ALL_CHANCES: return "mul_all";
+//        case LOOT_OP_REMOVE_ITEM: return "remove_item";
+//        case LOOT_OP_REMOVE_GROUP: return "remove_group";
+//        default: return "unknown";
+//    }
+//}
 
 static void mark_area_changed(Mobile* ch)
 {
@@ -1219,22 +1229,18 @@ static void show_loot_group_long(Mobile* ch, LootGroup* group)
 
 static void show_loot_table(Mobile* ch, LootTable* table)
 {
-    printf_to_char(ch, COLOR_INFO "Loot Table: %s" COLOR_EOL, table->name);
-    printf_to_char(ch, COLOR_INFO "Owner:      %s" COLOR_EOL, 
-        table->owner ? "Yes" : "None (global)");
-    printf_to_char(ch, COLOR_INFO "Parent:     %s" COLOR_EOL, 
-        IS_NULLSTR(table->parent_name) ? "(none)" : table->parent_name);
-    printf_to_char(ch, COLOR_INFO "Operations: %d" COLOR_EOL, table->op_count);
-    
-    if (table->op_count > 0) {
-        send_to_char(COLOR_INFO "\nOperations:\n\r", ch);
-        for (int i = 0; i < table->op_count; i++) {
-            LootOp* op = &table->ops[i];
-            const char* grp = IS_NULLSTR(op->group_name) ? "" : op->group_name;
-            printf_to_char(ch, "  [%2d] %s group=%s a=%d b=%d c=%d d=%d\n\r",
-                i + 1, op_type_name(op->type), grp, op->a, op->b, op->c, op->d);
-        }
+    olc_print_str_box(ch, "Loot Table", table->name, NULL);
+    if (table->owner) {
+        const char* owner_type = (table->owner->obj.type == OBJ_AREA_DATA) ? "Area" : 
+            (table->owner->obj.type == OBJ_MOB_PROTO) ? "Mobile" : "Entity";
+        olc_print_num_str(ch, owner_type, table->owner->vnum, table->owner->name->chars);
+    } else {
+        olc_print_str_box(ch, "Owner", "None (global)", NULL);
     }
+    olc_print_str_box(ch, "Parent Table", 
+        IS_NULLSTR(table->parent_name) ? "None" : table->parent_name, NULL);
+    
+    lootedit_show_table_entries(ch, table);
 }
 
 static void enter_group_editor(Mobile* ch, LootGroup* group)

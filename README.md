@@ -244,7 +244,8 @@ Use the `-d` argument to specify the folder containing `mud98.cfg` if you don't 
   - [x] Thief skills
   - [x] Magic skills
 - [x] Bots for stress-testing
-- [ ] Loot-table system
+- [x] Loot-table system
+  - [ ] Crafting materials
 - [ ] Professions
   - [ ] Crafting
   - [ ] Resource gathering
@@ -268,7 +269,7 @@ Please, please feel free to add this project. Or take it and do something comple
 
 How to contribute:
 
-1. Fork the Project
+1. Clone the Project
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
