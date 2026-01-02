@@ -457,9 +457,9 @@ void one_hit(Mobile* ch, Mobile* victim, int16_t dt, bool secondary)
     if (dt == TYPE_UNDEFINED) {
         dt = TYPE_HIT;
         if (wield != NULL && wield->item_type == ITEM_WEAPON)
-            dt = (int16_t)wield->weapon.damage_type;
+            dt += (int16_t)wield->weapon.damage_type;
         else
-            dt = (int16_t)ch->dam_type;
+            dt += (int16_t)ch->dam_type;
     }
 
     // Use CombatOps seam for to-hit calculation
@@ -1485,7 +1485,8 @@ void dam_message(Mobile* ch, Mobile* victim, int dam, int dt, bool immune)
     const char* attack;
     char punct;
 
-    if (ch == NULL || victim == NULL) return;
+    if (ch == NULL || victim == NULL)
+        return;
 
     if (dam == 0) {
         vs = "miss";
@@ -1593,7 +1594,7 @@ void dam_message(Mobile* ch, Mobile* victim, int dam, int dt, bool immune)
         else {
             bug("Dam_message: bad dt %d.", dt);
             dt = TYPE_HIT;
-            attack = attack_table[0].name;
+            attack = attack_table[0].noun;
         }
 
         if (immune) {

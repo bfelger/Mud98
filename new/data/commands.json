@@ -982,14 +982,14 @@
       "function": "do_reputation"
     },
     {
-      "name": "scredit",
-      "function": "do_scredit"
-    },
-    {
       "name": "south",
       "function": "do_south",
       "position": "standing",
       "log": "log_never"
+    },
+    {
+      "name": "scredit",
+      "function": "do_scredit"
     },
     {
       "name": "sit",

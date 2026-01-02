@@ -98,14 +98,14 @@ bool check_counter(Mobile *ch, Mobile *victim, int dam, int dt)
     if (dt == TYPE_UNDEFINED) {
         dt = TYPE_HIT;
         if (wield != NULL && wield->item_type == ITEM_WEAPON)
-            dt += wield->value[3];
+            dt += wield->weapon.damage_type;
         else 
                 dt += ch->dam_type;
     }
 
     if (dt < TYPE_HIT) {
     	if (wield != NULL)
-    	    dam_type = attack_table[wield->value[3]].damage;
+    	    dam_type = attack_table[wield->weapon.damage_type].damage;
     	else
     	    dam_type = attack_table[ch->dam_type].damage;
     }

@@ -874,15 +874,6 @@ show undef~
 #END
 
 #COMMAND
-name scredit~
-do_fun do_scredit~
-position dead~
-level 0
-log log_normal~
-show undef~
-#END
-
-#COMMAND
 name hit~
 do_fun do_kill~
 position fighting~
@@ -1816,6 +1807,15 @@ position standing~
 level 0
 log log_never~
 show none~
+#END
+
+#COMMAND
+name scredit~
+do_fun do_scredit~
+position dead~
+level 0
+log log_normal~
+show undef~
 #END
 
 #COMMAND
