@@ -1264,6 +1264,21 @@ AEDIT(aedit_uvnum)
     return true;
 }
 
+// Comparators for qsort in do_alist
+static int compare_area_by_vnum(const void* a, const void* b)
+{
+    const AreaData* area_a = *(const AreaData**)a;
+    const AreaData* area_b = *(const AreaData**)b;
+    return (area_a->min_vnum > area_b->min_vnum) - (area_a->min_vnum < area_b->min_vnum);
+}
+
+static int compare_area_by_name(const void* a, const void* b)
+{
+    const AreaData* area_a = *(const AreaData**)a;
+    const AreaData* area_b = *(const AreaData**)b;
+    return strcasecmp(NAME_STR(area_a), NAME_STR(area_b));
+}
+
 /*****************************************************************************
  Name:		do_alist
  Purpose:	Normal command to list areas and display area information.
@@ -1301,14 +1316,10 @@ void do_alist(Mobile* ch, char* argument)
 
         READ_ARG(sort);
         if (!str_cmp(sort, "vnum")) {
-            SORT_ARRAY(AreaData*, alist, global_areas.count,
-                alist[i]->min_vnum < alist[lo]->min_vnum,
-                alist[i]->min_vnum > alist[hi]->min_vnum);
+            qsort(alist, (size_t)global_areas.count, sizeof(AreaData*), compare_area_by_vnum);
         }
         else if (!str_cmp(sort, "name")) {
-            SORT_ARRAY(AreaData*, alist, global_areas.count,
-                strcasecmp(NAME_STR(alist[i]), NAME_STR(alist[lo])) < 0,
-                strcasecmp(NAME_STR(alist[i]), NAME_STR(alist[hi])) > 0);
+            qsort(alist, (size_t)global_areas.count, sizeof(AreaData*), compare_area_by_name);
         }
         else {
             printf_to_char(ch, COLOR_INFO "Unknown sort option '" COLOR_ALT_TEXT_1 "%s" COLOR_INFO "'." COLOR_CLEAR "\n\r\n\r%s", sort, help);
