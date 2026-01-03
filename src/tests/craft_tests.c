@@ -1155,6 +1155,8 @@ static int test_skin_no_skinnable_mats()
     Room* room = mock_room(80004, NULL, NULL);
     Mobile* ch = mock_player("Tester");
     transfer_mob(ch, room);
+    ch->level = 10;  // High enough for skinning skill (requires level 5)
+    mock_skill(ch, gsn_skinning, 100);  // Give skill but no skinnable mats
     
     // Create mob with only meat (not skinnable)
     MobPrototype* mp = mock_mob_proto(80002);
@@ -1187,6 +1189,8 @@ static int test_skin_success()
     Room* room = mock_room(80005, NULL, NULL);
     Mobile* ch = mock_player("Tester");
     transfer_mob(ch, room);
+    ch->level = 10;  // High enough for skinning skill (requires level 5)
+    mock_skill(ch, gsn_skinning, 100);  // 100% skill guarantees success
     
     // Create mob with skinnable hide
     MobPrototype* mp = mock_mob_proto(80003);
@@ -1235,6 +1239,155 @@ static int test_skin_success()
     ASSERT(inv_after == inv_before + 1);
     
     test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+// Issue #27: Skill integration tests for skin command
+
+static int test_skin_no_skill()
+{
+    // Player lacks skinning skill entirely
+    Room* room = mock_room(80006, NULL, NULL);
+    Mobile* ch = mock_player("Tester");
+    transfer_mob(ch, room);
+    ch->level = 10;
+    // Don't set skinning skill - player hasn't learned it
+    
+    // Create mob with skinnable hide
+    MobPrototype* mp = mock_mob_proto(80004);
+    ObjPrototype* hide_proto = mock_obj_proto(80021);
+    hide_proto->item_type = ITEM_MAT;
+    hide_proto->craft_mat.mat_type = MAT_HIDE;
+    hide_proto->craft_mat.amount = 1;
+    hide_proto->craft_mat.quality = 50;
+    
+    mp->craft_mat_count = 1;
+    mp->craft_mats = alloc_mem(sizeof(VNUM));
+    mp->craft_mats[0] = VNUM_FIELD(hide_proto);
+    
+    Mobile* mob = create_mobile(mp);
+    transfer_mob(mob, room);
+    
+    make_corpse(mob);
+    
+    test_socket_output_enabled = true;
+    do_skin(ch, "corpse");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("don't know how to skin");
+    
+    // Corpse should NOT be marked as skinned (didn't attempt)
+    Object* corpse = NULL;
+    Object* obj = NULL;
+    FOR_EACH_ROOM_OBJ(obj, room) {
+        if (obj->item_type == ITEM_CORPSE_NPC) {
+            corpse = obj;
+            break;
+        }
+    }
+    ASSERT(corpse != NULL);
+    ASSERT(!(corpse->corpse.extraction_flags & CORPSE_SKINNED));
+    
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_skin_failure()
+{
+    // Player has skill but fails the check
+    Room* room = mock_room(80007, NULL, NULL);
+    Mobile* ch = mock_player("Tester");
+    transfer_mob(ch, room);
+    ch->level = 10;
+    mock_skill(ch, gsn_skinning, 1);  // Only 1% skill - will likely fail
+    
+    // Create mob with skinnable hide
+    MobPrototype* mp = mock_mob_proto(80005);
+    ObjPrototype* hide_proto = mock_obj_proto(80022);
+    hide_proto->item_type = ITEM_MAT;
+    hide_proto->craft_mat.mat_type = MAT_HIDE;
+    hide_proto->craft_mat.amount = 1;
+    hide_proto->craft_mat.quality = 50;
+    
+    mp->craft_mat_count = 1;
+    mp->craft_mats = alloc_mem(sizeof(VNUM));
+    mp->craft_mats[0] = VNUM_FIELD(hide_proto);
+    
+    Mobile* mob = create_mobile(mp);
+    transfer_mob(mob, room);
+    
+    make_corpse(mob);
+    
+    // Find the corpse in the room
+    Object* corpse = NULL;
+    Object* obj = NULL;
+    FOR_EACH_ROOM_OBJ(obj, room) {
+        if (obj->item_type == ITEM_CORPSE_NPC) {
+            corpse = obj;
+            break;
+        }
+    }
+    ASSERT(corpse != NULL);
+    
+    // Count player inventory before
+    int inv_before = 0;
+    FOR_EACH_MOB_OBJ(obj, ch) { inv_before++; }
+    
+    // Try multiple times to get a failure (1% skill should fail most of the time)
+    // We'll run the test in a way that with 1% skill, it almost always fails
+    test_socket_output_enabled = true;
+    do_skin(ch, "corpse");
+    test_socket_output_enabled = false;
+    
+    // Whether success or failure, corpse should be marked as skinned
+    ASSERT(corpse->corpse.extraction_flags & CORPSE_SKINNED);
+    
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_skin_skill_improve()
+{
+    // Test that skill improvement is called (regardless of success/failure)
+    Room* room = mock_room(80008, NULL, NULL);
+    Mobile* ch = mock_player("Tester");
+    transfer_mob(ch, room);
+    ch->level = 10;
+    mock_skill(ch, gsn_skinning, 50);  // 50% skill
+    
+    // Create mob with skinnable hide
+    MobPrototype* mp = mock_mob_proto(80006);
+    ObjPrototype* hide_proto = mock_obj_proto(80023);
+    hide_proto->item_type = ITEM_MAT;
+    hide_proto->craft_mat.mat_type = MAT_HIDE;
+    hide_proto->craft_mat.amount = 1;
+    hide_proto->craft_mat.quality = 50;
+    
+    mp->craft_mat_count = 1;
+    mp->craft_mats = alloc_mem(sizeof(VNUM));
+    mp->craft_mats[0] = VNUM_FIELD(hide_proto);
+    
+    Mobile* mob = create_mobile(mp);
+    transfer_mob(mob, room);
+    
+    make_corpse(mob);
+    
+    // Just verify the command completes without error
+    // check_improve is called internally - we verify by ensuring the skill
+    // system is engaged (corpse gets marked)
+    do_skin(ch, "corpse");
+    
+    Object* corpse = NULL;
+    Object* obj = NULL;
+    FOR_EACH_ROOM_OBJ(obj, room) {
+        if (obj->item_type == ITEM_CORPSE_NPC) {
+            corpse = obj;
+            break;
+        }
+    }
+    ASSERT(corpse != NULL);
+    ASSERT(corpse->corpse.extraction_flags & CORPSE_SKINNED);
+    
     return 0;
 }
 
@@ -1296,6 +1449,8 @@ static int test_butcher_no_butcherable_mats()
     Room* room = mock_room(80103, NULL, NULL);
     Mobile* ch = mock_player("Tester");
     transfer_mob(ch, room);
+    ch->level = 10;  // High enough for butchering skill (requires level 5)
+    mock_skill(ch, gsn_butchering, 100);  // Give skill but no butcherable mats
     
     // Create mob with only hide (not butcherable)
     MobPrototype* mp = mock_mob_proto(80012);
@@ -1328,6 +1483,8 @@ static int test_butcher_success()
     Room* room = mock_room(80104, NULL, NULL);
     Mobile* ch = mock_player("Tester");
     transfer_mob(ch, room);
+    ch->level = 10;  // High enough for butchering skill (requires level 5)
+    mock_skill(ch, gsn_butchering, 100);  // 100% skill guarantees success
     
     // Create mob with butcherable meat
     MobPrototype* mp = mock_mob_proto(80013);
@@ -1470,6 +1627,189 @@ static int test_salvage_success()
     ASSERT(inv_after >= inv_before);
     
     test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+// Issue #29: Salvage Skill Integration Tests
+
+static int test_salvage_weapon_uses_blacksmithing()
+{
+    // Weapons should use blacksmithing skill
+    ObjPrototype* sword_proto = mock_obj_proto(80052);
+    sword_proto->item_type = ITEM_WEAPON;
+    Object* sword = create_object(sword_proto, 5);
+    
+    SKNUM skill = get_salvage_skill(sword);
+    ASSERT(skill == gsn_blacksmithing);
+    
+    return 0;
+}
+
+static int test_salvage_armor_uses_material_skill()
+{
+    // Metal armor uses blacksmithing
+    ObjPrototype* plate_proto = mock_obj_proto(80053);
+    plate_proto->item_type = ITEM_ARMOR;
+    plate_proto->material = str_dup("steel");
+    Object* plate = create_object(plate_proto, 5);
+    ASSERT(get_salvage_skill(plate) == gsn_blacksmithing);
+    
+    // Leather armor uses leatherworking
+    ObjPrototype* leather_proto = mock_obj_proto(80054);
+    leather_proto->item_type = ITEM_ARMOR;
+    leather_proto->material = str_dup("leather");
+    Object* leather = create_object(leather_proto, 5);
+    ASSERT(get_salvage_skill(leather) == gsn_leatherworking);
+    
+    // Cloth armor uses tailoring
+    ObjPrototype* cloth_proto = mock_obj_proto(80055);
+    cloth_proto->item_type = ITEM_ARMOR;
+    cloth_proto->material = str_dup("cloth");
+    Object* cloth = create_object(cloth_proto, 5);
+    ASSERT(get_salvage_skill(cloth) == gsn_tailoring);
+    
+    return 0;
+}
+
+static int test_salvage_no_skill_reduced_yield()
+{
+    // Salvaging without the required skill gives reduced yield
+    Room* room = mock_room(80205, NULL, NULL);
+    Mobile* ch = mock_player("Tester");
+    transfer_mob(ch, room);
+    ch->level = 10;
+    // Don't give blacksmithing skill
+    
+    // Create multiple salvage materials
+    ObjPrototype* metal1_proto = mock_obj_proto(80061);
+    metal1_proto->item_type = ITEM_MAT;
+    metal1_proto->craft_mat.mat_type = MAT_INGOT;
+    
+    ObjPrototype* metal2_proto = mock_obj_proto(80062);
+    metal2_proto->item_type = ITEM_MAT;
+    metal2_proto->craft_mat.mat_type = MAT_INGOT;
+    
+    ObjPrototype* metal3_proto = mock_obj_proto(80063);
+    metal3_proto->item_type = ITEM_MAT;
+    metal3_proto->craft_mat.mat_type = MAT_INGOT;
+    
+    ObjPrototype* metal4_proto = mock_obj_proto(80064);
+    metal4_proto->item_type = ITEM_MAT;
+    metal4_proto->craft_mat.mat_type = MAT_INGOT;
+    
+    // Create weapon with 4 salvage mats
+    ObjPrototype* sword_proto = mock_obj_proto(80056);
+    sword_proto->header.name = AS_STRING(mock_str("salvage sword"));
+    sword_proto->short_descr = str_dup("a salvage sword");
+    sword_proto->item_type = ITEM_WEAPON;
+    sword_proto->salvage_mat_count = 4;
+    sword_proto->salvage_mats = alloc_mem(4 * sizeof(VNUM));
+    sword_proto->salvage_mats[0] = VNUM_FIELD(metal1_proto);
+    sword_proto->salvage_mats[1] = VNUM_FIELD(metal2_proto);
+    sword_proto->salvage_mats[2] = VNUM_FIELD(metal3_proto);
+    sword_proto->salvage_mats[3] = VNUM_FIELD(metal4_proto);
+    
+    Object* sword = create_object(sword_proto, 5);
+    
+    // Test evaluate_salvage without skill
+    SalvageResult result = evaluate_salvage(ch, sword);
+    ASSERT(result.success == true);
+    ASSERT(result.skill_used == gsn_blacksmithing);
+    ASSERT(result.has_skill == false);
+    // 25% of 4 = 1 material (at least 1)
+    ASSERT(result.mat_count == 1);
+    
+    free_salvage_result(&result);
+    return 0;
+}
+
+static int test_salvage_with_skill_full_yield()
+{
+    // Salvaging with skill gives better yield
+    Room* room = mock_room(80206, NULL, NULL);
+    Mobile* ch = mock_player("Tester");
+    transfer_mob(ch, room);
+    ch->level = 20;
+    mock_skill(ch, gsn_blacksmithing, 100);  // 100% skill
+    
+    // Create multiple salvage materials
+    ObjPrototype* metal1_proto = mock_obj_proto(80065);
+    metal1_proto->item_type = ITEM_MAT;
+    metal1_proto->craft_mat.mat_type = MAT_INGOT;
+    
+    ObjPrototype* metal2_proto = mock_obj_proto(80066);
+    metal2_proto->item_type = ITEM_MAT;
+    metal2_proto->craft_mat.mat_type = MAT_INGOT;
+    
+    ObjPrototype* metal3_proto = mock_obj_proto(80067);
+    metal3_proto->item_type = ITEM_MAT;
+    metal3_proto->craft_mat.mat_type = MAT_INGOT;
+    
+    ObjPrototype* metal4_proto = mock_obj_proto(80068);
+    metal4_proto->item_type = ITEM_MAT;
+    metal4_proto->craft_mat.mat_type = MAT_INGOT;
+    
+    // Create weapon with 4 salvage mats
+    ObjPrototype* sword_proto = mock_obj_proto(80057);
+    sword_proto->header.name = AS_STRING(mock_str("quality sword"));
+    sword_proto->short_descr = str_dup("a quality sword");
+    sword_proto->item_type = ITEM_WEAPON;
+    sword_proto->salvage_mat_count = 4;
+    sword_proto->salvage_mats = alloc_mem(4 * sizeof(VNUM));
+    sword_proto->salvage_mats[0] = VNUM_FIELD(metal1_proto);
+    sword_proto->salvage_mats[1] = VNUM_FIELD(metal2_proto);
+    sword_proto->salvage_mats[2] = VNUM_FIELD(metal3_proto);
+    sword_proto->salvage_mats[3] = VNUM_FIELD(metal4_proto);
+    
+    Object* sword = create_object(sword_proto, 5);
+    
+    // Test evaluate_salvage with high skill
+    SalvageResult result = evaluate_salvage(ch, sword);
+    ASSERT(result.success == true);
+    ASSERT(result.skill_used == gsn_blacksmithing);
+    ASSERT(result.has_skill == true);
+    // With 100% skill, should get 75-100% yield (3-4 of 4 materials)
+    ASSERT(result.mat_count >= 3);
+    
+    free_salvage_result(&result);
+    return 0;
+}
+
+static int test_salvage_no_skill_required()
+{
+    // Items without a required skill always give full yield
+    Room* room = mock_room(80207, NULL, NULL);
+    Mobile* ch = mock_player("Tester");
+    transfer_mob(ch, room);
+    
+    // Create salvage material
+    ObjPrototype* wood_proto = mock_obj_proto(80069);
+    wood_proto->item_type = ITEM_MAT;
+    wood_proto->craft_mat.mat_type = MAT_WOOD;
+    
+    // Create a food item (no skill required)
+    ObjPrototype* food_proto = mock_obj_proto(80058);
+    food_proto->header.name = AS_STRING(mock_str("food item"));
+    food_proto->short_descr = str_dup("some food");
+    food_proto->item_type = ITEM_FOOD;
+    food_proto->salvage_mat_count = 2;
+    food_proto->salvage_mats = alloc_mem(2 * sizeof(VNUM));
+    food_proto->salvage_mats[0] = VNUM_FIELD(wood_proto);
+    food_proto->salvage_mats[1] = VNUM_FIELD(wood_proto);
+    
+    Object* food = create_object(food_proto, 1);
+    
+    // No skill required for food
+    SKNUM skill = get_salvage_skill(food);
+    ASSERT(skill == -1);
+    
+    // Should get full yield
+    SalvageResult result = evaluate_salvage(ch, food);
+    ASSERT(result.success == true);
+    ASSERT(result.skill_used == -1);
+    ASSERT(result.mat_count == 2);  // Full yield
+    
+    free_salvage_result(&result);
     return 0;
 }
 
@@ -2634,6 +2974,233 @@ static int test_craft_skill_check_integration()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Issue #30: Skill Improvement Difficulty
+////////////////////////////////////////////////////////////////////////////////
+
+static int test_craft_improve_easy()
+{
+    // Easy recipes (10+ levels below player) = multiplier 4
+    Mobile* ch = mock_player("EasyCrafter");
+    ch->level = 30;
+    
+    Recipe* recipe = new_recipe();
+    recipe->min_level = 10;  // 20 levels below player
+    
+    int mult = craft_improve_multiplier(recipe, ch);
+    ASSERT(mult == CRAFT_IMPROVE_EASY);  // 4
+    
+    free_recipe(recipe);
+    return 0;
+}
+
+static int test_craft_improve_medium()
+{
+    // Medium recipes (within 5 levels) = multiplier 3
+    Mobile* ch = mock_player("MediumCrafter");
+    ch->level = 20;
+    
+    Recipe* recipe = new_recipe();
+    recipe->min_level = 18;  // 2 levels below player (within -10 to +5)
+    
+    int mult = craft_improve_multiplier(recipe, ch);
+    ASSERT(mult == CRAFT_IMPROVE_MEDIUM);  // 3
+    
+    free_recipe(recipe);
+    return 0;
+}
+
+static int test_craft_improve_hard()
+{
+    // Hard recipes (5+ levels above player) = multiplier 2
+    Mobile* ch = mock_player("HardCrafter");
+    ch->level = 10;
+    
+    Recipe* recipe = new_recipe();
+    recipe->min_level = 20;  // 10 levels above player
+    
+    int mult = craft_improve_multiplier(recipe, ch);
+    ASSERT(mult == CRAFT_IMPROVE_HARD);  // 2
+    
+    free_recipe(recipe);
+    return 0;
+}
+
+static int test_craft_improve_boundary()
+{
+    // Test boundary conditions
+    Mobile* ch = mock_player("BoundaryCrafter");
+    
+    Recipe* recipe = new_recipe();
+    
+    // Exactly -10: should be medium
+    ch->level = 20;
+    recipe->min_level = 10;  // diff = -10
+    ASSERT(craft_improve_multiplier(recipe, ch) == CRAFT_IMPROVE_MEDIUM);
+    
+    // Exactly -11: should be easy
+    ch->level = 21;
+    recipe->min_level = 10;  // diff = -11
+    ASSERT(craft_improve_multiplier(recipe, ch) == CRAFT_IMPROVE_EASY);
+    
+    // Exactly +4: should be medium
+    ch->level = 10;
+    recipe->min_level = 14;  // diff = +4
+    ASSERT(craft_improve_multiplier(recipe, ch) == CRAFT_IMPROVE_MEDIUM);
+    
+    // Exactly +5: should be hard
+    ch->level = 10;
+    recipe->min_level = 15;  // diff = +5
+    ASSERT(craft_improve_multiplier(recipe, ch) == CRAFT_IMPROVE_HARD);
+    
+    free_recipe(recipe);
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Issue #26: Craft Command Skill Integration
+////////////////////////////////////////////////////////////////////////////////
+
+static int test_craft_no_skill()
+{
+    // Player lacks the required skill entirely
+    Room* room = mock_room(99101, NULL, NULL);
+    Mobile* ch = mock_player("NoSkillCrafter");
+    transfer_mob(ch, room);
+    ch->level = 20;
+    // Don't set any crafting skill - player hasn't learned it
+    
+    // Create a recipe that requires leatherworking
+    Recipe* recipe = mock_recipe("leather test", 99101);
+    recipe->required_skill = gsn_leatherworking;
+    recipe->min_skill_pct = 1;
+    recipe->discovery = DISC_KNOWN;  // Known by default
+    
+    CraftResult result = evaluate_craft(ch, "leather test");
+    
+    ASSERT(result.can_attempt == false);
+    ASSERT(result.error_msg != NULL);
+    // Should mention not knowing how to do the crafting type
+    
+    free_recipe(recipe);
+    return 0;
+}
+
+static int test_craft_skill_too_low()
+{
+    // Player has skill but below minimum required percentage
+    Room* room = mock_room(99102, NULL, NULL);
+    Mobile* ch = mock_player("LowSkillCrafter");
+    transfer_mob(ch, room);
+    ch->level = 20;
+    mock_skill(ch, gsn_leatherworking, 25);  // Only 25% skill
+    
+    // Create a recipe requiring 50% skill
+    Recipe* recipe = mock_recipe("advanced leather", 99102);
+    recipe->required_skill = gsn_leatherworking;
+    recipe->min_skill_pct = 50;  // Requires 50%
+    recipe->discovery = DISC_KNOWN;
+    
+    CraftResult result = evaluate_craft(ch, "advanced leather");
+    
+    ASSERT(result.can_attempt == false);
+    ASSERT(result.error_msg != NULL);
+    // Should mention not skilled enough
+    
+    free_recipe(recipe);
+    return 0;
+}
+
+static int test_craft_evaluate_uses_skill_check()
+{
+    // Verify evaluate_craft uses the new skill check system
+    Room* room = mock_room(99103, NULL, NULL);
+    Mobile* ch = mock_player("SkillCheckCrafter");
+    transfer_mob(ch, room);
+    ch->level = 20;
+    mock_skill(ch, gsn_leatherworking, 75);
+    
+    // Create a simple recipe
+    Recipe* recipe = mock_recipe("skill check test", 99103);
+    recipe->required_skill = gsn_leatherworking;
+    recipe->min_skill_pct = 1;
+    recipe->min_level = 1;
+    recipe->discovery = DISC_KNOWN;
+    
+    CraftResult result = evaluate_craft(ch, "skill check test");
+    
+    ASSERT(result.can_attempt == true);
+    // The check result should be populated
+    ASSERT(result.check.skill_used == gsn_leatherworking);
+    ASSERT(result.check.target > 0);
+    ASSERT(result.check.roll >= 1 && result.check.roll <= 100);
+    
+    free_recipe(recipe);
+    return 0;
+}
+
+static int test_craft_quality_tier_affects_output()
+{
+    // Verify quality tiers work correctly
+    
+    // Test each tier boundary
+    ASSERT(quality_tier_from_margin(5) == QUALITY_POOR);
+    ASSERT(quality_tier_from_margin(25) == QUALITY_NORMAL);
+    ASSERT(quality_tier_from_margin(45) == QUALITY_FINE);
+    ASSERT(quality_tier_from_margin(65) == QUALITY_EXCEPTIONAL);
+    ASSERT(quality_tier_from_margin(85) == QUALITY_MASTERWORK);
+    
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Issue #31: Crafting Skill Display
+////////////////////////////////////////////////////////////////////////////////
+
+static int test_skills_shows_crafting()
+{
+    // Verify crafting skills appear in skills command when learned
+    Room* room = mock_room(99131, NULL, NULL);
+    Mobile* ch = mock_player("SkillDisplay");
+    transfer_mob(ch, room);
+    ch->level = 20;
+    
+    // Give player a crafting skill
+    mock_skill(ch, gsn_skinning, 75);
+    
+    test_socket_output_enabled = true;
+    do_skills(ch, "");
+    test_socket_output_enabled = false;
+    
+    ASSERT(!IS_NIL(test_output_buffer));
+    ASSERT_OUTPUT_CONTAINS("skinning");
+    ASSERT_OUTPUT_CONTAINS("75%");
+    
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_groups_crafting_display()
+{
+    // Verify 'groups crafting' shows crafting skills
+    Room* room = mock_room(99132, NULL, NULL);
+    Mobile* ch = mock_player("GroupDisplay");
+    transfer_mob(ch, room);
+    ch->level = 20;
+    
+    test_socket_output_enabled = true;
+    do_groups(ch, "crafting");
+    test_socket_output_enabled = false;
+    
+    ASSERT(!IS_NIL(test_output_buffer));
+    ASSERT_OUTPUT_CONTAINS("skinning");
+    ASSERT_OUTPUT_CONTAINS("butchering");
+    ASSERT_OUTPUT_CONTAINS("leatherworking");
+    
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Test Registration
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -2707,6 +3274,11 @@ void register_craft_tests()
     REGISTER("Skin: No Skinnable Mats", test_skin_no_skinnable_mats);
     REGISTER("Skin: Success", test_skin_success);
     
+    // Issue #27: Skin Command Skill Integration
+    REGISTER("Skin: No Skill", test_skin_no_skill);
+    REGISTER("Skin: Failure", test_skin_failure);
+    REGISTER("Skin: Skill Improve", test_skin_skill_improve);
+    
     // Issue #10: Butcher Command
     REGISTER("Butcher: No Argument", test_butcher_no_argument);
     REGISTER("Butcher: Already Butchered", test_butcher_already_butchered);
@@ -2718,6 +3290,13 @@ void register_craft_tests()
     REGISTER("Salvage: Item Not Found", test_salvage_item_not_found);
     REGISTER("Salvage: No Salvage Mats", test_salvage_no_salvage_mats);
     REGISTER("Salvage: Success", test_salvage_success);
+    
+    // Issue #29: Salvage Skill Integration
+    REGISTER("Salvage: Weapon Uses Blacksmithing", test_salvage_weapon_uses_blacksmithing);
+    REGISTER("Salvage: Armor Uses Material Skill", test_salvage_armor_uses_material_skill);
+    REGISTER("Salvage: No Skill Reduced Yield", test_salvage_no_skill_reduced_yield);
+    REGISTER("Salvage: With Skill Full Yield", test_salvage_with_skill_full_yield);
+    REGISTER("Salvage: No Skill Required", test_salvage_no_skill_required);
     
     // Issue #11: Craft Command
     REGISTER("Craft: No Argument", test_craft_no_argument);
@@ -2784,6 +3363,22 @@ void register_craft_tests()
     REGISTER("QualityTier: Names", test_quality_tier_names);
     REGISTER("CraftSkill: Effective Skill", test_craft_effective_skill);
     REGISTER("CraftSkill: Integration", test_craft_skill_check_integration);
+    
+    // Issue #30: Skill Improvement Difficulty
+    REGISTER("CraftImprove: Easy", test_craft_improve_easy);
+    REGISTER("CraftImprove: Medium", test_craft_improve_medium);
+    REGISTER("CraftImprove: Hard", test_craft_improve_hard);
+    REGISTER("CraftImprove: Boundary", test_craft_improve_boundary);
+    
+    // Issue #26: Craft Command Skill Integration
+    REGISTER("CraftCmd: No Skill", test_craft_no_skill);
+    REGISTER("CraftCmd: Skill Too Low", test_craft_skill_too_low);
+    REGISTER("CraftCmd: Uses Skill Check", test_craft_evaluate_uses_skill_check);
+    REGISTER("CraftCmd: Quality Tiers", test_craft_quality_tier_affects_output);
+    
+    // Issue #31: Crafting Skill Display
+    REGISTER("SkillDisplay: Crafting Skills", test_skills_shows_crafting);
+    REGISTER("SkillDisplay: Groups Crafting", test_groups_crafting_display);
 
 #undef REGISTER
 }

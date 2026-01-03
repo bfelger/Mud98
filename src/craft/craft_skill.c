@@ -100,3 +100,18 @@ CraftCheckResult craft_skill_check(Mobile* ch, Recipe* recipe)
     
     return result;
 }
+
+// Get skill improvement multiplier based on recipe difficulty
+int craft_improve_multiplier(Recipe* recipe, Mobile* ch)
+{
+    if (recipe == NULL || ch == NULL)
+        return CRAFT_IMPROVE_MEDIUM;
+    
+    int level_diff = recipe->min_level - ch->level;
+    
+    if (level_diff < -10)
+        return CRAFT_IMPROVE_EASY;   // Easy - slower improvement (4)
+    if (level_diff < 5)
+        return CRAFT_IMPROVE_MEDIUM; // Medium - normal improvement (3)
+    return CRAFT_IMPROVE_HARD;       // Hard - faster improvement (2)
+}

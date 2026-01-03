@@ -6,6 +6,7 @@
 #include "act_craft.h"
 
 #include "craft.h"
+#include "craft_skill.h"
 #include "recipe.h"
 #include "workstation.h"
 
@@ -20,9 +21,11 @@
 
 #include <comm.h>
 #include <db.h>
+#include <gsn.h>
 #include <handler.h>
 #include <interp.h>
 #include <lookup.h>
+#include <skills.h>
 #include <stringbuffer.h>
 
 #include <stdlib.h>
@@ -50,11 +53,10 @@ bool is_butcherable_type(CraftMatType type)
 // Common extraction logic for both skin and butcher
 static ExtractionResult evaluate_extraction(Mobile* ch, Object* corpse,
     bool (*type_filter)(CraftMatType), int already_flag,
-    const char* already_msg, const char* nothing_msg)
+    const char* already_msg, const char* nothing_msg,
+    SKNUM required_skill, const char* skill_name)
 {
-    ExtractionResult result = { false, NULL, NULL, 0 };
-    
-    (void)ch;  // ch may be used for skill checks later
+    ExtractionResult result = { false, false, NULL, NULL, 0, -1, 0, 0 };
     
     // Check corpse validity
     if (corpse == NULL) {
@@ -70,6 +72,16 @@ static ExtractionResult evaluate_extraction(Mobile* ch, Object* corpse,
     // Check if already processed
     if (corpse->corpse.extraction_flags & already_flag) {
         result.error_msg = already_msg;
+        return result;
+    }
+    
+    // Check if player has the required skill
+    int skill_pct = get_skill(ch, required_skill);
+    if (skill_pct == 0) {
+        static char no_skill_msg[128];
+        snprintf(no_skill_msg, sizeof(no_skill_msg), 
+            "You don't know how to %s.", skill_name);
+        result.error_msg = no_skill_msg;
         return result;
     }
     
@@ -109,6 +121,14 @@ static ExtractionResult evaluate_extraction(Mobile* ch, Object* corpse,
     }
     
     result.mat_count = match_count;
+    result.skill_used = required_skill;
+    
+    // Perform skill check
+    int roll = number_percent();
+    result.skill_roll = roll;
+    result.skill_target = skill_pct;
+    result.skill_passed = (roll <= skill_pct);
+    
     result.success = true;
     return result;
 }
@@ -119,7 +139,9 @@ ExtractionResult evaluate_skin(Mobile* ch, Object* corpse)
         is_skinnable_type,
         CORPSE_SKINNED,
         "That corpse has already been skinned.",
-        "There's nothing to skin from that corpse.");
+        "There's nothing to skin from that corpse.",
+        gsn_skinning,
+        "skin");
 }
 
 ExtractionResult evaluate_butcher(Mobile* ch, Object* corpse)
@@ -128,7 +150,9 @@ ExtractionResult evaluate_butcher(Mobile* ch, Object* corpse)
         is_butcherable_type,
         CORPSE_BUTCHERED,
         "That corpse has already been butchered.",
-        "There's nothing to butcher from that corpse.");
+        "There's nothing to butcher from that corpse.",
+        gsn_butchering,
+        "butcher");
 }
 
 void free_extraction_result(ExtractionResult* result)
@@ -146,8 +170,20 @@ void apply_extraction(Mobile* ch, Object* corpse, ExtractionResult* result,
     if (!result->success || result->mat_count == 0)
         return;
     
-    // Set the corpse flag
+    // Always set the corpse flag (can't retry even on failure)
     corpse->corpse.extraction_flags |= corpse_flag;
+    
+    // Skill improvement check
+    if (result->skill_used >= 0) {
+        check_improve(ch, result->skill_used, result->skill_passed, 2);
+    }
+    
+    // Handle skill failure
+    if (!result->skill_passed) {
+        printf_to_char(ch, "You botch the %sing, ruining the materials.\n\r", verb);
+        act("$n botches $s attempt to $t $p.", ch, corpse, verb, TO_ROOM);
+        return;
+    }
     
     // Create and give materials
     StringBuffer* mat_list = sb_new();
@@ -181,11 +217,47 @@ void apply_extraction(Mobile* ch, Object* corpse, ExtractionResult* result,
 // Salvage Helpers
 ////////////////////////////////////////////////////////////////////////////////
 
+SKNUM get_salvage_skill(Object* obj)
+{
+    if (obj == NULL)
+        return -1;
+    
+    // Weapons use blacksmithing
+    if (obj->item_type == ITEM_WEAPON)
+        return gsn_blacksmithing;
+    
+    // Armor depends on material
+    if (obj->item_type == ITEM_ARMOR) {
+        // Check material string for hints
+        if (obj->material != NULL && obj->material[0] != '\0') {
+            if (strstr(obj->material, "leather") != NULL 
+                || strstr(obj->material, "hide") != NULL)
+                return gsn_leatherworking;
+            if (strstr(obj->material, "cloth") != NULL 
+                || strstr(obj->material, "silk") != NULL
+                || strstr(obj->material, "wool") != NULL)
+                return gsn_tailoring;
+            if (strstr(obj->material, "metal") != NULL
+                || strstr(obj->material, "iron") != NULL
+                || strstr(obj->material, "steel") != NULL
+                || strstr(obj->material, "mithril") != NULL)
+                return gsn_blacksmithing;
+        }
+        // Default armor to blacksmithing
+        return gsn_blacksmithing;
+    }
+    
+    // Jewelry uses jewelcraft
+    if (obj->item_type == ITEM_JEWELRY)
+        return gsn_jewelcraft;
+    
+    // No skill required for other item types
+    return -1;
+}
+
 SalvageResult evaluate_salvage(Mobile* ch, Object* obj)
 {
-    SalvageResult result = { false, NULL, NULL, 0 };
-    
-    (void)ch;  // Used for skill checks in later phases
+    SalvageResult result = { false, false, false, NULL, NULL, 0, -1, 0, 0 };
     
     if (obj == NULL) {
         result.error_msg = "You don't have that.";
@@ -197,24 +269,69 @@ SalvageResult evaluate_salvage(Mobile* ch, Object* obj)
         return result;
     }
     
-    // For MVP, no skill check required
-    // Skill checks will be added in Phase 4
+    // Determine required skill and perform check
+    SKNUM required_skill = get_salvage_skill(obj);
+    result.skill_used = required_skill;
     
-    // Calculate yield - for now, return all materials
-    VNUM* mats = malloc((size_t)obj->salvage_mat_count * sizeof(VNUM));
+    int skill_pct = 0;
+    bool has_skill = true;
+    
+    if (required_skill >= 0) {
+        skill_pct = get_skill(ch, required_skill);
+        result.skill_pct = skill_pct;
+        result.has_skill = (skill_pct > 0);
+        has_skill = result.has_skill;
+    } else {
+        // No skill required - always succeeds
+        result.has_skill = true;
+        result.skill_passed = true;
+        skill_pct = 100;  // Treat as auto-success
+    }
+    
+    // Perform skill roll if skill is required
+    int roll = number_percent();
+    result.skill_roll = roll;
+    
+    if (required_skill >= 0 && has_skill) {
+        result.skill_passed = (roll <= skill_pct);
+    }
+    
+    // Calculate yield based on skill result
+    // No skill: 25% of materials
+    // Has skill but failed: 50% of materials
+    // Has skill and passed: 75-100% based on margin
+    int yield_pct;
+    if (required_skill < 0) {
+        yield_pct = 100;  // No skill required, full yield
+    } else if (!has_skill) {
+        yield_pct = 25;
+    } else if (!result.skill_passed) {
+        yield_pct = 50;
+    } else {
+        // Success: 75-100% based on margin
+        int margin = skill_pct - roll;
+        yield_pct = 75 + (margin / 4);  // +1% per 4 margin
+        if (yield_pct > 100) yield_pct = 100;
+    }
+    
+    // Calculate how many materials to give
+    int base_count = obj->salvage_mat_count;
+    int yield_count = (base_count * yield_pct + 50) / 100;  // Round
+    if (yield_count < 1 && base_count > 0) yield_count = 1;  // At least 1
+    
+    VNUM* mats = malloc((size_t)yield_count * sizeof(VNUM));
     if (mats == NULL) {
         result.error_msg = "Memory allocation failed.";
         return result;
     }
     
-    int count = 0;
-    for (int i = 0; i < obj->salvage_mat_count; i++) {
-        // For MVP, 100% recovery rate
-        mats[count++] = obj->salvage_mats[i];
+    // Copy first yield_count materials
+    for (int i = 0; i < yield_count; i++) {
+        mats[i] = obj->salvage_mats[i];
     }
     
     result.mat_vnums = mats;
-    result.mat_count = count;
+    result.mat_count = yield_count;
     result.success = true;
     return result;
 }
@@ -332,17 +449,55 @@ void consume_materials(Mobile* ch, Recipe* recipe)
     }
 }
 
+// Consume partial materials (50%, rounded up) on crafting failure
+void consume_materials_partial(Mobile* ch, Recipe* recipe)
+{
+    if (recipe == NULL)
+        return;
+    
+    // Consume half of the ingredient types (rounded up)
+    int ingredients_to_consume = (recipe->ingredient_count + 1) / 2;
+    
+    for (int i = 0; i < ingredients_to_consume; i++) {
+        VNUM mat_vnum = recipe->ingredients[i].mat_vnum;
+        int to_consume = recipe->ingredients[i].quantity;
+        
+        Object* obj;
+        FOR_EACH_MOB_OBJ(obj, ch) {
+            if (to_consume <= 0)
+                break;
+            
+            if (obj->prototype && VNUM_FIELD(obj->prototype) == mat_vnum) {
+                if (obj->item_type == ITEM_MAT) {
+                    int stack = obj->craft_mat.amount > 0 ? obj->craft_mat.amount : 1;
+                    if (stack <= to_consume) {
+                        to_consume -= stack;
+                        extract_obj(obj);
+                    } else {
+                        obj->craft_mat.amount -= to_consume;
+                        to_consume = 0;
+                    }
+                } else {
+                    to_consume--;
+                    extract_obj(obj);
+                }
+            }
+        }
+    }
+}
+
 int calculate_craft_quality(Mobile* ch, Recipe* recipe)
 {
-    // Phase 4: implement quality based on skill check margin
+    // Deprecated - now use CraftCheckResult.quality directly
     (void)ch;
     (void)recipe;
-    return 0;  // Standard quality for now
+    return 0;
 }
 
 CraftResult evaluate_craft(Mobile* ch, const char* recipe_name)
 {
-    CraftResult result = { false, false, NULL, NULL, 0 };
+    CraftResult result = { .can_attempt = false, .success = false, 
+                           .error_msg = NULL, .recipe = NULL, .check = {0} };
     
     if (IS_NULLSTR(recipe_name)) {
         result.error_msg = "Craft what?";
@@ -362,16 +517,20 @@ CraftResult evaluate_craft(Mobile* ch, const char* recipe_name)
         return result;
     }
     
-    // Check skill requirement (MVP: just check if they have any skill)
+    // Check skill requirement - player must have the skill
     if (recipe->required_skill >= 0) {
         int skill = get_skill(ch, recipe->required_skill);
+        if (skill == 0) {
+            result.error_msg = "You don't know how to do that type of crafting.";
+            return result;
+        }
         if (skill < recipe->min_skill_pct) {
             result.error_msg = "You're not skilled enough to craft that.";
             return result;
         }
     }
     
-    // Check workstation requirement using helper function
+    // Check workstation requirement
     if (!has_required_workstation(ch->in_room, recipe)) {
         result.error_msg = "You need to be near a workstation to craft that.";
         return result;
@@ -385,16 +544,16 @@ CraftResult evaluate_craft(Mobile* ch, const char* recipe_name)
     
     result.can_attempt = true;
     
-    // Skill check
+    // Perform skill check using the new system
     if (recipe->required_skill >= 0) {
-        int skill = get_skill(ch, recipe->required_skill);
-        result.success = (number_percent() <= skill);
+        result.check = craft_skill_check(ch, recipe);
+        result.success = result.check.success;
     } else {
-        result.success = true;  // No skill required = auto success
-    }
-    
-    if (result.success) {
-        result.quality = calculate_craft_quality(ch, recipe);
+        // No skill required = auto success with normal quality
+        result.success = true;
+        result.check.success = true;
+        result.check.quality = 30;  // Normal quality range
+        result.check.skill_used = -1;
     }
     
     return result;
@@ -472,6 +631,11 @@ void do_salvage(Mobile* ch, char* argument)
         return;
     }
     
+    // Call check_improve if a skill was used
+    if (result.skill_used >= 0 && result.has_skill) {
+        check_improve(ch, result.skill_used, result.skill_passed, 2);
+    }
+    
     // Build material list string
     StringBuffer* mat_list = sb_new();
     for (int i = 0; i < result.mat_count; i++) {
@@ -496,10 +660,18 @@ void do_salvage(Mobile* ch, char* argument)
     snprintf(saved_name, sizeof(saved_name), "%s", obj_name);
     extract_obj(obj);
     
-    // Send messages
+    // Send messages based on skill outcome
     if (result.mat_count > 0) {
-        printf_to_char(ch, "You salvage %s, recovering %s.\n\r",
-            saved_name, sb_string(mat_list));
+        if (result.skill_used >= 0 && !result.has_skill) {
+            printf_to_char(ch, "You clumsily salvage %s, recovering only %s.\n\r",
+                saved_name, sb_string(mat_list));
+        } else if (result.skill_used >= 0 && !result.skill_passed) {
+            printf_to_char(ch, "You salvage %s with some difficulty, recovering %s.\n\r",
+                saved_name, sb_string(mat_list));
+        } else {
+            printf_to_char(ch, "You salvage %s, recovering %s.\n\r",
+                saved_name, sb_string(mat_list));
+        }
     } else {
         printf_to_char(ch, "You salvage %s but recover nothing useful.\n\r",
             saved_name);
@@ -524,15 +696,23 @@ void do_craft(Mobile* ch, char* argument)
         return;
     }
     
-    // Consume materials regardless of success
-    consume_materials(ch, result.recipe);
+    // Skill improvement check (for both success and failure)
+    if (result.check.skill_used >= 0) {
+        int multiplier = craft_improve_multiplier(result.recipe, ch);
+        check_improve(ch, result.check.skill_used, result.success, multiplier);
+    }
     
     if (!result.success) {
-        printf_to_char(ch, "You fail to craft %s, wasting the materials.\n\r",
+        // On failure, consume only half the materials
+        consume_materials_partial(ch, result.recipe);
+        printf_to_char(ch, "You fail to craft %s, ruining some materials.\n\r",
             NAME_STR(result.recipe) ? NAME_STR(result.recipe) : "the item");
         act("$n fails to craft something.", ch, NULL, NULL, TO_ROOM);
         return;
     }
+    
+    // On success, consume all materials
+    consume_materials(ch, result.recipe);
     
     // Create output
     ObjPrototype* proto = get_object_prototype(result.recipe->product_vnum);
@@ -541,14 +721,56 @@ void do_craft(Mobile* ch, char* argument)
         return;
     }
     
+    QualityTier tier = quality_tier_from_margin(result.check.quality);
+    
     for (int i = 0; i < result.recipe->product_quantity; i++) {
         Object* product = create_object(proto, 0);
-        // TODO: Apply quality modifiers in Phase 4
+        
+        // Apply quality modifiers
+        switch (tier) {
+        case QUALITY_POOR:
+            // -10% to cost
+            product->cost = product->cost * 9 / 10;
+            break;
+        case QUALITY_FINE:
+            // +10% to cost
+            product->cost = product->cost * 11 / 10;
+            break;
+        case QUALITY_EXCEPTIONAL:
+            // +25% to cost
+            product->cost = product->cost * 5 / 4;
+            break;
+        case QUALITY_MASTERWORK:
+            // +50% to cost
+            product->cost = product->cost * 3 / 2;
+            break;
+        default:  // QUALITY_NORMAL
+            break;
+        }
+        
         obj_to_char(product, ch);
     }
     
-    printf_to_char(ch, "You successfully craft %s.\n\r",
-        proto->short_descr ? proto->short_descr : NAME_STR(result.recipe));
+    // Quality-specific messages
+    const char* item_name = proto->short_descr ? proto->short_descr 
+                                               : NAME_STR(result.recipe);
+    switch (tier) {
+    case QUALITY_POOR:
+        printf_to_char(ch, "You craft a poor quality %s.\n\r", item_name);
+        break;
+    case QUALITY_FINE:
+        printf_to_char(ch, "You craft a fine %s!\n\r", item_name);
+        break;
+    case QUALITY_EXCEPTIONAL:
+        printf_to_char(ch, "You craft an exceptional %s!\n\r", item_name);
+        break;
+    case QUALITY_MASTERWORK:
+        printf_to_char(ch, "You craft a masterwork %s!!\n\r", item_name);
+        break;
+    default:  // QUALITY_NORMAL
+        printf_to_char(ch, "You successfully craft %s.\n\r", item_name);
+        break;
+    }
     act("$n crafts something.", ch, NULL, NULL, TO_ROOM);
 }
 

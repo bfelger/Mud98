@@ -11,6 +11,15 @@
 #include "craft/recipe.h"
 
 ////////////////////////////////////////////////////////////////////////////////
+// Skill Improvement Rate Constants
+////////////////////////////////////////////////////////////////////////////////
+
+// Multiplier for check_improve - lower = faster improvement
+#define CRAFT_IMPROVE_EASY    4   // Simple recipes (10+ levels below player)
+#define CRAFT_IMPROVE_MEDIUM  3   // Standard recipes (within 5 levels)
+#define CRAFT_IMPROVE_HARD    2   // Complex recipes (5+ levels above player)
+
+////////////////////////////////////////////////////////////////////////////////
 // Quality Tiers
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -46,6 +55,10 @@ CraftCheckResult craft_skill_check(Mobile* ch, Recipe* recipe);
 
 // Calculate effective skill percentage
 int craft_effective_skill(Mobile* ch, SKNUM sn);
+
+// Get skill improvement multiplier based on recipe difficulty
+// Lower = faster improvement (hard recipes improve faster)
+int craft_improve_multiplier(Recipe* recipe, Mobile* ch);
 
 // Pure evaluation function (testable - injects roll)
 CraftCheckResult evaluate_craft_check(
