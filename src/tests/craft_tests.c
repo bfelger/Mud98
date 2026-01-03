@@ -2329,6 +2329,61 @@ static int test_olist_olc_aware()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Issue #23: Crafting Skills
+////////////////////////////////////////////////////////////////////////////////
+
+static int test_craft_skills_loaded()
+{
+    // All crafting skill GSNs should be valid (>= 0)
+    ASSERT(gsn_skinning >= 0);
+    ASSERT(gsn_butchering >= 0);
+    ASSERT(gsn_leatherworking >= 0);
+    ASSERT(gsn_blacksmithing >= 0);
+    ASSERT(gsn_tailoring >= 0);
+    ASSERT(gsn_alchemy >= 0);
+    ASSERT(gsn_cooking >= 0);
+    ASSERT(gsn_jewelcraft >= 0);
+    ASSERT(gsn_woodworking >= 0);
+    ASSERT(gsn_enchanting >= 0);
+    
+    return 0;
+}
+
+static int test_craft_skill_lookup()
+{
+    // Verify skill_lookup finds each crafting skill
+    ASSERT(skill_lookup("skinning") == gsn_skinning);
+    ASSERT(skill_lookup("butchering") == gsn_butchering);
+    ASSERT(skill_lookup("leatherworking") == gsn_leatherworking);
+    ASSERT(skill_lookup("blacksmithing") == gsn_blacksmithing);
+    ASSERT(skill_lookup("tailoring") == gsn_tailoring);
+    ASSERT(skill_lookup("alchemy") == gsn_alchemy);
+    ASSERT(skill_lookup("cooking") == gsn_cooking);
+    ASSERT(skill_lookup("jewelcraft") == gsn_jewelcraft);
+    ASSERT(skill_lookup("woodworking") == gsn_woodworking);
+    ASSERT(skill_lookup("enchanting") == gsn_enchanting);
+    
+    return 0;
+}
+
+static int test_craft_skill_names()
+{
+    // Verify skill names are correct
+    ASSERT_STR_EQ("skinning", skill_table[gsn_skinning].name);
+    ASSERT_STR_EQ("butchering", skill_table[gsn_butchering].name);
+    ASSERT_STR_EQ("leatherworking", skill_table[gsn_leatherworking].name);
+    ASSERT_STR_EQ("blacksmithing", skill_table[gsn_blacksmithing].name);
+    ASSERT_STR_EQ("tailoring", skill_table[gsn_tailoring].name);
+    ASSERT_STR_EQ("alchemy", skill_table[gsn_alchemy].name);
+    ASSERT_STR_EQ("cooking", skill_table[gsn_cooking].name);
+    ASSERT_STR_EQ("jewelcraft", skill_table[gsn_jewelcraft].name);
+    ASSERT_STR_EQ("woodworking", skill_table[gsn_woodworking].name);
+    ASSERT_STR_EQ("enchanting", skill_table[gsn_enchanting].name);
+    
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Test Registration
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -2454,6 +2509,11 @@ void register_craft_tests()
     REGISTER("OList: Materials Local", test_olist_mat_local);
     REGISTER("OList: Material Filter", test_olist_mat_filter);
     REGISTER("OList: OLC Aware", test_olist_olc_aware);
+    
+    // Issue #23: Crafting Skills
+    REGISTER("CraftSkill: All Loaded", test_craft_skills_loaded);
+    REGISTER("CraftSkill: Lookup", test_craft_skill_lookup);
+    REGISTER("CraftSkill: Names", test_craft_skill_names);
 
 #undef REGISTER
 }
