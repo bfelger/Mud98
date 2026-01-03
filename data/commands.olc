@@ -1,4 +1,4 @@
-275
+280
 
 #COMMAND
 name .~
@@ -2473,4 +2473,51 @@ position dead~
 level 0
 log log_normal~
 show undef~
+#END
+
+#COMMAND
+name skin~
+do_fun do_skin~
+position standing~
+level 0
+log log_normal~
+show undef~
+#END
+
+#COMMAND
+name butcher~
+do_fun do_butcher~
+position standing~
+level 0
+log log_normal~
+show undef~
+#END
+
+#COMMAND
+name salvage~
+do_fun do_salvage~
+position standing~
+level 0
+log log_normal~
+show undef~
+#END
+
+#COMMAND
+name craft~
+do_fun do_craft~
+position standing~
+level 0
+log log_normal~
+show undef~
+#END
+
+#COMMAND
+name recipes~
+do_fun do_recipes~
+position resting~
+level 0
+log log_normal~
+show undef~
+#END
+
 #END

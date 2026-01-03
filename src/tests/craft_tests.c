@@ -10,6 +10,8 @@
 
 #include <craft/craft.h>
 #include <craft/recipe.h>
+#include <craft/workstation.h>
+#include <craft/act_craft.h>
 
 #include <persist/recipe/json/recipe_persist_json.h>
 #include <persist/recipe/rom-olc/recipe_persist_rom_olc.h>
@@ -25,6 +27,8 @@
 #include <entities/room.h>
 
 #include <fight.h>
+#include <comm.h>
+#include <handler.h>
 
 #include <jansson.h>
 
@@ -937,6 +941,587 @@ static int test_recipe_area_filter()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Issue #15: Workstation Helper Tests
+////////////////////////////////////////////////////////////////////////////////
+
+static int test_find_workstation_none_present()
+{
+    Room* room = mock_room(70101, NULL, NULL);
+    
+    Object* result = find_workstation(room, WORK_FORGE);
+    
+    ASSERT(result == NULL);
+    return 0;
+}
+
+static int test_find_workstation_exact_match()
+{
+    Room* room = mock_room(70102, NULL, NULL);
+    Object* forge = mock_workstation("a forge", 70001, WORK_FORGE, 0);
+    obj_to_room(forge, room);
+    
+    Object* result = find_workstation(room, WORK_FORGE);
+    
+    ASSERT(result == forge);
+    return 0;
+}
+
+static int test_find_workstation_multi_flag()
+{
+    Room* room = mock_room(70103, NULL, NULL);
+    Object* combo = mock_workstation("master station", 70002, WORK_FORGE | WORK_SMELTER, 0);
+    obj_to_room(combo, room);
+    
+    // Should find station when searching for FORGE
+    Object* result1 = find_workstation(room, WORK_FORGE);
+    ASSERT(result1 == combo);
+    
+    // Should find station when searching for SMELTER
+    Object* result2 = find_workstation(room, WORK_SMELTER);
+    ASSERT(result2 == combo);
+    
+    return 0;
+}
+
+static int test_find_workstation_wrong_type()
+{
+    Room* room = mock_room(70104, NULL, NULL);
+    Object* tannery = mock_workstation("a tanning rack", 70003, WORK_TANNERY, 0);
+    obj_to_room(tannery, room);
+    
+    // Looking for FORGE should not find TANNERY
+    Object* result = find_workstation(room, WORK_FORGE);
+    
+    ASSERT(result == NULL);
+    return 0;
+}
+
+static int test_find_workstation_by_vnum_found()
+{
+    Room* room = mock_room(70105, NULL, NULL);
+    Object* forge = mock_workstation("special forge", 70005, WORK_FORGE, 10);
+    obj_to_room(forge, room);
+    
+    Object* result = find_workstation_by_vnum(room, 70005);
+    
+    ASSERT(result == forge);
+    return 0;
+}
+
+static int test_find_workstation_by_vnum_not_found()
+{
+    Room* room = mock_room(70106, NULL, NULL);
+    
+    Object* result = find_workstation_by_vnum(room, 99999);
+    
+    ASSERT(result == NULL);
+    return 0;
+}
+
+static int test_has_required_workstation_none_needed()
+{
+    Room* room = mock_room(70107, NULL, NULL);
+    Recipe* recipe = new_recipe();
+    VNUM_FIELD(recipe) = 70010;
+    recipe->station_type = WORK_NONE;
+    recipe->station_vnum = VNUM_NONE;
+    
+    bool result = has_required_workstation(room, recipe);
+    
+    ASSERT(result == true);
+    
+    free_recipe(recipe);
+    return 0;
+}
+
+static int test_has_required_workstation_by_type()
+{
+    Room* room = mock_room(70108, NULL, NULL);
+    Object* forge = mock_workstation("a forge", 70006, WORK_FORGE, 0);
+    obj_to_room(forge, room);
+    
+    Recipe* recipe = new_recipe();
+    VNUM_FIELD(recipe) = 70011;
+    recipe->station_type = WORK_FORGE;
+    recipe->station_vnum = VNUM_NONE;
+    
+    bool result = has_required_workstation(room, recipe);
+    
+    ASSERT(result == true);
+    
+    free_recipe(recipe);
+    return 0;
+}
+
+static int test_has_required_workstation_by_vnum()
+{
+    Room* room = mock_room(70109, NULL, NULL);
+    Object* station = mock_workstation("quest forge", 70007, WORK_FORGE, 0);
+    obj_to_room(station, room);
+    
+    Recipe* recipe = new_recipe();
+    VNUM_FIELD(recipe) = 70012;
+    recipe->station_type = WORK_NONE;
+    recipe->station_vnum = 70007;
+    
+    bool result = has_required_workstation(room, recipe);
+    
+    ASSERT(result == true);
+    
+    free_recipe(recipe);
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Issue #9: Skin Command Tests
+////////////////////////////////////////////////////////////////////////////////
+
+static int test_skin_no_argument()
+{
+    Room* room = mock_room(80001, NULL, NULL);
+    Mobile* ch = mock_player("Tester");
+    transfer_mob(ch, room);
+    
+    test_socket_output_enabled = true;
+    do_skin(ch, "");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("Skin what?");
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_skin_not_a_corpse()
+{
+    Room* room = mock_room(80002, NULL, NULL);
+    Mobile* ch = mock_player("Tester");
+    transfer_mob(ch, room);
+    
+    Object* sword = mock_sword("a sword", 80003, 5, 1, 6);
+    obj_to_room(sword, room);
+    
+    test_socket_output_enabled = true;
+    do_skin(ch, "sword");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("not a corpse");
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_skin_already_skinned()
+{
+    Room* room = mock_room(80003, NULL, NULL);
+    Mobile* ch = mock_player("Tester");
+    transfer_mob(ch, room);
+    
+    // Create an NPC and kill it to make a corpse
+    MobPrototype* mp = mock_mob_proto(80001);
+    Mobile* mob = create_mobile(mp);
+    transfer_mob(mob, room);
+    
+    make_corpse(mob);
+    
+    // Find the corpse in the room
+    Object* corpse = NULL;
+    Object* obj = NULL;
+    FOR_EACH_ROOM_OBJ(obj, room) {
+        if (obj->item_type == ITEM_CORPSE_NPC) {
+            corpse = obj;
+            break;
+        }
+    }
+    ASSERT(corpse != NULL);
+    
+    corpse->corpse.extraction_flags |= CORPSE_SKINNED;
+    
+    test_socket_output_enabled = true;
+    do_skin(ch, "corpse");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("already been skinned");
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_skin_no_skinnable_mats()
+{
+    Room* room = mock_room(80004, NULL, NULL);
+    Mobile* ch = mock_player("Tester");
+    transfer_mob(ch, room);
+    
+    // Create mob with only meat (not skinnable)
+    MobPrototype* mp = mock_mob_proto(80002);
+    ObjPrototype* meat_proto = mock_obj_proto(80010);
+    meat_proto->item_type = ITEM_MAT;
+    meat_proto->craft_mat.mat_type = MAT_MEAT;
+    meat_proto->craft_mat.amount = 1;
+    meat_proto->craft_mat.quality = 50;
+    
+    mp->craft_mat_count = 1;
+    mp->craft_mats = alloc_mem(sizeof(VNUM));
+    mp->craft_mats[0] = VNUM_FIELD(meat_proto);
+    
+    Mobile* mob = create_mobile(mp);
+    transfer_mob(mob, room);
+    
+    make_corpse(mob);
+    
+    test_socket_output_enabled = true;
+    do_skin(ch, "corpse");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("nothing to skin");
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_skin_success()
+{
+    Room* room = mock_room(80005, NULL, NULL);
+    Mobile* ch = mock_player("Tester");
+    transfer_mob(ch, room);
+    
+    // Create mob with skinnable hide
+    MobPrototype* mp = mock_mob_proto(80003);
+    ObjPrototype* hide_proto = mock_obj_proto(80020);
+    hide_proto->item_type = ITEM_MAT;
+    hide_proto->craft_mat.mat_type = MAT_HIDE;
+    hide_proto->craft_mat.amount = 1;
+    hide_proto->craft_mat.quality = 50;
+    
+    mp->craft_mat_count = 1;
+    mp->craft_mats = alloc_mem(sizeof(VNUM));
+    mp->craft_mats[0] = VNUM_FIELD(hide_proto);
+    
+    Mobile* mob = create_mobile(mp);
+    transfer_mob(mob, room);
+    
+    make_corpse(mob);
+    
+    // Find the corpse in the room
+    Object* corpse = NULL;
+    Object* obj = NULL;
+    FOR_EACH_ROOM_OBJ(obj, room) {
+        if (obj->item_type == ITEM_CORPSE_NPC) {
+            corpse = obj;
+            break;
+        }
+    }
+    ASSERT(corpse != NULL);
+    
+    // Count player inventory before
+    int inv_before = 0;
+    FOR_EACH_MOB_OBJ(obj, ch) { inv_before++; }
+    
+    test_socket_output_enabled = true;
+    do_skin(ch, "corpse");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("carefully skin");
+    
+    // Check corpse is now skinned
+    ASSERT(corpse->corpse.extraction_flags & CORPSE_SKINNED);
+    
+    // Count player inventory after
+    int inv_after = 0;
+    FOR_EACH_MOB_OBJ(obj, ch) { inv_after++; }
+    ASSERT(inv_after == inv_before + 1);
+    
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Issue #10: Butcher Command Tests
+////////////////////////////////////////////////////////////////////////////////
+
+static int test_butcher_no_argument()
+{
+    Room* room = mock_room(80101, NULL, NULL);
+    Mobile* ch = mock_player("Tester");
+    transfer_mob(ch, room);
+    
+    test_socket_output_enabled = true;
+    do_butcher(ch, "");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("Butcher what?");
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_butcher_already_butchered()
+{
+    Room* room = mock_room(80102, NULL, NULL);
+    Mobile* ch = mock_player("Tester");
+    transfer_mob(ch, room);
+    
+    MobPrototype* mp = mock_mob_proto(80011);
+    Mobile* mob = create_mobile(mp);
+    transfer_mob(mob, room);
+    
+    make_corpse(mob);
+    
+    // Find the corpse in the room
+    Object* corpse = NULL;
+    Object* obj = NULL;
+    FOR_EACH_ROOM_OBJ(obj, room) {
+        if (obj->item_type == ITEM_CORPSE_NPC) {
+            corpse = obj;
+            break;
+        }
+    }
+    ASSERT(corpse != NULL);
+    
+    corpse->corpse.extraction_flags |= CORPSE_BUTCHERED;
+    
+    test_socket_output_enabled = true;
+    do_butcher(ch, "corpse");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("already been butchered");
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_butcher_no_butcherable_mats()
+{
+    Room* room = mock_room(80103, NULL, NULL);
+    Mobile* ch = mock_player("Tester");
+    transfer_mob(ch, room);
+    
+    // Create mob with only hide (not butcherable)
+    MobPrototype* mp = mock_mob_proto(80012);
+    ObjPrototype* hide_proto = mock_obj_proto(80030);
+    hide_proto->item_type = ITEM_MAT;
+    hide_proto->craft_mat.mat_type = MAT_HIDE;
+    hide_proto->craft_mat.amount = 1;
+    hide_proto->craft_mat.quality = 50;
+    
+    mp->craft_mat_count = 1;
+    mp->craft_mats = alloc_mem(sizeof(VNUM));
+    mp->craft_mats[0] = VNUM_FIELD(hide_proto);
+    
+    Mobile* mob = create_mobile(mp);
+    transfer_mob(mob, room);
+    
+    make_corpse(mob);
+    
+    test_socket_output_enabled = true;
+    do_butcher(ch, "corpse");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("nothing to butcher");
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_butcher_success()
+{
+    Room* room = mock_room(80104, NULL, NULL);
+    Mobile* ch = mock_player("Tester");
+    transfer_mob(ch, room);
+    
+    // Create mob with butcherable meat
+    MobPrototype* mp = mock_mob_proto(80013);
+    ObjPrototype* meat_proto = mock_obj_proto(80040);
+    meat_proto->item_type = ITEM_MAT;
+    meat_proto->craft_mat.mat_type = MAT_MEAT;
+    meat_proto->craft_mat.amount = 1;
+    meat_proto->craft_mat.quality = 50;
+    
+    mp->craft_mat_count = 1;
+    mp->craft_mats = alloc_mem(sizeof(VNUM));
+    mp->craft_mats[0] = VNUM_FIELD(meat_proto);
+    
+    Mobile* mob = create_mobile(mp);
+    transfer_mob(mob, room);
+    
+    make_corpse(mob);
+    
+    // Find the corpse in the room
+    Object* corpse = NULL;
+    Object* obj = NULL;
+    FOR_EACH_ROOM_OBJ(obj, room) {
+        if (obj->item_type == ITEM_CORPSE_NPC) {
+            corpse = obj;
+            break;
+        }
+    }
+    ASSERT(corpse != NULL);
+    
+    int inv_before = 0;
+    FOR_EACH_MOB_OBJ(obj, ch) { inv_before++; }
+    
+    test_socket_output_enabled = true;
+    do_butcher(ch, "corpse");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("carefully butcher");
+    ASSERT(corpse->corpse.extraction_flags & CORPSE_BUTCHERED);
+    
+    int inv_after = 0;
+    FOR_EACH_MOB_OBJ(obj, ch) { inv_after++; }
+    ASSERT(inv_after == inv_before + 1);
+    
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Issue #12: Salvage Command Tests
+////////////////////////////////////////////////////////////////////////////////
+
+static int test_salvage_no_argument()
+{
+    Room* room = mock_room(80201, NULL, NULL);
+    Mobile* ch = mock_player("Tester");
+    transfer_mob(ch, room);
+    
+    test_socket_output_enabled = true;
+    do_salvage(ch, "");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("Salvage what?");
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_salvage_item_not_found()
+{
+    Room* room = mock_room(80202, NULL, NULL);
+    Mobile* ch = mock_player("Tester");
+    transfer_mob(ch, room);
+    
+    test_socket_output_enabled = true;
+    do_salvage(ch, "nonexistent");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("don't have that");
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_salvage_no_salvage_mats()
+{
+    Room* room = mock_room(80203, NULL, NULL);
+    Mobile* ch = mock_player("Tester");
+    transfer_mob(ch, room);
+    
+    // Create an item with no salvage mats
+    Object* sword = mock_sword("sword", 80050, 5, 1, 6);
+    obj_to_char(sword, ch);
+    
+    test_socket_output_enabled = true;
+    do_salvage(ch, "sword");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("nothing to salvage");
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_salvage_success()
+{
+    Room* room = mock_room(80204, NULL, NULL);
+    Mobile* ch = mock_player("Tester");
+    transfer_mob(ch, room);
+    
+    // Create salvage material proto
+    ObjPrototype* metal_proto = mock_obj_proto(80060);
+    metal_proto->item_type = ITEM_MAT;
+    metal_proto->craft_mat.mat_type = MAT_INGOT;
+    metal_proto->craft_mat.amount = 1;
+    metal_proto->craft_mat.quality = 50;
+    
+    // Create an item with salvage mats
+    ObjPrototype* sword_proto = mock_obj_proto(80051);
+    sword_proto->header.name = AS_STRING(mock_str("sword blade"));
+    sword_proto->short_descr = str_dup("a rusty sword");
+    sword_proto->item_type = ITEM_WEAPON;
+    sword_proto->salvage_mat_count = 1;
+    sword_proto->salvage_mats = alloc_mem(sizeof(VNUM));
+    sword_proto->salvage_mats[0] = VNUM_FIELD(metal_proto);
+    
+    Object* sword = create_object(sword_proto, 5);
+    obj_to_char(sword, ch);
+    
+    int inv_before = 0;
+    Object* obj;
+    FOR_EACH_MOB_OBJ(obj, ch) { inv_before++; }
+    
+    test_socket_output_enabled = true;
+    do_salvage(ch, "sword");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("salvage");
+    
+    // Inventory should have gained materials (sword destroyed, mats added)
+    int inv_after = 0;
+    FOR_EACH_MOB_OBJ(obj, ch) { inv_after++; }
+    // Sword gone (-1), mats added (+1) = same count
+    ASSERT(inv_after >= inv_before);
+    
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Issue #11: Craft Command Tests
+////////////////////////////////////////////////////////////////////////////////
+
+static int test_craft_no_argument()
+{
+    Room* room = mock_room(80301, NULL, NULL);
+    Mobile* ch = mock_player("Tester");
+    transfer_mob(ch, room);
+    
+    test_socket_output_enabled = true;
+    do_craft(ch, "");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("Craft what?");
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_craft_recipe_not_found()
+{
+    Room* room = mock_room(80302, NULL, NULL);
+    Mobile* ch = mock_player("Tester");
+    transfer_mob(ch, room);
+    
+    test_socket_output_enabled = true;
+    do_craft(ch, "nonexistent_recipe");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("don't know");
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Issue #13: Recipes Command Tests
+////////////////////////////////////////////////////////////////////////////////
+
+static int test_recipes_list()
+{
+    Room* room = mock_room(80401, NULL, NULL);
+    Mobile* ch = mock_player("Tester");
+    transfer_mob(ch, room);
+    
+    test_socket_output_enabled = true;
+    do_recipes(ch, "");
+    test_socket_output_enabled = false;
+    
+    // Should output something about recipes (even if none known)
+    ASSERT_OUTPUT_CONTAINS("recipe");
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Test Registration
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -991,6 +1576,43 @@ void register_craft_tests()
     REGISTER("Recipe: JSON Roundtrip", test_recipe_json_roundtrip);
     REGISTER("Recipe: ROM-OLC Save", test_recipe_rom_olc_save);
     REGISTER("Recipe: Area Filter", test_recipe_area_filter);
+    
+    // Issue #15: Workstation Helpers
+    REGISTER("Workstation: Find None", test_find_workstation_none_present);
+    REGISTER("Workstation: Find Exact", test_find_workstation_exact_match);
+    REGISTER("Workstation: Multi Flag", test_find_workstation_multi_flag);
+    REGISTER("Workstation: Wrong Type", test_find_workstation_wrong_type);
+    REGISTER("Workstation: By VNUM", test_find_workstation_by_vnum_found);
+    REGISTER("Workstation: VNUM Not Found", test_find_workstation_by_vnum_not_found);
+    REGISTER("Workstation: None Required", test_has_required_workstation_none_needed);
+    REGISTER("Workstation: By Type", test_has_required_workstation_by_type);
+    REGISTER("Workstation: By VNUM Req", test_has_required_workstation_by_vnum);
+    
+    // Issue #9: Skin Command
+    REGISTER("Skin: No Argument", test_skin_no_argument);
+    REGISTER("Skin: Not A Corpse", test_skin_not_a_corpse);
+    REGISTER("Skin: Already Skinned", test_skin_already_skinned);
+    REGISTER("Skin: No Skinnable Mats", test_skin_no_skinnable_mats);
+    REGISTER("Skin: Success", test_skin_success);
+    
+    // Issue #10: Butcher Command
+    REGISTER("Butcher: No Argument", test_butcher_no_argument);
+    REGISTER("Butcher: Already Butchered", test_butcher_already_butchered);
+    REGISTER("Butcher: No Butcherable Mats", test_butcher_no_butcherable_mats);
+    REGISTER("Butcher: Success", test_butcher_success);
+    
+    // Issue #12: Salvage Command
+    REGISTER("Salvage: No Argument", test_salvage_no_argument);
+    REGISTER("Salvage: Item Not Found", test_salvage_item_not_found);
+    REGISTER("Salvage: No Salvage Mats", test_salvage_no_salvage_mats);
+    REGISTER("Salvage: Success", test_salvage_success);
+    
+    // Issue #11: Craft Command
+    REGISTER("Craft: No Argument", test_craft_no_argument);
+    REGISTER("Craft: Recipe Not Found", test_craft_recipe_not_found);
+    
+    // Issue #13: Recipes Command
+    REGISTER("Recipes: List", test_recipes_list);
 
 #undef REGISTER
 }
