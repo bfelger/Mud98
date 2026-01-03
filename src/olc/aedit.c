@@ -12,6 +12,9 @@
 #include "period_edit.h"
 #include "string_edit.h"
 
+#include <craft/recipe.h>
+#include <craft/recedit.h>
+
 #include <array.h>
 #include <color.h>
 #include <comm.h>
@@ -56,10 +59,12 @@ static const char* checklist_status_name(ChecklistStatus status);
 static StoryBeat* story_beat_by_index(AreaData* area, int index, StoryBeat** out_prev);
 static ChecklistItem* checklist_by_index(AreaData* area, int index, ChecklistItem** out_prev);
 static void aedit_seed_default_checklist(AreaData* area);
+static int count_area_recipes(AreaData* area);
 
 AEDIT(aedit_story);
 AEDIT(aedit_checklist);
 AEDIT(aedit_period);
+AEDIT(aedit_recipe);
 
 const OlcCmdEntry area_olc_comm_table[] = {
     { "name", 	        U(&xArea.header.name),  ed_line_lox_string, 0                   },
@@ -81,6 +86,7 @@ const OlcCmdEntry area_olc_comm_table[] = {
     { "checklist",      0,                      ed_olded,           U(aedit_checklist)  },
     { "period",         0,                      ed_olded,           U(aedit_period)     },
     { "faction",        0,                      ed_olded,           U(aedit_faction)    },
+    { "recipe",         0,                      ed_olded,           U(aedit_recipe)     },
     { "builder", 	    0,                      ed_olded,           U(aedit_builder)	},
     { "commands", 	    0,                      ed_olded,           U(show_commands)	},
     { "create", 	    0,                      ed_olded,           U(aedit_create)	    },
@@ -457,6 +463,10 @@ AEDIT(aedit_show)
     aedit_print_faction_summary(ch, area);
     aedit_print_story_beats(ch, area);
     aedit_print_checklist(ch, area);
+
+    // Recipe count
+    int rcount = count_area_recipes(area);
+    olc_print_num(ch, "Recipes", rcount);
 
     return false;
 }
@@ -1364,4 +1374,182 @@ AreaData* get_area_data(VNUM vnum)
     }
 
     return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Recipe Management in Area Editor
+////////////////////////////////////////////////////////////////////////////////
+
+static int count_area_recipes(AreaData* area)
+{
+    int count = 0;
+    RecipeIter iter = make_recipe_iter();
+    Recipe* recipe;
+    while ((recipe = recipe_iter_next(&iter)) != NULL) {
+        if (recipe->area == area)
+            count++;
+    }
+    return count;
+}
+
+static void aedit_list_recipes(Mobile* ch, AreaData* area)
+{
+    int count = 0;
+    RecipeIter iter = make_recipe_iter();
+    Recipe* recipe;
+
+    printf_to_char(ch, COLOR_INFO "Recipes in [%d] %s:" COLOR_EOL "\n\r",
+        VNUM_FIELD(area), NAME_STR(area));
+
+    while ((recipe = recipe_iter_next(&iter)) != NULL) {
+        if (recipe->area != area)
+            continue;
+
+        const char* skill_name = "(none)";
+        if (recipe->required_skill >= 0 && recipe->required_skill < skill_count) {
+            skill_name = skill_table[recipe->required_skill].name;
+        }
+
+        printf_to_char(ch, 
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR
+            " %-30.30s %-20.20s Lvl %d" COLOR_EOL,
+            VNUM_FIELD(recipe),
+            NAME_STR(recipe),
+            skill_name,
+            recipe->min_level);
+        count++;
+    }
+
+    if (count == 0) {
+        send_to_char("  (none)\n\r", ch);
+    }
+    printf_to_char(ch, "\n\r" COLOR_INFO "%d recipe(s) in this area." COLOR_EOL, count);
+}
+
+AEDIT(aedit_recipe)
+{
+    AreaData* area;
+    char cmd[MAX_INPUT_LENGTH];
+    char arg[MAX_INPUT_LENGTH];
+    VNUM vnum;
+
+    EDIT_AREA(ch, area);
+
+    READ_ARG(cmd);
+    READ_ARG(arg);
+
+    // No argument - list recipes
+    if (IS_NULLSTR(cmd) || !str_cmp(cmd, "list")) {
+        aedit_list_recipes(ch, area);
+        return false;
+    }
+
+    // Create new recipe
+    if (!str_cmp(cmd, "create")) {
+        if (IS_NULLSTR(arg) || !is_number(arg)) {
+            send_to_char(COLOR_INFO "Syntax: recipe create <vnum>" COLOR_EOL, ch);
+            return false;
+        }
+
+        vnum = (VNUM)atoi(arg);
+
+        // Validate VNUM is in area range
+        if (vnum < area->min_vnum || vnum > area->max_vnum) {
+            printf_to_char(ch, COLOR_INFO "Recipe VNUM must be in area range %d-%d." COLOR_EOL,
+                area->min_vnum, area->max_vnum);
+            return false;
+        }
+
+        // Check if already exists
+        if (get_recipe(vnum)) {
+            send_to_char(COLOR_INFO "A recipe with that VNUM already exists." COLOR_EOL, ch);
+            return false;
+        }
+
+        // Create the recipe
+        Recipe* recipe = new_recipe();
+        recipe->header.vnum = vnum;
+        recipe->area = area;
+        recipe->required_skill = -1;
+        recipe->min_skill_pct = 0;
+        recipe->min_level = 1;
+        recipe->station_type = WORK_NONE;
+        recipe->station_vnum = VNUM_NONE;
+        recipe->discovery = DISC_KNOWN;
+        recipe->product_vnum = VNUM_NONE;
+        recipe->product_quantity = 1;
+
+        if (!add_recipe(recipe)) {
+            send_to_char(COLOR_INFO "Failed to add recipe." COLOR_EOL, ch);
+            free_recipe(recipe);
+            return false;
+        }
+
+        // Enter recipe editor
+        set_editor(ch->desc, ED_RECIPE, (uintptr_t)recipe);
+        printf_to_char(ch, COLOR_INFO "Recipe %d created. Entering recipe editor." COLOR_EOL, vnum);
+        SET_BIT(area->area_flags, AREA_CHANGED);
+        return true;
+    }
+
+    // Edit existing recipe
+    if (!str_cmp(cmd, "edit")) {
+        if (IS_NULLSTR(arg) || !is_number(arg)) {
+            send_to_char(COLOR_INFO "Syntax: recipe edit <vnum>" COLOR_EOL, ch);
+            return false;
+        }
+
+        vnum = (VNUM)atoi(arg);
+        Recipe* recipe = get_recipe(vnum);
+
+        if (!recipe) {
+            send_to_char(COLOR_INFO "No recipe with that VNUM exists." COLOR_EOL, ch);
+            return false;
+        }
+
+        if (recipe->area != area) {
+            send_to_char(COLOR_INFO "That recipe belongs to a different area." COLOR_EOL, ch);
+            return false;
+        }
+
+        // Enter recipe editor
+        set_editor(ch->desc, ED_RECIPE, (uintptr_t)recipe);
+        printf_to_char(ch, COLOR_INFO "Editing recipe %d." COLOR_EOL, vnum);
+        return true;
+    }
+
+    // Delete recipe
+    if (!str_cmp(cmd, "delete")) {
+        if (IS_NULLSTR(arg) || !is_number(arg)) {
+            send_to_char(COLOR_INFO "Syntax: recipe delete <vnum>" COLOR_EOL, ch);
+            return false;
+        }
+
+        vnum = (VNUM)atoi(arg);
+        Recipe* recipe = get_recipe(vnum);
+
+        if (!recipe) {
+            send_to_char(COLOR_INFO "No recipe with that VNUM exists." COLOR_EOL, ch);
+            return false;
+        }
+
+        if (recipe->area != area) {
+            send_to_char(COLOR_INFO "That recipe belongs to a different area." COLOR_EOL, ch);
+            return false;
+        }
+
+        remove_recipe(vnum);
+        printf_to_char(ch, COLOR_INFO "Recipe %d deleted." COLOR_EOL, vnum);
+        SET_BIT(area->area_flags, AREA_CHANGED);
+        return true;
+    }
+
+    // Unknown subcommand
+    send_to_char(COLOR_INFO "Syntax:" COLOR_EOL
+                 "  recipe                  - List recipes in this area" COLOR_EOL
+                 "  recipe list             - List recipes in this area" COLOR_EOL
+                 "  recipe create <vnum>    - Create new recipe" COLOR_EOL
+                 "  recipe edit <vnum>      - Edit existing recipe" COLOR_EOL
+                 "  recipe delete <vnum>    - Delete recipe" COLOR_EOL, ch);
+    return false;
 }

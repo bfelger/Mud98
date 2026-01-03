@@ -1962,6 +1962,183 @@ static int test_recedit_discovery()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Issue #22: AEdit Recipe Tests
+////////////////////////////////////////////////////////////////////////////////
+
+// aedit() function is the editor interpreter
+void aedit(Mobile* ch, char* argument);
+
+static int test_aedit_recipe_list_empty()
+{
+    Room* room = mock_room(87001, NULL, NULL);
+    Mobile* ch = mock_player("AEditBuilder1");
+    ch->pcdata->security = 9;
+    transfer_mob(ch, room);
+    
+    // Create area for testing
+    AreaData* ad = mock_area_data();
+    ad->min_vnum = 87000;
+    ad->max_vnum = 87099;
+    write_value_array(&global_areas, OBJ_VAL(ad));
+    
+    // Enter aedit for this area
+    set_editor(ch->desc, ED_AREA, (uintptr_t)ad);
+    
+    test_socket_output_enabled = true;
+    aedit(ch, "recipe list");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("(none)");
+    ASSERT_OUTPUT_CONTAINS("0 recipe");
+    
+    test_output_buffer = NIL_VAL;
+    edit_done(ch);
+    return 0;
+}
+
+static int test_aedit_recipe_create()
+{
+    Room* room = mock_room(87002, NULL, NULL);
+    Mobile* ch = mock_player("AEditBuilder2");
+    ch->pcdata->security = 9;
+    transfer_mob(ch, room);
+    
+    // Create area for testing
+    AreaData* ad = mock_area_data();
+    ad->min_vnum = 87100;
+    ad->max_vnum = 87199;
+    write_value_array(&global_areas, OBJ_VAL(ad));
+    
+    // Enter aedit for this area
+    set_editor(ch->desc, ED_AREA, (uintptr_t)ad);
+    
+    test_socket_output_enabled = true;
+    aedit(ch, "recipe create 87150");
+    test_socket_output_enabled = false;
+    
+    // Should have entered recedit
+    EditorFrame* frame = editor_stack_top(&ch->desc->editor_stack);
+    ASSERT(frame != NULL);
+    ASSERT(frame->editor == ED_RECIPE);
+    
+    // Recipe should exist
+    Recipe* recipe = get_recipe(87150);
+    ASSERT(recipe != NULL);
+    ASSERT(recipe->area == ad);
+    
+    ASSERT_OUTPUT_CONTAINS("created");
+    
+    test_output_buffer = NIL_VAL;
+    edit_done(ch);
+    return 0;
+}
+
+static int test_aedit_recipe_create_out_of_range()
+{
+    Room* room = mock_room(87003, NULL, NULL);
+    Mobile* ch = mock_player("AEditBuilder3");
+    ch->pcdata->security = 9;
+    transfer_mob(ch, room);
+    
+    // Create area for testing
+    AreaData* ad = mock_area_data();
+    ad->min_vnum = 87200;
+    ad->max_vnum = 87299;
+    write_value_array(&global_areas, OBJ_VAL(ad));
+    
+    // Enter aedit for this area
+    set_editor(ch->desc, ED_AREA, (uintptr_t)ad);
+    
+    test_socket_output_enabled = true;
+    aedit(ch, "recipe create 99999");  // Out of range
+    test_socket_output_enabled = false;
+    
+    // Should NOT have entered recedit - still in aedit
+    EditorFrame* frame = editor_stack_top(&ch->desc->editor_stack);
+    ASSERT(frame != NULL);
+    ASSERT(frame->editor == ED_AREA);
+    
+    ASSERT_OUTPUT_CONTAINS("must be in area range");
+    
+    test_output_buffer = NIL_VAL;
+    edit_done(ch);
+    return 0;
+}
+
+static int test_aedit_recipe_edit()
+{
+    Room* room = mock_room(87004, NULL, NULL);
+    Mobile* ch = mock_player("AEditBuilder4");
+    ch->pcdata->security = 9;
+    transfer_mob(ch, room);
+    
+    // Create area for testing
+    AreaData* ad = mock_area_data();
+    ad->min_vnum = 87300;
+    ad->max_vnum = 87399;
+    write_value_array(&global_areas, OBJ_VAL(ad));
+    
+    // Create a recipe in this area
+    Recipe* recipe = mock_recipe("test aedit edit recipe", 87350);
+    recipe->area = ad;
+    
+    // Enter aedit for this area
+    set_editor(ch->desc, ED_AREA, (uintptr_t)ad);
+    
+    test_socket_output_enabled = true;
+    aedit(ch, "recipe edit 87350");
+    test_socket_output_enabled = false;
+    
+    // Should have entered recedit
+    EditorFrame* frame = editor_stack_top(&ch->desc->editor_stack);
+    ASSERT(frame != NULL);
+    ASSERT(frame->editor == ED_RECIPE);
+    
+    ASSERT_OUTPUT_CONTAINS("Editing");
+    
+    test_output_buffer = NIL_VAL;
+    edit_done(ch);
+    return 0;
+}
+
+static int test_aedit_recipe_delete()
+{
+    Room* room = mock_room(87005, NULL, NULL);
+    Mobile* ch = mock_player("AEditBuilder5");
+    ch->pcdata->security = 9;
+    transfer_mob(ch, room);
+    
+    // Create area for testing
+    AreaData* ad = mock_area_data();
+    ad->min_vnum = 87400;
+    ad->max_vnum = 87499;
+    write_value_array(&global_areas, OBJ_VAL(ad));
+    
+    // Create a recipe in this area
+    Recipe* recipe = mock_recipe("test aedit delete recipe", 87450);
+    recipe->area = ad;
+    
+    // Verify recipe exists
+    ASSERT(get_recipe(87450) != NULL);
+    
+    // Enter aedit for this area
+    set_editor(ch->desc, ED_AREA, (uintptr_t)ad);
+    
+    test_socket_output_enabled = true;
+    aedit(ch, "recipe delete 87450");
+    test_socket_output_enabled = false;
+    
+    // Recipe should be deleted
+    ASSERT(get_recipe(87450) == NULL);
+    
+    ASSERT_OUTPUT_CONTAINS("deleted");
+    
+    test_output_buffer = NIL_VAL;
+    edit_done(ch);
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Test Registration
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -2073,6 +2250,13 @@ void register_craft_tests()
     REGISTER("RecEdit: List", test_recedit_list);
     REGISTER("RecEdit: Skill", test_recedit_skill);
     REGISTER("RecEdit: Discovery", test_recedit_discovery);
+    
+    // Issue #22: AEdit Recipe
+    REGISTER("AEdit: Recipe List Empty", test_aedit_recipe_list_empty);
+    REGISTER("AEdit: Recipe Create", test_aedit_recipe_create);
+    REGISTER("AEdit: Recipe Create Out Of Range", test_aedit_recipe_create_out_of_range);
+    REGISTER("AEdit: Recipe Edit", test_aedit_recipe_edit);
+    REGISTER("AEdit: Recipe Delete", test_aedit_recipe_delete);
 
 #undef REGISTER
 }
