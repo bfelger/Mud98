@@ -17,6 +17,7 @@
 #include <persist/recipe/json/recipe_persist_json.h>
 #include <persist/recipe/rom-olc/recipe_persist_rom_olc.h>
 
+#include <data/class.h>
 #include <data/item.h>
 #include <data/skill.h>
 
@@ -32,6 +33,7 @@
 #include <fight.h>
 #include <comm.h>
 #include <handler.h>
+#include <skills.h>
 
 #include <jansson.h>
 
@@ -2384,6 +2386,62 @@ static int test_craft_skill_names()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Issue #24: Crafting Skill Group
+////////////////////////////////////////////////////////////////////////////////
+
+static int test_craft_group_exists()
+{
+    // The crafting skill group should exist
+    SKNUM gn = group_lookup("crafting");
+    ASSERT(gn >= 0);
+    ASSERT_STR_EQ("crafting", skill_group_table[gn].name);
+    
+    return 0;
+}
+
+static int test_craft_group_contains_skills()
+{
+    // The crafting group should contain all crafting skills
+    SKNUM gn = group_lookup("crafting");
+    ASSERT(gn >= 0);
+    
+    // Check all skills are in the group
+    const char* expected_skills[] = {
+        "skinning", "butchering", "leatherworking", "blacksmithing",
+        "tailoring", "alchemy", "cooking", "jewelcraft", 
+        "woodworking", "enchanting", NULL
+    };
+    
+    for (int i = 0; expected_skills[i] != NULL; i++) {
+        bool found = false;
+        for (int j = 0; skill_group_table[gn].skills[j] != NULL; j++) {
+            if (str_cmp(skill_group_table[gn].skills[j], expected_skills[i]) == 0) {
+                found = true;
+                break;
+            }
+        }
+        ASSERT(found);  // Skill should be in crafting group
+    }
+    
+    return 0;
+}
+
+static int test_craft_group_rating()
+{
+    // The crafting group should be available to all classes
+    SKNUM gn = group_lookup("crafting");
+    ASSERT(gn >= 0);
+    
+    // All classes should be able to buy the crafting group (rating > 0)
+    for (int i = 0; i < class_count; i++) {
+        int16_t rating = GET_ELEM(&skill_group_table[gn].rating, i);
+        ASSERT(rating > 0);  // All classes can buy crafting
+    }
+    
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Test Registration
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -2514,6 +2572,11 @@ void register_craft_tests()
     REGISTER("CraftSkill: All Loaded", test_craft_skills_loaded);
     REGISTER("CraftSkill: Lookup", test_craft_skill_lookup);
     REGISTER("CraftSkill: Names", test_craft_skill_names);
+    
+    // Issue #24: Crafting Skill Group
+    REGISTER("CraftGroup: Exists", test_craft_group_exists);
+    REGISTER("CraftGroup: Contains Skills", test_craft_group_contains_skills);
+    REGISTER("CraftGroup: Rating", test_craft_group_rating);
 
 #undef REGISTER
 }

@@ -163,9 +163,9 @@ skills call lightning~ control weather~ faerie fire~ faerie fog~ lightning bolt~
 #END
 
 #GROUP
-name ~
-rating 0 0 0 0 @
-skills @~
+name crafting~
+rating 20 20 20 20 @
+skills skinning~ butchering~ leatherworking~ blacksmithing~ tailoring~ alchemy~ cooking~ jewelcraft~ woodworking~ enchanting~ @~
 #END
 
 #GROUP
