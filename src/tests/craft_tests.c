@@ -12,6 +12,7 @@
 #include <craft/recipe.h>
 #include <craft/workstation.h>
 #include <craft/act_craft.h>
+#include <craft/craft_olc.h>
 
 #include <persist/recipe/json/recipe_persist_json.h>
 #include <persist/recipe/rom-olc/recipe_persist_rom_olc.h>
@@ -1522,6 +1523,254 @@ static int test_recipes_list()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Issue #21: Craft OLC Helper Tests
+////////////////////////////////////////////////////////////////////////////////
+
+static int test_craft_olc_add_mat_valid()
+{
+    Room* room = mock_room(85001, NULL, NULL);
+    Mobile* ch = mock_player("Builder");
+    transfer_mob(ch, room);
+    
+    // Create an ITEM_MAT prototype
+    ObjPrototype* mat_proto = mock_obj_proto(85010);
+    mat_proto->item_type = ITEM_MAT;
+    mat_proto->craft_mat.mat_type = MAT_HIDE;
+    mat_proto->short_descr = str_dup("raw hide");
+    
+    VNUM* list = NULL;
+    int16_t count = 0;
+    
+    test_socket_output_enabled = true;
+    bool result = craft_olc_add_mat(&list, &count, 85010, ch);
+    test_socket_output_enabled = false;
+    
+    ASSERT(result == true);
+    ASSERT(count == 1);
+    ASSERT(list != NULL);
+    ASSERT(list[0] == 85010);
+    
+    ASSERT_OUTPUT_CONTAINS("Added");
+    test_output_buffer = NIL_VAL;
+    
+    free(list);
+    return 0;
+}
+
+static int test_craft_olc_add_mat_invalid_vnum()
+{
+    Room* room = mock_room(85002, NULL, NULL);
+    Mobile* ch = mock_player("Builder");
+    transfer_mob(ch, room);
+    
+    VNUM* list = NULL;
+    int16_t count = 0;
+    
+    test_socket_output_enabled = true;
+    bool result = craft_olc_add_mat(&list, &count, 99999, ch);  // Non-existent
+    test_socket_output_enabled = false;
+    
+    ASSERT(result == false);
+    ASSERT(count == 0);
+    ASSERT(list == NULL);
+    
+    ASSERT_OUTPUT_CONTAINS("doesn't exist");
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_craft_olc_add_mat_not_item_mat()
+{
+    Room* room = mock_room(85003, NULL, NULL);
+    Mobile* ch = mock_player("Builder");
+    transfer_mob(ch, room);
+    
+    // Create a non-ITEM_MAT prototype (weapon)
+    Object* sword = mock_sword("sword", 85020, 5, 1, 6);
+    (void)sword;
+    
+    VNUM* list = NULL;
+    int16_t count = 0;
+    
+    test_socket_output_enabled = true;
+    bool result = craft_olc_add_mat(&list, &count, 85020, ch);
+    test_socket_output_enabled = false;
+    
+    ASSERT(result == false);
+    ASSERT(count == 0);
+    
+    ASSERT_OUTPUT_CONTAINS("not a crafting material");
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_craft_olc_add_mat_duplicate()
+{
+    Room* room = mock_room(85004, NULL, NULL);
+    Mobile* ch = mock_player("Builder");
+    transfer_mob(ch, room);
+    
+    ObjPrototype* mat_proto = mock_obj_proto(85030);
+    mat_proto->item_type = ITEM_MAT;
+    mat_proto->craft_mat.mat_type = MAT_LEATHER;
+    mat_proto->short_descr = str_dup("leather");
+    
+    VNUM* list = NULL;
+    int16_t count = 0;
+    
+    // Add once
+    craft_olc_add_mat(&list, &count, 85030, ch);
+    test_output_buffer = NIL_VAL;
+    
+    // Try to add again
+    test_socket_output_enabled = true;
+    bool result = craft_olc_add_mat(&list, &count, 85030, ch);
+    test_socket_output_enabled = false;
+    
+    ASSERT(result == false);
+    ASSERT(count == 1);  // Still just 1
+    
+    ASSERT_OUTPUT_CONTAINS("already in the list");
+    test_output_buffer = NIL_VAL;
+    
+    free(list);
+    return 0;
+}
+
+static int test_craft_olc_remove_mat_by_index()
+{
+    Room* room = mock_room(85005, NULL, NULL);
+    Mobile* ch = mock_player("Builder");
+    transfer_mob(ch, room);
+    
+    ObjPrototype* mat1 = mock_obj_proto(85040);
+    mat1->item_type = ITEM_MAT;
+    mat1->craft_mat.mat_type = MAT_HIDE;
+    mat1->short_descr = str_dup("hide1");
+    
+    ObjPrototype* mat2 = mock_obj_proto(85041);
+    mat2->item_type = ITEM_MAT;
+    mat2->craft_mat.mat_type = MAT_FUR;
+    mat2->short_descr = str_dup("hide2");
+    
+    VNUM* list = NULL;
+    int16_t count = 0;
+    
+    craft_olc_add_mat(&list, &count, 85040, ch);
+    craft_olc_add_mat(&list, &count, 85041, ch);
+    test_output_buffer = NIL_VAL;
+    
+    ASSERT(count == 2);
+    
+    // Remove by 1-based index
+    test_socket_output_enabled = true;
+    bool result = craft_olc_remove_mat(&list, &count, "1", ch);
+    test_socket_output_enabled = false;
+    
+    ASSERT(result == true);
+    ASSERT(count == 1);
+    ASSERT(list[0] == 85041);  // Second one remains
+    
+    ASSERT_OUTPUT_CONTAINS("Removed");
+    test_output_buffer = NIL_VAL;
+    
+    free(list);
+    return 0;
+}
+
+static int test_craft_olc_remove_mat_not_found()
+{
+    Room* room = mock_room(85006, NULL, NULL);
+    Mobile* ch = mock_player("Builder");
+    transfer_mob(ch, room);
+    
+    VNUM* list = NULL;
+    int16_t count = 0;
+    
+    test_socket_output_enabled = true;
+    bool result = craft_olc_remove_mat(&list, &count, "1", ch);
+    test_socket_output_enabled = false;
+    
+    ASSERT(result == false);
+    
+    ASSERT_OUTPUT_CONTAINS("empty");
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_craft_olc_clear_mats()
+{
+    Room* room = mock_room(85007, NULL, NULL);
+    Mobile* ch = mock_player("Builder");
+    transfer_mob(ch, room);
+    
+    ObjPrototype* mat = mock_obj_proto(85050);
+    mat->item_type = ITEM_MAT;
+    mat->craft_mat.mat_type = MAT_BONE;
+    mat->short_descr = str_dup("bone");
+    
+    VNUM* list = NULL;
+    int16_t count = 0;
+    
+    craft_olc_add_mat(&list, &count, 85050, ch);
+    test_output_buffer = NIL_VAL;
+    
+    ASSERT(count == 1);
+    
+    craft_olc_clear_mats(&list, &count);
+    
+    ASSERT(count == 0);
+    ASSERT(list == NULL);
+    
+    return 0;
+}
+
+static int test_craft_olc_show_mats()
+{
+    Room* room = mock_room(85008, NULL, NULL);
+    Mobile* ch = mock_player("Builder");
+    transfer_mob(ch, room);
+    
+    ObjPrototype* mat = mock_obj_proto(85060);
+    mat->item_type = ITEM_MAT;
+    mat->craft_mat.mat_type = MAT_MEAT;
+    mat->short_descr = str_dup("raw meat");
+    
+    VNUM* list = NULL;
+    int16_t count = 0;
+    
+    craft_olc_add_mat(&list, &count, 85060, ch);
+    test_output_buffer = NIL_VAL;
+    
+    test_socket_output_enabled = true;
+    craft_olc_show_mats(list, count, ch, "Craft Mats");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("Craft Mats");
+    ASSERT_OUTPUT_CONTAINS("raw meat");
+    ASSERT_OUTPUT_CONTAINS("85060");
+    test_output_buffer = NIL_VAL;
+    
+    free(list);
+    return 0;
+}
+
+static int test_craft_olc_show_mats_empty()
+{
+    Room* room = mock_room(85009, NULL, NULL);
+    Mobile* ch = mock_player("Builder");
+    transfer_mob(ch, room);
+    
+    test_socket_output_enabled = true;
+    craft_olc_show_mats(NULL, 0, ch, "Salvage Mats");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("(none)");
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Test Registration
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -1613,6 +1862,17 @@ void register_craft_tests()
     
     // Issue #13: Recipes Command
     REGISTER("Recipes: List", test_recipes_list);
+    
+    // Issue #21: Craft OLC Helpers
+    REGISTER("CraftOLC: Add Mat Valid", test_craft_olc_add_mat_valid);
+    REGISTER("CraftOLC: Add Mat Invalid VNUM", test_craft_olc_add_mat_invalid_vnum);
+    REGISTER("CraftOLC: Add Mat Not ITEM_MAT", test_craft_olc_add_mat_not_item_mat);
+    REGISTER("CraftOLC: Add Mat Duplicate", test_craft_olc_add_mat_duplicate);
+    REGISTER("CraftOLC: Remove Mat By Index", test_craft_olc_remove_mat_by_index);
+    REGISTER("CraftOLC: Remove Mat Not Found", test_craft_olc_remove_mat_not_found);
+    REGISTER("CraftOLC: Clear Mats", test_craft_olc_clear_mats);
+    REGISTER("CraftOLC: Show Mats", test_craft_olc_show_mats);
+    REGISTER("CraftOLC: Show Mats Empty", test_craft_olc_show_mats_empty);
 
 #undef REGISTER
 }

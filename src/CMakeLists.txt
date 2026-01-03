@@ -170,6 +170,7 @@ add_library(Mud98Core STATIC "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
     "craft/recipe.h" "craft/recipe.c"
     "craft/act_craft.h" "craft/act_craft.c"
     "craft/workstation.h" "craft/workstation.c"
+    "craft/craft_olc.h" "craft/craft_olc.c"
     
     "entities/affect.h" "entities/affect.c"
     "entities/area.h" "entities/area.c"
