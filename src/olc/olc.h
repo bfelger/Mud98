@@ -418,7 +418,6 @@ DECLARE_ED_FUN(ed_race);
 DECLARE_ED_FUN(ed_olded);
 DECLARE_ED_FUN(ed_direction);
 DECLARE_ED_FUN(ed_docomm);
-DECLARE_ED_FUN(ed_olist);
 DECLARE_ED_FUN(ed_objrecval);
 
 // Macros

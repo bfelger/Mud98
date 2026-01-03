@@ -2139,6 +2139,196 @@ static int test_aedit_recipe_delete()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// do_olist - Standalone Object/Material List Command
+////////////////////////////////////////////////////////////////////////////////
+
+extern void do_olist(Mobile* ch, char* argument);
+
+static int test_olist_syntax_help()
+{
+    Room* room = mock_room(88001, NULL, NULL);
+    Mobile* ch = mock_player("OlistTester1");
+    ch->pcdata->security = 9;
+    transfer_mob(ch, room);
+    
+    test_socket_output_enabled = true;
+    do_olist(ch, "");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("Syntax:");
+    ASSERT_OUTPUT_CONTAINS("olist obj");
+    ASSERT_OUTPUT_CONTAINS("olist mat");
+    
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_olist_obj_local()
+{
+    // Create area with objects
+    AreaData* ad = mock_area_data();
+    ad->min_vnum = 88100;
+    ad->max_vnum = 88199;
+    RESTRING(ad->credits, "Test OList Area");
+    write_value_array(&global_areas, OBJ_VAL(ad));
+    
+    // Create some objects in the area
+    ObjPrototype* sword = mock_obj_proto(88101);
+    RESTRING(sword->short_descr, "a test sword");
+    sword->item_type = ITEM_WEAPON;
+    sword->area = ad;
+    
+    ObjPrototype* armor = mock_obj_proto(88102);
+    RESTRING(armor->short_descr, "test armor");
+    armor->item_type = ITEM_ARMOR;
+    armor->area = ad;
+    
+    // Create room in this area using mock_room with proper args
+    Area* area = mock_area(ad);
+    Room* room = mock_room(88150, NULL, area);
+    
+    Mobile* ch = mock_player("OlistTester2");
+    ch->pcdata->security = 9;
+    transfer_mob(ch, room);
+    
+    test_socket_output_enabled = true;
+    do_olist(ch, "obj all");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("Objects in Test OList Area");
+    ASSERT_OUTPUT_CONTAINS("88101");
+    ASSERT_OUTPUT_CONTAINS("88102");
+    
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_olist_mat_local()
+{
+    // Create area with materials
+    AreaData* ad = mock_area_data();
+    ad->min_vnum = 88200;
+    ad->max_vnum = 88299;
+    RESTRING(ad->credits, "Test Mat Area");
+    write_value_array(&global_areas, OBJ_VAL(ad));
+    
+    // Create a material object
+    ObjPrototype* hide = mock_obj_proto(88201);
+    RESTRING(hide->short_descr, "some wolf hide");
+    hide->item_type = ITEM_MAT;
+    hide->craft_mat.mat_type = MAT_HIDE;
+    hide->area = ad;
+    
+    ObjPrototype* bone = mock_obj_proto(88202);
+    RESTRING(bone->short_descr, "a wolf bone");
+    bone->item_type = ITEM_MAT;
+    bone->craft_mat.mat_type = MAT_BONE;
+    bone->area = ad;
+    
+    // Create room in this area
+    Area* area = mock_area(ad);
+    Room* room = mock_room(88250, NULL, area);
+    
+    Mobile* ch = mock_player("OlistTester3");
+    ch->pcdata->security = 9;
+    transfer_mob(ch, room);
+    
+    test_socket_output_enabled = true;
+    do_olist(ch, "mat");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("materials in Test Mat Area");
+    ASSERT_OUTPUT_CONTAINS("88201");
+    ASSERT_OUTPUT_CONTAINS("hide");
+    ASSERT_OUTPUT_CONTAINS("88202");
+    ASSERT_OUTPUT_CONTAINS("bone");
+    
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_olist_mat_filter()
+{
+    // Create area with materials
+    AreaData* ad = mock_area_data();
+    ad->min_vnum = 88300;
+    ad->max_vnum = 88399;
+    RESTRING(ad->credits, "Test Filter Area");
+    write_value_array(&global_areas, OBJ_VAL(ad));
+    
+    // Create material objects of different types
+    ObjPrototype* hide = mock_obj_proto(88301);
+    RESTRING(hide->short_descr, "test hide");
+    hide->item_type = ITEM_MAT;
+    hide->craft_mat.mat_type = MAT_HIDE;
+    hide->area = ad;
+    
+    ObjPrototype* ingot = mock_obj_proto(88302);
+    RESTRING(ingot->short_descr, "test ingot");
+    ingot->item_type = ITEM_MAT;
+    ingot->craft_mat.mat_type = MAT_INGOT;
+    ingot->area = ad;
+    
+    // Create room in this area
+    Area* area = mock_area(ad);
+    Room* room = mock_room(88350, NULL, area);
+    
+    Mobile* ch = mock_player("OlistTester4");
+    ch->pcdata->security = 9;
+    transfer_mob(ch, room);
+    
+    // Filter by hide - should see hide but not ingot
+    test_socket_output_enabled = true;
+    do_olist(ch, "mat hide");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("hide materials");
+    ASSERT_OUTPUT_CONTAINS("88301");
+    // Ingot should NOT appear (verify output doesn't contain it)
+    ASSERT(strstr(AS_STRING(test_output_buffer)->chars, "88302") == NULL);
+    
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_olist_olc_aware()
+{
+    // Create area for OLC
+    AreaData* ad = mock_area_data();
+    ad->min_vnum = 88400;
+    ad->max_vnum = 88499;
+    RESTRING(ad->credits, "OLC Test Area");
+    write_value_array(&global_areas, OBJ_VAL(ad));
+    
+    // Create an object in this area
+    ObjPrototype* obj = mock_obj_proto(88401);
+    RESTRING(obj->short_descr, "olc aware test object");
+    obj->item_type = ITEM_TRASH;
+    obj->area = ad;
+    
+    // Create player in different area
+    Room* room = mock_room(88500, NULL, NULL);
+    Mobile* ch = mock_player("OlistTester5");
+    ch->pcdata->security = 9;
+    transfer_mob(ch, room);
+    
+    // Enter aedit for the OLC area
+    set_editor(ch->desc, ED_AREA, (uintptr_t)ad);
+    
+    // olist should use the aedit area, not the room area
+    test_socket_output_enabled = true;
+    do_olist(ch, "obj all");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("Objects in OLC Test Area");
+    ASSERT_OUTPUT_CONTAINS("88401");
+    
+    test_output_buffer = NIL_VAL;
+    edit_done(ch);
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Test Registration
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -2257,6 +2447,13 @@ void register_craft_tests()
     REGISTER("AEdit: Recipe Create Out Of Range", test_aedit_recipe_create_out_of_range);
     REGISTER("AEdit: Recipe Edit", test_aedit_recipe_edit);
     REGISTER("AEdit: Recipe Delete", test_aedit_recipe_delete);
+    
+    // do_olist: Standalone Object/Material List
+    REGISTER("OList: Syntax Help", test_olist_syntax_help);
+    REGISTER("OList: Objects Local", test_olist_obj_local);
+    REGISTER("OList: Materials Local", test_olist_mat_local);
+    REGISTER("OList: Material Filter", test_olist_mat_filter);
+    REGISTER("OList: OLC Aware", test_olist_olc_aware);
 
 #undef REGISTER
 }

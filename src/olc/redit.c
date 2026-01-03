@@ -62,7 +62,6 @@ const OlcCmdEntry room_olc_comm_table[] = {
     { "down",	    0,				        ed_direction,		DIR_DOWN	    },
     { "rlist",	    0,				        ed_olded,		    U(redit_rlist)	},
     { "mlist",	    0,				        ed_olded,		    U(redit_mlist)	},
-    { "olist",	    U(&xRoom.area_data),    ed_olist,           0               },
     { "copy",	    0,				        ed_olded,		    U(redit_copy)	},
     { "period",     0,                      ed_olded,           U(redit_period) },
     { "event",      0,                      ed_olded,           U(olc_edit_event)   },

@@ -1756,6 +1756,15 @@ show undef~
 #END
 
 #COMMAND
+name olist~
+do_fun do_olist~
+position dead~
+level 0
+log log_normal~
+show undef~
+#END
+
+#COMMAND
 name moblist~
 do_fun do_moblist~
 position dead~

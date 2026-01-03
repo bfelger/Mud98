@@ -96,7 +96,6 @@ const OlcCmdEntry area_olc_comm_table[] = {
     { "show", 	        0,                      ed_olded,           U(aedit_show)	    },
     { "vnums", 	        0,                      ed_olded,           U(aedit_vnums)	    },
     { "levels",         0,                      ed_olded,           U(aedit_levels)     },
-    { "olist",	        0,                      ed_olist,           0                   },
     { "?",		        0,                      ed_olded,           U(show_help)	    },
     { "version", 	    0,                      ed_olded,           U(show_version)	    },
     { NULL, 		    0,                      NULL,               0		            }

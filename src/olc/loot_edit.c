@@ -14,6 +14,7 @@
 #include <data/loot.h>
 
 #include <comm.h>
+#include <command.h>
 #include <config.h>
 #include <stringutils.h>
 
@@ -112,8 +113,15 @@ static void ledit_olist(Mobile* ch, char* argument)
             " the current loot owner entity." COLOR_EOL);
         return;
     }
-    // Now list objects in the area
-    ed_olist("olist", ch, argument, (uintptr_t)&area, 0);
+    // Build arg: "obj <filter> <area_name>"
+    char olist_arg[MAX_INPUT_LENGTH];
+    if (IS_NULLSTR(argument)) {
+        snprintf(olist_arg, sizeof(olist_arg), "obj all %s", area->credits);
+    }
+    else {
+        snprintf(olist_arg, sizeof(olist_arg), "obj %s %s", argument, area->credits);
+    }
+    do_olist(ch, olist_arg);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

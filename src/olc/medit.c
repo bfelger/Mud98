@@ -83,7 +83,6 @@ const OlcCmdEntry mob_olc_comm_table[] = {
     { "show",       0,				        ed_olded,		    U(medit_show)	    },
     { "mshow",	    0,				        ed_olded,		    U(medit_show)	    },
     { "oshow",	    0,				        ed_olded,		    U(oedit_show)	    },
-    { "olist",	    U(&xMob.area),		    ed_olist,		    0		            },
     { "event",      0,                      ed_olded,           U(olc_edit_event)   },
     { "lox",        0,                      ed_olded,           U(olc_edit_lox)     },
     { "loot_edit",  0,                      ed_olded,           U(olc_edit_loot)    },

@@ -66,7 +66,6 @@ const OlcCmdEntry obj_olc_comm_table[] = {
     { "loot_edit",  0,                      ed_olded,           U(olc_edit_loot)    },
     { "mshow",	    0,				        ed_olded,		    U(medit_show)   },
     { "oshow",	    0,				        ed_olded,		    U(oedit_show)   },
-    { "olist",	    U(&xObj.area),		    ed_olist,		    0		        },
     { "recval",	    U(&xObj),			    ed_objrecval,		0		        },
     { "copy",	    0,				        ed_olded,		    U(oedit_copy)	},
     { "salvage",    0,                      ed_olded,           U(oedit_salvage)},
@@ -1150,66 +1149,6 @@ ED_FUN_DEC(ed_new_obj)
     send_to_char(COLOR_INFO "Object Created." COLOR_EOL, ch);
 
     return true;
-}
-
-ED_FUN_DEC(ed_olist)
-{
-    ObjPrototype* obj_proto;
-    AreaData* area;
-    Buffer* buf1;
-    char blarg[MAX_INPUT_LENGTH];
-    bool fAll, found;
-    VNUM vnum;
-    int  col = 0;
-
-    one_argument(argument, blarg);
-
-    if (blarg[0] == '\0') {
-        send_to_char(COLOR_INFO "Syntax: OLIST [ALL|<NAME>|<TYPE>]" COLOR_EOL, ch);
-        return false;
-    }
-
-    if (arg == 0) {
-        // Check if we are in AREA_EDIT mode
-        if (get_editor(ch->desc) == ED_AREA) {
-            area = (AreaData*)get_pEdit(ch->desc);
-        }
-        else {
-            send_to_char(COLOR_INFO "OList:  You must be in an area to list its objects." COLOR_EOL, ch);
-            return false;
-        }
-    }
-    else
-        area = *(AreaData**)arg;
-    buf1 = new_buf();
-    fAll = !str_cmp(blarg, "all");
-    found = false;
-
-    for (vnum = area->min_vnum; vnum <= area->max_vnum; vnum++) {
-        if ((obj_proto = get_object_prototype(vnum))) {
-            if (fAll || is_name(blarg, NAME_STR(obj_proto))
-                || (ItemType)flag_value(type_flag_table, blarg) == obj_proto->item_type) {
-                found = true;
-                addf_buf(buf1, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-17.16s",
-                    VNUM_FIELD(obj_proto), capitalize(obj_proto->short_descr));
-                if (++col % 3 == 0)
-                    add_buf(buf1, "\n\r");
-            }
-        }
-    }
-
-    if (!found) {
-        send_to_char(COLOR_INFO "Object(s) not found in this area." COLOR_EOL, ch);
-        return false;
-    }
-
-    if (col % 3 != 0)
-        add_buf(buf1, "\n\r");
-
-    page_to_char(BUF(buf1), ch);
-    free_buf(buf1);
-
-    return false;
 }
 
 OEDIT(oedit_copy)
