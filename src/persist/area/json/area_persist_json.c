@@ -996,6 +996,13 @@ static json_t* build_mobiles(const AreaData* area)
             JSON_SET_INT(obj, "factionVnum", mob->faction_vnum);
         if (!IS_NULLSTR(mob->loot_table))
             JSON_SET_STRING(obj, "lootTable", mob->loot_table);
+        if (mob->craft_mats != NULL && mob->craft_mat_count > 0) {
+            json_t* mats = json_array();
+            for (int i = 0; i < mob->craft_mat_count; i++) {
+                json_array_append_new(mats, json_integer(mob->craft_mats[i]));
+            }
+            json_object_set_new(obj, "craftMats", mats);
+        }
 
         Entity* ent = (Entity*)mob;
         if (ent->script && ent->script->chars && ent->script->length > 0)
@@ -1113,6 +1120,20 @@ static PersistResult parse_mobiles(json_t* root, AreaData* area)
         mob->faction_vnum = (VNUM)json_int_or_default(m, "factionVnum", mob->faction_vnum);
         const char* loot_table = JSON_STRING(m, "lootTable");
         JSON_INTERN(loot_table, mob->loot_table)
+
+        json_t* craft_mats = json_object_get(m, "craftMats");
+        if (json_is_array(craft_mats)) {
+            size_t count = json_array_size(craft_mats);
+            if (count > 0) {
+                mob->craft_mats = malloc(sizeof(VNUM) * count);
+                if (mob->craft_mats != NULL) {
+                    mob->craft_mat_count = (int)count;
+                    for (size_t i = 0; i < count; i++) {
+                        mob->craft_mats[i] = (VNUM)json_integer_value(json_array_get(craft_mats, i));
+                    }
+                }
+            }
+        }
 
         const char* script = JSON_STRING(m, "loxScript");
         if (script && script[0] != '\0')

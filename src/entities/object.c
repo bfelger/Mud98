@@ -62,6 +62,12 @@ void free_object(Object* obj)
     }
     obj->extra_desc = NULL;
 
+    if (obj->craft_mats != NULL) {
+        free(obj->craft_mats);
+        obj->craft_mats = NULL;
+        obj->craft_mat_count = 0;
+    }
+
     free_string(obj->description);
     free_string(obj->short_descr);
     obj->owner = NULL;

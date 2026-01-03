@@ -204,6 +204,8 @@ typedef struct object_t {
     int cost;
     FLAGS extra_flags;
     FLAGS wear_flags;
+    VNUM* craft_mats;           // VNUMs of crafting materials (for corpses)
+    int craft_mat_count;        // Number of craft_mats entries
     LEVEL level;
     int16_t condition;
     int16_t weight;

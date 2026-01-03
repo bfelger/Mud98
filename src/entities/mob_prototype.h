@@ -63,6 +63,8 @@ typedef struct mob_prototype_t {
     int16_t race;
     MobSize size;
     char* loot_table;           // Loot table name (overrides area default)
+    VNUM* craft_mats;           // VNUMs of crafting materials dropped on death
+    int craft_mat_count;        // Number of craft_mats entries
     int16_t reset_num;
 } MobPrototype;
 

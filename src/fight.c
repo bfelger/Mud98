@@ -59,6 +59,7 @@
 #include <data/skill.h>
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <time.h>
@@ -1023,6 +1024,21 @@ void make_corpse(Mobile* ch)
     }
 
     corpse->level = ch->level;
+
+    // Copy craft_mats from mob prototype to corpse (NPCs only)
+    if (IS_NPC(ch) && ch->prototype != NULL 
+        && ch->prototype->craft_mats != NULL 
+        && ch->prototype->craft_mat_count > 0) {
+        corpse->craft_mat_count = ch->prototype->craft_mat_count;
+        corpse->craft_mats = malloc(sizeof(VNUM) * (size_t)corpse->craft_mat_count);
+        if (corpse->craft_mats != NULL) {
+            memcpy(corpse->craft_mats, ch->prototype->craft_mats, 
+                   sizeof(VNUM) * (size_t)corpse->craft_mat_count);
+        }
+        else {
+            corpse->craft_mat_count = 0;
+        }
+    }
 
     // For short_descr and description, use the mob's display name
     const char* mob_name = IS_NPC(ch) ? ch->short_descr : NAME_STR(ch);

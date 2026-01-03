@@ -371,6 +371,14 @@ void save_mobile(FILE* fp, MobPrototype* p_mob_proto)
     if (!IS_NULLSTR(p_mob_proto->loot_table))
         fprintf(fp, "LootTable %s~\n", p_mob_proto->loot_table);
 
+    if (p_mob_proto->craft_mats != NULL && p_mob_proto->craft_mat_count > 0) {
+        fprintf(fp, "CraftMats");
+        for (int i = 0; i < p_mob_proto->craft_mat_count; i++) {
+            fprintf(fp, " %" PRVNUM, p_mob_proto->craft_mats[i]);
+        }
+        fprintf(fp, " 0\n");
+    }
+
     FOR_EACH(pMprog, p_mob_proto->mprogs) {
         fprintf(fp, "M '%s' %"PRVNUM" %s~\n",
             event_trigger_name(pMprog->trig_type), pMprog->vnum,

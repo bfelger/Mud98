@@ -13,8 +13,15 @@
 
 #include <data/item.h>
 
+#include <entities/mobile.h>
+#include <entities/mob_prototype.h>
 #include <entities/object.h>
 #include <entities/room.h>
+
+#include <fight.h>
+
+#include <stdlib.h>
+#include <string.h>
 
 TestGroup craft_tests;
 
@@ -256,6 +263,105 @@ static int test_recipe_ingredients()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Issue #4: Mob Prototype Craft Mats Tests
+////////////////////////////////////////////////////////////////////////////////
+
+static int test_mob_proto_craft_mats_field()
+{
+    // Create a mob prototype with craft_mats using mock helper
+    MobPrototype* mp = mock_mob_proto(70010);
+    ASSERT(mp != NULL);
+    ASSERT(mp->craft_mats == NULL);
+    ASSERT(mp->craft_mat_count == 0);
+    
+    // Add some craft_mats
+    mp->craft_mat_count = 3;
+    mp->craft_mats = malloc(sizeof(VNUM) * 3);
+    mp->craft_mats[0] = 1001;  // Example material VNUM
+    mp->craft_mats[1] = 1002;
+    mp->craft_mats[2] = 1003;
+    
+    ASSERT(mp->craft_mat_count == 3);
+    ASSERT(mp->craft_mats[0] == 1001);
+    ASSERT(mp->craft_mats[1] == 1002);
+    ASSERT(mp->craft_mats[2] == 1003);
+    
+    // Note: Don't manually free - test framework manages via mocks()
+    
+    return 0;
+}
+
+static int test_mob_craft_mats_from_prototype()
+{
+    // Create a mob prototype with craft_mats
+    MobPrototype* mp = mock_mob_proto(70001);
+    ASSERT(mp != NULL);
+    
+    // Add craft_mats to prototype
+    mp->craft_mat_count = 2;
+    mp->craft_mats = malloc(sizeof(VNUM) * 2);
+    mp->craft_mats[0] = 2001;
+    mp->craft_mats[1] = 2002;
+    
+    // Create mob from prototype
+    Mobile* mob = create_mobile(mp);
+    ASSERT(mob != NULL);
+    ASSERT(mob->prototype == mp);
+    
+    // Mob accesses craft_mats through its prototype pointer
+    ASSERT(mob->prototype->craft_mat_count == 2);
+    ASSERT(mob->prototype->craft_mats[0] == 2001);
+    ASSERT(mob->prototype->craft_mats[1] == 2002);
+    
+    return 0;
+}
+
+static int test_corpse_inherits_craft_mats()
+{
+    // Set up room for corpse to be placed in
+    Room* room = mock_room(70002, NULL, NULL);
+    ASSERT(room != NULL);
+    
+    // Create a mob prototype with craft_mats
+    MobPrototype* mp = mock_mob_proto(70003);
+    ASSERT(mp != NULL);
+    
+    mp->craft_mat_count = 2;
+    mp->craft_mats = malloc(sizeof(VNUM) * 2);
+    mp->craft_mats[0] = 3001;
+    mp->craft_mats[1] = 3002;
+    
+    // Create mob from prototype
+    Mobile* mob = create_mobile(mp);
+    ASSERT(mob != NULL);
+    
+    // Place mob in room (required for make_corpse)
+    transfer_mob(mob, room);
+    
+    // Make corpse (this should copy craft_mats)
+    make_corpse(mob);
+    
+    // Find the corpse in the room (corpse is ITEM_CORPSE_NPC, not ITEM_CONTAINER)
+    Object* corpse = NULL;
+    Object* obj = NULL;
+    FOR_EACH_ROOM_OBJ(obj, room) {
+        if (obj->item_type == ITEM_CORPSE_NPC) {
+            corpse = obj;
+            break;
+        }
+    }
+    ASSERT(corpse != NULL);
+    
+    // Verify corpse has craft_mats from the mob
+    ASSERT(corpse->craft_mat_count == 2);
+    ASSERT(corpse->craft_mats != NULL);
+    ASSERT(corpse->craft_mats[0] == 3001);
+    ASSERT(corpse->craft_mats[1] == 3002);
+    
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Test Registration
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -284,6 +390,11 @@ void register_craft_tests()
     // Recipe basics
     REGISTER("Recipe: Lifecycle", test_recipe_lifecycle);
     REGISTER("Recipe: Ingredients", test_recipe_ingredients);
+    
+    // Issue #4: Mob Prototype Craft Mats
+    REGISTER("MobProto: CraftMats Field", test_mob_proto_craft_mats_field);
+    REGISTER("Mob: CraftMats From Proto", test_mob_craft_mats_from_prototype);
+    REGISTER("Corpse: Inherits CraftMats", test_corpse_inherits_craft_mats);
 
 #undef REGISTER
 }

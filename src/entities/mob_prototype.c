@@ -25,6 +25,9 @@
 #include <lox/memory.h>
 #include <lox/ordered_table.h>
 
+#include <stdlib.h>
+#include <string.h>
+
 static OrderedTable mob_protos;
 MobPrototype* mob_proto_free = NULL;
 
@@ -128,6 +131,8 @@ MobPrototype* new_mob_prototype()
     mob_proto->start_pos = POS_STANDING;
     mob_proto->default_pos = POS_STANDING;
     mob_proto->faction_vnum = 0;
+    mob_proto->craft_mats = NULL;
+    mob_proto->craft_mat_count = 0;
 
     return mob_proto;
 }
@@ -141,6 +146,12 @@ void free_mob_prototype(MobPrototype* mob_proto)
     free_string(mob_proto->description);
     free_mob_prog(mob_proto->mprogs);
     free_shop_data(mob_proto->pShop);
+    
+    if (mob_proto->craft_mats != NULL) {
+        free(mob_proto->craft_mats);
+        mob_proto->craft_mats = NULL;
+        mob_proto->craft_mat_count = 0;
+    }
 
     LIST_FREE(mob_proto);
 }
@@ -430,6 +441,29 @@ void load_mobiles(FILE* fp)
                 else {
                     bug("Load_mobiles: vnum %"PRVNUM" unexpected char after L: '%c'.", vnum, (char)next);
                     ungetc(next, fp);
+                }
+            }
+            else if (letter == 'C') {
+                // CraftMats format: CraftMats <vnum> [<vnum>...] 0
+                char* word = fread_word(fp);
+                if (!str_cmp(word, "raftMats")) {
+                    // Read VNUMs until we hit 0
+                    VNUM temp_mats[64];  // Temporary buffer for reading
+                    int count = 0;
+                    VNUM mat_vnum;
+                    while ((mat_vnum = fread_number(fp)) != 0 && count < 64) {
+                        temp_mats[count++] = mat_vnum;
+                    }
+                    if (count > 0) {
+                        p_mob_proto->craft_mats = malloc(sizeof(VNUM) * (size_t)count);
+                        if (p_mob_proto->craft_mats != NULL) {
+                            memcpy(p_mob_proto->craft_mats, temp_mats, sizeof(VNUM) * (size_t)count);
+                            p_mob_proto->craft_mat_count = count;
+                        }
+                    }
+                }
+                else {
+                    bug("Load_mobiles: vnum %"PRVNUM" expected CraftMats, got C%s.", vnum, word);
                 }
             }
             else {
