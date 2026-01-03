@@ -7,6 +7,7 @@
 
 #include <persist/json/persist_json.h>
 #include <persist/loot/json/loot_persist_json.h>
+#include <persist/recipe/json/recipe_persist_json.h>
 
 #include <data/damage.h>
 #include <data/direction.h>
@@ -2458,6 +2459,13 @@ PersistResult json_load(const AreaPersistLoadParams* params)
             loot_persist_json_parse(loot, &current_area_data->header);
     }
 
+    // Parse recipes for this area
+    if (area_persist_succeeded(res)) {
+        json_t* recipes = json_object_get(root, "recipes");
+        if (recipes)
+            recipe_persist_json_parse(recipes, &current_area_data->header);
+    }
+
     if (area_persist_succeeded(res)
         && params->create_single_instance
         && current_area_data
@@ -2500,6 +2508,11 @@ PersistResult json_save(const AreaPersistSaveParams* params)
     json_t* loot = loot_persist_json_build(&params->area->header);
     if (loot)
         json_object_set_new(root, "loot", loot);
+
+    // Build and add recipes for this area
+    json_t* recipes = recipe_persist_json_build(&params->area->header);
+    if (recipes)
+        json_object_set_new(root, "recipes", recipes);
 
     char* dump = json_dumps(root, JSON_INDENT(2));
     json_decref(root);

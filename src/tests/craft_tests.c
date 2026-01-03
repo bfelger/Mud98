@@ -11,8 +11,13 @@
 #include <craft/craft.h>
 #include <craft/recipe.h>
 
-#include <data/item.h>
+#include <persist/recipe/json/recipe_persist_json.h>
+#include <persist/recipe/rom-olc/recipe_persist_rom_olc.h>
 
+#include <data/item.h>
+#include <data/skill.h>
+
+#include <entities/area.h>
 #include <entities/mobile.h>
 #include <entities/mob_prototype.h>
 #include <entities/object.h>
@@ -20,6 +25,8 @@
 #include <entities/room.h>
 
 #include <fight.h>
+
+#include <jansson.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -645,6 +652,291 @@ static int test_corpse_flags_independent()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Issue #8: Recipe Persistence Tests
+////////////////////////////////////////////////////////////////////////////////
+
+static int test_recipe_json_build()
+{
+    // Create a test recipe
+    Recipe* recipe = new_recipe();
+    VNUM_FIELD(recipe) = 99001;
+    recipe->header.name = AS_STRING(OBJ_VAL(copy_string("test leather armor", 18)));
+    recipe->required_skill = gsn_second_attack;  // Use any available skill
+    recipe->min_skill_pct = 50;
+    recipe->min_level = 10;
+    recipe->station_type = WORK_TANNERY | WORK_FORGE;
+    recipe->station_vnum = VNUM_NONE;
+    recipe->discovery = DISC_TRAINER;
+    recipe_add_ingredient(recipe, 100, 3);  // 3x vnum 100
+    recipe_add_ingredient(recipe, 101, 1);  // 1x vnum 101
+    recipe->product_vnum = 200;
+    recipe->product_quantity = 1;
+    
+    // Add to global table
+    add_recipe(recipe);
+    
+    // Build JSON
+    json_t* arr = recipe_persist_json_build(NULL);
+    ASSERT(arr != NULL);
+    ASSERT(json_is_array(arr));
+    ASSERT(json_array_size(arr) >= 1);
+    
+    // Find our recipe in the array
+    bool found = false;
+    for (size_t i = 0; i < json_array_size(arr); i++) {
+        json_t* obj = json_array_get(arr, i);
+        json_int_t vnum = json_integer_value(json_object_get(obj, "vnum"));
+        if (vnum == 99001) {
+            found = true;
+            
+            // Verify fields
+            ASSERT_STR_EQ("test leather armor", json_string_value(json_object_get(obj, "name")));
+            ASSERT(json_integer_value(json_object_get(obj, "minSkillPct")) == 50);
+            ASSERT(json_integer_value(json_object_get(obj, "minLevel")) == 10);
+            ASSERT(json_integer_value(json_object_get(obj, "outputVnum")) == 200);
+            
+            // Verify inputs array
+            json_t* inputs = json_object_get(obj, "inputs");
+            ASSERT(json_is_array(inputs));
+            ASSERT(json_array_size(inputs) == 2);
+            
+            break;
+        }
+    }
+    ASSERT(found);
+    
+    json_decref(arr);
+    remove_recipe(99001);
+    
+    return 0;
+}
+
+static int test_recipe_json_parse()
+{
+    // Create JSON for a recipe
+    json_t* arr = json_array();
+    json_t* obj = json_object();
+    
+    json_object_set_new(obj, "vnum", json_integer(99002));
+    json_object_set_new(obj, "name", json_string("parsed recipe"));
+    json_object_set_new(obj, "skill", json_string("second attack"));  // Use available skill
+    json_object_set_new(obj, "minSkillPct", json_integer(75));
+    json_object_set_new(obj, "minLevel", json_integer(15));
+    json_object_set_new(obj, "discovery", json_string("quest"));
+    json_object_set_new(obj, "outputVnum", json_integer(300));
+    json_object_set_new(obj, "outputQuantity", json_integer(2));
+    
+    // Workstation type array
+    json_t* stations = json_array();
+    json_array_append_new(stations, json_string("alchemy"));
+    json_object_set_new(obj, "stationType", stations);
+    
+    // Inputs array
+    json_t* inputs = json_array();
+    json_t* input1 = json_object();
+    json_object_set_new(input1, "vnum", json_integer(150));
+    json_object_set_new(input1, "quantity", json_integer(5));
+    json_array_append_new(inputs, input1);
+    json_object_set_new(obj, "inputs", inputs);
+    
+    json_array_append_new(arr, obj);
+    
+    // Parse it
+    recipe_persist_json_parse(arr, NULL);
+    
+    // Verify recipe was created
+    Recipe* recipe = get_recipe(99002);
+    ASSERT(recipe != NULL);
+    ASSERT_STR_EQ("parsed recipe", NAME_STR(recipe));
+    ASSERT(recipe->min_skill_pct == 75);
+    ASSERT(recipe->min_level == 15);
+    ASSERT(recipe->discovery == DISC_QUEST);
+    ASSERT(recipe->station_type == WORK_ALCHEMY);
+    ASSERT(recipe->product_vnum == 300);
+    ASSERT(recipe->product_quantity == 2);
+    ASSERT(recipe->ingredient_count == 1);
+    ASSERT(recipe->ingredients[0].mat_vnum == 150);
+    ASSERT(recipe->ingredients[0].quantity == 5);
+    
+    json_decref(arr);
+    remove_recipe(99002);
+    
+    return 0;
+}
+
+static int test_recipe_json_roundtrip()
+{
+    // Create a recipe with all fields
+    Recipe* recipe = new_recipe();
+    VNUM_FIELD(recipe) = 99003;
+    recipe->header.name = AS_STRING(OBJ_VAL(copy_string("roundtrip recipe", 16)));
+    recipe->required_skill = gsn_second_attack;
+    recipe->min_skill_pct = 60;
+    recipe->min_level = 20;
+    recipe->station_type = WORK_FORGE | WORK_SMELTER;
+    recipe->station_vnum = 5000;
+    recipe->discovery = DISC_DISCOVERY;
+    recipe_add_ingredient(recipe, 500, 2);
+    recipe_add_ingredient(recipe, 501, 4);
+    recipe_add_ingredient(recipe, 502, 1);
+    recipe->product_vnum = 600;
+    recipe->product_quantity = 3;
+    
+    // Add to global table
+    add_recipe(recipe);
+    
+    // Build JSON and immediately parse it back
+    json_t* arr = recipe_persist_json_build(NULL);
+    
+    // Find and extract our recipe's JSON
+    json_t* recipe_json = NULL;
+    for (size_t i = 0; i < json_array_size(arr); i++) {
+        json_t* obj = json_array_get(arr, i);
+        if (json_integer_value(json_object_get(obj, "vnum")) == 99003) {
+            recipe_json = json_incref(obj);
+            break;
+        }
+    }
+    ASSERT(recipe_json != NULL);
+    
+    // Remove original recipe
+    remove_recipe(99003);
+    ASSERT(get_recipe(99003) == NULL);
+    
+    // Parse the JSON back
+    json_t* parse_arr = json_array();
+    json_array_append(parse_arr, recipe_json);
+    recipe_persist_json_parse(parse_arr, NULL);
+    
+    // Verify round-trip
+    Recipe* loaded = get_recipe(99003);
+    ASSERT(loaded != NULL);
+    ASSERT_STR_EQ("roundtrip recipe", NAME_STR(loaded));
+    ASSERT(loaded->min_skill_pct == 60);
+    ASSERT(loaded->min_level == 20);
+    ASSERT(loaded->station_type == (WORK_FORGE | WORK_SMELTER));
+    ASSERT(loaded->station_vnum == 5000);
+    ASSERT(loaded->discovery == DISC_DISCOVERY);
+    ASSERT(loaded->ingredient_count == 3);
+    ASSERT(loaded->ingredients[0].mat_vnum == 500);
+    ASSERT(loaded->ingredients[0].quantity == 2);
+    ASSERT(loaded->ingredients[1].mat_vnum == 501);
+    ASSERT(loaded->ingredients[1].quantity == 4);
+    ASSERT(loaded->ingredients[2].mat_vnum == 502);
+    ASSERT(loaded->ingredients[2].quantity == 1);
+    ASSERT(loaded->product_vnum == 600);
+    ASSERT(loaded->product_quantity == 3);
+    
+    json_decref(arr);
+    json_decref(recipe_json);
+    json_decref(parse_arr);
+    remove_recipe(99003);
+    
+    return 0;
+}
+
+static int test_recipe_rom_olc_save()
+{
+    // Create a mock area and recipe
+    AreaData* area = new_area_data();
+    area->header.name = AS_STRING(OBJ_VAL(copy_string("Test Area", 9)));
+    area->min_vnum = 99000;
+    area->max_vnum = 99999;
+    
+    Recipe* recipe = new_recipe();
+    VNUM_FIELD(recipe) = 99004;
+    recipe->header.name = AS_STRING(OBJ_VAL(copy_string("rom olc recipe", 14)));
+    recipe->area = area;
+    recipe->required_skill = gsn_second_attack;
+    recipe->min_skill_pct = 40;
+    recipe->min_level = 5;
+    recipe->station_type = WORK_COOKING;
+    recipe->discovery = DISC_TRAINER;
+    recipe_add_ingredient(recipe, 700, 2);
+    recipe->product_vnum = 800;
+    recipe->product_quantity = 1;
+    
+    // Add to global table
+    add_recipe(recipe);
+    
+    // Save to temp file
+    FILE* fp = tmpfile();
+    ASSERT(fp != NULL);
+    
+    save_recipes(fp, area);
+    
+    // Read back and verify format
+    rewind(fp);
+    char buffer[4096];
+    size_t read = fread(buffer, 1, sizeof(buffer) - 1, fp);
+    buffer[read] = '\0';
+    fclose(fp);
+    
+    // Verify output contains expected content
+    ASSERT(strstr(buffer, "#RECIPES") != NULL);
+    ASSERT(strstr(buffer, "recipe 99004") != NULL);
+    ASSERT(strstr(buffer, "rom olc recipe") != NULL);
+    ASSERT(strstr(buffer, "skill") != NULL);
+    ASSERT(strstr(buffer, "cooking") != NULL);  // workstation type
+    ASSERT(strstr(buffer, "trainer") != NULL);  // discovery type
+    ASSERT(strstr(buffer, "input 700 2") != NULL);
+    ASSERT(strstr(buffer, "output 800 1") != NULL);
+    ASSERT(strstr(buffer, "#ENDRECIPES") != NULL);
+    
+    remove_recipe(99004);
+    // area cleanup handled by test framework
+    
+    return 0;
+}
+
+static int test_recipe_area_filter()
+{
+    // Create two areas
+    AreaData* area1 = new_area_data();
+    area1->header.name = AS_STRING(OBJ_VAL(copy_string("Area One", 8)));
+    
+    AreaData* area2 = new_area_data();
+    area2->header.name = AS_STRING(OBJ_VAL(copy_string("Area Two", 8)));
+    
+    // Create recipes in different areas
+    Recipe* recipe1 = new_recipe();
+    VNUM_FIELD(recipe1) = 99005;
+    recipe1->header.name = AS_STRING(OBJ_VAL(copy_string("recipe one", 10)));
+    recipe1->area = area1;
+    add_recipe(recipe1);
+    
+    Recipe* recipe2 = new_recipe();
+    VNUM_FIELD(recipe2) = 99006;
+    recipe2->header.name = AS_STRING(OBJ_VAL(copy_string("recipe two", 10)));
+    recipe2->area = area2;
+    add_recipe(recipe2);
+    
+    // Build JSON for area1 only
+    json_t* arr = recipe_persist_json_build((Entity*)area1);
+    ASSERT(json_array_size(arr) == 1);
+    
+    json_t* obj = json_array_get(arr, 0);
+    ASSERT(json_integer_value(json_object_get(obj, "vnum")) == 99005);
+    
+    json_decref(arr);
+    
+    // Build JSON for area2 only
+    arr = recipe_persist_json_build((Entity*)area2);
+    ASSERT(json_array_size(arr) == 1);
+    
+    obj = json_array_get(arr, 0);
+    ASSERT(json_integer_value(json_object_get(obj, "vnum")) == 99006);
+    
+    json_decref(arr);
+    
+    remove_recipe(99005);
+    remove_recipe(99006);
+    // area cleanup handled by test framework
+    
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Test Registration
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -692,6 +984,13 @@ void register_craft_tests()
     REGISTER("Corpse: Skinned Flag", test_corpse_skinned_flag);
     REGISTER("Corpse: Butchered Flag", test_corpse_butchered_flag);
     REGISTER("Corpse: Flags Independent", test_corpse_flags_independent);
+    
+    // Issue #8: Recipe Persistence
+    REGISTER("Recipe: JSON Build", test_recipe_json_build);
+    REGISTER("Recipe: JSON Parse", test_recipe_json_parse);
+    REGISTER("Recipe: JSON Roundtrip", test_recipe_json_roundtrip);
+    REGISTER("Recipe: ROM-OLC Save", test_recipe_rom_olc_save);
+    REGISTER("Recipe: Area Filter", test_recipe_area_filter);
 
 #undef REGISTER
 }

@@ -28,8 +28,12 @@ typedef struct ingredient_t {
 // Maximum number of ingredients per recipe
 #define MAX_RECIPE_INGREDIENTS 8
 
+// Forward declaration
+typedef struct area_data_t AreaData;
+
 typedef struct recipe_t {
-    Entity header;              // Entity header (vnum, area, name, etc.)
+    Entity header;              // Entity header (vnum, name, etc.)
+    AreaData* area;             // Owning area for persistence
 
     SKNUM required_skill;       // Skill needed (gsn_leatherworking, etc.)
     int16_t min_skill_pct;      // Minimum skill percentage (0-100)
