@@ -1,0 +1,64 @@
+////////////////////////////////////////////////////////////////////////////////
+// persist/recipe/json/recipe_persist_json.c
+// JSON format persistence for recipes.
+////////////////////////////////////////////////////////////////////////////////
+
+#include "recipe_persist_json.h"
+
+#include <craft/recipe.h>
+
+#include <stdio.h>
+
+////////////////////////////////////////////////////////////////////////////////
+// Format Definition
+////////////////////////////////////////////////////////////////////////////////
+
+const RecipePersistFormat RECIPE_PERSIST_JSON = {
+    .name = "json",
+    .load = recipe_persist_json_load,
+    .save = recipe_persist_json_save
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// Load
+////////////////////////////////////////////////////////////////////////////////
+
+PersistResult recipe_persist_json_load(const PersistReader* reader, const char* filename, Entity* owner)
+{
+    // TODO: Implement JSON recipe loading
+    (void)reader;
+    (void)filename;
+    (void)owner;
+    return (PersistResult){ PERSIST_OK, NULL, 0 };
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Save
+////////////////////////////////////////////////////////////////////////////////
+
+PersistResult recipe_persist_json_save(const PersistWriter* writer, const char* filename, Entity* owner)
+{
+    // TODO: Implement JSON recipe saving
+    (void)writer;
+    (void)filename;
+    (void)owner;
+    return (PersistResult){ PERSIST_OK, NULL, 0 };
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// JSON Building/Parsing Helpers
+////////////////////////////////////////////////////////////////////////////////
+
+json_t* recipe_persist_json_build(const Entity* owner)
+{
+    // TODO: Build JSON array of recipes for owner
+    (void)owner;
+    return json_array();
+}
+
+void recipe_persist_json_parse(json_t* recipe_arr, Entity* owner)
+{
+    // TODO: Parse JSON array of recipes for owner
+    (void)recipe_arr;
+    (void)owner;
+}

@@ -57,6 +57,7 @@ typedef enum {
     OBJ_MOB             = 108,
     OBJ_MOB_PROTO       = 109,
     OBJ_FACTION         = 110,
+    OBJ_RECIPE          = 111,
 } ObjType;
 
 struct Obj {

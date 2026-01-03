@@ -166,6 +166,9 @@ add_library(Mud98Core STATIC "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
 
     "mth/mth.h" "mth/msdp.c" "mth/mth.c" "mth/telopt.c"
     
+    "craft/craft.h" "craft/craft.c"
+    "craft/recipe.h" "craft/recipe.c"
+    
     "entities/affect.h" "entities/affect.c"
     "entities/area.h" "entities/area.c"
     "entities/descriptor.h" "entities/descriptor.c"
@@ -236,6 +239,7 @@ target_include_directories(Mud98Core
         ${CMAKE_CURRENT_SOURCE_DIR}/data
         ${CMAKE_CURRENT_SOURCE_DIR}/lox
         ${CMAKE_CURRENT_SOURCE_DIR}/olc
+        ${CMAKE_CURRENT_SOURCE_DIR}/craft
         $<$<BOOL:${OPENSSL_FOUND}>:${OPENSSL_INCLUDE_DIR}>
         $<$<BOOL:${ZLIB_FOUND}>:${ZLIB_INCLUDE_DIRS}>
     PRIVATE

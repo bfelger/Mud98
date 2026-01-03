@@ -20,6 +20,8 @@
 #include <entities/room_exit.h>
 #include <entities/faction.h>
 
+#include <craft/recipe.h>
+
 #ifdef DEBUG_LOG_GC
 #include "debug.h"
 #include <stdio.h>
@@ -346,6 +348,12 @@ static void blacken_object(Obj* object)
         mark_array(&faction->enemies);
         break;
     }
+    case OBJ_RECIPE: {
+        // Recipe header contains Entity fields that need marking
+        Entity* entity = (Entity*)object;
+        mark_entity(entity);
+        break;
+    }
     } // end switch
 }
 
@@ -448,6 +456,7 @@ static void free_obj_value(Obj* object)
     case OBJ_MOB:
     case OBJ_MOB_PROTO:
     case OBJ_FACTION:
+    case OBJ_RECIPE:
         break;
     } // end switch
 }

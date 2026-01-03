@@ -56,6 +56,10 @@ add_library(Mud98PersistJson OBJECT
     # Loot persistence
     ../loot/json/loot_persist_json.h
     ../loot/json/loot_persist_json.c
+    
+    # Recipe persistence
+    ../recipe/json/recipe_persist_json.h
+    ../recipe/json/recipe_persist_json.c
 )
 
 target_include_directories(Mud98PersistJson
@@ -66,6 +70,7 @@ target_include_directories(Mud98PersistJson
         ${CMAKE_SOURCE_DIR}/src/entities
         ${CMAKE_SOURCE_DIR}/src/data
         ${CMAKE_SOURCE_DIR}/src/lox
+        ${CMAKE_SOURCE_DIR}/src/craft
         $<$<BOOL:${OPENSSL_FOUND}>:${OPENSSL_INCLUDE_DIR}>
         $<$<BOOL:${ZLIB_FOUND}>:${ZLIB_INCLUDE_DIRS}>
 )
