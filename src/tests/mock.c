@@ -224,6 +224,23 @@ Object* mock_workstation(const char* name, VNUM vnum, int station_flags, int bon
     return ws;
 }
 
+#include <craft/recipe.h>
+
+Recipe* mock_recipe(const char* name, VNUM vnum)
+{
+    Recipe* recipe = new_recipe();
+    recipe->header.vnum = vnum;
+    recipe->header.name = AS_STRING(mock_str(name));
+    
+    // Add to global table
+    add_recipe(recipe);
+    
+    // Track for cleanup
+    write_value_array(mocks(), OBJ_VAL(recipe));
+    
+    return recipe;
+}
+
 void mock_skill(Mobile* ch, SKNUM sn, int value)
 {
     if (ch == NULL || sn < 0) return;

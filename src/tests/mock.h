@@ -97,6 +97,12 @@ Object* mock_shield(const char* name, VNUM vnum, LEVEL level);
 Object* mock_mat(const char* name, VNUM vnum, int mat_type, int amount, int quality);
 Object* mock_workstation(const char* name, VNUM vnum, int station_flags, int bonus);
 
+// RECIPE MOCKING
+// mock_recipe: Creates and registers a Recipe with OrderedTable
+// Call add_recipe() is done internally; recipe is ready to lookup
+struct recipe_t;
+struct recipe_t* mock_recipe(const char* name, VNUM vnum);
+
 // MOBILE SKILL MOCKING
 // Sets skill value for PC (pcdata->learned) or NPC (atk_flags for defensive skills)
 void mock_skill(Mobile* ch, SKNUM sn, int value);

@@ -263,6 +263,100 @@ static int test_recipe_ingredients()
     return 0;
 }
 
+static int test_recipe_lookup_by_name()
+{
+    // Create recipes with names using mock helper
+    Recipe* r1 = mock_recipe("leather strips", 80010);
+    r1->product_vnum = 70100;
+    
+    Recipe* r2 = mock_recipe("iron ingot", 80011);
+    r2->product_vnum = 70101;
+    
+    // Exact match
+    Recipe* found = get_recipe_by_name("leather strips");
+    ASSERT(found == r1);
+    
+    // Prefix match
+    found = get_recipe_by_name("iron");
+    ASSERT(found == r2);
+    
+    // Case-insensitive
+    found = get_recipe_by_name("LEATHER STRIPS");
+    ASSERT(found == r1);
+    
+    // Clean up - remove from global table
+    remove_recipe(80010);
+    remove_recipe(80011);
+    
+    return 0;
+}
+
+static int test_recipe_lookup_not_found()
+{
+    // VNUM that doesn't exist
+    Recipe* found = get_recipe(99999);
+    ASSERT(found == NULL);
+    
+    // Invalid VNUM
+    found = get_recipe(VNUM_NONE);
+    ASSERT(found == NULL);
+    
+    // Name that doesn't exist
+    found = get_recipe_by_name("nonexistent recipe");
+    ASSERT(found == NULL);
+    
+    // Empty name
+    found = get_recipe_by_name("");
+    ASSERT(found == NULL);
+    
+    // NULL name
+    found = get_recipe_by_name(NULL);
+    ASSERT(found == NULL);
+    
+    return 0;
+}
+
+static int test_recipe_free()
+{
+    // Create a recipe with ingredients
+    Recipe* recipe = new_recipe();
+    recipe->header.vnum = 80020;
+    recipe->product_vnum = 70200;
+    recipe->product_quantity = 2;
+    recipe->station_type = WORK_TANNERY;
+    recipe->min_level = 5;
+    recipe->required_skill = 10;  // arbitrary skill number
+    recipe->min_skill_pct = 25;
+    
+    recipe_add_ingredient(recipe, 70001, 3);
+    recipe_add_ingredient(recipe, 70002, 1);
+    
+    ASSERT(recipe->ingredient_count == 2);
+    
+    // Free should not crash
+    free_recipe(recipe);
+    
+    return 0;
+}
+
+static int test_mock_recipe()
+{
+    // Test the mock helper
+    Recipe* recipe = mock_recipe("test mock recipe", 80030);
+    ASSERT(recipe != NULL);
+    ASSERT(recipe->header.vnum == 80030);
+    ASSERT_STR_EQ("test mock recipe", NAME_STR(recipe));
+    
+    // Should be in global table
+    Recipe* found = get_recipe(80030);
+    ASSERT(found == recipe);
+    
+    // Clean up
+    remove_recipe(80030);
+    
+    return 0;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Issue #4: Mob Prototype Craft Mats Tests
 ////////////////////////////////////////////////////////////////////////////////
@@ -579,6 +673,10 @@ void register_craft_tests()
     // Recipe basics
     REGISTER("Recipe: Lifecycle", test_recipe_lifecycle);
     REGISTER("Recipe: Ingredients", test_recipe_ingredients);
+    REGISTER("Recipe: Lookup By Name", test_recipe_lookup_by_name);
+    REGISTER("Recipe: Lookup Not Found", test_recipe_lookup_not_found);
+    REGISTER("Recipe: Free", test_recipe_free);
+    REGISTER("Recipe: Mock Helper", test_mock_recipe);
     
     // Issue #4: Mob Prototype Craft Mats
     REGISTER("MobProto: CraftMats Field", test_mob_proto_craft_mats_field);
