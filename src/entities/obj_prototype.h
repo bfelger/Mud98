@@ -57,6 +57,8 @@ typedef struct obj_prototype_t {
     int cost;
     FLAGS extra_flags;
     FLAGS wear_flags;
+    VNUM* salvage_mats;         // VNUMs of materials recovered when salvaged
+    int salvage_mat_count;      // Number of salvage_mats entries
     LEVEL level;
     int16_t reset_num;
     int16_t condition;

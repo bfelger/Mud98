@@ -16,6 +16,7 @@
 #include <entities/mobile.h>
 #include <entities/mob_prototype.h>
 #include <entities/object.h>
+#include <entities/obj_prototype.h>
 #include <entities/room.h>
 
 #include <fight.h>
@@ -362,6 +363,194 @@ static int test_corpse_inherits_craft_mats()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Issue #5: Object Prototype Salvage Mats Tests
+////////////////////////////////////////////////////////////////////////////////
+
+static int test_obj_proto_salvage_mats_field()
+{
+    // Create an object prototype with salvage_mats using mock helper
+    ObjPrototype* op = mock_obj_proto(80010);
+    ASSERT(op != NULL);
+    ASSERT(op->salvage_mats == NULL);
+    ASSERT(op->salvage_mat_count == 0);
+    
+    // Add some salvage_mats
+    op->salvage_mat_count = 2;
+    op->salvage_mats = malloc(sizeof(VNUM) * 2);
+    op->salvage_mats[0] = 4001;  // Example material VNUM
+    op->salvage_mats[1] = 4002;
+    
+    ASSERT(op->salvage_mat_count == 2);
+    ASSERT(op->salvage_mats[0] == 4001);
+    ASSERT(op->salvage_mats[1] == 4002);
+    
+    return 0;
+}
+
+static int test_obj_salvage_mats_inheritance()
+{
+    // Create an object prototype with salvage_mats
+    ObjPrototype* op = mock_obj_proto(80011);
+    ASSERT(op != NULL);
+    
+    op->salvage_mat_count = 3;
+    op->salvage_mats = malloc(sizeof(VNUM) * 3);
+    op->salvage_mats[0] = 5001;
+    op->salvage_mats[1] = 5002;
+    op->salvage_mats[2] = 5003;
+    
+    // Create object from prototype
+    Object* obj = create_object(op, 1);
+    ASSERT(obj != NULL);
+    ASSERT(obj->prototype == op);
+    
+    // Object should have copied salvage_mats from prototype
+    ASSERT(obj->salvage_mat_count == 3);
+    ASSERT(obj->salvage_mats != NULL);
+    ASSERT(obj->salvage_mats[0] == 5001);
+    ASSERT(obj->salvage_mats[1] == 5002);
+    ASSERT(obj->salvage_mats[2] == 5003);
+    
+    // Verify it's a copy, not a pointer to prototype's array
+    ASSERT(obj->salvage_mats != op->salvage_mats);
+    
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Issue #6: Corpse Extraction Flags Tests
+////////////////////////////////////////////////////////////////////////////////
+
+static int test_corpse_flags_init()
+{
+    // Create a mobile and kill it to generate a corpse
+    Room* room = mock_room(90001, NULL, NULL);
+    MobPrototype* proto = mock_mob_proto(90001);
+    Mobile* mob = mock_mob("test corpse victim", 90001, proto);
+    transfer_mob(mob, room);
+    
+    // Kill the mob to create a corpse
+    mob->hit = -10;
+    raw_kill(mob);
+    
+    // Find the corpse
+    Object* corpse = NULL;
+    Object* obj = NULL;
+    FOR_EACH_ROOM_OBJ(obj, room) {
+        if (obj->item_type == ITEM_CORPSE_NPC) {
+            corpse = obj;
+            break;
+        }
+    }
+    
+    ASSERT(corpse != NULL);
+    
+    // New corpse should have extraction_flags = 0
+    ASSERT(corpse->corpse.extraction_flags == 0);
+    ASSERT(!IS_SET(corpse->corpse.extraction_flags, CORPSE_SKINNED));
+    ASSERT(!IS_SET(corpse->corpse.extraction_flags, CORPSE_BUTCHERED));
+    
+    return 0;
+}
+
+static int test_corpse_skinned_flag()
+{
+    // Create a corpse
+    Room* room = mock_room(90002, NULL, NULL);
+    MobPrototype* proto = mock_mob_proto(90002);
+    Mobile* mob = mock_mob("skinnable creature", 90002, proto);
+    transfer_mob(mob, room);
+    
+    mob->hit = -10;
+    raw_kill(mob);
+    
+    Object* corpse = NULL;
+    Object* obj = NULL;
+    FOR_EACH_ROOM_OBJ(obj, room) {
+        if (obj->item_type == ITEM_CORPSE_NPC) {
+            corpse = obj;
+            break;
+        }
+    }
+    ASSERT(corpse != NULL);
+    
+    // Set the SKINNED flag (simulating a skin command)
+    SET_BIT(corpse->corpse.extraction_flags, CORPSE_SKINNED);
+    
+    ASSERT(IS_SET(corpse->corpse.extraction_flags, CORPSE_SKINNED));
+    ASSERT(!IS_SET(corpse->corpse.extraction_flags, CORPSE_BUTCHERED));
+    
+    return 0;
+}
+
+static int test_corpse_butchered_flag()
+{
+    // Create a corpse
+    Room* room = mock_room(90003, NULL, NULL);
+    MobPrototype* proto = mock_mob_proto(90003);
+    Mobile* mob = mock_mob("butcherable creature", 90003, proto);
+    transfer_mob(mob, room);
+    
+    mob->hit = -10;
+    raw_kill(mob);
+    
+    Object* corpse = NULL;
+    Object* obj = NULL;
+    FOR_EACH_ROOM_OBJ(obj, room) {
+        if (obj->item_type == ITEM_CORPSE_NPC) {
+            corpse = obj;
+            break;
+        }
+    }
+    ASSERT(corpse != NULL);
+    
+    // Set the BUTCHERED flag (simulating a butcher command)
+    SET_BIT(corpse->corpse.extraction_flags, CORPSE_BUTCHERED);
+    
+    ASSERT(!IS_SET(corpse->corpse.extraction_flags, CORPSE_SKINNED));
+    ASSERT(IS_SET(corpse->corpse.extraction_flags, CORPSE_BUTCHERED));
+    
+    return 0;
+}
+
+static int test_corpse_flags_independent()
+{
+    // Create a corpse
+    Room* room = mock_room(90004, NULL, NULL);
+    MobPrototype* proto = mock_mob_proto(90004);
+    Mobile* mob = mock_mob("multi-extract creature", 90004, proto);
+    transfer_mob(mob, room);
+    
+    mob->hit = -10;
+    raw_kill(mob);
+    
+    Object* corpse = NULL;
+    Object* obj = NULL;
+    FOR_EACH_ROOM_OBJ(obj, room) {
+        if (obj->item_type == ITEM_CORPSE_NPC) {
+            corpse = obj;
+            break;
+        }
+    }
+    ASSERT(corpse != NULL);
+    
+    // Set SKINNED first
+    SET_BIT(corpse->corpse.extraction_flags, CORPSE_SKINNED);
+    ASSERT(IS_SET(corpse->corpse.extraction_flags, CORPSE_SKINNED));
+    ASSERT(!IS_SET(corpse->corpse.extraction_flags, CORPSE_BUTCHERED));
+    
+    // Set BUTCHERED second - both should now be set
+    SET_BIT(corpse->corpse.extraction_flags, CORPSE_BUTCHERED);
+    ASSERT(IS_SET(corpse->corpse.extraction_flags, CORPSE_SKINNED));
+    ASSERT(IS_SET(corpse->corpse.extraction_flags, CORPSE_BUTCHERED));
+    
+    // Corpse can be both skinned AND butchered
+    ASSERT(corpse->corpse.extraction_flags == (CORPSE_SKINNED | CORPSE_BUTCHERED));
+    
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Test Registration
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -395,6 +584,16 @@ void register_craft_tests()
     REGISTER("MobProto: CraftMats Field", test_mob_proto_craft_mats_field);
     REGISTER("Mob: CraftMats From Proto", test_mob_craft_mats_from_prototype);
     REGISTER("Corpse: Inherits CraftMats", test_corpse_inherits_craft_mats);
+    
+    // Issue #5: Object Prototype Salvage Mats
+    REGISTER("ObjProto: SalvageMats Field", test_obj_proto_salvage_mats_field);
+    REGISTER("Object: SalvageMats Inheritance", test_obj_salvage_mats_inheritance);
+    
+    // Issue #6: Corpse Extraction Flags
+    REGISTER("Corpse: Flags Init", test_corpse_flags_init);
+    REGISTER("Corpse: Skinned Flag", test_corpse_skinned_flag);
+    REGISTER("Corpse: Butchered Flag", test_corpse_butchered_flag);
+    REGISTER("Corpse: Flags Independent", test_corpse_flags_independent);
 
 #undef REGISTER
 }

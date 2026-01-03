@@ -1716,6 +1716,14 @@ static json_t* build_objects(const AreaData* area)
         if (obj->affected)
             json_object_set_new(o, "affects", build_affects(obj->affected));
 
+        if (obj->salvage_mats != NULL && obj->salvage_mat_count > 0) {
+            json_t* mats = json_array();
+            for (int j = 0; j < obj->salvage_mat_count; j++) {
+                json_array_append_new(mats, json_integer(obj->salvage_mats[j]));
+            }
+            json_object_set_new(o, "salvageMats", mats);
+        }
+
         Entity* ent = (Entity*)obj;
         if (ent->script && ent->script->chars && ent->script->length > 0)
             JSON_SET_STRING(o, "loxScript", ent->script->chars);
@@ -1831,6 +1839,20 @@ static PersistResult parse_objects(json_t* root, AreaData* area)
             }
         }
         parse_affects(json_object_get(o, "affects"), &obj->affected);
+
+        json_t* salvage_mats = json_object_get(o, "salvageMats");
+        if (json_is_array(salvage_mats)) {
+            size_t mat_count = json_array_size(salvage_mats);
+            if (mat_count > 0) {
+                obj->salvage_mats = malloc(sizeof(VNUM) * mat_count);
+                if (obj->salvage_mats != NULL) {
+                    obj->salvage_mat_count = (int)mat_count;
+                    for (size_t j = 0; j < mat_count; j++) {
+                        obj->salvage_mats[j] = (VNUM)json_integer_value(json_array_get(salvage_mats, j));
+                    }
+                }
+            }
+        }
 
         const char* script = JSON_STRING(o, "loxScript");
         if (script && script[0] != '\0')

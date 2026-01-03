@@ -44,6 +44,8 @@
 #include "skills.h"
 #include "update.h"
 
+#include <craft/craft.h>
+
 #include <entities/descriptor.h>
 #include <entities/event.h>
 #include <entities/faction.h>
@@ -1024,6 +1026,9 @@ void make_corpse(Mobile* ch)
     }
 
     corpse->level = ch->level;
+
+    // Initialize corpse extraction flags (for skinning/butchering)
+    corpse->corpse.extraction_flags = 0;
 
     // Copy craft_mats from mob prototype to corpse (NPCs only)
     if (IS_NPC(ch) && ch->prototype != NULL 

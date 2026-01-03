@@ -13,6 +13,9 @@
 
 #include <lox/vm.h>
 
+#include <stdlib.h>
+#include <string.h>
+
 List obj_free = { 0 };
 List obj_list = { 0 };
 
@@ -66,6 +69,12 @@ void free_object(Object* obj)
         free(obj->craft_mats);
         obj->craft_mats = NULL;
         obj->craft_mat_count = 0;
+    }
+
+    if (obj->salvage_mats != NULL) {
+        free(obj->salvage_mats);
+        obj->salvage_mats = NULL;
+        obj->salvage_mat_count = 0;
     }
 
     free_string(obj->description);
@@ -238,6 +247,19 @@ Object* create_object(ObjPrototype* obj_proto, LEVEL level)
     obj->value[3] = obj_proto->value[3];
     obj->value[4] = obj_proto->value[4];
     obj->weight = obj_proto->weight;
+
+    // Copy salvage_mats from prototype
+    if (obj_proto->salvage_mats != NULL && obj_proto->salvage_mat_count > 0) {
+        obj->salvage_mat_count = obj_proto->salvage_mat_count;
+        obj->salvage_mats = malloc(sizeof(VNUM) * (size_t)obj->salvage_mat_count);
+        if (obj->salvage_mats != NULL) {
+            memcpy(obj->salvage_mats, obj_proto->salvage_mats,
+                   sizeof(VNUM) * (size_t)obj->salvage_mat_count);
+        }
+        else {
+            obj->salvage_mat_count = 0;
+        }
+    }
 
     if (level == -1)
         obj->cost = obj_proto->cost;

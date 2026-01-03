@@ -199,6 +199,15 @@ typedef struct object_t {
             int unused3;
             int unused4;
         } workstation;
+        
+        // ITEM_CORPSE_NPC (type 23) / ITEM_CORPSE_PC (type 24)
+        struct {
+            int unused0;
+            int unused1;
+            int unused2;
+            int extraction_flags;  // CORPSE_SKINNED, CORPSE_BUTCHERED, etc.
+            int unused4;
+        } corpse;
     };
     
     int cost;
@@ -206,6 +215,8 @@ typedef struct object_t {
     FLAGS wear_flags;
     VNUM* craft_mats;           // VNUMs of crafting materials (for corpses)
     int craft_mat_count;        // Number of craft_mats entries
+    VNUM* salvage_mats;         // VNUMs of materials recovered when salvaged
+    int salvage_mat_count;      // Number of salvage_mats entries
     LEVEL level;
     int16_t condition;
     int16_t weight;
@@ -251,6 +262,8 @@ static_assert(sizeof(((Object*)0)->value) == sizeof(((Object*)0)->craft_mat),
               "craft_mat struct must match value[5] size");
 static_assert(sizeof(((Object*)0)->value) == sizeof(((Object*)0)->workstation), 
               "workstation struct must match value[5] size");
+static_assert(sizeof(((Object*)0)->value) == sizeof(((Object*)0)->corpse), 
+              "corpse struct must match value[5] size");
 
 // Legacy macros for money values (deprecated - use obj->money.gold etc.)
 #define MONEY_VALUE_COPPER 0

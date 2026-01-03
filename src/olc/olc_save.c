@@ -617,6 +617,14 @@ void save_object(FILE* fp, ObjPrototype* obj_proto)
 
     save_events(fp, &obj_proto->header);
 
+    if (obj_proto->salvage_mats != NULL && obj_proto->salvage_mat_count > 0) {
+        fprintf(fp, "SalvageMats");
+        for (int i = 0; i < obj_proto->salvage_mat_count; i++) {
+            fprintf(fp, " %" PRVNUM, obj_proto->salvage_mats[i]);
+        }
+        fprintf(fp, " 0\n");
+    }
+
     if (obj_proto->header.script != NULL) {
         fprintf(fp, "L\n%s~\n", fix_lox_script(obj_proto->header.script->chars));
     }
