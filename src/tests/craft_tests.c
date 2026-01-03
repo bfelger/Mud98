@@ -27,6 +27,8 @@
 #include <entities/obj_prototype.h>
 #include <entities/room.h>
 
+#include <lox/array.h>
+
 #include <fight.h>
 #include <comm.h>
 #include <handler.h>
@@ -665,7 +667,7 @@ static int test_recipe_json_build()
     // Create a test recipe
     Recipe* recipe = new_recipe();
     VNUM_FIELD(recipe) = 99001;
-    recipe->header.name = AS_STRING(OBJ_VAL(copy_string("test leather armor", 18)));
+    recipe->header.name = AS_STRING(mock_str("test leather armor"));
     recipe->required_skill = gsn_second_attack;  // Use any available skill
     recipe->min_skill_pct = 50;
     recipe->min_level = 10;
@@ -774,7 +776,7 @@ static int test_recipe_json_roundtrip()
     // Create a recipe with all fields
     Recipe* recipe = new_recipe();
     VNUM_FIELD(recipe) = 99003;
-    recipe->header.name = AS_STRING(OBJ_VAL(copy_string("roundtrip recipe", 16)));
+    recipe->header.name = AS_STRING(mock_str("roundtrip recipe"));
     recipe->required_skill = gsn_second_attack;
     recipe->min_skill_pct = 60;
     recipe->min_level = 20;
@@ -844,13 +846,13 @@ static int test_recipe_rom_olc_save()
 {
     // Create a mock area and recipe
     AreaData* area = new_area_data();
-    area->header.name = AS_STRING(OBJ_VAL(copy_string("Test Area", 9)));
+    area->header.name = AS_STRING(mock_str("Test Area"));
     area->min_vnum = 99000;
     area->max_vnum = 99999;
     
     Recipe* recipe = new_recipe();
     VNUM_FIELD(recipe) = 99004;
-    recipe->header.name = AS_STRING(OBJ_VAL(copy_string("rom olc recipe", 14)));
+    recipe->header.name = AS_STRING(mock_str("rom olc recipe"));
     recipe->area = area;
     recipe->required_skill = gsn_second_attack;
     recipe->min_skill_pct = 40;
@@ -898,21 +900,21 @@ static int test_recipe_area_filter()
 {
     // Create two areas
     AreaData* area1 = new_area_data();
-    area1->header.name = AS_STRING(OBJ_VAL(copy_string("Area One", 8)));
+    area1->header.name = AS_STRING(mock_str("Area One"));
     
     AreaData* area2 = new_area_data();
-    area2->header.name = AS_STRING(OBJ_VAL(copy_string("Area Two", 8)));
+    area2->header.name = AS_STRING(mock_str("Area Two"));
     
     // Create recipes in different areas
     Recipe* recipe1 = new_recipe();
     VNUM_FIELD(recipe1) = 99005;
-    recipe1->header.name = AS_STRING(OBJ_VAL(copy_string("recipe one", 10)));
+    recipe1->header.name = AS_STRING(mock_str("recipe one"));
     recipe1->area = area1;
     add_recipe(recipe1);
     
     Recipe* recipe2 = new_recipe();
     VNUM_FIELD(recipe2) = 99006;
-    recipe2->header.name = AS_STRING(OBJ_VAL(copy_string("recipe two", 10)));
+    recipe2->header.name = AS_STRING(mock_str("recipe two"));
     recipe2->area = area2;
     add_recipe(recipe2);
     
@@ -1771,6 +1773,195 @@ static int test_craft_olc_show_mats_empty()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Issue #16: RecEdit Tests
+////////////////////////////////////////////////////////////////////////////////
+
+#include <craft/recedit.h>
+#include <olc/olc.h>
+#include <olc/editor_stack.h>
+
+static int test_recedit_entry_no_arg()
+{
+    Room* room = mock_room(86001, NULL, NULL);
+    Mobile* ch = mock_player("RecBuilder");
+    ch->pcdata->security = 9;  // Need security >= 5
+    transfer_mob(ch, room);
+    
+    test_socket_output_enabled = true;
+    do_recedit(ch, "");
+    test_socket_output_enabled = false;
+    
+    // Should show syntax help
+    ASSERT_OUTPUT_CONTAINS("recedit");
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
+static int test_recedit_entry_valid()
+{
+    Room* room = mock_room(86002, NULL, NULL);
+    Mobile* ch = mock_player("RecBuilder2");
+    ch->pcdata->security = 9;
+    transfer_mob(ch, room);
+    
+    // Create a recipe first
+    (void)mock_recipe("test entry recipe", 86100);
+    
+    test_socket_output_enabled = true;
+    do_recedit(ch, "86100");
+    test_socket_output_enabled = false;
+    
+    // Should be in recedit now
+    EditorFrame* frame = editor_stack_top(&ch->desc->editor_stack);
+    ASSERT(frame != NULL);
+    ASSERT(frame->editor == ED_RECIPE);
+    
+    // Output should show recipe info
+    ASSERT_OUTPUT_CONTAINS("86100");
+    test_output_buffer = NIL_VAL;
+    
+    edit_done(ch);
+    return 0;
+}
+
+static int test_recedit_create()
+{
+    Room* room = mock_room(86003, NULL, NULL);
+    Mobile* ch = mock_player("RecBuilder3");
+    ch->pcdata->security = 9;
+    transfer_mob(ch, room);
+    
+    // Create an area first for the recipe with proper VNUM range
+    // The area data needs to be registered globally for get_vnum_area() to find it
+    AreaData* ad = mock_area_data();
+    ad->min_vnum = 86200;
+    ad->max_vnum = 86299;
+    // Register in global areas so get_vnum_area() can find it
+    write_value_array(&global_areas, OBJ_VAL(ad));
+    
+    test_socket_output_enabled = true;
+    do_recedit(ch, "create 86200");
+    test_socket_output_enabled = false;
+    
+    // Should be in recedit
+    EditorFrame* frame = editor_stack_top(&ch->desc->editor_stack);
+    ASSERT(frame != NULL);
+    ASSERT(frame->editor == ED_RECIPE);
+    ASSERT_OUTPUT_CONTAINS("created");
+    
+    // Check the recipe was created
+    Recipe* recipe = get_recipe(86200);
+    ASSERT(recipe != NULL);
+    
+    test_output_buffer = NIL_VAL;
+    edit_done(ch);
+    return 0;
+}
+
+static int test_recedit_show()
+{
+    Room* room = mock_room(86004, NULL, NULL);
+    Mobile* ch = mock_player("RecBuilder4");
+    ch->pcdata->security = 9;
+    transfer_mob(ch, room);
+    
+    // Create a recipe
+    Recipe* recipe = mock_recipe("test show recipe", 86300);
+    recipe->min_level = 10;
+    recipe->discovery = DISC_TRAINER;
+    
+    // Enter the editor
+    set_editor(ch->desc, ED_RECIPE, (uintptr_t)recipe);
+    
+    test_socket_output_enabled = true;
+    recedit(ch, "show");
+    test_socket_output_enabled = false;
+    
+    ASSERT_OUTPUT_CONTAINS("86300");
+    ASSERT_OUTPUT_CONTAINS("test show recipe");
+    ASSERT_OUTPUT_CONTAINS("10");  // Level
+    ASSERT_OUTPUT_CONTAINS("trainer");  // Discovery
+    
+    test_output_buffer = NIL_VAL;
+    edit_done(ch);
+    return 0;
+}
+
+static int test_recedit_list()
+{
+    Room* room = mock_room(86005, NULL, NULL);
+    Mobile* ch = mock_player("RecBuilder5");
+    ch->pcdata->security = 9;
+    transfer_mob(ch, room);
+    
+    // Create recipes
+    mock_recipe("list recipe 1", 86400);
+    mock_recipe("list recipe 2", 86401);
+    
+    // Enter editor with first recipe
+    Recipe* recipe = get_recipe(86400);
+    set_editor(ch->desc, ED_RECIPE, (uintptr_t)recipe);
+    
+    test_socket_output_enabled = true;
+    recedit(ch, "list");
+    test_socket_output_enabled = false;
+    
+    // Should list recipes
+    ASSERT_OUTPUT_CONTAINS("86400");
+    ASSERT_OUTPUT_CONTAINS("86401");
+    ASSERT_OUTPUT_CONTAINS("list recipe");
+    
+    test_output_buffer = NIL_VAL;
+    edit_done(ch);
+    return 0;
+}
+
+static int test_recedit_skill()
+{
+    Room* room = mock_room(86006, NULL, NULL);
+    Mobile* ch = mock_player("RecBuilder6");
+    ch->pcdata->security = 9;
+    transfer_mob(ch, room);
+    
+    Recipe* recipe = mock_recipe("test skill recipe", 86500);
+    set_editor(ch->desc, ED_RECIPE, (uintptr_t)recipe);
+    
+    test_socket_output_enabled = true;
+    recedit(ch, "skill 'sword' 50");
+    test_socket_output_enabled = false;
+    
+    // Skill should be set
+    ASSERT(recipe->required_skill >= 0);
+    ASSERT(recipe->min_skill_pct == 50);
+    
+    test_output_buffer = NIL_VAL;
+    edit_done(ch);
+    return 0;
+}
+
+static int test_recedit_discovery()
+{
+    Room* room = mock_room(86007, NULL, NULL);
+    Mobile* ch = mock_player("RecBuilder7");
+    ch->pcdata->security = 9;
+    transfer_mob(ch, room);
+    
+    Recipe* recipe = mock_recipe("test discovery recipe", 86600);
+    set_editor(ch->desc, ED_RECIPE, (uintptr_t)recipe);
+    
+    test_socket_output_enabled = true;
+    recedit(ch, "discovery trainer");
+    test_socket_output_enabled = false;
+    
+    ASSERT(recipe->discovery == DISC_TRAINER);
+    ASSERT_OUTPUT_CONTAINS("trainer");
+    
+    test_output_buffer = NIL_VAL;
+    edit_done(ch);
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Test Registration
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -1873,6 +2064,15 @@ void register_craft_tests()
     REGISTER("CraftOLC: Clear Mats", test_craft_olc_clear_mats);
     REGISTER("CraftOLC: Show Mats", test_craft_olc_show_mats);
     REGISTER("CraftOLC: Show Mats Empty", test_craft_olc_show_mats_empty);
+    
+    // Issue #16: RecEdit
+    REGISTER("RecEdit: Entry No Arg", test_recedit_entry_no_arg);
+    REGISTER("RecEdit: Entry Valid", test_recedit_entry_valid);
+    REGISTER("RecEdit: Create", test_recedit_create);
+    REGISTER("RecEdit: Show", test_recedit_show);
+    REGISTER("RecEdit: List", test_recedit_list);
+    REGISTER("RecEdit: Skill", test_recedit_skill);
+    REGISTER("RecEdit: Discovery", test_recedit_discovery);
 
 #undef REGISTER
 }

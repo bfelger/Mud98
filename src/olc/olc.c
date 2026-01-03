@@ -17,6 +17,8 @@
 #include "editor_stack.h"
 #include "loot_edit.h"
 
+#include <craft/recedit.h>
+
 #include <act_comm.h>
 #include <act_move.h>
 #include <comm.h>
@@ -203,6 +205,9 @@ bool run_olc_editor(Descriptor* d, char* incomm)
     case ED_LOOT_TABLE:
         loot_table_edit(d->character, incomm);
         break;
+    case ED_RECIPE:
+        recedit(d->character, incomm);
+        break;
     default:
         return false;
     }
@@ -247,6 +252,7 @@ char* olc_ed_name(Mobile* ch)
         case ED_LOOT:     strcat(buf, "LEdit"); break;
         case ED_LOOT_GROUP: strcat(buf, "LGrp"); break;
         case ED_LOOT_TABLE: strcat(buf, "LTbl"); break;
+        case ED_RECIPE:   strcat(buf, "RecEdit"); break;
         case ED_STRING:   strcat(buf, "Str"); break;
         case ED_LOX_SCRIPT: strcat(buf, "Lox"); break;
         default:          strcat(buf, "?"); break;
@@ -695,6 +701,20 @@ bool process_olc_command(Mobile* ch, char* argument, const OlcCmdEntry* table)
                     save_tutorials();
                 return true;
                 break;
+
+            case ED_RECIPE: {
+                Recipe* pRecipe;
+                EDIT_RECIPE(ch, pRecipe);
+                AreaData* tArea = pRecipe ? pRecipe->area : NULL;
+                if (table[temp].argument)
+                    pointer = (table[temp].argument - U(&xRecipe) + U(pRecipe));
+                else
+                    pointer = 0;
+                if ((*table[temp].function) (table[temp].name, ch, argument, pointer, table[temp].parameter)
+                    && tArea != NULL)
+                    SET_BIT(tArea->area_flags, AREA_CHANGED);
+                return true;
+            }
 
             default:
                 break;

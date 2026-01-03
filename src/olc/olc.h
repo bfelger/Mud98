@@ -38,6 +38,8 @@
 #include <data/quest.h>
 #include <data/tutorial.h>
 
+#include <craft/recipe.h>
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <inttypes.h>
@@ -229,6 +231,7 @@ DECLARE_DO_FUN(do_sedit);
 DECLARE_DO_FUN(do_skedit);
 DECLARE_DO_FUN(do_scredit);
 DECLARE_DO_FUN(do_tedit);
+DECLARE_DO_FUN(do_recedit);
 void theme_edit(Mobile* ch, char* argument);
 
 // General Functions
@@ -440,6 +443,7 @@ DECLARE_ED_FUN(ed_objrecval);
 #define EDIT_SCRIPT(ch, entry)  ( entry = lox_script_entry_get((size_t)get_pEdit(ch->desc)) )
 #define EDIT_THEME(ch, theme)   ( theme = (ColorTheme*)get_pEdit(ch->desc) )
 #define EDIT_TUTORIAL(ch, tutorial) ( tutorial = (Tutorial*)get_pEdit(ch->desc) )
+#define EDIT_RECIPE(ch, recipe) ( recipe = (Recipe*)get_pEdit(ch->desc) )
 
 void show_liqlist(Mobile* ch);
 void show_poslist(Mobile* ch);

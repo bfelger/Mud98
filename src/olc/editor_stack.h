@@ -41,6 +41,7 @@ typedef enum editor_t {
     ED_LOX_SCRIPT   = 20,       // Lox script editing mode (pEdit = ObjString*)
     ED_LOOT_GROUP   = 21,       // Loot group sub-editor (pEdit = LootGroup*)
     ED_LOOT_TABLE   = 22,       // Loot table sub-editor (pEdit = LootTable*)
+    ED_RECIPE       = 23,       // Recipe editor (pEdit = Recipe*)
 } EditorType;
 
 // Single editor context on the stack
