@@ -1097,7 +1097,8 @@ void death_cry(Mobile* ch)
         msg = "$n hits the ground ... DEAD.";
         break;
     case 1:
-        if (ch->material == 0) {
+        // FORM_BLEEDS flag or legacy material == 0 check for backward compat
+        if (IS_SET(ch->form, FORM_BLEEDS) || ch->material == 0) {
             msg = "$n splatters blood on your armor.";
         }
         break;

@@ -194,6 +194,7 @@ const struct flag_type form_flag_table[] = {
     { "magical",        FORM_MAGICAL,       true    },
     { "instant_decay",  FORM_INSTANT_DECAY, true    },
     { "other",          FORM_OTHER,         true    },
+    { "bleeds",         FORM_BLEEDS,        true    },
     { "animal",         FORM_ANIMAL,        true    },
     { "sentient",       FORM_SENTIENT,      true    },
     { "undead",         FORM_UNDEAD,        true    },
