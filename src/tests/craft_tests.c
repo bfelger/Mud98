@@ -13,6 +13,7 @@
 #include <craft/workstation.h>
 #include <craft/act_craft.h>
 #include <craft/craft_olc.h>
+#include <craft/craft_skill.h>
 
 #include <persist/recipe/json/recipe_persist_json.h>
 #include <persist/recipe/rom-olc/recipe_persist_rom_olc.h>
@@ -2442,6 +2443,197 @@ static int test_craft_group_rating()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Issue #25: Crafting Skill Checks
+////////////////////////////////////////////////////////////////////////////////
+
+static int test_evaluate_craft_check_success()
+{
+    // Roll below target = success
+    CraftCheckResult result = evaluate_craft_check(
+        50,     // 50% skill
+        10,     // level 10 player
+        5,      // level 5 recipe
+        30      // roll 30
+    );
+    
+    // target = 50 + (10-5)*2 = 60, roll 30 <= 60 = success
+    ASSERT(result.success == true);
+    ASSERT(result.target == 60);
+    ASSERT(result.roll == 30);
+    ASSERT(result.quality == 30);  // 60 - 30 = 30
+    
+    return 0;
+}
+
+static int test_evaluate_craft_check_failure()
+{
+    // Roll above target = failure
+    CraftCheckResult result = evaluate_craft_check(
+        30,     // 30% skill
+        5,      // level 5 player
+        5,      // level 5 recipe
+        50      // roll 50
+    );
+    
+    // target = 30 + 0 = 30, roll 50 > 30 = failure
+    ASSERT(result.success == false);
+    ASSERT(result.target == 30);
+    ASSERT(result.roll == 50);
+    ASSERT(result.quality == -20);  // 30 - 50 = -20
+    
+    return 0;
+}
+
+static int test_evaluate_craft_check_quality_margin()
+{
+    // Quality is target - roll
+    CraftCheckResult result = evaluate_craft_check(
+        80,     // 80% skill
+        20,     // level 20 player
+        10,     // level 10 recipe
+        10      // roll 10
+    );
+    
+    // target = 80 + 20 = 100, clamped to 95
+    // quality = 95 - 10 = 85
+    ASSERT(result.success == true);
+    ASSERT(result.target == 95);  // Clamped
+    ASSERT(result.quality == 85);
+    
+    return 0;
+}
+
+static int test_evaluate_craft_check_level_bonus()
+{
+    // Higher level gives +2% per level above recipe
+    CraftCheckResult low = evaluate_craft_check(50, 5, 5, 50);   // No bonus
+    CraftCheckResult high = evaluate_craft_check(50, 15, 5, 50); // +20 bonus
+    
+    ASSERT(low.target == 50);
+    ASSERT(high.target == 70);  // 50 + (15-5)*2 = 70
+    
+    return 0;
+}
+
+static int test_evaluate_craft_check_target_clamp()
+{
+    // Target clamped to 5-95 range
+    CraftCheckResult low = evaluate_craft_check(1, 1, 10, 50);   // Very low skill
+    CraftCheckResult high = evaluate_craft_check(99, 50, 1, 50); // Very high skill
+    
+    ASSERT(low.target == 5);   // Clamped to minimum
+    ASSERT(high.target == 95); // Clamped to maximum
+    
+    return 0;
+}
+
+static int test_quality_tier_poor()
+{
+    ASSERT(quality_tier_from_margin(0) == QUALITY_POOR);
+    ASSERT(quality_tier_from_margin(10) == QUALITY_POOR);
+    ASSERT(quality_tier_from_margin(19) == QUALITY_POOR);
+    
+    return 0;
+}
+
+static int test_quality_tier_normal()
+{
+    ASSERT(quality_tier_from_margin(20) == QUALITY_NORMAL);
+    ASSERT(quality_tier_from_margin(30) == QUALITY_NORMAL);
+    ASSERT(quality_tier_from_margin(39) == QUALITY_NORMAL);
+    
+    return 0;
+}
+
+static int test_quality_tier_fine()
+{
+    ASSERT(quality_tier_from_margin(40) == QUALITY_FINE);
+    ASSERT(quality_tier_from_margin(50) == QUALITY_FINE);
+    ASSERT(quality_tier_from_margin(59) == QUALITY_FINE);
+    
+    return 0;
+}
+
+static int test_quality_tier_exceptional()
+{
+    ASSERT(quality_tier_from_margin(60) == QUALITY_EXCEPTIONAL);
+    ASSERT(quality_tier_from_margin(70) == QUALITY_EXCEPTIONAL);
+    ASSERT(quality_tier_from_margin(79) == QUALITY_EXCEPTIONAL);
+    
+    return 0;
+}
+
+static int test_quality_tier_masterwork()
+{
+    ASSERT(quality_tier_from_margin(80) == QUALITY_MASTERWORK);
+    ASSERT(quality_tier_from_margin(90) == QUALITY_MASTERWORK);
+    ASSERT(quality_tier_from_margin(100) == QUALITY_MASTERWORK);
+    
+    return 0;
+}
+
+static int test_quality_tier_names()
+{
+    ASSERT_STR_EQ("poor", quality_tier_name(QUALITY_POOR));
+    ASSERT_STR_EQ("normal", quality_tier_name(QUALITY_NORMAL));
+    ASSERT_STR_EQ("fine", quality_tier_name(QUALITY_FINE));
+    ASSERT_STR_EQ("exceptional", quality_tier_name(QUALITY_EXCEPTIONAL));
+    ASSERT_STR_EQ("masterwork", quality_tier_name(QUALITY_MASTERWORK));
+    
+    return 0;
+}
+
+static int test_craft_effective_skill()
+{
+    Room* room = mock_room(99001, NULL, NULL);
+    Mobile* ch = mock_player("SkillTester");
+    transfer_mob(ch, room);
+    ch->level = 20;  // Must be high enough to use crafting skills
+    
+    // Set up a skill
+    mock_skill(ch, gsn_leatherworking, 75);
+    
+    int skill = craft_effective_skill(ch, gsn_leatherworking);
+    ASSERT(skill == 75);
+    
+    // Non-existent skill returns 0 (even if above level requirement)
+    int zero = craft_effective_skill(ch, gsn_blacksmithing);
+    ASSERT(zero == 0);
+    
+    return 0;
+}
+
+static int test_craft_skill_check_integration()
+{
+    Room* room = mock_room(99002, NULL, NULL);
+    Mobile* ch = mock_player("CraftChecker");
+    transfer_mob(ch, room);
+    ch->level = 20;
+    
+    // Set up the skill
+    mock_skill(ch, gsn_leatherworking, 60);
+    
+    // Create a recipe
+    Recipe* recipe = new_recipe();
+    recipe->header.vnum = 99999;
+    recipe->required_skill = gsn_leatherworking;
+    recipe->min_level = 10;
+    
+    // Run the check
+    CraftCheckResult result = craft_skill_check(ch, recipe);
+    
+    // Verify result structure is populated
+    ASSERT(result.skill_used == gsn_leatherworking);
+    // target = 60 + (20-10)*2 = 80, clamped to 80
+    ASSERT(result.target == 80);
+    // Roll is random, so we just verify it's in range
+    ASSERT(result.roll >= 1 && result.roll <= 100);
+    
+    free_recipe(recipe);
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Test Registration
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -2577,6 +2769,21 @@ void register_craft_tests()
     REGISTER("CraftGroup: Exists", test_craft_group_exists);
     REGISTER("CraftGroup: Contains Skills", test_craft_group_contains_skills);
     REGISTER("CraftGroup: Rating", test_craft_group_rating);
+    
+    // Issue #25: Crafting Skill Checks
+    REGISTER("SkillCheck: Success", test_evaluate_craft_check_success);
+    REGISTER("SkillCheck: Failure", test_evaluate_craft_check_failure);
+    REGISTER("SkillCheck: Quality Margin", test_evaluate_craft_check_quality_margin);
+    REGISTER("SkillCheck: Level Bonus", test_evaluate_craft_check_level_bonus);
+    REGISTER("SkillCheck: Target Clamp", test_evaluate_craft_check_target_clamp);
+    REGISTER("QualityTier: Poor", test_quality_tier_poor);
+    REGISTER("QualityTier: Normal", test_quality_tier_normal);
+    REGISTER("QualityTier: Fine", test_quality_tier_fine);
+    REGISTER("QualityTier: Exceptional", test_quality_tier_exceptional);
+    REGISTER("QualityTier: Masterwork", test_quality_tier_masterwork);
+    REGISTER("QualityTier: Names", test_quality_tier_names);
+    REGISTER("CraftSkill: Effective Skill", test_craft_effective_skill);
+    REGISTER("CraftSkill: Integration", test_craft_skill_check_integration);
 
 #undef REGISTER
 }
