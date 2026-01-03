@@ -19,12 +19,18 @@
 #include <save.h>
 #include <tables.h>
 
+#include <craft/craft.h>
+#include <craft/craft_olc.h>
 #include <entities/event.h>
 #include <entities/object.h>
 
 #include <data/loot.h>
 
 #define OEDIT(fun) bool fun( Mobile *ch, char *argument )
+
+OEDIT(oedit_salvage);
+OEDIT(oedit_mattype);
+OEDIT(oedit_stationtype);
 
 ObjPrototype xObj;
 
@@ -63,6 +69,9 @@ const OlcCmdEntry obj_olc_comm_table[] = {
     { "olist",	    U(&xObj.area),		    ed_olist,		    0		        },
     { "recval",	    U(&xObj),			    ed_objrecval,		0		        },
     { "copy",	    0,				        ed_olded,		    U(oedit_copy)	},
+    { "salvage",    0,                      ed_olded,           U(oedit_salvage)},
+    { "mattype",    0,                      ed_olded,           U(oedit_mattype)},
+    { "stationtype",0,                      ed_olded,           U(oedit_stationtype)},
     { "commands",	0,				        ed_olded,		    U(show_commands)},
     { "?",		    0,				        ed_olded,		    U(show_help)	},
     { "version",	0,				        ed_olded,		    U(show_version)	},
@@ -316,6 +325,19 @@ void show_obj_values(Mobile* ch, ObjPrototype* obj)
             obj->money.silver,
             obj->money.gold);
         break;
+
+    case ITEM_MAT:
+        printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "mattype" COLOR_DECOR_1 "]" COLOR_CLEAR " Mat Type: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, 
+            craft_mat_type_name(obj->craft_mat.mat_type));
+        break;
+
+    case ITEM_WORKSTATION: {
+        char station_buf[MAX_STRING_LENGTH];
+        workstation_type_flags_string(obj->workstation.station_flags, station_buf, sizeof(station_buf));
+        printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "stationtype" COLOR_DECOR_1 "]" COLOR_CLEAR " Station Types: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, 
+            station_buf);
+        break;
+    }
     }
 
     return;
@@ -727,6 +749,11 @@ OEDIT(oedit_show)
     }
 
     show_obj_values(ch, pObj);
+
+    // Show salvage materials if any are defined
+    if (pObj->salvage_mat_count > 0) {
+        craft_olc_show_mats(pObj->salvage_mats, pObj->salvage_mat_count, ch, "Salvage Mats");
+    }
 
     Entity* entity = &pObj->header;
     olc_display_entity_class_info(ch, entity);
@@ -1254,5 +1281,184 @@ OEDIT(oedit_copy)
     }
 
     send_to_char("Ok.\n\r", ch);
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// oedit_salvage - Edit salvage materials for an object prototype
+//
+// Usage:
+//   salvage             - Show current salvage materials
+//   salvage show        - Show current salvage materials
+//   salvage add <vnum>  - Add material to salvage list
+//   salvage remove <#>  - Remove material by 1-based index
+//   salvage clear       - Clear all salvage materials
+//   salvage list [type] - List available ITEM_MAT in current area
+////////////////////////////////////////////////////////////////////////////////
+OEDIT(oedit_salvage)
+{
+    ObjPrototype* pObj;
+    char cmd[MAX_INPUT_LENGTH];
+    char arg[MAX_INPUT_LENGTH];
+
+    EDIT_OBJ(ch, pObj);
+
+    READ_ARG(cmd);
+    one_argument(argument, arg);
+
+    // Default to "show" if no argument
+    if (IS_NULLSTR(cmd) || !str_prefix(cmd, "show")) {
+        craft_olc_show_mats(pObj->salvage_mats, pObj->salvage_mat_count, ch, "Salvage Materials");
+        return false;
+    }
+
+    if (!str_prefix(cmd, "add")) {
+        if (IS_NULLSTR(arg)) {
+            send_to_char(COLOR_INFO "Syntax: salvage add <vnum>" COLOR_EOL, ch);
+            return false;
+        }
+
+        if (!is_number(arg)) {
+            send_to_char(COLOR_INFO "VNUM must be a number." COLOR_EOL, ch);
+            return false;
+        }
+
+        VNUM vnum = (VNUM)atoi(arg);
+        return craft_olc_add_mat(&pObj->salvage_mats, &pObj->salvage_mat_count, vnum, ch);
+    }
+
+    if (!str_prefix(cmd, "remove")) {
+        if (IS_NULLSTR(arg)) {
+            send_to_char(COLOR_INFO "Syntax: salvage remove <#>" COLOR_EOL, ch);
+            return false;
+        }
+
+        return craft_olc_remove_mat(&pObj->salvage_mats, &pObj->salvage_mat_count, arg, ch);
+    }
+
+    if (!str_prefix(cmd, "clear")) {
+        craft_olc_clear_mats(&pObj->salvage_mats, &pObj->salvage_mat_count);
+        send_to_char(COLOR_INFO "Salvage materials cleared." COLOR_EOL, ch);
+        return true;
+    }
+
+    if (!str_prefix(cmd, "list")) {
+        CraftMatType filter = MAT_NONE;
+        if (!IS_NULLSTR(arg)) {
+            filter = craft_mat_type_lookup(arg);
+            if (filter == MAT_NONE && str_cmp(arg, "none") != 0) {
+                send_to_char(COLOR_INFO "Unknown material type. Use: salvage list" COLOR_EOL, ch);
+                return false;
+            }
+        }
+        craft_olc_list_mats(pObj->area, filter, ch);
+        return false;
+    }
+
+    send_to_char(COLOR_INFO "Syntax: salvage [show|add|remove|clear|list]" COLOR_EOL, ch);
+    return false;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// oedit_mattype - Set material type for ITEM_MAT objects
+//
+// Usage:
+//   mattype              - Show current type and available types
+//   mattype <type>       - Set material type (e.g., hide, leather, ingot)
+////////////////////////////////////////////////////////////////////////////////
+OEDIT(oedit_mattype)
+{
+    ObjPrototype* pObj;
+
+    EDIT_OBJ(ch, pObj);
+
+    if (pObj->item_type != ITEM_MAT) {
+        send_to_char(COLOR_INFO "This object is not a crafting material (ITEM_MAT)." COLOR_EOL, ch);
+        return false;
+    }
+
+    if (IS_NULLSTR(argument)) {
+        // Show current type and available types
+        printf_to_char(ch, "Current type: " COLOR_ALT_TEXT_1 "%s" COLOR_EOL, 
+            craft_mat_type_name(pObj->craft_mat.mat_type));
+        send_to_char("\n\rAvailable types:\n\r", ch);
+        for (int i = 1; i < CRAFT_MAT_TYPE_COUNT; i++) {
+            printf_to_char(ch, "  " COLOR_ALT_TEXT_1 "%-12s" COLOR_EOL, craft_mat_type_name((CraftMatType)i));
+        }
+        return false;
+    }
+
+    CraftMatType type = craft_mat_type_lookup(argument);
+    if (type == MAT_NONE) {
+        send_to_char(COLOR_INFO "Unknown material type. Use 'mattype' with no argument to see list." COLOR_EOL, ch);
+        return false;
+    }
+
+    pObj->craft_mat.mat_type = type;
+    printf_to_char(ch, COLOR_INFO "Material type set to: " COLOR_ALT_TEXT_1 "%s" COLOR_EOL, craft_mat_type_name(type));
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// oedit_stationtype - Set/toggle workstation types for ITEM_WORKSTATION objects
+//
+// Usage:
+//   stationtype              - Show current types and available types
+//   stationtype <type>       - Toggle workstation type flag
+//   stationtype clear        - Clear all station type flags
+////////////////////////////////////////////////////////////////////////////////
+OEDIT(oedit_stationtype)
+{
+    ObjPrototype* pObj;
+
+    EDIT_OBJ(ch, pObj);
+
+    if (pObj->item_type != ITEM_WORKSTATION) {
+        send_to_char(COLOR_INFO "This object is not a workstation (ITEM_WORKSTATION)." COLOR_EOL, ch);
+        return false;
+    }
+
+    if (IS_NULLSTR(argument)) {
+        // Show current types and available types
+        char station_buf[MAX_STRING_LENGTH];
+        workstation_type_flags_string(pObj->workstation.station_flags, station_buf, sizeof(station_buf));
+        printf_to_char(ch, "Current types: " COLOR_ALT_TEXT_1 "%s" COLOR_EOL, 
+            station_buf[0] ? station_buf : "(none)");
+        send_to_char("\n\rAvailable types (toggle with 'stationtype <type>'):\n\r", ch);
+        // Iterate through bit positions for known workstation types
+        WorkstationType types[] = { 
+            WORK_FORGE, WORK_SMELTER, WORK_TANNERY, WORK_LOOM, WORK_ALCHEMY, 
+            WORK_COOKING, WORK_ENCHANT, WORK_WOODWORK, WORK_JEWELER 
+        };
+        for (size_t i = 0; i < sizeof(types) / sizeof(types[0]); i++) {
+            const char* name = workstation_type_name(types[i]);
+            if (name && str_cmp(name, "unknown") != 0) {
+                printf_to_char(ch, "  " COLOR_ALT_TEXT_1 "%-12s" COLOR_CLEAR "%s" COLOR_EOL, name,
+                    (pObj->workstation.station_flags & types[i]) ? " [SET]" : "");
+            }
+        }
+        return false;
+    }
+
+    if (!str_prefix(argument, "clear")) {
+        pObj->workstation.station_flags = 0;
+        send_to_char(COLOR_INFO "All workstation type flags cleared." COLOR_EOL, ch);
+        return true;
+    }
+
+    WorkstationType type = workstation_type_lookup(argument);
+    if (type == WORK_NONE) {
+        send_to_char(COLOR_INFO "Unknown workstation type. Use 'stationtype' with no argument to see list." COLOR_EOL, ch);
+        return false;
+    }
+
+    // Toggle the flag
+    if (pObj->workstation.station_flags & type) {
+        pObj->workstation.station_flags &= ~type;
+        printf_to_char(ch, COLOR_INFO "Workstation type " COLOR_ALT_TEXT_1 "%s" COLOR_INFO " removed." COLOR_EOL, workstation_type_name(type));
+    } else {
+        pObj->workstation.station_flags |= type;
+        printf_to_char(ch, COLOR_INFO "Workstation type " COLOR_ALT_TEXT_1 "%s" COLOR_INFO " added." COLOR_EOL, workstation_type_name(type));
+    }
     return true;
 }

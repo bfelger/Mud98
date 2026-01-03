@@ -24,7 +24,7 @@
 // Material List Management
 ////////////////////////////////////////////////////////////////////////////////
 
-bool craft_olc_add_mat(VNUM** list, int16_t* count, VNUM vnum, Mobile* ch)
+bool craft_olc_add_mat(VNUM** list, int* count, VNUM vnum, Mobile* ch)
 {
     ObjPrototype* proto = get_object_prototype(vnum);
     if (!proto) {
@@ -60,7 +60,7 @@ bool craft_olc_add_mat(VNUM** list, int16_t* count, VNUM vnum, Mobile* ch)
     return true;
 }
 
-bool craft_olc_remove_mat(VNUM** list, int16_t* count, const char* arg, Mobile* ch)
+bool craft_olc_remove_mat(VNUM** list, int* count, const char* arg, Mobile* ch)
 {
     if (*count == 0) {
         send_to_char("The material list is empty.\n\r", ch);
@@ -124,7 +124,7 @@ bool craft_olc_remove_mat(VNUM** list, int16_t* count, const char* arg, Mobile* 
     return true;
 }
 
-void craft_olc_clear_mats(VNUM** list, int16_t* count)
+void craft_olc_clear_mats(VNUM** list, int* count)
 {
     if (*list) {
         free(*list);
@@ -133,7 +133,7 @@ void craft_olc_clear_mats(VNUM** list, int16_t* count)
     *count = 0;
 }
 
-void craft_olc_show_mats(VNUM* list, int16_t count, Mobile* ch, const char* label)
+void craft_olc_show_mats(VNUM* list, int count, Mobile* ch, const char* label)
 {
     if (count == 0 || !list) {
         printf_to_char(ch, "%s: (none)\n\r", label);

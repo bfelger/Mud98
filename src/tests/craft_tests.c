@@ -1539,7 +1539,7 @@ static int test_craft_olc_add_mat_valid()
     mat_proto->short_descr = str_dup("raw hide");
     
     VNUM* list = NULL;
-    int16_t count = 0;
+    int count = 0;
     
     test_socket_output_enabled = true;
     bool result = craft_olc_add_mat(&list, &count, 85010, ch);
@@ -1564,7 +1564,7 @@ static int test_craft_olc_add_mat_invalid_vnum()
     transfer_mob(ch, room);
     
     VNUM* list = NULL;
-    int16_t count = 0;
+    int count = 0;
     
     test_socket_output_enabled = true;
     bool result = craft_olc_add_mat(&list, &count, 99999, ch);  // Non-existent
@@ -1590,7 +1590,7 @@ static int test_craft_olc_add_mat_not_item_mat()
     (void)sword;
     
     VNUM* list = NULL;
-    int16_t count = 0;
+    int count = 0;
     
     test_socket_output_enabled = true;
     bool result = craft_olc_add_mat(&list, &count, 85020, ch);
@@ -1616,7 +1616,7 @@ static int test_craft_olc_add_mat_duplicate()
     mat_proto->short_descr = str_dup("leather");
     
     VNUM* list = NULL;
-    int16_t count = 0;
+    int count = 0;
     
     // Add once
     craft_olc_add_mat(&list, &count, 85030, ch);
@@ -1654,7 +1654,7 @@ static int test_craft_olc_remove_mat_by_index()
     mat2->short_descr = str_dup("hide2");
     
     VNUM* list = NULL;
-    int16_t count = 0;
+    int count = 0;
     
     craft_olc_add_mat(&list, &count, 85040, ch);
     craft_olc_add_mat(&list, &count, 85041, ch);
@@ -1685,7 +1685,7 @@ static int test_craft_olc_remove_mat_not_found()
     transfer_mob(ch, room);
     
     VNUM* list = NULL;
-    int16_t count = 0;
+    int count = 0;
     
     test_socket_output_enabled = true;
     bool result = craft_olc_remove_mat(&list, &count, "1", ch);
@@ -1710,7 +1710,7 @@ static int test_craft_olc_clear_mats()
     mat->short_descr = str_dup("bone");
     
     VNUM* list = NULL;
-    int16_t count = 0;
+    int count = 0;
     
     craft_olc_add_mat(&list, &count, 85050, ch);
     test_output_buffer = NIL_VAL;
@@ -1737,7 +1737,7 @@ static int test_craft_olc_show_mats()
     mat->short_descr = str_dup("raw meat");
     
     VNUM* list = NULL;
-    int16_t count = 0;
+    int count = 0;
     
     craft_olc_add_mat(&list, &count, 85060, ch);
     test_output_buffer = NIL_VAL;

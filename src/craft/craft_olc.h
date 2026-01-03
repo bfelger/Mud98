@@ -21,17 +21,17 @@
 
 // Add VNUM to a dynamic array, checking for ITEM_MAT type
 // Returns true if added successfully
-bool craft_olc_add_mat(VNUM** list, int16_t* count, VNUM vnum, Mobile* ch);
+bool craft_olc_add_mat(VNUM** list, int* count, VNUM vnum, Mobile* ch);
 
 // Remove VNUM from list by VNUM or 1-based index string
 // Returns true if removed successfully
-bool craft_olc_remove_mat(VNUM** list, int16_t* count, const char* arg, Mobile* ch);
+bool craft_olc_remove_mat(VNUM** list, int* count, const char* arg, Mobile* ch);
 
 // Clear all VNUMs from list
-void craft_olc_clear_mats(VNUM** list, int16_t* count);
+void craft_olc_clear_mats(VNUM** list, int* count);
 
 // Display current mat list to character
-void craft_olc_show_mats(VNUM* list, int16_t count, Mobile* ch, const char* label);
+void craft_olc_show_mats(VNUM* list, int count, Mobile* ch, const char* label);
 
 // List available ITEM_MAT objects in area with optional type filter
 // If filter is MAT_NONE, lists all ITEM_MAT objects
