@@ -94,6 +94,8 @@ ObjPrototype* mock_obj_proto(VNUM vnum);
 Object* mock_obj(const char* name, VNUM vnum, ObjPrototype* op);
 Object* mock_sword(const char* name, VNUM vnum, LEVEL level, int dam_dice, int dam_size);
 Object* mock_shield(const char* name, VNUM vnum, LEVEL level);
+Object* mock_mat(const char* name, VNUM vnum, int mat_type, int amount, int quality);
+Object* mock_workstation(const char* name, VNUM vnum, int station_flags, int bonus);
 
 // MOBILE SKILL MOCKING
 // Sets skill value for PC (pcdata->learned) or NPC (atk_flags for defensive skills)

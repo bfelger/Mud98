@@ -73,6 +73,7 @@ void run_unit_tests()
     register_loot_tests();
     register_thief_tests();
     register_magic_tests();
+    register_craft_tests();
 
     test_output_enabled = true;
     test_disassemble_on_error = true;

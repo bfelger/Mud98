@@ -12,21 +12,21 @@
 #include "lox/ordered_table.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-// Recipe Input
+// Recipe Ingredient
 ////////////////////////////////////////////////////////////////////////////////
 
-// A single input requirement for a recipe
-typedef struct recipe_input_t {
+// A single ingredient requirement for a recipe
+typedef struct ingredient_t {
     VNUM mat_vnum;      // VNUM of required ITEM_MAT object
     int16_t quantity;   // Number required
-} RecipeInput;
+} Ingredient;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Recipe Structure
 ////////////////////////////////////////////////////////////////////////////////
 
-// Maximum number of inputs per recipe
-#define MAX_RECIPE_INPUTS 8
+// Maximum number of ingredients per recipe
+#define MAX_RECIPE_INGREDIENTS 8
 
 typedef struct recipe_t {
     Entity header;              // Entity header (vnum, area, name, etc.)
@@ -40,11 +40,11 @@ typedef struct recipe_t {
 
     DiscoveryType discovery;    // How recipe is learned
 
-    RecipeInput inputs[MAX_RECIPE_INPUTS];  // Input materials
-    int16_t input_count;                    // Number of inputs
+    Ingredient ingredients[MAX_RECIPE_INGREDIENTS]; // Required ingredients
+    int16_t ingredient_count;                       // Number of ingredients
 
-    VNUM output_vnum;           // Output object prototype VNUM
-    int16_t output_quantity;    // Number produced
+    VNUM product_vnum;          // Product object prototype VNUM
+    int16_t product_quantity;   // Number produced
 } Recipe;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -80,9 +80,9 @@ int recipe_count(void);
 RecipeIter make_recipe_iter(void);
 Recipe* recipe_iter_next(RecipeIter* iter);
 
-// Input management
-bool recipe_add_input(Recipe* recipe, VNUM mat_vnum, int16_t quantity);
-bool recipe_remove_input(Recipe* recipe, int index);
-void recipe_clear_inputs(Recipe* recipe);
+// Ingredient management
+bool recipe_add_ingredient(Recipe* recipe, VNUM mat_vnum, int16_t quantity);
+bool recipe_remove_ingredient(Recipe* recipe, int index);
+void recipe_clear_ingredients(Recipe* recipe);
 
 #endif // MUD98__CRAFT__RECIPE_H

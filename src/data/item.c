@@ -42,6 +42,8 @@ const ItemInfo item_type_table[ITEM_TYPE_COUNT] = {
     { ITEM_GEM,             "gem"           },
     { ITEM_JEWELRY,         "jewelry"       },
     { ITEM_JUKEBOX,         "jukebox"       },
+    { ITEM_MAT,             "material"      },
+    { ITEM_WORKSTATION,     "workstation"   },
 };
 
 const char* item_name(ItemType type)

@@ -181,6 +181,24 @@ typedef struct object_t {
             int destination;  // Target vnum
             int key_vnum;     // Key object vnum
         } portal;
+        
+        // ITEM_MAT (type 35) - Crafting material
+        struct {
+            int mat_type;     // CraftMatType enum
+            int amount;       // Stack quantity
+            int quality;      // Quality level (0-100)
+            int unused3;
+            int unused4;
+        } craft_mat;
+        
+        // ITEM_WORKSTATION (type 36) - Crafting workstation
+        struct {
+            int station_flags;  // WorkstationType bit flags
+            int bonus;          // Skill bonus when using this station
+            int unused2;
+            int unused3;
+            int unused4;
+        } workstation;
     };
     
     int cost;
@@ -227,6 +245,10 @@ static_assert(sizeof(((Object*)0)->value) == sizeof(((Object*)0)->furniture),
               "furniture struct must match value[5] size");
 static_assert(sizeof(((Object*)0)->value) == sizeof(((Object*)0)->portal), 
               "portal struct must match value[5] size");
+static_assert(sizeof(((Object*)0)->value) == sizeof(((Object*)0)->craft_mat), 
+              "craft_mat struct must match value[5] size");
+static_assert(sizeof(((Object*)0)->value) == sizeof(((Object*)0)->workstation), 
+              "workstation struct must match value[5] size");
 
 // Legacy macros for money values (deprecated - use obj->money.gold etc.)
 #define MONEY_VALUE_COPPER 0

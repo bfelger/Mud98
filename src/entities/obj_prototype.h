@@ -50,6 +50,8 @@ typedef struct obj_prototype_t {
         struct { int level; int spell1; int spell2; int spell3; int unused4; } potion;
         struct { int max_people; int max_weight; int flags; int heal_rate; int mana_rate; } furniture;
         struct { int charges; int exit_flags; int gate_flags; int destination; int key_vnum; } portal;
+        struct { int mat_type; int amount; int quality; int unused3; int unused4; } craft_mat;
+        struct { int station_flags; int bonus; int unused2; int unused3; int unused4; } workstation;
     };
     
     int cost;

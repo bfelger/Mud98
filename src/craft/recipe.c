@@ -58,9 +58,9 @@ Recipe* new_recipe(void)
     recipe->station_type = WORK_NONE;
     recipe->station_vnum = VNUM_NONE;
     recipe->discovery = DISC_KNOWN;
-    recipe->input_count = 0;
-    recipe->output_vnum = VNUM_NONE;
-    recipe->output_quantity = 1;
+    recipe->ingredient_count = 0;
+    recipe->product_vnum = VNUM_NONE;
+    recipe->product_quantity = 1;
 
     return recipe;
 }
@@ -165,46 +165,46 @@ Recipe* recipe_iter_next(RecipeIter* iter)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Input Management
+// Ingredient Management
 ////////////////////////////////////////////////////////////////////////////////
 
-bool recipe_add_input(Recipe* recipe, VNUM mat_vnum, int16_t quantity)
+bool recipe_add_ingredient(Recipe* recipe, VNUM mat_vnum, int16_t quantity)
 {
     if (recipe == NULL)
         return false;
 
-    if (recipe->input_count >= MAX_RECIPE_INPUTS)
+    if (recipe->ingredient_count >= MAX_RECIPE_INGREDIENTS)
         return false;
 
-    recipe->inputs[recipe->input_count].mat_vnum = mat_vnum;
-    recipe->inputs[recipe->input_count].quantity = quantity;
-    recipe->input_count++;
+    recipe->ingredients[recipe->ingredient_count].mat_vnum = mat_vnum;
+    recipe->ingredients[recipe->ingredient_count].quantity = quantity;
+    recipe->ingredient_count++;
 
     return true;
 }
 
-bool recipe_remove_input(Recipe* recipe, int index)
+bool recipe_remove_ingredient(Recipe* recipe, int index)
 {
     if (recipe == NULL)
         return false;
 
-    if (index < 0 || index >= recipe->input_count)
+    if (index < 0 || index >= recipe->ingredient_count)
         return false;
 
-    // Shift remaining inputs down
-    for (int i = index; i < recipe->input_count - 1; i++) {
-        recipe->inputs[i] = recipe->inputs[i + 1];
+    // Shift remaining ingredients down
+    for (int i = index; i < recipe->ingredient_count - 1; i++) {
+        recipe->ingredients[i] = recipe->ingredients[i + 1];
     }
 
-    recipe->input_count--;
+    recipe->ingredient_count--;
     return true;
 }
 
-void recipe_clear_inputs(Recipe* recipe)
+void recipe_clear_ingredients(Recipe* recipe)
 {
     if (recipe == NULL)
         return;
 
-    recipe->input_count = 0;
-    memset(recipe->inputs, 0, sizeof(recipe->inputs));
+    recipe->ingredient_count = 0;
+    memset(recipe->ingredients, 0, sizeof(recipe->ingredients));
 }
