@@ -2195,7 +2195,7 @@ msg_obj ~
 #SKILL
 name skinning~
 skill_level 5 5 5 5 @
-rating 4 4 4 4 @
+rating 5 5 5 5 @
 spell_fun spell_null~
 target tar_ignore~
 minimum_position standing~
@@ -2211,7 +2211,7 @@ msg_obj ~
 #SKILL
 name butchering~
 skill_level 5 5 5 5 @
-rating 4 4 4 4 @
+rating 5 5 5 5 @
 spell_fun spell_null~
 target tar_ignore~
 minimum_position standing~
@@ -2226,8 +2226,8 @@ msg_obj ~
 
 #SKILL
 name leatherworking~
-skill_level 10 10 10 10 @
-rating 6 6 6 6 @
+skill_level 5 5 5 5 @
+rating 5 5 5 5 @
 spell_fun spell_null~
 target tar_ignore~
 minimum_position standing~
@@ -2242,8 +2242,8 @@ msg_obj ~
 
 #SKILL
 name blacksmithing~
-skill_level 15 15 15 10 @
-rating 8 8 8 6 @
+skill_level 5 5 5 5 @
+rating 5 5 5 5 @
 spell_fun spell_null~
 target tar_ignore~
 minimum_position standing~
@@ -2258,8 +2258,8 @@ msg_obj ~
 
 #SKILL
 name tailoring~
-skill_level 10 10 10 10 @
-rating 6 6 6 6 @
+skill_level 5 5 5 5 @
+rating 5 5 5 5 @
 spell_fun spell_null~
 target tar_ignore~
 minimum_position standing~
@@ -2274,8 +2274,8 @@ msg_obj ~
 
 #SKILL
 name alchemy~
-skill_level 10 12 15 20 @
-rating 6 6 8 10 @
+skill_level 5 5 5 5 @
+rating 5 5 5 5 @
 spell_fun spell_null~
 target tar_ignore~
 minimum_position standing~
@@ -2290,8 +2290,8 @@ msg_obj ~
 
 #SKILL
 name cooking~
-skill_level 3 3 3 3 @
-rating 3 3 3 3 @
+skill_level 5 5 5 5 @
+rating 5 5 5 5 @
 spell_fun spell_null~
 target tar_ignore~
 minimum_position standing~
@@ -2306,8 +2306,8 @@ msg_obj ~
 
 #SKILL
 name jewelcraft~
-skill_level 20 20 15 25 @
-rating 8 8 6 10 @
+skill_level 5 5 5 5 @
+rating 5 5 5 5 @
 spell_fun spell_null~
 target tar_ignore~
 minimum_position standing~
@@ -2322,8 +2322,8 @@ msg_obj ~
 
 #SKILL
 name woodworking~
-skill_level 10 10 8 10 @
-rating 6 6 4 6 @
+skill_level 5 5 5 5 @
+rating 5 5 5 5 @
 spell_fun spell_null~
 target tar_ignore~
 minimum_position standing~
@@ -2338,8 +2338,8 @@ msg_obj ~
 
 #SKILL
 name enchanting~
-skill_level 25 30 40 45 @
-rating 10 12 15 18 @
+skill_level 5 5 5 5 @
+rating 5 5 5 5 @
 spell_fun spell_null~
 target tar_ignore~
 minimum_position standing~

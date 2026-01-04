@@ -2998,10 +2998,10 @@
         "warrior": 5
       },
       "ratings": {
-        "mage": 4,
-        "cleric": 4,
-        "thief": 4,
-        "warrior": 4
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
       },
       "target": "tar_ignore",
       "minPosition": "standing",
@@ -3018,10 +3018,10 @@
         "warrior": 5
       },
       "ratings": {
-        "mage": 4,
-        "cleric": 4,
-        "thief": 4,
-        "warrior": 4
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
       },
       "target": "tar_ignore",
       "minPosition": "standing",
@@ -3032,16 +3032,16 @@
     {
       "name": "leatherworking",
       "levels": {
-        "mage": 10,
-        "cleric": 10,
-        "thief": 10,
-        "warrior": 10
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
       },
       "ratings": {
-        "mage": 6,
-        "cleric": 6,
-        "thief": 6,
-        "warrior": 6
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
       },
       "target": "tar_ignore",
       "minPosition": "standing",
@@ -3052,16 +3052,16 @@
     {
       "name": "blacksmithing",
       "levels": {
-        "mage": 15,
-        "cleric": 15,
-        "thief": 15,
-        "warrior": 10
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
       },
       "ratings": {
-        "mage": 8,
-        "cleric": 8,
-        "thief": 8,
-        "warrior": 6
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
       },
       "target": "tar_ignore",
       "minPosition": "standing",
@@ -3072,16 +3072,16 @@
     {
       "name": "tailoring",
       "levels": {
-        "mage": 10,
-        "cleric": 10,
-        "thief": 10,
-        "warrior": 10
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
       },
       "ratings": {
-        "mage": 6,
-        "cleric": 6,
-        "thief": 6,
-        "warrior": 6
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
       },
       "target": "tar_ignore",
       "minPosition": "standing",
@@ -3092,16 +3092,16 @@
     {
       "name": "alchemy",
       "levels": {
-        "mage": 10,
-        "cleric": 12,
-        "thief": 15,
-        "warrior": 20
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
       },
       "ratings": {
-        "mage": 6,
-        "cleric": 6,
-        "thief": 8,
-        "warrior": 10
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
       },
       "target": "tar_ignore",
       "minPosition": "standing",
@@ -3112,16 +3112,16 @@
     {
       "name": "cooking",
       "levels": {
-        "mage": 3,
-        "cleric": 3,
-        "thief": 3,
-        "warrior": 3
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
       },
       "ratings": {
-        "mage": 3,
-        "cleric": 3,
-        "thief": 3,
-        "warrior": 3
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
       },
       "target": "tar_ignore",
       "minPosition": "standing",
@@ -3132,16 +3132,16 @@
     {
       "name": "jewelcraft",
       "levels": {
-        "mage": 20,
-        "cleric": 20,
-        "thief": 15,
-        "warrior": 25
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
       },
       "ratings": {
-        "mage": 8,
-        "cleric": 8,
-        "thief": 6,
-        "warrior": 10
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
       },
       "target": "tar_ignore",
       "minPosition": "standing",
@@ -3152,16 +3152,16 @@
     {
       "name": "woodworking",
       "levels": {
-        "mage": 10,
-        "cleric": 10,
-        "thief": 8,
-        "warrior": 10
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
       },
       "ratings": {
-        "mage": 6,
-        "cleric": 6,
-        "thief": 4,
-        "warrior": 6
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
       },
       "target": "tar_ignore",
       "minPosition": "standing",
@@ -3172,16 +3172,16 @@
     {
       "name": "enchanting",
       "levels": {
-        "mage": 25,
-        "cleric": 30,
-        "thief": 40,
-        "warrior": 45
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
       },
       "ratings": {
-        "mage": 10,
-        "cleric": 12,
-        "thief": 15,
-        "warrior": 18
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
       },
       "target": "tar_ignore",
       "minPosition": "standing",
