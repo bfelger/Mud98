@@ -3201,6 +3201,72 @@ static int test_groups_crafting_display()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Issue #32: Starter Material Objects
+////////////////////////////////////////////////////////////////////////////////
+
+static int test_starter_materials_exist()
+{
+    // Verify all starter material VNUMs exist
+    VNUM material_vnums[] = {
+        8501, 8502, 8503, 8504, 8505, 8506, 8507, 8508, 8509, 8510,
+        8511, 8512, 8513, 8514, 8515, 8516, 8517, 8518, 8519, 8520
+    };
+    
+    for (size_t i = 0; i < sizeof(material_vnums) / sizeof(VNUM); i++) {
+        ObjPrototype* proto = get_object_prototype(material_vnums[i]);
+        ASSERT(proto != NULL);
+    }
+    
+    return 0;
+}
+
+static int test_starter_materials_item_type()
+{
+    // Verify all starter materials are ITEM_MAT type
+    VNUM material_vnums[] = {
+        8501, 8502, 8503, 8504, 8505, 8506, 8507, 8508, 8509, 8510,
+        8511, 8512, 8513, 8514, 8515, 8516, 8517, 8518, 8519, 8520
+    };
+    
+    for (size_t i = 0; i < sizeof(material_vnums) / sizeof(VNUM); i++) {
+        ObjPrototype* proto = get_object_prototype(material_vnums[i]);
+        ASSERT(proto != NULL);
+        ASSERT(proto->item_type == ITEM_MAT);
+    }
+    
+    return 0;
+}
+
+static int test_starter_materials_mat_type()
+{
+    // Verify materials have correct CraftMatType in value[0]
+    struct { VNUM vnum; CraftMatType expected; } checks[] = {
+        { 8501, MAT_HIDE },      // raw hide
+        { 8502, MAT_LEATHER },   // leather
+        { 8503, MAT_LEATHER },   // leather strips
+        { 8504, MAT_MEAT },      // raw meat
+        { 8505, MAT_MEAT },      // cooked meat
+        { 8506, MAT_ORE },       // copper ore
+        { 8508, MAT_ORE },       // iron ore
+        { 8509, MAT_INGOT },     // copper ingot
+        { 8512, MAT_INGOT },     // iron ingot
+        { 8513, MAT_HERB },      // raw flax
+        { 8514, MAT_CLOTH },     // linen scraps
+        { 8516, MAT_HIDE },      // raw wool (MAT_HIDE for skinning)
+        { 8517, MAT_CLOTH },     // wool fabric
+        { 8520, MAT_HERB },      // herbs
+    };
+    
+    for (size_t i = 0; i < sizeof(checks) / sizeof(checks[0]); i++) {
+        ObjPrototype* proto = get_object_prototype(checks[i].vnum);
+        ASSERT(proto != NULL);
+        ASSERT(proto->value[0] == (int)checks[i].expected);
+    }
+    
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Test Registration
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -3379,6 +3445,11 @@ void register_craft_tests()
     // Issue #31: Crafting Skill Display
     REGISTER("SkillDisplay: Crafting Skills", test_skills_shows_crafting);
     REGISTER("SkillDisplay: Groups Crafting", test_groups_crafting_display);
+    
+    // Issue #32: Starter Material Objects
+    REGISTER("StarterMats: Exist", test_starter_materials_exist);
+    REGISTER("StarterMats: Item Type", test_starter_materials_item_type);
+    REGISTER("StarterMats: Mat Type", test_starter_materials_mat_type);
 
 #undef REGISTER
 }

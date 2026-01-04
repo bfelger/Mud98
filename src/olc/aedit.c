@@ -26,6 +26,7 @@
 #include <magic.h>
 #include <recycle.h>
 #include <save.h>
+#include <stringbuffer.h>
 #include <stringutils.h>
 #include <tables.h>
 
@@ -1298,11 +1299,11 @@ void do_alist(Mobile* ch, char* argument)
     static const char* help = "Syntax: " COLOR_ALT_TEXT_1 "ALIST\n\r"
         "        ALIST ORDERBY (VNUM|NAME)" COLOR_EOL;
 
-    INIT_BUF(result, MAX_STRING_LENGTH);
+    StringBuffer* sb = sb_new();
     char arg[MIL];
     char sort[MIL];
 
-    addf_buf(result, COLOR_DECOR_1 "[" COLOR_TITLE "%3s" COLOR_DECOR_1 "] [" COLOR_TITLE "%-22s" COLOR_DECOR_1 "] (" COLOR_TITLE "%6s" COLOR_DECOR_1 "-" COLOR_TITLE "%-6s" COLOR_DECOR_1 ") " COLOR_DECOR_1 "[" COLOR_TITLE "%-11s" COLOR_DECOR_1 "] " COLOR_TITLE "%3s " COLOR_DECOR_1 "[" COLOR_TITLE "%-10s" COLOR_DECOR_1 "]" COLOR_EOL,
+    sb_appendf(sb, COLOR_DECOR_1 "[" COLOR_TITLE "%3s" COLOR_DECOR_1 "] [" COLOR_TITLE "%-22s" COLOR_DECOR_1 "] (" COLOR_TITLE "%6s" COLOR_DECOR_1 "-" COLOR_TITLE "%-6s" COLOR_DECOR_1 ") " COLOR_DECOR_1 "[" COLOR_TITLE "%-11s" COLOR_DECOR_1 "] " COLOR_TITLE "%3s " COLOR_DECOR_1 "[" COLOR_TITLE "%-10s" COLOR_DECOR_1 "]\n\r",
         "Num", "Area Name", "lvnum", "uvnum", "Filename", "Sec", "Builders");
 
     size_t alist_size = sizeof(AreaData*) * global_areas.count;
@@ -1337,10 +1338,9 @@ void do_alist(Mobile* ch, char* argument)
     }
 
     AreaData* area;
-    //FOR_EACH_AREA(area) {
     for (int i = 0; i < global_areas.count; ++i) {
         area = alist[i];
-        addf_buf( result, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%3d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-24.24s " COLOR_DECOR_1 "(" COLOR_ALT_TEXT_1 "%6d" COLOR_DECOR_1 "-" COLOR_ALT_TEXT_1 "%-6d" COLOR_DECOR_1 ") " COLOR_ALT_TEXT_2 "%-13.13s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "] [" COLOR_ALT_TEXT_1 "%-10.10s" COLOR_DECOR_1 "]" COLOR_EOL,
+        sb_appendf(sb, "[" COLOR_ALT_TEXT_1 "%3d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-24.24s " COLOR_DECOR_1 "(" COLOR_ALT_TEXT_1 "%6d" COLOR_DECOR_1 "-" COLOR_ALT_TEXT_1 "%-6d" COLOR_DECOR_1 ") " COLOR_ALT_TEXT_2 "%-13.13s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "] [" COLOR_ALT_TEXT_1 "%-10.10s" COLOR_DECOR_1 "]\n\r",
             VNUM_FIELD(area),
             NAME_STR(area),
             area->min_vnum,
@@ -1349,11 +1349,12 @@ void do_alist(Mobile* ch, char* argument)
             area->security,
             area->builders);
     }
+    sb_appendf(sb, COLOR_CLEAR);
 
-    send_to_char(result->string, ch);
+    send_to_char(sb->data, ch);
 
 alist_cleanup:
-    free_buf(result);
+    sb_free(sb);
     free_mem(alist, alist_size);
     return;
 }
