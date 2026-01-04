@@ -283,23 +283,28 @@ static int test_recipe_ingredients()
 static int test_recipe_lookup_by_name()
 {
     // Create recipes with names using mock helper
-    Recipe* r1 = mock_recipe("leather strips", 80010);
+    // Use unique names that won't collide with real recipes
+    Recipe* r1 = mock_recipe("xyzzy alpha", 80010);
     r1->product_vnum = 70100;
     
-    Recipe* r2 = mock_recipe("iron ingot", 80011);
+    Recipe* r2 = mock_recipe("xyzzy beta", 80011);
     r2->product_vnum = 70101;
     
     // Exact match
-    Recipe* found = get_recipe_by_name("leather strips");
+    Recipe* found = get_recipe_by_name("xyzzy alpha");
     ASSERT(found == r1);
     
-    // Prefix match
-    found = get_recipe_by_name("iron");
+    // Exact match on second recipe
+    found = get_recipe_by_name("xyzzy beta");
     ASSERT(found == r2);
     
     // Case-insensitive
-    found = get_recipe_by_name("LEATHER STRIPS");
+    found = get_recipe_by_name("XYZZY ALPHA");
     ASSERT(found == r1);
+    
+    // Prefix match - "xyzzy" should find one of our recipes
+    found = get_recipe_by_name("xyzzy");
+    ASSERT(found == r1 || found == r2);
     
     // Clean up - remove from global table
     remove_recipe(80010);
@@ -3341,6 +3346,104 @@ static int test_starter_workstations_master_forge_bonus()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Issue #34: Starter Recipe Objects
+////////////////////////////////////////////////////////////////////////////////
+
+static int test_starter_recipes_exist()
+{
+    // Verify all starter recipe VNUMs exist
+    VNUM recipe_vnums[] = {
+        301, 302, 303, 304,  // Leatherworking chain
+        311, 312,            // Cooking chain
+        321, 322, 323        // Blacksmithing chain
+    };
+    
+    for (size_t i = 0; i < sizeof(recipe_vnums) / sizeof(VNUM); i++) {
+        Recipe* recipe = get_recipe(recipe_vnums[i]);
+        ASSERT(recipe != NULL);
+    }
+    
+    return 0;
+}
+
+static int test_starter_recipes_valid_inputs()
+{
+    // Verify recipe inputs reference valid material objects
+    Recipe* tan_hide = get_recipe(301);
+    ASSERT(tan_hide != NULL);
+    ASSERT(tan_hide->ingredient_count > 0);
+    
+    // First ingredient should be raw hide (101)
+    ASSERT(tan_hide->ingredients[0].mat_vnum == 101);
+    ObjPrototype* mat = get_object_prototype(101);
+    ASSERT(mat != NULL);
+    
+    return 0;
+}
+
+static int test_starter_recipes_valid_outputs()
+{
+    // Verify recipe outputs reference valid objects
+    Recipe* tan_hide = get_recipe(301);
+    ASSERT(tan_hide != NULL);
+    ASSERT(tan_hide->product_vnum == 102);  // leather
+    ObjPrototype* output = get_object_prototype(102);
+    ASSERT(output != NULL);
+    
+    Recipe* iron_dagger = get_recipe(322);
+    ASSERT(iron_dagger != NULL);
+    ASSERT(iron_dagger->product_vnum == 411);  // iron dagger
+    output = get_object_prototype(411);
+    ASSERT(output != NULL);
+    
+    return 0;
+}
+
+static int test_starter_recipes_chain()
+{
+    // Verify output of one recipe is input of next
+    // tan hide (301) outputs leather (102)
+    // cut strips (302) inputs leather (102)
+    Recipe* tan_hide = get_recipe(301);
+    Recipe* cut_strips = get_recipe(302);
+    
+    ASSERT(tan_hide != NULL);
+    ASSERT(cut_strips != NULL);
+    
+    // tan_hide outputs leather (102)
+    ASSERT(tan_hide->product_vnum == 102);
+    
+    // cut_strips takes leather (102) as input
+    bool found_leather = false;
+    for (int i = 0; i < cut_strips->ingredient_count; i++) {
+        if (cut_strips->ingredients[i].mat_vnum == 102) {
+            found_leather = true;
+            break;
+        }
+    }
+    ASSERT(found_leather);
+    
+    return 0;
+}
+
+static int test_starter_recipes_discovery()
+{
+    // Verify all starter recipes are DISC_KNOWN (default)
+    VNUM recipe_vnums[] = {
+        301, 302, 303, 304, 311, 312, 321, 322, 323
+    };
+    
+    for (size_t i = 0; i < sizeof(recipe_vnums) / sizeof(VNUM); i++) {
+        Recipe* recipe = get_recipe(recipe_vnums[i]);
+        ASSERT_OR_GOTO(recipe != NULL, test_end);
+        ASSERT(recipe->discovery == DISC_KNOWN);
+    }
+    
+test_end:
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Test Registration
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -3530,6 +3633,13 @@ void register_craft_tests()
     REGISTER("StarterWork: Item Type", test_starter_workstations_item_type);
     REGISTER("StarterWork: Station Type", test_starter_workstations_station_type);
     REGISTER("StarterWork: Master Bonus", test_starter_workstations_master_forge_bonus);
+    
+    // Issue #34: Starter Recipe Objects
+    REGISTER("StarterRecipe: Exist", test_starter_recipes_exist);
+    REGISTER("StarterRecipe: Valid Inputs", test_starter_recipes_valid_inputs);
+    REGISTER("StarterRecipe: Valid Outputs", test_starter_recipes_valid_outputs);
+    REGISTER("StarterRecipe: Chain", test_starter_recipes_chain);
+    REGISTER("StarterRecipe: Discovery", test_starter_recipes_discovery);
 
 #undef REGISTER
 }

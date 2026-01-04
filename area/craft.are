@@ -257,6 +257,46 @@ iron~
 workstation 0 0
 AB 5 0 0 0
 40 400 5000 P
+#401
+cap leather~
+a leather cap~
+A simple leather cap lies here.~
+leather~
+armor 0 AE
+1 1 1 0 0
+5 3 50 P
+#402
+vest leather~
+a leather vest~
+A sturdy leather vest lies here.~
+leather~
+armor 0 AD
+2 2 2 0 0
+10 8 150 P
+#411
+dagger iron~
+an iron dagger~
+A simple iron dagger lies here.~
+iron~
+weapon 0 AN
+dagger 1 4 'stab' 0
+5 4 75 P
+#412
+sword iron~
+an iron sword~
+A sturdy iron sword lies here.~
+iron~
+weapon 0 AN
+sword 2 6 'slash' 0
+10 10 200 P
+#421
+rations trail~
+some trail rations~
+A bundle of trail rations lies here.~
+food~
+food 0 A
+24 10 0 0 0
+5 2 25 P
 #0
 
 
@@ -284,4 +324,79 @@ S
 #MOBPROGS
 #0
 
+#RECIPES
+recipe 301 tan hide~
+skill leatherworking 1
+station tannery 0
+input 101 1
+output 102 1
+end
+
+recipe 302 cut strips~
+skill leatherworking 1
+station tannery 0
+input 102 1
+output 103 3
+end
+
+recipe 303 leather cap~
+skill leatherworking 10
+level 5
+station tannery 0
+input 102 1
+input 103 1
+output 401 1
+end
+
+recipe 304 leather vest~
+skill leatherworking 20
+level 10
+station tannery 0
+input 102 2
+input 103 1
+output 402 1
+end
+
+recipe 311 cook meat~
+skill cooking 1
+station cooking 0
+input 104 1
+output 105 1
+end
+
+recipe 312 trail rations~
+skill cooking 10
+level 5
+station cooking 0
+input 105 1
+input 120 1
+output 421 1
+end
+
+recipe 321 smelt iron~
+skill blacksmithing 1
+station smelter 0
+input 108 2
+output 112 1
+end
+
+recipe 322 iron dagger~
+skill blacksmithing 10
+level 5
+station forge 0
+input 112 1
+output 411 1
+end
+
+recipe 323 iron sword~
+skill blacksmithing 20
+level 10
+station forge 0
+input 112 2
+output 412 1
+end
+
+#ENDRECIPES
+
 #$
+
