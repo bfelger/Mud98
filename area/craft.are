@@ -1,13 +1,12 @@
 #AREADATA
 Version 3
-Name Crafting Materials~
+Name Mud98 Crafting~
 Builders Mud98~
-VNUMs 8500 8599
-Credits Mud98 Crafting System~
+VNUMs 100 599
+Credits Mud98~
 Security 9
 Low 1
 High 60
-InstType 0
 End
 
 
@@ -18,7 +17,7 @@ End
 
 
 #OBJECTS
-#8501
+#101
 hide raw~
 a raw hide~
 A raw animal hide lies here.~
@@ -26,8 +25,7 @@ organic~
 material 0 A
 1 1 0 0 0
 5 5 10 P
-
-#8502
+#102
 leather tanned~
 a piece of leather~
 A piece of tanned leather lies here.~
@@ -35,8 +33,7 @@ leather~
 material 0 A
 2 1 0 0 0
 10 4 25 P
-
-#8503
+#103
 leather strips~
 some leather strips~
 Some leather strips lie here.~
@@ -44,8 +41,7 @@ leather~
 material 0 A
 2 1 0 0 0
 15 2 15 P
-
-#8504
+#104
 meat raw~
 a chunk of raw meat~
 A chunk of raw meat lies here.~
@@ -53,8 +49,7 @@ food~
 material 0 A
 6 1 0 0 0
 5 3 5 P
-
-#8505
+#105
 meat cooked~
 a piece of cooked meat~
 A piece of cooked meat lies here.~
@@ -62,8 +57,7 @@ food~
 material 0 A
 6 1 0 0 0
 5 2 10 P
-
-#8506
+#106
 ore copper~
 a chunk of copper ore~
 A chunk of copper ore lies here.~
@@ -71,8 +65,7 @@ copper~
 material 0 A
 7 1 0 0 0
 5 8 15 P
-
-#8507
+#107
 ore tin~
 a chunk of tin ore~
 A chunk of tin ore lies here.~
@@ -80,8 +73,7 @@ tin~
 material 0 A
 7 1 0 0 0
 15 8 20 P
-
-#8508
+#108
 ore iron~
 a chunk of iron ore~
 A chunk of iron ore lies here.~
@@ -89,8 +81,7 @@ iron~
 material 0 A
 7 1 0 0 0
 25 10 30 P
-
-#8509
+#109
 ingot copper~
 a copper ingot~
 A copper ingot lies here.~
@@ -98,8 +89,7 @@ copper~
 material 0 A
 8 1 0 0 0
 5 6 40 P
-
-#8510
+#110
 ingot tin~
 a tin ingot~
 A tin ingot lies here.~
@@ -107,8 +97,7 @@ tin~
 material 0 A
 8 1 0 0 0
 15 6 50 P
-
-#8511
+#111
 ingot bronze~
 a bronze ingot~
 A bronze ingot lies here.~
@@ -116,8 +105,7 @@ bronze~
 material 0 A
 8 1 0 0 0
 15 7 75 P
-
-#8512
+#112
 ingot iron~
 an iron ingot~
 An iron ingot lies here.~
@@ -125,8 +113,7 @@ iron~
 material 0 A
 8 1 0 0 0
 25 8 100 P
-
-#8513
+#113
 flax raw~
 a bundle of raw flax~
 A bundle of raw flax lies here.~
@@ -134,8 +121,7 @@ organic~
 material 0 A
 12 1 0 0 0
 5 2 8 P
-
-#8514
+#114
 linen scraps~
 some linen scraps~
 Some linen scraps lie here.~
@@ -143,8 +129,7 @@ cloth~
 material 0 A
 10 1 0 0 0
 5 1 5 P
-
-#8515
+#115
 linen fabric~
 a piece of linen fabric~
 A piece of linen fabric lies here.~
@@ -152,8 +137,7 @@ cloth~
 material 0 A
 10 1 0 0 0
 5 2 20 P
-
-#8516
+#116
 wool raw~
 a bundle of raw wool~
 A bundle of raw wool lies here.~
@@ -161,8 +145,7 @@ wool~
 material 0 A
 1 1 0 0 0
 15 3 12 P
-
-#8517
+#117
 wool fabric~
 a piece of wool fabric~
 A piece of wool fabric lies here.~
@@ -170,8 +153,7 @@ wool~
 material 0 A
 10 1 0 0 0
 15 2 35 P
-
-#8518
+#118
 cotton scraps~
 some cotton scraps~
 Some cotton scraps lie here.~
@@ -179,8 +161,7 @@ cloth~
 material 0 A
 10 1 0 0 0
 25 1 8 P
-
-#8519
+#119
 cotton fabric~
 a piece of cotton fabric~
 A piece of cotton fabric lies here.~
@@ -188,8 +169,7 @@ cloth~
 material 0 A
 10 1 0 0 0
 25 2 45 P
-
-#8520
+#120
 herbs medicinal~
 a bundle of medicinal herbs~
 A bundle of medicinal herbs lies here.~
@@ -197,13 +177,17 @@ organic~
 material 0 A
 12 1 0 0 0
 5 1 15 P
-
 #0
 
 
 
 #ROOMS
 #0
+
+
+
+#SPECIALS
+S
 
 
 
@@ -217,10 +201,7 @@ S
 
 
 
-#SPECIALS
-S
-
-
+#MOBPROGS
+#0
 
 #$
-

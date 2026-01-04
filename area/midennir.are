@@ -1,5 +1,5 @@
 #AREADATA
-Version 2
+Version 3
 Name Miden'nir~
 Builders ~
 VNUMs 3500 3599
@@ -187,7 +187,7 @@ an enchanted leather bracer~
 A leather bracer with mystic symbols sits here.~
 leather~
 armor 0 AM
-2 4 4 2 0
+2 4 4 2 2
 7 10 690 G
 A
 18 1
@@ -764,7 +764,7 @@ D0
 You see a faint trail, covered with tiny footprints. The singing grows louder.
 ~
 ~
-0 -1 101
+0 -1 1801
 D1
 The road continues to the east.
 ~

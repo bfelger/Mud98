@@ -249,6 +249,7 @@ DECLARE_OLC_FUN(aedit_security);
 DECLARE_OLC_FUN(aedit_builder);
 DECLARE_OLC_FUN(aedit_levels);
 DECLARE_OLC_FUN(aedit_vnums);
+DECLARE_OLC_FUN(aedit_movevnums);
 DECLARE_OLC_FUN(aedit_lvnum);
 DECLARE_OLC_FUN(aedit_uvnum);
 DECLARE_OLC_FUN(aedit_lowrange);

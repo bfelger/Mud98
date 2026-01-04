@@ -3208,8 +3208,8 @@ static int test_starter_materials_exist()
 {
     // Verify all starter material VNUMs exist
     VNUM material_vnums[] = {
-        8501, 8502, 8503, 8504, 8505, 8506, 8507, 8508, 8509, 8510,
-        8511, 8512, 8513, 8514, 8515, 8516, 8517, 8518, 8519, 8520
+        101, 102, 103, 104, 105, 106, 107, 108, 109, 110,
+        111, 112, 113, 114, 115, 116, 117, 118, 119, 120
     };
     
     for (size_t i = 0; i < sizeof(material_vnums) / sizeof(VNUM); i++) {
@@ -3224,16 +3224,17 @@ static int test_starter_materials_item_type()
 {
     // Verify all starter materials are ITEM_MAT type
     VNUM material_vnums[] = {
-        8501, 8502, 8503, 8504, 8505, 8506, 8507, 8508, 8509, 8510,
-        8511, 8512, 8513, 8514, 8515, 8516, 8517, 8518, 8519, 8520
+        101, 102, 103, 104, 105, 106, 107, 108, 109, 110,
+        111, 112, 113, 114, 115, 116, 117, 118, 119, 120
     };
     
     for (size_t i = 0; i < sizeof(material_vnums) / sizeof(VNUM); i++) {
         ObjPrototype* proto = get_object_prototype(material_vnums[i]);
-        ASSERT(proto != NULL);
+        ASSERT_OR_GOTO(proto != NULL, test_end);
         ASSERT(proto->item_type == ITEM_MAT);
     }
     
+test_end:
     return 0;
 }
 
@@ -3241,28 +3242,29 @@ static int test_starter_materials_mat_type()
 {
     // Verify materials have correct CraftMatType in value[0]
     struct { VNUM vnum; CraftMatType expected; } checks[] = {
-        { 8501, MAT_HIDE },      // raw hide
-        { 8502, MAT_LEATHER },   // leather
-        { 8503, MAT_LEATHER },   // leather strips
-        { 8504, MAT_MEAT },      // raw meat
-        { 8505, MAT_MEAT },      // cooked meat
-        { 8506, MAT_ORE },       // copper ore
-        { 8508, MAT_ORE },       // iron ore
-        { 8509, MAT_INGOT },     // copper ingot
-        { 8512, MAT_INGOT },     // iron ingot
-        { 8513, MAT_HERB },      // raw flax
-        { 8514, MAT_CLOTH },     // linen scraps
-        { 8516, MAT_HIDE },      // raw wool (MAT_HIDE for skinning)
-        { 8517, MAT_CLOTH },     // wool fabric
-        { 8520, MAT_HERB },      // herbs
+        { 101, MAT_HIDE },      // raw hide
+        { 102, MAT_LEATHER },   // leather
+        { 103, MAT_LEATHER },   // leather strips
+        { 104, MAT_MEAT },      // raw meat
+        { 105, MAT_MEAT },      // cooked meat
+        { 106, MAT_ORE },       // copper ore
+        { 108, MAT_ORE },       // iron ore
+        { 109, MAT_INGOT },     // copper ingot
+        { 112, MAT_INGOT },     // iron ingot
+        { 113, MAT_HERB },      // raw flax
+        { 114, MAT_CLOTH },     // linen scraps
+        { 116, MAT_HIDE },      // raw wool (MAT_HIDE for skinning)
+        { 117, MAT_CLOTH },     // wool fabric
+        { 120, MAT_HERB },      // herbs
     };
     
     for (size_t i = 0; i < sizeof(checks) / sizeof(checks[0]); i++) {
         ObjPrototype* proto = get_object_prototype(checks[i].vnum);
-        ASSERT(proto != NULL);
+        ASSERT_OR_GOTO(proto != NULL, test_end);
         ASSERT(proto->value[0] == (int)checks[i].expected);
     }
-    
+
+test_end:    
     return 0;
 }
 
