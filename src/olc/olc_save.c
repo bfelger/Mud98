@@ -563,6 +563,26 @@ void save_object(FILE* fp, ObjPrototype* obj_proto)
             skill_table[obj_proto->value[3]].name
             : "");
         break;
+
+    case ITEM_MAT:
+        // Crafting material: mat_type amount quality unused unused
+        fprintf(fp, "%d %d %d %d %d\n",
+            obj_proto->craft_mat.mat_type,
+            obj_proto->craft_mat.amount,
+            obj_proto->craft_mat.quality,
+            obj_proto->craft_mat.unused3,
+            obj_proto->craft_mat.unused4);
+        break;
+
+    case ITEM_WORKSTATION:
+        // Workstation: station_flags bonus unused unused unused
+        fprintf(fp, "%d %d %d %d %d\n",
+            obj_proto->workstation.station_flags,
+            obj_proto->workstation.bonus,
+            obj_proto->workstation.unused2,
+            obj_proto->workstation.unused3,
+            obj_proto->workstation.unused4);
+        break;
     }
 
     fprintf(fp, "%d ", obj_proto->level);

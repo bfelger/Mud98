@@ -242,6 +242,22 @@ void load_objects(FILE* fp)
             obj_proto->value[3] = skill_lookup(fread_word(fp));
             obj_proto->value[4] = skill_lookup(fread_word(fp));
             break;
+        case ITEM_MAT:
+            // Crafting material: mat_type amount quality unused unused
+            obj_proto->craft_mat.mat_type = fread_number(fp);
+            obj_proto->craft_mat.amount = fread_number(fp);
+            obj_proto->craft_mat.quality = fread_number(fp);
+            obj_proto->craft_mat.unused3 = fread_number(fp);
+            obj_proto->craft_mat.unused4 = fread_number(fp);
+            break;
+        case ITEM_WORKSTATION:
+            // Workstation: station_flags bonus unused unused unused
+            obj_proto->workstation.station_flags = fread_number(fp);
+            obj_proto->workstation.bonus = fread_number(fp);
+            obj_proto->workstation.unused2 = fread_number(fp);
+            obj_proto->workstation.unused3 = fread_number(fp);
+            obj_proto->workstation.unused4 = fread_number(fp);
+            break;
         default:
             obj_proto->value[0] = fread_flag(fp);
             obj_proto->value[1] = fread_flag(fp);

@@ -375,7 +375,7 @@ static int test_dual_wield_attack()
     mock_skill(attacker, gsn_dual_wield, 100);
     
     // Equip offhand weapon with high damage
-    Object* offhand = mock_sword("offhand dagger blade", 100, 10, 5, 10);
+    Object* offhand = mock_sword("offhand dagger blade", 99100, 10, 5, 10);
     obj_to_char(offhand, attacker);
     equip_char(attacker, offhand, WEAR_WIELD_OH);
     
@@ -420,7 +420,7 @@ static int test_dual_wield_with_slow()
     transfer_mob(victim, room);
     
     // Give main hand weapon
-    Object* mainhand = mock_sword("iron sword blade", 100, 10, 2, 5);
+    Object* mainhand = mock_sword("iron sword blade", 99100, 10, 2, 5);
     obj_to_char(mainhand, attacker);
     equip_char(attacker, mainhand, WEAR_WIELD);
     
@@ -428,7 +428,7 @@ static int test_dual_wield_with_slow()
     mock_skill(attacker, gsn_dual_wield, 100);
     
     // Equip offhand weapon
-    Object* offhand = mock_sword("offhand sword blade", 101, 10, 2, 4);
+    Object* offhand = mock_sword("offhand sword blade", 99101, 10, 2, 4);
     obj_to_char(offhand, attacker);
     equip_char(attacker, offhand, WEAR_WIELD_OH);
     
