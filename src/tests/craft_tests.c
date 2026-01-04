@@ -3269,6 +3269,78 @@ test_end:
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Issue #33: Starter Workstation Objects
+////////////////////////////////////////////////////////////////////////////////
+
+static int test_starter_workstations_exist()
+{
+    // Verify all starter workstation VNUMs exist
+    VNUM workstation_vnums[] = {
+        201, 202, 203, 204, 205, 206, 207, 208, 209, 210
+    };
+    
+    for (size_t i = 0; i < sizeof(workstation_vnums) / sizeof(VNUM); i++) {
+        ObjPrototype* proto = get_object_prototype(workstation_vnums[i]);
+        ASSERT(proto != NULL);
+    }
+    
+    return 0;
+}
+
+static int test_starter_workstations_item_type()
+{
+    // Verify all starter workstations are ITEM_WORKSTATION type
+    VNUM workstation_vnums[] = {
+        201, 202, 203, 204, 205, 206, 207, 208, 209, 210
+    };
+    
+    for (size_t i = 0; i < sizeof(workstation_vnums) / sizeof(VNUM); i++) {
+        ObjPrototype* proto = get_object_prototype(workstation_vnums[i]);
+        ASSERT_OR_GOTO(proto != NULL, test_end);
+        ASSERT(proto->item_type == ITEM_WORKSTATION);
+    }
+    
+test_end:
+    return 0;
+}
+
+static int test_starter_workstations_station_type()
+{
+    // Verify workstations have correct WorkstationType in value[0]
+    struct { VNUM vnum; WorkstationType expected; } checks[] = {
+        { 201, WORK_TANNERY },   // tanning rack
+        { 202, WORK_FORGE },     // blacksmith forge
+        { 203, WORK_COOKING },   // cooking fire
+        { 204, WORK_ALCHEMY },   // alchemy bench
+        { 205, WORK_ENCHANT },   // enchanting circle
+        { 206, WORK_WOODWORK },  // woodworking bench
+        { 207, WORK_JEWELER },   // jeweler's table
+        { 208, WORK_LOOM },      // sewing table
+        { 209, WORK_SMELTER },   // smelter
+        { 210, WORK_FORGE | WORK_SMELTER },  // master forge (combo)
+    };
+    
+    for (size_t i = 0; i < sizeof(checks) / sizeof(checks[0]); i++) {
+        ObjPrototype* proto = get_object_prototype(checks[i].vnum);
+        ASSERT_OR_GOTO(proto != NULL, test_end);
+        ASSERT(proto->value[0] == (int)checks[i].expected);
+    }
+
+test_end:    
+    return 0;
+}
+
+static int test_starter_workstations_master_forge_bonus()
+{
+    // Verify master forge (210) has a crafting bonus
+    ObjPrototype* proto = get_object_prototype(210);
+    ASSERT(proto != NULL);
+    ASSERT(proto->value[1] > 0);  // bonus field should be non-zero
+    
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Test Registration
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -3452,6 +3524,12 @@ void register_craft_tests()
     REGISTER("StarterMats: Exist", test_starter_materials_exist);
     REGISTER("StarterMats: Item Type", test_starter_materials_item_type);
     REGISTER("StarterMats: Mat Type", test_starter_materials_mat_type);
+    
+    // Issue #33: Starter Workstation Objects
+    REGISTER("StarterWork: Exist", test_starter_workstations_exist);
+    REGISTER("StarterWork: Item Type", test_starter_workstations_item_type);
+    REGISTER("StarterWork: Station Type", test_starter_workstations_station_type);
+    REGISTER("StarterWork: Master Bonus", test_starter_workstations_master_forge_bonus);
 
 #undef REGISTER
 }
