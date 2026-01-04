@@ -455,6 +455,27 @@
         "faerie fog",
         "lightning bolt"
       ]
+    },
+    {
+      "name": "crafting",
+      "ratings": {
+        "mage": 20,
+        "cleric": 20,
+        "thief": 20,
+        "warrior": 20
+      },
+      "skills": [
+        "skinning",
+        "butchering",
+        "leatherworking",
+        "blacksmithing",
+        "tailoring",
+        "alchemy",
+        "cooking",
+        "jewelcraft",
+        "woodworking",
+        "enchanting"
+      ]
     }
   ]
 }

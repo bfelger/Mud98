@@ -2521,6 +2521,15 @@ show undef~
 #END
 
 #COMMAND
+name recedit~
+do_fun do_recedit~
+position dead~
+level 54
+log log_always~
+show undef~
+#END
+
+#COMMAND
 name recipes~
 do_fun do_recipes~
 position resting~
