@@ -3444,6 +3444,264 @@ test_end:
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Issue #36: Auto-derive craft_mats from form flags
+////////////////////////////////////////////////////////////////////////////////
+
+// Test that mammal corpses auto-derive hide and meat
+static int test_corpse_derive_mammal()
+{
+    Room* room = mock_room(95001, NULL, NULL);
+    ASSERT(room != NULL);
+    
+    // Create a mob prototype WITHOUT explicit craft_mats
+    MobPrototype* mp = mock_mob_proto(95001);
+    ASSERT(mp != NULL);
+    mp->craft_mats = NULL;
+    mp->craft_mat_count = 0;
+    
+    // Create mob from prototype with mammal form
+    Mobile* mob = create_mobile(mp);
+    ASSERT(mob != NULL);
+    mob->form = FORM_MAMMAL | FORM_EDIBLE;  // e.g., a deer
+    
+    transfer_mob(mob, room);
+    make_corpse(mob);
+    
+    // Find the corpse
+    Object* corpse = NULL;
+    Object* obj = NULL;
+    FOR_EACH_ROOM_OBJ(obj, room) {
+        if (obj->item_type == ITEM_CORPSE_NPC) {
+            corpse = obj;
+            break;
+        }
+    }
+    ASSERT(corpse != NULL);
+    
+    // Mammals with FORM_EDIBLE should yield hide + meat
+    ASSERT(corpse->craft_mat_count == 2);
+    ASSERT(corpse->craft_mats != NULL);
+    ASSERT(corpse->craft_mats[0] == 101);  // raw hide
+    ASSERT(corpse->craft_mats[1] == 104);  // raw meat
+    
+    return 0;
+}
+
+// Test that bird corpses auto-derive meat only (if edible)
+static int test_corpse_derive_bird()
+{
+    Room* room = mock_room(95002, NULL, NULL);
+    ASSERT(room != NULL);
+    
+    MobPrototype* mp = mock_mob_proto(95002);
+    ASSERT(mp != NULL);
+    mp->craft_mats = NULL;
+    mp->craft_mat_count = 0;
+    
+    Mobile* mob = create_mobile(mp);
+    ASSERT(mob != NULL);
+    mob->form = FORM_BIRD | FORM_EDIBLE;  // e.g., a chicken
+    
+    transfer_mob(mob, room);
+    make_corpse(mob);
+    
+    Object* corpse = NULL;
+    Object* obj = NULL;
+    FOR_EACH_ROOM_OBJ(obj, room) {
+        if (obj->item_type == ITEM_CORPSE_NPC) {
+            corpse = obj;
+            break;
+        }
+    }
+    ASSERT(corpse != NULL);
+    
+    // Birds yield meat only (no hide)
+    ASSERT(corpse->craft_mat_count == 1);
+    ASSERT(corpse->craft_mats != NULL);
+    ASSERT(corpse->craft_mats[0] == 104);  // raw meat
+    
+    return 0;
+}
+
+// Test that reptile corpses auto-derive meat (if edible)
+static int test_corpse_derive_reptile()
+{
+    Room* room = mock_room(95003, NULL, NULL);
+    ASSERT(room != NULL);
+    
+    MobPrototype* mp = mock_mob_proto(95003);
+    ASSERT(mp != NULL);
+    mp->craft_mats = NULL;
+    mp->craft_mat_count = 0;
+    
+    Mobile* mob = create_mobile(mp);
+    ASSERT(mob != NULL);
+    mob->form = FORM_REPTILE | FORM_EDIBLE;  // e.g., a lizard
+    
+    transfer_mob(mob, room);
+    make_corpse(mob);
+    
+    Object* corpse = NULL;
+    Object* obj = NULL;
+    FOR_EACH_ROOM_OBJ(obj, room) {
+        if (obj->item_type == ITEM_CORPSE_NPC) {
+            corpse = obj;
+            break;
+        }
+    }
+    ASSERT(corpse != NULL);
+    
+    ASSERT(corpse->craft_mat_count == 1);
+    ASSERT(corpse->craft_mats != NULL);
+    ASSERT(corpse->craft_mats[0] == 104);  // raw meat
+    
+    return 0;
+}
+
+// Test that explicit craft_mats override auto-derivation
+static int test_corpse_derive_override()
+{
+    Room* room = mock_room(95004, NULL, NULL);
+    ASSERT(room != NULL);
+    
+    // Create a mob prototype WITH explicit craft_mats
+    MobPrototype* mp = mock_mob_proto(95004);
+    ASSERT(mp != NULL);
+    mp->craft_mat_count = 1;
+    mp->craft_mats = malloc(sizeof(VNUM) * 1);
+    mp->craft_mats[0] = 108;  // iron ore (for a special creature)
+    
+    // Create mob from prototype with mammal form
+    Mobile* mob = create_mobile(mp);
+    ASSERT(mob != NULL);
+    mob->form = FORM_MAMMAL | FORM_EDIBLE;  // would normally yield hide + meat
+    
+    transfer_mob(mob, room);
+    make_corpse(mob);
+    
+    Object* corpse = NULL;
+    Object* obj = NULL;
+    FOR_EACH_ROOM_OBJ(obj, room) {
+        if (obj->item_type == ITEM_CORPSE_NPC) {
+            corpse = obj;
+            break;
+        }
+    }
+    ASSERT(corpse != NULL);
+    
+    // Explicit craft_mats should override, not auto-derive
+    ASSERT(corpse->craft_mat_count == 1);
+    ASSERT(corpse->craft_mats != NULL);
+    ASSERT(corpse->craft_mats[0] == 108);  // iron ore, not hide/meat
+    
+    return 0;
+}
+
+// Test that non-edible creatures don't yield meat
+static int test_corpse_derive_non_edible()
+{
+    Room* room = mock_room(95005, NULL, NULL);
+    ASSERT(room != NULL);
+    
+    MobPrototype* mp = mock_mob_proto(95005);
+    ASSERT(mp != NULL);
+    mp->craft_mats = NULL;
+    mp->craft_mat_count = 0;
+    
+    Mobile* mob = create_mobile(mp);
+    ASSERT(mob != NULL);
+    mob->form = FORM_BIRD;  // Bird without FORM_EDIBLE
+    
+    transfer_mob(mob, room);
+    make_corpse(mob);
+    
+    Object* corpse = NULL;
+    Object* obj = NULL;
+    FOR_EACH_ROOM_OBJ(obj, room) {
+        if (obj->item_type == ITEM_CORPSE_NPC) {
+            corpse = obj;
+            break;
+        }
+    }
+    ASSERT(corpse != NULL);
+    
+    // Non-edible bird should yield nothing
+    ASSERT(corpse->craft_mat_count == 0);
+    
+    return 0;
+}
+
+// Test that mobs with no relevant form flags yield nothing
+static int test_corpse_derive_no_form()
+{
+    Room* room = mock_room(95006, NULL, NULL);
+    ASSERT(room != NULL);
+    
+    MobPrototype* mp = mock_mob_proto(95006);
+    ASSERT(mp != NULL);
+    mp->craft_mats = NULL;
+    mp->craft_mat_count = 0;
+    
+    Mobile* mob = create_mobile(mp);
+    ASSERT(mob != NULL);
+    mob->form = 0;  // No form flags at all
+    
+    transfer_mob(mob, room);
+    make_corpse(mob);
+    
+    Object* corpse = NULL;
+    Object* obj = NULL;
+    FOR_EACH_ROOM_OBJ(obj, room) {
+        if (obj->item_type == ITEM_CORPSE_NPC) {
+            corpse = obj;
+            break;
+        }
+    }
+    ASSERT(corpse != NULL);
+    
+    // No form flags = no materials
+    ASSERT(corpse->craft_mat_count == 0);
+    
+    return 0;
+}
+
+// Test that FORM_EDIBLE alone yields meat
+static int test_corpse_derive_edible_only()
+{
+    Room* room = mock_room(95007, NULL, NULL);
+    ASSERT(room != NULL);
+    
+    MobPrototype* mp = mock_mob_proto(95007);
+    ASSERT(mp != NULL);
+    mp->craft_mats = NULL;
+    mp->craft_mat_count = 0;
+    
+    Mobile* mob = create_mobile(mp);
+    ASSERT(mob != NULL);
+    mob->form = FORM_EDIBLE;  // Edible but not a specific animal type
+    
+    transfer_mob(mob, room);
+    make_corpse(mob);
+    
+    Object* corpse = NULL;
+    Object* obj = NULL;
+    FOR_EACH_ROOM_OBJ(obj, room) {
+        if (obj->item_type == ITEM_CORPSE_NPC) {
+            corpse = obj;
+            break;
+        }
+    }
+    ASSERT(corpse != NULL);
+    
+    // Just FORM_EDIBLE should yield meat
+    ASSERT(corpse->craft_mat_count == 1);
+    ASSERT(corpse->craft_mats != NULL);
+    ASSERT(corpse->craft_mats[0] == 104);  // raw meat
+    
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Test Registration
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -3640,6 +3898,15 @@ void register_craft_tests()
     REGISTER("StarterRecipe: Valid Outputs", test_starter_recipes_valid_outputs);
     REGISTER("StarterRecipe: Chain", test_starter_recipes_chain);
     REGISTER("StarterRecipe: Discovery", test_starter_recipes_discovery);
+    
+    // Issue #36: Auto-derive craft_mats from form flags
+    REGISTER("CorpseDerive: Mammal", test_corpse_derive_mammal);
+    REGISTER("CorpseDerive: Bird", test_corpse_derive_bird);
+    REGISTER("CorpseDerive: Reptile", test_corpse_derive_reptile);
+    REGISTER("CorpseDerive: Override", test_corpse_derive_override);
+    REGISTER("CorpseDerive: Non Edible", test_corpse_derive_non_edible);
+    REGISTER("CorpseDerive: No Form", test_corpse_derive_no_form);
+    REGISTER("CorpseDerive: Edible Only", test_corpse_derive_edible_only);
 
 #undef REGISTER
 }
