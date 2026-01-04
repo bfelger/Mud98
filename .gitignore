@@ -40,6 +40,9 @@ src/.build-clang/*
 test_output.txt
 .vscode/settings.json
 
+# Planning documents
+doc/planning/*
+
 # Python
 __pycache__/
 *.pyc

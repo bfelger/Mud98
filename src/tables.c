@@ -36,6 +36,7 @@
 
 #include <data/damage.h>
 #include <data/events.h>
+#include <data/item.h>
 #include <data/mobile_data.h>
 #include <data/skill.h>
 
@@ -413,6 +414,8 @@ const struct flag_type type_flag_table[] = {
     { "gem",            ITEM_GEM,           true    },
     { "jewelry",        ITEM_JEWELRY,       true    },
     { "jukebox",        ITEM_JUKEBOX,       true    },
+    { "material",       ITEM_MAT,           true    },
+    { "workstation",    ITEM_WORKSTATION,   true    },
     { NULL,             0,                  0       }
 };
 

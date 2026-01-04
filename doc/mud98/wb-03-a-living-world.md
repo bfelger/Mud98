@@ -93,4 +93,4 @@ make out a path leading east.
 @
 ```
 
-Now we have a _third_ room description; one that can only be seen between 19:00 and 19:59 in the evening..
+Now we have a _third_ room description; one that can only be seen between 19:00 and 19:59 in the evening.

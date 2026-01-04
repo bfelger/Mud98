@@ -14,6 +14,10 @@ Mud98 isn't a MUD; it's a codebase. These docs outline how to take Mud98 and, wi
     Create your new world starting with the beginning: by crafting new starting zones by race or class, and build a narrative introductory experience or new players. Wire up events with the Lox scripting language.
    - [Click here](wb-02-new-beginnings-old.md) for the "legacy" version, using MobProgs instead of Lox. This version is still valid and working _(albeit a little complicated with all the invisible "triggerbots")_.
 
+## Crafting
+- [Player's Guide to Crafting](crafting.md)
+- [Builder's Guide to Crafting](crafting-olc.md)
+
 ## Engineering reference
 
 - [Project Map](project-map.md): Repo layout, build/run/test at a glance.

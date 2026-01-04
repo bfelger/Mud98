@@ -11,7 +11,6 @@
       - [Pthreads library (Linux \& Cygwin only)](#pthreads-library-linux--cygwin-only)
       - [OpenSSL 3.0 or higher](#openssl-30-or-higher)
       - [ZLib (optional)](#zlib-optional)
-      - [Jansson JSON Library (optional)](#jansson-json-library-optional)
     - [Building on Linux and Cygwin](#building-on-linux-and-cygwin)
       - [Configuration](#configuration)
       - [Compilation](#compilation)
