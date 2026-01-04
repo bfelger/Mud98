@@ -260,7 +260,7 @@ COMMAND(do_wizlist)
 COMMAND(do_wiznet)
 COMMAND(do_worth)
 COMMAND(do_yell)
-COMMAND(do_zap)4
+COMMAND(do_zap)
 COMMAND(do_zecho)
 COMMAND(do_olc)
 COMMAND(do_asave)
