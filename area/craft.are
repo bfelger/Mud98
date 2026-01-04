@@ -183,7 +183,7 @@ a tanning rack~
 A sturdy wooden tanning rack stands here.~
 wood~
 workstation 0 0
-4 0 0 0 0
+C 0 0 0 0
 10 50 500 P
 #202
 forge blacksmith~
@@ -191,7 +191,7 @@ a blacksmith's forge~
 A large forge dominates this area, its coals glowing hot.~
 iron~
 workstation 0 0
-1 0 0 0 0
+A 0 0 0 0
 15 200 1000 P
 #203
 fire cooking campfire~
@@ -199,7 +199,7 @@ a cooking fire~
 A cooking fire crackles here, ready for use.~
 fire~
 workstation 0 0
-32 0 0 0 0
+F 0 0 0 0
 5 20 100 P
 #204
 bench alchemy~
@@ -207,7 +207,7 @@ an alchemy bench~
 An alchemy bench covered with vials and burners sits here.~
 wood~
 workstation 0 0
-16 0 0 0 0
+E 0 0 0 0
 20 75 750 P
 #205
 circle enchanting arcane~
@@ -215,7 +215,7 @@ an enchanting circle~
 A glowing arcane circle has been inscribed on the floor here.~
 magic~
 workstation 0 0
-64 0 0 0 0
+G 0 0 0 0
 30 0 2000 P
 #206
 bench woodworking carpentry~
@@ -223,7 +223,7 @@ a woodworking bench~
 A sturdy workbench with tools for woodworking sits here.~
 wood~
 workstation 0 0
-128 0 0 0 0
+H 0 0 0 0
 10 100 600 P
 #207
 table jeweler~
@@ -231,7 +231,7 @@ a jeweler's table~
 A finely crafted jeweler's table with magnifying lenses sits here.~
 wood~
 workstation 0 0
-256 0 0 0 0
+I 0 0 0 0
 25 60 1200 P
 #208
 table sewing tailor~
@@ -239,7 +239,7 @@ a sewing table~
 A sewing table with needles and thread stands ready for use.~
 wood~
 workstation 0 0
-8 0 0 0 0
+D 0 0 0 0
 10 40 400 P
 #209
 smelter ore~
@@ -247,7 +247,7 @@ a smelter~
 A large smelter for processing ore stands here, radiating heat.~
 iron~
 workstation 0 0
-2 0 0 0 0
+B 0 0 0 0
 15 250 1500 P
 #210
 forge master smithy~
@@ -255,7 +255,7 @@ a master forge~
 A magnificent master forge capable of smelting and smithing stands here.~
 iron~
 workstation 0 0
-3 5 0 0 0
+AB 5 0 0 0
 40 400 5000 P
 #0
 

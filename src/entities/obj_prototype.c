@@ -252,7 +252,7 @@ void load_objects(FILE* fp)
             break;
         case ITEM_WORKSTATION:
             // Workstation: station_flags bonus unused unused unused
-            obj_proto->workstation.station_flags = fread_number(fp);
+            obj_proto->workstation.station_flags = fread_flag(fp);
             obj_proto->workstation.bonus = fread_number(fp);
             obj_proto->workstation.unused2 = fread_number(fp);
             obj_proto->workstation.unused3 = fread_number(fp);

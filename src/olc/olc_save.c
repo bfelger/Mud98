@@ -576,8 +576,8 @@ void save_object(FILE* fp, ObjPrototype* obj_proto)
 
     case ITEM_WORKSTATION:
         // Workstation: station_flags bonus unused unused unused
-        fprintf(fp, "%d %d %d %d %d\n",
-            obj_proto->workstation.station_flags,
+        fprintf(fp, "%s %d %d %d %d\n",
+            fwrite_flag(obj_proto->workstation.station_flags, buf),
             obj_proto->workstation.bonus,
             obj_proto->workstation.unused2,
             obj_proto->workstation.unused3,
