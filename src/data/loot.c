@@ -17,6 +17,12 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#if  defined(__GNUC__) || defined(__clang__)
+#  define UNUSED __attribute__((unused))
+#else
+#  define UNUSED /**/
+#endif
+
 extern bool test_output_enabled;
 
 LootDB* global_loot_db = NULL;
@@ -817,6 +823,7 @@ static void print_drops(const LootDrop* out, int n) {
   }
 }
 
+UNUSED
 // Naive test function
 static void test_print() 
 {
@@ -832,6 +839,7 @@ static void test_print()
 
 // Per-area loot support ///////////////////////////////////////////////////////
 
+UNUSED
 static LootDB* loot_db_new()
 {
     LootDB* db = (LootDB*)xrealloc(NULL, sizeof(LootDB));

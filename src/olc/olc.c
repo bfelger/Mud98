@@ -47,6 +47,12 @@
 #include <string.h>
 #include <time.h>
 
+#if  defined(__GNUC__) || defined(__clang__)
+#  define UNUSED __attribute__((unused))
+#else
+#  define UNUSED /**/
+#endif
+
 void UpdateOLCScreen(Descriptor*);
 extern const OlcCmd theme_edit_table[];
 
@@ -725,6 +731,7 @@ bool process_olc_command(Mobile* ch, char* argument, const OlcCmdEntry* table)
     return false;
 }
 
+UNUSED
 static void do_page(Mobile* ch, char* argument)
 {
     int16_t num;

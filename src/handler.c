@@ -65,9 +65,16 @@
 #include <sys/types.h>
 #include <time.h>
 
+#if  defined(__GNUC__) || defined(__clang__)
+#  define UNUSED __attribute__((unused))
+#else
+#  define UNUSED /**/
+#endif
+
 extern bool test_output_enabled;
 
 /* friend stuff -- for NPC's mostly */
+UNUSED
 static bool is_friend(Mobile* ch, Mobile* victim)
 {
     if (is_same_group(ch, victim)) 
@@ -1252,7 +1259,8 @@ int count_obj_list(ObjPrototype* obj_proto, List* list)
         obj_from_char(obj);                                                    \
 }
 
-static void transfer_obj(Object* obj, Room* room)
+UNUSED
+void transfer_obj(Object* obj, Room* room)
 {
     UNPARENT_OBJ(obj);
     obj_to_room(obj, room);
