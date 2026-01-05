@@ -263,7 +263,7 @@ a leather cap~
 A simple leather cap lies here.~
 leather~
 armor 0 AE
-1 1 1 0 0
+2 2 2 0 0
 5 3 50 P
 #402
 vest leather~
@@ -271,7 +271,7 @@ a leather vest~
 A sturdy leather vest lies here.~
 leather~
 armor 0 AD
-2 2 2 0 0
+4 4 4 0 0
 10 8 150 P
 #411
 dagger iron~

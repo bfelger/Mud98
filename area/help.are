@@ -1757,6 +1757,173 @@ Typing THEME HELP (or THEME on its own) prints a quick reference, as well as
 for each individual subcommand.
 ~
 
+-1 CRAFTING~
+Crafting is the art of creating useful items from raw materials.
+
+The crafting system allows you to:
+  - Gather materials from slain creatures (skin, butcher)
+  - Break down old equipment for parts (salvage)
+  - Combine materials into new items (craft)
+
+To start crafting:
+  1. Obtain materials by hunting creatures or salvaging items
+  2. Find an appropriate workstation (forge, tanning rack, etc.)
+  3. Use 'recipes' to see what you can make
+  4. Use 'craft <recipe>' to create the item
+
+Your crafting skill determines the quality of items you create,
+ranging from Poor to Masterwork.
+
+See also: CRAFT, SKIN, BUTCHER, SALVAGE, RECIPES, WORKSTATIONS, MATERIALS
+~
+
+-1 CRAFT~
+Syntax: craft <recipe name>
+
+The craft command creates an item from raw materials using a known recipe.
+You must have all required materials in your inventory and be standing
+at an appropriate workstation.
+
+Your skill in the relevant crafting discipline (blacksmithing, leatherworking,
+cooking, etc.) determines the quality of the finished item:
+
+  Poor        - Below average quality (-10% stats)
+  Normal      - Standard quality
+  Fine        - Above average (+10% stats)  
+  Exceptional - Superior quality (+25% stats)
+  Masterwork  - Best possible quality (+50% stats)
+
+If you fail the skill check, some materials may be lost.
+
+Example: craft leather cap
+         craft iron sword
+
+See also: CRAFTING, RECIPES, WORKSTATIONS, MATERIALS
+~
+
+-1 SKIN SKINNING~
+Syntax: skin <corpse>
+
+The skin command extracts hide, leather, fur, or scales from a creature's
+corpse. You must have the skinning skill to use this command.
+
+Skinning is typically the first step in leatherworking - you skin a creature
+to get raw hide, then tan the hide at a tanning rack to produce usable leather.
+
+Once a corpse has been skinned, it cannot be skinned again, but it can
+still be butchered for meat and bones.
+
+Example: skin corpse
+
+See also: CRAFTING, BUTCHER, LEATHERWORKING
+~
+
+-1 BUTCHER BUTCHERING~
+Syntax: butcher <corpse>
+
+The butcher command extracts meat and bones from a creature's corpse.
+You must have the butchering skill to use this command.
+
+Butchering provides raw meat for cooking and bones that can be used
+in various crafting recipes.
+
+Once a corpse has been butchered, it cannot be butchered again, but it
+can still be skinned for hide if that hasn't been done yet.
+
+Example: butcher corpse
+
+See also: CRAFTING, SKIN, COOKING
+~
+
+-1 SALVAGE SALVAGING~
+Syntax: salvage <item>
+
+The salvage command breaks down an item in your inventory to recover
+raw materials. This destroys the original item.
+
+The materials recovered depend on what the item is made of:
+  - Leather items yield leather
+  - Iron/steel items yield iron ingots
+  - Cloth items yield cloth scraps
+  - Bronze items yield bronze ingots
+
+Your skill in the appropriate crafting discipline affects how many
+materials you recover. Without the skill, you recover only 25% of
+possible materials. With skill, you can recover up to 100%.
+
+Example: salvage sword
+         salvage armor
+
+See also: CRAFTING, MATERIALS
+~
+
+-1 RECIPES~
+Syntax: recipes
+        recipes <filter>
+
+The recipes command lists all crafting recipes you know. You can filter
+by skill name or recipe name to narrow the list.
+
+Each recipe shows:
+  - The recipe name
+  - Required crafting skill and minimum level
+  - Required workstation
+  - Input materials needed
+  - Output item produced
+
+Example: recipes
+         recipes leather
+         recipes blacksmithing
+
+See also: CRAFTING, CRAFT, WORKSTATIONS
+~
+
+-1 WORKSTATIONS WORKSTATION~
+Workstations are specialized tools required to perform certain types of
+crafting. You must be in the same room as the appropriate workstation
+to use certain recipes.
+
+Common workstations and their uses:
+  Tanning Rack   - Leatherworking (tanning hides, making leather goods)
+  Forge          - Blacksmithing (weapons, armor, tools)
+  Smelter        - Processing ore into ingots
+  Cooking Fire   - Cooking (preparing food)
+  Alchemy Bench  - Alchemy (potions, elixirs)
+  Sewing Table   - Tailoring (cloth armor, bags)
+  Workbench      - Carpentry (wooden items)
+  Jeweler's Table - Jewelcraft (rings, amulets)
+
+Some recipes don't require a workstation and can be crafted anywhere.
+
+Master workstations provide a bonus to crafting quality.
+
+See also: CRAFTING, CRAFT, RECIPES
+~
+
+-1 MATERIALS~
+Materials are the raw components used in crafting. They come from various
+sources:
+
+From creatures (use SKIN or BUTCHER on corpses):
+  Raw Hide     - Skinned from mammals, tanned into leather
+  Raw Meat     - Butchered from edible creatures, cooked into food
+  Bones        - Butchered from creatures, used in various crafts
+
+From salvaging equipment (use SALVAGE):
+  Leather      - From leather armor
+  Iron Ingots  - From iron/steel weapons and armor
+  Cloth Scraps - From cloth armor
+
+From the world:
+  Ores         - Found in mining areas, smelted into ingots
+  Herbs        - Found growing in wilderness areas
+
+Materials have a type that determines what they can be used for:
+hide, leather, fur, scale, bone, meat, ore, ingot, cloth, wood, gem, herb
+
+See also: CRAFTING, SKIN, BUTCHER, SALVAGE
+~
+
 0 $~
 
 
