@@ -13,6 +13,7 @@
 #include <comm.h>
 #include <handler.h>
 
+#include <data/direction.h>
 #include <data/mobile_data.h>
 #include <entities/room.h>
 
@@ -48,6 +49,34 @@ static int test_north_with_exit()
     
     ASSERT(ch->in_room == room2);
     
+    return 0;
+}
+
+static int test_move_heavy_armor_cost()
+{
+    Room* room1 = mock_room(50000, NULL, NULL);
+    Room* room2 = mock_room(50001, NULL, NULL);
+    room1->data->sector_type = SECT_FIELD;
+    room2->data->sector_type = SECT_FIELD;
+    mock_room_connection(room1, room2, DIR_NORTH, true);
+
+    Mobile* ch = mock_player("TestPlayer");
+    transfer_mob(ch, room1);
+    ch->move = 100;
+
+    Object* armor = mock_shield("heavy shield", 70001, 1);
+    armor->armor.armor_type = ARMOR_HEAVY;
+    obj_to_char(armor, ch);
+    equip_char(ch, armor, WEAR_SHIELD);
+
+    do_north(ch, "");
+
+    int move_cost = (movement_loss[SECT_FIELD] + movement_loss[SECT_FIELD]) / 2;
+    move_cost = (move_cost * 3) / 2;
+
+    ASSERT(ch->in_room == room2);
+    ASSERT(ch->move == 100 - move_cost);
+
     return 0;
 }
 
@@ -507,6 +536,7 @@ void register_act_move_tests()
     // Movement tests
     REGISTER("Cmd: North no exit", test_north_no_exit);
     REGISTER("Cmd: North with exit", test_north_with_exit);
+    REGISTER("Cmd: North heavy armor cost", test_move_heavy_armor_cost);
     
     // Position tests
     REGISTER("Cmd: Stand from sitting", test_stand_from_sitting);

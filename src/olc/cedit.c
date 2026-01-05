@@ -40,6 +40,7 @@ const OlcCmdEntry class_olc_comm_table[] = {
     { "basegroup",  U(&xClass.base_group),      ed_skillgroup,      0                   },
     { "defaultgrp", U(&xClass.default_group),   ed_skillgroup,      0                   },
     { "weapon",     U(&xClass.weapon),          ed_olded,           U(cedit_weapon)     },
+    { "armorprof",  U(&xClass.armor_prof),  ed_int16lookup,     U(armor_type_lookup)},
     { "guild",      U(&xClass.guild),           ed_olded,           U(cedit_guild)      },
     { "primestat",  U(&xClass.prime_stat),      ed_int16lookup,     U(stat_table)       },
     { "skillcap",   U(&xClass.skill_cap),       ed_olded,           U(cedit_skillcap)   },
@@ -226,6 +227,7 @@ CEDIT(cedit_new)
     pClass->base_group = str_dup("");
     pClass->default_group = str_dup("");
     pClass->weapon = 0;
+    pClass->armor_prof = ARMOR_OLD_STYLE;
     for (int i = 0; i < MAX_GUILD; ++i)
         pClass->guild[i] = 0;
     pClass->prime_stat = 0;
@@ -312,6 +314,9 @@ CEDIT(cedit_show)
         addf_buf(out, COLOR_TITLE "Weapon      " COLOR_DECOR_1 ": [" COLOR_ALT_TEXT_1 "%s " COLOR_ALT_TEXT_2 "(%d)" COLOR_DECOR_1 "]\n\r", weapon_table[w].name, pClass->weapon);
     else
         addf_buf(out, COLOR_TITLE "Weapon      " COLOR_DECOR_1 ": []\n\r");
+
+    addf_buf(out, COLOR_TITLE "Armor Prof  " COLOR_DECOR_1 ": [" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]\n\r",
+        armor_type_name(armor_type_from_value(pClass->armor_prof)));
 
     addf_buf(out, COLOR_TITLE "Guild VNUMs " COLOR_DECOR_1 ": [" COLOR_ALT_TEXT_1 "");
 

@@ -98,7 +98,7 @@ typedef struct object_t {
             int ac_bash;
             int ac_slash;
             int ac_exotic;
-            int unused4;
+            int armor_type;
         } armor;
         
         // ITEM_CONTAINER (type 15)

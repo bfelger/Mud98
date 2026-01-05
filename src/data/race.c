@@ -49,6 +49,7 @@ const SaveTableEntry race_save_table[] = {
     { "max_stats",	    FIELD_INT16_ARRAY,	        U(&tmp_race.max_stats),	    U(STAT_COUNT),	    0	        },
     { "size",		    FIELD_FUNCTION_INT16_TO_STR,U(&tmp_race.size),	        U(size_str),        U(size_read)},
     { "start_loc",      FIELD_VNUM,                 U(&tmp_race.start_loc),     0,                  0           },
+    { "armorprof",      FIELD_FUNCTION_INT_TO_STR,  U(&tmp_race.armor_prof),    U(armor_type_str),  U(armor_type_read)},
     { "class_start",    FIELD_STARTLOC_DYNARRAY,    U(&tmp_race.class_start),   0,                  0           },
     { NULL,		        0,				            0,			                0,		            0           }
 };

@@ -31,6 +31,7 @@ typedef struct race_t {
     char* skills[RACE_NUM_SKILLS];
     ARRAY(StartLoc) class_start;    // Special start locations per class
     VNUM start_loc;
+    ArmorTier armor_prof;       // Armor proficiency granted by race
     FLAGS act_flags;
     FLAGS aff;
     FLAGS off;

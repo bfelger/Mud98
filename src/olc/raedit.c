@@ -43,31 +43,32 @@ Race xRace;
 #define U(x)    (uintptr_t)(x)
 
 const OlcCmdEntry race_olc_comm_table[] = {
-    { "show",       0,                  ed_olded,           U(raedit_show)  },
-    { "name",       U(&xRace.name),     ed_line_string,     0               },
-    { "pcrace",     U(&xRace.pc_race),  ed_bool,            0               },
-    { "act",        U(&xRace.act_flags),ed_flag_toggle,     U(act_flag_table)   },
-    { "aff",        U(&xRace.aff),      ed_flag_toggle,     U(affect_flag_table)},
-    { "off",        U(&xRace.off),      ed_flag_toggle,     U(off_flag_table)   },
-    { "res",        U(&xRace.res),      ed_flag_toggle,     U(res_flag_table)   },
-    { "vuln",       U(&xRace.vuln),     ed_flag_toggle,     U(vuln_flag_table)  },
-    { "imm",        U(&xRace.imm),      ed_flag_toggle,     U(imm_flag_table)   },
-    { "form",       U(&xRace.form),     ed_flag_toggle,     U(form_flag_table)  },
-    { "part",       U(&xRace.parts),    ed_flag_toggle,     U(part_flag_table)  },
-    { "who",        U(&xRace.who_name), ed_line_string,     0               },
-    { "points",     U(&xRace.points),   ed_number_s_pos,    0               },
-    { "start_loc",  0,                  ed_olded,           U(raedit_start_loc) },
-    { "cmult",      0,                  ed_olded,           U(raedit_cmult) },
-    { "stats",      0,                  ed_olded,           U(raedit_stats) },
-    { "maxstats",   0,                  ed_olded,           U(raedit_maxstats)},
-    { "skills",     0,                  ed_olded,           U(raedit_skills)},
-    { "size",       U(&xRace.size),     ed_int16poslookup,  U(size_lookup)  },
-    { "new",        0,                  ed_olded,           U(raedit_new)   },
-    { "list",       0,                  ed_olded,           U(raedit_list)  },
-    { "commands",   0,                  ed_olded,           U(show_commands)},
-    { "?",          0,                  ed_olded,           U(show_help)    },
-    { "version",    0,                  ed_olded,           U(show_version) },
-    { NULL,         0,                  NULL,               0               }
+    { "show",       0,                      ed_olded,           U(raedit_show)      },
+    { "name",       U(&xRace.name),         ed_line_string,     0                   },
+    { "pcrace",     U(&xRace.pc_race),      ed_bool,            0                   },
+    { "act",        U(&xRace.act_flags),    ed_flag_toggle,     U(act_flag_table)   },
+    { "aff",        U(&xRace.aff),          ed_flag_toggle,     U(affect_flag_table)},
+    { "off",        U(&xRace.off),          ed_flag_toggle,     U(off_flag_table)   },
+    { "res",        U(&xRace.res),          ed_flag_toggle,     U(res_flag_table)   },
+    { "vuln",       U(&xRace.vuln),         ed_flag_toggle,     U(vuln_flag_table)  },
+    { "imm",        U(&xRace.imm),          ed_flag_toggle,     U(imm_flag_table)   },
+    { "form",       U(&xRace.form),         ed_flag_toggle,     U(form_flag_table)  },
+    { "part",       U(&xRace.parts),        ed_flag_toggle,     U(part_flag_table)  },
+    { "who",        U(&xRace.who_name),     ed_line_string,     0                   },
+    { "points",     U(&xRace.points),       ed_number_s_pos,    0                   },
+    { "start_loc",  0,                      ed_olded,           U(raedit_start_loc) },
+    { "cmult",      0,                      ed_olded,           U(raedit_cmult)     },
+    { "stats",      0,                      ed_olded,           U(raedit_stats)     },
+    { "maxstats",   0,                      ed_olded,           U(raedit_maxstats)  },
+    { "skills",     0,                      ed_olded,           U(raedit_skills)    },
+    { "size",       U(&xRace.size),         ed_int16poslookup,  U(size_lookup)      },
+    { "armorprof",  U(&xRace.armor_prof),   ed_int16lookup,     U(armor_type_lookup)},
+    { "new",        0,                      ed_olded,           U(raedit_new)       },
+    { "list",       0,                      ed_olded,           U(raedit_list)      },
+    { "commands",   0,                      ed_olded,           U(show_commands)    },
+    { "?",          0,                      ed_olded,           U(show_help)        },
+    { "version",    0,                      ed_olded,           U(show_version)     },
+    { NULL,         0,                      NULL,               0                   }
 };
 
 void raedit(Mobile* ch, char* argument)
@@ -207,6 +208,7 @@ RAEDIT(raedit_show)
     olc_print_flags_ex(ch, "Part Flags", part_flag_table, part_defaults_flag_table, pRace->parts);
     olc_print_num(ch, "Points", pRace->points);
     olc_print_str_box(ch, "Size", mob_size_table[pRace->size].name, NULL);
+    olc_print_str(ch, "Armor Prof", armor_type_name(armor_type_from_value(pRace->armor_prof)));
     if (cfg_get_start_loc_by_race()) {
         olc_print_num_str(ch, "Start Loc", pRace->start_loc, room ? NAME_STR(room) : "");
         printf_to_char(ch, COLOR_TITLE "    Class      XPmult  XP/lvl(pts)   Start Loc" COLOR_EOL);
@@ -338,6 +340,7 @@ RAEDIT(raedit_new)
     race_table[maxRace - 2].vuln = 0;
     race_table[maxRace - 2].form = 0;
     race_table[maxRace - 2].parts = 0;
+    race_table[maxRace - 2].armor_prof = ARMOR_OLD_STYLE;
 
     race_table[maxRace].name = NULL;
 

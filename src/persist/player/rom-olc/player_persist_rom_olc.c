@@ -219,6 +219,7 @@ static void fwrite_char(Mobile* ch, FILE* fp)
         if (ch->pcdata->title != NULL)
             fprintf(fp, "Titl %s~\n", ch->pcdata->title);
         fprintf(fp, "Pnts %d\n", ch->pcdata->points);
+        fprintf(fp, "ArmorProf %s\n", armor_type_name(armor_type_from_value(ch->pcdata->armor_prof)));
         fprintf(fp, "TSex %d\n", ch->pcdata->true_sex);
         fprintf(fp, "LLev %d\n", ch->pcdata->last_level);
         fprintf(fp, "HMVP %d %d %d\n", ch->pcdata->perm_hit,
@@ -565,6 +566,16 @@ static void fread_char(Mobile* ch, FILE* fp)
 
                 for (i = 0; i < 4; i++)
                     ch->armor[i] = (int16_t)fread_number(fp);
+                fMatch = true;
+                break;
+            }
+
+            if (!str_cmp(word, "ArmorProf")) {
+                char* prof = fread_word(fp);
+                int value = armor_type_lookup(prof);
+                if (value < 0)
+                    value = (int)strtol(prof, NULL, 0);
+                ch->pcdata->armor_prof = armor_type_from_value(value);
                 fMatch = true;
                 break;
             }

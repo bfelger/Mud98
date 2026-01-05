@@ -247,6 +247,76 @@ static int test_dodge_basic()
     return 0;
 }
 
+// Test check_dodge medium armor penalty
+static int test_dodge_medium_armor_penalty()
+{
+    Room* room = mock_room(1, NULL, NULL);
+    Mobile* attacker = mock_mob("attacker", 1, mock_mob_proto(1));
+    Mobile* victim = mock_player("victim");
+
+    transfer_mob(attacker, room);
+    transfer_mob(victim, room);
+
+    victim->level = 20;
+    attacker->level = 20;
+    mock_skill(victim, gsn_dodge, 100);
+
+    Object* armor = mock_shield("medium shield", 1001, 1);
+    armor->armor.armor_type = ARMOR_MEDIUM;
+    obj_to_char(armor, victim);
+    equip_char(victim, armor, WEAR_SHIELD);
+
+    // Base chance 50%, medium armor halves to 25%.
+    int sequence[] = {30};
+    RngOps* saved_rng = rng;
+    rng = &mock_rng;
+    set_mock_rng_sequence(sequence, 1);
+
+    bool result = check_dodge(attacker, victim);
+
+    set_mock_rng_sequence(NULL, 0);
+    rng = saved_rng;
+
+    ASSERT(result == false);
+
+    return 0;
+}
+
+// Test check_dodge heavy armor disables dodge
+static int test_dodge_heavy_armor_blocks()
+{
+    Room* room = mock_room(1, NULL, NULL);
+    Mobile* attacker = mock_mob("attacker", 1, mock_mob_proto(1));
+    Mobile* victim = mock_player("victim");
+
+    transfer_mob(attacker, room);
+    transfer_mob(victim, room);
+
+    victim->level = 20;
+    attacker->level = 20;
+    mock_skill(victim, gsn_dodge, 100);
+
+    Object* armor = mock_shield("heavy shield", 1002, 1);
+    armor->armor.armor_type = ARMOR_HEAVY;
+    obj_to_char(armor, victim);
+    equip_char(victim, armor, WEAR_SHIELD);
+
+    // Would normally succeed at 50%, but heavy armor blocks dodge entirely.
+    int sequence[] = {25};
+    RngOps* saved_rng = rng;
+    rng = &mock_rng;
+    set_mock_rng_sequence(sequence, 1);
+
+    bool result = check_dodge(attacker, victim);
+
+    set_mock_rng_sequence(NULL, 0);
+    rng = saved_rng;
+
+    ASSERT(result == false);
+
+    return 0;
+}
+
 // Test check_dodge when victim can't see attacker
 static int test_dodge_blind_victim()
 {
@@ -609,6 +679,8 @@ void register_tohit_tests()
     
     // Defensive skills - dodge
     REGISTER("Dodge: Basic", test_dodge_basic);
+    REGISTER("Dodge: Medium armor penalty", test_dodge_medium_armor_penalty);
+    REGISTER("Dodge: Heavy armor blocks", test_dodge_heavy_armor_blocks);
     REGISTER("Dodge: Blind victim", test_dodge_blind_victim);
     REGISTER("Dodge: Sleeping fails", test_dodge_sleeping_victim);
     REGISTER("Dodge: Level difference", test_level_difference_defense);

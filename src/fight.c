@@ -921,6 +921,11 @@ bool check_dodge(Mobile* ch, Mobile* victim)
 
     /* Use skill check seam for testability */
     chance += victim->level - ch->level;
+    ArmorTier armor_type = get_worn_armor_type(victim);
+    if (armor_type == ARMOR_HEAVY)
+        return false;
+    if (armor_type == ARMOR_MEDIUM)
+        chance /= 2;
     if (!skill_ops->check_modified(victim, gsn_dodge, chance)) return false;
 
     act("You dodge $n's attack.", ch, NULL, victim, TO_VICT);

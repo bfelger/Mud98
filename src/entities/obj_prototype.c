@@ -210,6 +210,14 @@ void load_objects(FILE* fp)
             obj_proto->weapon.damage_type = attack_lookup(fread_word(fp));
             obj_proto->weapon.flags = fread_flag(fp);
             break;
+        case ITEM_ARMOR:
+            obj_proto->armor.ac_pierce = fread_number(fp);
+            obj_proto->armor.ac_bash = fread_number(fp);
+            obj_proto->armor.ac_slash = fread_number(fp);
+            obj_proto->armor.ac_exotic = fread_number(fp);
+            obj_proto->armor.armor_type = fread_number(fp);
+            obj_proto->armor.armor_type = armor_type_from_value(obj_proto->armor.armor_type);
+            break;
         case ITEM_CONTAINER:
             obj_proto->container.capacity = fread_number(fp);
             obj_proto->container.flags = fread_flag(fp);

@@ -12,9 +12,12 @@
 #include <act_obj.h>
 #include <comm.h>
 #include <handler.h>
+#include <lookup.h>
 
+#include <data/class.h>
 #include <data/item.h>
 #include <data/mobile_data.h>
+#include <data/race.h>
 #include <entities/mobile.h>
 #include <entities/object.h>
 #include <entities/player_data.h>
@@ -142,6 +145,73 @@ static int test_wear_sword()
     ASSERT_OUTPUT_CONTAINS("You wield");
     test_output_buffer = NIL_VAL;
     
+    return 0;
+}
+
+static int test_wear_armor_requires_proficiency()
+{
+    Room* room = mock_room(50000, NULL, NULL);
+    Mobile* ch = mock_player("TestPlayer");
+    transfer_mob(ch, room);
+    ch->level = 10;
+    ch->ch_class = class_lookup("mage");
+
+    Object* armor = mock_obj("plate armor", 60001, NULL);
+    armor->item_type = ITEM_ARMOR;
+    armor->wear_flags = ITEM_TAKE | ITEM_WEAR_BODY;
+    armor->armor.ac_pierce = -5;
+    armor->armor.ac_bash = -5;
+    armor->armor.ac_slash = -5;
+    armor->armor.ac_exotic = -5;
+    armor->armor.armor_type = ARMOR_HEAVY;
+    obj_to_char(armor, ch);
+
+    test_socket_output_enabled = true;
+    do_wear(ch, "plate");
+    test_socket_output_enabled = false;
+
+    ASSERT(armor->wear_loc == WEAR_UNHELD);
+    ASSERT_OUTPUT_CONTAINS("You are not trained to wear that kind of armor.");
+    test_output_buffer = NIL_VAL;
+
+    return 0;
+}
+
+static int test_armor_prof_race_overrides_class()
+{
+    Room* room = mock_room(50000, NULL, NULL);
+    Mobile* ch = mock_player("TestPlayer");
+    transfer_mob(ch, room);
+
+    int class_idx = class_lookup("mage");
+    int16_t race_idx = race_lookup("human");
+    ASSERT(class_idx >= 0);
+    ASSERT(race_idx >= 0);
+    ASSERT(class_table != NULL);
+    ASSERT(race_table != NULL);
+    ASSERT(class_table[class_idx].name != NULL);
+    ASSERT(race_table[race_idx].name != NULL);
+
+    ArmorTier old_class_prof = class_table[class_idx].armor_prof;
+    ArmorTier old_race_prof = race_table[race_idx].armor_prof;
+
+    class_table[class_idx].armor_prof = ARMOR_CLOTH;
+    race_table[race_idx].armor_prof = ARMOR_HEAVY;
+
+    ch->ch_class = class_idx;
+    ch->race = race_idx;
+    ch->pcdata->armor_prof = ARMOR_OLD_STYLE;
+
+    grant_armor_prof(ch, class_table[class_idx].armor_prof);
+    grant_armor_prof(ch, race_table[race_idx].armor_prof);
+
+    ArmorTier prof = get_armor_prof(ch);
+
+    class_table[class_idx].armor_prof = old_class_prof;
+    race_table[race_idx].armor_prof = old_race_prof;
+
+    ASSERT(prof == ARMOR_HEAVY);
+
     return 0;
 }
 
@@ -463,6 +533,8 @@ void register_act_obj_tests()
     REGISTER("Cmd: Drop object", test_drop_object);
     REGISTER("Cmd: Wear nothing", test_wear_nothing);
     REGISTER("Cmd: Wear sword", test_wear_sword);
+    REGISTER("Cmd: Wear armor requires proficiency", test_wear_armor_requires_proficiency);
+    REGISTER("Armor prof: Race overrides class", test_armor_prof_race_overrides_class);
     REGISTER("Cmd: Remove nothing", test_remove_nothing);
     REGISTER("Cmd: Remove sword", test_remove_sword);
     REGISTER("Cmd: Sacrifice nothing", test_sacrifice_nothing);

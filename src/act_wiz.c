@@ -1433,7 +1433,10 @@ void do_ostat(Mobile* ch, char* argument)
         sprintf(
             buf,
             "Armor class is %d pierce, %d bash, %d slash, and %d vs. magic\n\r",
-            obj->armor.ac_pierce, obj->armor.ac_bash, obj->armor.ac_slash, obj->armor.unused4);
+            obj->armor.ac_pierce, obj->armor.ac_bash, obj->armor.ac_slash, obj->armor.ac_exotic);
+        send_to_char(buf, ch);
+        sprintf(buf, "Armor type is %s.\n\r",
+                armor_type_name(armor_type_from_value(obj->armor.armor_type)));
         send_to_char(buf, ch);
         break;
 

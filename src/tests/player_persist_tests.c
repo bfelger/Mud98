@@ -107,6 +107,7 @@ static void populate_player(Mobile* player)
     player->pcdata->bamfout = str_dup("^pleaves in a trail of sparks^x");
 
     player->pcdata->points = 32;
+    player->pcdata->armor_prof = ARMOR_MEDIUM;
     player->pcdata->true_sex = SEX_FEMALE;
     player->pcdata->last_level = 30;
     player->pcdata->perm_hit = 150;
@@ -313,6 +314,7 @@ static void assert_players_equal(Mobile* original, Mobile* loaded)
     ASSERT(!str_cmp(original->pcdata->bamfin, loaded->pcdata->bamfin));
     ASSERT(!str_cmp(original->pcdata->bamfout, loaded->pcdata->bamfout));
     ASSERT(original->pcdata->points == loaded->pcdata->points);
+    ASSERT(original->pcdata->armor_prof == loaded->pcdata->armor_prof);
     ASSERT(original->pcdata->true_sex == loaded->pcdata->true_sex);
     ASSERT(original->pcdata->last_level == loaded->pcdata->last_level);
     ASSERT(original->pcdata->perm_hit == loaded->pcdata->perm_hit);

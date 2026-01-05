@@ -27,6 +27,7 @@ typedef struct faction_reputation_list_t {
 #include <color.h>
 #include <recycle.h>
 
+#include <data/item.h>
 #include <data/player.h>
 #include <data/quest.h>
 
@@ -92,6 +93,7 @@ typedef struct player_data_t {
     Sex true_sex;
     int16_t condition[COND_MAX];
     int16_t points;
+    ArmorTier armor_prof;              // Armor proficiency granted to the player
     bool confirm_delete;
     bool valid;
 } PlayerData;

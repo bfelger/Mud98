@@ -4,7 +4,64 @@
 
 #include "item.h"
 
+#include <db.h>
 #include <gsn.h>
+
+static const char* armor_type_names[ARMOR_TYPE_COUNT] = {
+    "old_style",
+    "cloth",
+    "light",
+    "medium",
+    "heavy",
+};
+
+const char* armor_type_name(ArmorTier type)
+{
+    if (type < 0 || type >= ARMOR_TYPE_COUNT)
+        return armor_type_names[ARMOR_OLD_STYLE];
+    return armor_type_names[type];
+}
+
+int armor_type_lookup(const char* name)
+{
+    if (IS_NULLSTR(name))
+        return -1;
+
+    for (int i = 0; i < ARMOR_TYPE_COUNT; i++) {
+        if (!str_prefix(name, armor_type_names[i]))
+            return i;
+    }
+
+    return -1;
+}
+
+ArmorTier armor_type_from_value(int value)
+{
+    if (value < ARMOR_OLD_STYLE || value >= ARMOR_TYPE_COUNT)
+        return ARMOR_OLD_STYLE;
+
+    return (ArmorTier)value;
+}
+
+bool armor_type_read(void* temp, char* arg)
+{
+    int* armor_type = (int*)temp;
+    int value = armor_type_lookup(arg);
+
+    if (value < 0) {
+        *armor_type = ARMOR_OLD_STYLE;
+        return false;
+    }
+
+    *armor_type = (int16_t)value;
+    return true;
+}
+
+const char* armor_type_str(void* temp)
+{
+    int* armor_type = (int*)temp;
+    return armor_type_name(armor_type_from_value(*armor_type));
+}
 
 const ItemInfo item_type_table[ITEM_TYPE_COUNT] = {
     { ITEM_NONE,            "none"          },

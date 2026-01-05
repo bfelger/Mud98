@@ -529,7 +529,7 @@ void save_object(FILE* fp, ObjPrototype* obj_proto)
             obj_proto->armor.ac_bash,
             obj_proto->armor.ac_slash,
             obj_proto->armor.ac_exotic,
-            obj_proto->armor.ac_exotic);
+            obj_proto->armor.armor_type);
         break;
 
     case ITEM_PILL:

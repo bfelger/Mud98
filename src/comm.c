@@ -1556,6 +1556,7 @@ void nanny(Descriptor * d, char* argument)
         }
 
         ch->race = (int16_t)race;
+        grant_armor_prof(ch, race_table[race].armor_prof);
         /* initialize stats */
         for (i = 0; i < STAT_COUNT; i++)
             ch->perm_stat[i] = race_table[race].stats[i];
@@ -1631,6 +1632,7 @@ void nanny(Descriptor * d, char* argument)
         }
 
         ch->ch_class = (int16_t)iClass;
+        grant_armor_prof(ch, class_table[iClass].armor_prof);
 
         sprintf(log_buf, "%s@%s new player.", NAME_STR(ch), d->host);
         log_string(log_buf);

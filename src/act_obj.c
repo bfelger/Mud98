@@ -1329,6 +1329,17 @@ void wear_obj(Mobile* ch, Object* obj, bool fReplace)
         return;
     }
 
+    if (obj->item_type == ITEM_ARMOR) {
+        ArmorTier armor_type = get_obj_armor_type(obj);
+        if (armor_type != ARMOR_OLD_STYLE) {
+            ArmorTier max_type = get_armor_prof(ch);
+            if (armor_type > max_type) {
+                send_to_char("You are not trained to wear that kind of armor.\n\r", ch);
+                return;
+            }
+        }
+    }
+
     if (obj->item_type == ITEM_LIGHT) {
         if (!remove_obj(ch, WEAR_LIGHT, fReplace))
             return;

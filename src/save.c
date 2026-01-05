@@ -49,6 +49,7 @@
 #include <entities/object.h>
 
 #include <data/mobile_data.h>
+#include <data/class.h>
 #include <data/player.h>
 #include <data/race.h>
 #include <data/skill.h>
@@ -376,6 +377,11 @@ bool load_char_obj(Descriptor* d, char* name)
     ch->vuln_flags = ch->vuln_flags | race_table[ch->race].vuln;
     ch->form = race_table[ch->race].form;
     ch->parts = race_table[ch->race].parts;
+    if (ch->pcdata != NULL && ch->pcdata->armor_prof < ARMOR_OLD_STYLE) {
+        grant_armor_prof(ch, race_table[ch->race].armor_prof);
+        if (ch->ch_class >= 0 && ch->ch_class < class_count)
+            grant_armor_prof(ch, class_table[ch->ch_class].armor_prof);
+    }
 
     
     char* theme_name;

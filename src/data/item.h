@@ -82,6 +82,27 @@ typedef enum item_type_t {
 // Add 1 because we started at 
 #define ITEM_TYPE_COUNT 38
 
+////////////////////////////////////////////////////////////////////////////////
+// Armor types
+////////////////////////////////////////////////////////////////////////////////
+
+typedef enum armor_tier_t {
+    ARMOR_UNSET     = -1,
+    ARMOR_OLD_STYLE = 0,
+    ARMOR_CLOTH     = 1,
+    ARMOR_LIGHT     = 2,
+    ARMOR_MEDIUM    = 3,
+    ARMOR_HEAVY     = 4,
+} ArmorTier;
+
+#define ARMOR_TYPE_COUNT 5
+
+const char* armor_type_name(ArmorTier type);
+int armor_type_lookup(const char* name);
+ArmorTier armor_type_from_value(int value);
+bool armor_type_read(void* temp, char* arg);
+const char* armor_type_str(void* temp);
+
 typedef struct item_info_t {
     const ItemType type;
     const char* name;

@@ -158,6 +158,9 @@ PersistResult race_persist_json_save(const PersistWriter* writer, const char* fi
         if (race->points != 0)
             JSON_SET_INT(obj, "points", race->points);
         JSON_SET_STRING(obj, "size", size_name(race->size));
+        ArmorTier armor_type = armor_type_from_value(race->armor_prof);
+        if (armor_type != ARMOR_OLD_STYLE)
+            JSON_SET_STRING(obj, "armorProf", armor_type_name(armor_type));
         add_stats_if_needed(obj, "stats", race->stats);
         add_stats_if_needed(obj, "maxStats", race->max_stats);
         set_flags_if_not_empty(obj, "actFlags", race->act_flags, act_flag_table, NULL);
@@ -264,6 +267,15 @@ PersistResult race_persist_json_load(const PersistReader* reader, const char* fi
             int s = size_lookup(size);
             if (s >= 0)
                 race->size = (MobSize)s;
+        }
+        json_t* armor_type = json_object_get(r, "armorProf");
+        if (json_is_string(armor_type)) {
+            int value = armor_type_lookup(json_string_value(armor_type));
+            if (value >= 0)
+                race->armor_prof = (ArmorTier)value;
+        }
+        else if (json_is_integer(armor_type)) {
+            race->armor_prof = armor_type_from_value((int)json_integer_value(armor_type));
         }
         json_t* stats = json_object_get(r, "stats");
         if (json_is_object(stats)) {

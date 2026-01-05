@@ -930,6 +930,7 @@ static json_t* json_from_pcdata(const Mobile* ch)
     JSON_SET_INT(obj, "security", pc->security);
     JSON_SET_INT(obj, "recall", pc->recall);
     JSON_SET_INT(obj, "points", pc->points);
+    JSON_SET_STRING(obj, "armorProf", armor_type_name(armor_type_from_value(pc->armor_prof)));
     JSON_SET_INT(obj, "trueSex", pc->true_sex);
     JSON_SET_INT(obj, "lastLevel", pc->last_level);
     JSON_SET_INT(obj, "permHit", pc->perm_hit);
@@ -984,6 +985,15 @@ static void pcdata_from_json(json_t* obj, Mobile* ch)
     pc->security = (int)json_int_or_default(obj, "security", pc->security);
     pc->recall = (int)json_int_or_default(obj, "recall", pc->recall);
     pc->points = (int16_t)json_int_or_default(obj, "points", pc->points);
+    json_t* armor_prof = json_object_get(obj, "armorProf");
+    if (json_is_string(armor_prof)) {
+        int value = armor_type_lookup(json_string_value(armor_prof));
+        if (value >= 0)
+            pc->armor_prof = (ArmorTier)value;
+    }
+    else if (json_is_integer(armor_prof)) {
+        pc->armor_prof = armor_type_from_value((int)json_integer_value(armor_prof));
+    }
     pc->true_sex = (Sex)json_int_or_default(obj, "trueSex", pc->true_sex);
     pc->last_level = (LEVEL)json_int_or_default(obj, "lastLevel", pc->last_level);
     pc->perm_hit = (int16_t)json_int_or_default(obj, "permHit", pc->perm_hit);

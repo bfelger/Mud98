@@ -248,11 +248,13 @@ void show_obj_values(Mobile* ch, ObjPrototype* obj)
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v0" COLOR_DECOR_1 "]" COLOR_CLEAR " AC pierce       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v1" COLOR_DECOR_1 "]" COLOR_CLEAR " AC bash         " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
             COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v2" COLOR_DECOR_1 "]" COLOR_CLEAR " AC slash        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
-            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v3" COLOR_DECOR_1 "]" COLOR_CLEAR " AC exotic       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL,
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v3" COLOR_DECOR_1 "]" COLOR_CLEAR " AC exotic       " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v4" COLOR_DECOR_1 "]" COLOR_CLEAR " Armor type      " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL,
             obj->armor.ac_pierce,
             obj->armor.ac_bash,
             obj->armor.ac_slash,
-            obj->armor.ac_exotic);
+            obj->armor.ac_exotic,
+            armor_type_name(armor_type_from_value(obj->armor.armor_type)));
         break;
 
 /* WEAPON changed in ROM: */
@@ -440,6 +442,18 @@ bool set_obj_values(Mobile* ch, ObjPrototype* pObj, int value_num, char* argumen
             send_to_char("AC EXOTIC SET.\n\r\n\r", ch);
             pObj->armor.ac_exotic = atoi(argument);
             break;
+        case 4: {
+            int value = armor_type_lookup(argument);
+            if (is_number(argument))
+                value = atoi(argument);
+            if (value < 0 || (is_number(argument) && armor_type_from_value(value) == ARMOR_OLD_STYLE && value != ARMOR_OLD_STYLE)) {
+                send_to_char("Valid armor types: old_style, cloth, light, medium, heavy.\n\r", ch);
+                return false;
+            }
+            pObj->armor.armor_type = armor_type_from_value(value);
+            send_to_char("ARMOR TYPE SET.\n\r\n\r", ch);
+            break;
+        }
         }
         break;
 

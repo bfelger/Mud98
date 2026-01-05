@@ -85,6 +85,33 @@ static int test_hide_fail()
     return 0;
 }
 
+// Test hide blocked by medium armor
+static int test_hide_blocked_by_medium_armor()
+{
+    Room* room = mock_room(60001, NULL, NULL);
+
+    Mobile* thief = mock_player("thief");
+    thief->position = POS_STANDING;
+    thief->level = 20;
+    transfer_mob(thief, room);
+    mock_skill(thief, gsn_hide, 100);
+
+    Object* armor = mock_shield("medium shield", 60020, 1);
+    armor->armor.armor_type = ARMOR_MEDIUM;
+    obj_to_char(armor, thief);
+    equip_char(thief, armor, WEAR_SHIELD);
+
+    test_socket_output_enabled = true;
+    do_hide(thief, "");
+    test_socket_output_enabled = false;
+    ASSERT_OUTPUT_CONTAINS("Your armor is too bulky to hide.");
+    test_output_buffer = NIL_VAL;
+
+    ASSERT(!IS_AFFECTED(thief, AFF_HIDE));
+
+    return 0;
+}
+
 // Test sneak skill
 static int test_sneak()
 {
@@ -112,6 +139,33 @@ static int test_sneak()
     // Sneak succeeded - should have AFF_SNEAK affect
     ASSERT(IS_AFFECTED(thief, AFF_SNEAK));
     
+    return 0;
+}
+
+// Test sneak blocked by heavy armor
+static int test_sneak_blocked_by_heavy_armor()
+{
+    Room* room = mock_room(60001, NULL, NULL);
+
+    Mobile* thief = mock_player("thief");
+    thief->position = POS_STANDING;
+    thief->level = 20;
+    transfer_mob(thief, room);
+    mock_skill(thief, gsn_sneak, 100);
+
+    Object* armor = mock_shield("heavy shield", 60021, 1);
+    armor->armor.armor_type = ARMOR_HEAVY;
+    obj_to_char(armor, thief);
+    equip_char(thief, armor, WEAR_SHIELD);
+
+    test_socket_output_enabled = true;
+    do_sneak(thief, "");
+    test_socket_output_enabled = false;
+    ASSERT_OUTPUT_CONTAINS("Your armor is too bulky to move silently.");
+    test_output_buffer = NIL_VAL;
+
+    ASSERT(!IS_AFFECTED(thief, AFF_SNEAK));
+
     return 0;
 }
 
@@ -248,7 +302,9 @@ void register_thief_tests()
 
     REGISTER("Hide: Success", test_hide);
     REGISTER("Hide: Failure", test_hide_fail);
+    REGISTER("Hide: Blocked by medium armor", test_hide_blocked_by_medium_armor);
     REGISTER("Sneak: Success", test_sneak);
+    REGISTER("Sneak: Blocked by heavy armor", test_sneak_blocked_by_heavy_armor);
     REGISTER("Pick Lock: Chest", test_pick_lock);
     REGISTER("Steal: Gold from victim", test_steal_gold);
     REGISTER("Peek: View inventory", test_peek);
