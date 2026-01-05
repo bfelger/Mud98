@@ -185,6 +185,8 @@ ObjString* get_lox_pEdit(Descriptor* d);
 // Set/update the Lox script being edited (only valid in ED_LOX_SCRIPT mode)
 void set_lox_pEdit(Descriptor* d, ObjString* script);
 
+void do_olc(Mobile* ch, char* argument);
+
 // Legacy compatibility macros (deprecated - use stack API instead)
 #define push_sub_editor(d, type, edit) push_editor(d, type, edit)
 #define pop_sub_editor(d)              pop_editor(d)

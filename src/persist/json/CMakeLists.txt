@@ -9,6 +9,10 @@ if (NOT TARGET jansson)
                         "Either enable it or disable ENABLE_JSON_PERSISTENCE.")
 endif()
 
+# Get jansson paths for include directories
+include(FetchContent)
+FetchContent_GetProperties(jansson)
+
 add_library(Mud98PersistJson OBJECT
     # Core JSON utilities
     persist_json.h
@@ -71,6 +75,8 @@ target_include_directories(Mud98PersistJson
         ${CMAKE_SOURCE_DIR}/src/data
         ${CMAKE_SOURCE_DIR}/src/lox
         ${CMAKE_SOURCE_DIR}/src/craft
+        ${jansson_SOURCE_DIR}/src
+        ${jansson_BINARY_DIR}/include
         $<$<BOOL:${OPENSSL_FOUND}>:${OPENSSL_INCLUDE_DIR}>
         $<$<BOOL:${ZLIB_FOUND}>:${ZLIB_INCLUDE_DIRS}>
 )

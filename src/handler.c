@@ -68,7 +68,7 @@
 extern bool test_output_enabled;
 
 /* friend stuff -- for NPC's mostly */
-bool is_friend(Mobile* ch, Mobile* victim)
+static bool is_friend(Mobile* ch, Mobile* victim)
 {
     if (is_same_group(ch, victim)) 
         return true;
@@ -1252,7 +1252,7 @@ int count_obj_list(ObjPrototype* obj_proto, List* list)
         obj_from_char(obj);                                                    \
 }
 
-void transfer_obj(Object* obj, Room* room)
+static void transfer_obj(Object* obj, Room* room)
 {
     UNPARENT_OBJ(obj);
     obj_to_room(obj, room);
@@ -1718,7 +1718,7 @@ void deduct_cost(Mobile* ch, long cost)
     mobile_set_money_from_copper(ch, total);
 }
 
-Object* create_money(int16_t gold, int16_t silver, int16_t copper)
+Object* create_money(int gold, int silver, int copper)
 {
     char buf[MAX_STRING_LENGTH];
     Object* obj;

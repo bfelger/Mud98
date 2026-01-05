@@ -62,6 +62,11 @@ Quest* new_quest()
 {
     LIST_ALLOC_PERM(quest, Quest);
 
+    if (!quest) {
+        fprintf(stderr, "new_quest: malloc failed\n");
+        exit(1);
+    }
+
     quest->name = &str_empty[0];
     quest->entry = &str_empty[0];
 

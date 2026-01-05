@@ -14,6 +14,12 @@ if (NOT ENABLE_JSON_PERSISTENCE AND NOT ENABLE_ROM_OLC_PERSISTENCE)
                         "Enable ENABLE_JSON_PERSISTENCE or ENABLE_ROM_OLC_PERSISTENCE.")
 endif()
 
+# Get jansson paths if JSON persistence is enabled
+if (ENABLE_JSON_PERSISTENCE)
+    include(FetchContent)
+    FetchContent_GetProperties(jansson)
+endif()
+
 # ============================================================================
 # Core Persistence Library (Format-agnostic)
 # ============================================================================
@@ -61,6 +67,8 @@ target_include_directories(Mud98Persist
         ${CMAKE_SOURCE_DIR}/src/data
         ${CMAKE_SOURCE_DIR}/src/lox
         ${CMAKE_SOURCE_DIR}/src/craft
+        $<$<BOOL:${ENABLE_JSON_PERSISTENCE}>:${jansson_SOURCE_DIR}/src>
+        $<$<BOOL:${ENABLE_JSON_PERSISTENCE}>:${jansson_BINARY_DIR}/include>
         $<$<BOOL:${OPENSSL_FOUND}>:${OPENSSL_INCLUDE_DIR}>
         $<$<BOOL:${ZLIB_FOUND}>:${ZLIB_INCLUDE_DIRS}>
 )

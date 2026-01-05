@@ -14,16 +14,16 @@
 #include "skills.h"
 #include "tables.h"
 
-#include "olc/bit.h"
-#include "olc/olc.h"
+#include <olc/bit.h>
+#include <olc/olc.h>
 
-#include "entities/descriptor.h"
+#include <entities/descriptor.h>
 
-#include "data/mobile_data.h"
-#include "data/race.h"
+#include <data/mobile_data.h>
+#include <data/race.h>
 
-#include "lox/lox.h"
-#include "lox/vm.h"
+#include <lox/lox.h>
+#include <lox/vm.h>
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -31,7 +31,7 @@
 
 #ifdef _MSC_VER
 #define WIN32_LEAN_AND_MEAN
-#include "Windows.h"
+#include <Windows.h>
 #endif
 
 // The following is for an indeterminate number of items bounded by @

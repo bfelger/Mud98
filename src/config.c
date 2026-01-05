@@ -452,7 +452,7 @@ void load_config()
     cfg_fp = NULL;
 }
 
-char* read_file(FILE* f)
+static char* read_file(FILE* f)
 {
     char* buffer = NULL;
 

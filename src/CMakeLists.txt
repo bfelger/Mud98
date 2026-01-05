@@ -26,7 +26,7 @@ if (ENABLE_JSON_PERSISTENCE)
     
     # If on CMake 4.0 or higher, use master instead of v2.14.1 due to Windows CMake issues
     if (CMAKE_VERSION VERSION_GREATER_EQUAL "4.0.0")
-        message(WARNING "Using Jansson master branch due to CMake 4.0+ Windows issues. "
+        message("Using Jansson master branch due to CMake 4.0+ Windows issues. "
                         "Once Jansson fixes their CMake files, switch back to v2.14.1.")
         set(JANSSON_GIT_TAG "master")
     else()

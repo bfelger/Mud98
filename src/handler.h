@@ -73,7 +73,7 @@ Object* get_obj_carry(Mobile* ch, char* argument);
 Object* get_obj_wear(Mobile* ch, char* argument);
 Object* get_obj_here(Mobile* ch, char* argument);
 Object* get_obj_world(Mobile* ch, char* argument);
-Object* create_money(int16_t gold, int16_t silver, int16_t copper);
+Object* create_money(int gold, int silver, int copper);
 int get_obj_number(Object* obj);
 int get_obj_weight(Object* obj);
 int get_true_weight(Object* obj);

@@ -1,32 +1,36 @@
 {
   "version": "0.2.1",
   "defaults": {},
-    "configurations": [
-        {
-            "name": "Mud98 [Original ROM]",
-            "type": "default",
-            "project": "CMakeLists.txt",
-            "currentDir": "${workspaceRoot}"
-        },
-        {
-            "name": "Mud98 [New Areas]",
-            "type": "default",
-            "project": "CMakeLists.txt",
-            "currentDir": "${workspaceRoot}/new"
-        },
-        {
-            "name": "Mud98 [Unit Tests]",
-            "type": "default",
-            "project": "CMakeLists.txt",
-            "currentDir": "${workspaceRoot}",
-            "args": [ "-U" ]
-        },
-        {
-            "name": "Mud98 [Benchmarks]",
-            "type": "default",
-            "project": "CMakeLists.txt",
-            "currentDir": "${workspaceRoot}",
-            "args": [ "-B" ]
-        }
-    ]
+  "configurations": [
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "program": "${workspaceRoot}\\bin\\${cmake.configurationType}\\Mud98.exe",
+      "name": "Mud98.exe [Original ROM]",
+      "currentDir": "${workspaceRoot}"
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "program": "${workspaceRoot}\\bin\\${cmake.configurationType}\\Mud98.exe",
+      "name": "Mud98.exe [New Areas]",
+      "currentDir": "${workspaceRoot}\\new"
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "Mud98Tests.exe (C:\\cygwin64\\home\\bfelg\\rom\\bin\\Release\\Mud98Tests.exe)",
+        "name": "Mud98Tests.exe (C:\\cygwin64\\home\\bfelg\\rom\\bin\\Release\\Mud98Tests.exe)",
+        "buildConfigurations": [
+            {
+                "name": "Release",
+                "project": "CMakeLists.txt"
+            },
+            {
+                "name": "Debug",
+                "project": "CMakeLists.txt"
+            }
+        ]
+    }
+  ]
 }

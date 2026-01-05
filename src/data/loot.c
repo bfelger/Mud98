@@ -277,7 +277,7 @@ static void resolve_loot_table_dfs(LootDB* db, LootTable* table)
     // Commit resolved ops
     free(table->resolved_ops);
     table->resolved_ops = tmp_ops;
-    table->resolved_op_count = tmp_count;
+    table->resolved_op_count = (int)tmp_count;
 
     table->_visit = 2; // Mark as visited
 }
@@ -395,8 +395,8 @@ static void parse_table(LootDB* db, Tok* tok, Entity* owner)
 
     // Parse ops
     while (true) {
-        size_t save_pos = tok->pos;
-        int save_line = tok->line;
+        save_pos = tok->pos;
+        save_line = tok->line;
 
         if (!tok_next(tok, s)) {
             // EOF
@@ -594,9 +594,9 @@ void generate_loot(LootDB* db, const char* table_name,
     int chance_mul_percent = 100; // Start at 100%, modified by MUL_ALL_CHANCES ops
 
     // Keep small "removed" lists to handle REMOVE_ITEM/GROUP ops
-    char removed_loot_groups[16][MIL];
+    char removed_loot_groups[16][MIL] = { 0 };
     size_t removed_loot_group_count = 0;
-    VNUM removed_loot_items[16];
+    VNUM removed_loot_items[16] = { 0 };
     size_t removed_loot_item_count = 0;
 
     for (int i = 0; i < table->resolved_op_count; i++) {
@@ -655,7 +655,7 @@ void generate_loot(LootDB* db, const char* table_name,
                     LootEntry* entry = &group->entries[idx];
 
                     if (entry->type == LOOT_ITEM) {
-                        if (removed_loot_item(removed_loot_items, removed_loot_item_count, entry->item_vnum))
+                        if (removed_loot_item(removed_loot_items, (int)removed_loot_item_count, entry->item_vnum))
                             continue;
                         int qty = RNG_RANGE(entry->min_qty, entry->max_qty);
                         loot_drop_add(drops, drop_count, LOOT_ITEM, entry->item_vnum, qty);
@@ -674,7 +674,7 @@ void generate_loot(LootDB* db, const char* table_name,
                 int mn = op->c;
                 int mx = op->d;
 
-                if (removed_loot_item(removed_loot_items, removed_loot_item_count, vnum))
+                if (removed_loot_item(removed_loot_items, (int)removed_loot_item_count, vnum))
                     break;
 
                 int effective_chance = (base_chance * chance_mul_percent) / 100;
@@ -818,7 +818,7 @@ static void print_drops(const LootDrop* out, int n) {
 }
 
 // Naive test function
-void test_print() 
+static void test_print() 
 {
     LootDrop drops[MAX_LOOT_DROPS];
     size_t drop_count = 0;
@@ -826,13 +826,13 @@ void test_print()
     for (int i = 0; i < 10; i++) {
         generate_loot(global_loot_db, "GLOBAL_T1", drops, &drop_count);
         printf("Kill %d (%s):\n", i + 1, "GLOBAL_T1");
-        print_drops(drops, drop_count);
+        print_drops(drops, (int)drop_count);
     }
 }
 
 // Per-area loot support ///////////////////////////////////////////////////////
 
-LootDB* loot_db_new()
+static LootDB* loot_db_new()
 {
     LootDB* db = (LootDB*)xrealloc(NULL, sizeof(LootDB));
     memset(db, 0, sizeof(LootDB));

@@ -356,7 +356,7 @@ char* olc_ed_vnum(Mobile* ch)
     return buf;
 }
 
-const OlcCmdEntry* get_olc_table(int editor)
+static const OlcCmdEntry* get_olc_table(int editor)
 {
     switch (editor) {
     case ED_AREA:   return area_olc_comm_table;
@@ -380,7 +380,7 @@ const OlcCmdEntry* get_olc_table(int editor)
  Purpose:	Format up the commands from given table.
  Called by:	show_commands(olc_act.c).
  ****************************************************************************/
-void show_olc_cmds(Mobile* ch)
+static void show_olc_cmds(Mobile* ch)
 {
     char    buf[MAX_STRING_LENGTH] = "";
     char    buf1[MAX_STRING_LENGTH] = "";
@@ -705,7 +705,7 @@ bool process_olc_command(Mobile* ch, char* argument, const OlcCmdEntry* table)
             case ED_RECIPE: {
                 Recipe* pRecipe;
                 EDIT_RECIPE(ch, pRecipe);
-                AreaData* tArea = pRecipe ? pRecipe->area : NULL;
+                tArea = pRecipe ? pRecipe->area : NULL;
                 if (table[temp].argument)
                     pointer = (table[temp].argument - U(&xRecipe) + U(pRecipe));
                 else
@@ -725,7 +725,7 @@ bool process_olc_command(Mobile* ch, char* argument, const OlcCmdEntry* table)
     return false;
 }
 
-void do_page(Mobile* ch, char* argument)
+static void do_page(Mobile* ch, char* argument)
 {
     int16_t num;
 

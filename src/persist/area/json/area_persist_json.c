@@ -438,7 +438,7 @@ static json_t* build_rooms(const AreaData* area)
     return arr;
 }
 
-bool json_bool_or_default(json_t* obj, const char* key, bool def)
+static bool json_bool_or_default(json_t* obj, const char* key, bool def)
 {
     json_t* val = json_object_get(obj, key);
     if (json_is_boolean(val))
@@ -1124,13 +1124,13 @@ static PersistResult parse_mobiles(json_t* root, AreaData* area)
 
         json_t* craft_mats = json_object_get(m, "craftMats");
         if (json_is_array(craft_mats)) {
-            size_t count = json_array_size(craft_mats);
-            if (count > 0) {
-                mob->craft_mats = malloc(sizeof(VNUM) * count);
+            size_t arr_count = json_array_size(craft_mats);
+            if (arr_count > 0) {
+                mob->craft_mats = malloc(sizeof(VNUM) * arr_count);
                 if (mob->craft_mats != NULL) {
-                    mob->craft_mat_count = (int)count;
-                    for (size_t i = 0; i < count; i++) {
-                        mob->craft_mats[i] = (VNUM)json_integer_value(json_array_get(craft_mats, i));
+                    mob->craft_mat_count = (int)arr_count;
+                    for (size_t j = 0; j < arr_count; j++) {
+                        mob->craft_mats[j] = (VNUM)json_integer_value(json_array_get(craft_mats, j));
                     }
                 }
             }
@@ -2042,6 +2042,7 @@ static PersistResult parse_specials(json_t* root)
 
     return (PersistResult){ PERSIST_OK, NULL, -1 };
 }
+
 static json_t* build_reset(const Reset* reset, VNUM room_vnum)
 {
     json_t* obj = json_object();
