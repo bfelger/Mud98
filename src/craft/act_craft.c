@@ -47,6 +47,61 @@ bool is_butcherable_type(CraftMatType type)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Salvage Material Derivation from Object Material String
+////////////////////////////////////////////////////////////////////////////////
+
+// Crafting material VNUMs for auto-derivation
+#define VNUM_SALVAGE_LEATHER      102   // tanned leather
+#define VNUM_SALVAGE_IRON_INGOT   112   // iron ingot
+#define VNUM_SALVAGE_BRONZE_INGOT 111   // bronze ingot
+#define VNUM_SALVAGE_COPPER_INGOT 109   // copper ingot
+#define VNUM_SALVAGE_LINEN_SCRAPS 114   // linen scraps
+#define VNUM_SALVAGE_WOOL         116   // raw wool
+#define VNUM_SALVAGE_MEAT         104   // raw meat
+
+// Derive salvage_mats from an object's material string
+// Returns the number of materials added to the out_mats array
+// Caller must provide an array of at least max_mats VNUMs
+static int derive_salvage_mats_from_material(const char* material, VNUM* out_mats, int max_mats)
+{
+    if (material == NULL || material[0] == '\0' || max_mats <= 0)
+        return 0;
+    
+    int count = 0;
+    
+    // Leather and organic materials
+    if (!str_cmp(material, "leather") && count < max_mats) {
+        out_mats[count++] = VNUM_SALVAGE_LEATHER;
+    }
+    // Metal materials - iron and steel both yield iron ingots
+    else if ((!str_cmp(material, "iron") || !str_cmp(material, "steel")) && count < max_mats) {
+        out_mats[count++] = VNUM_SALVAGE_IRON_INGOT;
+    }
+    // Bronze
+    else if (!str_cmp(material, "bronze") && count < max_mats) {
+        out_mats[count++] = VNUM_SALVAGE_BRONZE_INGOT;
+    }
+    // Copper
+    else if (!str_cmp(material, "copper") && count < max_mats) {
+        out_mats[count++] = VNUM_SALVAGE_COPPER_INGOT;
+    }
+    // Cloth and fabric
+    else if ((!str_cmp(material, "cloth") || !str_cmp(material, "linen")) && count < max_mats) {
+        out_mats[count++] = VNUM_SALVAGE_LINEN_SCRAPS;
+    }
+    // Wool
+    else if (!str_cmp(material, "wool") && count < max_mats) {
+        out_mats[count++] = VNUM_SALVAGE_WOOL;
+    }
+    // Food and meat
+    else if ((!str_cmp(material, "food") || !str_cmp(material, "meat")) && count < max_mats) {
+        out_mats[count++] = VNUM_SALVAGE_MEAT;
+    }
+    
+    return count;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Corpse Extraction Helpers
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -264,9 +319,22 @@ SalvageResult evaluate_salvage(Mobile* ch, Object* obj)
         return result;
     }
     
-    if (obj->salvage_mat_count == 0 || obj->salvage_mats == NULL) {
-        result.error_msg = "There's nothing to salvage from that.";
-        return result;
+    // Use explicit salvage_mats if present, otherwise derive from material string
+    VNUM* salvage_mats = obj->salvage_mats;
+    int salvage_mat_count = obj->salvage_mat_count;
+    VNUM derived_mats[4];  // Max 4 derived materials
+    int derived_count = 0;
+    
+    if (salvage_mat_count == 0 || salvage_mats == NULL) {
+        // Try to derive from material string
+        derived_count = derive_salvage_mats_from_material(obj->material, derived_mats, 4);
+        if (derived_count > 0) {
+            salvage_mats = derived_mats;
+            salvage_mat_count = derived_count;
+        } else {
+            result.error_msg = "There's nothing to salvage from that.";
+            return result;
+        }
     }
     
     // Determine required skill and perform check
@@ -315,7 +383,7 @@ SalvageResult evaluate_salvage(Mobile* ch, Object* obj)
     }
     
     // Calculate how many materials to give
-    int base_count = obj->salvage_mat_count;
+    int base_count = salvage_mat_count;
     int yield_count = (base_count * yield_pct + 50) / 100;  // Round
     if (yield_count < 1 && base_count > 0) yield_count = 1;  // At least 1
     
@@ -327,7 +395,7 @@ SalvageResult evaluate_salvage(Mobile* ch, Object* obj)
     
     // Copy first yield_count materials
     for (int i = 0; i < yield_count; i++) {
-        mats[i] = obj->salvage_mats[i];
+        mats[i] = salvage_mats[i];
     }
     
     result.mat_vnums = mats;

@@ -3702,6 +3702,227 @@ static int test_corpse_derive_edible_only()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Issue #37: Auto-derive salvage_mats from object material string
+////////////////////////////////////////////////////////////////////////////////
+
+// Test that leather objects can be salvaged for leather
+static int test_salvage_derive_leather()
+{
+    Room* room = mock_room(96001, NULL, NULL);
+    Mobile* ch = mock_player("Salvager");
+    transfer_mob(ch, room);
+    
+    // Give the player the leatherworking skill
+    ch->pcdata->learned[gsn_leatherworking] = 100;
+    
+    // Create an object with leather material but NO explicit salvage_mats
+    ObjPrototype* op = mock_obj_proto(96001);
+    ASSERT(op != NULL);
+    op->item_type = ITEM_ARMOR;
+    op->salvage_mats = NULL;
+    op->salvage_mat_count = 0;
+    free_string(op->material);
+    op->material = str_dup("leather");
+    
+    Object* obj = create_object(op, 0);
+    obj_to_char(obj, ch);
+    
+    // Evaluate salvage
+    SalvageResult result = evaluate_salvage(ch, obj);
+    
+    ASSERT(result.success == true);
+    ASSERT(result.mat_count == 1);
+    ASSERT(result.mat_vnums != NULL);
+    ASSERT(result.mat_vnums[0] == 102);  // tanned leather
+    
+    free_salvage_result(&result);
+    return 0;
+}
+
+// Test that iron/steel objects can be salvaged for iron ingots
+static int test_salvage_derive_iron()
+{
+    Room* room = mock_room(96002, NULL, NULL);
+    Mobile* ch = mock_player("Smith");
+    transfer_mob(ch, room);
+    
+    ch->pcdata->learned[gsn_blacksmithing] = 100;
+    
+    ObjPrototype* op = mock_obj_proto(96002);
+    ASSERT(op != NULL);
+    op->item_type = ITEM_WEAPON;
+    op->salvage_mats = NULL;
+    op->salvage_mat_count = 0;
+    free_string(op->material);
+    op->material = str_dup("iron");
+    
+    Object* obj = create_object(op, 0);
+    obj_to_char(obj, ch);
+    
+    SalvageResult result = evaluate_salvage(ch, obj);
+    
+    ASSERT(result.success == true);
+    ASSERT(result.mat_count == 1);
+    ASSERT(result.mat_vnums[0] == 112);  // iron ingot
+    
+    free_salvage_result(&result);
+    return 0;
+}
+
+// Test that steel also yields iron ingots
+static int test_salvage_derive_steel()
+{
+    Room* room = mock_room(96003, NULL, NULL);
+    Mobile* ch = mock_player("Steely");
+    transfer_mob(ch, room);
+    
+    ch->pcdata->learned[gsn_blacksmithing] = 100;
+    
+    ObjPrototype* op = mock_obj_proto(96003);
+    ASSERT(op != NULL);
+    op->item_type = ITEM_WEAPON;
+    op->salvage_mats = NULL;
+    op->salvage_mat_count = 0;
+    free_string(op->material);
+    op->material = str_dup("steel");
+    
+    Object* obj = create_object(op, 0);
+    obj_to_char(obj, ch);
+    
+    SalvageResult result = evaluate_salvage(ch, obj);
+    
+    ASSERT(result.success == true);
+    ASSERT(result.mat_count == 1);
+    ASSERT(result.mat_vnums[0] == 112);  // iron ingot
+    
+    free_salvage_result(&result);
+    return 0;
+}
+
+// Test that cloth objects yield linen scraps
+static int test_salvage_derive_cloth()
+{
+    Room* room = mock_room(96004, NULL, NULL);
+    Mobile* ch = mock_player("Tailor");
+    transfer_mob(ch, room);
+    
+    ch->pcdata->learned[gsn_tailoring] = 100;
+    
+    ObjPrototype* op = mock_obj_proto(96004);
+    ASSERT(op != NULL);
+    op->item_type = ITEM_ARMOR;
+    op->salvage_mats = NULL;
+    op->salvage_mat_count = 0;
+    free_string(op->material);
+    op->material = str_dup("cloth");
+    
+    Object* obj = create_object(op, 0);
+    obj_to_char(obj, ch);
+    
+    SalvageResult result = evaluate_salvage(ch, obj);
+    
+    ASSERT(result.success == true);
+    ASSERT(result.mat_count == 1);
+    ASSERT(result.mat_vnums[0] == 114);  // linen scraps
+    
+    free_salvage_result(&result);
+    return 0;
+}
+
+// Test that explicit salvage_mats override derivation
+static int test_salvage_derive_override()
+{
+    Room* room = mock_room(96005, NULL, NULL);
+    Mobile* ch = mock_player("Override");
+    transfer_mob(ch, room);
+    
+    ch->pcdata->learned[gsn_blacksmithing] = 100;
+    
+    // Create object with leather material but explicit salvage_mats of iron
+    ObjPrototype* op = mock_obj_proto(96005);
+    ASSERT(op != NULL);
+    op->item_type = ITEM_WEAPON;
+    free_string(op->material);
+    op->material = str_dup("leather");  // Material says leather
+    
+    // But explicit salvage_mats says iron ingot
+    op->salvage_mat_count = 1;
+    op->salvage_mats = malloc(sizeof(VNUM) * 1);
+    op->salvage_mats[0] = 112;  // iron ingot
+    
+    Object* obj = create_object(op, 0);
+    obj_to_char(obj, ch);
+    
+    SalvageResult result = evaluate_salvage(ch, obj);
+    
+    // Should use explicit salvage_mats, not derived from material
+    ASSERT(result.success == true);
+    ASSERT(result.mat_count == 1);
+    ASSERT(result.mat_vnums[0] == 112);  // iron ingot, not leather
+    
+    free_salvage_result(&result);
+    return 0;
+}
+
+// Test that unknown materials yield nothing
+static int test_salvage_derive_unknown_material()
+{
+    Room* room = mock_room(96006, NULL, NULL);
+    Mobile* ch = mock_player("Unknown");
+    transfer_mob(ch, room);
+    
+    ObjPrototype* op = mock_obj_proto(96006);
+    ASSERT(op != NULL);
+    op->item_type = ITEM_TRASH;
+    op->salvage_mats = NULL;
+    op->salvage_mat_count = 0;
+    free_string(op->material);
+    op->material = str_dup("adamantite");  // Not in our derivation table
+    
+    Object* obj = create_object(op, 0);
+    obj_to_char(obj, ch);
+    
+    SalvageResult result = evaluate_salvage(ch, obj);
+    
+    // Should fail - no explicit mats and unknown material
+    ASSERT(result.success == false);
+    ASSERT(result.error_msg != NULL);
+    
+    free_salvage_result(&result);
+    return 0;
+}
+
+// Test that bronze objects yield bronze ingots
+static int test_salvage_derive_bronze()
+{
+    Room* room = mock_room(96007, NULL, NULL);
+    Mobile* ch = mock_player("Bronzer");
+    transfer_mob(ch, room);
+    
+    ch->pcdata->learned[gsn_blacksmithing] = 100;
+    
+    ObjPrototype* op = mock_obj_proto(96007);
+    ASSERT(op != NULL);
+    op->item_type = ITEM_ARMOR;
+    op->salvage_mats = NULL;
+    op->salvage_mat_count = 0;
+    free_string(op->material);
+    op->material = str_dup("bronze");
+    
+    Object* obj = create_object(op, 0);
+    obj_to_char(obj, ch);
+    
+    SalvageResult result = evaluate_salvage(ch, obj);
+    
+    ASSERT(result.success == true);
+    ASSERT(result.mat_count == 1);
+    ASSERT(result.mat_vnums[0] == 111);  // bronze ingot
+    
+    free_salvage_result(&result);
+    return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Test Registration
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -3907,6 +4128,15 @@ void register_craft_tests()
     REGISTER("CorpseDerive: Non Edible", test_corpse_derive_non_edible);
     REGISTER("CorpseDerive: No Form", test_corpse_derive_no_form);
     REGISTER("CorpseDerive: Edible Only", test_corpse_derive_edible_only);
+    
+    // Issue #37: Auto-derive salvage_mats from material string
+    REGISTER("SalvageDerive: Leather", test_salvage_derive_leather);
+    REGISTER("SalvageDerive: Iron", test_salvage_derive_iron);
+    REGISTER("SalvageDerive: Steel", test_salvage_derive_steel);
+    REGISTER("SalvageDerive: Cloth", test_salvage_derive_cloth);
+    REGISTER("SalvageDerive: Override", test_salvage_derive_override);
+    REGISTER("SalvageDerive: Unknown", test_salvage_derive_unknown_material);
+    REGISTER("SalvageDerive: Bronze", test_salvage_derive_bronze);
 
 #undef REGISTER
 }
