@@ -12,6 +12,9 @@
 #include "period_edit.h"
 #include "string_edit.h"
 
+#include <craft/recipe.h>
+#include <craft/recedit.h>
+
 #include <array.h>
 #include <color.h>
 #include <comm.h>
@@ -23,14 +26,27 @@
 #include <magic.h>
 #include <recycle.h>
 #include <save.h>
+#include <stringbuffer.h>
 #include <stringutils.h>
 #include <tables.h>
 
 #include <entities/area.h>
 #include <entities/faction.h>
+#include <entities/mobile.h>
 #include <entities/mob_prototype.h>
+#include <entities/object.h>
+#include <entities/obj_prototype.h>
+#include <entities/player_data.h>
+#include <entities/reset.h>
+#include <entities/room.h>
+#include <entities/room_exit.h>
+#include <entities/shop_data.h>
 
 #include <data/loot.h>
+#include <data/class.h>
+#include <data/quest.h>
+#include <data/race.h>
+#include <mob_prog.h>
 
 #define AEDIT(fun) bool fun( Mobile *ch, char *argument )
 
@@ -56,10 +72,13 @@ static const char* checklist_status_name(ChecklistStatus status);
 static StoryBeat* story_beat_by_index(AreaData* area, int index, StoryBeat** out_prev);
 static ChecklistItem* checklist_by_index(AreaData* area, int index, ChecklistItem** out_prev);
 static void aedit_seed_default_checklist(AreaData* area);
+static int count_area_recipes(AreaData* area);
 
 AEDIT(aedit_story);
 AEDIT(aedit_checklist);
 AEDIT(aedit_period);
+AEDIT(aedit_recipe);
+AEDIT(aedit_movevnums);
 
 const OlcCmdEntry area_olc_comm_table[] = {
     { "name", 	        U(&xArea.header.name),  ed_line_lox_string, 0                   },
@@ -81,6 +100,7 @@ const OlcCmdEntry area_olc_comm_table[] = {
     { "checklist",      0,                      ed_olded,           U(aedit_checklist)  },
     { "period",         0,                      ed_olded,           U(aedit_period)     },
     { "faction",        0,                      ed_olded,           U(aedit_faction)    },
+    { "recipe",         0,                      ed_olded,           U(aedit_recipe)     },
     { "builder", 	    0,                      ed_olded,           U(aedit_builder)	},
     { "commands", 	    0,                      ed_olded,           U(show_commands)	},
     { "create", 	    0,                      ed_olded,           U(aedit_create)	    },
@@ -89,8 +109,8 @@ const OlcCmdEntry area_olc_comm_table[] = {
     { "security", 	    0,                      ed_olded,           U(aedit_security)	},
     { "show", 	        0,                      ed_olded,           U(aedit_show)	    },
     { "vnums", 	        0,                      ed_olded,           U(aedit_vnums)	    },
+    { "movevnums",      0,                      ed_olded,           U(aedit_movevnums) },
     { "levels",         0,                      ed_olded,           U(aedit_levels)     },
-    { "olist",	        0,                      ed_olist,           0                   },
     { "?",		        0,                      ed_olded,           U(show_help)	    },
     { "version", 	    0,                      ed_olded,           U(show_version)	    },
     { NULL, 		    0,                      NULL,               0		            }
@@ -457,6 +477,10 @@ AEDIT(aedit_show)
     aedit_print_faction_summary(ch, area);
     aedit_print_story_beats(ch, area);
     aedit_print_checklist(ch, area);
+
+    // Recipe count
+    int rcount = count_area_recipes(area);
+    olc_print_num(ch, "Recipes", rcount);
 
     return false;
 }
@@ -1139,6 +1163,646 @@ bool check_range(VNUM lower, VNUM upper)
     return true;
 }
 
+static void mark_area_changed(AreaData* area)
+{
+    if (area != NULL)
+        SET_BIT(area->area_flags, AREA_CHANGED);
+}
+
+static bool range_overlaps_other_areas(AreaData* area, VNUM lower, VNUM upper)
+{
+    AreaData* other;
+
+    FOR_EACH_AREA(other) {
+        if (other == area)
+            continue;
+
+        if (lower <= other->max_vnum && upper >= other->min_vnum)
+            return true;
+    }
+
+    return false;
+}
+
+static bool vnum_in_shift_range(VNUM vnum, VNUM lower, VNUM upper)
+{
+    return vnum >= lower && vnum <= upper;
+}
+
+static VNUM shift_vnum_value(VNUM vnum, VNUM lower, VNUM upper, int32_t delta)
+{
+    if (vnum <= 0)
+        return vnum;
+
+    if (!vnum_in_shift_range(vnum, lower, upper))
+        return vnum;
+
+    return (VNUM)(vnum + delta);
+}
+
+static bool shift_vnum_field(VNUM* field, VNUM lower, VNUM upper, int32_t delta)
+{
+    VNUM old_vnum = *field;
+    VNUM new_vnum = shift_vnum_value(old_vnum, lower, upper, delta);
+
+    if (new_vnum == old_vnum)
+        return false;
+
+    *field = new_vnum;
+    return true;
+}
+
+static bool shift_int_vnum_field(int* field, VNUM lower, VNUM upper, int32_t delta)
+{
+    VNUM old_vnum = (VNUM)*field;
+    VNUM new_vnum = shift_vnum_value(old_vnum, lower, upper, delta);
+
+    if (new_vnum == old_vnum)
+        return false;
+
+    *field = (int)new_vnum;
+    return true;
+}
+
+static bool shift_vnum_array(VNUM* list, int count, VNUM lower, VNUM upper, int32_t delta)
+{
+    bool changed = false;
+
+    if (list == NULL || count <= 0)
+        return false;
+
+    for (int i = 0; i < count; ++i) {
+        VNUM new_vnum = shift_vnum_value(list[i], lower, upper, delta);
+        if (new_vnum != list[i]) {
+            list[i] = new_vnum;
+            changed = true;
+        }
+    }
+
+    return changed;
+}
+
+static bool shift_value_array_vnums(ValueArray* array, VNUM lower, VNUM upper, int32_t delta)
+{
+    bool changed = false;
+
+    if (array == NULL || array->count <= 0)
+        return false;
+
+    for (int i = 0; i < array->count; ++i) {
+        Value entry = array->values[i];
+        if (!IS_INT(entry))
+            continue;
+
+        VNUM old_vnum = (VNUM)AS_INT(entry);
+        VNUM new_vnum = shift_vnum_value(old_vnum, lower, upper, delta);
+        if (new_vnum != old_vnum) {
+            array->values[i] = INT_VAL(new_vnum);
+            changed = true;
+        }
+    }
+
+    return changed;
+}
+
+static void set_entity_vnum(Entity* entity, VNUM vnum)
+{
+    entity->vnum = vnum;
+    SET_NATIVE_FIELD(entity, entity->vnum, vnum, I32);
+}
+
+static AreaData* loot_owner_area_data(Entity* owner)
+{
+    if (owner == NULL)
+        return NULL;
+
+    switch (owner->obj.type) {
+    case OBJ_AREA_DATA:
+        return (AreaData*)owner;
+    case OBJ_MOB_PROTO:
+        return ((MobPrototype*)owner)->area;
+    case OBJ_OBJ_PROTO:
+        return ((ObjPrototype*)owner)->area;
+    case OBJ_ROOM_DATA:
+        return ((RoomData*)owner)->area_data;
+    default:
+        return NULL;
+    }
+}
+
+static QuestTarget* shift_quest_target_list(QuestTarget* head, VNUM lower, VNUM upper, int32_t delta, bool* changed)
+{
+    QuestTarget* new_head = NULL;
+    QuestTarget* current = head;
+
+    while (current != NULL) {
+        QuestTarget* next = current->next;
+        bool updated = false;
+
+        updated |= shift_vnum_field(&current->quest_vnum, lower, upper, delta);
+        updated |= shift_vnum_field(&current->target_vnum, lower, upper, delta);
+        updated |= shift_vnum_field(&current->target_upper, lower, upper, delta);
+
+        if (updated && changed != NULL)
+            *changed = true;
+
+        current->next = NULL;
+        ORDERED_INSERT(QuestTarget, current, new_head, target_vnum);
+        current = next;
+    }
+
+    return new_head;
+}
+
+static QuestStatus* shift_quest_status_list(QuestStatus* head, VNUM lower, VNUM upper, int32_t delta, bool* changed)
+{
+    QuestStatus* new_head = NULL;
+    QuestStatus* current = head;
+
+    while (current != NULL) {
+        QuestStatus* next = current->next;
+        bool updated = false;
+
+        updated |= shift_vnum_field(&current->vnum, lower, upper, delta);
+
+        if (updated && changed != NULL)
+            *changed = true;
+
+        current->next = NULL;
+        ORDERED_INSERT(QuestStatus, current, new_head, vnum);
+        current = next;
+    }
+
+    return new_head;
+}
+
+static Quest* shift_quest_list(Quest* head, VNUM lower, VNUM upper, int32_t delta, bool* changed)
+{
+    Quest* new_head = NULL;
+    Quest* current = head;
+
+    while (current != NULL) {
+        Quest* next = current->next;
+        bool updated = false;
+
+        updated |= shift_vnum_field(&current->vnum, lower, upper, delta);
+        updated |= shift_vnum_field(&current->end, lower, upper, delta);
+        updated |= shift_vnum_field(&current->target, lower, upper, delta);
+        updated |= shift_vnum_field(&current->target_upper, lower, upper, delta);
+        updated |= shift_vnum_field(&current->reward_faction_vnum, lower, upper, delta);
+        updated |= shift_vnum_array(current->reward_obj_vnum, QUEST_MAX_REWARD_ITEMS,
+            lower, upper, delta);
+
+        if (updated && changed != NULL)
+            *changed = true;
+
+        current->next = NULL;
+        ORDERED_INSERT(Quest, current, new_head, vnum);
+        current = next;
+    }
+
+    return new_head;
+}
+
+static void recompute_top_vnums(void)
+{
+    RoomData* room_data;
+    MobPrototype* mob_proto;
+    ObjPrototype* obj_proto;
+
+    top_vnum_room = 0;
+    FOR_EACH_GLOBAL_ROOM(room_data) {
+        if (VNUM_FIELD(room_data) > top_vnum_room)
+            top_vnum_room = VNUM_FIELD(room_data);
+    }
+
+    top_vnum_mob = 0;
+    FOR_EACH_MOB_PROTO(mob_proto) {
+        if (VNUM_FIELD(mob_proto) > top_vnum_mob)
+            top_vnum_mob = VNUM_FIELD(mob_proto);
+    }
+
+    top_vnum_obj = 0;
+    FOR_EACH_OBJ_PROTO(obj_proto) {
+        if (VNUM_FIELD(obj_proto) > top_vnum_obj)
+            top_vnum_obj = VNUM_FIELD(obj_proto);
+    }
+}
+
+static void aedit_apply_movevnums(AreaData* area, VNUM old_min, VNUM old_max, int32_t delta)
+{
+    ValueArray room_data_to_rekey;
+    ValueArray mob_proto_to_rekey;
+    ValueArray obj_proto_to_rekey;
+    ValueArray recipe_to_rekey;
+    ValueArray faction_to_rekey;
+
+    init_value_array(&room_data_to_rekey);
+    init_value_array(&mob_proto_to_rekey);
+    init_value_array(&obj_proto_to_rekey);
+    init_value_array(&recipe_to_rekey);
+    init_value_array(&faction_to_rekey);
+    (void)area;
+
+    RoomData* room_data;
+    FOR_EACH_GLOBAL_ROOM(room_data) {
+        bool changed = false;
+
+        if (vnum_in_shift_range(VNUM_FIELD(room_data), old_min, old_max))
+            write_value_array(&room_data_to_rekey, OBJ_VAL(room_data));
+
+        for (int door = 0; door < DIR_MAX; ++door) {
+            RoomExitData* exit_data = room_data->exit_data[door];
+            if (exit_data == NULL)
+                continue;
+
+            changed |= shift_vnum_field(&exit_data->to_vnum, old_min, old_max, delta);
+            changed |= shift_vnum_field(&exit_data->key, old_min, old_max, delta);
+        }
+
+        for (Reset* reset = room_data->reset_first; reset != NULL; reset = reset->next) {
+            switch (reset->command) {
+            case 'M':
+            case 'O':
+            case 'P':
+                changed |= shift_vnum_field(&reset->arg1, old_min, old_max, delta);
+                changed |= shift_vnum_field(&reset->arg3, old_min, old_max, delta);
+                break;
+            case 'G':
+            case 'E':
+            case 'D':
+            case 'R':
+                changed |= shift_vnum_field(&reset->arg1, old_min, old_max, delta);
+                break;
+            default:
+                break;
+            }
+        }
+
+        if (changed)
+            mark_area_changed(room_data->area_data);
+    }
+
+    for (MobProgCode* prog = mprog_list; prog != NULL; prog = prog->next) {
+        if (shift_vnum_field(&prog->vnum, old_min, old_max, delta))
+            prog->changed = true;
+    }
+
+    MobPrototype* mob_proto;
+    FOR_EACH_MOB_PROTO(mob_proto) {
+        bool changed = false;
+
+        if (vnum_in_shift_range(VNUM_FIELD(mob_proto), old_min, old_max))
+            write_value_array(&mob_proto_to_rekey, OBJ_VAL(mob_proto));
+
+        changed |= shift_vnum_field(&mob_proto->faction_vnum, old_min, old_max, delta);
+        changed |= shift_vnum_field(&mob_proto->group, old_min, old_max, delta);
+        changed |= shift_vnum_array(mob_proto->craft_mats, mob_proto->craft_mat_count,
+            old_min, old_max, delta);
+
+        for (MobProg* prog = mob_proto->mprogs; prog != NULL; prog = prog->next) {
+            changed |= shift_vnum_field(&prog->vnum, old_min, old_max, delta);
+        }
+
+        if (changed)
+            mark_area_changed(mob_proto->area);
+    }
+
+    ObjPrototype* obj_proto;
+    FOR_EACH_OBJ_PROTO(obj_proto) {
+        bool changed = false;
+
+        if (vnum_in_shift_range(VNUM_FIELD(obj_proto), old_min, old_max))
+            write_value_array(&obj_proto_to_rekey, OBJ_VAL(obj_proto));
+
+        if (obj_proto->item_type == ITEM_CONTAINER)
+            changed |= shift_int_vnum_field(&obj_proto->container.key_vnum, old_min, old_max, delta);
+        else if (obj_proto->item_type == ITEM_PORTAL) {
+            changed |= shift_int_vnum_field(&obj_proto->portal.destination, old_min, old_max, delta);
+            changed |= shift_int_vnum_field(&obj_proto->portal.key_vnum, old_min, old_max, delta);
+        }
+
+        changed |= shift_vnum_array(obj_proto->salvage_mats, obj_proto->salvage_mat_count,
+            old_min, old_max, delta);
+
+        if (changed)
+            mark_area_changed(obj_proto->area);
+    }
+
+    RecipeIter recipe_iter = make_recipe_iter();
+    Recipe* recipe;
+    while ((recipe = recipe_iter_next(&recipe_iter)) != NULL) {
+        bool changed = false;
+
+        if (vnum_in_shift_range(VNUM_FIELD(recipe), old_min, old_max))
+            write_value_array(&recipe_to_rekey, OBJ_VAL(recipe));
+
+        changed |= shift_vnum_field(&recipe->station_vnum, old_min, old_max, delta);
+        changed |= shift_vnum_field(&recipe->product_vnum, old_min, old_max, delta);
+        for (int i = 0; i < recipe->ingredient_count; ++i) {
+            changed |= shift_vnum_field(&recipe->ingredients[i].mat_vnum, old_min, old_max, delta);
+        }
+
+        if (changed)
+            mark_area_changed(recipe->area);
+    }
+
+    AreaData* area_data;
+    FOR_EACH_AREA(area_data) {
+        bool changed = false;
+        area_data->quests = shift_quest_list(area_data->quests, old_min, old_max, delta, &changed);
+        if (changed)
+            mark_area_changed(area_data);
+    }
+
+    if (faction_table.capacity > 0 && faction_table.entries != NULL) {
+        for (int idx = 0; idx < faction_table.capacity; ++idx) {
+            Entry* entry = &faction_table.entries[idx];
+            if (IS_NIL(entry->value) || !IS_FACTION(entry->value))
+                continue;
+
+            Faction* faction = AS_FACTION(entry->value);
+            bool changed = false;
+
+            if (vnum_in_shift_range(VNUM_FIELD(faction), old_min, old_max))
+                write_value_array(&faction_to_rekey, entry->value);
+
+            changed |= shift_value_array_vnums(&faction->allies, old_min, old_max, delta);
+            changed |= shift_value_array_vnums(&faction->enemies, old_min, old_max, delta);
+
+            if (changed)
+                mark_area_changed(faction->area);
+        }
+    }
+
+    if (global_loot_db != NULL) {
+        bool resolve_needed = false;
+
+        for (int i = 0; i < global_loot_db->group_count; ++i) {
+            LootGroup* group = &global_loot_db->groups[i];
+            bool changed = false;
+
+            for (int j = 0; j < group->entry_count; ++j) {
+                LootEntry* entry = &group->entries[j];
+                if (entry->type != LOOT_ITEM)
+                    continue;
+
+                VNUM new_vnum = shift_vnum_value(entry->item_vnum, old_min, old_max, delta);
+                if (new_vnum != entry->item_vnum) {
+                    entry->item_vnum = new_vnum;
+                    changed = true;
+                }
+            }
+
+            if (changed)
+                mark_area_changed(loot_owner_area_data(group->owner));
+        }
+
+        for (int i = 0; i < global_loot_db->table_count; ++i) {
+            LootTable* table = &global_loot_db->tables[i];
+            bool changed = false;
+
+            for (int j = 0; j < table->op_count; ++j) {
+                LootOp* op = &table->ops[j];
+                if (op->type != LOOT_OP_ADD_ITEM && op->type != LOOT_OP_REMOVE_ITEM)
+                    continue;
+
+                VNUM new_vnum = shift_vnum_value((VNUM)op->a, old_min, old_max, delta);
+                if (new_vnum != op->a) {
+                    op->a = (int)new_vnum;
+                    changed = true;
+                }
+            }
+
+            if (changed) {
+                mark_area_changed(loot_owner_area_data(table->owner));
+                resolve_needed = true;
+            }
+        }
+
+        if (resolve_needed)
+            resolve_all_loot_tables(global_loot_db);
+    }
+
+    for (ShopData* shop = shop_first; shop != NULL; shop = shop->next) {
+        VNUM old_keeper = shop->keeper;
+        if (shift_vnum_field(&shop->keeper, old_min, old_max, delta)) {
+            MobPrototype* keeper = get_mob_prototype(old_keeper);
+            if (keeper != NULL)
+                mark_area_changed(keeper->area);
+        }
+    }
+
+    for (int i = 0; i < class_count; ++i) {
+        Class* class_ = &class_table[i];
+        shift_vnum_field(&class_->start_loc, old_min, old_max, delta);
+        shift_vnum_field(&class_->weapon, old_min, old_max, delta);
+        for (int j = 0; j < MAX_GUILD; ++j)
+            shift_vnum_field(&class_->guild[j], old_min, old_max, delta);
+    }
+
+    for (int i = 0; i < race_count; ++i) {
+        Race* race = &race_table[i];
+        shift_vnum_field(&race->start_loc, old_min, old_max, delta);
+        for (size_t j = 0; j < race->class_start.count; ++j) {
+            VNUM vnum = race->class_start.elems[j];
+            VNUM new_vnum = shift_vnum_value(vnum, old_min, old_max, delta);
+            if (new_vnum != vnum)
+                race->class_start.elems[j] = new_vnum;
+        }
+    }
+
+    for (PlayerData* pcdata = player_data_list; pcdata != NULL; pcdata = pcdata->next) {
+        shift_vnum_field(&pcdata->recall, old_min, old_max, delta);
+
+        if (pcdata->reputations.entries != NULL) {
+            for (size_t i = 0; i < pcdata->reputations.count; ++i) {
+                shift_vnum_field(&pcdata->reputations.entries[i].vnum, old_min, old_max, delta);
+            }
+        }
+
+        if (pcdata->quest_log != NULL) {
+            bool changed = false;
+            pcdata->quest_log->target_mobs = shift_quest_target_list(pcdata->quest_log->target_mobs,
+                old_min, old_max, delta, &changed);
+            pcdata->quest_log->target_objs = shift_quest_target_list(pcdata->quest_log->target_objs,
+                old_min, old_max, delta, &changed);
+            pcdata->quest_log->target_ends = shift_quest_target_list(pcdata->quest_log->target_ends,
+                old_min, old_max, delta, &changed);
+            pcdata->quest_log->quests = shift_quest_status_list(pcdata->quest_log->quests,
+                old_min, old_max, delta, &changed);
+        }
+    }
+
+    for (int i = 0; i < room_data_to_rekey.count; ++i) {
+        RoomData* rekey_room = AS_ROOM_DATA(room_data_to_rekey.values[i]);
+        VNUM old_vnum = VNUM_FIELD(rekey_room);
+        VNUM new_vnum = shift_vnum_value(old_vnum, old_min, old_max, delta);
+
+        global_room_remove(old_vnum);
+        set_entity_vnum(&rekey_room->header, new_vnum);
+        global_room_set(rekey_room);
+        mark_area_changed(rekey_room->area_data);
+    }
+
+    for (int i = 0; i < mob_proto_to_rekey.count; ++i) {
+        MobPrototype* rekey_mob = AS_MOB_PROTO(mob_proto_to_rekey.values[i]);
+        VNUM old_vnum = VNUM_FIELD(rekey_mob);
+        VNUM new_vnum = shift_vnum_value(old_vnum, old_min, old_max, delta);
+
+        global_mob_proto_remove(old_vnum);
+        set_entity_vnum(&rekey_mob->header, new_vnum);
+        global_mob_proto_set(rekey_mob);
+        mark_area_changed(rekey_mob->area);
+    }
+
+    for (int i = 0; i < obj_proto_to_rekey.count; ++i) {
+        ObjPrototype* rekey_obj = AS_OBJ_PROTO(obj_proto_to_rekey.values[i]);
+        VNUM old_vnum = VNUM_FIELD(rekey_obj);
+        VNUM new_vnum = shift_vnum_value(old_vnum, old_min, old_max, delta);
+
+        global_obj_proto_remove(old_vnum);
+        set_entity_vnum(&rekey_obj->header, new_vnum);
+        global_obj_proto_set(rekey_obj);
+        mark_area_changed(rekey_obj->area);
+    }
+
+    for (int i = 0; i < recipe_to_rekey.count; ++i) {
+        Recipe* rekey_recipe = (Recipe*)AS_OBJ(recipe_to_rekey.values[i]);
+        VNUM old_vnum = VNUM_FIELD(rekey_recipe);
+        VNUM new_vnum = shift_vnum_value(old_vnum, old_min, old_max, delta);
+
+        remove_recipe(old_vnum);
+        set_entity_vnum(&rekey_recipe->header, new_vnum);
+        add_recipe(rekey_recipe);
+        mark_area_changed(rekey_recipe->area);
+    }
+
+    for (int i = 0; i < faction_to_rekey.count; ++i) {
+        Faction* rekey_faction = AS_FACTION(faction_to_rekey.values[i]);
+        VNUM old_vnum = VNUM_FIELD(rekey_faction);
+        VNUM new_vnum = shift_vnum_value(old_vnum, old_min, old_max, delta);
+
+        table_delete_vnum(&faction_table, old_vnum);
+        set_entity_vnum(&rekey_faction->header, new_vnum);
+        table_set_vnum(&faction_table, new_vnum, OBJ_VAL(rekey_faction));
+        mark_area_changed(rekey_faction->area);
+    }
+
+    FOR_EACH_AREA(area_data) {
+        Area* area_inst;
+        FOR_EACH_AREA_INST(area_inst, area_data) {
+            ValueArray rooms_to_rekey;
+            init_value_array(&rooms_to_rekey);
+
+            Room* room;
+            FOR_EACH_AREA_ROOM(room, area_inst) {
+                if (vnum_in_shift_range(VNUM_FIELD(room), old_min, old_max))
+                    write_value_array(&rooms_to_rekey, OBJ_VAL(room));
+            }
+
+            for (int i = 0; i < rooms_to_rekey.count; ++i) {
+                Room* rekey_room = AS_ROOM(rooms_to_rekey.values[i]);
+                VNUM old_vnum = VNUM_FIELD(rekey_room);
+                VNUM new_vnum = shift_vnum_value(old_vnum, old_min, old_max, delta);
+
+                table_delete_vnum(&area_inst->rooms, old_vnum);
+                set_entity_vnum(&rekey_room->header, new_vnum);
+                table_set_vnum(&area_inst->rooms, VNUM_FIELD(rekey_room), OBJ_VAL(rekey_room));
+            }
+
+            free_value_array(&rooms_to_rekey);
+        }
+    }
+
+    Mobile* mob;
+    FOR_EACH_GLOBAL_MOB(mob) {
+        shift_vnum_field(&mob->faction_vnum, old_min, old_max, delta);
+        shift_vnum_field(&mob->group, old_min, old_max, delta);
+
+        if (vnum_in_shift_range(VNUM_FIELD(mob), old_min, old_max)) {
+            VNUM new_vnum = shift_vnum_value(VNUM_FIELD(mob), old_min, old_max, delta);
+            set_entity_vnum(&mob->header, new_vnum);
+        }
+    }
+
+    Object* obj;
+    FOR_EACH_GLOBAL_OBJ(obj) {
+        if (obj->item_type == ITEM_CONTAINER)
+            shift_int_vnum_field(&obj->container.key_vnum, old_min, old_max, delta);
+        else if (obj->item_type == ITEM_PORTAL) {
+            shift_int_vnum_field(&obj->portal.destination, old_min, old_max, delta);
+            shift_int_vnum_field(&obj->portal.key_vnum, old_min, old_max, delta);
+        }
+
+        shift_vnum_array(obj->craft_mats, obj->craft_mat_count, old_min, old_max, delta);
+        shift_vnum_array(obj->salvage_mats, obj->salvage_mat_count, old_min, old_max, delta);
+
+        if (vnum_in_shift_range(VNUM_FIELD(obj), old_min, old_max)) {
+            VNUM new_vnum = shift_vnum_value(VNUM_FIELD(obj), old_min, old_max, delta);
+            set_entity_vnum(&obj->header, new_vnum);
+        }
+    }
+
+    free_value_array(&room_data_to_rekey);
+    free_value_array(&mob_proto_to_rekey);
+    free_value_array(&obj_proto_to_rekey);
+    free_value_array(&recipe_to_rekey);
+    free_value_array(&faction_to_rekey);
+}
+
+AEDIT(aedit_movevnums)
+{
+    AreaData* area;
+    char arg[MAX_STRING_LENGTH];
+
+    EDIT_AREA(ch, area);
+
+    one_argument(argument, arg);
+    if (!is_number(arg) || arg[0] == '\0') {
+        send_to_char(COLOR_INFO "Syntax:  movevnums <lower>" COLOR_EOL, ch);
+        return false;
+    }
+
+    VNUM new_min = STRTOVNUM(arg);
+    VNUM old_min = area->min_vnum;
+    VNUM old_max = area->max_vnum;
+    int64_t delta64 = (int64_t)new_min - (int64_t)old_min;
+
+    if (old_min > old_max) {
+        send_to_char(COLOR_INFO "Area VNUM range is invalid." COLOR_EOL, ch);
+        return false;
+    }
+
+    if (delta64 == 0) {
+        send_to_char(COLOR_INFO "Area VNUMs are already at that range." COLOR_EOL, ch);
+        return false;
+    }
+
+    int64_t new_max64 = (int64_t)old_max + delta64;
+    if (new_min < 0 || new_max64 < 0 || new_max64 > MAX_VNUM) {
+        send_to_char(COLOR_INFO "Target VNUM range is out of bounds." COLOR_EOL, ch);
+        return false;
+    }
+
+    VNUM new_max = (VNUM)new_max64;
+    if (range_overlaps_other_areas(area, new_min, new_max)) {
+        send_to_char(COLOR_INFO "Target range overlaps another area." COLOR_EOL, ch);
+        return false;
+    }
+
+    aedit_apply_movevnums(area, old_min, old_max, (int32_t)delta64);
+
+    area->min_vnum = new_min;
+    area->max_vnum = new_max;
+    mark_area_changed(area);
+    recompute_top_vnums();
+
+    printf_to_char(ch, COLOR_INFO "Area VNUMs moved to %" PRVNUM "-%" PRVNUM " (delta %+d)." COLOR_EOL,
+        area->min_vnum, area->max_vnum, (int32_t)delta64);
+    return true;
+}
+
 AEDIT(aedit_vnums)
 {
     AreaData* area;
@@ -1289,11 +1953,11 @@ void do_alist(Mobile* ch, char* argument)
     static const char* help = "Syntax: " COLOR_ALT_TEXT_1 "ALIST\n\r"
         "        ALIST ORDERBY (VNUM|NAME)" COLOR_EOL;
 
-    INIT_BUF(result, MAX_STRING_LENGTH);
+    StringBuffer* sb = sb_new();
     char arg[MIL];
     char sort[MIL];
 
-    addf_buf(result, COLOR_DECOR_1 "[" COLOR_TITLE "%3s" COLOR_DECOR_1 "] [" COLOR_TITLE "%-22s" COLOR_DECOR_1 "] (" COLOR_TITLE "%6s" COLOR_DECOR_1 "-" COLOR_TITLE "%-6s" COLOR_DECOR_1 ") " COLOR_DECOR_1 "[" COLOR_TITLE "%-11s" COLOR_DECOR_1 "] " COLOR_TITLE "%3s " COLOR_DECOR_1 "[" COLOR_TITLE "%-10s" COLOR_DECOR_1 "]" COLOR_EOL,
+    sb_appendf(sb, COLOR_DECOR_1 "[" COLOR_TITLE "%3s" COLOR_DECOR_1 "] [" COLOR_TITLE "%-22s" COLOR_DECOR_1 "] (" COLOR_TITLE "%6s" COLOR_DECOR_1 "-" COLOR_TITLE "%-6s" COLOR_DECOR_1 ") " COLOR_DECOR_1 "[" COLOR_TITLE "%-11s" COLOR_DECOR_1 "] " COLOR_TITLE "%3s " COLOR_DECOR_1 "[" COLOR_TITLE "%-10s" COLOR_DECOR_1 "]\n\r",
         "Num", "Area Name", "lvnum", "uvnum", "Filename", "Sec", "Builders");
 
     size_t alist_size = sizeof(AreaData*) * global_areas.count;
@@ -1328,10 +1992,9 @@ void do_alist(Mobile* ch, char* argument)
     }
 
     AreaData* area;
-    //FOR_EACH_AREA(area) {
     for (int i = 0; i < global_areas.count; ++i) {
         area = alist[i];
-        addf_buf( result, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%3d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-24.24s " COLOR_DECOR_1 "(" COLOR_ALT_TEXT_1 "%6d" COLOR_DECOR_1 "-" COLOR_ALT_TEXT_1 "%-6d" COLOR_DECOR_1 ") " COLOR_ALT_TEXT_2 "%-13.13s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "] [" COLOR_ALT_TEXT_1 "%-10.10s" COLOR_DECOR_1 "]" COLOR_EOL,
+        sb_appendf(sb, "[" COLOR_ALT_TEXT_1 "%3d" COLOR_DECOR_1 "]" COLOR_CLEAR " %-24.24s " COLOR_DECOR_1 "(" COLOR_ALT_TEXT_1 "%6d" COLOR_DECOR_1 "-" COLOR_ALT_TEXT_1 "%-6d" COLOR_DECOR_1 ") " COLOR_ALT_TEXT_2 "%-13.13s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "] [" COLOR_ALT_TEXT_1 "%-10.10s" COLOR_DECOR_1 "]\n\r",
             VNUM_FIELD(area),
             NAME_STR(area),
             area->min_vnum,
@@ -1340,11 +2003,12 @@ void do_alist(Mobile* ch, char* argument)
             area->security,
             area->builders);
     }
+    sb_appendf(sb, COLOR_CLEAR);
 
-    send_to_char(result->string, ch);
+    send_to_char(sb->data, ch);
 
 alist_cleanup:
-    free_buf(result);
+    sb_free(sb);
     free_mem(alist, alist_size);
     return;
 }
@@ -1364,4 +2028,182 @@ AreaData* get_area_data(VNUM vnum)
     }
 
     return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Recipe Management in Area Editor
+////////////////////////////////////////////////////////////////////////////////
+
+static int count_area_recipes(AreaData* area)
+{
+    int count = 0;
+    RecipeIter iter = make_recipe_iter();
+    Recipe* recipe;
+    while ((recipe = recipe_iter_next(&iter)) != NULL) {
+        if (recipe->area == area)
+            count++;
+    }
+    return count;
+}
+
+static void aedit_list_recipes(Mobile* ch, AreaData* area)
+{
+    int count = 0;
+    RecipeIter iter = make_recipe_iter();
+    Recipe* recipe;
+
+    printf_to_char(ch, COLOR_INFO "Recipes in [%d] %s:" COLOR_EOL "\n\r",
+        VNUM_FIELD(area), NAME_STR(area));
+
+    while ((recipe = recipe_iter_next(&iter)) != NULL) {
+        if (recipe->area != area)
+            continue;
+
+        const char* skill_name = "(none)";
+        if (recipe->required_skill >= 0 && recipe->required_skill < skill_count) {
+            skill_name = skill_table[recipe->required_skill].name;
+        }
+
+        printf_to_char(ch, 
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%5d" COLOR_DECOR_1 "]" COLOR_CLEAR
+            " %-30.30s %-20.20s Lvl %d" COLOR_EOL,
+            VNUM_FIELD(recipe),
+            NAME_STR(recipe),
+            skill_name,
+            recipe->min_level);
+        count++;
+    }
+
+    if (count == 0) {
+        send_to_char("  (none)\n\r", ch);
+    }
+    printf_to_char(ch, "\n\r" COLOR_INFO "%d recipe(s) in this area." COLOR_EOL, count);
+}
+
+AEDIT(aedit_recipe)
+{
+    AreaData* area;
+    char cmd[MAX_INPUT_LENGTH];
+    char arg[MAX_INPUT_LENGTH];
+    VNUM vnum;
+
+    EDIT_AREA(ch, area);
+
+    READ_ARG(cmd);
+    READ_ARG(arg);
+
+    // No argument - list recipes
+    if (IS_NULLSTR(cmd) || !str_cmp(cmd, "list")) {
+        aedit_list_recipes(ch, area);
+        return false;
+    }
+
+    // Create new recipe
+    if (!str_cmp(cmd, "create")) {
+        if (IS_NULLSTR(arg) || !is_number(arg)) {
+            send_to_char(COLOR_INFO "Syntax: recipe create <vnum>" COLOR_EOL, ch);
+            return false;
+        }
+
+        vnum = (VNUM)atoi(arg);
+
+        // Validate VNUM is in area range
+        if (vnum < area->min_vnum || vnum > area->max_vnum) {
+            printf_to_char(ch, COLOR_INFO "Recipe VNUM must be in area range %d-%d." COLOR_EOL,
+                area->min_vnum, area->max_vnum);
+            return false;
+        }
+
+        // Check if already exists
+        if (get_recipe(vnum)) {
+            send_to_char(COLOR_INFO "A recipe with that VNUM already exists." COLOR_EOL, ch);
+            return false;
+        }
+
+        // Create the recipe
+        Recipe* recipe = new_recipe();
+        recipe->header.vnum = vnum;
+        recipe->area = area;
+        recipe->required_skill = -1;
+        recipe->min_skill_pct = 0;
+        recipe->min_level = 1;
+        recipe->station_type = WORK_NONE;
+        recipe->station_vnum = VNUM_NONE;
+        recipe->discovery = DISC_KNOWN;
+        recipe->product_vnum = VNUM_NONE;
+        recipe->product_quantity = 1;
+
+        if (!add_recipe(recipe)) {
+            send_to_char(COLOR_INFO "Failed to add recipe." COLOR_EOL, ch);
+            free_recipe(recipe);
+            return false;
+        }
+
+        // Enter recipe editor
+        set_editor(ch->desc, ED_RECIPE, (uintptr_t)recipe);
+        printf_to_char(ch, COLOR_INFO "Recipe %d created. Entering recipe editor." COLOR_EOL, vnum);
+        SET_BIT(area->area_flags, AREA_CHANGED);
+        return true;
+    }
+
+    // Edit existing recipe
+    if (!str_cmp(cmd, "edit")) {
+        if (IS_NULLSTR(arg) || !is_number(arg)) {
+            send_to_char(COLOR_INFO "Syntax: recipe edit <vnum>" COLOR_EOL, ch);
+            return false;
+        }
+
+        vnum = (VNUM)atoi(arg);
+        Recipe* recipe = get_recipe(vnum);
+
+        if (!recipe) {
+            send_to_char(COLOR_INFO "No recipe with that VNUM exists." COLOR_EOL, ch);
+            return false;
+        }
+
+        if (recipe->area != area) {
+            send_to_char(COLOR_INFO "That recipe belongs to a different area." COLOR_EOL, ch);
+            return false;
+        }
+
+        // Enter recipe editor
+        set_editor(ch->desc, ED_RECIPE, (uintptr_t)recipe);
+        printf_to_char(ch, COLOR_INFO "Editing recipe %d." COLOR_EOL, vnum);
+        return true;
+    }
+
+    // Delete recipe
+    if (!str_cmp(cmd, "delete")) {
+        if (IS_NULLSTR(arg) || !is_number(arg)) {
+            send_to_char(COLOR_INFO "Syntax: recipe delete <vnum>" COLOR_EOL, ch);
+            return false;
+        }
+
+        vnum = (VNUM)atoi(arg);
+        Recipe* recipe = get_recipe(vnum);
+
+        if (!recipe) {
+            send_to_char(COLOR_INFO "No recipe with that VNUM exists." COLOR_EOL, ch);
+            return false;
+        }
+
+        if (recipe->area != area) {
+            send_to_char(COLOR_INFO "That recipe belongs to a different area." COLOR_EOL, ch);
+            return false;
+        }
+
+        remove_recipe(vnum);
+        printf_to_char(ch, COLOR_INFO "Recipe %d deleted." COLOR_EOL, vnum);
+        SET_BIT(area->area_flags, AREA_CHANGED);
+        return true;
+    }
+
+    // Unknown subcommand
+    send_to_char(COLOR_INFO "Syntax:" COLOR_EOL
+                 "  recipe                  - List recipes in this area" COLOR_EOL
+                 "  recipe list             - List recipes in this area" COLOR_EOL
+                 "  recipe create <vnum>    - Create new recipe" COLOR_EOL
+                 "  recipe edit <vnum>      - Edit existing recipe" COLOR_EOL
+                 "  recipe delete <vnum>    - Delete recipe" COLOR_EOL, ch);
+    return false;
 }

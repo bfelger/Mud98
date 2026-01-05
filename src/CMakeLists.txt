@@ -166,6 +166,14 @@ add_library(Mud98Core STATIC "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
 
     "mth/mth.h" "mth/msdp.c" "mth/mth.c" "mth/telopt.c"
     
+    "craft/craft.h" "craft/craft.c"
+    "craft/recipe.h" "craft/recipe.c"
+    "craft/act_craft.h" "craft/act_craft.c"
+    "craft/workstation.h" "craft/workstation.c"
+    "craft/craft_olc.h" "craft/craft_olc.c"
+    "craft/recedit.h" "craft/recedit.c"
+    "craft/craft_skill.h" "craft/craft_skill.c"
+    
     "entities/affect.h" "entities/affect.c"
     "entities/area.h" "entities/area.c"
     "entities/descriptor.h" "entities/descriptor.c"
@@ -236,6 +244,7 @@ target_include_directories(Mud98Core
         ${CMAKE_CURRENT_SOURCE_DIR}/data
         ${CMAKE_CURRENT_SOURCE_DIR}/lox
         ${CMAKE_CURRENT_SOURCE_DIR}/olc
+        ${CMAKE_CURRENT_SOURCE_DIR}/craft
         $<$<BOOL:${OPENSSL_FOUND}>:${OPENSSL_INCLUDE_DIR}>
         $<$<BOOL:${ZLIB_FOUND}>:${ZLIB_INCLUDE_DIRS}>
     PRIVATE
@@ -286,7 +295,7 @@ add_executable(Mud98Tests
     "tests/player_persist_tests.c" "tests/quest_tests.c" "tests/fmt_tests.c" 
     "tests/theme_tests.c" "tests/util_tests.c" "tests/daycycle_tests.c" 
     "tests/multihit_tests.c" "tests/loot_tests.c" "tests/thief_tests.c" 
-    "tests/magic_tests.c"
+    "tests/magic_tests.c" "tests/craft_tests.c" "tests/olc_aedit_tests.c"
 )
 
 target_link_libraries(Mud98Tests PRIVATE Mud98Core Mud98CompilerSettings)

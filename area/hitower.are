@@ -1,5 +1,5 @@
 #AREADATA
-Version 2
+Version 3
 Name High Tower~
 Builders ~
 VNUMs 1300 1499
@@ -1832,7 +1832,7 @@ a tight fitting green dragon scale shirt~
 Some green dragon scales which have been sewn together are here.~
 oldstyle~
 armor G AD
-10 10 10 5 0
+10 10 10 5 5
 37 90 17800 P
 A
 2 3
@@ -3646,7 +3646,7 @@ D3
 D4
 ~
 ~
-0 -1 938
+0 -1 2538
 D5
 ~
 ~

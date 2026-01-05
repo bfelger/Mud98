@@ -3127,10 +3127,16 @@ You see the main street.
 ~
 ~
 0 -1 3015
+D3
+A doorway leads to the carpenter's workshop.
+~
+~
+0 -1 3037
 S
 #3011
 The Weapon Shop~
 You are inside the weapon shop.  There is a small note on the counter.
+A doorway in the back leads to the foundry.
 ~
 0
 DS 0
@@ -3144,6 +3150,11 @@ The note reads:
           pay for your item.
   Sell  - Sell an item.
 ~
+D0
+A doorway leads to the foundry.
+~
+~
+0 -1 3038
 D2
 You see the main street.
 ~
@@ -3757,6 +3768,11 @@ You see the alley.
 ~
 ~
 0 -1 3044
+D3
+A doorway leads to the tailor's shop.
+~
+~
+0 -1 3036
 S
 #3040
 Inside the West Gate of Midgaard~
@@ -6233,6 +6249,74 @@ The stairs lead back down to the pub.
 ~
 0 -1 3356
 S
+#3036
+The Tailor's Shop~
+A cozy shop filled with bolts of fabric in every color imaginable.  Spools
+of thread line the shelves, and a large cutting table dominates the center
+of the room.  Dress forms stand in the corners displaying partially finished
+garments.  The smell of fresh linen mingles with a hint of lavender.
+A small sign hangs near the entrance.
+~
+0
+DS 0
+E
+sign~
+The sign reads:
+
+  List  - Show which fabrics and garments are available.
+  Buy   - Purchase an item.
+  Value - Have the tailor appraise your goods.
+  Sell  - Sell clothing or fabric.
+~
+D1
+You see the Leather Shop to the east.
+~
+~
+0 -1 3035
+S
+#3037
+The Carpenter's Workshop~
+Sawdust covers the floor of this busy workshop.  Woodworking tools hang
+neatly on the walls - saws, planes, chisels, and hammers of various sizes.
+Half-finished furniture pieces sit on sturdy workbenches, and the sweet
+smell of freshly cut wood fills the air.  Wooden shavings curl in piles
+beneath the benches.
+A notice board hangs on the wall.
+~
+0
+DS 0
+E
+notice board~
+The notice reads:
+
+  Custom woodwork available!
+  List  - See our inventory.
+  Buy   - Purchase wooden goods.
+  Value - Get an appraisal.
+  Sell  - Sell wooden items.
+~
+D1
+You see the General Store to the east.
+~
+~
+0 -1 3010
+S
+#3038
+The Foundry~
+The heat from the massive smelting furnace is almost unbearable.  Crucibles
+of molten metal glow orange-white, and the air shimmers with heat waves.
+Heavy iron tools for working metal hang from hooks along the walls.  A large
+bellows system feeds air to the furnace, keeping it at smelting temperature.
+The back door leads to the weapon shop.
+~
+0
+DS 0
+D2
+The weapon shop is to the south.
+~
+~
+0 -1 3011
+S
 #0
 
 
@@ -6611,6 +6695,16 @@ M 0 3162 1 3334 1
 O 0 3200 0 3352
 O 0 3200 0 3355
 O 0 3200 0 3356
+* Crafting workstations
+O 0 201 1 3035
+O 0 210 1 3011
+O 0 203 1 3007
+O 0 204 1 3019
+O 0 205 1 3054
+O 0 207 1 3034
+O 0 208 1 3036
+O 0 206 1 3037
+O 0 209 1 3038
 S
 
 

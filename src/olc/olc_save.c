@@ -371,6 +371,14 @@ void save_mobile(FILE* fp, MobPrototype* p_mob_proto)
     if (!IS_NULLSTR(p_mob_proto->loot_table))
         fprintf(fp, "LootTable %s~\n", p_mob_proto->loot_table);
 
+    if (p_mob_proto->craft_mats != NULL && p_mob_proto->craft_mat_count > 0) {
+        fprintf(fp, "CraftMats");
+        for (int i = 0; i < p_mob_proto->craft_mat_count; i++) {
+            fprintf(fp, " %" PRVNUM, p_mob_proto->craft_mats[i]);
+        }
+        fprintf(fp, " 0\n");
+    }
+
     FOR_EACH(pMprog, p_mob_proto->mprogs) {
         fprintf(fp, "M '%s' %"PRVNUM" %s~\n",
             event_trigger_name(pMprog->trig_type), pMprog->vnum,
@@ -555,6 +563,26 @@ void save_object(FILE* fp, ObjPrototype* obj_proto)
             skill_table[obj_proto->value[3]].name
             : "");
         break;
+
+    case ITEM_MAT:
+        // Crafting material: mat_type amount quality unused unused
+        fprintf(fp, "%d %d %d %d %d\n",
+            obj_proto->craft_mat.mat_type,
+            obj_proto->craft_mat.amount,
+            obj_proto->craft_mat.quality,
+            obj_proto->craft_mat.unused3,
+            obj_proto->craft_mat.unused4);
+        break;
+
+    case ITEM_WORKSTATION:
+        // Workstation: station_flags bonus unused unused unused
+        fprintf(fp, "%s %d %d %d %d\n",
+            fwrite_flag(obj_proto->workstation.station_flags, buf),
+            obj_proto->workstation.bonus,
+            obj_proto->workstation.unused2,
+            obj_proto->workstation.unused3,
+            obj_proto->workstation.unused4);
+        break;
     }
 
     fprintf(fp, "%d ", obj_proto->level);
@@ -608,6 +636,14 @@ void save_object(FILE* fp, ObjPrototype* obj_proto)
     }
 
     save_events(fp, &obj_proto->header);
+
+    if (obj_proto->salvage_mats != NULL && obj_proto->salvage_mat_count > 0) {
+        fprintf(fp, "SalvageMats");
+        for (int i = 0; i < obj_proto->salvage_mat_count; i++) {
+            fprintf(fp, " %" PRVNUM, obj_proto->salvage_mats[i]);
+        }
+        fprintf(fp, " 0\n");
+    }
 
     if (obj_proto->header.script != NULL) {
         fprintf(fp, "L\n%s~\n", fix_lox_script(obj_proto->header.script->chars));

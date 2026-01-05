@@ -43,8 +43,14 @@
 #include "save.h"
 #include "skills.h"
 #include "special.h"
+#include "stringbuffer.h"
 #include "tables.h"
 #include "update.h"
+
+#include <craft/craft.h>
+#include <craft/craft_olc.h>
+
+#include <olc/olc.h>
 
 #include <entities/area.h>
 #include <entities/descriptor.h>
@@ -4013,4 +4019,294 @@ void do_prefix(Mobile* ch, char* argument)
     }
 
     ch->prefix = str_dup(argument);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// do_olist - Builder command for listing objects and materials
+//
+// Provides a standalone, OLC-aware command that works from anywhere. Replaces
+// the OLC-only ed_olist function that had to be added to every editor.
+//
+// Usage:
+//   olist obj [all|name|type]     - List objects in current area
+//   olist obj all global          - List all objects globally
+//   olist obj <filter> <area>     - List objects in specified area
+//   olist mat [type]              - List ITEM_MAT in current area
+//   olist mat [type] global       - List all ITEM_MAT globally
+//   olist mat [type] <area>       - List ITEM_MAT in specified area
+////////////////////////////////////////////////////////////////////////////////
+
+// Helper: Get area for listing (from OLC if in editor, else from room)
+static AreaData* olist_get_area(Mobile* ch)
+{
+    if (ch->desc) {
+        EditorType ed_type = get_editor(ch->desc);
+        // If in any area-aware OLC mode, use that area
+        if (ed_type == ED_AREA) {
+            return (AreaData*)get_pEdit(ch->desc);
+        }
+        if (ed_type == ED_ROOM) {
+            RoomData* room = (RoomData*)get_pEdit(ch->desc);
+            return room ? room->area_data : NULL;
+        }
+        if (ed_type == ED_OBJECT) {
+            ObjPrototype* obj = (ObjPrototype*)get_pEdit(ch->desc);
+            return obj ? obj->area : NULL;
+        }
+        if (ed_type == ED_MOBILE) {
+            MobPrototype* mob = (MobPrototype*)get_pEdit(ch->desc);
+            return mob ? mob->area : NULL;
+        }
+    }
+    // Fall back to player's current room
+    return ch->in_room ? ch->in_room->area->data : NULL;
+}
+
+// Helper: Find area by name/credits prefix
+static AreaData* olist_find_area(const char* name)
+{
+    AreaData* area;
+    FOR_EACH_AREA(area) {
+        if (!str_prefix(name, area->credits))
+            return area;
+    }
+    return NULL;
+}
+
+// List objects with optional filter
+static void olist_objects(Mobile* ch, AreaData* area, const char* filter, bool global)
+{
+    StringBuffer* sb = sb_new();
+    int found = 0;
+    int col = 0;
+    bool fAll = !str_cmp(filter, "all") || filter[0] == '\0';
+    int type_flag = flag_value(type_flag_table, (char*)filter);
+
+    if (global) {
+        sb_append(sb, "Objects (global)");
+    }
+    else if (area) {
+        sb_appendf(sb, "Objects in %s", area->credits);
+    }
+    else {
+        send_to_char("You must be in an area or specify one.\n\r", ch);
+        sb_free(sb);
+        return;
+    }
+    
+    if (!fAll && type_flag == NO_FLAG) {
+        sb_appendf(sb, " matching '%s'", filter);
+    }
+    else if (!fAll) {
+        sb_appendf(sb, " of type %s", filter);
+    }
+    sb_append(sb, ":\n\r");
+
+    VNUM start_vnum = global ? 0 : area->min_vnum;
+    VNUM end_vnum = global ? 65535 : area->max_vnum;
+
+    for (VNUM vnum = start_vnum; vnum <= end_vnum; vnum++) {
+        ObjPrototype* proto = get_object_prototype(vnum);
+        if (!proto) continue;
+
+        // Apply filter
+        if (!fAll) {
+            if (type_flag != NO_FLAG) {
+                if (proto->item_type != (ItemType)type_flag)
+                    continue;
+            }
+            else if (!is_name((char*)filter, NAME_STR(proto))) {
+                continue;
+            }
+        }
+
+        sb_appendf(sb, "[%5d] %-17.16s", vnum, proto->short_descr);
+        found++;
+        if (++col % 3 == 0)
+            sb_append(sb, "\n\r");
+
+        // Limit output
+        if (found >= 150) {
+            sb_append(sb, "\n\r... (list truncated, use filter to narrow results)\n\r");
+            break;
+        }
+    }
+
+    if (found == 0) {
+        sb_free(sb);
+        send_to_char("No objects found matching your criteria.\n\r", ch);
+        return;
+    }
+
+    if (col % 3 != 0)
+        sb_append(sb, "\n\r");
+
+    page_to_char(sb_string(sb), ch);
+    sb_free(sb);
+}
+
+// List materials with optional type filter
+static void olist_materials(Mobile* ch, AreaData* area, CraftMatType type_filter, bool global)
+{
+    // craft_olc_list_mats handles the output
+    // But we need to modify it for global support, so we'll implement inline
+    StringBuffer* sb = sb_new();
+    int found = 0;
+
+    if (type_filter == MAT_NONE) {
+        sb_append(sb, "Crafting materials");
+    }
+    else {
+        sb_appendf(sb, "%s materials", craft_mat_type_name(type_filter));
+    }
+
+    if (global) {
+        sb_append(sb, " (global)");
+    }
+    else if (area) {
+        sb_appendf(sb, " in %s", area->credits);
+    }
+    else {
+        send_to_char("You must be in an area or specify one.\n\r", ch);
+        sb_free(sb);
+        return;
+    }
+    sb_append(sb, ":\n\r");
+
+    VNUM start_vnum = global ? 0 : area->min_vnum;
+    VNUM end_vnum = global ? 65535 : area->max_vnum;
+
+    for (VNUM vnum = start_vnum; vnum <= end_vnum; vnum++) {
+        ObjPrototype* proto = get_object_prototype(vnum);
+        if (!proto) continue;
+        if (proto->item_type != ITEM_MAT) continue;
+        if (type_filter != MAT_NONE && proto->craft_mat.mat_type != (int)type_filter) continue;
+
+        sb_appendf(sb, "  [%5d] %-30s (%s)\n\r",
+            vnum,
+            proto->short_descr,
+            craft_mat_type_name(proto->craft_mat.mat_type));
+        found++;
+
+        // Limit output
+        if (found >= 100) {
+            sb_append(sb, "  ... (list truncated, use type filter or area to narrow results)\n\r");
+            break;
+        }
+    }
+
+    if (found == 0) {
+        sb_append(sb, "  (none found)\n\r");
+    }
+
+    page_to_char(sb_string(sb), ch);
+    sb_free(sb);
+}
+
+void do_olist(Mobile* ch, char* argument)
+{
+    static const char* syntax = 
+        "Syntax: olist obj [all|<name>|<type>] [global|<area>]\n\r"
+        "        olist mat [<type>] [global|<area>]\n\r"
+        "\n\r"
+        "Examples:\n\r"
+        "  olist obj all           - List all objects in current area\n\r"
+        "  olist obj armor         - List armor in current area\n\r"
+        "  olist obj all global    - List all objects globally\n\r"
+        "  olist mat               - List all materials in current area\n\r"
+        "  olist mat hide          - List hide materials in current area\n\r"
+        "  olist mat global        - List all materials globally\n\r"
+        "  olist mat bone midgaard - List bone materials in Midgaard\n\r";
+
+    char mode[MAX_INPUT_LENGTH];
+    char arg1[MAX_INPUT_LENGTH];
+    char arg2[MAX_INPUT_LENGTH];
+
+    argument = one_argument(argument, mode);
+    argument = one_argument(argument, arg1);
+    argument = one_argument(argument, arg2);
+
+    // Default to 'obj' mode if no argument or first arg looks like a filter
+    if (mode[0] == '\0') {
+        send_to_char(syntax, ch);
+        return;
+    }
+
+    // Determine mode
+    bool mat_mode = !str_prefix(mode, "materials") || !str_prefix(mode, "mat");
+    bool obj_mode = !str_prefix(mode, "objects") || !str_prefix(mode, "obj");
+
+    if (!mat_mode && !obj_mode) {
+        // Maybe they used old syntax: olist all, olist armor
+        // Treat first arg as filter, shift args
+        strcpy(arg2, arg1);
+        strcpy(arg1, mode);
+        obj_mode = true;
+    }
+
+    // Parse area/global from args
+    AreaData* area = olist_get_area(ch);
+    bool global = false;
+
+    if (obj_mode) {
+        // olist obj <filter> [global|<area>]
+        const char* filter = arg1[0] ? arg1 : "all";
+        
+        if (!str_cmp(arg2, "global")) {
+            global = true;
+        }
+        else if (arg2[0]) {
+            area = olist_find_area(arg2);
+            if (!area) {
+                printf_to_char(ch, "Area '%s' not found.\n\r", arg2);
+                return;
+            }
+        }
+
+        olist_objects(ch, area, filter, global);
+    }
+    else {
+        // olist mat [type] [global|<area>]
+        CraftMatType type_filter = MAT_NONE;
+        const char* area_arg = arg2;
+
+        // Check if arg1 is a type or "global" or area name
+        if (arg1[0]) {
+            CraftMatType maybe_type = craft_mat_type_lookup(arg1);
+            if (maybe_type != MAT_NONE) {
+                type_filter = maybe_type;
+            }
+            else if (!str_cmp(arg1, "global")) {
+                global = true;
+                area_arg = "";  // No more args expected
+            }
+            else {
+                // Could be an area name
+                area = olist_find_area(arg1);
+                if (!area) {
+                    printf_to_char(ch, "Unknown material type or area '%s'.\n\r"
+                        "Valid types: hide, leather, fur, scale, bone, meat, ore, ingot,\n\r"
+                        "             gem, cloth, wood, herb, essence, component\n\r", arg1);
+                    return;
+                }
+                area_arg = "";  // Already parsed area
+            }
+        }
+
+        // Check area_arg for global or area
+        if (area_arg[0]) {
+            if (!str_cmp(area_arg, "global")) {
+                global = true;
+            }
+            else {
+                area = olist_find_area(area_arg);
+                if (!area) {
+                    printf_to_char(ch, "Area '%s' not found.\n\r", area_arg);
+                    return;
+                }
+            }
+        }
+
+        olist_materials(ch, area, type_filter, global);
+    }
 }

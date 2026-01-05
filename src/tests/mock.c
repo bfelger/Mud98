@@ -183,6 +183,64 @@ Object* mock_shield(const char* name, VNUM vnum, LEVEL level)
     return shield;
 }
 
+Object* mock_mat(const char* name, VNUM vnum, int mat_type, int amount, int quality)
+{
+    ObjPrototype* mat_proto = mock_obj_proto(vnum);
+    mat_proto->header.name = AS_STRING(mock_str(name));
+    mat_proto->short_descr = str_dup(name);
+
+    mat_proto->level = 1;
+    mat_proto->condition = 100;
+    mat_proto->weight = 1;
+    mat_proto->cost = 10 * amount;
+    mat_proto->item_type = ITEM_MAT;
+
+    mat_proto->craft_mat.mat_type = mat_type;
+    mat_proto->craft_mat.amount = amount;
+    mat_proto->craft_mat.quality = quality;
+
+    Object* mat = mock_obj(name, vnum, mat_proto);
+
+    return mat;
+}
+
+Object* mock_workstation(const char* name, VNUM vnum, int station_flags, int bonus)
+{
+    ObjPrototype* ws_proto = mock_obj_proto(vnum);
+    ws_proto->header.name = AS_STRING(mock_str(name));
+    ws_proto->short_descr = str_dup(name);
+
+    ws_proto->level = 1;
+    ws_proto->condition = 100;
+    ws_proto->weight = 100;  // Heavy furniture
+    ws_proto->cost = 1000;
+    ws_proto->item_type = ITEM_WORKSTATION;
+
+    ws_proto->workstation.station_flags = station_flags;
+    ws_proto->workstation.bonus = bonus;
+
+    Object* ws = mock_obj(name, vnum, ws_proto);
+
+    return ws;
+}
+
+#include <craft/recipe.h>
+
+Recipe* mock_recipe(const char* name, VNUM vnum)
+{
+    Recipe* recipe = new_recipe();
+    recipe->header.vnum = vnum;
+    recipe->header.name = AS_STRING(mock_str(name));
+    
+    // Add to global table
+    add_recipe(recipe);
+    
+    // Track for cleanup
+    write_value_array(mocks(), OBJ_VAL(recipe));
+    
+    return recipe;
+}
+
 void mock_skill(Mobile* ch, SKNUM sn, int value)
 {
     if (ch == NULL || sn < 0) return;

@@ -79,8 +79,8 @@ typedef enum form_flags_t {
     FORM_MAGICAL            = BIT(2),
     FORM_INSTANT_DECAY      = BIT(3),
     FORM_OTHER              = BIT(4), // defined by material bit
+    FORM_BLEEDS             = BIT(5), // splatters blood on death
 // actual form
-    // Unused                 BIT(5)
     FORM_ANIMAL             = BIT(6),
     FORM_SENTIENT           = BIT(7),
     FORM_UNDEAD             = BIT(8),
@@ -107,10 +107,10 @@ typedef enum form_flags_t {
 } FormFlags;
 
 #define FORM_DEFAULT_ANIMAL \
-    (FORM_EDIBLE | FORM_ANIMAL)
+    (FORM_EDIBLE | FORM_ANIMAL | FORM_BLEEDS)
 
 #define FORM_DEFAULT_HUMANOID \
-    (FORM_EDIBLE | FORM_BIPED | FORM_MAMMAL | FORM_SENTIENT)
+    (FORM_EDIBLE | FORM_BIPED | FORM_MAMMAL | FORM_SENTIENT | FORM_BLEEDS)
 
 // body parts
 typedef enum part_flags_t {

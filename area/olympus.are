@@ -1,8 +1,8 @@
 #AREADATA
-Version 2
+Version 3
 Name Olympus~
 Builders ~
-VNUMs 900 999
+VNUMs 2500 2599
 Credits Generic~
 Security 9
 Low 5
@@ -12,7 +12,7 @@ End
 
 
 #MOBILES
-#901
+#2501
 oldstyle zeus god~
 Zeus~
 Zeus sits here on a throne.
@@ -28,7 +28,7 @@ ABCQ BDFHNT 1000 0
 EIKU 0 0 0
 stand stand male 5000
 0 0 medium '0'
-#902
+#2502
 oldstyle prometheus~
 Prometheus~
 Prometheus is here, playing with a match.
@@ -43,7 +43,7 @@ ABC BDFHNT 1000 0
 EFNU 0 0 0
 stand stand male 2000
 0 0 medium '0'
-#903
+#2503
 oldstyle hermes~
 Hermes~
 Hermes is busy, delivering a message.
@@ -59,7 +59,7 @@ ACS BDFHNPT 1000 0
 BEFJNU 0 0 0
 stand stand male 2500
 0 0 medium '0'
-#904
+#2504
 oldstyle poseidon~
 Poseidon~
 Poseidon is dining here.
@@ -75,7 +75,7 @@ ABCR BDFHNT 1000 0
 FU 0 0 0
 sit stand male 5000
 0 0 medium '0'
-#905
+#2505
 oldstyle apollo~
 Apollo~
 Apollo is here, playing a tune.
@@ -91,7 +91,7 @@ ABC BDFHNT 1000 0
 EFNU 0 0 0
 stand stand male 2000
 0 0 medium '0'
-#906
+#2506
 oldstyle ares~
 Ares~
 Ares is here, kicking your ass.
@@ -106,7 +106,7 @@ ABCF BDFHT -1000 0
 EFNU 0 0 0
 stand stand male 2500
 0 0 medium '0'
-#907
+#2507
 oldstyle athena~
 Athena~
 Athena is relaxing here.
@@ -121,7 +121,7 @@ ABC BDFHNT 1000 0
 EFNU 0 0 0
 stand stand female 3000
 0 0 medium '0'
-#908
+#2508
 oldstyle hephaestus smith~
 Hephaestus~
 Hephaestus the Smith is here, crafting a fine weapon.
@@ -137,7 +137,7 @@ ABC BDFHNT 1000 0
 EFNU 0 0 0
 stand stand male 3000
 0 0 medium '0'
-#909
+#2509
 oldstyle handmaid golden~
 A Golden Maiden~
 A Handmaid of gold is here, assisting the smith.
@@ -152,7 +152,7 @@ ABCT BDFHNT 0 0
 CDEIKLU 0 0 0
 stand stand female 50
 0 0 medium '0'
-#910
+#2510
 oldstyle soldier~
 A Soldier~
 A soldier is here, assisting Ares.
@@ -167,7 +167,7 @@ ABCF BDFHT 0 0
 EFNU 0 0 0
 stand stand male 250
 0 0 medium '0'
-#911
+#2511
 oldstyle musician apprentice~
 an apprentice musician~
 A musician is here, learning from Apollo.
@@ -182,7 +182,7 @@ ABC BDFHT 1000 0
 EFNU 0 0 0
 stand stand male 125
 0 0 medium '0'
-#912
+#2512
 oldstyle boy serving servant~
 A serving boy~
 A servant is here, feeding Athena her grapes.
@@ -196,7 +196,7 @@ ABC BDFHT 1000 0
 EFNU 0 0 0
 stand stand male 25
 0 0 medium '0'
-#913
+#2513
 oldstyle hound dog war~
 A hound of war~
 A large hound snarls at you.
@@ -211,7 +211,7 @@ ABCF BDFHT -600 0
 EFNU 0 0 0
 stand stand none 0
 0 0 medium '0'
-#914
+#2514
 oldstyle Odin~
 Odin~
 Odin is resting here.
@@ -227,7 +227,7 @@ ABC BDFHNT 1000 0
 EFNU 0 0 0
 stand stand male 5000
 0 0 medium '0'
-#915
+#2515
 oldstyle grocer greengrocer julius~
 Julius the Green Grocer~
 Julius the Green Grocer stands here.
@@ -244,7 +244,7 @@ ABC BDFHNT 1000 0
 EFNU 0 0 0
 stand stand male 500
 0 0 medium '0'
-#916
+#2516
 oldstyle alchemist~
 the Alchemist~
 The ancient, wizened Alchemist stands here.
@@ -260,7 +260,7 @@ ABC BDFHNT 1000 0
 EFNU 0 0 0
 stand stand male 500
 0 0 medium '0'
-#917
+#2517
 oldstyle clive~
 Clive the Weapons Master~
 Clive the Weapons Master is practicing with his bow and axe.
@@ -275,7 +275,7 @@ ABC BDFHNT 1000 0
 EFNU 0 0 0
 stand stand male 2000
 0 0 medium '0'
-#918
+#2518
 oldstyle armourer samuel~
 Samuel the Armourer~
 Samuel the Armourer glares at you.
@@ -290,7 +290,7 @@ ABCF BDFHNT 1000 0
 EFNU 0 0 0
 stand stand male 500
 0 0 medium '0'
-#919
+#2519
 oldstyle ra sun god~
 Ra the Sun God~
 Ra the Egyptian Sun God is resting here.
@@ -306,7 +306,7 @@ ABC BDFHNT 1000 0
 ENR 0 0 0
 stand stand male 5000
 0 0 medium '0'
-#920
+#2520
 oldstyle chimera~
 a chimera~
 A chimera prowls the cell.
@@ -321,7 +321,7 @@ ABCF BDFHT -1000 0
 EFNU 0 0 0
 stand stand male 50
 0 0 medium '0'
-#921
+#2521
 oldstyle hera~
 Hera~
 Hera is here.
@@ -336,7 +336,7 @@ ABCQ BDFHNT 1000 0
 EIKU 0 0 0
 stand stand female 5000
 0 0 medium '0'
-#922
+#2522
 oldstyle roc~
 a roc~
 A roc is here.
@@ -351,7 +351,7 @@ AC BDFHNT 0 0
 EFNU 0 0 0
 stand stand none 250
 0 0 medium '0'
-#923
+#2523
 oldstyle citizen resident~
 A citizen~
 A citizen of this town is strolling down the street here.
@@ -365,7 +365,7 @@ ACS BDFHNT 1000 0
 BEFJNU 0 0 0
 stand stand male 3
 0 0 medium '0'
-#924
+#2524
 oldstyle pegasus horse~
 a pegasus~
 A large horse with wings is here.
@@ -380,7 +380,7 @@ AC BDFHNT 0 0
 EFNU 0 0 0
 stand stand none 40
 0 0 medium '0'
-#925
+#2525
 oldstyle cook~
 A Cook~
 A cook is here, hard at work.
@@ -394,7 +394,7 @@ ABC BDFHNT 1000 0
 EFNU 0 0 0
 stand stand male 5
 0 0 medium '0'
-#926
+#2526
 oldstyle jailer~
 The Jailer~
 The jailer is here, watching for intruders.
@@ -414,17 +414,17 @@ stand stand male 50
 
 
 #OBJECTS
-#900
+#2500
 aegis plate~
 the Aegis~
 A powerful breast plate has been left here.~
 oldstyle~
 armor FGK AD
-10 10 10 6 0
+10 10 10 6 6
 35 500 8400 P
 A
 1 1
-#901
+#2501
 hammer thunder bolt thunderbolt~
 the Thunder Bolt~
 A huge hammer has been carelessly dropped here.~
@@ -436,17 +436,17 @@ A
 4 -1
 A
 18 3
-#902
+#2502
 helmet winged~
 a Winged Helmet~
 A helmet with small wings lies here.~
 oldstyle~
 armor FGK AE
-10 10 10 5 0
+10 10 10 5 5
 35 50 7300 P
 A
 2 2
-#903
+#2503
 spear ares~
 the spear of Ares~
 A wicked spear rests on the ground here.~
@@ -458,17 +458,17 @@ A
 18 2
 A
 19 2
-#904
+#2504
 sandals winged~
 a pair of winged sandals~
 A pair of well made sandals lies here.~
 oldstyle~
 armor FGK AG
-8 8 8 4 0
+8 8 8 4 4
 25 50 2200 P
 F
 A 0 0 T
-#905
+#2505
 staff ivory~
 an ivory staff~
 An ivory staff.~
@@ -476,7 +476,7 @@ oldstyle~
 staff FGK AO
 30 3 3 'sanctuary' 0
 15 80 5800 P
-#906
+#2506
 trident poseidon~
 poseidon's Trident~
 A huge three pronged spear lies here.~
@@ -486,7 +486,7 @@ staff 7 6 'pierce' F
 47 160 5700 P
 A
 4 2
-#907
+#2507
 bow silver~
 a silver bow~
 A silver bow.~
@@ -498,17 +498,17 @@ A
 18 1
 A
 19 1
-#908
+#2508
 gauntlets flaming~
 flaming gauntlets~
 A pair of metal gauntlets flame here.~
 oldstyle~
 armor FGK AH
-7 7 7 4 0
+7 7 7 4 4
 27 60 2900 P
 A
 13 25
-#909
+#2509
 vial potion ambrosia~
 ambrosia~
 A vial of ambrosia lies here.~
@@ -516,7 +516,7 @@ oldstyle~
 potion FGK A
 30 'dispel evil' 'heal' '' ''
 11 10 1130 P
-#910
+#2510
 necklace glowing~
 a glowing necklace~
 A necklace with an inner glow lies here.~
@@ -526,7 +526,7 @@ jewelry FGK AC
 25 20 980 P
 A
 12 25
-#911
+#2511
 ring sapphire~
 a sapphire ring~
 A sapphire ring lies here.~
@@ -538,17 +538,17 @@ A
 4 2
 A
 19 3
-#912
+#2512
 shield glowing~
 a brightly glowing shield~
 A shield lies here, filling the room with its aura.~
 oldstyle~
 armor FGK AJ
-9 9 9 6 0
+9 9 9 6 6
 30 100 5300 P
 A
 4 1
-#913
+#2513
 axe notched~
 a notched axe~
 A notched axe.~
@@ -556,7 +556,7 @@ oldstyle~
 weapon FGK AN
 axe 3 11 'slice' 0
 35 120 3600 P
-#914
+#2514
 grapes~
 a bunch of grapes~
 A bunch of grapes.~
@@ -564,7 +564,7 @@ oldstyle~
 food 0 A
 24 24 0 0 0
 0 10 100 P
-#915
+#2515
 fan~
 a fan made of peacock feathers~
 A fan made of peacock feathers.~
@@ -572,7 +572,7 @@ oldstyle~
 trash 0 A
 0 0 0 0 0
 0 10 0 P
-#916
+#2516
 lute~
 a lute~
 A lute.~
@@ -580,7 +580,7 @@ oldstyle~
 trash 0 A
 0 0 0 0 0
 0 10 0 P
-#917
+#2517
 nugget gold~
 a gold nugget~
 A gold nugget lies gleaming here.~
@@ -588,7 +588,7 @@ oldstyle~
 treasure 0 A
 0 0 0 0 0
 0 50 5000 P
-#918
+#2518
 apple~
 an apple~
 An apple is here.~
@@ -596,7 +596,7 @@ oldstyle~
 pill 0 A
 24 '' '' 'cure light' ''
 0 10 340 P
-#919
+#2519
 pear~
 a pear~
 A pear is here.~
@@ -604,7 +604,7 @@ oldstyle~
 pill 0 A
 24 '' '' 'cure poison' ''
 6 10 530 P
-#920
+#2520
 orange~
 a orange~
 A orange is here.~
@@ -612,7 +612,7 @@ oldstyle~
 pill 0 A
 24 '' '' 'armor' ''
 0 10 340 P
-#921
+#2521
 kiwi~
 a kiwi~
 A kiwi is here.~
@@ -620,7 +620,7 @@ oldstyle~
 pill 0 A
 24 '' '' 'cure poison' ''
 6 10 530 P
-#922
+#2522
 amulet~
 the Amulet of Ra~
 A sun shaped medallion is lying here.~
@@ -630,7 +630,7 @@ jewelry FGK AC
 40 10 4900 P
 A
 12 50
-#923
+#2523
 sun sword~
 the Sword of the Sun~
 A beautiful sword with the rising sun etched on the pommel is lying here.~
@@ -640,25 +640,25 @@ sword 4 11 'slash' 0
 50 200 6800 P
 A
 19 2
-#924
+#2524
 robe blue~
 a blue robe~
 A deep blue robe is on the ground here.~
 oldstyle~
 armor FGK AK
-6 6 6 8 0
+6 6 6 8 8
 17 100 1960 P
 A
 13 15
-#925
+#2525
 hat~
 a wide brimmed hat~
 A hat is lying here.~
 oldstyle~
 armor FGK AE
-4 4 4 3 0
+4 4 4 3 3
 5 50 580 P
-#926
+#2526
 nectar~
 nectar~
 A vial of nectar is lying here.~
@@ -666,7 +666,7 @@ oldstyle~
 potion 0 A
 12 'sanctuary' 'giant strength' 'armor' ''
 12 10 810 P
-#927
+#2527
 key cell~
 a Cell key~
 A key has been left here.~
@@ -674,7 +674,7 @@ oldstyle~
 key 0 A
 0 0 0 0 0
 0 10 0 P
-#928
+#2528
 map olympus secret~
 a secret map of Olympus~
 A rolled up map is here.~
@@ -733,7 +733,7 @@ map olympus secret~
 
 
 #ROOMS
-#901
+#2501
 Mountain~
 You are climbing a large mountain which towers over Ofcol.  The path
 continues up the mountain, but part of it is gone.  There is no way to
@@ -744,13 +744,13 @@ continue by land.
 D2
 ~
 ~
-0 -1 324
+0 -1 1924
 D4
 ~
 ~
-0 -1 902
+0 -1 2502
 S
-#902
+#2502
 Mountain~
 You are making your way up the mountain.  The rigorous climb has left you
 tired, and you are ready to take a break.
@@ -760,13 +760,13 @@ tired, and you are ready to take a break.
 D4
 ~
 ~
-0 -1 903
+0 -1 2503
 D5
 ~
 ~
-0 -1 901
+0 -1 2501
 S
-#903
+#2503
 Mountain~
 You have finally reached the top of the mountain.  The air here is so thin
 that you must gasp for breath.  To the north, you see what seems to be the
@@ -777,13 +777,13 @@ entrance to a city.
 D0
 ~
 ~
-0 -1 904
+0 -1 2504
 D5
 ~
 ~
-0 -1 902
+0 -1 2502
 S
-#904
+#2504
 Entrance~
 You are at the entrance to a huge city.  As you look around, you realize
 that the inhabitants of this city must be very wealthy indeed - you have never
@@ -794,13 +794,13 @@ seen a city with such beautiful buildings.
 D0
 ~
 ~
-0 -1 905
+0 -1 2505
 D2
 ~
 ~
-0 -1 903
+0 -1 2503
 S
-#905
+#2505
 Zeus Street~
 You are walking down a huge street.  You notice that there are not many
 people in this town.  On a corner, you see a sign marked 'Zeus Street'.
@@ -812,17 +812,17 @@ D0
 The street continues.
 ~
 ~
-0 -1 906
+0 -1 2506
 D2
 ~
 ~
-0 -1 904
+0 -1 2504
 D3
 ~
 ~
-0 -1 924
+0 -1 2524
 S
-#906
+#2506
 Zeus Street~
 You are walking down what appears to be the main street of this city.
 You see large residences to the east and west, while the street continues
@@ -833,22 +833,22 @@ to the north and south.
 D0
 ~
 ~
-0 -1 907
+0 -1 2507
 D1
 ~
 ~
-0 -1 925
+0 -1 2525
 D2
 The street continues.
 ~
 ~
-0 -1 905
+0 -1 2505
 D3
 ~
 ~
-0 -1 926
+0 -1 2526
 S
-#907
+#2507
 Zeus Street~
 You are on the main street of this town, called Zeus street. There is some
 sort of store to the west.
@@ -858,17 +858,17 @@ sort of store to the west.
 D0
 ~
 ~
-0 -1 908
+0 -1 2508
 D2
 ~
 ~
-0 -1 906
+0 -1 2506
 D3
 ~
 ~
-0 -1 927
+0 -1 2527
 S
-#908
+#2508
 Zeus Street~
 You are still on the main thoroughfare of this town.  To the north, you see
 a large castle.  To the east there is a smaller road.
@@ -878,17 +878,17 @@ a large castle.  To the east there is a smaller road.
 D0
 ~
 ~
-0 -1 909
+0 -1 2509
 D1
 ~
 ~
-0 -1 928
+0 -1 2528
 D2
 ~
 ~
-0 -1 907
+0 -1 2507
 S
-#909
+#2509
 Castle Entryway~
 You are in the entryway of a large castle.  It is very beautiful, with
 large paintings and a lovely carpet.  You hear jovial laughter to the north,
@@ -899,21 +899,21 @@ D 1
 D0
 ~
 ~
-0 -1 910
+0 -1 2510
 D1
 ~
 ~
-0 -1 915
+0 -1 2515
 D2
 ~
 ~
-0 -1 908
+0 -1 2508
 D3
 ~
 ~
-0 -1 911
+0 -1 2511
 S
-#910
+#2510
 Throne Room~
 You stop dead in your tracks as you enter this room.  Before you is Zeus,
 in all his glory, sitting on a huge golden throne.  You had thought him to be 
@@ -930,17 +930,17 @@ you could slide it?
 D0
 ~
 ~
-0 -1 923
+0 -1 2523
 D2
 ~
 ~
-0 -1 909
+0 -1 2509
 D5
 ~
 throne trapdoor~
-1 -1 918
+1 -1 2518
 S
-#911
+#2511
 Western Wing~
 You are in the western wing of the castle.  You see the entrance to the
 east, while this hallway continues to the west.
@@ -950,13 +950,13 @@ D 1
 D1
 ~
 ~
-0 -1 909
+0 -1 2509
 D3
 ~
 ~
-0 -1 912
+0 -1 2512
 S
-#912
+#2512
 Western Wing~
 You are in the western wing of the castle.  The hallway continues to the
 north, while there are private rooms to the west and south.
@@ -966,21 +966,21 @@ D 1
 D0
 ~
 ~
-0 -1 913
+0 -1 2513
 D1
 ~
 ~
-0 -1 911
+0 -1 2511
 D2
 ~
 ~
-0 -1 930
+0 -1 2530
 D3
 ~
 ~
-0 -1 929
+0 -1 2529
 S
-#913
+#2513
 Western Wing~
 You are in the western wing of the castle.  This hallway continues to the
 south, and you hear pots and pans rattling to the north.
@@ -990,13 +990,13 @@ D 1
 D0
 ~
 ~
-0 -1 914
+0 -1 2514
 D2
 ~
 ~
-0 -1 912
+0 -1 2512
 S
-#914
+#2514
 Kitchen~
 You have entered the kitchen of this castle, and it is a hotbed of
 activity.  Servants are bustling about, preparing food for the Gods themselves.
@@ -1006,9 +1006,9 @@ D 1
 D2
 ~
 ~
-0 -1 913
+0 -1 2513
 S
-#915
+#2515
 Eastern Wing~
 You are in the eastern wing of the castle.  The hall continues to the
 east, while the entrance is back to the west.
@@ -1018,13 +1018,13 @@ D 1
 D1
 ~
 ~
-0 -1 916
+0 -1 2516
 D3
 ~
 ~
-0 -1 909
+0 -1 2509
 S
-#916
+#2516
 Eastern Wing~
 You are in the eastern wing of the castle.  The hall turns to the north
 here, while there are private rooms to the east and the south.
@@ -1034,21 +1034,21 @@ D 1
 D0
 ~
 ~
-0 -1 917
+0 -1 2517
 D1
 ~
 ~
-0 -1 931
+0 -1 2531
 D2
 ~
 ~
-0 -1 932
+0 -1 2532
 D3
 ~
 ~
-0 -1 915
+0 -1 2515
 S
-#917
+#2517
 Eastern Wing~
 You are in the eastern wing of the castle.  You hear animals to the north,
 while the hallway continues to the south.
@@ -1058,13 +1058,13 @@ D 1
 D0
 ~
 ~
-0 -1 933
+0 -1 2533
 D2
 ~
 ~
-0 -1 916
+0 -1 2516
 S
-#918
+#2518
 Dungeon~
 You are in Zeus's Dungeon.  You wonder what creatures are so terrible that
 even mighty Zeus fears them enough to imprison them.
@@ -1074,13 +1074,13 @@ AD 1
 D0
 ~
 ~
-0 -1 919
+0 -1 2519
 D4
 ~
 trapdoor throne~
-1 -1 910
+1 -1 2510
 S
-#919
+#2519
 Dungeon~
 You are in Zeus's Dungeon.  There are cells to the north, west, and east. 
 From the east and west, you hear guttural noises.  From the north, nothing ...
@@ -1090,21 +1090,21 @@ AD 1
 D0
 ~
 ~
-2 927 920
+2 2527 2520
 D1
 ~
 ~
-2 927 922
+2 2527 2522
 D2
 ~
 ~
-0 -1 918
+0 -1 2518
 D3
 ~
 ~
-2 927 921
+2 2527 2521
 S
-#920
+#2520
 Cell~
 You are in a small, cramped, dirty cell.  It is a horrid place.
 ~
@@ -1113,9 +1113,9 @@ AD 1
 D2
 ~
 ~
-2 927 919
+2 2527 2519
 S
-#921
+#2521
 Cell~
 You are in a small, cramped, dirty cell.  It is a horrid place.
 ~
@@ -1124,9 +1124,9 @@ AD 1
 D1
 ~
 ~
-2 927 919
+2 2527 2519
 S
-#922
+#2522
 Cell~
 You are in a small, cramped, dirty cell.  It is a horrid place.
 ~
@@ -1135,9 +1135,9 @@ AD 1
 D3
 ~
 ~
-2 927 919
+2 2527 2519
 S
-#923
+#2523
 Stairway~
 You have come to a large stairway leading up.  To the south, you see the
 throne room of Zeus.
@@ -1147,13 +1147,13 @@ D 1
 D2
 ~
 ~
-0 -1 910
+0 -1 2510
 D4
 ~
 ~
-0 -1 939
+0 -1 2539
 S
-#924
+#2524
 Bakery~
 You are in the small store which supplies the residents of this town with
 their food.  It smells wonderful in here!
@@ -1163,9 +1163,9 @@ D 1
 D1
 ~
 ~
-0 -1 905
+0 -1 2505
 S
-#925
+#2525
 Residence~
 You are in the residence of one of the inhabitants of this town.  She
 looks vaguely familiar, but you can't place her name ...
@@ -1175,9 +1175,9 @@ D 1
 D3
 ~
 ~
-0 -1 906
+0 -1 2506
 S
-#926
+#2526
 Residence~
 You are in the residence of one of the inhabitants of this town.  He looks
 vaguely familiar, but you can't place his name ...
@@ -1187,9 +1187,9 @@ D 1
 D1
 ~
 ~
-0 -1 906
+0 -1 2506
 S
-#927
+#2527
 Mystic Shop~
 You are in the store which provides the citizens here with whichever
 arcane objects they may need.
@@ -1199,9 +1199,9 @@ D 1
 D1
 ~
 ~
-0 -1 907
+0 -1 2507
 S
-#928
+#2528
 Ares Street~
 You are on a smaller road which branches off from the main street.  On a
 sign, you notice that the name of this road is Ares Street.
@@ -1211,13 +1211,13 @@ D 1
 D1
 ~
 ~
-0 -1 934
+0 -1 2534
 D3
 ~
 ~
-0 -1 908
+0 -1 2508
 S
-#929
+#2529
 Guest Quarters~
 You have entered private quarters which are reserved for visitors to the
 castle.  You nearly faint as you recognize the occupant of this chamber as Odin
@@ -1228,9 +1228,9 @@ D 1
 D1
 ~
 ~
-0 -1 912
+0 -1 2512
 S
-#930
+#2530
 Storage Room~
 You are in a storage room of the castle.  There isn't much here, just a
 few boxes filled with old junk.
@@ -1240,9 +1240,9 @@ D 1
 D0
 ~
 ~
-0 -1 912
+0 -1 2512
 S
-#931
+#2531
 Guest Quarters~
 You have entered a room reserved for visitors to this castle.  You are
 amazed as you recognize the occupant - Ra, the Egyptian Sun God.  He must be
@@ -1253,9 +1253,9 @@ D 1
 D3
 ~
 ~
-0 -1 916
+0 -1 2516
 S
-#932
+#2532
 Storage Room~
 You are in a storage room of the castle.  There isn't much here, just a lot
 of dust.
@@ -1265,9 +1265,9 @@ D 1
 D0
 ~
 ~
-0 -1 916
+0 -1 2516
 S
-#933
+#2533
 Stable~
 You are in the stable of the castle.  Rather than the horses which you
 expected to find, it is filled with a wide variety of creatures which you
@@ -1278,9 +1278,9 @@ D 1
 D2
 ~
 ~
-0 -1 917
+0 -1 2517
 S
-#934
+#2534
 Ares Street~
 You have reached the end of Ares Street.  To the south you see an armoury,
 while there is a weapons shop to the east.  To the north, you hear the sounds
@@ -1291,21 +1291,21 @@ D 1
 D0
 ~
 ~
-0 -1 937
+0 -1 2537
 D1
 ~
 ~
-0 -1 936
+0 -1 2536
 D2
 ~
 ~
-0 -1 935
+0 -1 2535
 D3
 ~
 ~
-0 -1 928
+0 -1 2528
 S
-#935
+#2535
 Armoury~
 This small store is almost empty.  It seems as if there is not much here,
 but the shopkeeper doesn't want to do business with you anyways.
@@ -1315,9 +1315,9 @@ D 1
 D0
 ~
 ~
-0 -1 934
+0 -1 2534
 S
-#936
+#2536
 Weapon Shop~
 You have entered a small store with a modest selection of weapons.  You
 get the feeling that there is not a very wide selection here, but the
@@ -1328,9 +1328,9 @@ D 1
 D3
 ~
 ~
-0 -1 934
+0 -1 2534
 S
-#937
+#2537
 Smithy~
 This large room is so noisy, you can barely hear yourself think.  All the
 occupants are hard at work, crafting high quality weapons and armor.  Something
@@ -1341,14 +1341,14 @@ D 1
 D2
 ~
 ~
-0 -1 934
+0 -1 2534
 D3
 You see a concealed door!
 ~
 door concealed~
-1 -1 938
+1 -1 2538
 S
-#938
+#2538
 The Planning Room~
 You have entered a large room dominated by a huge table with a large map
 on it.  Several men are gathered around the table, studying the map carefully.
@@ -1359,13 +1359,13 @@ AD 1
 D0
 ~
 ~
-0 -1 954
+0 -1 2554
 D1
 ~
 ~
-0 -1 937
+0 -1 2537
 S
-#939
+#2539
 Second Floor~
 You are on the second floor of this castle.  You are numb from your
 discoveries on the first floor, and wonder what secrets the upper floor of this
@@ -1377,30 +1377,30 @@ D 1
 D0
 ~
 ~
-0 -1 940
+0 -1 2540
 D1
 ~
 ~
-0 -1 943
+0 -1 2543
 D2
 ~
 ~
-0 -1 941
+0 -1 2541
 D3
 ~
 ~
-0 -1 942
+0 -1 2542
 D4
 You see a sign on the hatch.  It reads 'Private Property. No trespassing!'
 ~
 hatch~
-1 -1 948
+1 -1 2548
 D5
 ~
 ~
-0 -1 923
+0 -1 2523
 S
-#940
+#2540
 Northern Hall~
 You are in the northern hallway.  There is a private room to the north,
 and the stairs leading down are to the south.
@@ -1410,13 +1410,13 @@ D 1
 D0
 ~
 ~
-0 -1 947
+0 -1 2547
 D2
 ~
 ~
-0 -1 939
+0 -1 2539
 S
-#941
+#2541
 Southern Hall~
 You are in the southern hallway.  There is a private room to the south,
 and the stairs leading down are to the north.
@@ -1426,13 +1426,13 @@ D 1
 D0
 ~
 ~
-0 -1 939
+0 -1 2539
 D2
 ~
 ~
-0 -1 944
+0 -1 2544
 S
-#942
+#2542
 Western Hall~
 You are in the western hallway.  There is a private room to the west, and
 the stairs leading down are to the east.
@@ -1442,13 +1442,13 @@ D 1
 D1
 ~
 ~
-0 -1 939
+0 -1 2539
 D3
 ~
 ~
-0 -1 945
+0 -1 2545
 S
-#943
+#2543
 Eastern Hall~
 You are in the eastern hallway.  There is a private room to the east, and
 the stairs leading down are to the west.
@@ -1458,13 +1458,13 @@ D 1
 D1
 ~
 ~
-0 -1 946
+0 -1 2546
 D3
 ~
 ~
-0 -1 939
+0 -1 2539
 S
-#944
+#2544
 Bed Room~
 You are in the bed room of a God!  This one seems to be empty.
 ~
@@ -1473,9 +1473,9 @@ D 1
 D0
 ~
 ~
-0 -1 941
+0 -1 2541
 S
-#945
+#2545
 Bed Room~
 You are in the bed room of a God!
 ~
@@ -1484,9 +1484,9 @@ D 1
 D1
 ~
 ~
-0 -1 942
+0 -1 2542
 S
-#946
+#2546
 Bed Room~
 You are in the bed room of a God!
 ~
@@ -1495,9 +1495,9 @@ D 1
 D3
 ~
 ~
-0 -1 943
+0 -1 2543
 S
-#947
+#2547
 Bed Room~
 You are in the bed room of a God!
 ~
@@ -1506,9 +1506,9 @@ D 1
 D2
 ~
 ~
-0 -1 940
+0 -1 2540
 S
-#948
+#2548
 Hall of Gods~
 You have entered the most sacred of places, the hall of true Gods.  If you
 are a mortal, it would probably be a good idea to leave NOW!  Exits leave in
@@ -1519,13 +1519,13 @@ D 1
 D0
 ~
 ~
-0 -1 951
+0 -1 2551
 D5
 ~
 hatch~
-0 -1 939
+0 -1 2539
 S
-#951
+#2551
 The Portal~
 A sign reads: Beware of the unexpected and don't expect too much.
 ~
@@ -1534,9 +1534,9 @@ D 1
 D2
 ~
 ~
-0 -1 948
+0 -1 2548
 S
-#954
+#2554
 The Believer~
 A voice whispers, 'before the time has passed, enjoy your life.'
 ~
@@ -1545,152 +1545,152 @@ D 1
 D2
 ~
 ~
-0 -1 938
+0 -1 2538
 S
 #0
 
 
 
 #SPECIALS
-M 901 spec_cast_cleric
-M 902 spec_breath_fire
-M 903 spec_thief
-M 904 spec_cast_mage
-M 905 spec_cast_adept
-M 907 spec_cast_adept
-M 908 spec_breath_lightning
-M 909 spec_guard
-M 914 spec_breath_any
-M 919 spec_breath_any
-M 920 spec_breath_fire
-M 921 spec_cast_cleric
-M 922 spec_poison
-M 923 spec_thief
-M 926 spec_cast_mage
+M 2501 spec_cast_cleric
+M 2502 spec_breath_fire
+M 2503 spec_thief
+M 2504 spec_cast_mage
+M 2505 spec_cast_adept
+M 2507 spec_cast_adept
+M 2508 spec_breath_lightning
+M 2509 spec_guard
+M 2514 spec_breath_any
+M 2519 spec_breath_any
+M 2520 spec_breath_fire
+M 2521 spec_cast_cleric
+M 2522 spec_poison
+M 2523 spec_thief
+M 2526 spec_cast_mage
 S
 
 
 
 #RESETS
-D 0 910 5 1
-D 0 919 0 2
-D 0 919 1 2
-D 0 919 3 2
-D 0 920 2 2
-D 0 921 1 2
-D 0 922 3 2
-D 0 937 3 1
-D 0 939 4 1
-M 0 923 10 904 2
-M 0 923 10 905 2
-M 0 923 10 906 2
-M 0 923 10 907 2
-M 0 923 10 908 2
-M 0 901 1 910 1
-E 0 900 0 5
-E 0 901 0 16
-G 0 926 0
-G 0 909 0
-M 0 925 4 914 4
-M 0 925 4 914 4
-M 0 926 1 918 1
-G 0 927 0
-M 0 902 1 920 1
-G 0 928 0
-E 0 908 0 9
-M 0 920 2 921 1
-M 0 920 2 922 1
-M 0 915 1 924 1
-G 0 914 0
-G 0 918 0
-G 0 919 0
-G 0 920 0
-G 0 921 0
-M 0 907 1 925 1
-E 0 910 0 3
-E 0 905 0 17
-G 0 926 0
-G 0 909 0
-M 0 912 4 925 4
-E 0 915 0 17
-G 0 914 0
-M 0 912 4 925 4
-E 0 915 0 17
-G 0 914 0
-M 0 905 1 926 1
-E 0 907 0 16
-G 0 926 0
-G 0 909 0
-M 0 911 4 926 4
-E 0 916 0 17
-G 0 921 0
-M 0 911 4 926 4
-E 0 916 0 17
-G 0 921 0
-M 0 916 1 927 1
-G 0 905 0
-G 0 909 0
-G 0 910 0
-G 0 926 0
-M 0 923 10 928 2
-M 0 914 1 929 1
-E 0 924 0 12
-E 0 925 0 6
-M 0 919 1 931 1
-E 0 922 0 3
-E 0 923 0 16
-M 0 922 3 933 3
-M 0 922 3 933 3
-M 0 924 3 933 3
-M 0 924 3 933 3
-M 0 923 10 934 2
-M 0 918 1 935 1
-G 0 904 0
-G 0 908 0
-G 0 911 0
-M 0 917 1 936 1
-G 0 907 0
-G 0 913 0
-M 0 908 1 937 1
-E 0 912 0 11
-G 0 926 0
-G 0 909 0
-M 0 909 4 937 4
-G 0 917 0
-M 0 909 4 937 4
-G 0 917 0
-M 0 906 1 938 1
-E 0 903 0 16
-G 0 926 0
-G 0 909 0
-M 0 910 4 938 4
-E 0 913 0 16
-G 0 919 0
-M 0 910 4 938 4
-E 0 913 0 16
-G 0 919 0
-M 0 921 1 945 1
-E 0 911 0 1
-G 0 926 0
-G 0 909 0
-M 0 904 1 946 1
-E 0 906 0 16
-G 0 926 0
-G 0 909 0
-M 0 903 1 947 1
-E 0 904 0 8
-E 0 902 0 6
-G 0 926 0
-G 0 909 0
-M 0 913 5 954 5
-M 0 913 5 954 5
-M 0 913 5 954 5
+D 0 2510 5 1
+D 0 2519 0 2
+D 0 2519 1 2
+D 0 2519 3 2
+D 0 2520 2 2
+D 0 2521 1 2
+D 0 2522 3 2
+D 0 2537 3 1
+D 0 2539 4 1
+M 0 2523 10 2504 2
+M 0 2523 10 2505 2
+M 0 2523 10 2506 2
+M 0 2523 10 2507 2
+M 0 2523 10 2508 2
+M 0 2501 1 2510 1
+E 0 2500 0 5
+E 0 2501 0 16
+G 0 2526 0
+G 0 2509 0
+M 0 2525 4 2514 4
+M 0 2525 4 2514 4
+M 0 2526 1 2518 1
+G 0 2527 0
+M 0 2502 1 2520 1
+G 0 2528 0
+E 0 2508 0 9
+M 0 2520 2 2521 1
+M 0 2520 2 2522 1
+M 0 2515 1 2524 1
+G 0 2514 0
+G 0 2518 0
+G 0 2519 0
+G 0 2520 0
+G 0 2521 0
+M 0 2507 1 2525 1
+E 0 2510 0 3
+E 0 2505 0 17
+G 0 2526 0
+G 0 2509 0
+M 0 2512 4 2525 4
+E 0 2515 0 17
+G 0 2514 0
+M 0 2512 4 2525 4
+E 0 2515 0 17
+G 0 2514 0
+M 0 2505 1 2526 1
+E 0 2507 0 16
+G 0 2526 0
+G 0 2509 0
+M 0 2511 4 2526 4
+E 0 2516 0 17
+G 0 2521 0
+M 0 2511 4 2526 4
+E 0 2516 0 17
+G 0 2521 0
+M 0 2516 1 2527 1
+G 0 2505 0
+G 0 2509 0
+G 0 2510 0
+G 0 2526 0
+M 0 2523 10 2528 2
+M 0 2514 1 2529 1
+E 0 2524 0 12
+E 0 2525 0 6
+M 0 2519 1 2531 1
+E 0 2522 0 3
+E 0 2523 0 16
+M 0 2522 3 2533 3
+M 0 2522 3 2533 3
+M 0 2524 3 2533 3
+M 0 2524 3 2533 3
+M 0 2523 10 2534 2
+M 0 2518 1 2535 1
+G 0 2504 0
+G 0 2508 0
+G 0 2511 0
+M 0 2517 1 2536 1
+G 0 2507 0
+G 0 2513 0
+M 0 2508 1 2537 1
+E 0 2512 0 11
+G 0 2526 0
+G 0 2509 0
+M 0 2509 4 2537 4
+G 0 2517 0
+M 0 2509 4 2537 4
+G 0 2517 0
+M 0 2506 1 2538 1
+E 0 2503 0 16
+G 0 2526 0
+G 0 2509 0
+M 0 2510 4 2538 4
+E 0 2513 0 16
+G 0 2519 0
+M 0 2510 4 2538 4
+E 0 2513 0 16
+G 0 2519 0
+M 0 2521 1 2545 1
+E 0 2511 0 1
+G 0 2526 0
+G 0 2509 0
+M 0 2504 1 2546 1
+E 0 2506 0 16
+G 0 2526 0
+G 0 2509 0
+M 0 2503 1 2547 1
+E 0 2504 0 8
+E 0 2502 0 6
+G 0 2526 0
+G 0 2509 0
+M 0 2513 5 2554 5
+M 0 2513 5 2554 5
+M 0 2513 5 2554 5
 S
 
 
 
 #SHOPS
-915 1 8 13 15 19 120 80 0 23
+2515 1 8 13 15 19 120 80 0 23
 0
 
 

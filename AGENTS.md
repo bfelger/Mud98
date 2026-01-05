@@ -248,6 +248,8 @@ sb_free(sb);
 | JSON schemas | `doc/mud98/json/index.md` |
 | Glossary | `doc/mud98/glossary.md` |
 
+Planning documents, such as system requirements and design documents, go in the `doc/planning/` folder.
+
 ---
 
 ## Search Patterns

@@ -8,6 +8,7 @@
 #include <persist/persist_io_adapters.h>
 #include <persist/rom-olc/loader_guard.h>
 #include <persist/rom-olc/db_rom_olc.h>
+#include <persist/recipe/rom-olc/recipe_persist_rom_olc.h>
 
 #include <olc/olc.h>
 #include <olc/olc_save.h>
@@ -156,6 +157,10 @@ PersistResult persist_area_rom_olc_load(const AreaPersistLoadParams* params)
             load_area_daycycle(fp);
         else if (!str_cmp(word, "LOOT"))
             load_area_loot(fp, &current_area_data->header);
+        else if (!str_cmp(word, "RECIPES"))
+            load_recipes(fp);
+        else if (!str_cmp(word, "ENDRECIPES"))
+            ; // Skip end marker
         else if (!str_cmp(word, "RESETS"))
             load_resets(fp);
         else if (!str_cmp(word, "ROOMS"))
@@ -254,6 +259,7 @@ PersistResult persist_area_rom_olc_save(const AreaPersistSaveParams* params)
     save_mobprogs(fp, (AreaData*)area);
     save_progs(area->min_vnum, area->max_vnum);
     save_quests(fp, (AreaData*)area);
+    save_recipes(fp, (AreaData*)area);
 
     if (area->helps && area->helps->first)
         save_helps(fp, area->helps);

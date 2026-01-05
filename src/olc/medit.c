@@ -29,7 +29,11 @@
 #include <entities/faction.h>
 #include <entities/mob_prototype.h>
 
+#include <craft/craft_olc.h>
+
 #define MEDIT(fun) bool fun( Mobile *ch, char *argument )
+
+MEDIT(medit_craftmats);
 
 MobPrototype xMob;
 
@@ -73,12 +77,12 @@ const OlcCmdEntry mob_olc_comm_table[] = {
     { "hitroll",	U(&xMob.hitroll),		ed_number_s_pos,	0		            },
     { "loot_table", U(&xMob.loot_table),    ed_loot_string,     0                   },
     { "wealth",	    0,                      ed_olded,           U(medit_wealth)     },
+    { "craftmats",  0,                      ed_olded,           U(medit_craftmats)  },
     { "addprog",	U(&xMob.mprogs),		ed_addprog,		    0		            },
     { "delprog",	U(&xMob.mprogs),		ed_delprog,		    0		            },
     { "show",       0,				        ed_olded,		    U(medit_show)	    },
     { "mshow",	    0,				        ed_olded,		    U(medit_show)	    },
     { "oshow",	    0,				        ed_olded,		    U(oedit_show)	    },
-    { "olist",	    U(&xMob.area),		    ed_olist,		    0		            },
     { "event",      0,                      ed_olded,           U(olc_edit_event)   },
     { "lox",        0,                      ed_olded,           U(olc_edit_lox)     },
     { "loot_edit",  0,                      ed_olded,           U(olc_edit_loot)    },
@@ -361,6 +365,15 @@ MEDIT(medit_show)
                 list->trig_phrase);
             cnt++;
         }
+    }
+
+    // Display craft materials
+    if (pMob->craft_mat_count > 0) {
+        printf_to_char(ch, "\n\r");
+        craft_olc_show_mats(pMob->craft_mats, pMob->craft_mat_count, ch, "Craft Materials");
+    }
+    else if (!hide_unused) {
+        printf_to_char(ch, "\n\rCraft Materials: (none)\n\r");
     }
 
     if (hide_unused)
@@ -1050,5 +1063,72 @@ ED_FUN_DEC(ed_race)
 
     send_to_char(COLOR_INFO "Syntax:  race <race>\n\r"
         "Type 'race ?' for a list of races.\n\r" COLOR_EOL, ch);
+    return false;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Craft Mats Command
+////////////////////////////////////////////////////////////////////////////////
+
+MEDIT(medit_craftmats)
+{
+    MobPrototype* pMob;
+    char cmd[MAX_INPUT_LENGTH];
+    char arg[MAX_INPUT_LENGTH];
+    
+    EDIT_MOB(ch, pMob);
+    
+    argument = one_argument(argument, cmd);
+    argument = one_argument(argument, arg);
+    
+    if (cmd[0] == '\0' || !str_cmp(cmd, "show")) {
+        craft_olc_show_mats(pMob->craft_mats, pMob->craft_mat_count, ch, "Craft Materials");
+        return false;
+    }
+    
+    if (!str_cmp(cmd, "add")) {
+        if (arg[0] == '\0') {
+            send_to_char("Syntax: craftmats add <vnum>\n\r", ch);
+            return false;
+        }
+        
+        VNUM vnum = atoi(arg);
+        return craft_olc_add_mat(&pMob->craft_mats, &pMob->craft_mat_count, vnum, ch);
+    }
+    
+    if (!str_cmp(cmd, "remove")) {
+        if (arg[0] == '\0') {
+            send_to_char("Syntax: craftmats remove <vnum|index>\n\r", ch);
+            return false;
+        }
+        
+        return craft_olc_remove_mat(&pMob->craft_mats, &pMob->craft_mat_count, arg, ch);
+    }
+    
+    if (!str_cmp(cmd, "clear")) {
+        if (pMob->craft_mat_count == 0) {
+            send_to_char("No craft materials to clear.\n\r", ch);
+            return false;
+        }
+        
+        craft_olc_clear_mats(&pMob->craft_mats, &pMob->craft_mat_count);
+        send_to_char("Craft materials cleared.\n\r", ch);
+        return true;
+    }
+    
+    if (!str_cmp(cmd, "list")) {
+        CraftMatType filter = MAT_NONE;
+        if (arg[0] != '\0') {
+            filter = craft_mat_type_lookup(arg);
+        }
+        craft_olc_list_mats(pMob->area, filter, ch);
+        return false;
+    }
+    
+    send_to_char("Syntax: craftmats [show]\n\r"
+                 "        craftmats add <vnum>\n\r"
+                 "        craftmats remove <vnum|index>\n\r"
+                 "        craftmats clear\n\r"
+                 "        craftmats list [type]\n\r", ch);
     return false;
 }

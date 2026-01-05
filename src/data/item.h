@@ -75,10 +75,12 @@ typedef enum item_type_t {
     ITEM_GEM            = 32,
     ITEM_JEWELRY        = 33,
     ITEM_JUKEBOX        = 34,
+    ITEM_MAT            = 35,   // Crafting material
+    ITEM_WORKSTATION    = 36,   // Crafting workstation
 } ItemType;
 
 // Add 1 because we started at 
-#define ITEM_TYPE_COUNT 36
+#define ITEM_TYPE_COUNT 38
 
 typedef struct item_info_t {
     const ItemType type;

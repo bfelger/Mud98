@@ -2988,6 +2988,206 @@
       "minPosition": "resting",
       "gsn": "gsn_dual_wield",
       "msgOff": "!Dual-Wield!"
+    },
+    {
+      "name": "skinning",
+      "levels": {
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
+      },
+      "ratings": {
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
+      },
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "gsn": "gsn_skinning",
+      "beats": 24,
+      "msgOff": "!Skinning!"
+    },
+    {
+      "name": "butchering",
+      "levels": {
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
+      },
+      "ratings": {
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
+      },
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "gsn": "gsn_butchering",
+      "beats": 24,
+      "msgOff": "!Butchering!"
+    },
+    {
+      "name": "leatherworking",
+      "levels": {
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
+      },
+      "ratings": {
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
+      },
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "gsn": "gsn_leatherworking",
+      "beats": 36,
+      "msgOff": "!Leatherworking!"
+    },
+    {
+      "name": "blacksmithing",
+      "levels": {
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
+      },
+      "ratings": {
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
+      },
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "gsn": "gsn_blacksmithing",
+      "beats": 36,
+      "msgOff": "!Blacksmithing!"
+    },
+    {
+      "name": "tailoring",
+      "levels": {
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
+      },
+      "ratings": {
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
+      },
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "gsn": "gsn_tailoring",
+      "beats": 36,
+      "msgOff": "!Tailoring!"
+    },
+    {
+      "name": "alchemy",
+      "levels": {
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
+      },
+      "ratings": {
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
+      },
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "gsn": "gsn_alchemy",
+      "beats": 36,
+      "msgOff": "!Alchemy!"
+    },
+    {
+      "name": "cooking",
+      "levels": {
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
+      },
+      "ratings": {
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
+      },
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "gsn": "gsn_cooking",
+      "beats": 24,
+      "msgOff": "!Cooking!"
+    },
+    {
+      "name": "jewelcraft",
+      "levels": {
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
+      },
+      "ratings": {
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
+      },
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "gsn": "gsn_jewelcraft",
+      "beats": 36,
+      "msgOff": "!Jewelcraft!"
+    },
+    {
+      "name": "woodworking",
+      "levels": {
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
+      },
+      "ratings": {
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
+      },
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "gsn": "gsn_woodworking",
+      "beats": 36,
+      "msgOff": "!Woodworking!"
+    },
+    {
+      "name": "enchanting",
+      "levels": {
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
+      },
+      "ratings": {
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
+      },
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "gsn": "gsn_enchanting",
+      "beats": 48,
+      "msgOff": "!Enchanting!"
     }
   ]
 }

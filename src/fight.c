@@ -44,6 +44,8 @@
 #include "skills.h"
 #include "update.h"
 
+#include <craft/craft.h>
+
 #include <entities/descriptor.h>
 #include <entities/event.h>
 #include <entities/faction.h>
@@ -59,6 +61,7 @@
 #include <data/skill.h>
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <time.h>
@@ -112,6 +115,39 @@ void raw_kill(Mobile* victim);
 void set_fighting(Mobile* ch, Mobile* victim);
 void disarm(Mobile* ch, Mobile* victim);
 bool check_counter(Mobile* ch, Mobile* victim, int dam, int dt);
+
+// Crafting material VNUMs for auto-derivation from mob form flags
+#define VNUM_CRAFT_RAW_HIDE   101
+#define VNUM_CRAFT_RAW_MEAT   104
+
+// Derive craft_mats from a mobile's form flags
+// Returns the number of materials added to the out_mats array
+static int derive_craft_mats_from_form(FLAGS form, VNUM* out_mats, int max_mats)
+{
+    int count = 0;
+
+    // Mammals yield both hide and meat
+    if (IS_SET(form, FORM_MAMMAL) && count < max_mats) {
+        out_mats[count++] = VNUM_CRAFT_RAW_HIDE;
+        if (IS_SET(form, FORM_EDIBLE) && count < max_mats) {
+            out_mats[count++] = VNUM_CRAFT_RAW_MEAT;
+        }
+    }
+    // Birds, reptiles, snakes, and dragons yield meat if edible
+    else if (IS_SET(form, FORM_BIRD | FORM_REPTILE | FORM_SNAKE | FORM_DRAGON)) {
+        if (IS_SET(form, FORM_EDIBLE) && count < max_mats) {
+            out_mats[count++] = VNUM_CRAFT_RAW_MEAT;
+        }
+    }
+    // Anything else with FORM_EDIBLE yields meat
+    else if (IS_SET(form, FORM_EDIBLE)) {
+        if (count < max_mats) {
+            out_mats[count++] = VNUM_CRAFT_RAW_MEAT;
+        }
+    }
+
+    return count;
+}
 
 /*
  * Control the fights going on.
@@ -1024,6 +1060,42 @@ void make_corpse(Mobile* ch)
 
     corpse->level = ch->level;
 
+    // Initialize corpse extraction flags (for skinning/butchering)
+    corpse->corpse.extraction_flags = 0;
+
+    // Copy craft_mats from mob prototype to corpse (NPCs only)
+    // Priority: explicit craft_mats on prototype > auto-derived from form flags
+    if (IS_NPC(ch) && ch->prototype != NULL 
+        && ch->prototype->craft_mats != NULL 
+        && ch->prototype->craft_mat_count > 0) {
+        // Use explicit craft_mats from mob prototype (override)
+        corpse->craft_mat_count = ch->prototype->craft_mat_count;
+        corpse->craft_mats = malloc(sizeof(VNUM) * (size_t)corpse->craft_mat_count);
+        if (corpse->craft_mats != NULL) {
+            memcpy(corpse->craft_mats, ch->prototype->craft_mats, 
+                   sizeof(VNUM) * (size_t)corpse->craft_mat_count);
+        }
+        else {
+            corpse->craft_mat_count = 0;
+        }
+    }
+    else if (IS_NPC(ch)) {
+        // Auto-derive craft_mats from mob's form flags
+        VNUM derived_mats[2];  // Max 2 materials: hide + meat
+        int mat_count = derive_craft_mats_from_form(ch->form, derived_mats, 2);
+        if (mat_count > 0) {
+            corpse->craft_mat_count = (int16_t)mat_count;
+            corpse->craft_mats = malloc(sizeof(VNUM) * (size_t)mat_count);
+            if (corpse->craft_mats != NULL) {
+                memcpy(corpse->craft_mats, derived_mats, 
+                       sizeof(VNUM) * (size_t)mat_count);
+            }
+            else {
+                corpse->craft_mat_count = 0;
+            }
+        }
+    }
+
     // For short_descr and description, use the mob's display name
     const char* mob_name = IS_NPC(ch) ? ch->short_descr : NAME_STR(ch);
     SPRINTF_CORPSE_SDESC(buf, DESC_CORPSE, mob_name);
@@ -1097,7 +1169,8 @@ void death_cry(Mobile* ch)
         msg = "$n hits the ground ... DEAD.";
         break;
     case 1:
-        if (ch->material == 0) {
+        // FORM_BLEEDS flag or legacy material == 0 check for backward compat
+        if (IS_SET(ch->form, FORM_BLEEDS) || ch->material == 0) {
             msg = "$n splatters blood on your armor.";
         }
         break;

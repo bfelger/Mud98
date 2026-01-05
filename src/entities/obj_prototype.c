@@ -14,6 +14,9 @@
 #include <handler.h>
 #include <lookup.h>
 
+#include <stdlib.h>
+#include <string.h>
+
 ObjPrototype* obj_proto_free = NULL;
 static OrderedTable obj_protos;
 
@@ -109,6 +112,8 @@ ObjPrototype* new_object_prototype()
         : str_dup("(no description)");
     obj_proto->item_type = ITEM_TRASH;
     obj_proto->condition = 100;
+    obj_proto->salvage_mats = NULL;
+    obj_proto->salvage_mat_count = 0;
 
     return obj_proto;
 }
@@ -128,6 +133,12 @@ void free_object_prototype(ObjPrototype* obj_proto)
 
     FOR_EACH(pExtra, obj_proto->extra_desc) {
         free_extra_desc(pExtra);
+    }
+
+    if (obj_proto->salvage_mats != NULL) {
+        free(obj_proto->salvage_mats);
+        obj_proto->salvage_mats = NULL;
+        obj_proto->salvage_mat_count = 0;
     }
 
     LIST_FREE(obj_proto);
@@ -230,6 +241,22 @@ void load_objects(FILE* fp)
             obj_proto->value[2] = skill_lookup(fread_word(fp));
             obj_proto->value[3] = skill_lookup(fread_word(fp));
             obj_proto->value[4] = skill_lookup(fread_word(fp));
+            break;
+        case ITEM_MAT:
+            // Crafting material: mat_type amount quality unused unused
+            obj_proto->craft_mat.mat_type = fread_number(fp);
+            obj_proto->craft_mat.amount = fread_number(fp);
+            obj_proto->craft_mat.quality = fread_number(fp);
+            obj_proto->craft_mat.unused3 = fread_number(fp);
+            obj_proto->craft_mat.unused4 = fread_number(fp);
+            break;
+        case ITEM_WORKSTATION:
+            // Workstation: station_flags bonus unused unused unused
+            obj_proto->workstation.station_flags = fread_flag(fp);
+            obj_proto->workstation.bonus = fread_number(fp);
+            obj_proto->workstation.unused2 = fread_number(fp);
+            obj_proto->workstation.unused3 = fread_number(fp);
+            obj_proto->workstation.unused4 = fread_number(fp);
             break;
         default:
             obj_proto->value[0] = fread_flag(fp);
@@ -341,6 +368,29 @@ void load_objects(FILE* fp)
                 if (!load_lox_class(fp, "obj", &obj_proto->header)) {
                     bug("Load_objects: vnum %"PRVNUM" has malformed Lox script.", vnum);
                     exit(1);
+                }
+            }
+            else if (letter == 'S') {
+                // SalvageMats format: SalvageMats <vnum> [<vnum>...] 0
+                char* word = fread_word(fp);
+                if (!str_cmp(word, "alvageMats")) {
+                    // Read VNUMs until we hit 0
+                    VNUM temp_mats[64];  // Temporary buffer for reading
+                    int count = 0;
+                    VNUM mat_vnum;
+                    while ((mat_vnum = fread_number(fp)) != 0 && count < 64) {
+                        temp_mats[count++] = mat_vnum;
+                    }
+                    if (count > 0) {
+                        obj_proto->salvage_mats = malloc(sizeof(VNUM) * (size_t)count);
+                        if (obj_proto->salvage_mats != NULL) {
+                            memcpy(obj_proto->salvage_mats, temp_mats, sizeof(VNUM) * (size_t)count);
+                            obj_proto->salvage_mat_count = count;
+                        }
+                    }
+                }
+                else {
+                    bug("Load_objects: vnum %"PRVNUM" expected SalvageMats, got S%s.", vnum, word);
                 }
             }
             else {

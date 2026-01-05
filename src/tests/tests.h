@@ -75,6 +75,10 @@ void register_mem_watchpoint_tests();
 void register_daycycle_tests();
 void register_multihit_tests();
 void register_loot_tests();
+void register_thief_tests();
+void register_magic_tests();
+void register_craft_tests();
+void register_olc_aedit_tests();
 
 void run_unit_tests();
 

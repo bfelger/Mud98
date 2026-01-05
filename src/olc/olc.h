@@ -38,6 +38,8 @@
 #include <data/quest.h>
 #include <data/tutorial.h>
 
+#include <craft/recipe.h>
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <inttypes.h>
@@ -229,6 +231,7 @@ DECLARE_DO_FUN(do_sedit);
 DECLARE_DO_FUN(do_skedit);
 DECLARE_DO_FUN(do_scredit);
 DECLARE_DO_FUN(do_tedit);
+DECLARE_DO_FUN(do_recedit);
 void theme_edit(Mobile* ch, char* argument);
 
 // General Functions
@@ -246,6 +249,7 @@ DECLARE_OLC_FUN(aedit_security);
 DECLARE_OLC_FUN(aedit_builder);
 DECLARE_OLC_FUN(aedit_levels);
 DECLARE_OLC_FUN(aedit_vnums);
+DECLARE_OLC_FUN(aedit_movevnums);
 DECLARE_OLC_FUN(aedit_lvnum);
 DECLARE_OLC_FUN(aedit_uvnum);
 DECLARE_OLC_FUN(aedit_lowrange);
@@ -415,7 +419,6 @@ DECLARE_ED_FUN(ed_race);
 DECLARE_ED_FUN(ed_olded);
 DECLARE_ED_FUN(ed_direction);
 DECLARE_ED_FUN(ed_docomm);
-DECLARE_ED_FUN(ed_olist);
 DECLARE_ED_FUN(ed_objrecval);
 
 // Macros
@@ -440,6 +443,7 @@ DECLARE_ED_FUN(ed_objrecval);
 #define EDIT_SCRIPT(ch, entry)  ( entry = lox_script_entry_get((size_t)get_pEdit(ch->desc)) )
 #define EDIT_THEME(ch, theme)   ( theme = (ColorTheme*)get_pEdit(ch->desc) )
 #define EDIT_TUTORIAL(ch, tutorial) ( tutorial = (Tutorial*)get_pEdit(ch->desc) )
+#define EDIT_RECIPE(ch, recipe) ( recipe = (Recipe*)get_pEdit(ch->desc) )
 
 void show_liqlist(Mobile* ch);
 void show_poslist(Mobile* ch);

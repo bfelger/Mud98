@@ -48,6 +48,10 @@ add_library(Mud98PersistRomOlc OBJECT
     # Loot persistence
     ../loot/rom-olc/loot_persist_rom_olc.h
     ../loot/rom-olc/loot_persist_rom_olc.c
+    
+    # Recipe persistence
+    ../recipe/rom-olc/recipe_persist_rom_olc.h
+    ../recipe/rom-olc/recipe_persist_rom_olc.c
 )
 
 target_include_directories(Mud98PersistRomOlc
@@ -58,6 +62,7 @@ target_include_directories(Mud98PersistRomOlc
         ${CMAKE_SOURCE_DIR}/src/entities
         ${CMAKE_SOURCE_DIR}/src/data
         ${CMAKE_SOURCE_DIR}/src/lox
+        ${CMAKE_SOURCE_DIR}/src/craft
         $<$<BOOL:${OPENSSL_FOUND}>:${OPENSSL_INCLUDE_DIR}>
         $<$<BOOL:${ZLIB_FOUND}>:${ZLIB_INCLUDE_DIRS}>
 )

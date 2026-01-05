@@ -1,5 +1,5 @@
 #AREADATA
-Version 2
+Version 3
 Name Valley of the Elves~
 Builders ~
 VNUMs 7800 7899
@@ -249,7 +249,7 @@ elven chainmail~
 A shiny metallic shirt is on the floor.~
 oldstyle~
 armor 0 AD
-4 4 4 2 0
+4 4 4 2 2
 5 30 1080 P
 #7801
 boots elven~
@@ -487,7 +487,7 @@ D2
 You see the Plains of Ofcol.
 ~
 ~
-0 -1 323
+0 -1 1923
 S
 #7801
 Along the Path~

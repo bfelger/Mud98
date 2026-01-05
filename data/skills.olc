@@ -2193,6 +2193,166 @@ msg_obj ~
 #END
 
 #SKILL
+name skinning~
+skill_level 5 5 5 5 @
+rating 5 5 5 5 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position standing~
+pgsn gsn_skinning~
+slot 0
+min_mana 0
+beats 24
+noun_damage ~
+msg_off !Skinning!~
+msg_obj ~
+#END
+
+#SKILL
+name butchering~
+skill_level 5 5 5 5 @
+rating 5 5 5 5 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position standing~
+pgsn gsn_butchering~
+slot 0
+min_mana 0
+beats 24
+noun_damage ~
+msg_off !Butchering!~
+msg_obj ~
+#END
+
+#SKILL
+name leatherworking~
+skill_level 5 5 5 5 @
+rating 5 5 5 5 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position standing~
+pgsn gsn_leatherworking~
+slot 0
+min_mana 0
+beats 36
+noun_damage ~
+msg_off !Leatherworking!~
+msg_obj ~
+#END
+
+#SKILL
+name blacksmithing~
+skill_level 5 5 5 5 @
+rating 5 5 5 5 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position standing~
+pgsn gsn_blacksmithing~
+slot 0
+min_mana 0
+beats 36
+noun_damage ~
+msg_off !Blacksmithing!~
+msg_obj ~
+#END
+
+#SKILL
+name tailoring~
+skill_level 5 5 5 5 @
+rating 5 5 5 5 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position standing~
+pgsn gsn_tailoring~
+slot 0
+min_mana 0
+beats 36
+noun_damage ~
+msg_off !Tailoring!~
+msg_obj ~
+#END
+
+#SKILL
+name alchemy~
+skill_level 5 5 5 5 @
+rating 5 5 5 5 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position standing~
+pgsn gsn_alchemy~
+slot 0
+min_mana 0
+beats 36
+noun_damage ~
+msg_off !Alchemy!~
+msg_obj ~
+#END
+
+#SKILL
+name cooking~
+skill_level 5 5 5 5 @
+rating 5 5 5 5 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position standing~
+pgsn gsn_cooking~
+slot 0
+min_mana 0
+beats 24
+noun_damage ~
+msg_off !Cooking!~
+msg_obj ~
+#END
+
+#SKILL
+name jewelcraft~
+skill_level 5 5 5 5 @
+rating 5 5 5 5 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position standing~
+pgsn gsn_jewelcraft~
+slot 0
+min_mana 0
+beats 36
+noun_damage ~
+msg_off !Jewelcraft!~
+msg_obj ~
+#END
+
+#SKILL
+name woodworking~
+skill_level 5 5 5 5 @
+rating 5 5 5 5 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position standing~
+pgsn gsn_woodworking~
+slot 0
+min_mana 0
+beats 36
+noun_damage ~
+msg_off !Woodworking!~
+msg_obj ~
+#END
+
+#SKILL
+name enchanting~
+skill_level 5 5 5 5 @
+rating 5 5 5 5 @
+spell_fun spell_null~
+target tar_ignore~
+minimum_position standing~
+pgsn gsn_enchanting~
+slot 0
+min_mana 0
+beats 48
+noun_damage ~
+msg_off !Enchanting!~
+msg_obj ~
+#END
+
+#SKILL
 name ~
 skill_level 0 0 0 0 @
 rating 0 0 0 0 @

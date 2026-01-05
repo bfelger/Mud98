@@ -392,21 +392,21 @@ static int test_reload_room_recreates_from_prototype()
     AreaData* area_data = mock_area_data();
     Area* area = mock_area(area_data);
     
-    RoomData* room_data = mock_room_data(100, area_data);
-    Room* room = mock_room(100, room_data, area);
+    RoomData* room_data = mock_room_data(99100, area_data);
+    Room* room = mock_room(99100, room_data, area);
     
     // Add a mobile and object to the room
-    MobPrototype* mob_proto = mock_mob_proto(100);
-    Mobile* mob = mock_mob("testmob", 100, mob_proto);
+    MobPrototype* mob_proto = mock_mob_proto(99100);
+    Mobile* mob = mock_mob("testmob", 99100, mob_proto);
     mob_to_room(mob, room);
     
-    ObjPrototype* obj_proto = mock_obj_proto(100);
-    Object* obj = mock_obj("testobj", 100, obj_proto);
+    ObjPrototype* obj_proto = mock_obj_proto(99100);
+    Object* obj = mock_obj("testobj", 99100, obj_proto);
     obj_to_room(obj, room);
     
     // Create an inbound exit from another room
-    RoomData* source_data = mock_room_data(101, area_data);
-    Room* source_room = mock_room(101, source_data, area);
+    RoomData* source_data = mock_room_data(99101, area_data);
+    Room* source_room = mock_room(99101, source_data, area);
     mock_room_data_connection(source_data, room_data, DIR_NORTH, false);
     source_room->exit[DIR_NORTH] = new_room_exit(source_data->exit_data[DIR_NORTH], source_room);
     
@@ -417,8 +417,8 @@ static int test_reload_room_recreates_from_prototype()
     ASSERT(source_room->exit[DIR_NORTH]->to_room == room);
     
     // Add an exit from the room we're reloading (so we can verify it's recreated)
-    RoomData* dest_data = mock_room_data(102, area_data);
-    Room* dest_room = mock_room(102, dest_data, area);
+    RoomData* dest_data = mock_room_data(99102, area_data);
+    Room* dest_room = mock_room(99102, dest_data, area);
     mock_room_data_connection(room_data, dest_data, DIR_SOUTH, false);
     room->exit[DIR_SOUTH] = new_room_exit(room_data->exit_data[DIR_SOUTH], room);
     
@@ -430,14 +430,14 @@ static int test_reload_room_recreates_from_prototype()
     reload_room(admin, room);
     
     // Get the new room instance (should be in the same area, same vnum)
-    Room* new_room = get_room(area, 100);
+    Room* new_room = get_room(area, 99100);
     ASSERT(new_room != NULL);
     
     // Note: Can't compare new_room != old_room because memory pool may reuse the address!
     // Instead, verify recreation by checking that exits were recreated
     
     // Verify the new room has same VNUM
-    ASSERT(VNUM_FIELD(new_room) == 100);
+    ASSERT(VNUM_FIELD(new_room) == 99100);
     
     // Verify mobile and object were restored (2 mobs: original mob + admin)
     ASSERT(new_room->mobiles.count == 2);

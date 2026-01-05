@@ -7,6 +7,7 @@
 
 #include <persist/json/persist_json.h>
 #include <persist/loot/json/loot_persist_json.h>
+#include <persist/recipe/json/recipe_persist_json.h>
 
 #include <data/damage.h>
 #include <data/direction.h>
@@ -996,6 +997,13 @@ static json_t* build_mobiles(const AreaData* area)
             JSON_SET_INT(obj, "factionVnum", mob->faction_vnum);
         if (!IS_NULLSTR(mob->loot_table))
             JSON_SET_STRING(obj, "lootTable", mob->loot_table);
+        if (mob->craft_mats != NULL && mob->craft_mat_count > 0) {
+            json_t* mats = json_array();
+            for (int i = 0; i < mob->craft_mat_count; i++) {
+                json_array_append_new(mats, json_integer(mob->craft_mats[i]));
+            }
+            json_object_set_new(obj, "craftMats", mats);
+        }
 
         Entity* ent = (Entity*)mob;
         if (ent->script && ent->script->chars && ent->script->length > 0)
@@ -1113,6 +1121,20 @@ static PersistResult parse_mobiles(json_t* root, AreaData* area)
         mob->faction_vnum = (VNUM)json_int_or_default(m, "factionVnum", mob->faction_vnum);
         const char* loot_table = JSON_STRING(m, "lootTable");
         JSON_INTERN(loot_table, mob->loot_table)
+
+        json_t* craft_mats = json_object_get(m, "craftMats");
+        if (json_is_array(craft_mats)) {
+            size_t count = json_array_size(craft_mats);
+            if (count > 0) {
+                mob->craft_mats = malloc(sizeof(VNUM) * count);
+                if (mob->craft_mats != NULL) {
+                    mob->craft_mat_count = (int)count;
+                    for (size_t i = 0; i < count; i++) {
+                        mob->craft_mats[i] = (VNUM)json_integer_value(json_array_get(craft_mats, i));
+                    }
+                }
+            }
+        }
 
         const char* script = JSON_STRING(m, "loxScript");
         if (script && script[0] != '\0')
@@ -1695,6 +1717,14 @@ static json_t* build_objects(const AreaData* area)
         if (obj->affected)
             json_object_set_new(o, "affects", build_affects(obj->affected));
 
+        if (obj->salvage_mats != NULL && obj->salvage_mat_count > 0) {
+            json_t* mats = json_array();
+            for (int j = 0; j < obj->salvage_mat_count; j++) {
+                json_array_append_new(mats, json_integer(obj->salvage_mats[j]));
+            }
+            json_object_set_new(o, "salvageMats", mats);
+        }
+
         Entity* ent = (Entity*)obj;
         if (ent->script && ent->script->chars && ent->script->length > 0)
             JSON_SET_STRING(o, "loxScript", ent->script->chars);
@@ -1810,6 +1840,20 @@ static PersistResult parse_objects(json_t* root, AreaData* area)
             }
         }
         parse_affects(json_object_get(o, "affects"), &obj->affected);
+
+        json_t* salvage_mats = json_object_get(o, "salvageMats");
+        if (json_is_array(salvage_mats)) {
+            size_t mat_count = json_array_size(salvage_mats);
+            if (mat_count > 0) {
+                obj->salvage_mats = malloc(sizeof(VNUM) * mat_count);
+                if (obj->salvage_mats != NULL) {
+                    obj->salvage_mat_count = (int)mat_count;
+                    for (size_t j = 0; j < mat_count; j++) {
+                        obj->salvage_mats[j] = (VNUM)json_integer_value(json_array_get(salvage_mats, j));
+                    }
+                }
+            }
+        }
 
         const char* script = JSON_STRING(o, "loxScript");
         if (script && script[0] != '\0')
@@ -2415,6 +2459,13 @@ PersistResult json_load(const AreaPersistLoadParams* params)
             loot_persist_json_parse(loot, &current_area_data->header);
     }
 
+    // Parse recipes for this area
+    if (area_persist_succeeded(res)) {
+        json_t* recipes = json_object_get(root, "recipes");
+        if (recipes)
+            recipe_persist_json_parse(recipes, &current_area_data->header);
+    }
+
     if (area_persist_succeeded(res)
         && params->create_single_instance
         && current_area_data
@@ -2457,6 +2508,11 @@ PersistResult json_save(const AreaPersistSaveParams* params)
     json_t* loot = loot_persist_json_build(&params->area->header);
     if (loot)
         json_object_set_new(root, "loot", loot);
+
+    // Build and add recipes for this area
+    json_t* recipes = recipe_persist_json_build(&params->area->header);
+    if (recipes)
+        json_object_set_new(root, "recipes", recipes);
 
     char* dump = json_dumps(root, JSON_INDENT(2));
     json_decref(root);

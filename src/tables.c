@@ -36,6 +36,7 @@
 
 #include <data/damage.h>
 #include <data/events.h>
+#include <data/item.h>
 #include <data/mobile_data.h>
 #include <data/skill.h>
 
@@ -194,6 +195,7 @@ const struct flag_type form_flag_table[] = {
     { "magical",        FORM_MAGICAL,       true    },
     { "instant_decay",  FORM_INSTANT_DECAY, true    },
     { "other",          FORM_OTHER,         true    },
+    { "bleeds",         FORM_BLEEDS,        true    },
     { "animal",         FORM_ANIMAL,        true    },
     { "sentient",       FORM_SENTIENT,      true    },
     { "undead",         FORM_UNDEAD,        true    },
@@ -412,6 +414,8 @@ const struct flag_type type_flag_table[] = {
     { "gem",            ITEM_GEM,           true    },
     { "jewelry",        ITEM_JEWELRY,       true    },
     { "jukebox",        ITEM_JUKEBOX,       true    },
+    { "material",       ITEM_MAT,           true    },
+    { "workstation",    ITEM_WORKSTATION,   true    },
     { NULL,             0,                  0       }
 };
 

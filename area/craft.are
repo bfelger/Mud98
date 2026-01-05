@@ -1,0 +1,402 @@
+#AREADATA
+Version 3
+Name Mud98 Crafting~
+Builders Mud98~
+VNUMs 100 599
+Credits Mud98~
+Security 9
+Low 1
+High 60
+End
+
+
+
+#MOBILES
+#0
+
+
+
+#OBJECTS
+#101
+hide raw~
+a raw hide~
+A raw animal hide lies here.~
+organic~
+material 0 A
+1 1 0 0 0
+5 5 10 P
+#102
+leather tanned~
+a piece of leather~
+A piece of tanned leather lies here.~
+leather~
+material 0 A
+2 1 0 0 0
+10 4 25 P
+#103
+leather strips~
+some leather strips~
+Some leather strips lie here.~
+leather~
+material 0 A
+2 1 0 0 0
+15 2 15 P
+#104
+meat raw~
+a chunk of raw meat~
+A chunk of raw meat lies here.~
+food~
+material 0 A
+6 1 0 0 0
+5 3 5 P
+#105
+meat cooked~
+a piece of cooked meat~
+A piece of cooked meat lies here.~
+food~
+material 0 A
+6 1 0 0 0
+5 2 10 P
+#106
+ore copper~
+a chunk of copper ore~
+A chunk of copper ore lies here.~
+copper~
+material 0 A
+7 1 0 0 0
+5 8 15 P
+#107
+ore tin~
+a chunk of tin ore~
+A chunk of tin ore lies here.~
+tin~
+material 0 A
+7 1 0 0 0
+15 8 20 P
+#108
+ore iron~
+a chunk of iron ore~
+A chunk of iron ore lies here.~
+iron~
+material 0 A
+7 1 0 0 0
+25 10 30 P
+#109
+ingot copper~
+a copper ingot~
+A copper ingot lies here.~
+copper~
+material 0 A
+8 1 0 0 0
+5 6 40 P
+#110
+ingot tin~
+a tin ingot~
+A tin ingot lies here.~
+tin~
+material 0 A
+8 1 0 0 0
+15 6 50 P
+#111
+ingot bronze~
+a bronze ingot~
+A bronze ingot lies here.~
+bronze~
+material 0 A
+8 1 0 0 0
+15 7 75 P
+#112
+ingot iron~
+an iron ingot~
+An iron ingot lies here.~
+iron~
+material 0 A
+8 1 0 0 0
+25 8 100 P
+#113
+flax raw~
+a bundle of raw flax~
+A bundle of raw flax lies here.~
+organic~
+material 0 A
+12 1 0 0 0
+5 2 8 P
+#114
+linen scraps~
+some linen scraps~
+Some linen scraps lie here.~
+cloth~
+material 0 A
+10 1 0 0 0
+5 1 5 P
+#115
+linen fabric~
+a piece of linen fabric~
+A piece of linen fabric lies here.~
+cloth~
+material 0 A
+10 1 0 0 0
+5 2 20 P
+#116
+wool raw~
+a bundle of raw wool~
+A bundle of raw wool lies here.~
+wool~
+material 0 A
+1 1 0 0 0
+15 3 12 P
+#117
+wool fabric~
+a piece of wool fabric~
+A piece of wool fabric lies here.~
+wool~
+material 0 A
+10 1 0 0 0
+15 2 35 P
+#118
+cotton scraps~
+some cotton scraps~
+Some cotton scraps lie here.~
+cloth~
+material 0 A
+10 1 0 0 0
+25 1 8 P
+#119
+cotton fabric~
+a piece of cotton fabric~
+A piece of cotton fabric lies here.~
+cloth~
+material 0 A
+10 1 0 0 0
+25 2 45 P
+#120
+herbs medicinal~
+a bundle of medicinal herbs~
+A bundle of medicinal herbs lies here.~
+organic~
+material 0 A
+12 1 0 0 0
+5 1 15 P
+#201
+rack tanning leather~
+a tanning rack~
+A sturdy wooden tanning rack stands here.~
+wood~
+workstation 0 0
+C 0 0 0 0
+10 50 500 P
+#202
+forge blacksmith~
+a blacksmith's forge~
+A large forge dominates this area, its coals glowing hot.~
+iron~
+workstation 0 0
+A 0 0 0 0
+15 200 1000 P
+#203
+fire cooking campfire~
+a cooking fire~
+A cooking fire crackles here, ready for use.~
+fire~
+workstation 0 0
+F 0 0 0 0
+5 20 100 P
+#204
+bench alchemy~
+an alchemy bench~
+An alchemy bench covered with vials and burners sits here.~
+wood~
+workstation 0 0
+E 0 0 0 0
+20 75 750 P
+#205
+circle enchanting arcane~
+an enchanting circle~
+A glowing arcane circle has been inscribed on the floor here.~
+magic~
+workstation 0 0
+G 0 0 0 0
+30 0 2000 P
+#206
+bench woodworking carpentry~
+a woodworking bench~
+A sturdy workbench with tools for woodworking sits here.~
+wood~
+workstation 0 0
+H 0 0 0 0
+10 100 600 P
+#207
+table jeweler~
+a jeweler's table~
+A finely crafted jeweler's table with magnifying lenses sits here.~
+wood~
+workstation 0 0
+I 0 0 0 0
+25 60 1200 P
+#208
+table sewing tailor~
+a sewing table~
+A sewing table with needles and thread stands ready for use.~
+wood~
+workstation 0 0
+D 0 0 0 0
+10 40 400 P
+#209
+smelter ore~
+a smelter~
+A large smelter for processing ore stands here, radiating heat.~
+iron~
+workstation 0 0
+B 0 0 0 0
+15 250 1500 P
+#210
+forge master smithy~
+a master forge~
+A magnificent master forge capable of smelting and smithing stands here.~
+iron~
+workstation 0 0
+AB 5 0 0 0
+40 400 5000 P
+#401
+cap leather~
+a leather cap~
+A simple leather cap lies here.~
+leather~
+armor 0 AE
+2 2 2 0 0
+5 3 50 P
+#402
+vest leather~
+a leather vest~
+A sturdy leather vest lies here.~
+leather~
+armor 0 AD
+4 4 4 0 0
+10 8 150 P
+#411
+dagger iron~
+an iron dagger~
+A simple iron dagger lies here.~
+iron~
+weapon 0 AN
+dagger 1 4 'stab' 0
+5 4 75 P
+#412
+sword iron~
+an iron sword~
+A sturdy iron sword lies here.~
+iron~
+weapon 0 AN
+sword 2 6 'slash' 0
+10 10 200 P
+#421
+rations trail~
+some trail rations~
+A bundle of trail rations lies here.~
+food~
+food 0 A
+24 10 0 0 0
+5 2 25 P
+#0
+
+
+
+#ROOMS
+#0
+
+
+
+#SPECIALS
+S
+
+
+
+#RESETS
+S
+
+
+
+#SHOPS
+0
+
+
+
+#MOBPROGS
+#0
+
+#RECIPES
+recipe 301 tan hide~
+skill leatherworking 1
+station tannery 0
+input 101 1
+output 102 1
+end
+
+recipe 302 cut strips~
+skill leatherworking 1
+station tannery 0
+input 102 1
+output 103 3
+end
+
+recipe 303 leather cap~
+skill leatherworking 10
+level 5
+station tannery 0
+input 102 1
+input 103 1
+output 401 1
+end
+
+recipe 304 leather vest~
+skill leatherworking 20
+level 10
+station tannery 0
+input 102 2
+input 103 1
+output 402 1
+end
+
+recipe 311 cook meat~
+skill cooking 1
+station cooking 0
+input 104 1
+output 105 1
+end
+
+recipe 312 trail rations~
+skill cooking 10
+level 5
+station cooking 0
+input 105 1
+input 120 1
+output 421 1
+end
+
+recipe 321 smelt iron~
+skill blacksmithing 1
+station smelter 0
+input 108 2
+output 112 1
+end
+
+recipe 322 iron dagger~
+skill blacksmithing 10
+level 5
+station forge 0
+input 112 1
+output 411 1
+end
+
+recipe 323 iron sword~
+skill blacksmithing 20
+level 10
+station forge 0
+input 112 2
+output 412 1
+end
+
+#ENDRECIPES
+
+#$
+

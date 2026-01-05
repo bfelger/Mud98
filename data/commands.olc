@@ -1,4 +1,4 @@
-275
+280
 
 #COMMAND
 name .~
@@ -1756,6 +1756,15 @@ show undef~
 #END
 
 #COMMAND
+name olist~
+do_fun do_olist~
+position dead~
+level 0
+log log_normal~
+show undef~
+#END
+
+#COMMAND
 name moblist~
 do_fun do_moblist~
 position dead~
@@ -2473,4 +2482,60 @@ position dead~
 level 0
 log log_normal~
 show undef~
+#END
+
+#COMMAND
+name skin~
+do_fun do_skin~
+position standing~
+level 0
+log log_normal~
+show undef~
+#END
+
+#COMMAND
+name butcher~
+do_fun do_butcher~
+position standing~
+level 0
+log log_normal~
+show undef~
+#END
+
+#COMMAND
+name salvage~
+do_fun do_salvage~
+position standing~
+level 0
+log log_normal~
+show undef~
+#END
+
+#COMMAND
+name craft~
+do_fun do_craft~
+position standing~
+level 0
+log log_normal~
+show undef~
+#END
+
+#COMMAND
+name recedit~
+do_fun do_recedit~
+position dead~
+level 54
+log log_always~
+show undef~
+#END
+
+#COMMAND
+name recipes~
+do_fun do_recipes~
+position resting~
+level 0
+log log_normal~
+show undef~
+#END
+
 #END

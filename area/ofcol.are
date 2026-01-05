@@ -1,5 +1,5 @@
 #AREADATA
-Version 2
+Version 3
 Name Ofcol~
 Builders ~
 VNUMs 5500 5599
@@ -40,7 +40,7 @@ D2
 The wide road leads south here towards the T-crossing.
 ~
 ~
-0 -1 314
+0 -1 1914
 S
 #5551
 Village street~
@@ -102,7 +102,7 @@ D1
 You see a big intersection.
 ~
 ~
-0 -1 601
+0 -1 2401
 D2
 It looks like the future site of a training room.
 ~
@@ -194,13 +194,13 @@ S
 
 
 #RESETS
-M 0 303 5 5550 3
-M 0 304 5 5552 3
-M 0 304 5 5553 3
-M 0 306 1 5555 1
-M 0 303 5 5556 3
-M 0 308 1 5556 1
-M 0 350 1 5577 1
+M 0 1903 5 5550 3
+M 0 1904 5 5552 3
+M 0 1904 5 5553 3
+M 0 1906 1 5555 1
+M 0 1903 5 5556 3
+M 0 1908 1 5556 1
+M 0 1950 1 5577 1
 S
 
 

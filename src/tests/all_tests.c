@@ -8,12 +8,6 @@
 
 #include "lox_tests.h"
 
-void register_thief_tests();
-void register_magic_tests();
-
-void register_thief_tests();
-void register_magic_tests();
-
 #include <lox/vm.h>
 #include <lox/table.h>
 
@@ -73,6 +67,8 @@ void run_unit_tests()
     register_loot_tests();
     register_thief_tests();
     register_magic_tests();
+    register_olc_aedit_tests();
+    register_craft_tests();
 
     test_output_enabled = true;
     test_disassemble_on_error = true;
