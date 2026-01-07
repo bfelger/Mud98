@@ -510,6 +510,7 @@ static void mark_roots()
     mark_global_rooms();
     mark_global_mob_protos();
     mark_global_obj_protos();
+    mark_global_recipes();
 
     mark_list(&mob_free);
     mark_list(&mob_list);

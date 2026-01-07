@@ -25,22 +25,23 @@ Class tmp_class;
 #define U(x)    (uintptr_t)(x)
 
 const SaveTableEntry class_save_table[] = {
-    { "name",	        FIELD_STRING,           U(&tmp_class.name),	        0,		            0   },
-    { "wname",	        FIELD_STRING,           U(&tmp_class.who_name),	    0,		            0   },
-    { "basegrp",        FIELD_STRING,           U(&tmp_class.base_group),   0,                  0   },
-    { "dfltgrp",        FIELD_STRING,           U(&tmp_class.default_group),0,                  0   },
-    { "weap",           FIELD_VNUM,             U(&tmp_class.weapon),       0,                  0   },
-    { "guild",          FIELD_VNUM_ARRAY,       U(&tmp_class.guild),        U(MAX_GUILD),       0   },
-    { "pstat",          FIELD_INT16,            U(&tmp_class.prime_stat),   0,                  0   },
-    { "scap",           FIELD_INT16,            U(&tmp_class.skill_cap),    0,                  0   },
-    { "t0_0",           FIELD_INT16,            U(&tmp_class.thac0_00),     0,                  0   },
-    { "t0_32",          FIELD_INT16,            U(&tmp_class.thac0_32),     0,                  0   },
-    { "hpmin",          FIELD_INT16,            U(&tmp_class.hp_min),       0,                  0   },
-    { "hpmax",          FIELD_INT16,            U(&tmp_class.hp_max),       0,                  0   },
-    { "fmana",          FIELD_BOOL,             U(&tmp_class.fMana),        0,                  0   },
-    { "titles",         FIELD_N_STRING_ARRAY,   U(&tmp_class.titles),       U((MAX_LEVEL+1)*2), 0   },
-    { "start_loc",      FIELD_VNUM,             U(&tmp_class.start_loc),    0,                  0   },
-    { NULL,		        0,				        0,			                0,		            0   }
+    { "name",	        FIELD_STRING,               U(&tmp_class.name),	        0,		            0   },
+    { "wname",	        FIELD_STRING,               U(&tmp_class.who_name),	    0,		            0   },
+    { "basegrp",        FIELD_STRING,               U(&tmp_class.base_group),   0,                  0   },
+    { "dfltgrp",        FIELD_STRING,               U(&tmp_class.default_group),0,                  0   },
+    { "weap",           FIELD_VNUM,                 U(&tmp_class.weapon),       0,                  0   },
+    { "armorprof",      FIELD_FUNCTION_INT_TO_STR,  U(&tmp_class.armor_prof),   U(armor_type_str),  U(armor_type_read) },
+    { "guild",          FIELD_VNUM_ARRAY,           U(&tmp_class.guild),        U(MAX_GUILD),       0   },
+    { "pstat",          FIELD_INT16,                U(&tmp_class.prime_stat),   0,                  0   },
+    { "scap",           FIELD_INT16,                U(&tmp_class.skill_cap),    0,                  0   },
+    { "t0_0",           FIELD_INT16,                U(&tmp_class.thac0_00),     0,                  0   },
+    { "t0_32",          FIELD_INT16,                U(&tmp_class.thac0_32),     0,                  0   },
+    { "hpmin",          FIELD_INT16,                U(&tmp_class.hp_min),       0,                  0   },
+    { "hpmax",          FIELD_INT16,                U(&tmp_class.hp_max),       0,                  0   },
+    { "fmana",          FIELD_BOOL,                 U(&tmp_class.fMana),        0,                  0   },
+    { "titles",         FIELD_N_STRING_ARRAY,       U(&tmp_class.titles),       U((MAX_LEVEL+1)*2), 0   },
+    { "start_loc",      FIELD_VNUM,                 U(&tmp_class.start_loc),    0,                  0   },
+    { NULL,		        0,				            0,			                0,		            0   }
 };
 
 void load_class_table()

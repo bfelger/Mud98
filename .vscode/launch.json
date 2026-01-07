@@ -98,6 +98,30 @@
                     "ignoreFailures": true
                 }
             ]
+        },
+        {
+            "name": "Mud98 [CombatSim]",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/${command:cmake.buildType}/mud98CombatSim",
+            "stopAtEntry": false,
+            "args": ["${workspaceFolder}/tools/mud98CombatSim/configs/spell_ai.json"],
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
         }
     ]
 }

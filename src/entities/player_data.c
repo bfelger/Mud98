@@ -40,6 +40,7 @@ PlayerData* new_player_data()
     player_data->pwd_digest_hex = str_dup("");
 
     player_data->recall = cfg_get_default_recall();
+    player_data->armor_prof = ARMOR_UNSET;
 
     VALIDATE(player_data);
 

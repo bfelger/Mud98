@@ -1,0 +1,30 @@
+{
+  "seed": 12345,
+  "runs": 200,
+  "max_ticks": 1000,
+  "csv_path": "player_vs_school_summary.csv",
+  "csv_runs_path": "player_vs_school_runs.csv",
+  "attacker": {
+    "type": "player",
+    "name": "Elithir",
+    "class": "warrior",
+    "race": "human",
+    "level": 1,
+    "hitpoints": 20,
+    "hitroll": 1,
+    "stats": [17, 14, 13, 15, 12],
+    "skills": { "sword": 75 },
+    "weapon_vnum": 3702
+  },
+  "defender": {
+    "type": "mob",
+    "vnum": 3706
+  },
+  "sweep": {
+    "target": "attacker",
+    "stat": "armor",
+    "start": 100,
+    "end": 30,
+    "step": -5
+  }
+}

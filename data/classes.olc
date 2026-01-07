@@ -6,6 +6,7 @@ wname Mag~
 basegrp mage basics~
 dfltgrp mage default~
 weap 3701
+armorprof cloth~
 guild 3018 9618 @
 pstat 1
 scap 75
@@ -24,6 +25,7 @@ wname Cle~
 basegrp cleric basics~
 dfltgrp cleric default~
 weap 3700
+armorprof medium~
 guild 3003 9619 @
 pstat 2
 scap 75
@@ -42,6 +44,7 @@ wname Thi~
 basegrp thief basics~
 dfltgrp thief default~
 weap 3701
+armorprof light~
 guild 3028 9639 @
 pstat 3
 scap 75
@@ -60,6 +63,7 @@ wname War~
 basegrp warrior basics~
 dfltgrp warrior default~
 weap 3702
+armorprof heavy~
 guild 3022 9633 @
 pstat 0
 scap 75
@@ -71,4 +75,3 @@ fmana false
 titles Man~ Woman~ Swordpupil~ Swordpupil~ Recruit~ Recruit~ Sentry~ Sentress~ Fighter~ Fighter~ Soldier~ Soldier~ Warrior~ Warrior~ Veteran~ Veteran~ Swordsman~ Swordswoman~ Fencer~ Fenceress~ Combatant~ Combatess~ Hero~ Heroine~ Myrmidon~ Myrmidon~ Swashbuckler~ Swashbuckleress~ Mercenary~ Mercenaress~ Swordmaster~ Swordmistress~ Lieutenant~ Lieutenant~ Champion~ Lady Champion~ Dragoon~ Lady Dragoon~ Cavalier~ Lady Cavalier~ Knight~ Lady Knight~ Grand Knight~ Grand Knight~ Master Knight~ Master Knight~ Paladin~ Paladin~ Grand Paladin~ Grand Paladin~ Demon Slayer~ Demon Slayer~ Greater Demon Slayer~ Greater Demon Slayer~ Dragon Slayer~ Dragon Slayer~ Greater Dragon Slayer~ Greater Dragon Slayer~ Underlord~ Underlord~ Overlord~ Overlord~ Baron of Thunder~ Baroness of Thunder~ Baron of Storms~ Baroness of Storms~ Baron of Tornadoes~ Baroness of Tornadoes~ Baron of Hurricanes~ Baroness of Hurricanes~ Baron of Meteors~ Baroness of Meteors~ Master Warrior~ Master Warrior~ Master Warrior~ Master Warrior~ Master Warrior~ Master Warrior~ Master Warrior~ Master Warrior~ Master Warrior~ Master Warrior~ Master Warrior~ Master Warrior~ Master Warrior~ Master Warrior~ Master Warrior~ Master Warrior~ Master Warrior~ Master Warrior~ Master Warrior~ Master Warrior~ Master Warrior~ Master Warrior~ Master Warrior~ Master Warrior~ Master Warrior~ Master Warrior~ Master Warrior~ Master Warrior~ Master Warrior~ Master Warrior~ Knight Hero~ Knight Heroine~ Avatar of War~ Avatar of War~ Angel of War~ Angel of War~ Demigod of War~ Demigoddess of War~ Immortal Warlord~ Immortal Warlord~ God of War~ God of War~ Deity of War~ Deity of War~ Supreme Master of War~ Supreme Mistress of War~ Creator~ Creator~ Implementor~ Implementress~ @~
 start_loc 0
 #END
-

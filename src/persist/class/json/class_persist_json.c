@@ -47,6 +47,9 @@ PersistResult class_persist_json_save(const PersistWriter* writer, const char* f
         if (cls->default_group)
             JSON_SET_STRING(obj, "defaultGroup", cls->default_group);
         JSON_SET_INT(obj, "weaponVnum", cls->weapon);
+        ArmorTier armor_type = armor_type_from_value(cls->armor_prof);
+        if (armor_type != ARMOR_OLD_STYLE)
+            JSON_SET_STRING(obj, "armorProf", armor_type_name(armor_type));
         json_t* guilds = json_array();
         for (int g = 0; g < MAX_GUILD; g++) {
             json_array_append_new(guilds, json_integer(cls->guild[g]));
@@ -146,6 +149,15 @@ PersistResult class_persist_json_load(const PersistReader* reader, const char* f
         if (dflt)
             cls->default_group = boot_intern_string(dflt);
         cls->weapon = (VNUM)json_int_or_default(c, "weaponVnum", cls->weapon);
+        json_t* armor_type = json_object_get(c, "armorProf");
+        if (json_is_string(armor_type)) {
+            int value = armor_type_lookup(json_string_value(armor_type));
+            if (value >= 0)
+                cls->armor_prof = (ArmorTier)value;
+        }
+        else if (json_is_integer(armor_type)) {
+            cls->armor_prof = armor_type_from_value((int)json_integer_value(armor_type));
+        }
         json_t* guilds = json_object_get(c, "guilds");
         if (json_is_array(guilds)) {
             size_t gsz = json_array_size(guilds);

@@ -1,0 +1,30 @@
+{
+  "seed": 12345,
+  "runs": 100,
+  "max_ticks": 200,
+  "csv_path": "sweep_summary.csv",
+  "csv_runs_path": "sweep_runs.csv",
+  "attacker": {
+    "name": "Attacker",
+    "level": 1,
+    "hitpoints": 20,
+    "hitroll": 1,
+    "armor": 86,
+    "damage": { "dice": 1, "size": 8, "bonus": 0 }
+  },
+  "defender": {
+    "name": "Defender",
+    "level": 2,
+    "hitpoints": 27,
+    "hitroll": 1,
+    "armor": 8,
+    "damage": { "dice": 1, "size": 4, "bonus": 0 }
+  },
+  "sweep": {
+    "target": "attacker",
+    "stat": "armor",
+    "start": 100,
+    "end": 30,
+    "step": -5
+  }
+}

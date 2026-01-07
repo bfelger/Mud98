@@ -1,0 +1,22 @@
+{
+  "seed": 12345,
+  "runs": 100,
+  "max_ticks": 200,
+  "csv_path": "combat_sim.csv",
+  "attacker": {
+    "name": "Attacker",
+    "level": 10,
+    "hitpoints": 120,
+    "hitroll": 0,
+    "armor": 100,
+    "damage": { "dice": 1, "size": 8, "bonus": 0 }
+  },
+  "defender": {
+    "name": "Defender",
+    "level": 10,
+    "hitpoints": 120,
+    "hitroll": 0,
+    "armor": 100,
+    "damage": { "dice": 1, "size": 8, "bonus": 0 }
+  }
+}

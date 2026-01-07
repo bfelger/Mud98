@@ -9,6 +9,7 @@
 #include <merc.h>
 
 #include "stats.h"
+#include "item.h"
 
 #include <array.h>
 
@@ -24,6 +25,7 @@ typedef struct class_t {
     char* default_group;
     VNUM start_loc;
     VNUM weapon;                    // First weapon
+    ArmorTier armor_prof;       // Armor proficiency granted by class
     VNUM guild[MAX_GUILD];          // Vnum of guild rooms
     Stat prime_stat;
     int16_t skill_cap;              // Maximum skill level

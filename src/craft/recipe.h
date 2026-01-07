@@ -84,6 +84,9 @@ int recipe_count(void);
 RecipeIter make_recipe_iter(void);
 Recipe* recipe_iter_next(RecipeIter* iter);
 
+// GC rooting
+void mark_global_recipes(void);
+
 // Ingredient management
 bool recipe_add_ingredient(Recipe* recipe, VNUM mat_vnum, int16_t quantity);
 bool recipe_remove_ingredient(Recipe* recipe, int index);

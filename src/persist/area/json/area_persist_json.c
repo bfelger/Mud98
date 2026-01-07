@@ -1314,6 +1314,9 @@ static json_t* build_armor(const ObjPrototype* obj)
     json_set_int_if(a, "acBash", obj->armor.ac_bash, 0);
     json_set_int_if(a, "acSlash", obj->armor.ac_slash, 0);
     json_set_int_if(a, "acExotic", obj->armor.ac_exotic, 0);
+    ArmorTier armor_type = armor_type_from_value(obj->armor.armor_type);
+    if (armor_type != ARMOR_OLD_STYLE)
+        JSON_SET_STRING(a, "armorType", armor_type_name(armor_type));
     return a;
 }
 
@@ -1423,6 +1426,15 @@ static void apply_armor(ObjPrototype* obj, json_t* armor)
     obj->armor.ac_bash = (int16_t)json_int_or_default(armor, "acBash", obj->armor.ac_bash);
     obj->armor.ac_slash = (int16_t)json_int_or_default(armor, "acSlash", obj->armor.ac_slash);
     obj->armor.ac_exotic = (int16_t)json_int_or_default(armor, "acExotic", obj->armor.ac_exotic);
+    json_t* type_val = json_object_get(armor, "armorType");
+    if (json_is_string(type_val)) {
+        int value = armor_type_lookup(json_string_value(type_val));
+        if (value >= 0)
+            obj->armor.armor_type = value;
+    }
+    else if (json_is_integer(type_val)) {
+        obj->armor.armor_type = armor_type_from_value((int)json_integer_value(type_val));
+    }
 }
 
 static void apply_drink(ObjPrototype* obj, json_t* drink)

@@ -1113,6 +1113,71 @@ int apply_ac(Object* obj, int iWear, int type)
     return 0;
 }
 
+ArmorTier get_obj_armor_type(const Object* obj)
+{
+    if (obj == NULL || obj->item_type != ITEM_ARMOR)
+        return ARMOR_OLD_STYLE;
+
+    return armor_type_from_value(obj->armor.armor_type);
+}
+
+ArmorTier get_armor_prof(Mobile* ch)
+{
+    if (ch == NULL)
+        return ARMOR_OLD_STYLE;
+
+    if (IS_NPC(ch))
+        return ARMOR_HEAVY;
+
+    if (ch->pcdata == NULL)
+        return ARMOR_OLD_STYLE;
+
+    return armor_type_from_value(ch->pcdata->armor_prof);
+}
+
+void grant_armor_prof(Mobile* ch, ArmorTier armor_prof)
+{
+    if (ch == NULL || IS_NPC(ch) || ch->pcdata == NULL)
+        return;
+
+    ArmorTier current = armor_type_from_value(ch->pcdata->armor_prof);
+    ArmorTier granted = armor_type_from_value(armor_prof);
+
+    if (ch->pcdata->armor_prof < ARMOR_OLD_STYLE) {
+        ch->pcdata->armor_prof = granted;
+        return;
+    }
+
+    if (granted > current)
+        ch->pcdata->armor_prof = granted;
+}
+
+ArmorTier get_worn_armor_type(Mobile* ch)
+{
+    ArmorTier max_type = ARMOR_OLD_STYLE;
+
+    if (ch == NULL)
+        return max_type;
+
+    Object* obj;
+    FOR_EACH_MOB_OBJ(obj, ch) {
+        if (obj->wear_loc == WEAR_UNHELD || obj->item_type != ITEM_ARMOR)
+            continue;
+
+        ArmorTier type = armor_type_from_value(obj->armor.armor_type);
+        if (type <= ARMOR_OLD_STYLE)
+            continue;
+
+        if (type > max_type)
+            max_type = type;
+
+        if (max_type == ARMOR_HEAVY)
+            break;
+    }
+
+    return max_type;
+}
+
 // Find a piece of eq on a character.
 Object* get_eq_char(Mobile* ch, WearLocation iWear)
 {
