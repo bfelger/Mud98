@@ -201,7 +201,7 @@ void register_area_instancing_tests()
     REGISTER("Multi-Instance Exit Flags And Keyword", test_multi_instance_exit_flags_and_keyword);
     REGISTER("Multi-Instance Door Visibility In Exits", test_multi_instance_door_visibility_in_exits);
     REGISTER("Multi-Instance Look Shows Closed Keyword", test_multi_instance_look_shows_closed_keyword);
-    REGISTER("Lazy Multi-Instance Exit Creates Instance", test_lazy_multi_instance_exit_creates_instance);
+    REGISTER("Lazy Multi-Instance Exit Creation", test_lazy_multi_instance_exit_creates_instance);
 
 #undef REGISTER
 }

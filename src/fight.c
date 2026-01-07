@@ -916,20 +916,19 @@ bool check_dodge(Mobile* ch, Mobile* victim)
 {
     int chance;
 
-    if (!IS_AWAKE(victim)) return false;
+    if (!IS_AWAKE(victim))
+        return false;
 
     chance = get_skill(victim, gsn_dodge) / 2;
 
-    if (!can_see(victim, ch)) chance /= 2;
+    if (!can_see(victim, ch))
+        chance /= 2;
 
     /* Use skill check seam for testability */
     chance += victim->level - ch->level;
-    ArmorTier armor_type = get_worn_armor_type(victim);
-    if (armor_type == ARMOR_HEAVY)
+
+    if (!skill_ops->check_modified(victim, gsn_dodge, chance))
         return false;
-    if (armor_type == ARMOR_MEDIUM)
-        chance /= 2;
-    if (!skill_ops->check_modified(victim, gsn_dodge, chance)) return false;
 
     combat_metrics_dodge(ch, victim);
     act("You dodge $n's attack.", ch, NULL, victim, TO_VICT);

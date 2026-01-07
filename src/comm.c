@@ -642,8 +642,10 @@ void close_socket(Descriptor* dclose)
     }
 
     if ((ch = dclose->character) != NULL) {
-        sprintf(log_buf, "Closing link to %s.", NAME_STR(ch));
-        log_string(log_buf);
+        if (!test_output_enabled) {
+            sprintf(log_buf, "Closing link to %s.", NAME_STR(ch));
+            log_string(log_buf);
+        }
 
         if (ch->pet && ch->pet->in_room == NULL) {
             mob_to_room(ch->pet, get_room_for_player(ch, ROOM_VNUM_LIMBO));

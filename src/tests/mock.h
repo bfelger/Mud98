@@ -12,6 +12,11 @@
 //     Room* room = mock_room(50000, NULL, NULL);
 //     Mobile* ch = mock_player("Bob");
 //     transfer_mob(ch, room);  // REQUIRED before do_* commands
+//
+// Equipment must be transferred to character before equipping:
+//     Object* sword = mock_sword("sword", 60010, 10, 2, 6);
+//     obj_to_char(sword, ch);  // REQUIRED before equip_char()
+//     equip_char(ch, sword, WEAR_WIELD);
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
@@ -59,7 +64,8 @@ Room* mock_room(VNUM vnum, RoomData* rd, Area* a);
 //     Room* r1 = mock_room(50000, NULL, NULL);
 //     Room* r2 = mock_room(50001, NULL, NULL);
 //     mock_room_connection(r1, r2, DIR_NORTH, true);
-void mock_room_data_connection(RoomData* rd1, RoomData* rd2, Direction dir, bool bidirectional);
+void mock_room_data_connection(RoomData* rd1, RoomData* rd2, Direction dir, 
+    bool bidirectional);
 void mock_room_connection(Room* r1, Room* r2, Direction dir, bool bidirectional);
 
 // MOBILE MOCKING
@@ -92,10 +98,17 @@ void mock_disconnect_player_descriptor(Mobile* player);
 // both "get sword" and "get blade" to find it.
 ObjPrototype* mock_obj_proto(VNUM vnum);
 Object* mock_obj(const char* name, VNUM vnum, ObjPrototype* op);
-Object* mock_sword(const char* name, VNUM vnum, LEVEL level, int dam_dice, int dam_size);
+Object* mock_sword(const char* name, VNUM vnum, LEVEL level, int dam_dice, 
+    int dam_size);
+Object* mock_armor(const char* name, VNUM vnum, LEVEL level, 
+    WearLocation wear_loc, ArmorTier armor_tier, int ac);
 Object* mock_shield(const char* name, VNUM vnum, LEVEL level);
-Object* mock_mat(const char* name, VNUM vnum, int mat_type, int amount, int quality);
-Object* mock_workstation(const char* name, VNUM vnum, int station_flags, int bonus);
+void fully_equip_mock_armor(Mobile* ch, LEVEL level, ArmorTier armor_tier, 
+    VNUM start_vnum);
+Object* mock_mat(const char* name, VNUM vnum, int mat_type, int amount, 
+    int quality);
+Object* mock_workstation(const char* name, VNUM vnum, int station_flags, 
+    int bonus);
 
 // RECIPE MOCKING
 // mock_recipe: Creates and registers a Recipe with OrderedTable
@@ -104,7 +117,8 @@ struct recipe_t;
 struct recipe_t* mock_recipe(const char* name, VNUM vnum);
 
 // MOBILE SKILL MOCKING
-// Sets skill value for PC (pcdata->learned) or NPC (atk_flags for defensive skills)
+// Sets skill value for PC (pcdata->learned) or NPC (atk_flags for defensive 
+// skills)
 void mock_skill(Mobile* ch, SKNUM sn, int value);
 
 // DESCRIPTOR MOCKING

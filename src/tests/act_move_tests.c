@@ -64,10 +64,7 @@ static int test_move_heavy_armor_cost()
     transfer_mob(ch, room1);
     ch->move = 100;
 
-    Object* armor = mock_shield("heavy shield", 70001, 1);
-    armor->armor.armor_type = ARMOR_HEAVY;
-    obj_to_char(armor, ch);
-    equip_char(ch, armor, WEAR_SHIELD);
+    fully_equip_mock_armor(ch, 1, ARMOR_HEAVY, 7001);
 
     do_north(ch, "");
 

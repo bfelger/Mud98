@@ -24,6 +24,10 @@
 #include <handler.h>
 #include <lookup.h>
 
+#include <stdbool.h>
+
+extern bool test_output_enabled;
+
 int room_count;
 int room_perm_count;
 Room* room_free;
@@ -577,8 +581,9 @@ Room* get_room_for_player(Mobile* ch, VNUM vnum)
     // name to the owner_list of the existing instance.
 
     // No instance exists. We have to make one.
-    printf_log("Creating new instance '%s' for %s.", 
-        NAME_STR(room_data->area_data), NAME_STR(ch));
+    if (!test_output_enabled)
+        printf_log("Creating new instance '%s' for %s.", 
+            NAME_STR(room_data->area_data), NAME_STR(ch));
     area = create_area_instance(room_data->area_data, true);
     INIT_BUF(buf, MSL);
     addf_buf(buf, "%s %s", NAME_STR(ch), area->owner_list);

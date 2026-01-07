@@ -244,11 +244,22 @@ Use the `-d` argument to specify the folder containing `mud98.cfg` if you don't 
   - [x] Thief skills
   - [x] Magic skills
 - [x] Bots for stress-testing
+- [x] Combat simulator for play balance
 - [x] Loot-table system
-  - [ ] Crafting materials
-- [ ] Professions
-  - [ ] Crafting
+  - [x] Crafting materials
+- [x] Crafting 
+  - [x] Recipes
+  - [x] Crafting
   - [ ] Resource gathering
+- [ ] Professions
+  - [x] Leatherworking
+  - [x] Cooking
+  - [ ] Blacksmithing
+  - [ ] Mining
+  - [ ] Alchemy
+  - [ ] Herbalism
+  - [ ] Enchanting
+  - [ ] Tailoring
 - [ ] Randomized areas (dungeons, overland, etc.)
   - [ ] Navigation skills for randomized areas
 - [ ] Integrated webserver with embedded MUD-client

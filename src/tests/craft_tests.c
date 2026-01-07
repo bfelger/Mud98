@@ -3392,8 +3392,8 @@ static int test_starter_recipes_valid_outputs()
     
     Recipe* iron_dagger = get_recipe(322);
     ASSERT(iron_dagger != NULL);
-    ASSERT(iron_dagger->product_vnum == 411);  // iron dagger
-    output = get_object_prototype(411);
+    ASSERT(iron_dagger->product_vnum == 511);  // iron dagger
+    output = get_object_prototype(511);
     ASSERT(output != NULL);
     
     return 0;

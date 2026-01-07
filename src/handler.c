@@ -1152,12 +1152,15 @@ void grant_armor_prof(Mobile* ch, ArmorTier armor_prof)
         ch->pcdata->armor_prof = granted;
 }
 
-ArmorTier get_worn_armor_type(Mobile* ch)
+int apply_armor_move_penalty(Mobile* ch, int move_cost)
 {
-    ArmorTier max_type = ARMOR_OLD_STYLE;
-
     if (ch == NULL)
-        return max_type;
+        return 0;
+
+    // If all 9 slots are filled with heavy armor, should be 1.5x move cost.
+    const int base_factor = 18;
+
+    int penalty = 0;
 
     Object* obj;
     FOR_EACH_MOB_OBJ(obj, ch) {
@@ -1165,17 +1168,50 @@ ArmorTier get_worn_armor_type(Mobile* ch)
             continue;
 
         ArmorTier type = armor_type_from_value(obj->armor.armor_type);
-        if (type <= ARMOR_OLD_STYLE)
-            continue;
-
-        if (type > max_type)
-            max_type = type;
-
-        if (max_type == ARMOR_HEAVY)
+        switch (type) {
+        case ARMOR_HEAVY:
+            penalty++;
             break;
+        default:
+            break;
+        }
     }
 
-    return max_type;
+    if (penalty == 0)
+        return move_cost;
+    
+    // if penalty == 9, then multiplier is 1.5 (i.e., 18 + 9) / 18
+    penalty = (move_cost * (base_factor + penalty)) / base_factor;
+
+    return penalty;
+}
+
+int get_armor_skill_penalty(Mobile* ch)
+{
+    if (ch == NULL)
+        return 0;
+
+    int penalty = 0;
+
+    Object* obj;
+    FOR_EACH_MOB_OBJ(obj, ch) {
+        if (obj->wear_loc == WEAR_UNHELD || obj->item_type != ITEM_ARMOR)
+            continue;
+
+        ArmorTier type = armor_type_from_value(obj->armor.armor_type);
+        switch (type) {
+        case ARMOR_MEDIUM:
+            penalty += 3;
+            break;
+        case ARMOR_HEAVY:
+            penalty += 6;
+            break;
+        default:
+            break;
+        }
+    }
+
+    return penalty;
 }
 
 // Find a piece of eq on a character.

@@ -153,7 +153,7 @@ static int test_room_cleanup_skips_nulling_during_teardown()
 
     // During teardown, the expensive nulling loop is skipped
     // The exits still have their to_room pointers (dangling, but area is being destroyed)
-    // This is OK because free_area will destroy all rooms anyway
+    // This is OK because free_area will recycle all rooms anyway
     // We can't actually verify this without risking segfault, but the test
     // confirms the code path executes without error
 
@@ -477,7 +477,7 @@ void register_entity_tests()
     REGISTER("Exit Bidirectional Linkage", test_exit_bidirectional_linkage);
     REGISTER("Exit Cleanup Removes From Inbound List", test_exit_cleanup_removes_from_inbound_list);
     REGISTER("Room Cleanup Nulls Inbound Exits", test_room_cleanup_nulls_inbound_exits);
-    REGISTER("Room Cleanup Skips Nulling During Teardown", test_room_cleanup_skips_nulling_during_teardown);
+    REGISTER("Room Cleanup Skips Nulling", test_room_cleanup_skips_nulling_during_teardown);
     REGISTER("Bidirectional Connection", test_bidirectional_connection);
     REGISTER("Multiple Exits From Same Room", test_multiple_exits_from_same_room);
     REGISTER("Area Cleanup Sets Teardown Flag", test_area_cleanup_sets_teardown_flag);

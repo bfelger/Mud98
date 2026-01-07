@@ -4,6 +4,7 @@
 
 #include "skill_ops.h"
 
+#include "comm.h"
 #include "data/skill.h"
 #include "entities/mobile.h"
 #include "lookup.h"
@@ -34,6 +35,28 @@ SkillOps rom_skill_ops = {
 // 2. Apply modifiers based on skill type and context
 // 3. Roll against final chance
 ////////////////////////////////////////////////////////////////////////////////
+
+static bool test_with_penalty(Mobile* ch, SKNUM sn, int chance)
+{
+    int armor_penalty = 0;
+
+    // Apply skill-specific penalties/modifiers here
+    // This is a simplified version - full modifiers will be
+    // moved here when we refactor each skill
+    if (sn == gsn_sneak || sn == gsn_hide || sn == gsn_dodge) {
+        armor_penalty = get_armor_skill_penalty(ch);
+    }
+
+    int roll = number_percent();
+    int mod_chance = chance - armor_penalty;
+
+    if (roll < chance && roll >= mod_chance) {
+        // Skill would have succeeded without penalty, but failed due to armor
+        send_to_char("Your armor hinders you.\n\r", ch);
+    }
+
+    return roll < mod_chance;
+}
 
 static bool rom_skill_check(Mobile* ch, SKNUM sn, Mobile* victim)
 {
@@ -79,7 +102,7 @@ static bool rom_skill_check(Mobile* ch, SKNUM sn, Mobile* victim)
     }
     
     // Roll against final chance
-    return number_percent() < chance;
+    return test_with_penalty(ch, sn, chance);
 }
 
 static bool rom_skill_check_simple(Mobile* ch, SKNUM sn)
@@ -94,7 +117,7 @@ static bool rom_skill_check_simple(Mobile* ch, SKNUM sn)
     if (chance <= 0)
         return false;
     
-    return number_percent() < chance;
+    return test_with_penalty(ch, sn, chance);
 }
 
 // Check skill with pre-calculated chance
@@ -109,5 +132,5 @@ static bool rom_skill_check_modified(Mobile* ch, SKNUM sn, int chance)
     if (chance <= 0)
         return false;
     
-    return number_percent() < chance;
+    return test_with_penalty(ch, sn, chance);
 }

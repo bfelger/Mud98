@@ -177,9 +177,10 @@ void move_char(Mobile* ch, int door, bool follow)
         if (IS_AFFECTED(ch, AFF_FLYING) || IS_AFFECTED(ch, AFF_HASTE))
             move /= 2;
 
-        if (IS_AFFECTED(ch, AFF_SLOW)) move *= 2;
-        if (get_worn_armor_type(ch) == ARMOR_HEAVY)
-            move = (move * 3) / 2;
+        if (IS_AFFECTED(ch, AFF_SLOW))
+            move *= 2;
+            
+        move = apply_armor_move_penalty(ch, move);
 
         if (ch->move < move) {
             send_to_char("You are too exhausted.\n\r", ch);
@@ -1363,15 +1364,11 @@ void do_sneak(Mobile* ch, char* argument)
 {
     Affect af = { 0 };
 
-    if (get_worn_armor_type(ch) >= ARMOR_MEDIUM) {
-        send_to_char("Your armor is too bulky to move silently.\n\r", ch);
-        return;
-    }
-
     send_to_char("You attempt to move silently.\n\r", ch);
     affect_strip(ch, gsn_sneak);
 
-    if (IS_AFFECTED(ch, AFF_SNEAK)) return;
+    if (IS_AFFECTED(ch, AFF_SNEAK))
+        return;
 
     /* Use skill check seam for testability */
     if (skill_ops->check_simple(ch, gsn_sneak)) {
@@ -1393,14 +1390,10 @@ void do_sneak(Mobile* ch, char* argument)
 
 void do_hide(Mobile* ch, char* argument)
 {
-    if (get_worn_armor_type(ch) >= ARMOR_MEDIUM) {
-        send_to_char("Your armor is too bulky to hide.\n\r", ch);
-        return;
-    }
-
     send_to_char("You attempt to hide.\n\r", ch);
 
-    if (IS_AFFECTED(ch, AFF_HIDE)) REMOVE_BIT(ch->affect_flags, AFF_HIDE);
+    if (IS_AFFECTED(ch, AFF_HIDE))
+        REMOVE_BIT(ch->affect_flags, AFF_HIDE);
 
     /* Use skill check seam for testability */
     if (skill_ops->check_simple(ch, gsn_hide)) {

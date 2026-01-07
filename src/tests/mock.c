@@ -162,25 +162,78 @@ Object* mock_sword(const char* name, VNUM vnum, LEVEL level, int dam_dice, int d
     return sword;
 }
 
+Object* mock_armor(const char* name, VNUM vnum, LEVEL level, 
+    WearLocation wear_loc, ArmorTier armor_tier, int ac)
+{
+    ObjPrototype* armor_proto = mock_obj_proto(vnum);
+    armor_proto->header.name = AS_STRING(mock_str(name));
+    armor_proto->short_descr = str_dup(name);
+
+    armor_proto->level = level;
+    armor_proto->condition = 100;
+    armor_proto->weight = 8;
+    armor_proto->cost = level * 20;
+    armor_proto->item_type = ITEM_ARMOR;
+    armor_proto->wear_flags = wear_loc;
+
+    armor_proto->armor.ac_pierce = ac;
+    armor_proto->armor.ac_bash = ac;
+    armor_proto->armor.ac_slash = ac;
+    armor_proto->armor.ac_exotic = ac;
+    armor_proto->armor.armor_type = armor_tier;
+
+    Object* armor = mock_obj(name, vnum, armor_proto);
+
+    return armor;
+}
+
 Object* mock_shield(const char* name, VNUM vnum, LEVEL level)
 {
-    ObjPrototype* shield_proto = mock_obj_proto(vnum);
-    shield_proto->header.name = AS_STRING(mock_str(name));
-    shield_proto->short_descr = str_dup(name);
+    return mock_armor(name, vnum, level, WEAR_SHIELD, ARMOR_LIGHT, 10);
+}
 
-    shield_proto->level = level;
-    shield_proto->condition = 100;
-    shield_proto->weight = 5;
-    shield_proto->cost = level * 15;
-    shield_proto->item_type = ITEM_ARMOR;
-    shield_proto->armor.ac_pierce = -10;
-    shield_proto->armor.ac_bash = -10;
-    shield_proto->armor.ac_slash = -10;
-    shield_proto->armor.ac_exotic = -10;
+void fully_equip_mock_armor(Mobile* ch, LEVEL level, ArmorTier armor_tier, 
+    VNUM start_vnum)
+{
+    Object* shield = mock_armor("shield", start_vnum++, 1, WEAR_SHIELD, armor_tier, 10);
+    obj_to_char(shield, ch);
+    equip_char(ch, shield, WEAR_SHIELD);
 
-    Object* shield = mock_obj(name, vnum, shield_proto);
+    Object* legs = mock_armor("leggings", start_vnum++, 1, WEAR_LEGS, armor_tier, 20);
+    obj_to_char(legs, ch);
+    equip_char(ch, legs, WEAR_LEGS);
 
-    return shield;
+    Object* body = mock_armor("breastplate", start_vnum++, 1, WEAR_BODY, armor_tier, 30);
+    obj_to_char(body, ch);
+    equip_char(ch, body, WEAR_BODY);
+
+    Object* arms = mock_armor("pauldrons", start_vnum++, 1, WEAR_ARMS, armor_tier, 15);
+    obj_to_char(arms, ch);
+    equip_char(ch, arms, WEAR_ARMS);
+
+    Object* head = mock_armor("helmet", start_vnum++, 1, WEAR_HEAD, armor_tier, 25);
+    obj_to_char(head, ch);
+    equip_char(ch, head, WEAR_HEAD);
+
+    Object* feet = mock_armor("boots", start_vnum++, 1, WEAR_FEET, armor_tier, 10);
+    obj_to_char(feet, ch);
+    equip_char(ch, feet, WEAR_FEET);
+
+    Object* hands = mock_armor("gauntlets", start_vnum++, 1, WEAR_HANDS, armor_tier, 10);
+    obj_to_char(hands, ch);
+    equip_char(ch, hands, WEAR_HANDS);
+
+    Object* waist = mock_armor("belt", start_vnum++, 1, WEAR_WAIST, armor_tier, 5);
+    obj_to_char(waist, ch);
+    equip_char(ch, waist, WEAR_WAIST);
+
+    Object* wrist1 = mock_armor("bracer left", start_vnum++, 1, WEAR_WRIST_L, armor_tier, 5);
+    obj_to_char(wrist1, ch);
+    equip_char(ch, wrist1, WEAR_WRIST_L);
+
+    Object* wrist2 = mock_armor("bracer right", start_vnum++, 1, WEAR_WRIST_R, armor_tier, 5);
+    obj_to_char(wrist2, ch);
+    equip_char(ch, wrist2, WEAR_WRIST_R);
 }
 
 Object* mock_mat(const char* name, VNUM vnum, int mat_type, int amount, int quality)

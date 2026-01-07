@@ -261,22 +261,22 @@ static int test_dodge_medium_armor_penalty()
     attacker->level = 20;
     mock_skill(victim, gsn_dodge, 100);
 
-    Object* armor = mock_shield("medium shield", 1001, 1);
-    armor->armor.armor_type = ARMOR_MEDIUM;
-    obj_to_char(armor, victim);
-    equip_char(victim, armor, WEAR_SHIELD);
+    fully_equip_mock_armor(victim, 1, ARMOR_MEDIUM, 10001);
 
-    // Base chance 50%, medium armor halves to 25%.
-    int sequence[] = {30};
+    // Base chance 50%, medium armor subtracts 30% -> 20%
+    int sequence[] = {40};
     RngOps* saved_rng = rng;
     rng = &mock_rng;
     set_mock_rng_sequence(sequence, 1);
 
+    test_socket_output_enabled = true;
     bool result = check_dodge(attacker, victim);
-
+    test_socket_output_enabled = false;
+    
     set_mock_rng_sequence(NULL, 0);
     rng = saved_rng;
 
+    ASSERT_OUTPUT_CONTAINS("Your armor hinders you.");
     ASSERT(result == false);
 
     return 0;
@@ -296,22 +296,22 @@ static int test_dodge_heavy_armor_blocks()
     attacker->level = 20;
     mock_skill(victim, gsn_dodge, 100);
 
-    Object* armor = mock_shield("heavy shield", 1002, 1);
-    armor->armor.armor_type = ARMOR_HEAVY;
-    obj_to_char(armor, victim);
-    equip_char(victim, armor, WEAR_SHIELD);
+    fully_equip_mock_armor(victim, 1, ARMOR_HEAVY, 11001);
 
-    // Would normally succeed at 50%, but heavy armor blocks dodge entirely.
-    int sequence[] = {25};
+    // Would normally succeed at 50%, but heavy armor makes dodge impossible.
+    int sequence[] = {1};
     RngOps* saved_rng = rng;
     rng = &mock_rng;
     set_mock_rng_sequence(sequence, 1);
 
+    test_socket_output_enabled = true;
     bool result = check_dodge(attacker, victim);
+    test_socket_output_enabled = false;
 
     set_mock_rng_sequence(NULL, 0);
     rng = saved_rng;
 
+    ASSERT_OUTPUT_CONTAINS("Your armor hinders you.");
     ASSERT(result == false);
 
     return 0;

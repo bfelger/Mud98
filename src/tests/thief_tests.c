@@ -31,6 +31,7 @@ static int test_hide()
     Room* room = mock_room(60001, NULL, NULL);
     
     Mobile* thief = mock_player("thief");
+    thief->ch_class = class_lookup("thief");
     thief->position = POS_STANDING;
     thief->level = 20;
     transfer_mob(thief, room);
@@ -61,6 +62,7 @@ static int test_hide_fail()
     Room* room = mock_room(60001, NULL, NULL);
     
     Mobile* thief = mock_player("thief");
+    thief->ch_class = class_lookup("thief");
     thief->position = POS_STANDING;
     thief->level = 20;
     transfer_mob(thief, room);
@@ -91,20 +93,27 @@ static int test_hide_blocked_by_medium_armor()
     Room* room = mock_room(60001, NULL, NULL);
 
     Mobile* thief = mock_player("thief");
+    thief->ch_class = class_lookup("thief");
     thief->position = POS_STANDING;
     thief->level = 20;
     transfer_mob(thief, room);
     mock_skill(thief, gsn_hide, 100);
 
-    Object* armor = mock_shield("medium shield", 60020, 1);
-    armor->armor.armor_type = ARMOR_MEDIUM;
-    obj_to_char(armor, thief);
-    equip_char(thief, armor, WEAR_SHIELD);
+    fully_equip_mock_armor(thief, 1, ARMOR_MEDIUM, 60010);
+
+    RngOps* saved_rng = rng;
+    rng = &mock_rng;
+    int sequence[] = {75};
+    set_mock_rng_sequence(sequence, 1);
 
     test_socket_output_enabled = true;
     do_hide(thief, "");
     test_socket_output_enabled = false;
-    ASSERT_OUTPUT_CONTAINS("Your armor is too bulky to hide.");
+
+    set_mock_rng_sequence(NULL, 0);
+    rng = saved_rng;
+
+    ASSERT_OUTPUT_CONTAINS("Your armor hinders you.");
     test_output_buffer = NIL_VAL;
 
     ASSERT(!IS_AFFECTED(thief, AFF_HIDE));
@@ -118,6 +127,7 @@ static int test_sneak()
     Room* room = mock_room(60001, NULL, NULL);
     
     Mobile* thief = mock_player("thief");
+    thief->ch_class = class_lookup("thief");
     thief->position = POS_STANDING;
     thief->level = 20;
     transfer_mob(thief, room);
@@ -148,20 +158,27 @@ static int test_sneak_blocked_by_heavy_armor()
     Room* room = mock_room(60001, NULL, NULL);
 
     Mobile* thief = mock_player("thief");
+    thief->ch_class = class_lookup("thief");
     thief->position = POS_STANDING;
     thief->level = 20;
     transfer_mob(thief, room);
     mock_skill(thief, gsn_sneak, 100);
 
-    Object* armor = mock_shield("heavy shield", 60021, 1);
-    armor->armor.armor_type = ARMOR_HEAVY;
-    obj_to_char(armor, thief);
-    equip_char(thief, armor, WEAR_SHIELD);
+    fully_equip_mock_armor(thief, 1, ARMOR_HEAVY, 60010);
+
+    RngOps* saved_rng = rng;
+    rng = &mock_rng;
+    int sequence[] = {75};
+    set_mock_rng_sequence(sequence, 1);
 
     test_socket_output_enabled = true;
     do_sneak(thief, "");
     test_socket_output_enabled = false;
-    ASSERT_OUTPUT_CONTAINS("Your armor is too bulky to move silently.");
+    
+    set_mock_rng_sequence(NULL, 0);
+    rng = saved_rng;
+
+    ASSERT_OUTPUT_CONTAINS("Your armor hinders you.");
     test_output_buffer = NIL_VAL;
 
     ASSERT(!IS_AFFECTED(thief, AFF_SNEAK));
@@ -175,6 +192,7 @@ static int test_pick_lock()
     Room* room = mock_room(60001, NULL, NULL);
     
     Mobile* thief = mock_player("thief");
+    thief->ch_class = class_lookup("thief");
     thief->position = POS_STANDING;
     thief->level = 10;
     transfer_mob(thief, room);
@@ -216,6 +234,7 @@ static int test_steal_gold()
     Room* room = mock_room(60001, NULL, NULL);
     
     Mobile* thief = mock_player("thief");
+    thief->ch_class = class_lookup("thief");
     thief->position = POS_STANDING;
     thief->level = 30;
     thief->clan = 1;  // Must be in a clan to steal
@@ -260,6 +279,7 @@ static int test_peek()
     Room* room = mock_room(60001, NULL, NULL);
     
     Mobile* thief = mock_player("thief");
+    thief->ch_class = class_lookup("thief");
     thief->position = POS_STANDING;
     thief->level = 20;
     transfer_mob(thief, room);
