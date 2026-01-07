@@ -42,11 +42,5 @@ add_subdirectory(src)
 # ============================================================================
 # Add helper tool subdirectories here. Each tool can have completely
 # different build settings, dependencies, and compiler flags from the main
-# game. Examples:
-#
-#   add_subdirectory(tools/area-converter)
-#   add_subdirectory(tools/data-validator)
-#   add_subdirectory(utilities/save-reader)
-#
-# Uncomment the line below to build the example tool:
-# add_subdirectory(tools/example-tool)
+# game. They are built as separate targets.
+add_subdirectory(tools/mud98CombatSim)

@@ -35,6 +35,7 @@
  ***************************************************************************/
 
 #include "combat_ops.h"
+#include "combat_metrics.h"
 
 #include "act_comm.h"
 #include "act_info.h"
@@ -532,11 +533,9 @@ static bool rom_check_hit(Mobile* ch, Mobile* victim, Object* weapon, int16_t dt
     diceroll = number_range(0, 19);
 
     // Check hit: natural miss (0) or roll < (THAC0 - AC)
-    if (diceroll == 0 || (diceroll != 19 && diceroll < thac0 - victim_ac)) {
-        return false;  // Miss
-    }
-
-    return true;  // Hit
+    bool hit = !(diceroll == 0 || (diceroll != 19 && diceroll < thac0 - victim_ac));
+    combat_metrics_attack_roll(ch, victim, hit);
+    return hit;
 }
 
 static int rom_calculate_damage(Mobile* ch, Mobile* victim, Object* weapon, 

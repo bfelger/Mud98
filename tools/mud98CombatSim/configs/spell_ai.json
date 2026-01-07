@@ -1,0 +1,31 @@
+{
+  "runs": 50,
+  "max_ticks": 200,
+  "csv_path": "spell_ai.csv",
+  "attacker": {
+    "type": "player",
+    "name": "Apprentice",
+    "class": "mage",
+    "race": "human",
+    "level": 12,
+    "hitpoints": 80,
+    "hitroll": 0,
+    "armor": 100,
+    "stats": [12, 12, 12, 12, 12],
+    "skills": {
+      "magic missile": 75,
+      "fireball": 75
+    },
+    "ai": { "use_spells": true },
+    "spells": [
+      { "name": "magic missile", "cooldown": 1, "chance": 70 },
+      { "name": "fireball", "cooldown": 3, "chance": 40 }
+    ]
+  },
+  "defender": {
+    "type": "mob",
+    "vnum": 3706,
+    "ai": { "use_spec": true },
+    "spec": "spec_cast_mage"
+  }
+}

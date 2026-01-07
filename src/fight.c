@@ -28,6 +28,7 @@
 #include "fight.h"
 
 #include "act_comm.h"
+#include "combat_metrics.h"
 #include "combat_ops.h"
 #include "skill_ops.h"
 #include "act_move.h"
@@ -881,6 +882,7 @@ bool check_parry(Mobile* ch, Mobile* victim)
     chance += victim->level - ch->level;
     if (!skill_ops->check_modified(victim, gsn_parry, chance)) return false;
 
+    combat_metrics_parry(ch, victim);
     act("You parry $n's attack.", ch, NULL, victim, TO_VICT);
     act("$N parries your attack.", ch, NULL, victim, TO_CHAR);
     check_improve(victim, gsn_parry, true, 6);
@@ -902,6 +904,7 @@ bool check_shield_block(Mobile* ch, Mobile* victim)
     chance += victim->level - ch->level;
     if (!skill_ops->check_modified(victim, gsn_shield_block, chance)) return false;
 
+    combat_metrics_shield_block(ch, victim);
     act("You block $n's attack with your shield.", ch, NULL, victim, TO_VICT);
     act("$N blocks your attack with a shield.", ch, NULL, victim, TO_CHAR);
     check_improve(victim, gsn_shield_block, true, 6);
@@ -928,6 +931,7 @@ bool check_dodge(Mobile* ch, Mobile* victim)
         chance /= 2;
     if (!skill_ops->check_modified(victim, gsn_dodge, chance)) return false;
 
+    combat_metrics_dodge(ch, victim);
     act("You dodge $n's attack.", ch, NULL, victim, TO_VICT);
     act("$N dodges your attack.", ch, NULL, victim, TO_CHAR);
     check_improve(victim, gsn_dodge, true, 6);
