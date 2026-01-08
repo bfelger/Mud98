@@ -290,7 +290,7 @@ How to contribute:
 
 ## License
 
-Distributed under the Diku, Merc, and ROM licenses. See `LICENSE.txt` for more information. I make no assumptions as to their enforceability (or even the feasability of compliance); use at your own risk.
+Distributed under the Diku, Merc, and ROM licenses. See `LICENSE.txt` for more information. I make no assumptions as to their enforceability (or even the feasibility of compliance); use at your own risk.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
