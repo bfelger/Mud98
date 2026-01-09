@@ -46,7 +46,7 @@ typedef enum item_type_t {
     ITEM_WAND           = 3,
     ITEM_STAFF          = 4,
     ITEM_WEAPON         = 5,
-    // 6
+    ITEM_GATHER         = 6,
     // 7
     ITEM_TREASURE       = 8,
     ITEM_ARMOR          = 9,
@@ -82,6 +82,15 @@ typedef enum item_type_t {
 // Add 1 because we started at 
 #define ITEM_TYPE_COUNT 38
 
+typedef struct item_info_t {
+    const ItemType type;
+    const char* name;
+} ItemInfo;
+
+const char* item_name(ItemType type);
+
+extern const ItemInfo item_type_table[ITEM_TYPE_COUNT];
+
 ////////////////////////////////////////////////////////////////////////////////
 // Armor types
 ////////////////////////////////////////////////////////////////////////////////
@@ -102,15 +111,6 @@ int armor_type_lookup(const char* name);
 ArmorTier armor_type_from_value(int value);
 bool armor_type_read(void* temp, char* arg);
 const char* armor_type_str(void* temp);
-
-typedef struct item_info_t {
-    const ItemType type;
-    const char* name;
-} ItemInfo;
-
-const char* item_name(ItemType type);
-
-extern const ItemInfo item_type_table[ITEM_TYPE_COUNT];
 
 ////////////////////////////////////////////////////////////////////////////////
 // Containers

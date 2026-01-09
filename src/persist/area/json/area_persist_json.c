@@ -91,7 +91,7 @@ static int dir_enum_from_name(const char* name)
 
 static bool sector_value_is_known(Sector value)
 {
-    return value >= SECT_INSIDE && value <= SECT_DESERT;
+    return value >= 0 && value < SECT_MAX;
 }
 
 static const char* checklist_status_name(ChecklistStatus status)
@@ -254,6 +254,23 @@ static json_t* build_story_beats(const AreaData* area)
             JSON_SET_STRING(obj, "title", beat->title);
         if (beat->description)
             JSON_SET_STRING(obj, "description", beat->description);
+        json_array_append_new(arr, obj);
+    }
+    return arr;
+}
+
+static json_t* build_gather_spawns(const GatherSpawnArray* gather_spawns)
+{
+    json_t* arr = json_array();
+    for (size_t i = 0; i < gather_spawns->count; ++i) {
+        const GatherSpawn* spawn = &gather_spawns->spawns[i];
+        json_t* obj = json_object();
+        const char* sector_name = flag_string(sector_flag_table, spawn->spawn_sector);
+        if (sector_name && sector_name[0] != '\0')
+            JSON_SET_STRING(obj, "spawnSector", sector_name);
+        JSON_SET_INT(obj, "vnum", spawn->vnum);
+        JSON_SET_INT(obj, "quantity", spawn->quantity);
+        JSON_SET_INT(obj, "respawnTimer", spawn->respawn_timer);
         json_array_append_new(arr, obj);
     }
     return arr;
@@ -482,6 +499,29 @@ static void parse_checklist(json_t* arr, AreaData* area)
     }
 }
 
+static void parse_gather_spawns(json_t* arr, GatherSpawnArray* gather_spawns)
+{
+    if (!json_is_array(arr) || !gather_spawns)
+        return;
+    size_t count = json_array_size(arr);
+    for (size_t i = 0; i < count; i++) {
+        json_t* gs = json_array_get(arr, i);
+        if (!json_is_object(gs))
+            continue;
+        const char* sector_name = JSON_STRING(gs, "spawnSector");
+        Sector spawn_sector = SECT_INSIDE;
+        if (sector_name) {
+            FLAGS s = flag_lookup(sector_name, sector_flag_table);
+            if (s != NO_FLAG)
+                spawn_sector = (Sector)s;
+        }
+        VNUM vnum = (VNUM)json_int_or_default(gs, "vnum", 0);
+        int quantity = (int)json_int_or_default(gs, "quantity", 1);
+        int respawn_timer = (int)json_int_or_default(gs, "respawnTimer", 60);
+        add_gather_spawn(gather_spawns, spawn_sector, vnum, quantity, respawn_timer);
+    }
+}
+
 static PersistResult parse_areadata(json_t* root, const AreaPersistLoadParams* params)
 {
     json_t* areadata = json_object_get(root, "areadata");
@@ -537,6 +577,7 @@ static PersistResult parse_areadata(json_t* root, const AreaPersistLoadParams* p
 
     parse_story_beats(json_object_get(root, "storyBeats"), area);
     parse_checklist(json_object_get(root, "checklist"), area);
+    parse_gather_spawns(json_object_get(root, "gatherSpawns"), &area->gather_spawns);
     json_t* daycycle = json_object_get(root, "daycycle");
     if (json_is_object(daycycle)) {
         area->suppress_daycycle_messages = json_bool_or_default(daycycle, "suppressDaycycleMessages", area->suppress_daycycle_messages);
@@ -2526,6 +2567,10 @@ PersistResult json_save(const AreaPersistSaveParams* params)
     json_t* recipes = recipe_persist_json_build(&params->area->header);
     if (recipes)
         json_object_set_new(root, "recipes", recipes);
+
+    json_t* gather_spawns = build_gather_spawns(&params->area->gather_spawns);
+    if (gather_spawns)
+        json_object_set_new(root, "gatherSpawns", gather_spawns);
 
     char* dump = json_dumps(root, JSON_INDENT(2));
     json_decref(root);

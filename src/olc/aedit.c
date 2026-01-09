@@ -100,6 +100,7 @@ const OlcCmdEntry area_olc_comm_table[] = {
     { "checklist",      0,                      ed_olded,           U(aedit_checklist)  },
     { "period",         0,                      ed_olded,           U(aedit_period)     },
     { "faction",        0,                      ed_olded,           U(aedit_faction)    },
+    { "gather",         0,                      ed_olded,           U(aedit_gather)     },
     { "recipe",         0,                      ed_olded,           U(aedit_recipe)     },
     { "builder", 	    0,                      ed_olded,           U(aedit_builder)	},
     { "commands", 	    0,                      ed_olded,           U(show_commands)	},
@@ -297,7 +298,7 @@ static ChecklistItem* checklist_by_index(AreaData* area, int index, ChecklistIte
 static void aedit_print_story_beats(Mobile* ch, AreaData* area)
 {
     if (!area->story_beats) {
-        send_to_char(COLOR_TEXT "Story Beats:" COLOR_ALT_TEXT_1 "  (none)" COLOR_EOL, ch);
+        olc_print_str_box(ch, "Story Beats", "(none)", "Type '" COLOR_TITLE "STORYBEAT" COLOR_ALT_TEXT_2 "' to create one.");
         return;
     }
     send_to_char(COLOR_TEXT "Story Beats:" COLOR_EOL, ch);
@@ -312,7 +313,7 @@ static void aedit_print_story_beats(Mobile* ch, AreaData* area)
 
 static void aedit_print_checklist(Mobile* ch, AreaData* area)
 {    if (!area->checklist) {
-        send_to_char(COLOR_TEXT "Checklist:" COLOR_ALT_TEXT_1 "  (none)" COLOR_EOL, ch);
+        olc_print_str_box(ch, "Checklist", "(none)", "Type '" COLOR_TITLE "CHECKLIST" COLOR_ALT_TEXT_2 "' to create one.");
         return;
     }
     send_to_char(COLOR_TEXT "Checklist:" COLOR_EOL, ch);
@@ -359,7 +360,7 @@ static void aedit_print_faction_summary(Mobile* ch, AreaData* area)
     }
 
     if (!found)
-        send_to_char(COLOR_TEXT "Factions:" COLOR_ALT_TEXT_2 "  (none)" COLOR_EOL, ch);
+        olc_print_str_box(ch, "Factions", "(none)", "Type '" COLOR_TITLE "FACTION" COLOR_ALT_TEXT_2 "' to create one.");
     else
         send_to_char(BUF(buffer), ch);
     
@@ -463,24 +464,27 @@ AEDIT(aedit_show)
     olc_print_str(ch, "Builders", area->builders);
     olc_print_str(ch, "Credits", area->credits);
     olc_print_str(ch, "Loot Table", area->loot_table ? area->loot_table : "(none)");
-    olc_print_flags(ch, "Flags", area_flag_table, area->area_flags);
     
     Entity* entity = &area->header;
     olc_display_entity_class_info(ch, entity);
     olc_display_events(ch, entity);
 
-    olc_print_yesno_ex(ch, "Daycycle Msgs", !area->suppress_daycycle_messages,
+    olc_show_periods(ch, &area->header);
+    olc_print_yesno_ex(ch, "Day-cycle Msgs", !area->suppress_daycycle_messages,
         !area->suppress_daycycle_messages ? "Day-cycle messages are shown." :
         "Day-cycle messages are suppressed.");
-    olc_show_periods(ch, &area->header /*, get_period_ops_for_area()*/);
+
+    // Recipe count
+    int rcount = count_area_recipes(area);
+    olc_print_num_str(ch, "Recipes", rcount, rcount > 0 ? "" : "Type '" COLOR_TITLE "RECIPE" COLOR_ALT_TEXT_2 "' to add some.");
+
+    olc_show_gather_spawns(ch, area);
 
     aedit_print_faction_summary(ch, area);
     aedit_print_story_beats(ch, area);
     aedit_print_checklist(ch, area);
 
-    // Recipe count
-    int rcount = count_area_recipes(area);
-    olc_print_num(ch, "Recipes", rcount);
+    olc_print_flags(ch, "Flags", area_flag_table, area->area_flags);
 
     return false;
 }
@@ -693,6 +697,133 @@ AEDIT(aedit_faction)
     }
 
     aedit_send_faction_syntax(ch);
+    return false;
+}
+
+AEDIT(aedit_gather)
+{
+    AreaData* area;
+    EDIT_AREA(ch, area);
+
+    char first_arg[MIL];
+    argument = one_argument(argument, first_arg);
+
+    if (IS_NULLSTR(first_arg) || !str_prefix(first_arg, "list") || !str_prefix(first_arg, "show")) {
+        if (area->gather_spawns.count == 0) {
+            send_to_char(COLOR_INFO "No gather spawns defined for this area." COLOR_EOL, ch);
+            send_to_char(COLOR_INFO "Use 'gather help' to see gather subcommands." COLOR_EOL, ch);
+            return false;
+        }
+    }
+    else if (!str_prefix(first_arg, "help")) {
+        send_to_char(COLOR_INFO "Gather subcommands:\n\r" COLOR_CLEAR, ch);
+        send_to_char("  gather list|show\n\r", ch);
+        send_to_char("  gather add <vnum> <count> [sector] [respawn_timer]\n\r", ch);
+        send_to_char("  gather remove <index>\n\r", ch);
+        send_to_char("  gather clear\n\r", ch);
+        return false;
+    }
+    else if (!str_prefix(first_arg, "list") || !str_prefix(first_arg, "show")) {
+        olc_show_gather_spawns(ch, area);
+        return false;
+    }
+    else if (!str_prefix(first_arg, "add")) {
+        static const char* gather_add_syntax =
+        COLOR_INFO "Syntax: gather add <vnum> <count> [sector] [respawn_timer] " COLOR_EOL;
+        char vnum_arg[MIL];
+        char count_arg[MIL];
+        char sector_arg[MIL];
+        char timer_arg[MIL];
+
+        int reset = 6;
+        int sector_type = area->sector;
+
+        argument = one_argument(argument, vnum_arg);
+        argument = one_argument(argument, count_arg);
+        argument = one_argument(argument, sector_arg);
+        argument = one_argument(argument, timer_arg);
+
+        if (!is_number(vnum_arg) || !is_number(count_arg)) {
+            send_to_char(gather_add_syntax, ch);
+            return false;
+        }
+
+        VNUM vnum = (VNUM)strtol(vnum_arg, NULL, 10);
+        int count = strtol(count_arg, NULL, 10);
+        if (count < 1) {
+            send_to_char(COLOR_INFO "Count must be at least 1." COLOR_EOL, ch);
+            return false;
+        }
+
+        if (!IS_NULLSTR(sector_arg)) {
+            int sector = flag_value(sector_flag_table, sector_arg);
+            if (sector == NO_FLAG) {
+                send_to_char(COLOR_INFO "Invalid sector type." COLOR_EOL, ch);
+                send_to_char(gather_add_syntax, ch);
+                return false;
+            }
+            sector_type = sector;
+        }
+
+        if (!IS_NULLSTR(timer_arg)) {
+            if (!is_number(timer_arg)) {
+                send_to_char(COLOR_INFO "Respawn timer must be a number." COLOR_EOL, ch);
+                send_to_char(gather_add_syntax, ch);
+                return false;
+            }
+            reset = atoi(timer_arg);
+            if (reset < 1) {
+                send_to_char(COLOR_INFO "Respawn timer must be at least 1." COLOR_EOL, ch);
+                send_to_char(gather_add_syntax, ch);
+                return false;
+            }
+        }
+
+        add_gather_spawn(&area->gather_spawns, sector_type, vnum, count, reset);
+        SET_BIT(area->area_flags, AREA_CHANGED);
+        send_to_char(COLOR_INFO "Gather spawn added." COLOR_EOL, ch);
+        return true;
+    }
+    else if (!str_prefix(first_arg, "remove")) {
+        // This won't take effect until the area resets, but that's acceptable.
+        char arg2[MIL];
+        argument = one_argument(argument, arg2);
+
+        if (!is_number(arg2)) {
+            send_to_char(COLOR_INFO "Syntax: gather remove <index>" COLOR_EOL, ch);
+            return false;
+        }
+
+        int index = strtol(arg2, NULL, 10) - 1;
+        if (index < 0 || index >= (int)area->gather_spawns.count) {
+            send_to_char(COLOR_INFO "No such gather spawn." COLOR_EOL, ch);
+            return false;
+        }
+        
+        for (int i = index; i < (int)area->gather_spawns.count - 1; ++i) {
+            area->gather_spawns.spawns[i] = area->gather_spawns.spawns[i + 1];
+        }
+        area->gather_spawns.count--;
+
+        SET_BIT(area->area_flags, AREA_CHANGED);
+        send_to_char(COLOR_INFO "Gather spawn removed." COLOR_EOL, ch);
+        return true;
+    }
+    else if (!str_prefix(first_arg, "clear")) {
+        // This won't take effect until the area resets, but that's acceptable.
+        if (area->gather_spawns.count == 0) {
+            send_to_char(COLOR_INFO "No gather spawns to clear." COLOR_EOL, ch);
+            return false;
+        }
+        
+        free_gather_spawn_array(&area->gather_spawns);
+
+        SET_BIT(area->area_flags, AREA_CHANGED);
+        send_to_char(COLOR_INFO "All gather spawns cleared." COLOR_EOL, ch);
+        return true;
+    }
+
+    send_to_char(COLOR_INFO "Unknown gather command. Use 'gather help' for syntax." COLOR_EOL, ch);
     return false;
 }
 

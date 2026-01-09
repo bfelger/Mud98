@@ -243,6 +243,12 @@ PersistResult persist_area_rom_olc_save(const AreaPersistSaveParams* params)
         fprintf(fp, "InstType %d\n", area->inst_type);
     if (!IS_NULLSTR(area->loot_table))
         fprintf(fp, "LootTable %s~\n", area->loot_table);
+    const GatherSpawnArray* gather_spawns = &area->gather_spawns;
+    for (size_t i = 0; i < gather_spawns->count; ++i) {
+        const GatherSpawn* spawn = &gather_spawns->spawns[i];
+        fprintf(fp, "GatherSpawn %d %" PRVNUM " %d %d\n",
+            spawn->spawn_sector, spawn->vnum, spawn->quantity, spawn->respawn_timer);
+    }
     fprintf(fp, "End\n\n\n\n");
 
     save_area_daycycle(fp, (AreaData*)area);

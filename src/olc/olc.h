@@ -257,6 +257,7 @@ DECLARE_OLC_FUN(aedit_uvnum);
 DECLARE_OLC_FUN(aedit_lowrange);
 DECLARE_OLC_FUN(aedit_highrange);
 DECLARE_OLC_FUN(aedit_faction);
+DECLARE_OLC_FUN(aedit_gather);
 
 // Room Editor Prototypes
 DECLARE_OLC_FUN(redit_show);
@@ -474,5 +475,7 @@ void olc_print_text_ex(Mobile* ch, const char* label, const char* str, int width
 const char* olc_match_flag_default(FLAGS flags, const struct flag_type* defaults);
 const char* olc_show_flags_ex(const char* label, const struct flag_type* flag_table, const struct flag_type* defaults, FLAGS flags);
 const char* olc_show_flags(const char* label, const struct flag_type* flag_table, FLAGS flags);
+
+#define PRETTY_IDX  "    " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%3d" COLOR_DECOR_1 "]" COLOR_CLEAR
 
 #endif // !MUD98__OLC__OLC_H

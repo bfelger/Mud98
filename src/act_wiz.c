@@ -4089,7 +4089,7 @@ static void olist_objects(Mobile* ch, AreaData* area, const char* filter, bool g
         sb_append(sb, "Objects (global)");
     }
     else if (area) {
-        sb_appendf(sb, "Objects in %s", area->credits);
+        sb_appendf(sb, "Objects in %s", NAME_STR(area));
     }
     else {
         send_to_char("You must be in an area or specify one.\n\r", ch);
@@ -4167,7 +4167,7 @@ static void olist_materials(Mobile* ch, AreaData* area, CraftMatType type_filter
         sb_append(sb, " (global)");
     }
     else if (area) {
-        sb_appendf(sb, " in %s", area->credits);
+        sb_appendf(sb, " in %s", NAME_STR(area));
     }
     else {
         send_to_char("You must be in an area or specify one.\n\r", ch);
@@ -4206,6 +4206,64 @@ static void olist_materials(Mobile* ch, AreaData* area, CraftMatType type_filter
     sb_free(sb);
 }
 
+static void olist_gather_nodes(Mobile* ch, AreaData* area, GatherType type_filter, bool global)
+{
+    StringBuffer* sb = sb_new();
+    int found = 0;
+
+    if (type_filter == GATHER_NONE) {
+        sb_append(sb, "Gather nodes");
+    }
+    else {
+        sb_appendf(sb, "%s nodes", gather_type_name(type_filter));
+    }
+
+    if (global) {
+        sb_append(sb, " (global)");
+    }
+    else if (area) {
+        sb_appendf(sb, " in %s", NAME_STR(area));
+    }
+    else {
+        send_to_char("You must be in an area or specify one.\n\r", ch);
+        sb_free(sb);
+        return;
+    }
+    sb_append(sb, ":\n\r");
+
+    VNUM start_vnum = global ? 0 : area->min_vnum;
+    VNUM end_vnum = global ? 65535 : area->max_vnum;
+
+    for (VNUM vnum = start_vnum; vnum <= end_vnum; vnum++) {
+        ObjPrototype* proto = get_object_prototype(vnum);
+        if (!proto) 
+            continue;
+        if (proto->item_type != ITEM_GATHER)
+            continue;
+        if (type_filter != GATHER_NONE && proto->gather.gather_type != (int)type_filter)
+            continue;
+
+        sb_appendf(sb, "  [%5d] %-30s (%s)\n\r",
+            vnum,
+            proto->short_descr,
+            gather_type_name(proto->gather.gather_type));
+        found++;
+
+        // Limit output
+        if (found >= 100) {
+            sb_append(sb, "  ... (list truncated, use type filter or area to narrow results)\n\r");
+            break;
+        }
+    }
+
+    if (found == 0) {
+        sb_append(sb, "  (none found)\n\r");
+    }
+
+    page_to_char(sb_string(sb), ch);
+    sb_free(sb);
+}
+
 void do_olist(Mobile* ch, char* argument)
 {
     static const char* syntax = 
@@ -4213,13 +4271,15 @@ void do_olist(Mobile* ch, char* argument)
         "        olist mat [<type>] [global|<area>]\n\r"
         "\n\r"
         "Examples:\n\r"
-        "  olist obj all           - List all objects in current area\n\r"
-        "  olist obj armor         - List armor in current area\n\r"
-        "  olist obj all global    - List all objects globally\n\r"
-        "  olist mat               - List all materials in current area\n\r"
-        "  olist mat hide          - List hide materials in current area\n\r"
-        "  olist mat global        - List all materials globally\n\r"
-        "  olist mat bone midgaard - List bone materials in Midgaard\n\r";
+        "  olist obj all            - List all objects in current area\n\r"
+        "  olist obj armor          - List armor in current area\n\r"
+        "  olist obj all global     - List all objects globally\n\r"
+        "  olist mat                - List all materials in current area\n\r"
+        "  olist mat hide           - List hide materials in current area\n\r"
+        "  olist mat global         - List all materials globally\n\r"
+        "  olist mat bone midgaard  - List bone materials in Midgaard\n\r"
+        "  olist gather             - List gather nodes in current area\n\r"
+        "  olist gather global      - List gather nodes globally\n\r";
 
     char mode[MAX_INPUT_LENGTH];
     char arg1[MAX_INPUT_LENGTH];
@@ -4236,10 +4296,11 @@ void do_olist(Mobile* ch, char* argument)
     }
 
     // Determine mode
-    bool mat_mode = !str_prefix(mode, "materials") || !str_prefix(mode, "mat");
-    bool obj_mode = !str_prefix(mode, "objects") || !str_prefix(mode, "obj");
+    bool mat_mode = !str_prefix(mode, "materials");
+    bool obj_mode = !str_prefix(mode, "objects");
+    bool gather_mode = !str_prefix(mode, "gathering");
 
-    if (!mat_mode && !obj_mode) {
+    if (!mat_mode && !obj_mode && !gather_mode) {
         // Maybe they used old syntax: olist all, olist armor
         // Treat first arg as filter, shift args
         strcpy(arg2, arg1);
@@ -4268,7 +4329,7 @@ void do_olist(Mobile* ch, char* argument)
 
         olist_objects(ch, area, filter, global);
     }
-    else {
+    else if (mat_mode) {
         // olist mat [type] [global|<area>]
         CraftMatType type_filter = MAT_NONE;
         const char* area_arg = arg2;
@@ -4311,5 +4372,52 @@ void do_olist(Mobile* ch, char* argument)
         }
 
         olist_materials(ch, area, type_filter, global);
+    }
+    else if (gather_mode) {
+        // olist gather [type] [global|<area>]
+        GatherType type_filter = GATHER_NONE;
+        const char* area_arg = arg2;
+
+        // Check if arg1 is a type or "global" or area name
+        if (arg1[0]) {
+            GatherType maybe_type = gather_lookup(arg1);
+            if (maybe_type != GATHER_NONE) {
+                type_filter = maybe_type;
+            }
+            else if (!str_cmp(arg1, "global")) {
+                global = true;
+                area_arg = "";  // No more args expected
+            }
+            else {
+                // Could be an area name
+                area = olist_find_area(arg1);
+                if (!area) {
+                    printf_to_char(ch, "Unknown gather type or area '%s'.\n\r"
+                        "Valid types: ore, herb\n\r", arg1);
+                    return;
+                }
+                area_arg = "";  // Already parsed area
+            }
+        }
+
+        // Check area_arg for global or area
+        if (area_arg[0]) {
+            if (!str_cmp(area_arg, "global")) {
+                global = true;
+            }
+            else {
+                area = olist_find_area(area_arg);
+                if (!area) {
+                    printf_to_char(ch, "Area '%s' not found.\n\r", area_arg);
+                    return;
+                }
+            }
+        }
+
+        // Use existing craft_olc_list_gather_nodes function
+        olist_gather_nodes(ch, area, type_filter, global);
+    }
+    else {
+        send_to_char(syntax, ch);
     }
 }

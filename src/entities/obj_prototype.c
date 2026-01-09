@@ -210,6 +210,15 @@ void load_objects(FILE* fp)
             obj_proto->weapon.damage_type = attack_lookup(fread_word(fp));
             obj_proto->weapon.flags = fread_flag(fp);
             break;
+        case ITEM_GATHER:
+            // Gather: gather_type mat_vnum quantity unused unused
+            CHECK_POS(obj_proto->gather.gather_type,
+                (int16_t)gather_lookup(fread_word(fp)), "gather_type");
+            obj_proto->gather.mat_vnum = fread_number(fp);
+            obj_proto->gather.quantity = fread_number(fp);
+            obj_proto->gather.unused3 = fread_number(fp);
+            obj_proto->gather.unused4 = fread_number(fp);
+            break;
         case ITEM_ARMOR:
             obj_proto->armor.ac_pierce = fread_number(fp);
             obj_proto->armor.ac_bash = fread_number(fp);

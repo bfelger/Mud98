@@ -38,7 +38,7 @@ typedef enum sector_t {
     SECT_MOUNTAIN       = 5,
     SECT_WATER_SWIM     = 6,
     SECT_WATER_NOSWIM   = 7,
-    SECT_UNUSED         = 8,
+    SECT_UNDERGROUND    = 8,
     SECT_AIR            = 9,
     SECT_DESERT         = 10,
 } Sector;

@@ -47,6 +47,8 @@ Area* new_area(AreaData* area_data)
     area->teardown_in_progress = false;
     area->reset_timer = area->data->reset_thresh;
 
+    copy_spawn_array(&area->gather_spawns, &area_data->gather_spawns);
+
     return area;
 }
 
@@ -55,7 +57,7 @@ void free_area(Area* area)
     // Set flag to skip expensive inbound exit cleanup
     // since we're destroying all rooms anyway
     area->teardown_in_progress = true;
-    
+    free_gather_spawn_array(&area->gather_spawns);
     free_table(&area->header.fields);
     free_table(&area->rooms);
 
@@ -103,6 +105,7 @@ void free_area_data(AreaData* area_data)
     free_story_beats(area_data->story_beats);
     free_checklist(area_data->checklist);
     area_daycycle_period_clear(area_data);
+    free_gather_spawn_array(&area_data->gather_spawns);
 
     remove_array_value(&global_areas, OBJ_VAL(area_data));
 
@@ -228,6 +231,16 @@ void load_area(FILE* fp)
                 current_area_data = area_data;
                 gc_protect_clear();
                 return;
+            }
+            break;
+        case 'G':
+            if (!str_cmp(word, "GatherSpawn")) {
+                Sector sector = fread_number(fp);
+                VNUM vnum = fread_number(fp);
+                int quantity = fread_number(fp);
+                int respawn_timer = fread_number(fp);
+                add_gather_spawn(&area_data->gather_spawns, sector, vnum, 
+                    quantity, respawn_timer);
             }
             break;
         case 'H':

@@ -14,14 +14,16 @@ typedef struct checklist_item_t ChecklistItem;
 
 #include <merc.h>
 
-#include <data/direction.h>
-#include <data/quest.h>
-
 #include "daycycle_period.h"
 #include "entity.h"
 #include "help_data.h"
 #include "reset.h"
 #include "room.h"
+
+#include <data/direction.h>
+#include <data/quest.h>
+
+#include <craft/gather.h>
 
 #include <lox/lox.h>
 
@@ -43,17 +45,17 @@ typedef enum inst_type_t {
     //AREA_INST_WEEK  = 2,      // For future; weekly instance locks
 } InstanceType;
 
-typedef enum checklist_status_t {
-    CHECK_TODO = 0,
-    CHECK_IN_PROGRESS = 1,
-    CHECK_DONE = 2,
-} ChecklistStatus;
-
 struct story_beat_t {
     StoryBeat* next;
     char* title;
     char* description;
 };
+
+typedef enum checklist_status_t {
+    CHECK_TODO = 0,
+    CHECK_IN_PROGRESS = 1,
+    CHECK_DONE = 2,
+} ChecklistStatus;
 
 struct checklist_item_t {
     ChecklistItem* next;
@@ -68,6 +70,7 @@ typedef struct area_t {
     AreaData* data;
     Table rooms;
     char* owner_list;
+    GatherSpawnArray gather_spawns;
     int16_t reset_timer;
     int16_t empty_timer;    // Time since nplayer became 0 (for instance cleanup grace period)
     int nplayer;
@@ -81,6 +84,7 @@ typedef struct area_data_t {
     List instances;
     HelpArea* helps;
     Quest* quests;
+    GatherSpawnArray gather_spawns;
     char* file_name;
     char* credits;
     int security;       // OLC Value 1-9

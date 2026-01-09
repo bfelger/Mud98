@@ -70,7 +70,7 @@ const ItemInfo item_type_table[ITEM_TYPE_COUNT] = {
     { ITEM_WAND,            "wand"          },
     { ITEM_STAFF,           "staff"         },
     { ITEM_WEAPON,          "weapon"        },
-    { ITEM_NONE,            ""              },
+    { ITEM_GATHER,          "gather"        },
     { ITEM_NONE,            ""              },
     { ITEM_TREASURE,        "treasure"      },
     { ITEM_ARMOR,           "armor"         },
