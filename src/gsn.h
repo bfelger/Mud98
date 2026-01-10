@@ -68,9 +68,12 @@ GSN(gsn_recall)
 GSN(gsn_dual_wield)
 GSN(gsn_counter)
 
-// Crafting skills
+// Gathering skills
 GSN(gsn_skinning)
 GSN(gsn_butchering)
+GSN(gsn_mining)
+
+// Crafting skills
 GSN(gsn_leatherworking)
 GSN(gsn_blacksmithing)
 GSN(gsn_tailoring)

@@ -1,4 +1,4 @@
-280
+281
 
 #COMMAND
 name .~
@@ -2533,6 +2533,15 @@ show undef~
 name recipes~
 do_fun do_recipes~
 position resting~
+level 0
+log log_normal~
+show undef~
+#END
+
+#COMMAND
+name mine~
+do_fun do_mine~
+position standing~
 level 0
 log log_normal~
 show undef~
