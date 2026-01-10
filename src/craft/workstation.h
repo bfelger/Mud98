@@ -23,6 +23,7 @@ Object* find_workstation_by_vnum(Room* room, VNUM vnum);
 
 // Check if room has required workstation for recipe
 // Returns true if recipe has no workstation requirement, or room has matching station
-bool has_required_workstation(Room* room, Recipe* recipe);
+// Optionally returns the matched workstation via out_station.
+bool has_required_workstation(Room* room, Recipe* recipe, Object** out_station);
 
 #endif // !MUD98__CRAFT__WORKSTATION_H

@@ -42,19 +42,28 @@ Object* find_workstation_by_vnum(Room* room, VNUM vnum)
     return NULL;
 }
 
-bool has_required_workstation(Room* room, Recipe* recipe)
+bool has_required_workstation(Room* room, Recipe* recipe, Object** out_station)
 {
     if (recipe == NULL)
         return false;
+
+    if (out_station)
+        *out_station = NULL;
     
     // Check VNUM-based requirement first
     if (recipe->station_vnum != VNUM_NONE && recipe->station_vnum != 0) {
-        return find_workstation_by_vnum(room, recipe->station_vnum) != NULL;
+        Object* station = find_workstation_by_vnum(room, recipe->station_vnum);
+        if (out_station)
+            *out_station = station;
+        return station != NULL;
     }
     
     // Check type-based requirement
     if (recipe->station_type != WORK_NONE) {
-        return find_workstation(room, recipe->station_type) != NULL;
+        Object* station = find_workstation(room, recipe->station_type);
+        if (out_station)
+            *out_station = station;
+        return station != NULL;
     }
     
     // No workstation required

@@ -96,7 +96,7 @@ typedef struct object_t {
             int gather_type;    // GatherType enum
             int mat_vnum;       // VNUM of material gathered from this node
             int quantity;       // Quantity of materials
-            int unused3;
+            int min_skill;      // Minimum skill percentage required
             int unused4;
         } gather;
         
@@ -203,7 +203,7 @@ typedef struct object_t {
         struct {
             int station_flags;  // WorkstationType bit flags
             int bonus;          // Skill bonus when using this station
-            int unused2;
+            int min_skill;      // Minimum skill percentage required
             int unused3;
             int unused4;
         } workstation;

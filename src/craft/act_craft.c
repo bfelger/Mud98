@@ -586,21 +586,29 @@ CraftResult evaluate_craft(Mobile* ch, const char* recipe_name)
     }
     
     // Check skill requirement - player must have the skill
+    int skill = 0;
     if (recipe->required_skill >= 0) {
-        int skill = get_skill(ch, recipe->required_skill);
+        skill = get_skill(ch, recipe->required_skill);
         if (skill == 0) {
             result.error_msg = "You don't know how to do that type of crafting.";
             return result;
         }
-        if (skill < recipe->min_skill_pct) {
+        if (skill < recipe->min_skill) {
             result.error_msg = "You're not skilled enough to craft that.";
             return result;
         }
     }
     
     // Check workstation requirement
-    if (!has_required_workstation(ch->in_room, recipe)) {
+    Object* station = NULL;
+    if (!has_required_workstation(ch->in_room, recipe, &station)) {
         result.error_msg = "You need to be near a workstation to craft that.";
+        return result;
+    }
+    if (station != NULL && recipe->required_skill >= 0
+        && station->workstation.min_skill > 0
+        && skill < station->workstation.min_skill) {
+        result.error_msg = "You're not skilled enough to use that workstation.";
         return result;
     }
     

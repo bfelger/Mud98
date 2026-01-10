@@ -187,7 +187,7 @@ RECEDIT(recedit_show)
     if (pRecipe->required_skill >= 0 && pRecipe->required_skill < skill_count) {
         snprintf(buf, sizeof(buf), "%s (min %d%%)", 
             skill_table[pRecipe->required_skill].name,
-            pRecipe->min_skill_pct);
+            pRecipe->min_skill);
         olc_print_str(ch, "Skill", buf);
     } else {
         olc_print_str(ch, "Skill", "(none)");
@@ -344,7 +344,7 @@ RECEDIT(recedit_create)
     
     // Initialize with reasonable defaults
     pRecipe->required_skill = -1;
-    pRecipe->min_skill_pct = 0;
+    pRecipe->min_skill = 0;
     pRecipe->min_level = 1;
     pRecipe->station_type = WORK_NONE;
     pRecipe->station_vnum = VNUM_NONE;
@@ -391,7 +391,7 @@ RECEDIT(recedit_skill)
     // Handle "none"
     if (!str_cmp(skill_arg, "none")) {
         pRecipe->required_skill = -1;
-        pRecipe->min_skill_pct = 0;
+        pRecipe->min_skill = 0;
         send_to_char(COLOR_INFO "Skill requirement removed." COLOR_EOL, ch);
         return true;
     }
@@ -411,7 +411,7 @@ RECEDIT(recedit_skill)
     }
 
     pRecipe->required_skill = sn;
-    pRecipe->min_skill_pct = (int16_t)min_pct;
+    pRecipe->min_skill = (int16_t)min_pct;
 
     printf_to_char(ch, COLOR_INFO "Skill set to: " COLOR_ALT_TEXT_1 "%s" 
                    COLOR_INFO " (min %d%%)" COLOR_EOL,

@@ -82,7 +82,7 @@ void load_recipes(FILE* fp)
                 else if (!str_cmp(prop, "skill")) {
                     char* skill_name = fread_word(fp);
                     recipe->required_skill = skill_lookup(skill_name);
-                    recipe->min_skill_pct = (int16_t)fread_number(fp);
+                    recipe->min_skill = (int16_t)fread_number(fp);
                 }
                 else if (!str_cmp(prop, "level")) {
                     recipe->min_level = (LEVEL)fread_number(fp);
@@ -169,7 +169,7 @@ void save_recipes(FILE* fp, const AreaData* area)
         if (recipe->required_skill >= 0) {
             const char* skill_name = skill_table[recipe->required_skill].name;
             if (skill_name)
-                fprintf(fp, "skill %s %d\n", skill_name, recipe->min_skill_pct);
+                fprintf(fp, "skill %s %d\n", skill_name, recipe->min_skill);
         }
         
         // Level requirement

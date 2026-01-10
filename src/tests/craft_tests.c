@@ -348,7 +348,7 @@ static int test_recipe_free()
     recipe->station_type = WORK_TANNERY;
     recipe->min_level = 5;
     recipe->required_skill = 10;  // arbitrary skill number
-    recipe->min_skill_pct = 25;
+    recipe->min_skill = 75;
     
     recipe_add_ingredient(recipe, 70001, 3);
     recipe_add_ingredient(recipe, 70002, 1);
@@ -677,7 +677,7 @@ static int test_recipe_json_build()
     VNUM_FIELD(recipe) = 99001;
     recipe->header.name = AS_STRING(mock_str("test leather armor"));
     recipe->required_skill = gsn_second_attack;  // Use any available skill
-    recipe->min_skill_pct = 50;
+    recipe->min_skill = 50;
     recipe->min_level = 10;
     recipe->station_type = WORK_TANNERY | WORK_FORGE;
     recipe->station_vnum = VNUM_NONE;
@@ -706,7 +706,7 @@ static int test_recipe_json_build()
             
             // Verify fields
             ASSERT_STR_EQ("test leather armor", json_string_value(json_object_get(obj, "name")));
-            ASSERT(json_integer_value(json_object_get(obj, "minSkillPct")) == 50);
+            ASSERT(json_integer_value(json_object_get(obj, "minSkill")) == 50);
             ASSERT(json_integer_value(json_object_get(obj, "minLevel")) == 10);
             ASSERT(json_integer_value(json_object_get(obj, "outputVnum")) == 200);
             
@@ -735,7 +735,7 @@ static int test_recipe_json_parse()
     json_object_set_new(obj, "vnum", json_integer(99002));
     json_object_set_new(obj, "name", json_string("parsed recipe"));
     json_object_set_new(obj, "skill", json_string("second attack"));  // Use available skill
-    json_object_set_new(obj, "minSkillPct", json_integer(75));
+    json_object_set_new(obj, "minSkill", json_integer(75));
     json_object_set_new(obj, "minLevel", json_integer(15));
     json_object_set_new(obj, "discovery", json_string("quest"));
     json_object_set_new(obj, "outputVnum", json_integer(300));
@@ -763,7 +763,7 @@ static int test_recipe_json_parse()
     Recipe* recipe = get_recipe(99002);
     ASSERT(recipe != NULL);
     ASSERT_STR_EQ("parsed recipe", NAME_STR(recipe));
-    ASSERT(recipe->min_skill_pct == 75);
+    ASSERT(recipe->min_skill == 75);
     ASSERT(recipe->min_level == 15);
     ASSERT(recipe->discovery == DISC_QUEST);
     ASSERT(recipe->station_type == WORK_ALCHEMY);
@@ -786,7 +786,7 @@ static int test_recipe_json_roundtrip()
     VNUM_FIELD(recipe) = 99003;
     recipe->header.name = AS_STRING(mock_str("roundtrip recipe"));
     recipe->required_skill = gsn_second_attack;
-    recipe->min_skill_pct = 60;
+    recipe->min_skill = 60;
     recipe->min_level = 20;
     recipe->station_type = WORK_FORGE | WORK_SMELTER;
     recipe->station_vnum = 5000;
@@ -827,7 +827,7 @@ static int test_recipe_json_roundtrip()
     Recipe* loaded = get_recipe(99003);
     ASSERT(loaded != NULL);
     ASSERT_STR_EQ("roundtrip recipe", NAME_STR(loaded));
-    ASSERT(loaded->min_skill_pct == 60);
+    ASSERT(loaded->min_skill == 60);
     ASSERT(loaded->min_level == 20);
     ASSERT(loaded->station_type == (WORK_FORGE | WORK_SMELTER));
     ASSERT(loaded->station_vnum == 5000);
@@ -863,7 +863,7 @@ static int test_recipe_rom_olc_save()
     recipe->header.name = AS_STRING(mock_str("rom olc recipe"));
     recipe->area = area;
     recipe->required_skill = gsn_second_attack;
-    recipe->min_skill_pct = 40;
+    recipe->min_skill = 40;
     recipe->min_level = 5;
     recipe->station_type = WORK_COOKING;
     recipe->discovery = DISC_TRAINER;
@@ -1037,7 +1037,7 @@ static int test_has_required_workstation_none_needed()
     recipe->station_type = WORK_NONE;
     recipe->station_vnum = VNUM_NONE;
     
-    bool result = has_required_workstation(room, recipe);
+    bool result = has_required_workstation(room, recipe, NULL);
     
     ASSERT(result == true);
     
@@ -1056,7 +1056,7 @@ static int test_has_required_workstation_by_type()
     recipe->station_type = WORK_FORGE;
     recipe->station_vnum = VNUM_NONE;
     
-    bool result = has_required_workstation(room, recipe);
+    bool result = has_required_workstation(room, recipe, NULL);
     
     ASSERT(result == true);
     
@@ -1075,7 +1075,7 @@ static int test_has_required_workstation_by_vnum()
     recipe->station_type = WORK_NONE;
     recipe->station_vnum = 70007;
     
-    bool result = has_required_workstation(room, recipe);
+    bool result = has_required_workstation(room, recipe, NULL);
     
     ASSERT(result == true);
     
@@ -2280,7 +2280,7 @@ static int test_recedit_skill()
     
     // Skill should be set
     ASSERT(recipe->required_skill >= 0);
-    ASSERT(recipe->min_skill_pct == 50);
+    ASSERT(recipe->min_skill == 50);
     
     test_output_buffer = NIL_VAL;
     edit_done(ch);
@@ -3077,7 +3077,7 @@ static int test_craft_no_skill()
     // Create a recipe that requires leatherworking
     Recipe* recipe = mock_recipe("leather test", 99101);
     recipe->required_skill = gsn_leatherworking;
-    recipe->min_skill_pct = 1;
+    recipe->min_skill = 1;
     recipe->discovery = DISC_KNOWN;  // Known by default
     
     CraftResult result = evaluate_craft(ch, "leather test");
@@ -3102,7 +3102,7 @@ static int test_craft_skill_too_low()
     // Create a recipe requiring 50% skill
     Recipe* recipe = mock_recipe("advanced leather", 99102);
     recipe->required_skill = gsn_leatherworking;
-    recipe->min_skill_pct = 50;  // Requires 50%
+    recipe->min_skill = 50;  // Requires 50%
     recipe->discovery = DISC_KNOWN;
     
     CraftResult result = evaluate_craft(ch, "advanced leather");
@@ -3127,7 +3127,7 @@ static int test_craft_evaluate_uses_skill_check()
     // Create a simple recipe
     Recipe* recipe = mock_recipe("skill check test", 99103);
     recipe->required_skill = gsn_leatherworking;
-    recipe->min_skill_pct = 1;
+    recipe->min_skill = 1;
     recipe->min_level = 1;
     recipe->discovery = DISC_KNOWN;
     

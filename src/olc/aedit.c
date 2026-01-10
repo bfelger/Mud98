@@ -2256,7 +2256,7 @@ AEDIT(aedit_recipe)
         recipe->header.vnum = vnum;
         recipe->area = area;
         recipe->required_skill = -1;
-        recipe->min_skill_pct = 0;
+        recipe->min_skill = 0;
         recipe->min_level = 1;
         recipe->station_type = WORK_NONE;
         recipe->station_vnum = VNUM_NONE;

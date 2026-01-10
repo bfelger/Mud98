@@ -21,6 +21,7 @@
 
 #include <craft/craft.h>
 #include <craft/craft_olc.h>
+#include <craft/gather.h>
 #include <entities/event.h>
 #include <entities/object.h>
 
@@ -332,11 +333,28 @@ void show_obj_values(Mobile* ch, ObjPrototype* obj)
             craft_mat_type_name(obj->craft_mat.mat_type));
         break;
 
+    case ITEM_GATHER:
+        printf_to_char(ch,
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v0" COLOR_DECOR_1 "]" COLOR_CLEAR " Gather Type: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v1" COLOR_DECOR_1 "]" COLOR_CLEAR " Mat Vnum:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v2" COLOR_DECOR_1 "]" COLOR_CLEAR " Quantity:   " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v3" COLOR_DECOR_1 "]" COLOR_CLEAR " Min Skill:  " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL,
+            gather_type_name(obj->gather.gather_type),
+            obj->gather.mat_vnum,
+            obj->gather.quantity,
+            obj->gather.min_skill);
+        break;
+
     case ITEM_WORKSTATION: {
         char station_buf[MAX_STRING_LENGTH];
         workstation_type_flags_string(obj->workstation.station_flags, station_buf, sizeof(station_buf));
-        printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "stationtype" COLOR_DECOR_1 "]" COLOR_CLEAR " Station Types: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL, 
-            station_buf);
+        printf_to_char(ch,
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "stationtype" COLOR_DECOR_1 "]" COLOR_CLEAR " Station Types: " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%s" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v1" COLOR_DECOR_1 "]" COLOR_CLEAR " Bonus:        " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL
+            COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "v2" COLOR_DECOR_1 "]" COLOR_CLEAR " Min Skill:    " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "]" COLOR_EOL,
+            station_buf,
+            obj->workstation.bonus,
+            obj->workstation.min_skill);
         break;
     }
     }
@@ -678,6 +696,96 @@ bool set_obj_values(Mobile* ch, ObjPrototype* pObj, int value_num, char* argumen
         case 2:
             send_to_char("GOLD AMOUNT SET.\n\r\n\r", ch);
             pObj->money.gold = atoi(argument);
+            break;
+        }
+        break;
+
+    case ITEM_GATHER:
+        switch (value_num) {
+        default:
+            do_help(ch, "ITEM_GATHER");
+            return false;
+        case 0: {
+            int gather_type = -1;
+            if (is_number(argument)) {
+                gather_type = atoi(argument);
+            } else {
+                gather_type = gather_lookup(argument);
+            }
+            if (gather_type < 0) {
+                send_to_char("INVALID GATHER TYPE.\n\r\n\r", ch);
+                return false;
+            }
+            send_to_char("GATHER TYPE SET.\n\r\n\r", ch);
+            pObj->gather.gather_type = gather_type;
+            break;
+        }
+        case 1:
+            send_to_char("MAT VNUM SET.\n\r\n\r", ch);
+            pObj->gather.mat_vnum = atoi(argument);
+            break;
+        case 2:
+            send_to_char("QUANTITY SET.\n\r\n\r", ch);
+            pObj->gather.quantity = atoi(argument);
+            break;
+        case 3: {
+            int min_skill = atoi(argument);
+            if (min_skill < 0)
+                min_skill = 0;
+            if (min_skill > 100)
+                min_skill = 100;
+            send_to_char("MIN SKILL SET.\n\r\n\r", ch);
+            pObj->gather.min_skill = min_skill;
+            break;
+        }
+        case 4:
+            send_to_char("UNUSED SET.\n\r\n\r", ch);
+            pObj->gather.unused4 = atoi(argument);
+            break;
+        }
+        break;
+
+    case ITEM_WORKSTATION:
+        switch (value_num) {
+        default:
+            do_help(ch, "ITEM_WORKSTATION");
+            return false;
+        case 0: {
+            int station_flags = 0;
+            if (is_number(argument)) {
+                station_flags = atoi(argument);
+            } else {
+                station_flags = workstation_type_lookup(argument);
+                if (station_flags == WORK_NONE) {
+                    send_to_char("INVALID STATION TYPE.\n\r\n\r", ch);
+                    return false;
+                }
+            }
+            send_to_char("STATION FLAGS SET.\n\r\n\r", ch);
+            pObj->workstation.station_flags = station_flags;
+            break;
+        }
+        case 1:
+            send_to_char("BONUS SET.\n\r\n\r", ch);
+            pObj->workstation.bonus = atoi(argument);
+            break;
+        case 2: {
+            int min_skill = atoi(argument);
+            if (min_skill < 0)
+                min_skill = 0;
+            if (min_skill > 100)
+                min_skill = 100;
+            send_to_char("MIN SKILL SET.\n\r\n\r", ch);
+            pObj->workstation.min_skill = min_skill;
+            break;
+        }
+        case 3:
+            send_to_char("UNUSED SET.\n\r\n\r", ch);
+            pObj->workstation.unused3 = atoi(argument);
+            break;
+        case 4:
+            send_to_char("UNUSED SET.\n\r\n\r", ch);
+            pObj->workstation.unused4 = atoi(argument);
             break;
         }
         break;

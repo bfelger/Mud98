@@ -26,6 +26,8 @@
 #include <persist/persist_io_adapters.h>
 #include <persist/area/rom-olc/area_persist_rom_olc.h>
 
+#include <craft/gather.h>
+
 #include <comm.h>
 #include <config.h>
 #include <db.h>
@@ -574,12 +576,22 @@ void save_object(FILE* fp, ObjPrototype* obj_proto)
             obj_proto->craft_mat.unused4);
         break;
 
+    case ITEM_GATHER:
+        // Gather: gather_type mat_vnum quantity min_skill unused
+        fprintf(fp, "%s %d %d %d %d\n",
+            gather_type_name(obj_proto->gather.gather_type),
+            obj_proto->gather.mat_vnum,
+            obj_proto->gather.quantity,
+            obj_proto->gather.min_skill,
+            obj_proto->gather.unused4);
+        break;
+
     case ITEM_WORKSTATION:
-        // Workstation: station_flags bonus unused unused unused
+        // Workstation: station_flags bonus min_skill unused unused
         fprintf(fp, "%s %d %d %d %d\n",
             fwrite_flag(obj_proto->workstation.station_flags, buf),
             obj_proto->workstation.bonus,
-            obj_proto->workstation.unused2,
+            obj_proto->workstation.min_skill,
             obj_proto->workstation.unused3,
             obj_proto->workstation.unused4);
         break;
