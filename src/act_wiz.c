@@ -1799,7 +1799,6 @@ void do_mfind(Mobile* ch, char* argument)
     found = false;
     nMatch = 0;
 
-    // TODO: Figure out how to get them to print in order of VNUM.
     FOR_EACH_MOB_PROTO(p_mob_proto) {
         nMatch++;
         if (fAll || is_name(argument, NAME_STR(p_mob_proto))) {
@@ -1835,7 +1834,6 @@ void do_ofind(Mobile* ch, char* argument)
     found = false;
     nMatch = 0;
 
-    // TODO: Figure out how to get them to print in order of VNUM.
     FOR_EACH_OBJ_PROTO(obj_proto) {
         nMatch++;
         if (fAll || is_name(argument, NAME_STR(obj_proto))) {

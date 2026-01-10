@@ -336,8 +336,12 @@ void apply_extraction(Mobile* ch, Object* target, ExtractionResult* result,
             obj_to_char(mat, ch);
             
             if (i > 0) {
-                if (i == result->mat_count - 1)
-                    sb_append(mat_list, " and ");
+                if (i == result->mat_count - 1) {
+                    if (result->mat_count == 2)
+                        sb_append(mat_list, " and ");
+                    else
+                        sb_append(mat_list, ", and "); // Obey the Oxford comma!
+                }
                 else
                     sb_append(mat_list, ", ");
             }
@@ -385,7 +389,10 @@ SKNUM get_salvage_skill(Object* obj)
                 || strstr(obj->material, "mithril") != NULL)
                 return gsn_blacksmithing;
         }
+
         // Default armor to blacksmithing
+        // TODO: Introduce a "scrapping" skill that covers all item types, but 
+        // at a lower efficiency than specialized skills.
         return gsn_blacksmithing;
     }
     
@@ -513,7 +520,8 @@ bool knows_recipe(Mobile* ch, Recipe* recipe)
     
     switch (recipe->discovery) {
         case DISC_KNOWN:
-            return true;  // Always known
+            return (ch->level >= recipe->min_level 
+                && get_skill(ch, recipe->required_skill) >= recipe->min_skill);
         case DISC_TRAINER:
         case DISC_SCROLL:
         case DISC_DISCOVERY:
