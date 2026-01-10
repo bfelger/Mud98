@@ -706,15 +706,15 @@ bool set_obj_values(Mobile* ch, ObjPrototype* pObj, int value_num, char* argumen
             do_help(ch, "ITEM_GATHER");
             return false;
         case 0: {
-            int gather_type = -1;
+            int gather_type = 0;
             if (is_number(argument)) {
                 gather_type = atoi(argument);
             } else {
                 gather_type = gather_lookup(argument);
-            }
-            if (gather_type < 0) {
-                send_to_char("INVALID GATHER TYPE.\n\r\n\r", ch);
-                return false;
+                if (gather_type == GATHER_NONE && str_cmp(argument, "none")) {
+                    send_to_char("INVALID GATHER TYPE.\n\r\n\r", ch);
+                    return false;
+                }
             }
             send_to_char("GATHER TYPE SET.\n\r\n\r", ch);
             pObj->gather.gather_type = gather_type;
