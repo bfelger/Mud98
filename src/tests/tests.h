@@ -79,6 +79,7 @@ void register_thief_tests();
 void register_magic_tests();
 void register_craft_tests();
 void register_olc_aedit_tests();
+void register_gather_spawn_tests();
 
 void run_unit_tests();
 

@@ -298,6 +298,7 @@ add_executable(Mud98Tests
     "tests/theme_tests.c" "tests/util_tests.c" "tests/daycycle_tests.c" 
     "tests/multihit_tests.c" "tests/loot_tests.c" "tests/thief_tests.c" 
     "tests/magic_tests.c" "tests/craft_tests.c" "tests/olc_aedit_tests.c"
+    "tests/gather_spawn_tests.c"
 )
 
 target_link_libraries(Mud98Tests PRIVATE Mud98Core Mud98CompilerSettings)

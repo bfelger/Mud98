@@ -2517,7 +2517,7 @@ static int test_olist_obj_local()
     AreaData* ad = mock_area_data();
     ad->min_vnum = 88100;
     ad->max_vnum = 88199;
-    RESTRING(ad->credits, "Test OList Area");
+    SET_NAME(ad, lox_string("Test OList Area"));
     write_value_array(&global_areas, OBJ_VAL(ad));
     
     // Create some objects in the area
@@ -2557,7 +2557,7 @@ static int test_olist_mat_local()
     AreaData* ad = mock_area_data();
     ad->min_vnum = 88200;
     ad->max_vnum = 88299;
-    RESTRING(ad->credits, "Test Mat Area");
+    SET_NAME(ad, lox_string("Test Mat Area"));
     write_value_array(&global_areas, OBJ_VAL(ad));
     
     // Create a material object
@@ -2601,7 +2601,7 @@ static int test_olist_mat_filter()
     AreaData* ad = mock_area_data();
     ad->min_vnum = 88300;
     ad->max_vnum = 88399;
-    RESTRING(ad->credits, "Test Filter Area");
+    SET_NAME(ad, lox_string("Test Filter Area"));
     write_value_array(&global_areas, OBJ_VAL(ad));
     
     // Create material objects of different types
@@ -2645,7 +2645,7 @@ static int test_olist_olc_aware()
     AreaData* ad = mock_area_data();
     ad->min_vnum = 88400;
     ad->max_vnum = 88499;
-    RESTRING(ad->credits, "OLC Test Area");
+    SET_NAME(ad, lox_string("OLC Test Area"));
     write_value_array(&global_areas, OBJ_VAL(ad));
     
     // Create an object in this area
