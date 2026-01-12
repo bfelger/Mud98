@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "Midgaard",
     "builders": "",
     "vnumRange": [
@@ -276,6 +276,11 @@
           "dir": "south",
           "toVnum": 3015,
           "description": "You see the main street.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 3037,
+          "description": "A doorway leads to the carpenter's workshop.\n\r"
         }
       ],
       "extraDescs": [
@@ -288,13 +293,18 @@
     {
       "vnum": 3011,
       "name": "The Weapon Shop",
-      "description": "You are inside the weapon shop.  There is a small note on the counter.\n\r",
+      "description": "You are inside the weapon shop.  There is a small note on the counter.\n\rA doorway in the back leads to the foundry.\n\r",
       "roomFlags": [
         "indoors",
         "law"
       ],
       "sectorType": "inside",
       "exits": [
+        {
+          "dir": "north",
+          "toVnum": 3038,
+          "description": "A doorway leads to the foundry.\n\r"
+        },
         {
           "dir": "south",
           "toVnum": 3016,
@@ -939,6 +949,11 @@
           "dir": "south",
           "toVnum": 3044,
           "description": "You see the alley.\n\r"
+        },
+        {
+          "dir": "west",
+          "toVnum": 3036,
+          "description": "A doorway leads to the tailor's shop.\n\r"
         }
       ],
       "extraDescs": [
@@ -957,6 +972,69 @@
         {
           "keyword": "sign",
           "description": "The wooden sign says :-\n\r\n\r    Use 'list' to see what is in store,\n\r        'buy <item>' to buy an item,\n\r        'sell <item>' to sell an item and\n\r        'value <item>' to make the leather worker evaluate an item.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3036,
+      "name": "The Tailor's Shop",
+      "description": "A cozy shop filled with bolts of fabric in every color imaginable.  Spools\n\rof thread line the shelves, and a large cutting table dominates the center\n\rof the room.  Dress forms stand in the corners displaying partially finished\n\rgarments.  The smell of fresh linen mingles with a hint of lavender.\n\rA small sign hangs near the entrance.\n\r",
+      "roomFlags": [
+        "indoors",
+        "law"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 3035,
+          "description": "You see the Leather Shop to the east.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "sign",
+          "description": "The sign reads:\n\r\n\r  List  - Show which fabrics and garments are available.\n\r  Buy   - Purchase an item.\n\r  Value - Have the tailor appraise your goods.\n\r  Sell  - Sell clothing or fabric.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3037,
+      "name": "The Carpenter's Workshop",
+      "description": "Sawdust covers the floor of this busy workshop.  Woodworking tools hang\n\rneatly on the walls - saws, planes, chisels, and hammers of various sizes.\n\rHalf-finished furniture pieces sit on sturdy workbenches, and the sweet\n\rsmell of freshly cut wood fills the air.  Wooden shavings curl in piles\n\rbeneath the benches.\n\rA notice board hangs on the wall.\n\r",
+      "roomFlags": [
+        "indoors",
+        "law"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 3010,
+          "description": "You see the General Store to the east.\n\r"
+        }
+      ],
+      "extraDescs": [
+        {
+          "keyword": "notice board",
+          "description": "The notice reads:\n\r\n\r  Custom woodwork available!\n\r  List  - See our inventory.\n\r  Buy   - Purchase wooden goods.\n\r  Value - Get an appraisal.\n\r  Sell  - Sell wooden items.\n\r"
+        }
+      ]
+    },
+    {
+      "vnum": 3038,
+      "name": "The Foundry",
+      "description": "The heat from the massive smelting furnace is almost unbearable.  Crucibles\n\rof molten metal glow orange-white, and the air shimmers with heat waves.\n\rHeavy iron tools for working metal hang from hooks along the walls.  A large\n\rbellows system feeds air to the furnace, keeping it at smelting temperature.\n\rThe back door leads to the weapon shop.\n\r",
+      "roomFlags": [
+        "indoors",
+        "law"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 3011,
+          "description": "The weapon shop is to the south.\n\r"
         }
       ]
     },
@@ -7723,7 +7801,7 @@
     {
       "vnum": 3006,
       "name": "stone",
-      "shortDescr": "a Clan Stone",
+      "shortDescr": "A Clan Stone",
       "description": "Somebody left their Clan Stone here.",
       "material": "adamite",
       "itemType": "food",
@@ -9795,7 +9873,7 @@
         "take"
       ],
       "money": {
-        "gold": 1000
+        "copper": 1000
       },
       "condition": 100,
       "extraDescs": [
@@ -9865,7 +9943,7 @@
         "take"
       ],
       "money": {
-        "gold": 20
+        "copper": 20
       },
       "condition": 100
     },
@@ -12001,6 +12079,11 @@
       "commandName": "placeObj"
     },
     {
+      "objVnum": 203,
+      "roomVnum": 3007,
+      "commandName": "placeObj"
+    },
+    {
       "objVnum": 3139,
       "roomVnum": 3008,
       "commandName": "placeObj"
@@ -12150,6 +12233,11 @@
       "commandName": "equipObj"
     },
     {
+      "objVnum": 210,
+      "roomVnum": 3011,
+      "commandName": "placeObj"
+    },
+    {
       "mobVnum": 3062,
       "maxInArea": 16,
       "roomVnum": 3012,
@@ -12278,6 +12366,11 @@
       "roomVnum": 3019,
       "maxInRoom": 1,
       "commandName": "loadMob"
+    },
+    {
+      "objVnum": 204,
+      "roomVnum": 3019,
+      "commandName": "placeObj"
     },
     {
       "mobVnum": 3004,
@@ -12718,6 +12811,11 @@
       "commandName": "giveObj"
     },
     {
+      "objVnum": 207,
+      "roomVnum": 3034,
+      "commandName": "placeObj"
+    },
+    {
       "mobVnum": 3010,
       "maxInArea": 1,
       "roomVnum": 3035,
@@ -12798,6 +12896,26 @@
       "objVnum": 3054,
       "roomVnum": 3035,
       "commandName": "giveObj"
+    },
+    {
+      "objVnum": 201,
+      "roomVnum": 3035,
+      "commandName": "placeObj"
+    },
+    {
+      "objVnum": 208,
+      "roomVnum": 3036,
+      "commandName": "placeObj"
+    },
+    {
+      "objVnum": 206,
+      "roomVnum": 3037,
+      "commandName": "placeObj"
+    },
+    {
+      "objVnum": 209,
+      "roomVnum": 3038,
+      "commandName": "placeObj"
     },
     {
       "mobVnum": 3068,
@@ -13026,6 +13144,11 @@
       "roomVnum": 3054,
       "maxInRoom": 1,
       "commandName": "loadMob"
+    },
+    {
+      "objVnum": 205,
+      "roomVnum": 3054,
+      "commandName": "placeObj"
     },
     {
       "mobVnum": 3070,
@@ -13873,5 +13996,7 @@
     }
   ],
   "factions": [],
-  "quests": []
+  "quests": [],
+  "recipes": [],
+  "gatherSpawns": []
 }

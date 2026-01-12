@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "Haon Dor",
     "builders": "",
     "vnumRange": [
@@ -3415,7 +3415,8 @@
         "acPierce": 6,
         "acBash": 6,
         "acSlash": 6,
-        "acExotic": 3
+        "acExotic": 3,
+        "armorType": "medium"
       },
       "level": 15,
       "weight": 150,
@@ -3585,7 +3586,7 @@
       "commandName": "placeObj"
     },
     {
-      "mobVnum": 309,
+      "mobVnum": 1909,
       "maxInArea": 5,
       "roomVnum": 6012,
       "maxInRoom": 2,
@@ -3604,7 +3605,7 @@
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 309,
+      "mobVnum": 1909,
       "maxInArea": 5,
       "roomVnum": 6015,
       "maxInRoom": 1,
@@ -3616,14 +3617,14 @@
       "commandName": "placeObj"
     },
     {
-      "mobVnum": 309,
+      "mobVnum": 1909,
       "maxInArea": 5,
       "roomVnum": 6017,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 309,
+      "mobVnum": 1909,
       "maxInArea": 5,
       "roomVnum": 6019,
       "maxInRoom": 1,
@@ -3793,16 +3794,6 @@
       "commandName": "loadMob"
     },
     {
-      "objVnum": 6308,
-      "roomVnum": 6134,
-      "commandName": "giveObj"
-    },
-    {
-      "objVnum": 6309,
-      "roomVnum": 6134,
-      "commandName": "giveObj"
-    },
-    {
       "mobVnum": 6318,
       "maxInArea": 3,
       "roomVnum": 6134,
@@ -3860,5 +3851,7 @@
     }
   ],
   "factions": [],
-  "quests": []
+  "quests": [],
+  "recipes": [],
+  "gatherSpawns": []
 }

@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "Troll Den",
     "builders": "",
     "vnumRange": [
@@ -1007,5 +1007,7 @@
     }
   ],
   "factions": [],
-  "quests": []
+  "quests": [],
+  "recipes": [],
+  "gatherSpawns": []
 }

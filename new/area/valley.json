@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "Valley of the Elves",
     "builders": "",
     "vnumRange": [
@@ -32,7 +32,7 @@
         },
         {
           "dir": "south",
-          "toVnum": 323,
+          "toVnum": 1923,
           "description": "You see the Plains of Ofcol.\n\r"
         }
       ]
@@ -2793,7 +2793,8 @@
         "acPierce": 4,
         "acBash": 4,
         "acSlash": 4,
-        "acExotic": 2
+        "acExotic": 2,
+        "armorType": "light"
       },
       "level": 5,
       "weight": 30,
@@ -4349,5 +4350,7 @@
     }
   ],
   "factions": [],
-  "quests": []
+  "quests": [],
+  "recipes": [],
+  "gatherSpawns": []
 }

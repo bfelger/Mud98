@@ -1,12 +1,12 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "New Ofcol",
     "builders": "",
     "vnumRange": [
-      600,
-      699
+      2400,
+      2499
     ],
     "credits": "Hatchet",
     "security": 9,
@@ -20,7 +20,7 @@
   "checklist": [],
   "rooms": [
     {
-      "vnum": 600,
+      "vnum": 2400,
       "name": "Granny's Still Room",
       "description": "You are in Granny Jenkins' still room.  The smell of whiskey is heady, and\n\rthe bottles of it on the floor make your mouth water and your mind swirl.  You\n\ralso see a very large still.  So THIS is why there are so many grain fields!\n\rThe exit is to the east.\n\r",
       "roomFlags": [
@@ -30,7 +30,7 @@
       "exits": [
         {
           "dir": "east",
-          "toVnum": 616,
+          "toVnum": 2416,
           "flags": [
             "door",
             "closed"
@@ -41,24 +41,24 @@
       ]
     },
     {
-      "vnum": 601,
+      "vnum": 2401,
       "name": "The Big Intersection",
       "description": "You are in the big intersection between Raff Way and Impy Way.  Crowds \n\rof people walk past you as they go on their daily tasks.  Raff Way continues\n\reast and west, and Impy Way runs north and south.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 625,
+          "toVnum": 2425,
           "description": "Impy Way continues north.\n\r"
         },
         {
           "dir": "east",
-          "toVnum": 666,
+          "toVnum": 2466,
           "description": "Raff Way continues east.\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 602,
+          "toVnum": 2402,
           "description": "Impy Way continues south.\n\r"
         },
         {
@@ -69,35 +69,35 @@
       ]
     },
     {
-      "vnum": 602,
+      "vnum": 2402,
       "name": "Impy Way",
       "description": "You are on Impy Way.  You can see a leather shop east and a blacksmith\n\rwest.  To the north you see a big intersection, and Impy Way continues south.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 601,
+          "toVnum": 2401,
           "description": "You see the big intersection.\n\r"
         },
         {
           "dir": "east",
-          "toVnum": 604,
+          "toVnum": 2404,
           "description": "You see the leather shop.\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 605,
+          "toVnum": 2405,
           "description": "Impy Way continues south.\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 603,
+          "toVnum": 2403,
           "description": "You see the blacksmith.\n\r"
         }
       ]
     },
     {
-      "vnum": 603,
+      "vnum": 2403,
       "name": "The Blacksmith",
       "description": "You are in a black and smelly room.  Pieces of metal are strewn all over\n\rthe floor, and a wave of heat from a big furnace hits you.  An anvil sits on \n\rone side of the room, and on the other side is a workbench.  The exit is east.\n\r",
       "roomFlags": [
@@ -107,13 +107,13 @@
       "exits": [
         {
           "dir": "east",
-          "toVnum": 602,
+          "toVnum": 2402,
           "description": "You see Impy Way.\n\r"
         }
       ]
     },
     {
-      "vnum": 604,
+      "vnum": 2404,
       "name": "The Leather Shop",
       "description": "You are in a brown and smelly room.  Pieces of leather are strewn all over\n\rthe floor.  The smell of burnt hide assaults your nose.  You can tell by the\n\rlooks that the tanning is done VERY CLOSE to here!   A table is near the\n\rentrance.  The exit is west.\n\r",
       "roomFlags": [
@@ -123,41 +123,41 @@
       "exits": [
         {
           "dir": "west",
-          "toVnum": 602,
+          "toVnum": 2402,
           "description": "You see Impy Way.\n\r"
         }
       ]
     },
     {
-      "vnum": 605,
+      "vnum": 2405,
       "name": "Impy Way",
       "description": "You are on Impy Way.  To the east is a meat store, and to the west is a\n\rpawn shop.  Impy Way continues north and south.  People are rushing around you\n\rto go to these stores.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 602,
+          "toVnum": 2402,
           "description": "Impy Way continues North.\n\r"
         },
         {
           "dir": "east",
-          "toVnum": 607,
+          "toVnum": 2407,
           "description": "You see the Meat Store.\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 608,
+          "toVnum": 2408,
           "description": "Impy Way continues south.\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 606,
+          "toVnum": 2406,
           "description": "You see the Pawn Shop.\n\r"
         }
       ]
     },
     {
-      "vnum": 606,
+      "vnum": 2406,
       "name": "The Pawn Shop.",
       "description": "You are in a little shop filled with a lot of knick knacks and semi-\n\rvaluable goods.  There is a display case full of little treasures that you are\n\rsure that you or any other little kid would like to touch!  The exit is east.\n\r",
       "roomFlags": [
@@ -167,13 +167,13 @@
       "exits": [
         {
           "dir": "east",
-          "toVnum": 605,
+          "toVnum": 2405,
           "description": "You see Impy Way.\n\r"
         }
       ]
     },
     {
-      "vnum": 607,
+      "vnum": 2407,
       "name": "The Meat Store",
       "description": "You are in a meat store.  Hanging on hooks are meats of many kinds of\n\ranimals.  In the background, you can hear the sound of blade against flesh.\n\rIt smells like meat here (which is not a good smell).  The exit is west.\n\r",
       "roomFlags": [
@@ -183,41 +183,41 @@
       "exits": [
         {
           "dir": "west",
-          "toVnum": 605,
+          "toVnum": 2405,
           "description": "You see Impy Way.\n\r"
         }
       ]
     },
     {
-      "vnum": 608,
+      "vnum": 2408,
       "name": "Impy Way",
       "description": "You are on Impy Way.  To the east is Farmer's Market, and to the west is\n\rNyles' House of Ale.  Impy Way runs north and ends south of here.  You can hear\n\rthe sound of housewives gossiping at the market.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 605,
+          "toVnum": 2405,
           "description": "Impy Way continues north.\n\r"
         },
         {
           "dir": "east",
-          "toVnum": 610,
+          "toVnum": 2410,
           "description": "You see the Farmer's Market.\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 611,
+          "toVnum": 2411,
           "description": "You see the end of Impy Way.\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 609,
+          "toVnum": 2409,
           "description": "You see Nyles' House of Ale.\n\r"
         }
       ]
     },
     {
-      "vnum": 609,
+      "vnum": 2409,
       "name": "Nyles' House of Ale",
       "description": "This is a very busy bar, with everyone holding homemade bottles of\n\rale.  You see even the more gentile persons here, laughing along with\n\rNyles, who offers you a quart of ale too.\n\r",
       "roomFlags": [
@@ -227,13 +227,13 @@
       "exits": [
         {
           "dir": "east",
-          "toVnum": 608,
+          "toVnum": 2408,
           "description": "You see Impy Way.\n\r"
         }
       ]
     },
     {
-      "vnum": 610,
+      "vnum": 2410,
       "name": "Farmer's Market",
       "description": "You see many carts filled with fruits and vegetables.  Many farmers are\n\rall trying to sell you their produce, each saying their's is better.  The exit\n\ris west.\n\r",
       "roomFlags": [
@@ -243,118 +243,118 @@
       "exits": [
         {
           "dir": "west",
-          "toVnum": 608,
+          "toVnum": 2408,
           "description": "You see Impy Way.\n\r"
         }
       ]
     },
     {
-      "vnum": 611,
+      "vnum": 2411,
       "name": "The End of Impy Way",
       "description": "You are at the end of Impy and of the city part of Ofcol.  To the east is\n\ra dirt road leading toward the farm animals.  West from here are fields.  Impy\n\rWay continues north.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 608,
+          "toVnum": 2408,
           "description": "Impy Way continues north.\n\r"
         },
         {
           "dir": "east",
-          "toVnum": 668,
+          "toVnum": 2468,
           "description": "You see the dirt road.\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 612,
+          "toVnum": 2412,
           "description": "You see the fields.\n\r"
         }
       ]
     },
     {
-      "vnum": 612,
+      "vnum": 2412,
       "name": "Fields",
       "description": "You are in a corn field.  You can't see far, since the corn stalks are\n\rtaller than you are.  You remember that the end of Impy Way is east of here, \n\rand you think you see a building to the north.  The field continues south and \n\rwest.\n\r",
       "sectorType": "field",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 616,
+          "toVnum": 2416,
           "description": "You think you see a building north of here.\n\r"
         },
         {
           "dir": "east",
-          "toVnum": 611,
+          "toVnum": 2411,
           "description": "You remember that the end of Impy Way is east.\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 613,
+          "toVnum": 2413,
           "description": "You can make a path to the fields south.\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 615,
+          "toVnum": 2415,
           "description": "You can make a path to the fields west.\n\r"
         }
       ]
     },
     {
-      "vnum": 613,
+      "vnum": 2413,
       "name": "Fields",
       "description": "You are among fruit trees in a field.  You see many apple and orange \n\rtrees.  You can make out the corn fields north and some vegetable patches west.\n\rThe sight of the fruit makes your mouth water.\n\r",
       "sectorType": "field",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 612,
+          "toVnum": 2412,
           "description": "You see the corn fields.\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 614,
+          "toVnum": 2414,
           "description": "You see the vegetable fields.\n\r"
         }
       ]
     },
     {
-      "vnum": 614,
+      "vnum": 2414,
       "name": "Fields",
       "description": "You are among the vegetable fields.  You see many cabbage and lettuce\n\rpatches, along with tomato bushes and potato plants.  To the east are some\n\rfruit trees, and north are some wheat fields.\n\r",
       "sectorType": "field",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 615,
+          "toVnum": 2415,
           "description": "You see the wheat fields.\n\r"
         },
         {
           "dir": "east",
-          "toVnum": 613,
+          "toVnum": 2413,
           "description": "You see the fruit trees.\n\r"
         }
       ]
     },
     {
-      "vnum": 615,
+      "vnum": 2415,
       "name": "Fields",
       "description": "You are among the wheat fields.  The gentle caress of the wheat and the\n\rcool shadow from the tall stalks and scarecrow lulls you to sleep and dream\n\rof a little girl and little dog from a faraway place.  To the east are the corn\n\rstalks, and south of you are the vegetable patches.\n\r",
       "sectorType": "field",
       "exits": [
         {
           "dir": "east",
-          "toVnum": 612,
+          "toVnum": 2412,
           "description": "You see the corn fields.\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 614,
+          "toVnum": 2414,
           "description": "You see the vegetable patches.\n\r"
         }
       ]
     },
     {
-      "vnum": 616,
+      "vnum": 2416,
       "name": "The Shed",
       "description": "You are in the storage shed.  Bales of wheat, corn and hay are piled\n\ragainst the wall, and some vegetables are in carts.  You see a small door\n\rto the west.  The main exit is south.\n\r",
       "roomFlags": [
@@ -364,12 +364,12 @@
       "exits": [
         {
           "dir": "south",
-          "toVnum": 612,
+          "toVnum": 2412,
           "description": "You see the corn fields.\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 600,
+          "toVnum": 2400,
           "flags": [
             "door",
             "closed"
@@ -380,7 +380,7 @@
       ]
     },
     {
-      "vnum": 617,
+      "vnum": 2417,
       "name": "Slaughterhouse",
       "description": "You are in the slaughterhouse, where all the animals are slaughtered so\n\rthat they can be sold or their skins be tanned.  The scream of dying animals\n\rmakes your stomach churn.  The exit is to the west.\n\r",
       "roomFlags": [
@@ -390,30 +390,30 @@
       "exits": [
         {
           "dir": "west",
-          "toVnum": 668,
+          "toVnum": 2468,
           "description": "You see the dirt road.\n\r"
         }
       ]
     },
     {
-      "vnum": 618,
+      "vnum": 2418,
       "name": "Dirt Road",
       "description": "You are on a dirt road.  To the east is a barn, and you see a big chicken\n\rcoop south of you.  The dirt road continues north and west.\n\r",
       "sectorType": "field",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 668,
+          "toVnum": 2468,
           "description": "You see the dirt road.\n\r"
         },
         {
           "dir": "east",
-          "toVnum": 620,
+          "toVnum": 2420,
           "description": "You see the barn.\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 619,
+          "toVnum": 2419,
           "flags": [
             "door",
             "closed"
@@ -423,13 +423,13 @@
         },
         {
           "dir": "west",
-          "toVnum": 621,
+          "toVnum": 2421,
           "description": "You see the dirt road.\n\r"
         }
       ]
     },
     {
-      "vnum": 619,
+      "vnum": 2419,
       "name": "Chicken Coop",
       "description": "You are in the chicken coop.  The smell of chickens and chicken droppings\n\rmakes you gasp.  The exit is north.\n\r",
       "roomFlags": [
@@ -439,7 +439,7 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 618,
+          "toVnum": 2418,
           "flags": [
             "door",
             "closed"
@@ -449,7 +449,7 @@
       ]
     },
     {
-      "vnum": 620,
+      "vnum": 2420,
       "name": "Barn",
       "description": "You are in a barn.  There are some cows here, munching on mounds of hay.\n\rMilk is milked and bottled here.  You see the exit west.\n\r",
       "roomFlags": [
@@ -459,93 +459,93 @@
       "exits": [
         {
           "dir": "west",
-          "toVnum": 618,
+          "toVnum": 2418,
           "description": "You see the dirt road.\n\r"
         }
       ]
     },
     {
-      "vnum": 621,
+      "vnum": 2421,
       "name": "Dirt Road",
       "description": "You are on a dirt road.  To the north and south, you see some grass \n\rfields.  There is a pigsty west, and the dirt road continues east.\n\r",
       "sectorType": "field",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 622,
+          "toVnum": 2422,
           "description": "You see some grass fields.\n\r"
         },
         {
           "dir": "east",
-          "toVnum": 618,
+          "toVnum": 2418,
           "description": "You see the dirt road.\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 623,
+          "toVnum": 2423,
           "description": "You see some grass fields.\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 624,
+          "toVnum": 2424,
           "description": "You see the pigsty.\n\r"
         }
       ]
     },
     {
-      "vnum": 622,
+      "vnum": 2422,
       "name": "Grass Field",
       "description": "You are in a grass field.  Fences block the way north, east, and west.\n\rThe dirt road is to the south.\n\r",
       "sectorType": "field",
       "exits": [
         {
           "dir": "south",
-          "toVnum": 621,
+          "toVnum": 2421,
           "description": "You see the dirt road.\n\r"
         }
       ]
     },
     {
-      "vnum": 623,
+      "vnum": 2423,
       "name": "Grass Field",
       "description": "You are in a grass field.  Fences block the way south, east, and west.\n\rThe dirt road is to the north.\n\r",
       "sectorType": "field",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 621,
+          "toVnum": 2421,
           "description": "You see the dirt road.\n\r"
         }
       ]
     },
     {
-      "vnum": 624,
+      "vnum": 2424,
       "name": "Pig Sty",
       "description": "For some reason, you are in a pig sty.  You wonder why you are standing in\n\rmuck.  To realize your senses and notice the dirt road is to the east.\n\r",
       "sectorType": "field",
       "exits": [
         {
           "dir": "east",
-          "toVnum": 621,
+          "toVnum": 2421,
           "description": "You see the dry dirt road.\n\r"
         }
       ]
     },
     {
-      "vnum": 625,
+      "vnum": 2425,
       "name": "Impy Way",
       "description": "You are on Impy Way.  East and west of you are big houses.  Impy Way\n\rcontinues north and reaches a big intersection south.  Children are running to\n\rfrom home to home.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 632,
+          "toVnum": 2432,
           "description": "Impy Way continues north.\n\r"
         },
         {
           "dir": "east",
-          "toVnum": 626,
-          "key": 665,
+          "toVnum": 2426,
+          "key": 2465,
           "flags": [
             "door",
             "closed",
@@ -557,13 +557,13 @@
         },
         {
           "dir": "south",
-          "toVnum": 601,
+          "toVnum": 2401,
           "description": "You see a big intersection.\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 629,
-          "key": 665,
+          "toVnum": 2429,
+          "key": 2465,
           "flags": [
             "door",
             "closed",
@@ -576,7 +576,7 @@
       ]
     },
     {
-      "vnum": 626,
+      "vnum": 2426,
       "name": "Big House",
       "description": "You are in a big house.  Evidently, the owners of this house are richer\n\rthan the average citizen, since there is more than one room to this house.  A\n\rdoor leads to the kitchen east, and a bedroom is upstairs.  The exit is to the\n\rwest.\n\r",
       "roomFlags": [
@@ -586,13 +586,13 @@
       "exits": [
         {
           "dir": "east",
-          "toVnum": 628,
+          "toVnum": 2428,
           "description": "You see the kitchen.\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 625,
-          "key": 665,
+          "toVnum": 2425,
+          "key": 2465,
           "flags": [
             "door",
             "closed",
@@ -604,13 +604,13 @@
         },
         {
           "dir": "up",
-          "toVnum": 627,
+          "toVnum": 2427,
           "description": "You see the bedroom.\n\r"
         }
       ]
     },
     {
-      "vnum": 627,
+      "vnum": 2427,
       "name": "Bedroom",
       "description": "You are in the bedroom.  There isn't much of interest except for a bed and\n\ra closet.  The stairs lead back down.\n\r",
       "roomFlags": [
@@ -620,13 +620,13 @@
       "exits": [
         {
           "dir": "down",
-          "toVnum": 626,
+          "toVnum": 2426,
           "description": "You see the main room of the house.\n\r"
         }
       ]
     },
     {
-      "vnum": 628,
+      "vnum": 2428,
       "name": "Kitchen",
       "description": "You are in a kitchen.  There isn't much of interest here.  The main room\n\ris west of here.\n\r",
       "roomFlags": [
@@ -636,13 +636,13 @@
       "exits": [
         {
           "dir": "west",
-          "toVnum": 626,
+          "toVnum": 2426,
           "description": "You see the main room of the house.\n\r"
         }
       ]
     },
     {
-      "vnum": 629,
+      "vnum": 2429,
       "name": "Big House",
       "description": "You are in a big house.  Evidently, the owners of this house are richer\n\rthan the average citizen, since there is more than one room to this house.  A\n\rdoor leads to the kitchen west, and a bedroom is upstairs.  The exit is to the\n\reast.\n\r",
       "roomFlags": [
@@ -652,8 +652,8 @@
       "exits": [
         {
           "dir": "east",
-          "toVnum": 625,
-          "key": 665,
+          "toVnum": 2425,
+          "key": 2465,
           "flags": [
             "door",
             "closed",
@@ -665,18 +665,18 @@
         },
         {
           "dir": "west",
-          "toVnum": 631,
+          "toVnum": 2431,
           "description": "You see the kitchen.\n\r"
         },
         {
           "dir": "up",
-          "toVnum": 630,
+          "toVnum": 2430,
           "description": "You see the bedroom.\n\r"
         }
       ]
     },
     {
-      "vnum": 630,
+      "vnum": 2430,
       "name": "Bedroom",
       "description": "You are in the bedroom.  There isn't much of interest except for a bed and\n\ra closet.  The stairs lead back down.\n\r",
       "roomFlags": [
@@ -686,13 +686,13 @@
       "exits": [
         {
           "dir": "down",
-          "toVnum": 629,
+          "toVnum": 2429,
           "description": "You see the main room of the house.\n\r"
         }
       ]
     },
     {
-      "vnum": 631,
+      "vnum": 2431,
       "name": "Kitchen",
       "description": "You are in a kitchen.  There isn't much of interest here.  The main room\n\ris east of here.\n\r",
       "roomFlags": [
@@ -702,25 +702,25 @@
       "exits": [
         {
           "dir": "east",
-          "toVnum": 629,
+          "toVnum": 2429,
           "description": "You see the main room of the house.\n\r"
         }
       ]
     },
     {
-      "vnum": 632,
+      "vnum": 2432,
       "name": "Impy Way",
       "description": "You are on Impy Way.  Houses are to the east and west of here.  Impy Way\n\rcontinues north and south.  There are many people walking along the streets.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 637,
+          "toVnum": 2437,
           "description": "Impy Way continues north.\n\r"
         },
         {
           "dir": "east",
-          "toVnum": 633,
+          "toVnum": 2433,
           "flags": [
             "door",
             "closed"
@@ -730,12 +730,12 @@
         },
         {
           "dir": "south",
-          "toVnum": 625,
+          "toVnum": 2425,
           "description": "Impy Way continues south.\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 635,
+          "toVnum": 2435,
           "flags": [
             "door",
             "closed"
@@ -746,7 +746,7 @@
       ]
     },
     {
-      "vnum": 633,
+      "vnum": 2433,
       "name": "House",
       "description": "You are in a house.  The living room and kitchen are all bundled into\n\rthis room.  There is a bedroom south of here.  The exit is west.\n\r",
       "roomFlags": [
@@ -756,12 +756,12 @@
       "exits": [
         {
           "dir": "south",
-          "toVnum": 634,
+          "toVnum": 2434,
           "description": "You see the bedroom.\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 632,
+          "toVnum": 2432,
           "flags": [
             "door",
             "closed"
@@ -772,7 +772,7 @@
       ]
     },
     {
-      "vnum": 634,
+      "vnum": 2434,
       "name": "Bedroom",
       "description": "You are in a bedroom.  There isn't much of interest here except for a bed\n\rand a dresser.  The main room of the house is north of here.\n\r",
       "roomFlags": [
@@ -782,13 +782,13 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 633,
+          "toVnum": 2433,
           "description": "You see the main room of the house.\n\r"
         }
       ]
     },
     {
-      "vnum": 635,
+      "vnum": 2435,
       "name": "House",
       "description": "You are in a house.  The living room and kitchen are all bundled into\n\rthis room.  There is a bedroom south of here.  The exit is east.\n\r",
       "roomFlags": [
@@ -798,7 +798,7 @@
       "exits": [
         {
           "dir": "east",
-          "toVnum": 632,
+          "toVnum": 2432,
           "flags": [
             "door",
             "closed"
@@ -808,13 +808,13 @@
         },
         {
           "dir": "south",
-          "toVnum": 636,
+          "toVnum": 2436,
           "description": "You see the bedroom.\n\r"
         }
       ]
     },
     {
-      "vnum": 636,
+      "vnum": 2436,
       "name": "Bedroom",
       "description": "You are in a bedroom.  There isn't much of interest here except for a bed\n\rand a dresser.  The main room of the house is north of here.\n\r",
       "roomFlags": [
@@ -824,25 +824,25 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 635,
+          "toVnum": 2435,
           "description": "You see the main room of the house.\n\r"
         }
       ]
     },
     {
-      "vnum": 637,
+      "vnum": 2437,
       "name": "Impy Way",
       "description": "You are on Impy Way.  Houses are to the east and west of here.  Impy Way\n\rcontinues south.  To the north is a big intersection.  There are many people\n\rwalking along the streets.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 642,
+          "toVnum": 2442,
           "description": "You see a big intersection.\n\r"
         },
         {
           "dir": "east",
-          "toVnum": 638,
+          "toVnum": 2438,
           "flags": [
             "door",
             "closed"
@@ -852,12 +852,12 @@
         },
         {
           "dir": "south",
-          "toVnum": 632,
+          "toVnum": 2432,
           "description": "Impy Way continues south.\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 640,
+          "toVnum": 2440,
           "flags": [
             "door",
             "closed"
@@ -868,7 +868,7 @@
       ]
     },
     {
-      "vnum": 638,
+      "vnum": 2438,
       "name": "House",
       "description": "You are in a house.  The living room and kitchen are all bundled into\n\rthis room.  There is a bedroom south of here.  The exit is west.\n\r",
       "roomFlags": [
@@ -878,12 +878,12 @@
       "exits": [
         {
           "dir": "south",
-          "toVnum": 639,
+          "toVnum": 2439,
           "description": "You see the bedroom.\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 637,
+          "toVnum": 2437,
           "flags": [
             "door",
             "closed"
@@ -894,7 +894,7 @@
       ]
     },
     {
-      "vnum": 639,
+      "vnum": 2439,
       "name": "Bedroom",
       "description": "You are in a bedroom.  There isn't much of interest here except for a bed\n\rand a dresser.  The main room of the house is north of here.\n\r",
       "roomFlags": [
@@ -904,13 +904,13 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 638,
+          "toVnum": 2438,
           "description": "You see the main room of the house.\n\r"
         }
       ]
     },
     {
-      "vnum": 640,
+      "vnum": 2440,
       "name": "House",
       "description": "You are in a house.  The living room and kitchen are all bundled into\n\rthis room.  There is a bedroom south of here.  The exit is east.\n\r",
       "roomFlags": [
@@ -920,7 +920,7 @@
       "exits": [
         {
           "dir": "east",
-          "toVnum": 637,
+          "toVnum": 2437,
           "flags": [
             "door",
             "closed"
@@ -930,13 +930,13 @@
         },
         {
           "dir": "south",
-          "toVnum": 641,
+          "toVnum": 2441,
           "description": "You see the bedroom.\n\r"
         }
       ]
     },
     {
-      "vnum": 641,
+      "vnum": 2441,
       "name": "Bedroom",
       "description": "You are in a bedroom.  There isn't much of interest here except for a bed\n\rand a dresser.  The main room of the house is north of here.\n\r",
       "roomFlags": [
@@ -946,21 +946,21 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 640,
+          "toVnum": 2440,
           "description": "You see the main room of the house.\n\r"
         }
       ]
     },
     {
-      "vnum": 642,
+      "vnum": 2442,
       "name": "The Big Intersection",
       "description": "You are on the intersection of Impy Way and Swiftest Way.  To the north of\n\ryou is a big house.  Swiftest Way runs east and west, and Impy way continues\n\rsouth.  There are quite a few people on this intersection.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 643,
-          "key": 665,
+          "toVnum": 2443,
+          "key": 2465,
           "flags": [
             "door",
             "closed",
@@ -972,23 +972,23 @@
         },
         {
           "dir": "east",
-          "toVnum": 646,
+          "toVnum": 2446,
           "description": "Swiftest Way continues east.\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 637,
+          "toVnum": 2437,
           "description": "Impy Way continues south.\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 649,
+          "toVnum": 2449,
           "description": "Swiftest Way continues west.\n\r"
         }
       ]
     },
     {
-      "vnum": 643,
+      "vnum": 2443,
       "name": "Big House",
       "description": "You are in a big house.  Evidently, the owners of this house are richer\n\rthan the average citizen, since there is more than one room to this house.  A\n\rdoor leads to the kitchen north, and a bedroom is upstairs.  The exit is to \n\rthe south.\n\r",
       "roomFlags": [
@@ -998,13 +998,13 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 645,
+          "toVnum": 2445,
           "description": "You see the kitchen.\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 642,
-          "key": 665,
+          "toVnum": 2442,
+          "key": 2465,
           "flags": [
             "door",
             "closed",
@@ -1016,13 +1016,13 @@
         },
         {
           "dir": "up",
-          "toVnum": 644,
+          "toVnum": 2444,
           "description": "You see the bedroom.\n\r"
         }
       ]
     },
     {
-      "vnum": 644,
+      "vnum": 2444,
       "name": "Bedroom",
       "description": "You are in the bedroom.  There isn't much of interest except for a bed \n\rand a closet.  The stairs lead back down.\n\r",
       "roomFlags": [
@@ -1032,13 +1032,13 @@
       "exits": [
         {
           "dir": "down",
-          "toVnum": 643,
+          "toVnum": 2443,
           "description": "You see the main room of the house.\n\r"
         }
       ]
     },
     {
-      "vnum": 645,
+      "vnum": 2445,
       "name": "Kitchen",
       "description": "You are in a kitchen.  There isn't much of interest here.  The main room\n\ris east of here.\n\r",
       "roomFlags": [
@@ -1048,181 +1048,181 @@
       "exits": [
         {
           "dir": "south",
-          "toVnum": 643,
+          "toVnum": 2443,
           "description": "You see the main room of the house.\n\r"
         }
       ]
     },
     {
-      "vnum": 646,
+      "vnum": 2446,
       "name": "Swiftest Way",
       "description": "You are on Swiftest Way, the commoner's residential area.  Small houses\n\rare north and south of you.  Swiftest Way continues east, and west is a big\n\rintersection.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 652,
+          "toVnum": 2452,
           "description": "You see a small house.\n\r"
         },
         {
           "dir": "east",
-          "toVnum": 647,
+          "toVnum": 2447,
           "description": "Swiftest Way continues east.\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 653,
+          "toVnum": 2453,
           "description": "You see a small house.\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 642,
+          "toVnum": 2442,
           "description": "You see a big intersection.\n\r"
         }
       ]
     },
     {
-      "vnum": 647,
+      "vnum": 2447,
       "name": "Swiftest Way",
       "description": "You are on Swiftest Way, the commoner's residential area.  Small houses\n\rare north and south of you.  Swiftest Way continues east and west.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 654,
+          "toVnum": 2454,
           "description": "You see a small house.\n\r"
         },
         {
           "dir": "east",
-          "toVnum": 648,
+          "toVnum": 2448,
           "description": "You see the end of Swiftest Way.\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 655,
+          "toVnum": 2455,
           "description": "You see a small house.\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 646,
+          "toVnum": 2446,
           "description": "Swiftest Way continues west.\n\r"
         }
       ]
     },
     {
-      "vnum": 648,
+      "vnum": 2448,
       "name": "End of Swiftest Way",
       "description": "You are on Swiftest Way, the commoner's residential area.  Small houses\n\rare north, south, and east of you.  Swiftest Way continues west.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 656,
+          "toVnum": 2456,
           "description": "You see a small house.\n\r"
         },
         {
           "dir": "east",
-          "toVnum": 657,
+          "toVnum": 2457,
           "description": "You see a small house.\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 658,
+          "toVnum": 2458,
           "description": "You see a small house.\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 647,
+          "toVnum": 2447,
           "description": "Swiftest Way continues west.\n\r"
         }
       ]
     },
     {
-      "vnum": 649,
+      "vnum": 2449,
       "name": "Swiftest Way",
       "description": "You are on Swiftest Way, the commoner's residential area.  Small houses\n\rare north and south of you.  Swiftest Way continues west, and to the east you\n\rsee a big intersection.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 659,
+          "toVnum": 2459,
           "description": "You see a small house.\n\r"
         },
         {
           "dir": "east",
-          "toVnum": 642,
+          "toVnum": 2442,
           "description": "You see the big intersection.\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 660,
+          "toVnum": 2460,
           "description": "You see a small house.\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 650,
+          "toVnum": 2450,
           "description": "Swiftest Way continues west.\n\r"
         }
       ]
     },
     {
-      "vnum": 650,
+      "vnum": 2450,
       "name": "Swiftest Way",
       "description": "You are on Swiftest Way, the commoner's residential area.  Small houses\n\rare north and south of you.  Swiftest Way continues east and west.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 661,
+          "toVnum": 2461,
           "description": "You see a small house.\n\r"
         },
         {
           "dir": "east",
-          "toVnum": 649,
+          "toVnum": 2449,
           "description": "Swiftest Way continues east.\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 662,
+          "toVnum": 2462,
           "description": "You see a small house.\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 651,
+          "toVnum": 2451,
           "description": "You see the end of Swiftest Way.\n\r"
         }
       ]
     },
     {
-      "vnum": 651,
+      "vnum": 2451,
       "name": "The end of Swiftest Way",
       "description": "You are on Swiftest Way, the commoner's residential area.  Small houses\n\rare north, south, and west of you.  Swiftest Way continues east.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 663,
+          "toVnum": 2463,
           "description": "You see a small house.\n\r"
         },
         {
           "dir": "east",
-          "toVnum": 650,
+          "toVnum": 2450,
           "description": "Swiftest Way continues east.\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 664,
+          "toVnum": 2464,
           "description": "You see a small house.\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 665,
+          "toVnum": 2465,
           "description": "You see a small house.\n\r"
         }
       ]
     },
     {
-      "vnum": 652,
+      "vnum": 2452,
       "name": "Small House",
       "description": "You are in a small house, owned by a commoner of Ofcol.  There isn't much\n\rof value here to you, but you'd bet that the owner really cherishes the pile\n\rof stuff here.  The exit is to the south.\n\r",
       "roomFlags": [
@@ -1232,13 +1232,13 @@
       "exits": [
         {
           "dir": "south",
-          "toVnum": 646,
+          "toVnum": 2446,
           "description": "You see Swiftest Way.\n\r"
         }
       ]
     },
     {
-      "vnum": 653,
+      "vnum": 2453,
       "name": "Small House",
       "description": "You are in a small house, owned by a commoner of Ofcol.  There isn't much\n\rof value here to you, but you'd bet that the owner really cherishes the pile\n\rof stuff here.  The exit is to the north.\n\r",
       "roomFlags": [
@@ -1248,13 +1248,13 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 646,
+          "toVnum": 2446,
           "description": "You see Swiftest Way.\n\r"
         }
       ]
     },
     {
-      "vnum": 654,
+      "vnum": 2454,
       "name": "Small House",
       "description": "You are in a small house, owned by a commoner of Ofcol.  There isn't much\n\rof value here to you, but you'd bet that the owner really cherishes the pile\n\rof stuff here.  The exit is to the south.\n\r",
       "roomFlags": [
@@ -1264,13 +1264,13 @@
       "exits": [
         {
           "dir": "south",
-          "toVnum": 647,
+          "toVnum": 2447,
           "description": "You see Swiftest Way.\n\r"
         }
       ]
     },
     {
-      "vnum": 655,
+      "vnum": 2455,
       "name": "Small House",
       "description": "You are in a small house, owned by a commoner of Ofcol.  There isn't much\n\rof value here to you, but you'd bet that the owner really cherishes the pile\n\rof stuff here.  The exit is to the north.\n\r",
       "roomFlags": [
@@ -1280,13 +1280,13 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 647,
+          "toVnum": 2447,
           "description": "You see Swiftest Way.\n\r"
         }
       ]
     },
     {
-      "vnum": 656,
+      "vnum": 2456,
       "name": "Small House",
       "description": "You are in a small house, owned by a commoner of Ofcol.  There isn't much\n\rof value here to you, but you'd bet that the owner really cherishes the pile\n\rof stuff here.  The exit is to the south.\n\r",
       "roomFlags": [
@@ -1296,13 +1296,13 @@
       "exits": [
         {
           "dir": "south",
-          "toVnum": 648,
+          "toVnum": 2448,
           "description": "You see the end of Swiftest Way.\n\r"
         }
       ]
     },
     {
-      "vnum": 657,
+      "vnum": 2457,
       "name": "Small House",
       "description": "You are in a small house, owned by a commoner of Ofcol.  There isn't much\n\rof value here to you, but you'd bet that the owner really cherishes the pile\n\rof stuff here.  The exit is to the west.\n\r",
       "roomFlags": [
@@ -1312,13 +1312,13 @@
       "exits": [
         {
           "dir": "west",
-          "toVnum": 648,
+          "toVnum": 2448,
           "description": "You see the end of Swiftest Way.\n\r"
         }
       ]
     },
     {
-      "vnum": 658,
+      "vnum": 2458,
       "name": "Small House",
       "description": "You are in a small house, owned by a commoner of Ofcol.  There isn't much\n\rof value here to you, but you'd bet that the owner really cherishes the pile\n\rof stuff here.  The exit is to the north.\n\r",
       "roomFlags": [
@@ -1328,13 +1328,13 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 648,
+          "toVnum": 2448,
           "description": "You see the end of Swiftest Way.\n\r"
         }
       ]
     },
     {
-      "vnum": 659,
+      "vnum": 2459,
       "name": "Small House",
       "description": "You are in a small house, owned by a commoner of Ofcol.  There isn't much\n\rof value here to you, but you'd bet that the owner really cherishes the pile\n\rof stuff here.  The exit is to the south.\n\r",
       "roomFlags": [
@@ -1344,13 +1344,13 @@
       "exits": [
         {
           "dir": "south",
-          "toVnum": 649,
+          "toVnum": 2449,
           "description": "You see Swiftest Way.\n\r"
         }
       ]
     },
     {
-      "vnum": 660,
+      "vnum": 2460,
       "name": "Small House",
       "description": "You are in a small house, owned by a commoner of Ofcol.  There isn't much\n\rof value here to you, but you'd bet that the owner really cherishes the pile\n\rof stuff here.  The exit is to the north.\n\r",
       "roomFlags": [
@@ -1360,13 +1360,13 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 649,
+          "toVnum": 2449,
           "description": "You see Swiftest Way.\n\r"
         }
       ]
     },
     {
-      "vnum": 661,
+      "vnum": 2461,
       "name": "Small House",
       "description": "You are in a small house, owned by a commoner of Ofcol.  There isn't much\n\rof value here to you, but you'd bet that the owner really cherishes the pile\n\rof stuff here.  The exit is to the south.\n\r",
       "roomFlags": [
@@ -1376,13 +1376,13 @@
       "exits": [
         {
           "dir": "south",
-          "toVnum": 650,
+          "toVnum": 2450,
           "description": "You see Swiftest Way.\n\r"
         }
       ]
     },
     {
-      "vnum": 662,
+      "vnum": 2462,
       "name": "Small House",
       "description": "You are in a small house, owned by a commoner of Ofcol.  There isn't much\n\rof value here to you, but you'd bet that the owner really cherishes the pile\n\rof stuff here.  The exit is to the north.\n\r",
       "roomFlags": [
@@ -1392,13 +1392,13 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 650,
+          "toVnum": 2450,
           "description": "You see Swiftest Way.\n\r"
         }
       ]
     },
     {
-      "vnum": 663,
+      "vnum": 2463,
       "name": "Small House",
       "description": "You are in a small house, owned by a commoner of Ofcol.  There isn't much\n\rof value here to you, but you'd bet that the owner really cherishes the pile\n\rof stuff here.  The exit is to the south.\n\r",
       "roomFlags": [
@@ -1408,13 +1408,13 @@
       "exits": [
         {
           "dir": "south",
-          "toVnum": 651,
+          "toVnum": 2451,
           "description": "You see the end of Swiftest Way.\n\r"
         }
       ]
     },
     {
-      "vnum": 664,
+      "vnum": 2464,
       "name": "Small House",
       "description": "You are in a small house, owned by a commoner of Ofcol.  There isn't much\n\rof value here to you, but you'd bet that the owner really cherishes the pile\n\rof stuff here.  The exit is to the north.\n\r",
       "roomFlags": [
@@ -1424,13 +1424,13 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 651,
+          "toVnum": 2451,
           "description": "You see the end of Swiftest Way.\n\r"
         }
       ]
     },
     {
-      "vnum": 665,
+      "vnum": 2465,
       "name": "Small House",
       "description": "You are in a small house, owned by a commoner of Ofcol.  There isn't much\n\rof value here to you, but you'd bet that the owner really cherishes the pile\n\rof stuff here.  The exit is to the east.\n\r",
       "roomFlags": [
@@ -1440,72 +1440,72 @@
       "exits": [
         {
           "dir": "east",
-          "toVnum": 651,
+          "toVnum": 2451,
           "description": "You see the end of Swiftest Way.\n\r"
         }
       ]
     },
     {
-      "vnum": 666,
+      "vnum": 2466,
       "name": "Raff Way",
       "description": "You are on Raff Way.  To the west, you can see a big intersection.  To \n\rthe east, you see Raff Way continue toward the Golden Citadel.  There are \n\rbeautiful flowers growing along the road here, making this more of a garden\n\rthan a road.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "east",
-          "toVnum": 667,
+          "toVnum": 2467,
           "description": "Raff Way continues east.\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 601,
+          "toVnum": 2401,
           "description": "You see the big intersection.\n\r"
         }
       ]
     },
     {
-      "vnum": 667,
+      "vnum": 2467,
       "name": "Raff Way",
       "description": "You are on Raff Way.  Raff Way continues west to the city of Ofcol.  To \n\rthe east, you see Raff Way continue toward the Golden Citadel.  There are \n\rbeautiful flowers growing along the road here, making this more of a garden\n\rthan a road.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "east",
-          "toVnum": 699,
+          "toVnum": 2499,
           "description": "You see the entrance of the Golden Citadel.\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 666,
+          "toVnum": 2466,
           "description": "Raff Way continues west.\n\r"
         }
       ]
     },
     {
-      "vnum": 668,
+      "vnum": 2468,
       "name": "Dirt Road",
       "description": "You are on a dirt road.  To the east is a large building with a bad smell\n\remanating from it.  To the west is the end of Impy Way, and this road continues\n\rsouth.\n\r",
       "sectorType": "field",
       "exits": [
         {
           "dir": "east",
-          "toVnum": 617,
+          "toVnum": 2417,
           "description": "You see the large building with the bad smell.\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 618,
+          "toVnum": 2418,
           "description": "The dirt road continues south.\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 611,
+          "toVnum": 2411,
           "description": "You see the end of Impy Way.\n\r"
         }
       ]
     },
     {
-      "vnum": 669,
+      "vnum": 2469,
       "name": "The Temple of Ofcol",
       "description": "You are in the Temple of Ofcol.  Golden tiles cover the floor, and solid\n\rgold columns reach the twelve foot ceiling of this vast chamber.  Servants in\n\rgolden livery wander this place, making even the raggiest messenger boy look\n\rricher than you are.  Exits lead to the anterooms in the cardinal directions.\n\r",
       "roomFlags": [
@@ -1515,24 +1515,24 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 670
+          "toVnum": 2470
         },
         {
           "dir": "east",
-          "toVnum": 672
+          "toVnum": 2472
         },
         {
           "dir": "south",
-          "toVnum": 673
+          "toVnum": 2473
         },
         {
           "dir": "west",
-          "toVnum": 671
+          "toVnum": 2471
         }
       ]
     },
     {
-      "vnum": 670,
+      "vnum": 2470,
       "name": "The Anteroom to the Temple of Ofcol",
       "description": "You are in an anteroom to the Temple of Ofcol.  Gold tiles cover the\n\rfloor, and servants in golden livery pass you by peaceably.  The temple is to\n\rthe south, and to the north is a hallway.  A stairways leads up.\n\r",
       "roomFlags": [
@@ -1542,20 +1542,20 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 675
+          "toVnum": 2475
         },
         {
           "dir": "south",
-          "toVnum": 669
+          "toVnum": 2469
         },
         {
           "dir": "up",
-          "toVnum": 686
+          "toVnum": 2486
         }
       ]
     },
     {
-      "vnum": 671,
+      "vnum": 2471,
       "name": "The Anteroom to the Temple of Ofcol",
       "description": "You are in an anteroom to the Temple of Ofcol.  Gold tiles cover the\n\rfloor, and servants in golden livery pass you by peaceably.  The temple is to\n\rthe east, and to the west is a hallway.  A stairways leads up.\n\r",
       "roomFlags": [
@@ -1565,20 +1565,20 @@
       "exits": [
         {
           "dir": "east",
-          "toVnum": 669
+          "toVnum": 2469
         },
         {
           "dir": "west",
-          "toVnum": 679
+          "toVnum": 2479
         },
         {
           "dir": "up",
-          "toVnum": 687
+          "toVnum": 2487
         }
       ]
     },
     {
-      "vnum": 672,
+      "vnum": 2472,
       "name": "The Anteroom to the Temple of Ofcol",
       "description": "You are in an anteroom to the Temple of Ofcol.  Gold tiles cover the\n\rfloor, and servants in golden livery pass you by peaceably.  The temple is to\n\rthe west, and to the east is a hallway.  A stairways leads up.\n\r",
       "roomFlags": [
@@ -1588,20 +1588,20 @@
       "exits": [
         {
           "dir": "east",
-          "toVnum": 680
+          "toVnum": 2480
         },
         {
           "dir": "west",
-          "toVnum": 669
+          "toVnum": 2469
         },
         {
           "dir": "up",
-          "toVnum": 689
+          "toVnum": 2489
         }
       ]
     },
     {
-      "vnum": 673,
+      "vnum": 2473,
       "name": "The Anteroom to the Temple of Ofcol",
       "description": "You are in an anteroom to the Temple of Ofcol.  Gold tiles cover the\n\rfloor, and servants in golden livery pass you by peaceably.  The temple is to\n\rthe north, and to the south is a hallway.  A stairways leads up.\n\r",
       "roomFlags": [
@@ -1611,20 +1611,20 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 669
+          "toVnum": 2469
         },
         {
           "dir": "south",
-          "toVnum": 684
+          "toVnum": 2484
         },
         {
           "dir": "up",
-          "toVnum": 690
+          "toVnum": 2490
         }
       ]
     },
     {
-      "vnum": 674,
+      "vnum": 2474,
       "name": "A Hallway of the Golden Citadel",
       "description": "You are in a hallway of the Golden Citadel.  Gold tiles cover the floors,\n\rand rich golden tapestries drape the walls.  Servants in golden livery pass you\n\rby peaceably.  Exits lead east and south.\n\r",
       "roomFlags": [
@@ -1634,16 +1634,16 @@
       "exits": [
         {
           "dir": "east",
-          "toVnum": 675
+          "toVnum": 2475
         },
         {
           "dir": "south",
-          "toVnum": 677
+          "toVnum": 2477
         }
       ]
     },
     {
-      "vnum": 675,
+      "vnum": 2475,
       "name": "A Hallway of the Golden Citadel",
       "description": "You are in a hallway of the Golden Citadel.  Gold tiles cover the floors,\n\rand rich golden tapestries drape the walls.  Servants in golden livery pass you\n\rby peaceably.  Exits lead east, west, and south.\n\r",
       "roomFlags": [
@@ -1653,20 +1653,20 @@
       "exits": [
         {
           "dir": "east",
-          "toVnum": 676
+          "toVnum": 2476
         },
         {
           "dir": "south",
-          "toVnum": 670
+          "toVnum": 2470
         },
         {
           "dir": "west",
-          "toVnum": 674
+          "toVnum": 2474
         }
       ]
     },
     {
-      "vnum": 676,
+      "vnum": 2476,
       "name": "A Hallway of the Golden Citadel",
       "description": "You are in a hallway of the Golden Citadel.  Gold tiles cover the floors,\n\rand rich golden tapestries drape the walls.  Servants in golden livery pass you\n\rby peaceably.  Exits lead west and south.\n\r",
       "roomFlags": [
@@ -1676,16 +1676,16 @@
       "exits": [
         {
           "dir": "south",
-          "toVnum": 678
+          "toVnum": 2478
         },
         {
           "dir": "west",
-          "toVnum": 675
+          "toVnum": 2475
         }
       ]
     },
     {
-      "vnum": 677,
+      "vnum": 2477,
       "name": "A Hallway of the Golden Citadel",
       "description": "You are in a hallway of the Golden Citadel.  Gold tiles cover the floors,\n\rand rich golden tapestries drape the walls.  Servants in golden livery pass you\n\rby peaceably.  Exits lead north and south.\n\r",
       "roomFlags": [
@@ -1695,16 +1695,16 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 674
+          "toVnum": 2474
         },
         {
           "dir": "south",
-          "toVnum": 679
+          "toVnum": 2479
         }
       ]
     },
     {
-      "vnum": 678,
+      "vnum": 2478,
       "name": "A Hallway of the Golden Citadel",
       "description": "You are in a hallway of the Golden Citadel.  Gold tiles cover the floors,\n\rand rich golden tapestries drape the walls.  Servants in golden livery pass you\n\rby peaceably.  Exits lead north and south.\n\r",
       "roomFlags": [
@@ -1714,16 +1714,16 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 676
+          "toVnum": 2476
         },
         {
           "dir": "south",
-          "toVnum": 680
+          "toVnum": 2480
         }
       ]
     },
     {
-      "vnum": 679,
+      "vnum": 2479,
       "name": "A Hallway of the Golden Citadel",
       "description": "You are in a hallway of the Golden Citadel.  Gold tiles cover the floors,\n\rand rich golden tapestries drape the walls.  Servants in golden livery pass you\n\rby peaceably.  Exits lead to the cardinal directions, with the east leading\n\rtoward the Temple of Ofcol, and west leading toward the City of Ofcol.\n\r",
       "roomFlags": [
@@ -1733,24 +1733,24 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 677
+          "toVnum": 2477
         },
         {
           "dir": "east",
-          "toVnum": 671
+          "toVnum": 2471
         },
         {
           "dir": "south",
-          "toVnum": 681
+          "toVnum": 2481
         },
         {
           "dir": "west",
-          "toVnum": 698
+          "toVnum": 2498
         }
       ]
     },
     {
-      "vnum": 680,
+      "vnum": 2480,
       "name": "A Hallway of the Golden Citadel",
       "description": "You are in a hallway of the Golden Citadel.  Gold tiles cover the floors,\n\rand rich golden tapestries drape the walls.  Servants in golden livery pass you\n\rby peaceably.  Exits lead west, north and south.\n\r",
       "roomFlags": [
@@ -1760,20 +1760,20 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 678
+          "toVnum": 2478
         },
         {
           "dir": "south",
-          "toVnum": 682
+          "toVnum": 2482
         },
         {
           "dir": "west",
-          "toVnum": 672
+          "toVnum": 2472
         }
       ]
     },
     {
-      "vnum": 681,
+      "vnum": 2481,
       "name": "A Hallway of the Golden Citadel",
       "description": "You are in a hallway of the Golden Citadel.  Gold tiles cover the floors,\n\rand rich golden tapestries drape the walls.  Servants in golden livery pass you\n\rby peaceably.  Exits lead north and south.\n\r",
       "roomFlags": [
@@ -1783,16 +1783,16 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 679
+          "toVnum": 2479
         },
         {
           "dir": "south",
-          "toVnum": 683
+          "toVnum": 2483
         }
       ]
     },
     {
-      "vnum": 682,
+      "vnum": 2482,
       "name": "A Hallway of the Golden Citadel",
       "description": "You are in a hallway of the Golden Citadel.  Gold tiles cover the floors,\n\rand rich golden tapestries drape the walls.  Servants in golden livery pass you\n\rby peaceably.  Exits lead north and south.\n\r",
       "roomFlags": [
@@ -1802,16 +1802,16 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 680
+          "toVnum": 2480
         },
         {
           "dir": "south",
-          "toVnum": 685
+          "toVnum": 2485
         }
       ]
     },
     {
-      "vnum": 683,
+      "vnum": 2483,
       "name": "A Hallway of the Golden Citadel",
       "description": "You are in a hallway of the Golden Citadel.  Gold tiles cover the floors,\n\rand rich golden tapestries drape the walls.  Servants in golden livery pass you\n\rby peaceably.  Exits lead north and east.\n\r",
       "roomFlags": [
@@ -1821,16 +1821,16 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 681
+          "toVnum": 2481
         },
         {
           "dir": "east",
-          "toVnum": 684
+          "toVnum": 2484
         }
       ]
     },
     {
-      "vnum": 684,
+      "vnum": 2484,
       "name": "A Hallway of the Golden Citadel",
       "description": "You are in a hallway of the Golden Citadel.  Gold tiles cover the floors,\n\rand rich golden tapestries drape the walls.  Servants in golden livery pass you\n\rby peaceably.  Exits lead east, west, and north.\n\r",
       "roomFlags": [
@@ -1840,20 +1840,20 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 673
+          "toVnum": 2473
         },
         {
           "dir": "east",
-          "toVnum": 685
+          "toVnum": 2485
         },
         {
           "dir": "west",
-          "toVnum": 683
+          "toVnum": 2483
         }
       ]
     },
     {
-      "vnum": 685,
+      "vnum": 2485,
       "name": "A Hallway of the Golden Citadel",
       "description": "You are in a hallway of the Golden Citadel.  Gold tiles cover the floors,\n\rand rich golden tapestries drape the walls.  Servants in golden livery pass you\n\rby peaceably.  Exits lead west and north.\n\r",
       "roomFlags": [
@@ -1863,16 +1863,16 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 682
+          "toVnum": 2482
         },
         {
           "dir": "west",
-          "toVnum": 684
+          "toVnum": 2484
         }
       ]
     },
     {
-      "vnum": 686,
+      "vnum": 2486,
       "name": "An Upper Chamber of the Golden Citadel",
       "description": "You are in one of the upper chambers of the Golden Citadel.  The decora-\n\rtions of this place surpass even those of the first floor.  Gold tiles etched\n\rwith platinum cover the floor, walls and the ceiling.  The lights from numerous\n\rtorches reflect from these shimmering planes, giving the illusion that you are\n\rstanding in a gem.  Stairways lead up and down, and the hall leads south. \n\r",
       "roomFlags": [
@@ -1882,20 +1882,20 @@
       "exits": [
         {
           "dir": "south",
-          "toVnum": 688
+          "toVnum": 2488
         },
         {
           "dir": "up",
-          "toVnum": 691
+          "toVnum": 2491
         },
         {
           "dir": "down",
-          "toVnum": 670
+          "toVnum": 2470
         }
       ]
     },
     {
-      "vnum": 687,
+      "vnum": 2487,
       "name": "An Upper Chamber of the Golden Citadel",
       "description": "You are in one of the upper chambers of the Golden Citadel.  The decora-\n\rtions of this place surpass even those of the first floor.  Gold tiles etched\n\rwith platinum cover the floor, walls and the ceiling.  The lights from numerous\n\rtorches reflect from these shimmering planes, giving the illusion that you are\n\rstanding in a gem.  Stairways lead up and down, and the hall leads east. \n\r",
       "roomFlags": [
@@ -1905,20 +1905,20 @@
       "exits": [
         {
           "dir": "east",
-          "toVnum": 688
+          "toVnum": 2488
         },
         {
           "dir": "up",
-          "toVnum": 692
+          "toVnum": 2492
         },
         {
           "dir": "down",
-          "toVnum": 671
+          "toVnum": 2471
         }
       ]
     },
     {
-      "vnum": 688,
+      "vnum": 2488,
       "name": "The Hall of the DragonLords",
       "description": "You are in a vast hall, filled with the commanders of the Golden Citadel.\n\rGolden tiles etched with platinum cover the floors, and weapons of all types\n\rare mounted on the walls of this meeting hall.  Surrounding a solid gold table\n\rare four sons of the Keeper of the Golden Citadel.  They smile at you and ask \n\ryou to join them in lunch.  Exits lead to the cardinal directions. \n\r",
       "roomFlags": [
@@ -1928,24 +1928,24 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 686
+          "toVnum": 2486
         },
         {
           "dir": "east",
-          "toVnum": 689
+          "toVnum": 2489
         },
         {
           "dir": "south",
-          "toVnum": 690
+          "toVnum": 2490
         },
         {
           "dir": "west",
-          "toVnum": 687
+          "toVnum": 2487
         }
       ]
     },
     {
-      "vnum": 689,
+      "vnum": 2489,
       "name": "An Upper Chamber of the Golden Citadel",
       "description": "You are in one of the upper chambers of the Golden Citadel.  The decora-\n\rtions of this place surpass even those of the first floor.  Gold tiles etched\n\rwith platinum cover the floor, walls and the ceiling.  The lights from numerous\n\rtorches reflect from these shimmering planes, giving the illusion that you are\n\rstanding in a gem.  Stairways lead up and down, and the hall leads west. \n\r",
       "roomFlags": [
@@ -1955,20 +1955,20 @@
       "exits": [
         {
           "dir": "west",
-          "toVnum": 688
+          "toVnum": 2488
         },
         {
           "dir": "up",
-          "toVnum": 694
+          "toVnum": 2494
         },
         {
           "dir": "down",
-          "toVnum": 672
+          "toVnum": 2472
         }
       ]
     },
     {
-      "vnum": 690,
+      "vnum": 2490,
       "name": "An Upper Chamber of the Golden Citadel",
       "description": "You are in one of the upper chambers of the Golden Citadel.  The decora-\n\rtions of this place surpass even those of the first floor.  Gold tiles etched\n\rwith platinum cover the floor, walls and the ceiling.  The lights from numerous\n\rtorches reflect from these shimmering planes, giving the illusion that you are\n\rstanding in a gem.  Stairways lead up and down, and the hall leads north. \n\r",
       "roomFlags": [
@@ -1978,20 +1978,20 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 688
+          "toVnum": 2488
         },
         {
           "dir": "up",
-          "toVnum": 695
+          "toVnum": 2495
         },
         {
           "dir": "down",
-          "toVnum": 673
+          "toVnum": 2473
         }
       ]
     },
     {
-      "vnum": 691,
+      "vnum": 2491,
       "name": "A Top Chamber of the Golden Citadel",
       "description": "You are in one of the top chambers of the Golden Citadel.  The decorations\n\rof this room looks like a dragon's hoard.  The whole room is carved out of pure\n\rgold, and gems of all types glitter from the walls, ceiling, even the floor.\n\rIt is obvious that this room was not meant for you to intrude upon.  A stair-\n\rcase leads back down, and a doorway leads south.\n\r",
       "roomFlags": [
@@ -2001,16 +2001,16 @@
       "exits": [
         {
           "dir": "south",
-          "toVnum": 693
+          "toVnum": 2493
         },
         {
           "dir": "down",
-          "toVnum": 686
+          "toVnum": 2486
         }
       ]
     },
     {
-      "vnum": 692,
+      "vnum": 2492,
       "name": "A Top Chamber of the Golden Citadel",
       "description": "You are in one of the top chambers of the Golden Citadel.  The decorations\n\rof this room looks like a dragon's hoard.  The whole room is carved out of pure\n\rgold, and gems of all types glitter from the walls, ceiling, even the floor.\n\rIt is obvious that this room was not meant for you to intrude upon.  A stair-\n\rcase leads back down, and a doorway leads east.\n\r",
       "roomFlags": [
@@ -2020,16 +2020,16 @@
       "exits": [
         {
           "dir": "east",
-          "toVnum": 693
+          "toVnum": 2493
         },
         {
           "dir": "down",
-          "toVnum": 687
+          "toVnum": 2487
         }
       ]
     },
     {
-      "vnum": 693,
+      "vnum": 2493,
       "name": "The Dragon Chamber",
       "description": "You are in a vast chamber carved from gold and platinum.  Gems the size of\n\ra man's fist protrude from the walls, ceiling, and the floor, making your step\n\rpainful.  A vast open sky-light lets fresh air come in from the top.  In the\n\rcenter of this chamber, you see a great wealth of coins, and on top of that\n\rpile of coins, you see a golden dragon squinting at you.  Exits lead to the\n\rcardinal directions to the anterooms.\n\r",
       "roomFlags": [
@@ -2039,28 +2039,28 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 691
+          "toVnum": 2491
         },
         {
           "dir": "east",
-          "toVnum": 694
+          "toVnum": 2494
         },
         {
           "dir": "south",
-          "toVnum": 695
+          "toVnum": 2495
         },
         {
           "dir": "west",
-          "toVnum": 692
+          "toVnum": 2492
         },
         {
           "dir": "up",
-          "toVnum": 696
+          "toVnum": 2496
         }
       ]
     },
     {
-      "vnum": 694,
+      "vnum": 2494,
       "name": "A Top Chamber of the Golden Citadel",
       "description": "You are in one of the top chambers of the Golden Citadel.  The decorations\n\rof this room looks like a dragon's hoard.  The whole room is carved out of pure\n\rgold, and gems of all types glitter from the walls, ceiling, even the floor.\n\rIt is obvious that this room was not meant for you to intrude upon.  A stair-\n\rcase leads back down, and a doorway leads west.\n\r",
       "roomFlags": [
@@ -2070,16 +2070,16 @@
       "exits": [
         {
           "dir": "west",
-          "toVnum": 693
+          "toVnum": 2493
         },
         {
           "dir": "down",
-          "toVnum": 689
+          "toVnum": 2489
         }
       ]
     },
     {
-      "vnum": 695,
+      "vnum": 2495,
       "name": "A Top Chamber of the Golden Citadel",
       "description": "You are in one of the top chambers of the Golden Citadel.  The decorations\n\rof this room looks like a dragon's hoard.  The whole room is carved out of pure\n\rgold, and gems of all types glitter from the walls, ceiling, even the floor.\n\rIt is obvious that this room was not meant for you to intrude upon.  A stair-\n\rcase leads back down, and a doorway leads north.\n\r",
       "roomFlags": [
@@ -2089,16 +2089,16 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 693
+          "toVnum": 2493
         },
         {
           "dir": "down",
-          "toVnum": 690
+          "toVnum": 2490
         }
       ]
     },
     {
-      "vnum": 696,
+      "vnum": 2496,
       "name": "Above the Dragon Chamber",
       "description": "You are above the Dragon Chamber.  You curiously note that this shaft that\n\rconnects the chamber to the sky is wide enough that even a dragon can fit\n\rthrough.  This shaft leads up and down.\n\r",
       "roomFlags": [
@@ -2108,16 +2108,16 @@
       "exits": [
         {
           "dir": "up",
-          "toVnum": 697
+          "toVnum": 2497
         },
         {
           "dir": "down",
-          "toVnum": 693
+          "toVnum": 2493
         }
       ]
     },
     {
-      "vnum": 697,
+      "vnum": 2497,
       "name": "In the Shaft from the Dragon Chamber",
       "description": "You are in the shaft leading from the Dragon Chamber.  Below you lies the\n\rDragon Chamber of the Golden Citadel.  Above you, you see the sky, but \n\rcurrently, the way out is sealed by a layer of diamond that looks impenetrable.\n\r",
       "roomFlags": [
@@ -2127,12 +2127,12 @@
       "exits": [
         {
           "dir": "down",
-          "toVnum": 696
+          "toVnum": 2496
         }
       ]
     },
     {
-      "vnum": 698,
+      "vnum": 2498,
       "name": "Inside the Entrance to the Golden Citadel",
       "description": "You are inside the entrance to the Golden Citadel.  Rich golden tapestries\n\rline the walls, and golden tiles cover the floors.  The exit to this citadel is\n\rto the west, while the citadel itself is to the east.\n\r",
       "roomFlags": [
@@ -2142,12 +2142,12 @@
       "exits": [
         {
           "dir": "east",
-          "toVnum": 679
+          "toVnum": 2479
         },
         {
           "dir": "west",
-          "toVnum": 699,
-          "key": 651,
+          "toVnum": 2499,
+          "key": 2451,
           "flags": [
             "door"
           ],
@@ -2156,29 +2156,29 @@
       ]
     },
     {
-      "vnum": 699,
+      "vnum": 2499,
       "name": "Outside the Entrance to the Golden Citadel",
       "description": "You are outside the entrance to the Golden Citadel.  A great gate is to\n\rto the east, marking the entranceway into the citadel.  The road also leads\n\rback west to Raff Way.\n\r",
       "sectorType": "field",
       "exits": [
         {
           "dir": "east",
-          "toVnum": 698,
-          "key": 651,
+          "toVnum": 2498,
+          "key": 2451,
           "flags": [
             "door"
           ]
         },
         {
           "dir": "west",
-          "toVnum": 667
+          "toVnum": 2467
         }
       ]
     }
   ],
   "mobiles": [
     {
-      "vnum": 600,
+      "vnum": 2400,
       "name": "oldstyle cityguard guard",
       "shortDescr": "the Ofcol cityguard",
       "longDescr": "An Ofcol cityguard is standing here, making sure there is no trouble.\n\r",
@@ -2235,7 +2235,7 @@
       "material": "0"
     },
     {
-      "vnum": 601,
+      "vnum": 2401,
       "name": "oldstyle marshall diana",
       "shortDescr": "Marshall Diana",
       "longDescr": "Diana, the Marshall of Ofcol, stands here proudly.\n\r",
@@ -2291,7 +2291,7 @@
       "material": "0"
     },
     {
-      "vnum": 602,
+      "vnum": 2402,
       "name": "oldstyle derrick captain guard cityguard",
       "shortDescr": "Captain Derrick",
       "longDescr": "Derrick, Captain of the Guard, is here disciplining his guards.\n\r",
@@ -2347,7 +2347,7 @@
       "material": "0"
     },
     {
-      "vnum": 603,
+      "vnum": 2403,
       "name": "oldstyle jacklyn captain guard cityguard",
       "shortDescr": "Captain Jacklyn",
       "longDescr": "Jacklyn, Captain of the Citadel Guard, is here raising morale.\n\r",
@@ -2400,7 +2400,7 @@
       "material": "0"
     },
     {
-      "vnum": 604,
+      "vnum": 2404,
       "name": "oldstyle jim blacksmith",
       "shortDescr": "Jim the Blacksmith",
       "longDescr": "Jim the Blacksmith is here, selling his latest works of metal.\n\r",
@@ -2453,7 +2453,7 @@
       "material": "0"
     },
     {
-      "vnum": 605,
+      "vnum": 2405,
       "name": "oldstyle sam",
       "shortDescr": "Sam",
       "longDescr": "Sam is here, selling his leather works.\n\r",
@@ -2506,7 +2506,7 @@
       "material": "0"
     },
     {
-      "vnum": 606,
+      "vnum": 2406,
       "name": "oldstyle madam tracy",
       "shortDescr": "Madam Tracy",
       "longDescr": "Madam Tracy is here, selling and buying little treasures.\n\r",
@@ -2559,7 +2559,7 @@
       "material": "0"
     },
     {
-      "vnum": 607,
+      "vnum": 2407,
       "name": "oldstyle marty",
       "shortDescr": "Marty",
       "longDescr": "Marty the meat store owner is here, selling you his choice meats.\n\r",
@@ -2612,7 +2612,7 @@
       "material": "0"
     },
     {
-      "vnum": 608,
+      "vnum": 2408,
       "name": "oldstyle elizabeth farmer",
       "shortDescr": "Farmer Elizabeth",
       "longDescr": "Farmer Elizabeth is here, selling the latest crop.\n\r",
@@ -2665,7 +2665,7 @@
       "material": "0"
     },
     {
-      "vnum": 609,
+      "vnum": 2409,
       "name": "oldstyle granny jenkins",
       "shortDescr": "Granny Jenkins",
       "longDescr": "Granny Jenkins is here, running the still.\n\r",
@@ -2718,7 +2718,7 @@
       "material": "0"
     },
     {
-      "vnum": 610,
+      "vnum": 2410,
       "name": "oldstyle jack",
       "shortDescr": "Jack",
       "longDescr": "Jack is here slaughtering away at the animals.\n\r",
@@ -2770,7 +2770,7 @@
       "material": "0"
     },
     {
-      "vnum": 611,
+      "vnum": 2411,
       "name": "oldstyle Sarah farmer",
       "shortDescr": "Farmer Sara",
       "longDescr": "Farmer Sara is here, milking the cows.\n\r",
@@ -2821,7 +2821,7 @@
       "material": "0"
     },
     {
-      "vnum": 612,
+      "vnum": 2412,
       "name": "oldstyle chicken hen",
       "shortDescr": "a hen",
       "longDescr": "A hen is here, squawking at your intrusion.\n\r",
@@ -2871,7 +2871,7 @@
       "material": "0"
     },
     {
-      "vnum": 613,
+      "vnum": 2413,
       "name": "oldstyle cow",
       "shortDescr": "the cow",
       "longDescr": "A cow is here, munching on grass.\n\r",
@@ -2921,7 +2921,7 @@
       "material": "0"
     },
     {
-      "vnum": 614,
+      "vnum": 2414,
       "name": "oldstyle cow",
       "shortDescr": "the cow",
       "longDescr": "A cow is here, waiting to be milked.\n\r",
@@ -2972,7 +2972,7 @@
       "material": "0"
     },
     {
-      "vnum": 615,
+      "vnum": 2415,
       "name": "oldstyle horse young",
       "shortDescr": "the young horse",
       "longDescr": "A young horse is here, grazing.\n\r",
@@ -3024,7 +3024,7 @@
       "material": "0"
     },
     {
-      "vnum": 616,
+      "vnum": 2416,
       "name": "oldstyle pig",
       "shortDescr": "the pig",
       "longDescr": "A pig is playing here, getting itself and you dirty.\n\r",
@@ -3075,7 +3075,7 @@
       "material": "0"
     },
     {
-      "vnum": 617,
+      "vnum": 2417,
       "name": "oldstyle citizen man",
       "shortDescr": "the citizen",
       "longDescr": "A citizen is here, smiling at you.\n\r",
@@ -3125,7 +3125,7 @@
       "material": "0"
     },
     {
-      "vnum": 618,
+      "vnum": 2418,
       "name": "oldstyle citizen woman",
       "shortDescr": "the citizen",
       "longDescr": "A citizen is here, smiling at you.\n\r",
@@ -3175,7 +3175,7 @@
       "material": "0"
     },
     {
-      "vnum": 619,
+      "vnum": 2419,
       "name": "oldstyle child boy",
       "shortDescr": "the boy",
       "longDescr": "A boy is here, playing tag and other kids' games.\n\r",
@@ -3224,7 +3224,7 @@
       "material": "0"
     },
     {
-      "vnum": 620,
+      "vnum": 2420,
       "name": "oldstyle child girl",
       "shortDescr": "the girl",
       "longDescr": "A girl is here, playing jump jacks and other kids' games.\n\r",
@@ -3273,7 +3273,7 @@
       "material": "0"
     },
     {
-      "vnum": 621,
+      "vnum": 2421,
       "name": "oldstyle maid woman",
       "shortDescr": "the maid",
       "longDescr": "A maid is here, cleaning the house and preparing the next meal.\n\r",
@@ -3323,7 +3323,7 @@
       "material": "0"
     },
     {
-      "vnum": 622,
+      "vnum": 2422,
       "name": "oldstyle Nyles",
       "shortDescr": "Nyles the Bartender",
       "longDescr": "Nyles the Bartender is here, ready to serve you up a good brew.\n\r",
@@ -3373,7 +3373,7 @@
       "material": "0"
     },
     {
-      "vnum": 623,
+      "vnum": 2423,
       "name": "oldstyle cityguard guard",
       "shortDescr": "the Ofcol cityguard",
       "longDescr": "An Ofcol cityguard is posted here to guard the gate.\n\r",
@@ -3430,7 +3430,7 @@
       "material": "0"
     },
     {
-      "vnum": 624,
+      "vnum": 2424,
       "name": "oldstyle bard",
       "shortDescr": "a bard",
       "longDescr": "A bard is here, singing of the glories of Ofcol.\n\r",
@@ -3483,7 +3483,7 @@
       "material": "0"
     },
     {
-      "vnum": 625,
+      "vnum": 2425,
       "name": "oldstyle servant",
       "shortDescr": "a servant",
       "longDescr": "A servant is here, carrying the duties of the Keeper of the Golden Citadel.\n\r",
@@ -3536,7 +3536,7 @@
       "material": "0"
     },
     {
-      "vnum": 626,
+      "vnum": 2426,
       "name": "oldstyle squire",
       "shortDescr": "a squire",
       "longDescr": "A squire is here, scurrying from duty to duty.\n\r",
@@ -3589,7 +3589,7 @@
       "material": "0"
     },
     {
-      "vnum": 627,
+      "vnum": 2427,
       "name": "oldstyle page",
       "shortDescr": "a page",
       "longDescr": "A page is here, sending a message to his knight.\n\r",
@@ -3642,7 +3642,7 @@
       "material": "0"
     },
     {
-      "vnum": 628,
+      "vnum": 2428,
       "name": "oldstyle priestess",
       "shortDescr": "the Priestess of Ofcol",
       "longDescr": "The Priestess of Ofcol is here, blessing you \n\rwith her beatific smile.\n\r",
@@ -3697,7 +3697,7 @@
       "material": "0"
     },
     {
-      "vnum": 629,
+      "vnum": 2429,
       "name": "oldstyle chaplain Jerrold",
       "shortDescr": "Chaplain Jerrold",
       "longDescr": "Jerrold, the chaplain of this Citadel, is here \n\rdirecting the activities of the people around here.\n\r",
@@ -3756,7 +3756,7 @@
       "material": "0"
     },
     {
-      "vnum": 630,
+      "vnum": 2430,
       "name": "oldstyle dragonlord lord dragon",
       "shortDescr": "a Dragonlord",
       "longDescr": "A knight wearing the scales of a dragon stands here.\n\r",
@@ -3811,9 +3811,9 @@
       "material": "0"
     },
     {
-      "vnum": 631,
+      "vnum": 2431,
       "name": "oldstyle dragon gold",
-      "shortDescr": "the Ancient Gold Dragon",
+      "shortDescr": "The Ancient Gold Dragon",
       "longDescr": "An old dragon shimmering with the colors of this \n\rcavern peers at you sleepily.\n\r",
       "description": "This dragon's head is taller than you.  He is annoyed at your disturbance, but\n\rrealizing that you're no danger to him, he ignores you.  He waves to one of\n\rhis attendants to escort you away.\n\r",
       "race": "dragon",
@@ -3878,7 +3878,7 @@
       "material": "0"
     },
     {
-      "vnum": 632,
+      "vnum": 2432,
       "name": "oldstyle attendant",
       "shortDescr": "an attendant of the dragon",
       "longDescr": "A person robed in gold is attending to the Keeper of the Citadel.\n\r",
@@ -3931,7 +3931,7 @@
       "material": "0"
     },
     {
-      "vnum": 633,
+      "vnum": 2433,
       "name": "oldstyle dragonknight knight dragon",
       "shortDescr": "a Dragonknight",
       "longDescr": "A person dressed in the scales of a gold dragon \n\rstands here, guarding the Golden Citadel.\n\r",
@@ -3985,7 +3985,7 @@
       "material": "0"
     },
     {
-      "vnum": 634,
+      "vnum": 2434,
       "name": "oldstyle cityguard guard",
       "shortDescr": "the Ofcol cityguard",
       "longDescr": "An Ofcol cityguard is posted here to guard the gate.\n\r",
@@ -4044,7 +4044,7 @@
   ],
   "objects": [
     {
-      "vnum": 600,
+      "vnum": 2400,
       "name": "axe hand",
       "shortDescr": "a hand axe",
       "description": "A hand axe is on the floor here.",
@@ -4074,7 +4074,7 @@
       ]
     },
     {
-      "vnum": 601,
+      "vnum": 2401,
       "name": "meat cleaver",
       "shortDescr": "a meat cleaver",
       "description": "A sharp meat cleaver is just lying on the floor here!",
@@ -4113,7 +4113,7 @@
       ]
     },
     {
-      "vnum": 602,
+      "vnum": 2402,
       "name": "side meat beef",
       "shortDescr": "a side of beef",
       "description": "A side of beef is here on the floor.",
@@ -4131,7 +4131,7 @@
       "condition": 100
     },
     {
-      "vnum": 603,
+      "vnum": 2403,
       "name": "side meat pork",
       "shortDescr": "a side of pork",
       "description": "A side of pork is here on the floor.",
@@ -4149,7 +4149,7 @@
       "condition": 100
     },
     {
-      "vnum": 604,
+      "vnum": 2404,
       "name": "side meat horse",
       "shortDescr": "a side of horse",
       "description": "A side of horse is here on the floor.",
@@ -4167,7 +4167,7 @@
       "condition": 100
     },
     {
-      "vnum": 605,
+      "vnum": 2405,
       "name": "meat chicken",
       "shortDescr": "a defeathered chicken",
       "description": "A defeathered chicken is here on the floor.",
@@ -4185,7 +4185,7 @@
       "condition": 100
     },
     {
-      "vnum": 606,
+      "vnum": 2406,
       "name": "emerald ring",
       "shortDescr": "an emerald ring",
       "description": "An emerald ring is on the floor, gathering dust.",
@@ -4203,7 +4203,7 @@
       "condition": 100
     },
     {
-      "vnum": 607,
+      "vnum": 2407,
       "name": "glass trinket",
       "shortDescr": "a glass trinket",
       "description": "A glass trinket is on the floor, gathering dust.",
@@ -4227,7 +4227,7 @@
       ]
     },
     {
-      "vnum": 608,
+      "vnum": 2408,
       "name": "golden necklace",
       "shortDescr": "a golden necklace",
       "description": "A golden necklace is on the floor, gathering dust.",
@@ -4251,7 +4251,7 @@
       ]
     },
     {
-      "vnum": 609,
+      "vnum": 2409,
       "name": "cabbage",
       "shortDescr": "a head of cabbage",
       "description": "Some fresh cabbage is here, get it while it lasts!",
@@ -4269,7 +4269,7 @@
       "condition": 100
     },
     {
-      "vnum": 610,
+      "vnum": 2410,
       "name": "lettuce",
       "shortDescr": "a head of lettuce",
       "description": "Some fresh lettuce is here, get it while it lasts!",
@@ -4287,7 +4287,7 @@
       "condition": 100
     },
     {
-      "vnum": 611,
+      "vnum": 2411,
       "name": "milk bottle",
       "shortDescr": "a bottle of milk",
       "description": "A glass bottle of milk is on a shelf here, fresh from the cow.",
@@ -4306,7 +4306,7 @@
       "condition": 100
     },
     {
-      "vnum": 612,
+      "vnum": 2412,
       "name": "apple",
       "shortDescr": "an apple",
       "description": "An apple is on the ground.",
@@ -4324,7 +4324,7 @@
       "condition": 100
     },
     {
-      "vnum": 613,
+      "vnum": 2413,
       "name": "corn",
       "shortDescr": "an ear of corn",
       "description": "An ear of corn is on the ground.",
@@ -4342,7 +4342,7 @@
       "condition": 100
     },
     {
-      "vnum": 614,
+      "vnum": 2414,
       "name": "hay pile",
       "shortDescr": "a pile of hay",
       "description": "There is a big pile of hay here.",
@@ -4355,7 +4355,7 @@
       "condition": 100
     },
     {
-      "vnum": 615,
+      "vnum": 2415,
       "name": "pitchfork fork",
       "shortDescr": "a pitchfork",
       "description": "A pitchfork is on the floor.",
@@ -4379,7 +4379,7 @@
       "condition": 100
     },
     {
-      "vnum": 616,
+      "vnum": 2416,
       "name": "vest",
       "shortDescr": "a leather vest",
       "description": "A leather vest is on the floor.",
@@ -4399,7 +4399,7 @@
       "condition": 100
     },
     {
-      "vnum": 617,
+      "vnum": 2417,
       "name": "sleeves",
       "shortDescr": "some leather sleeves",
       "description": "Some leather sleeves are on the floor.",
@@ -4419,7 +4419,7 @@
       "condition": 100
     },
     {
-      "vnum": 618,
+      "vnum": 2418,
       "name": "leggings",
       "shortDescr": "some leather leggings",
       "description": "Some leather leggings are on the floor.",
@@ -4439,7 +4439,7 @@
       "condition": 100
     },
     {
-      "vnum": 619,
+      "vnum": 2419,
       "name": "boots",
       "shortDescr": "some leather boots",
       "description": "Some leather boots are on the floor.",
@@ -4459,7 +4459,7 @@
       "condition": 100
     },
     {
-      "vnum": 620,
+      "vnum": 2420,
       "name": "signet ring",
       "shortDescr": "an Ofcol signet ring",
       "description": "A shiny ring of gold is in the dirt.",
@@ -4501,7 +4501,7 @@
       ]
     },
     {
-      "vnum": 621,
+      "vnum": 2421,
       "name": "plate brass",
       "shortDescr": "brass plate",
       "description": "A pile of brass plates is against the wall here.",
@@ -4518,7 +4518,8 @@
         "acPierce": 6,
         "acBash": 5,
         "acSlash": 6,
-        "acExotic": 1
+        "acExotic": 1,
+        "armorType": "cloth"
       },
       "level": 16,
       "weight": 100,
@@ -4542,7 +4543,7 @@
       ]
     },
     {
-      "vnum": 622,
+      "vnum": 2422,
       "name": "helm brass",
       "shortDescr": "a brass helm",
       "description": "A brass helm is against the wall here.",
@@ -4559,7 +4560,8 @@
         "acPierce": 6,
         "acBash": 5,
         "acSlash": 6,
-        "acExotic": 1
+        "acExotic": 1,
+        "armorType": "cloth"
       },
       "level": 16,
       "weight": 100,
@@ -4583,7 +4585,7 @@
       ]
     },
     {
-      "vnum": 623,
+      "vnum": 2423,
       "name": "leggings brass",
       "shortDescr": "brass leggings",
       "description": "A pile of brass plates is against the wall here.",
@@ -4600,7 +4602,8 @@
         "acPierce": 6,
         "acBash": 5,
         "acSlash": 6,
-        "acExotic": 1
+        "acExotic": 1,
+        "armorType": "cloth"
       },
       "level": 16,
       "weight": 100,
@@ -4624,7 +4627,7 @@
       ]
     },
     {
-      "vnum": 624,
+      "vnum": 2424,
       "name": "boots brass",
       "shortDescr": "brass boots",
       "description": "Some brass boots are against the wall here.",
@@ -4641,7 +4644,8 @@
         "acPierce": 6,
         "acBash": 5,
         "acSlash": 6,
-        "acExotic": 1
+        "acExotic": 1,
+        "armorType": "cloth"
       },
       "level": 16,
       "weight": 100,
@@ -4665,7 +4669,7 @@
       ]
     },
     {
-      "vnum": 625,
+      "vnum": 2425,
       "name": "gauntlets brass",
       "shortDescr": "brass gauntlets",
       "description": "Some brass gauntlets are against the wall here.",
@@ -4682,7 +4686,8 @@
         "acPierce": 6,
         "acBash": 5,
         "acSlash": 6,
-        "acExotic": 1
+        "acExotic": 1,
+        "armorType": "cloth"
       },
       "level": 16,
       "weight": 100,
@@ -4706,7 +4711,7 @@
       ]
     },
     {
-      "vnum": 626,
+      "vnum": 2426,
       "name": "sleeves brass",
       "shortDescr": "brass sleeves",
       "description": "A pile of brass plates is against the wall here.",
@@ -4723,7 +4728,8 @@
         "acPierce": 6,
         "acBash": 5,
         "acSlash": 6,
-        "acExotic": 1
+        "acExotic": 1,
+        "armorType": "cloth"
       },
       "level": 16,
       "weight": 100,
@@ -4747,7 +4753,7 @@
       ]
     },
     {
-      "vnum": 627,
+      "vnum": 2427,
       "name": "shield brass",
       "shortDescr": "a brass shield",
       "description": "A big plate of brass is against the wall here.",
@@ -4764,7 +4770,8 @@
         "acPierce": 6,
         "acBash": 5,
         "acSlash": 6,
-        "acExotic": 2
+        "acExotic": 2,
+        "armorType": "light"
       },
       "level": 16,
       "weight": 100,
@@ -4788,7 +4795,7 @@
       ]
     },
     {
-      "vnum": 628,
+      "vnum": 2428,
       "name": "girth brass",
       "shortDescr": "a brass girth",
       "description": "A brass girth is against the wall here.",
@@ -4805,7 +4812,8 @@
         "acPierce": 6,
         "acBash": 5,
         "acSlash": 6,
-        "acExotic": 1
+        "acExotic": 1,
+        "armorType": "cloth"
       },
       "level": 16,
       "weight": 100,
@@ -4829,7 +4837,7 @@
       ]
     },
     {
-      "vnum": 629,
+      "vnum": 2429,
       "name": "bracer brass",
       "shortDescr": "a brass bracer",
       "description": "A brass bracer is against the wall here.",
@@ -4846,7 +4854,8 @@
         "acPierce": 4,
         "acBash": 5,
         "acSlash": 6,
-        "acExotic": 1
+        "acExotic": 1,
+        "armorType": "cloth"
       },
       "level": 12,
       "weight": 100,
@@ -4870,7 +4879,7 @@
       ]
     },
     {
-      "vnum": 630,
+      "vnum": 2430,
       "name": "claymore sword",
       "shortDescr": "a claymore",
       "description": "A VERY big sword is against the wall here.",
@@ -4916,7 +4925,7 @@
       ]
     },
     {
-      "vnum": 631,
+      "vnum": 2431,
       "name": "plate silver",
       "shortDescr": "silver plate",
       "description": "A pile of silver plating and chain is on the floor.",
@@ -4934,7 +4943,8 @@
         "acPierce": 8,
         "acBash": 8,
         "acSlash": 8,
-        "acExotic": 2
+        "acExotic": 2,
+        "armorType": "light"
       },
       "level": 25,
       "weight": 200,
@@ -4958,7 +4968,7 @@
       ]
     },
     {
-      "vnum": 632,
+      "vnum": 2432,
       "name": "helm silver",
       "shortDescr": "a silver helm",
       "description": "A shiny helm is on the floor.",
@@ -4976,7 +4986,8 @@
         "acPierce": 8,
         "acBash": 8,
         "acSlash": 8,
-        "acExotic": 2
+        "acExotic": 2,
+        "armorType": "light"
       },
       "level": 25,
       "weight": 200,
@@ -5000,7 +5011,7 @@
       ]
     },
     {
-      "vnum": 633,
+      "vnum": 2433,
       "name": "leggings silver",
       "shortDescr": "silver leggings",
       "description": "Some shiny leggings are on the floor.",
@@ -5018,7 +5029,8 @@
         "acPierce": 8,
         "acBash": 8,
         "acSlash": 8,
-        "acExotic": 2
+        "acExotic": 2,
+        "armorType": "light"
       },
       "level": 25,
       "weight": 200,
@@ -5042,7 +5054,7 @@
       ]
     },
     {
-      "vnum": 634,
+      "vnum": 2434,
       "name": "boots silver",
       "shortDescr": "silver boots",
       "description": "Some shiny boots are on the floor.",
@@ -5060,7 +5072,8 @@
         "acPierce": 8,
         "acBash": 8,
         "acSlash": 8,
-        "acExotic": 2
+        "acExotic": 2,
+        "armorType": "light"
       },
       "level": 25,
       "weight": 200,
@@ -5084,7 +5097,7 @@
       ]
     },
     {
-      "vnum": 635,
+      "vnum": 2435,
       "name": "gauntlets silver",
       "shortDescr": "silver gauntlets",
       "description": "Some shiny gauntlets are on the floor.",
@@ -5102,7 +5115,8 @@
         "acPierce": 8,
         "acBash": 8,
         "acSlash": 8,
-        "acExotic": 2
+        "acExotic": 2,
+        "armorType": "light"
       },
       "level": 25,
       "weight": 200,
@@ -5126,7 +5140,7 @@
       ]
     },
     {
-      "vnum": 636,
+      "vnum": 2436,
       "name": "sleeves silver",
       "shortDescr": "silver sleeves",
       "description": "Some shiny sleeves are on the floor.",
@@ -5144,7 +5158,8 @@
         "acPierce": 8,
         "acBash": 8,
         "acSlash": 8,
-        "acExotic": 2
+        "acExotic": 2,
+        "armorType": "light"
       },
       "level": 25,
       "weight": 200,
@@ -5168,7 +5183,7 @@
       ]
     },
     {
-      "vnum": 637,
+      "vnum": 2437,
       "name": "shield silver",
       "shortDescr": "the silver shield",
       "description": "A shiny shield is on the floor.",
@@ -5186,7 +5201,8 @@
         "acPierce": 8,
         "acBash": 8,
         "acSlash": 8,
-        "acExotic": 3
+        "acExotic": 3,
+        "armorType": "medium"
       },
       "level": 25,
       "weight": 200,
@@ -5210,7 +5226,7 @@
       ]
     },
     {
-      "vnum": 638,
+      "vnum": 2438,
       "name": "girth silver",
       "shortDescr": "the silver girth",
       "description": "A shiny girth is on the floor.",
@@ -5228,7 +5244,8 @@
         "acPierce": 8,
         "acBash": 8,
         "acSlash": 8,
-        "acExotic": 2
+        "acExotic": 2,
+        "armorType": "light"
       },
       "level": 25,
       "weight": 200,
@@ -5252,7 +5269,7 @@
       ]
     },
     {
-      "vnum": 639,
+      "vnum": 2439,
       "name": "plate platinum",
       "shortDescr": "platinum plate",
       "description": "A pile of silvery metal is on the floor.",
@@ -5270,7 +5287,8 @@
         "acPierce": 9,
         "acBash": 9,
         "acSlash": 9,
-        "acExotic": 3
+        "acExotic": 3,
+        "armorType": "medium"
       },
       "level": 30,
       "weight": 500,
@@ -5294,7 +5312,7 @@
       ]
     },
     {
-      "vnum": 640,
+      "vnum": 2440,
       "name": "helmet platinum",
       "shortDescr": "the platinum helmet",
       "description": "A silvery helmet is on the floor.",
@@ -5312,7 +5330,8 @@
         "acPierce": 9,
         "acBash": 9,
         "acSlash": 9,
-        "acExotic": 3
+        "acExotic": 3,
+        "armorType": "medium"
       },
       "level": 30,
       "weight": 300,
@@ -5336,7 +5355,7 @@
       ]
     },
     {
-      "vnum": 641,
+      "vnum": 2441,
       "name": "leggings platinum",
       "shortDescr": "platinum leggings",
       "description": "Some silvery leggings are on the floor.",
@@ -5354,7 +5373,8 @@
         "acPierce": 9,
         "acBash": 9,
         "acSlash": 9,
-        "acExotic": 3
+        "acExotic": 3,
+        "armorType": "medium"
       },
       "level": 30,
       "weight": 400,
@@ -5378,7 +5398,7 @@
       ]
     },
     {
-      "vnum": 642,
+      "vnum": 2442,
       "name": "boots platinum",
       "shortDescr": "platinum boots",
       "description": "Some silvery boots are on the floor.",
@@ -5396,7 +5416,8 @@
         "acPierce": 9,
         "acBash": 9,
         "acSlash": 9,
-        "acExotic": 3
+        "acExotic": 3,
+        "armorType": "medium"
       },
       "level": 32,
       "weight": 400,
@@ -5420,7 +5441,7 @@
       ]
     },
     {
-      "vnum": 643,
+      "vnum": 2443,
       "name": "gauntlets platinum",
       "shortDescr": "platinum gauntlets",
       "description": "A pair of silvery gauntlets are on the floor.",
@@ -5438,7 +5459,8 @@
         "acPierce": 9,
         "acBash": 9,
         "acSlash": 9,
-        "acExotic": 3
+        "acExotic": 3,
+        "armorType": "medium"
       },
       "level": 31,
       "weight": 400,
@@ -5462,7 +5484,7 @@
       ]
     },
     {
-      "vnum": 644,
+      "vnum": 2444,
       "name": "sleeves platinum",
       "shortDescr": "platinum sleeves",
       "description": "A pair of silvery sleeves are on the floor.",
@@ -5480,7 +5502,8 @@
         "acPierce": 9,
         "acBash": 9,
         "acSlash": 9,
-        "acExotic": 3
+        "acExotic": 3,
+        "armorType": "medium"
       },
       "level": 30,
       "weight": 400,
@@ -5504,7 +5527,7 @@
       ]
     },
     {
-      "vnum": 645,
+      "vnum": 2445,
       "name": "shield spiked platinum",
       "shortDescr": "the platinum spiked shield",
       "description": "A jagged, silvery shield is on the floor.",
@@ -5546,7 +5569,7 @@
       ]
     },
     {
-      "vnum": 646,
+      "vnum": 2446,
       "name": "girth platinum",
       "shortDescr": "the platinum girth",
       "description": "A silvery girth is on the floor.",
@@ -5564,7 +5587,8 @@
         "acPierce": 9,
         "acBash": 9,
         "acSlash": 9,
-        "acExotic": 3
+        "acExotic": 3,
+        "armorType": "medium"
       },
       "level": 31,
       "weight": 400,
@@ -5588,7 +5612,7 @@
       ]
     },
     {
-      "vnum": 647,
+      "vnum": 2447,
       "name": "avenger holy sword",
       "shortDescr": "holy Avenger",
       "description": "A glowing silvery sword is hovering here, ready to possess an owner.",
@@ -5632,7 +5656,7 @@
       ]
     },
     {
-      "vnum": 648,
+      "vnum": 2448,
       "name": "whiskey shot",
       "shortDescr": "a shot of whiskey",
       "description": "A shot of whiskey is on the table.",
@@ -5651,7 +5675,7 @@
       "condition": 100
     },
     {
-      "vnum": 649,
+      "vnum": 2449,
       "name": "ale quart",
       "shortDescr": "a quart of ale",
       "description": "A quart of ale is on the table.",
@@ -5670,7 +5694,7 @@
       "condition": 100
     },
     {
-      "vnum": 650,
+      "vnum": 2450,
       "name": "port brew quart",
       "shortDescr": "a quart of port brew",
       "description": "A quart of port brew is on the table.",
@@ -5689,7 +5713,7 @@
       "condition": 100
     },
     {
-      "vnum": 651,
+      "vnum": 2451,
       "name": "key citadel",
       "shortDescr": "the citadel key",
       "description": "A key is on the floor.",
@@ -5702,7 +5726,7 @@
       "condition": 100
     },
     {
-      "vnum": 652,
+      "vnum": 2452,
       "name": "symbol holy",
       "shortDescr": "the Holy Symbol of Bahamut",
       "description": "A very shiny symbol is on the floor.",
@@ -5747,7 +5771,7 @@
       ]
     },
     {
-      "vnum": 653,
+      "vnum": 2453,
       "name": "ranseur polearm",
       "shortDescr": "a ranseur",
       "description": "A heavy polearm is against the wall here, ready to inflict damage.",
@@ -5794,7 +5818,7 @@
       ]
     },
     {
-      "vnum": 654,
+      "vnum": 2454,
       "name": "torso dragonscale golden",
       "shortDescr": "a golden dragonscale torso",
       "description": "A golden dragonscale torso is on the floor!",
@@ -5812,7 +5836,8 @@
         "acPierce": 7,
         "acBash": 7,
         "acSlash": 7,
-        "acExotic": 3
+        "acExotic": 3,
+        "armorType": "medium"
       },
       "level": 24,
       "weight": 250,
@@ -5836,7 +5861,7 @@
       ]
     },
     {
-      "vnum": 655,
+      "vnum": 2455,
       "name": "dragonhelm golden",
       "shortDescr": "a golden dragonhelm",
       "description": "A golden dragonhelm is on the floor!",
@@ -5854,7 +5879,8 @@
         "acPierce": 7,
         "acBash": 7,
         "acSlash": 7,
-        "acExotic": 3
+        "acExotic": 3,
+        "armorType": "medium"
       },
       "level": 21,
       "weight": 100,
@@ -5878,7 +5904,7 @@
       ]
     },
     {
-      "vnum": 656,
+      "vnum": 2456,
       "name": "leggings golden",
       "shortDescr": "golden dragonscale leggings",
       "description": "Some golden dragonscale leggings are on the floor!",
@@ -5896,7 +5922,8 @@
         "acPierce": 7,
         "acBash": 7,
         "acSlash": 7,
-        "acExotic": 3
+        "acExotic": 3,
+        "armorType": "medium"
       },
       "level": 21,
       "weight": 100,
@@ -5920,7 +5947,7 @@
       ]
     },
     {
-      "vnum": 657,
+      "vnum": 2457,
       "name": "boots golden",
       "shortDescr": "golden dragonscale boots",
       "description": "Some golden dragonscale boots are on the floor!",
@@ -5938,7 +5965,8 @@
         "acPierce": 7,
         "acBash": 7,
         "acSlash": 7,
-        "acExotic": 3
+        "acExotic": 3,
+        "armorType": "medium"
       },
       "level": 21,
       "weight": 100,
@@ -5962,7 +5990,7 @@
       ]
     },
     {
-      "vnum": 658,
+      "vnum": 2458,
       "name": "gauntlets golden",
       "shortDescr": "golden dragonscale gauntlets",
       "description": "Some golden dragonscale gauntlets are on the floor!",
@@ -5980,7 +6008,8 @@
         "acPierce": 7,
         "acBash": 7,
         "acSlash": 7,
-        "acExotic": 3
+        "acExotic": 3,
+        "armorType": "medium"
       },
       "level": 21,
       "weight": 100,
@@ -6004,7 +6033,7 @@
       ]
     },
     {
-      "vnum": 659,
+      "vnum": 2459,
       "name": "sleeves golden",
       "shortDescr": "golden dragonscale sleeves",
       "description": "Some golden dragonscale sleeves are on the floor!",
@@ -6022,7 +6051,8 @@
         "acPierce": 7,
         "acBash": 7,
         "acSlash": 7,
-        "acExotic": 3
+        "acExotic": 3,
+        "armorType": "medium"
       },
       "level": 21,
       "weight": 100,
@@ -6046,7 +6076,7 @@
       ]
     },
     {
-      "vnum": 660,
+      "vnum": 2460,
       "name": "shield golden",
       "shortDescr": "a golden dragonscale shield",
       "description": "A golden dragonscale shield is on the floor!",
@@ -6064,7 +6094,8 @@
         "acPierce": 7,
         "acBash": 7,
         "acSlash": 7,
-        "acExotic": 4
+        "acExotic": 4,
+        "armorType": "heavy"
       },
       "level": 21,
       "weight": 100,
@@ -6088,7 +6119,7 @@
       ]
     },
     {
-      "vnum": 661,
+      "vnum": 2461,
       "name": "girth golden",
       "shortDescr": "a golden dragonscale girth",
       "description": "A golden dragonscale girth is on the floor!",
@@ -6106,7 +6137,8 @@
         "acPierce": 7,
         "acBash": 7,
         "acSlash": 7,
-        "acExotic": 3
+        "acExotic": 3,
+        "armorType": "medium"
       },
       "level": 21,
       "weight": 100,
@@ -6130,7 +6162,7 @@
       ]
     },
     {
-      "vnum": 662,
+      "vnum": 2462,
       "name": "claw golden",
       "shortDescr": "the golden claw",
       "description": "A small golden claw is on the floor",
@@ -6166,7 +6198,7 @@
       ]
     },
     {
-      "vnum": 663,
+      "vnum": 2463,
       "name": "orb dragonorb",
       "shortDescr": "the Gold Dragon Orb",
       "description": "A very large pearl-like sphere is in the center of this room.",
@@ -6208,7 +6240,7 @@
       ]
     },
     {
-      "vnum": 664,
+      "vnum": 2464,
       "name": "robe golden",
       "shortDescr": "a golden robe",
       "description": "A golden robe is on the floor.",
@@ -6226,7 +6258,8 @@
         "acPierce": 6,
         "acBash": 6,
         "acSlash": 5,
-        "acExotic": 2
+        "acExotic": 2,
+        "armorType": "light"
       },
       "level": 17,
       "weight": 100,
@@ -6243,7 +6276,7 @@
       ]
     },
     {
-      "vnum": 665,
+      "vnum": 2465,
       "name": "house key",
       "shortDescr": "a house key",
       "description": "A house key is on the floor.",
@@ -6256,7 +6289,7 @@
       "condition": 100
     },
     {
-      "vnum": 666,
+      "vnum": 2466,
       "name": "broom",
       "shortDescr": "a broom",
       "description": "A broom is against the wall here.",
@@ -6295,7 +6328,7 @@
       ]
     },
     {
-      "vnum": 667,
+      "vnum": 2467,
       "name": "chest",
       "shortDescr": "a chest",
       "description": "A chest is on the floor here.",
@@ -6314,7 +6347,7 @@
       "condition": 100
     },
     {
-      "vnum": 668,
+      "vnum": 2468,
       "name": "claw golden",
       "shortDescr": "the Golden Claw",
       "description": "A huge golden claw is on the floor",
@@ -6350,7 +6383,7 @@
       ]
     },
     {
-      "vnum": 669,
+      "vnum": 2469,
       "name": "claw golden",
       "shortDescr": "the golden claw",
       "description": "A large golden claw is on the floor",
@@ -6388,7 +6421,7 @@
   ],
   "shops": [
     {
-      "keeper": 604,
+      "keeper": 2404,
       "buyTypes": [
         5,
         9,
@@ -6402,7 +6435,7 @@
       "closeHour": 23
     },
     {
-      "keeper": 605,
+      "keeper": 2405,
       "buyTypes": [
         9,
         0,
@@ -6416,7 +6449,7 @@
       "closeHour": 23
     },
     {
-      "keeper": 606,
+      "keeper": 2406,
       "buyTypes": [
         8,
         12,
@@ -6430,7 +6463,7 @@
       "closeHour": 23
     },
     {
-      "keeper": 607,
+      "keeper": 2407,
       "buyTypes": [
         0,
         19,
@@ -6444,7 +6477,7 @@
       "closeHour": 23
     },
     {
-      "keeper": 608,
+      "keeper": 2408,
       "buyTypes": [
         0,
         17,
@@ -6458,7 +6491,7 @@
       "closeHour": 23
     },
     {
-      "keeper": 622,
+      "keeper": 2422,
       "buyTypes": [
         0,
         17,
@@ -6474,1539 +6507,1541 @@
   ],
   "specials": [
     {
-      "mobVnum": 600,
+      "mobVnum": 2400,
       "spec": "spec_guard"
     },
     {
-      "mobVnum": 601,
+      "mobVnum": 2401,
       "spec": "spec_cast_cleric"
     },
     {
-      "mobVnum": 602,
+      "mobVnum": 2402,
       "spec": "spec_cast_cleric"
     },
     {
-      "mobVnum": 603,
+      "mobVnum": 2403,
       "spec": "spec_cast_mage"
     },
     {
-      "mobVnum": 621,
+      "mobVnum": 2421,
       "spec": "spec_janitor"
     },
     {
-      "mobVnum": 623,
+      "mobVnum": 2423,
       "spec": "spec_guard"
     },
     {
-      "mobVnum": 628,
+      "mobVnum": 2428,
       "spec": "spec_cast_adept"
     },
     {
-      "mobVnum": 629,
+      "mobVnum": 2429,
       "spec": "spec_guard"
     },
     {
-      "mobVnum": 630,
+      "mobVnum": 2430,
       "spec": "spec_breath_any"
     },
     {
-      "mobVnum": 631,
+      "mobVnum": 2431,
       "spec": "spec_breath_any"
     },
     {
-      "mobVnum": 632,
+      "mobVnum": 2432,
       "spec": "spec_cast_mage"
     },
     {
-      "mobVnum": 633,
+      "mobVnum": 2433,
       "spec": "spec_breath_any"
     },
     {
-      "mobVnum": 634,
+      "mobVnum": 2434,
       "spec": "spec_guard"
     }
   ],
   "mobprogs": [],
   "resets": [
     {
-      "mobVnum": 609,
+      "mobVnum": 2409,
       "maxInArea": 1,
-      "roomVnum": 600,
+      "roomVnum": 2400,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 649,
-      "roomVnum": 600,
+      "objVnum": 2449,
+      "roomVnum": 2400,
       "commandName": "placeObj"
     },
     {
-      "mobVnum": 600,
+      "mobVnum": 2400,
       "maxInArea": 8,
-      "roomVnum": 601,
+      "roomVnum": 2401,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 620,
+      "objVnum": 2420,
       "wearLoc": "on the left finger",
-      "roomVnum": 601,
+      "roomVnum": 2401,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 621,
+      "objVnum": 2421,
       "wearLoc": "on the body",
-      "roomVnum": 601,
+      "roomVnum": 2401,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 630,
+      "objVnum": 2430,
       "wearLoc": "wielded",
-      "roomVnum": 601,
+      "roomVnum": 2401,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 624,
+      "objVnum": 2424,
       "wearLoc": "on the feet",
-      "roomVnum": 601,
+      "roomVnum": 2401,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 601,
+      "mobVnum": 2401,
       "maxInArea": 1,
-      "roomVnum": 601,
+      "roomVnum": 2401,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 620,
+      "objVnum": 2420,
       "wearLoc": "on the left finger",
-      "roomVnum": 601,
+      "roomVnum": 2401,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 639,
+      "objVnum": 2439,
       "wearLoc": "on the body",
-      "roomVnum": 601,
+      "roomVnum": 2401,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 640,
+      "objVnum": 2440,
       "wearLoc": "over the head",
-      "roomVnum": 601,
+      "roomVnum": 2401,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 641,
+      "objVnum": 2441,
       "wearLoc": "on the legs",
-      "roomVnum": 601,
+      "roomVnum": 2401,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 642,
+      "objVnum": 2442,
       "wearLoc": "on the feet",
-      "roomVnum": 601,
+      "roomVnum": 2401,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 643,
+      "objVnum": 2443,
       "wearLoc": "on the hands",
-      "roomVnum": 601,
+      "roomVnum": 2401,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 644,
+      "objVnum": 2444,
       "wearLoc": "on the arms",
-      "roomVnum": 601,
+      "roomVnum": 2401,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 645,
+      "objVnum": 2445,
       "wearLoc": "as a shield",
-      "roomVnum": 601,
+      "roomVnum": 2401,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 646,
+      "objVnum": 2446,
       "wearLoc": "around the waist",
-      "roomVnum": 601,
+      "roomVnum": 2401,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 647,
+      "objVnum": 2447,
       "wearLoc": "wielded",
-      "roomVnum": 601,
+      "roomVnum": 2401,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 617,
+      "mobVnum": 2417,
       "maxInArea": 3,
-      "roomVnum": 601,
+      "roomVnum": 2401,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 604,
+      "mobVnum": 2404,
       "maxInArea": 1,
-      "roomVnum": 603,
+      "roomVnum": 2403,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 600,
-      "roomVnum": 603,
+      "objVnum": 2400,
+      "roomVnum": 2403,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 601,
-      "roomVnum": 603,
+      "objVnum": 2401,
+      "roomVnum": 2403,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 615,
-      "roomVnum": 603,
+      "objVnum": 2415,
+      "roomVnum": 2403,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 667,
-      "roomVnum": 603,
+      "objVnum": 2467,
+      "roomVnum": 2403,
       "commandName": "giveObj"
     },
     {
-      "mobVnum": 600,
+      "mobVnum": 2400,
       "maxInArea": 8,
-      "roomVnum": 604,
+      "roomVnum": 2404,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 620,
+      "objVnum": 2420,
       "wearLoc": "on the left finger",
-      "roomVnum": 604,
+      "roomVnum": 2404,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 621,
+      "objVnum": 2421,
       "wearLoc": "on the body",
-      "roomVnum": 604,
+      "roomVnum": 2404,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 630,
+      "objVnum": 2430,
       "wearLoc": "wielded",
-      "roomVnum": 604,
+      "roomVnum": 2404,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 623,
+      "objVnum": 2423,
       "wearLoc": "on the legs",
-      "roomVnum": 604,
+      "roomVnum": 2404,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 605,
+      "mobVnum": 2405,
       "maxInArea": 1,
-      "roomVnum": 604,
+      "roomVnum": 2404,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 616,
-      "roomVnum": 604,
+      "objVnum": 2416,
+      "roomVnum": 2404,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 617,
-      "roomVnum": 604,
+      "objVnum": 2417,
+      "roomVnum": 2404,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 618,
-      "roomVnum": 604,
+      "objVnum": 2418,
+      "roomVnum": 2404,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 619,
-      "roomVnum": 604,
+      "objVnum": 2419,
+      "roomVnum": 2404,
       "commandName": "giveObj"
     },
     {
-      "mobVnum": 606,
+      "mobVnum": 2406,
       "maxInArea": 1,
-      "roomVnum": 606,
+      "roomVnum": 2406,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 606,
-      "roomVnum": 606,
+      "objVnum": 2406,
+      "roomVnum": 2406,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 607,
-      "roomVnum": 606,
+      "objVnum": 2407,
+      "roomVnum": 2406,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 608,
-      "roomVnum": 606,
+      "objVnum": 2408,
+      "roomVnum": 2406,
       "commandName": "giveObj"
     },
     {
-      "mobVnum": 607,
+      "mobVnum": 2407,
       "maxInArea": 1,
-      "roomVnum": 607,
+      "roomVnum": 2407,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 602,
-      "roomVnum": 607,
+      "objVnum": 2402,
+      "roomVnum": 2407,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 603,
-      "roomVnum": 607,
+      "objVnum": 2403,
+      "roomVnum": 2407,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 604,
-      "roomVnum": 607,
+      "objVnum": 2404,
+      "roomVnum": 2407,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 605,
-      "roomVnum": 607,
+      "objVnum": 2405,
+      "roomVnum": 2407,
       "commandName": "giveObj"
     },
     {
-      "mobVnum": 600,
+      "mobVnum": 2400,
       "maxInArea": 8,
-      "roomVnum": 608,
+      "roomVnum": 2408,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 620,
+      "objVnum": 2420,
       "wearLoc": "on the left finger",
-      "roomVnum": 608,
+      "roomVnum": 2408,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 621,
+      "objVnum": 2421,
       "wearLoc": "on the body",
-      "roomVnum": 608,
+      "roomVnum": 2408,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 630,
+      "objVnum": 2430,
       "wearLoc": "wielded",
-      "roomVnum": 608,
+      "roomVnum": 2408,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 622,
+      "objVnum": 2422,
       "wearLoc": "over the head",
-      "roomVnum": 608,
+      "roomVnum": 2408,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 622,
+      "mobVnum": 2422,
       "maxInArea": 1,
-      "roomVnum": 609,
+      "roomVnum": 2409,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 648,
-      "roomVnum": 609,
+      "objVnum": 2448,
+      "roomVnum": 2409,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 649,
-      "roomVnum": 609,
+      "objVnum": 2449,
+      "roomVnum": 2409,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 650,
-      "roomVnum": 609,
+      "objVnum": 2450,
+      "roomVnum": 2409,
       "commandName": "giveObj"
     },
     {
-      "mobVnum": 624,
+      "mobVnum": 2424,
       "maxInArea": 1,
-      "roomVnum": 609,
+      "roomVnum": 2409,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 608,
+      "mobVnum": 2408,
       "maxInArea": 1,
-      "roomVnum": 610,
+      "roomVnum": 2410,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 609,
-      "roomVnum": 610,
+      "objVnum": 2409,
+      "roomVnum": 2410,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 610,
-      "roomVnum": 610,
+      "objVnum": 2410,
+      "roomVnum": 2410,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 611,
-      "roomVnum": 610,
+      "objVnum": 2411,
+      "roomVnum": 2410,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 612,
-      "roomVnum": 610,
+      "objVnum": 2412,
+      "roomVnum": 2410,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 613,
-      "roomVnum": 610,
+      "objVnum": 2413,
+      "roomVnum": 2410,
       "commandName": "giveObj"
     },
     {
-      "mobVnum": 618,
+      "mobVnum": 2418,
       "maxInArea": 3,
-      "roomVnum": 611,
+      "roomVnum": 2411,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 610,
+      "mobVnum": 2410,
       "maxInArea": 1,
-      "roomVnum": 617,
+      "roomVnum": 2417,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 601,
+      "objVnum": 2401,
       "wearLoc": "wielded",
-      "roomVnum": 617,
+      "roomVnum": 2417,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 612,
+      "mobVnum": 2412,
       "maxInArea": 4,
-      "roomVnum": 619,
+      "roomVnum": 2419,
       "maxInRoom": 4,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 612,
+      "mobVnum": 2412,
       "maxInArea": 4,
-      "roomVnum": 619,
+      "roomVnum": 2419,
       "maxInRoom": 4,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 612,
+      "mobVnum": 2412,
       "maxInArea": 4,
-      "roomVnum": 619,
+      "roomVnum": 2419,
       "maxInRoom": 4,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 612,
+      "mobVnum": 2412,
       "maxInArea": 4,
-      "roomVnum": 619,
+      "roomVnum": 2419,
       "maxInRoom": 4,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 611,
+      "mobVnum": 2411,
       "maxInArea": 1,
-      "roomVnum": 620,
+      "roomVnum": 2420,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 615,
+      "objVnum": 2415,
       "wearLoc": "wielded",
-      "roomVnum": 620,
+      "roomVnum": 2420,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 614,
-      "roomVnum": 620,
+      "objVnum": 2414,
+      "roomVnum": 2420,
       "commandName": "placeObj"
     },
     {
-      "objVnum": 611,
-      "roomVnum": 620,
+      "objVnum": 2411,
+      "roomVnum": 2420,
       "commandName": "placeObj"
     },
     {
-      "mobVnum": 614,
+      "mobVnum": 2414,
       "maxInArea": 2,
-      "roomVnum": 620,
+      "roomVnum": 2420,
       "maxInRoom": 2,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 614,
+      "mobVnum": 2414,
       "maxInArea": 2,
-      "roomVnum": 620,
+      "roomVnum": 2420,
       "maxInRoom": 2,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 615,
+      "mobVnum": 2415,
       "maxInArea": 4,
-      "roomVnum": 622,
+      "roomVnum": 2422,
       "maxInRoom": 4,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 615,
+      "mobVnum": 2415,
       "maxInArea": 4,
-      "roomVnum": 622,
+      "roomVnum": 2422,
       "maxInRoom": 4,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 615,
+      "mobVnum": 2415,
       "maxInArea": 4,
-      "roomVnum": 622,
+      "roomVnum": 2422,
       "maxInRoom": 4,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 615,
+      "mobVnum": 2415,
       "maxInArea": 4,
-      "roomVnum": 622,
+      "roomVnum": 2422,
       "maxInRoom": 4,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 613,
+      "mobVnum": 2413,
       "maxInArea": 3,
-      "roomVnum": 623,
+      "roomVnum": 2423,
       "maxInRoom": 3,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 613,
+      "mobVnum": 2413,
       "maxInArea": 3,
-      "roomVnum": 623,
+      "roomVnum": 2423,
       "maxInRoom": 3,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 613,
+      "mobVnum": 2413,
       "maxInArea": 3,
-      "roomVnum": 623,
+      "roomVnum": 2423,
       "maxInRoom": 3,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 616,
+      "mobVnum": 2416,
       "maxInArea": 4,
-      "roomVnum": 624,
+      "roomVnum": 2424,
       "maxInRoom": 4,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 616,
+      "mobVnum": 2416,
       "maxInArea": 4,
-      "roomVnum": 624,
+      "roomVnum": 2424,
       "maxInRoom": 4,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 616,
+      "mobVnum": 2416,
       "maxInArea": 4,
-      "roomVnum": 624,
+      "roomVnum": 2424,
       "maxInRoom": 4,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 616,
+      "mobVnum": 2416,
       "maxInArea": 4,
-      "roomVnum": 624,
+      "roomVnum": 2424,
       "maxInRoom": 4,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 621,
+      "mobVnum": 2421,
       "maxInArea": 3,
-      "roomVnum": 627,
+      "roomVnum": 2427,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 665,
-      "roomVnum": 627,
+      "objVnum": 2465,
+      "roomVnum": 2427,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 666,
+      "objVnum": 2466,
       "wearLoc": "wielded",
-      "roomVnum": 627,
+      "roomVnum": 2427,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 621,
+      "mobVnum": 2421,
       "maxInArea": 3,
-      "roomVnum": 629,
+      "roomVnum": 2429,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 665,
-      "roomVnum": 629,
+      "objVnum": 2465,
+      "roomVnum": 2429,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 666,
+      "objVnum": 2466,
       "wearLoc": "wielded",
-      "roomVnum": 629,
+      "roomVnum": 2429,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 620,
+      "mobVnum": 2420,
       "maxInArea": 2,
-      "roomVnum": 635,
+      "roomVnum": 2435,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 600,
+      "mobVnum": 2400,
       "maxInArea": 8,
-      "roomVnum": 637,
+      "roomVnum": 2437,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 620,
+      "objVnum": 2420,
       "wearLoc": "on the left finger",
-      "roomVnum": 637,
+      "roomVnum": 2437,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 621,
+      "objVnum": 2421,
       "wearLoc": "on the body",
-      "roomVnum": 637,
+      "roomVnum": 2437,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 630,
+      "objVnum": 2430,
       "wearLoc": "wielded",
-      "roomVnum": 637,
+      "roomVnum": 2437,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 629,
+      "objVnum": 2429,
       "wearLoc": "on the left wrist",
-      "roomVnum": 637,
+      "roomVnum": 2437,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 618,
+      "mobVnum": 2418,
       "maxInArea": 3,
-      "roomVnum": 637,
+      "roomVnum": 2437,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 600,
+      "mobVnum": 2400,
       "maxInArea": 8,
-      "roomVnum": 642,
+      "roomVnum": 2442,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 620,
+      "objVnum": 2420,
       "wearLoc": "on the left finger",
-      "roomVnum": 642,
+      "roomVnum": 2442,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 621,
+      "objVnum": 2421,
       "wearLoc": "on the body",
-      "roomVnum": 642,
+      "roomVnum": 2442,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 630,
+      "objVnum": 2430,
       "wearLoc": "wielded",
-      "roomVnum": 642,
+      "roomVnum": 2442,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 626,
+      "objVnum": 2426,
       "wearLoc": "on the arms",
-      "roomVnum": 642,
+      "roomVnum": 2442,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 621,
+      "mobVnum": 2421,
       "maxInArea": 3,
-      "roomVnum": 643,
+      "roomVnum": 2443,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 665,
-      "roomVnum": 643,
+      "objVnum": 2465,
+      "roomVnum": 2443,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 666,
+      "objVnum": 2466,
       "wearLoc": "wielded",
-      "roomVnum": 643,
+      "roomVnum": 2443,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 600,
+      "mobVnum": 2400,
       "maxInArea": 8,
-      "roomVnum": 647,
+      "roomVnum": 2447,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 620,
+      "objVnum": 2420,
       "wearLoc": "on the left finger",
-      "roomVnum": 647,
+      "roomVnum": 2447,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 621,
+      "objVnum": 2421,
       "wearLoc": "on the body",
-      "roomVnum": 647,
+      "roomVnum": 2447,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 630,
+      "objVnum": 2430,
       "wearLoc": "wielded",
-      "roomVnum": 647,
+      "roomVnum": 2447,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 627,
+      "objVnum": 2427,
       "wearLoc": "as a shield",
-      "roomVnum": 647,
+      "roomVnum": 2447,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 617,
+      "mobVnum": 2417,
       "maxInArea": 3,
-      "roomVnum": 648,
+      "roomVnum": 2448,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 600,
+      "mobVnum": 2400,
       "maxInArea": 8,
-      "roomVnum": 650,
+      "roomVnum": 2450,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 620,
+      "objVnum": 2420,
       "wearLoc": "on the left finger",
-      "roomVnum": 650,
+      "roomVnum": 2450,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 621,
+      "objVnum": 2421,
       "wearLoc": "on the body",
-      "roomVnum": 650,
+      "roomVnum": 2450,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 630,
+      "objVnum": 2430,
       "wearLoc": "wielded",
-      "roomVnum": 650,
+      "roomVnum": 2450,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 625,
+      "objVnum": 2425,
       "wearLoc": "on the hands",
-      "roomVnum": 650,
+      "roomVnum": 2450,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 617,
+      "mobVnum": 2417,
       "maxInArea": 3,
-      "roomVnum": 650,
+      "roomVnum": 2450,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 620,
+      "mobVnum": 2420,
       "maxInArea": 2,
-      "roomVnum": 652,
+      "roomVnum": 2452,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 619,
+      "mobVnum": 2419,
       "maxInArea": 2,
-      "roomVnum": 655,
+      "roomVnum": 2455,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 619,
+      "mobVnum": 2419,
       "maxInArea": 2,
-      "roomVnum": 661,
+      "roomVnum": 2461,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 618,
+      "mobVnum": 2418,
       "maxInArea": 3,
-      "roomVnum": 666,
+      "roomVnum": 2466,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 600,
+      "mobVnum": 2400,
       "maxInArea": 8,
-      "roomVnum": 667,
+      "roomVnum": 2467,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 620,
+      "objVnum": 2420,
       "wearLoc": "on the left finger",
-      "roomVnum": 667,
+      "roomVnum": 2467,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 621,
+      "objVnum": 2421,
       "wearLoc": "on the body",
-      "roomVnum": 667,
+      "roomVnum": 2467,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 630,
+      "objVnum": 2430,
       "wearLoc": "wielded",
-      "roomVnum": 667,
+      "roomVnum": 2467,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 628,
+      "objVnum": 2428,
       "wearLoc": "around the waist",
-      "roomVnum": 667,
+      "roomVnum": 2467,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 602,
+      "mobVnum": 2402,
       "maxInArea": 1,
-      "roomVnum": 669,
+      "roomVnum": 2469,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 620,
+      "objVnum": 2420,
       "wearLoc": "on the left finger",
-      "roomVnum": 669,
+      "roomVnum": 2469,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 631,
+      "objVnum": 2431,
       "wearLoc": "on the body",
-      "roomVnum": 669,
+      "roomVnum": 2469,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 653,
+      "objVnum": 2453,
       "wearLoc": "wielded",
-      "roomVnum": 669,
+      "roomVnum": 2469,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 632,
+      "objVnum": 2432,
       "wearLoc": "over the head",
-      "roomVnum": 669,
+      "roomVnum": 2469,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 633,
+      "objVnum": 2433,
       "wearLoc": "on the legs",
-      "roomVnum": 669,
+      "roomVnum": 2469,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 634,
+      "objVnum": 2434,
       "wearLoc": "on the feet",
-      "roomVnum": 669,
+      "roomVnum": 2469,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 635,
+      "objVnum": 2435,
       "wearLoc": "on the hands",
-      "roomVnum": 669,
+      "roomVnum": 2469,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 626,
+      "objVnum": 2426,
       "wearLoc": "on the arms",
-      "roomVnum": 669,
+      "roomVnum": 2469,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 627,
+      "objVnum": 2427,
       "wearLoc": "as a shield",
-      "roomVnum": 669,
+      "roomVnum": 2469,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 628,
+      "objVnum": 2428,
       "wearLoc": "around the waist",
-      "roomVnum": 669,
+      "roomVnum": 2469,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 628,
+      "mobVnum": 2428,
       "maxInArea": 1,
-      "roomVnum": 669,
+      "roomVnum": 2469,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 620,
+      "objVnum": 2420,
       "wearLoc": "on the left finger",
-      "roomVnum": 669,
+      "roomVnum": 2469,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 664,
+      "objVnum": 2464,
       "wearLoc": "about the shoulders",
-      "roomVnum": 669,
+      "roomVnum": 2469,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 652,
+      "objVnum": 2452,
       "wearLoc": "around the neck (1)",
-      "roomVnum": 669,
+      "roomVnum": 2469,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 625,
+      "mobVnum": 2425,
       "maxInArea": 2,
-      "roomVnum": 673,
+      "roomVnum": 2473,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 625,
+      "mobVnum": 2425,
       "maxInArea": 2,
-      "roomVnum": 674,
+      "roomVnum": 2474,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 633,
+      "mobVnum": 2433,
       "maxInArea": 3,
-      "roomVnum": 676,
+      "roomVnum": 2476,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 620,
+      "objVnum": 2420,
       "wearLoc": "on the left finger",
-      "roomVnum": 676,
+      "roomVnum": 2476,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 654,
+      "objVnum": 2454,
       "wearLoc": "on the body",
-      "roomVnum": 676,
+      "roomVnum": 2476,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 660,
+      "objVnum": 2460,
       "wearLoc": "as a shield",
-      "roomVnum": 676,
+      "roomVnum": 2476,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 662,
+      "objVnum": 2462,
       "wearLoc": "wielded",
-      "roomVnum": 676,
+      "roomVnum": 2476,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 627,
+      "mobVnum": 2427,
       "maxInArea": 1,
-      "roomVnum": 678,
+      "roomVnum": 2478,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 633,
+      "mobVnum": 2433,
       "maxInArea": 3,
-      "roomVnum": 681,
+      "roomVnum": 2481,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 620,
+      "objVnum": 2420,
       "wearLoc": "on the left finger",
-      "roomVnum": 681,
+      "roomVnum": 2481,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 654,
+      "objVnum": 2454,
       "wearLoc": "on the body",
-      "roomVnum": 681,
+      "roomVnum": 2481,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 660,
+      "objVnum": 2460,
       "wearLoc": "as a shield",
-      "roomVnum": 681,
+      "roomVnum": 2481,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 662,
+      "objVnum": 2462,
       "wearLoc": "wielded",
-      "roomVnum": 681,
+      "roomVnum": 2481,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 626,
+      "mobVnum": 2426,
       "maxInArea": 2,
-      "roomVnum": 682,
+      "roomVnum": 2482,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 626,
+      "mobVnum": 2426,
       "maxInArea": 2,
-      "roomVnum": 683,
+      "roomVnum": 2483,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 629,
+      "mobVnum": 2429,
       "maxInArea": 1,
-      "roomVnum": 688,
+      "roomVnum": 2488,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 664,
+      "objVnum": 2464,
       "wearLoc": "about the shoulders",
-      "roomVnum": 688,
+      "roomVnum": 2488,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 630,
+      "mobVnum": 2430,
       "maxInArea": 3,
-      "roomVnum": 688,
+      "roomVnum": 2488,
       "maxInRoom": 3,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 620,
+      "objVnum": 2420,
       "wearLoc": "on the left finger",
-      "roomVnum": 688,
+      "roomVnum": 2488,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 654,
+      "objVnum": 2454,
       "wearLoc": "on the body",
-      "roomVnum": 688,
+      "roomVnum": 2488,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 660,
+      "objVnum": 2460,
       "wearLoc": "as a shield",
-      "roomVnum": 688,
+      "roomVnum": 2488,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 669,
+      "objVnum": 2469,
       "wearLoc": "wielded",
-      "roomVnum": 688,
+      "roomVnum": 2488,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 656,
+      "objVnum": 2456,
       "wearLoc": "over the head",
-      "roomVnum": 688,
+      "roomVnum": 2488,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 657,
+      "objVnum": 2457,
       "wearLoc": "on the legs",
-      "roomVnum": 688,
+      "roomVnum": 2488,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 630,
+      "mobVnum": 2430,
       "maxInArea": 3,
-      "roomVnum": 688,
+      "roomVnum": 2488,
       "maxInRoom": 3,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 620,
+      "objVnum": 2420,
       "wearLoc": "on the left finger",
-      "roomVnum": 688,
+      "roomVnum": 2488,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 654,
+      "objVnum": 2454,
       "wearLoc": "on the body",
-      "roomVnum": 688,
+      "roomVnum": 2488,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 660,
+      "objVnum": 2460,
       "wearLoc": "as a shield",
-      "roomVnum": 688,
+      "roomVnum": 2488,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 669,
+      "objVnum": 2469,
       "wearLoc": "wielded",
-      "roomVnum": 688,
+      "roomVnum": 2488,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 657,
+      "objVnum": 2457,
       "wearLoc": "on the feet",
-      "roomVnum": 688,
+      "roomVnum": 2488,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 658,
+      "objVnum": 2458,
       "wearLoc": "on the hands",
-      "roomVnum": 688,
+      "roomVnum": 2488,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 630,
+      "mobVnum": 2430,
       "maxInArea": 3,
-      "roomVnum": 688,
+      "roomVnum": 2488,
       "maxInRoom": 3,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 620,
+      "objVnum": 2420,
       "wearLoc": "on the left finger",
-      "roomVnum": 688,
+      "roomVnum": 2488,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 654,
+      "objVnum": 2454,
       "wearLoc": "on the body",
-      "roomVnum": 688,
+      "roomVnum": 2488,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 660,
+      "objVnum": 2460,
       "wearLoc": "as a shield",
-      "roomVnum": 688,
+      "roomVnum": 2488,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 669,
+      "objVnum": 2469,
       "wearLoc": "wielded",
-      "roomVnum": 688,
+      "roomVnum": 2488,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 659,
+      "objVnum": 2459,
       "wearLoc": "on the arms",
-      "roomVnum": 688,
+      "roomVnum": 2488,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 661,
+      "objVnum": 2461,
       "wearLoc": "around the waist",
-      "roomVnum": 688,
+      "roomVnum": 2488,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 633,
+      "mobVnum": 2433,
       "maxInArea": 3,
-      "roomVnum": 690,
+      "roomVnum": 2490,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 620,
+      "objVnum": 2420,
       "wearLoc": "on the left finger",
-      "roomVnum": 690,
+      "roomVnum": 2490,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 654,
+      "objVnum": 2454,
       "wearLoc": "on the body",
-      "roomVnum": 690,
+      "roomVnum": 2490,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 660,
+      "objVnum": 2460,
       "wearLoc": "as a shield",
-      "roomVnum": 690,
+      "roomVnum": 2490,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 662,
+      "objVnum": 2462,
       "wearLoc": "wielded",
-      "roomVnum": 690,
+      "roomVnum": 2490,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 631,
+      "mobVnum": 2431,
       "maxInArea": 1,
-      "roomVnum": 693,
+      "roomVnum": 2493,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 620,
+      "objVnum": 2420,
       "wearLoc": "on the left finger",
-      "roomVnum": 693,
+      "roomVnum": 2493,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 668,
+      "objVnum": 2468,
       "wearLoc": "wielded",
-      "roomVnum": 693,
+      "roomVnum": 2493,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 663,
+      "objVnum": 2463,
       "wearLoc": "held in the hands",
-      "roomVnum": 693,
+      "roomVnum": 2493,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 632,
+      "mobVnum": 2432,
       "maxInArea": 2,
-      "roomVnum": 693,
+      "roomVnum": 2493,
       "maxInRoom": 2,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 620,
+      "objVnum": 2420,
       "wearLoc": "on the left finger",
-      "roomVnum": 693,
+      "roomVnum": 2493,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 664,
+      "objVnum": 2464,
       "wearLoc": "about the shoulders",
-      "roomVnum": 693,
+      "roomVnum": 2493,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 632,
+      "mobVnum": 2432,
       "maxInArea": 2,
-      "roomVnum": 693,
+      "roomVnum": 2493,
       "maxInRoom": 2,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 620,
+      "objVnum": 2420,
       "wearLoc": "on the left finger",
-      "roomVnum": 693,
+      "roomVnum": 2493,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 664,
+      "objVnum": 2464,
       "wearLoc": "about the shoulders",
-      "roomVnum": 693,
+      "roomVnum": 2493,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 634,
+      "mobVnum": 2434,
       "maxInArea": 3,
-      "roomVnum": 698,
+      "roomVnum": 2498,
       "maxInRoom": 3,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 620,
+      "objVnum": 2420,
       "wearLoc": "on the left finger",
-      "roomVnum": 698,
+      "roomVnum": 2498,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 621,
+      "objVnum": 2421,
       "wearLoc": "on the body",
-      "roomVnum": 698,
+      "roomVnum": 2498,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 630,
+      "objVnum": 2430,
       "wearLoc": "wielded",
-      "roomVnum": 698,
+      "roomVnum": 2498,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 627,
+      "objVnum": 2427,
       "wearLoc": "as a shield",
-      "roomVnum": 698,
+      "roomVnum": 2498,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 651,
-      "roomVnum": 698,
+      "objVnum": 2451,
+      "roomVnum": 2498,
       "commandName": "giveObj"
     },
     {
-      "mobVnum": 634,
+      "mobVnum": 2434,
       "maxInArea": 3,
-      "roomVnum": 698,
+      "roomVnum": 2498,
       "maxInRoom": 3,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 620,
+      "objVnum": 2420,
       "wearLoc": "on the left finger",
-      "roomVnum": 698,
+      "roomVnum": 2498,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 621,
+      "objVnum": 2421,
       "wearLoc": "on the body",
-      "roomVnum": 698,
+      "roomVnum": 2498,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 630,
+      "objVnum": 2430,
       "wearLoc": "wielded",
-      "roomVnum": 698,
+      "roomVnum": 2498,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 627,
+      "objVnum": 2427,
       "wearLoc": "as a shield",
-      "roomVnum": 698,
+      "roomVnum": 2498,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 651,
-      "roomVnum": 698,
+      "objVnum": 2451,
+      "roomVnum": 2498,
       "commandName": "giveObj"
     },
     {
-      "mobVnum": 634,
+      "mobVnum": 2434,
       "maxInArea": 3,
-      "roomVnum": 698,
+      "roomVnum": 2498,
       "maxInRoom": 3,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 620,
+      "objVnum": 2420,
       "wearLoc": "on the left finger",
-      "roomVnum": 698,
+      "roomVnum": 2498,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 621,
+      "objVnum": 2421,
       "wearLoc": "on the body",
-      "roomVnum": 698,
+      "roomVnum": 2498,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 630,
+      "objVnum": 2430,
       "wearLoc": "wielded",
-      "roomVnum": 698,
+      "roomVnum": 2498,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 627,
+      "objVnum": 2427,
       "wearLoc": "as a shield",
-      "roomVnum": 698,
+      "roomVnum": 2498,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 651,
-      "roomVnum": 698,
+      "objVnum": 2451,
+      "roomVnum": 2498,
       "commandName": "giveObj"
     },
     {
-      "mobVnum": 603,
+      "mobVnum": 2403,
       "maxInArea": 1,
-      "roomVnum": 699,
+      "roomVnum": 2499,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 620,
+      "objVnum": 2420,
       "wearLoc": "on the left finger",
-      "roomVnum": 699,
+      "roomVnum": 2499,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 631,
+      "objVnum": 2431,
       "wearLoc": "on the body",
-      "roomVnum": 699,
+      "roomVnum": 2499,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 653,
+      "objVnum": 2453,
       "wearLoc": "wielded",
-      "roomVnum": 699,
+      "roomVnum": 2499,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 632,
+      "objVnum": 2432,
       "wearLoc": "over the head",
-      "roomVnum": 699,
+      "roomVnum": 2499,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 623,
+      "objVnum": 2423,
       "wearLoc": "on the legs",
-      "roomVnum": 699,
+      "roomVnum": 2499,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 624,
+      "objVnum": 2424,
       "wearLoc": "on the feet",
-      "roomVnum": 699,
+      "roomVnum": 2499,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 625,
+      "objVnum": 2425,
       "wearLoc": "on the hands",
-      "roomVnum": 699,
+      "roomVnum": 2499,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 636,
+      "objVnum": 2436,
       "wearLoc": "on the arms",
-      "roomVnum": 699,
+      "roomVnum": 2499,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 637,
+      "objVnum": 2437,
       "wearLoc": "as a shield",
-      "roomVnum": 699,
+      "roomVnum": 2499,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 638,
+      "objVnum": 2438,
       "wearLoc": "around the waist",
-      "roomVnum": 699,
+      "roomVnum": 2499,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 623,
+      "mobVnum": 2423,
       "maxInArea": 3,
-      "roomVnum": 699,
+      "roomVnum": 2499,
       "maxInRoom": 3,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 620,
+      "objVnum": 2420,
       "wearLoc": "on the left finger",
-      "roomVnum": 699,
+      "roomVnum": 2499,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 621,
+      "objVnum": 2421,
       "wearLoc": "on the body",
-      "roomVnum": 699,
+      "roomVnum": 2499,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 630,
+      "objVnum": 2430,
       "wearLoc": "wielded",
-      "roomVnum": 699,
+      "roomVnum": 2499,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 627,
+      "objVnum": 2427,
       "wearLoc": "as a shield",
-      "roomVnum": 699,
+      "roomVnum": 2499,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 651,
-      "roomVnum": 699,
+      "objVnum": 2451,
+      "roomVnum": 2499,
       "commandName": "giveObj"
     },
     {
-      "mobVnum": 623,
+      "mobVnum": 2423,
       "maxInArea": 3,
-      "roomVnum": 699,
+      "roomVnum": 2499,
       "maxInRoom": 3,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 620,
+      "objVnum": 2420,
       "wearLoc": "on the left finger",
-      "roomVnum": 699,
+      "roomVnum": 2499,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 621,
+      "objVnum": 2421,
       "wearLoc": "on the body",
-      "roomVnum": 699,
+      "roomVnum": 2499,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 630,
+      "objVnum": 2430,
       "wearLoc": "wielded",
-      "roomVnum": 699,
+      "roomVnum": 2499,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 627,
+      "objVnum": 2427,
       "wearLoc": "as a shield",
-      "roomVnum": 699,
+      "roomVnum": 2499,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 651,
-      "roomVnum": 699,
+      "objVnum": 2451,
+      "roomVnum": 2499,
       "commandName": "giveObj"
     },
     {
-      "mobVnum": 623,
+      "mobVnum": 2423,
       "maxInArea": 3,
-      "roomVnum": 699,
+      "roomVnum": 2499,
       "maxInRoom": 3,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 620,
+      "objVnum": 2420,
       "wearLoc": "on the left finger",
-      "roomVnum": 699,
+      "roomVnum": 2499,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 621,
+      "objVnum": 2421,
       "wearLoc": "on the body",
-      "roomVnum": 699,
+      "roomVnum": 2499,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 630,
+      "objVnum": 2430,
       "wearLoc": "wielded",
-      "roomVnum": 699,
+      "roomVnum": 2499,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 627,
+      "objVnum": 2427,
       "wearLoc": "as a shield",
-      "roomVnum": 699,
+      "roomVnum": 2499,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 651,
-      "roomVnum": 699,
+      "objVnum": 2451,
+      "roomVnum": 2499,
       "commandName": "giveObj"
     }
   ],
   "factions": [],
-  "quests": []
+  "quests": [],
+  "recipes": [],
+  "gatherSpawns": []
 }

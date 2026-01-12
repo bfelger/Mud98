@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "In the Air",
     "builders": "",
     "vnumRange": [
@@ -1174,7 +1174,7 @@
     {
       "vnum": 1000,
       "name": "oldstyle fairy dragon",
-      "shortDescr": "a fairy dragon",
+      "shortDescr": "A fairy dragon",
       "longDescr": "A fairy dragon is fluttering around here looking for something to do...\n\r",
       "description": "It's a cute little multi-colored dragon...about 2 foot long.\n\rIt gracefully dances around your head.\n\r",
       "race": "human",
@@ -1226,7 +1226,7 @@
     {
       "vnum": 1001,
       "name": "oldstyle griffin",
-      "shortDescr": "a griffin",
+      "shortDescr": "A griffin",
       "longDescr": "A large black winged griffin swoops into an attack.\n\r",
       "description": "Golden maned and black all over.  It's quite a beautiful creature if not\n\rfor the fact it is hungry and is attacking you!\n\r",
       "race": "human",
@@ -1343,5 +1343,7 @@
     }
   ],
   "factions": [],
-  "quests": []
+  "quests": [],
+  "recipes": [],
+  "gatherSpawns": []
 }

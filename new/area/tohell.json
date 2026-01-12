@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "Hell",
     "builders": "",
     "vnumRange": [
@@ -8612,7 +8612,7 @@
       "name": "black jumpsuit",
       "shortDescr": "a black jumpsuit",
       "description": "You see a black jumpsuit on the ground.",
-      "material": "A\n\roldstyle",
+      "material": "A\n\r\n\roldstyle",
       "itemType": "armor",
       "extraFlags": [
         "glow"
@@ -10157,5 +10157,7 @@
     }
   ],
   "factions": [],
-  "quests": []
+  "quests": [],
+  "recipes": [],
+  "gatherSpawns": []
 }

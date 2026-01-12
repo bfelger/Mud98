@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "High Tower",
     "builders": "",
     "vnumRange": [
@@ -2279,7 +2279,7 @@
         },
         {
           "dir": "up",
-          "toVnum": 938
+          "toVnum": 2538
         },
         {
           "dir": "down",
@@ -4728,7 +4728,7 @@
     {
       "vnum": 1308,
       "name": "oldstyle assistant mage",
-      "shortDescr": "the cook's assistant",
+      "shortDescr": "The cook's assistant",
       "longDescr": "The cook's assistant is here assisting the cook.\n\r",
       "description": "",
       "race": "human",
@@ -4782,7 +4782,7 @@
     {
       "vnum": 1309,
       "name": "oldstyle prisoner",
-      "shortDescr": "the prisoner",
+      "shortDescr": "The prisoner",
       "longDescr": "A prisoner is chained to the wall here.\n\r",
       "description": "Though his clothes are all in rags, you can see that at one time they must\n\rhave been fine garments. A metal muzzle has been fitted over the poor\n\rwretch's mouth, whether to keep him from screaming, or to silence his spell\n\rcasting you cannot tell.\n\r\n\rHe looks quite mad, no doubt he's been mistreated horribly.\n\r",
       "race": "human",
@@ -5261,7 +5261,7 @@
     {
       "vnum": 1318,
       "name": "oldstyle apprentice young",
-      "shortDescr": "a young apprentice",
+      "shortDescr": "A young apprentice",
       "longDescr": "A young apprentice is here teasing a cornered kitten.\n\r",
       "description": "He looks like a mischievous youth.\n\r",
       "race": "human",
@@ -7645,7 +7645,7 @@
     {
       "vnum": 1362,
       "name": "oldstyle master guildmaster white",
-      "shortDescr": "the master of goodness",
+      "shortDescr": "The master of goodness",
       "longDescr": "The master of goodness is here frowning at your intrusion.\n\r",
       "description": "He looks like a self-righteous bastard.\n\r",
       "race": "human",
@@ -7699,7 +7699,7 @@
     {
       "vnum": 1363,
       "name": "oldstyle cat calico familiar",
-      "shortDescr": "a calico cat",
+      "shortDescr": "A calico cat",
       "longDescr": "A large calico cat is here\n\r",
       "description": "It looks incredibly large for a cat, no doubt a giant of its species.\n\rA beautiful jewel encrusted collar about its neck is its only adornment.\n\r",
       "race": "cat",
@@ -7755,7 +7755,7 @@
     {
       "vnum": 1364,
       "name": "oldstyle guildmaster grand mistress",
-      "shortDescr": "the Grand Mistress",
+      "shortDescr": "The Grand Mistress",
       "longDescr": "The Grand Mistress of Magic is sitting here.\n\r",
       "description": "She looks quite comfortable on her emerald throne. Amazingly young and\n\rpretty for one of such stature in the guild, no doubt she has kept her\n\ryouthful appearance through the use of strong magics.\n\rThe Grand Master pets her familiar and smiles at you in confidence.\n\r",
       "race": "human",
@@ -12088,5 +12088,7 @@
     }
   ],
   "factions": [],
-  "quests": []
+  "quests": [],
+  "recipes": [],
+  "gatherSpawns": []
 }

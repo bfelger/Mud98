@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "mud school",
     "builders": "",
     "vnumRange": [
@@ -14,7 +14,8 @@
     "lowLevel": 1,
     "highLevel": 5,
     "reset": 6,
-    "alwaysReset": false
+    "alwaysReset": false,
+    "instType": "multi"
   },
   "storyBeats": [],
   "checklist": [],
@@ -2477,7 +2478,8 @@
         "noalign"
       ],
       "formFlags": [
-        "animalDefault",
+        "edible",
+        "animal",
         "crustacean",
         "cold_blood"
       ],
@@ -3907,6 +3909,16 @@
       "commandName": "loadMob"
     },
     {
+      "objVnum": 3151,
+      "roomVnum": 3718,
+      "commandName": "giveObj"
+    },
+    {
+      "objVnum": 3032,
+      "roomVnum": 3718,
+      "commandName": "giveObj"
+    },
+    {
       "objVnum": 3138,
       "roomVnum": 3718,
       "commandName": "giveObj"
@@ -4039,5 +4051,7 @@
     }
   ],
   "factions": [],
-  "quests": []
+  "quests": [],
+  "recipes": [],
+  "gatherSpawns": []
 }

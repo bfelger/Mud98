@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "Dylan's Area",
     "builders": "",
     "vnumRange": [
@@ -2162,7 +2162,7 @@
     {
       "vnum": 9102,
       "name": "bronze bracer",
-      "shortDescr": "a carved bronze bracer",
+      "shortDescr": "A carved bronze bracer",
       "description": "A carved bronze bracer lies here.",
       "material": "oldstyle",
       "itemType": "armor",
@@ -2632,5 +2632,7 @@
     }
   ],
   "factions": [],
-  "quests": []
+  "quests": [],
+  "recipes": [],
+  "gatherSpawns": []
 }

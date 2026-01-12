@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "Elemental Canyon",
     "builders": "",
     "vnumRange": [
@@ -1566,7 +1566,7 @@
     {
       "vnum": 9210,
       "name": "oldstyle air elemental ruler",
-      "shortDescr": "the Air Ruler",
+      "shortDescr": "The Air Ruler",
       "longDescr": "The Ruler of the air elementals.\n\r",
       "description": "As you peer at him you seem to be looking at the sky itself.\n\r",
       "race": "human",
@@ -1619,7 +1619,7 @@
     {
       "vnum": 9211,
       "name": "oldstyle lightning elemental ruler",
-      "shortDescr": "the Lightning Ruler",
+      "shortDescr": "The Lightning Ruler",
       "longDescr": "The Ruler of the lightning elementals.\n\r",
       "description": "As you examine him there is a blinding flash of light and a deafening boom!\n\rYou rub your eyes and look and the ruler is there grinning at you.\n\r",
       "race": "human",
@@ -1672,7 +1672,7 @@
     {
       "vnum": 9212,
       "name": "oldstyle water elemental ruler",
-      "shortDescr": "the Water Ruler",
+      "shortDescr": "The Water Ruler",
       "longDescr": "The Ruler of the water elementals.\n\r",
       "description": "As you look at him he changes to mist, which swirls around you.  Just\n\ras you get scared, it reforms in elemental form.\n\r",
       "race": "water fowl",
@@ -5282,5 +5282,7 @@
     }
   ],
   "factions": [],
-  "quests": []
+  "quests": [],
+  "recipes": [],
+  "gatherSpawns": []
 }

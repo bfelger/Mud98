@@ -1,12 +1,12 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "Smurfville",
     "builders": "",
     "vnumRange": [
-      100,
-      199
+      1800,
+      1899
     ],
     "credits": "Generic",
     "security": 9,
@@ -20,14 +20,14 @@
   "checklist": [],
   "rooms": [
     {
-      "vnum": 101,
+      "vnum": 1801,
       "name": "Dimly Lit Path",
       "description": "This path is made of crushed granite with curious blue streaks in it.\n\rThe path continues north to a village, or south to the eastern road.\n\r",
       "sectorType": "forest",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 102,
+          "toVnum": 1802,
           "description": "The path continues toward the village.\n\r"
         },
         {
@@ -38,7 +38,7 @@
       ]
     },
     {
-      "vnum": 102,
+      "vnum": 1802,
       "name": "Dimly Lit Path",
       "description": "This section of the road is badly worn and frequently traversed.  There is\n\rfaint singing to the north.  The path back to the road lies to the south.\n\r",
       "roomFlags": [
@@ -48,183 +48,183 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 103,
+          "toVnum": 1803,
           "description": "The path continues toward the village.\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 101,
+          "toVnum": 1801,
           "description": "The dimly lit path.\n\r"
         }
       ]
     },
     {
-      "vnum": 103,
+      "vnum": 1803,
       "name": "Dimly Lit Path",
       "description": "This section of the road is badly worn and frequently traversed.  Singing is\n\rgetting stronger to the north.  The path back to the road lies to the south.\n\r",
       "sectorType": "forest",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 104,
+          "toVnum": 1804,
           "description": "The entrance to smurf village.\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 102,
+          "toVnum": 1802,
           "description": "The dimly lit path.\n\r"
         }
       ]
     },
     {
-      "vnum": 104,
+      "vnum": 1804,
       "name": "Entrance to Smurf Village",
       "description": "You stand at the entrance to a tiny village.  You can see across the whole\n\rvillage easily.  Little blue creatures with white hats and boots and little \n\rfluffy tails scamper about.  They sing continuously.  The singing is getting\n\ron your nerves and you have the urge to squash them.\n\r",
       "sectorType": "field",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 105,
+          "toVnum": 1805,
           "description": "Smurfy Road\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 103,
+          "toVnum": 1803,
           "description": "Dimly Lit Path\n\r"
         }
       ]
     },
     {
-      "vnum": 105,
+      "vnum": 1805,
       "name": "Smurfy Road",
       "description": "You are way too big to be using this road.  But who cares.  Who's gonna stop\n\ryou?  These little blue smurfs?  The singing is growing intense.  Your ears\n\rare starting to ring.  Smurfy Road continues to the north, west, and east.\n\rThere is still time to turn back and go south.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 106,
+          "toVnum": 1806,
           "description": "Smurfy Road\n\r"
         },
         {
           "dir": "east",
-          "toVnum": 110,
+          "toVnum": 1810,
           "description": "Smurfy Road\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 104,
+          "toVnum": 1804,
           "description": "Entrance to smurf village\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 111,
+          "toVnum": 1811,
           "description": "Smurfy Road\n\r"
         }
       ]
     },
     {
-      "vnum": 106,
+      "vnum": 1806,
       "name": "Smurfy Road",
       "description": "You continue to travel down Smurfy Road.  Isn't it just smurfy?  Smurfy road\n\rcontinues its smurfy path to the smurfy north, smurfy west, and smurfy south.\n\rA smurfy home lies to the smurfy east.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 107,
+          "toVnum": 1807,
           "description": "Smurfy Road\n\r"
         },
         {
           "dir": "east",
-          "toVnum": 120,
+          "toVnum": 1820,
           "description": "Smurfy Home\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 105,
+          "toVnum": 1805,
           "description": "Smurfy Road\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 112,
+          "toVnum": 1812,
           "description": "Smurfy Road\n\r"
         }
       ]
     },
     {
-      "vnum": 107,
+      "vnum": 1807,
       "name": "Smurfy Road",
       "description": "Oh boy, another smurfy road!  Smurfy Road goes north and south here.  There\n\ris a smurfy, mushroom home to the west.  A beautiful smurfberry patch is to\n\rthe east.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 108,
+          "toVnum": 1808,
           "description": "Smurfy Road\n\r"
         },
         {
           "dir": "east",
-          "toVnum": 116,
+          "toVnum": 1816,
           "description": "Smurfberry Patch\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 106,
+          "toVnum": 1806,
           "description": "Smurfy Road\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 129,
+          "toVnum": 1829,
           "description": "A Smurfy Home\n\r"
         }
       ]
     },
     {
-      "vnum": 108,
+      "vnum": 1808,
       "name": "Smurfy Road",
       "description": "Smurfy Road continues to smurf here.  It smurfs to the south and smurfs to\n\ran end to the north.  A smurfberry patch is to the east.  A stone path lies\n\rto the west.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 109,
+          "toVnum": 1809,
           "description": "Smurfy Road\n\r"
         },
         {
           "dir": "east",
-          "toVnum": 117,
+          "toVnum": 1817,
           "description": "Smurfberry patch\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 107,
+          "toVnum": 1807,
           "description": "Smurfy Road\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 113,
+          "toVnum": 1813,
           "description": "A stone path\n\r"
         }
       ]
     },
     {
-      "vnum": 109,
+      "vnum": 1809,
       "name": "Smurfy Road",
       "description": "A smurfy well lies here in the middle of Smurfy Road.  A fence separates\n\rthe smurfs from harm to the north.  A berry patch is to the east.  Smurfy\n\rRoad continues to to the south and west.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "east",
-          "toVnum": 118,
+          "toVnum": 1818,
           "description": "Smurfberry Patch\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 108,
+          "toVnum": 1808,
           "description": "Smurfy Road\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 114,
+          "toVnum": 1814,
           "description": "Smurfy Road\n\r"
         }
       ],
@@ -236,84 +236,84 @@
       ]
     },
     {
-      "vnum": 110,
+      "vnum": 1810,
       "name": "Smurfy Road",
       "description": "A corner of smurfy road is where you stand.  A smurfy fence blocks passage\n\rto the east or south.  A smurfy home is to the north.  Smurfy Road goes back\n\rto the west.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 119,
+          "toVnum": 1819,
           "description": "Smurfy Home\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 105,
+          "toVnum": 1805,
           "description": "Smurfy Road\n\r"
         }
       ]
     },
     {
-      "vnum": 111,
+      "vnum": 1811,
       "name": "Smurfy Road",
       "description": "Western corner of Smurfy Road.  You can continue to smurf down the road\n\rto the east and north.  You can also smurf into a smurfy home to the south.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 112,
+          "toVnum": 1812,
           "description": "Smurfy Road\n\r"
         },
         {
           "dir": "east",
-          "toVnum": 105,
+          "toVnum": 1805,
           "description": "Smurfy Road\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 121,
+          "toVnum": 1821,
           "description": "Smurfy Home\n\r"
         }
       ]
     },
     {
-      "vnum": 112,
+      "vnum": 1812,
       "name": "Smurfy Road",
       "description": "There's no place like smurf.  There's no place like smurf.  Sorry wrong\n\rmovie.  A smurfy home is to the west.  Papa Smurf's backyard is to the\n\rnorth but you can't go there.  Smurfy Road continues to the south and\n\reast.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "east",
-          "toVnum": 106,
+          "toVnum": 1806,
           "description": "Smurfy Road\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 111,
+          "toVnum": 1811,
           "description": "Smurfy Road\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 122,
+          "toVnum": 1822,
           "description": "Smurfy Home\n\r"
         }
       ]
     },
     {
-      "vnum": 113,
+      "vnum": 1813,
       "name": "Stone Path",
       "description": "You are walking along a cute little stone path.  To the south lies Papa\n\rSmurf's house.  A Smurfy house is to the west.  Smurfy road is to the east.\n\rEverything is so peaceful here.  You could stay forever.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "east",
-          "toVnum": 108,
+          "toVnum": 1808,
           "description": "Smurfy Road\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 125,
-          "key": 107,
+          "toVnum": 1825,
+          "key": 1807,
           "flags": [
             "door"
           ],
@@ -322,199 +322,199 @@
         },
         {
           "dir": "west",
-          "toVnum": 123,
+          "toVnum": 1823,
           "description": "Smurfy House\n\r"
         }
       ]
     },
     {
-      "vnum": 114,
+      "vnum": 1814,
       "name": "Smurfy Road",
       "description": "Yet another part of Smurfy Road.  Hey if you go west its the last\n\rsection of Smurfy Road.  You can go back to the smurfy well to the east.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "east",
-          "toVnum": 109,
+          "toVnum": 1809,
           "description": "Smurfy Road\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 115,
+          "toVnum": 1815,
           "description": "Smurfy Road\n\r"
         }
       ]
     },
     {
-      "vnum": 115,
+      "vnum": 1815,
       "name": "Smurfy Road",
       "description": "The last piece of Smurfy Road.  You can go back to Smurfy Road to the east.\n\rA nice, beautiful, smurfy, mushroom home is to the south.  In the distance to\n\rthe north you can see Gargamel's Castle.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 126,
+          "toVnum": 1826,
           "description": "Path to Gargamel's Castle\n\r"
         },
         {
           "dir": "east",
-          "toVnum": 114,
+          "toVnum": 1814,
           "description": "Smurfy Road\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 124,
+          "toVnum": 1824,
           "description": "Smurfy Home\n\r"
         }
       ]
     },
     {
-      "vnum": 116,
+      "vnum": 1816,
       "name": "Smurfberry Patch",
       "description": "Delicious smurfberries grow here.  You could probably eat a year's worth of\n\rsmurfberries in one sitting.  Smurfy Road is back to the west.  Another\n\rsmurfberry patch is to the north.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 117,
+          "toVnum": 1817,
           "description": "Smurfberry Patch\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 107,
+          "toVnum": 1807,
           "description": "Smurfy Road\n\r"
         }
       ]
     },
     {
-      "vnum": 117,
+      "vnum": 1817,
       "name": "Smurfberry Patch",
       "description": "Another patch of smurfberries is growing here.  The smell is driving your\n\rnostrils crazy.  It almost, ALMOST, makes you forget all the singing going\n\ron.  Smurfy Road is to the west, while smurfberry patches are to the north\n\rand south.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 118,
+          "toVnum": 1818,
           "description": "Smurfberry Patch\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 116,
+          "toVnum": 1816,
           "description": "Smurfberry Patch\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 108,
+          "toVnum": 1808,
           "description": "Smurfy Road\n\r"
         }
       ]
     },
     {
-      "vnum": 118,
+      "vnum": 1818,
       "name": "Smurfberry Patch",
       "description": "The northernmost of the smurfberry patches grows here.  It looks just\n\ras scrumptious as all the rest.  Just take a few; they'll never know.  Smurfy\n\rRoad is to the west.  A smurfberry patch is to the south.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "south",
-          "toVnum": 117,
+          "toVnum": 1817,
           "description": "Smurfberry Patch\n\r"
         },
         {
           "dir": "west",
-          "toVnum": 109,
+          "toVnum": 1809,
           "description": "Smurfy Road\n\r"
         }
       ]
     },
     {
-      "vnum": 119,
+      "vnum": 1819,
       "name": "Brainy Smurf's Home",
       "description": "You rip the roof of the home to get a good look inside.  You see\n\rmany smurfy books.  The print is so small you couldn't even read it\n\rwith a magnifying glass.  I wonder if Brainy Smurf minds if you\n\rdestroy his home?  Smurfy Road is back to the south.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "south",
-          "toVnum": 110,
+          "toVnum": 1810,
           "description": "Smurfy Road\n\r"
         }
       ]
     },
     {
-      "vnum": 120,
+      "vnum": 1820,
       "name": "Handy Smurf's Home",
       "description": "This home was well built.  Of course, until you rip it apart you big meany\n\ryou.  Tools are all over the place.  Too small for you to use.  Smurfy Road is\n\rback to the west.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "west",
-          "toVnum": 106,
+          "toVnum": 1806,
           "description": "Smurfy Road\n\r"
         }
       ]
     },
     {
-      "vnum": 121,
+      "vnum": 1821,
       "name": "Hefty Smurf's Home",
       "description": "Hefty is anything but wimpy.  So is his house.  It actually took you a \n\rcouple of minutes to destroy his house.  Better watch out -- he might be\n\ra little mad at you.  Smurfy Road is back to the north.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 111,
+          "toVnum": 1811,
           "description": "Smurfy Road\n\r"
         }
       ]
     },
     {
-      "vnum": 122,
+      "vnum": 1822,
       "name": "Sleepy Smurf's Home",
       "description": "Be vewy vewy quiet.  Sleepy Smurf is probably sleeping.  You see so many\n\rbeds you can't even tell if he is here.  Maybe you should quietly go back to\n\rSmurfy Road to the east.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "east",
-          "toVnum": 112,
+          "toVnum": 1812,
           "description": "Smurfy Road\n\r"
         }
       ]
     },
     {
-      "vnum": 123,
+      "vnum": 1823,
       "name": "Grumpy Smurf's Home",
       "description": "This is Grumpy Smurf's home.  He is pissed at you.  Of course, he is pissed\n\rat everyone.  So don't take it bad.  Maybe you'd better leave before he really\n\rgets mad.  Smurfy Road to the east is your only salvation.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "east",
-          "toVnum": 113,
+          "toVnum": 1813,
           "description": "Smurfy Road\n\r"
         }
       ]
     },
     {
-      "vnum": 124,
+      "vnum": 1824,
       "name": "Jokey Smurf's Home",
       "description": "You pull the top of his house and it explodes in your face.  That Jokey\n\rSmurf, what a kidder.  You can hear his laughter as you wipe the ashes off\n\ryour face.  You better get even.  Smurfy Road is to the north.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 115,
+          "toVnum": 1815,
           "description": "Smurfy Road\n\r"
         }
       ]
     },
     {
-      "vnum": 125,
+      "vnum": 1825,
       "name": "Papa Smurf's Home",
       "description": "It's the home of the leader of the smurfs.  Papa Smurf has a nicely decorated\n\rhome.  He takes pride in his work.  You could get to know him or just squash\n\rhim.  If Papa Smurf is not here he is probably at Smurfette's putting the\n\rmoves on her.  A stone path lies to the north.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 113,
-          "key": 107,
+          "toVnum": 1813,
+          "key": 1807,
           "flags": [
             "door"
           ],
@@ -524,33 +524,33 @@
       ]
     },
     {
-      "vnum": 126,
+      "vnum": 1826,
       "name": "Path to Gargamel's Castle",
       "description": "You are walking along a path to Gargamel's Castle to the North.\n\rSmurfy Road lies to the south.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 127,
+          "toVnum": 1827,
           "description": "Outside Gargamel's Castle\n\r"
         },
         {
           "dir": "south",
-          "toVnum": 115,
+          "toVnum": 1815,
           "description": "Smurfy Road\n\r"
         }
       ]
     },
     {
-      "vnum": 127,
+      "vnum": 1827,
       "name": "Outside Gargamel's Castle",
       "description": "You are standing outside Gargamel's Castle.  You can hear him screaming at\n\rAzreal from inside.  You can also him cursing out those wretched smurfs.\n\rHis Castle is to the north while Smurfy Road is to the south.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "north",
-          "toVnum": 128,
-          "key": 109,
+          "toVnum": 1828,
+          "key": 1809,
           "flags": [
             "door"
           ],
@@ -559,21 +559,21 @@
         },
         {
           "dir": "south",
-          "toVnum": 126,
+          "toVnum": 1826,
           "description": "Path to Gargamel's Castle\n\r"
         }
       ]
     },
     {
-      "vnum": 128,
+      "vnum": 1828,
       "name": "Gargamel's Castle",
       "description": "This is Gargamel's Castle.  His big black kettle is in the middle of the room.\n\rWhere else would he put it?  The place has only one room.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "south",
-          "toVnum": 127,
-          "key": 109,
+          "toVnum": 1827,
+          "key": 1809,
           "flags": [
             "door"
           ],
@@ -583,14 +583,14 @@
       ]
     },
     {
-      "vnum": 129,
+      "vnum": 1829,
       "name": "Smurfette's House",
       "description": "This house is conveniently next to Papa Smurfs.  Makes it easier for Papa\n\rSmurf to sneak over at night.  I hope he uses protection.  I would hate to\n\rhave little smurfs running around.  The only exit is to the east.\n\r",
       "sectorType": "city",
       "exits": [
         {
           "dir": "east",
-          "toVnum": 107,
+          "toVnum": 1807,
           "description": "Smurfy Road\n\r"
         }
       ]
@@ -598,7 +598,7 @@
   ],
   "mobiles": [
     {
-      "vnum": 101,
+      "vnum": 1801,
       "name": "oldstyle smurf",
       "shortDescr": "a smurf",
       "longDescr": "A smurf is singing and walking along.\n\r",
@@ -655,7 +655,7 @@
       "material": "0"
     },
     {
-      "vnum": 102,
+      "vnum": 1802,
       "name": "oldstyle smurf",
       "shortDescr": "a smurf",
       "longDescr": "A smurf is here, picking berries.\n\r",
@@ -712,7 +712,7 @@
       "material": "0"
     },
     {
-      "vnum": 103,
+      "vnum": 1803,
       "name": "oldstyle brainy smurf",
       "shortDescr": "Brainy Smurf",
       "longDescr": "Brainy Smurf is here, mumbling something to himself.\n\r",
@@ -769,7 +769,7 @@
       "material": "0"
     },
     {
-      "vnum": 104,
+      "vnum": 1804,
       "name": "oldstyle handy smurf",
       "shortDescr": "Handy Smurf",
       "longDescr": "Handy Smurf is building something here.\n\r",
@@ -826,7 +826,7 @@
       "material": "0"
     },
     {
-      "vnum": 105,
+      "vnum": 1805,
       "name": "oldstyle sleepy smurf",
       "shortDescr": "Sleepy Smurf",
       "longDescr": "Sleepy Smurf is sleep walking here.\n\r",
@@ -883,7 +883,7 @@
       "material": "0"
     },
     {
-      "vnum": 106,
+      "vnum": 1806,
       "name": "oldstyle hefty smurf",
       "shortDescr": "Hefty Smurf",
       "longDescr": "Hefty Smurf is lifting weights here.\n\r",
@@ -940,7 +940,7 @@
       "material": "0"
     },
     {
-      "vnum": 107,
+      "vnum": 1807,
       "name": "oldstyle grumpy smurf",
       "shortDescr": "Grumpy Smurf",
       "longDescr": "Grumpy Smurf is here, swearing.\n\r",
@@ -997,7 +997,7 @@
       "material": "0"
     },
     {
-      "vnum": 108,
+      "vnum": 1808,
       "name": "oldstyle jokey smurf",
       "shortDescr": "Jokey Smurf",
       "longDescr": "Jokey Smurf is here, holding a present.\n\r",
@@ -1054,7 +1054,7 @@
       "material": "0"
     },
     {
-      "vnum": 109,
+      "vnum": 1809,
       "name": "oldstyle smurfette",
       "shortDescr": "Smurfette",
       "longDescr": "Smurfette is here, looking beautiful.\n\r",
@@ -1111,7 +1111,7 @@
       "material": "0"
     },
     {
-      "vnum": 110,
+      "vnum": 1810,
       "name": "oldstyle papa smurf",
       "shortDescr": "Papa Smurf",
       "longDescr": "Papa Smurf is practicing magic here.\n\r",
@@ -1161,7 +1161,7 @@
       "material": "0"
     },
     {
-      "vnum": 111,
+      "vnum": 1811,
       "name": "oldstyle gargamel",
       "shortDescr": "Gargamel",
       "longDescr": "Gargamel is here, cursing out the smurfs.\n\r",
@@ -1213,7 +1213,7 @@
       "material": "0"
     },
     {
-      "vnum": 112,
+      "vnum": 1812,
       "name": "oldstyle azreal cat",
       "shortDescr": "Azreal",
       "longDescr": "Azreal is here, licking himself.\n\r",
@@ -1266,7 +1266,7 @@
   ],
   "objects": [
     {
-      "vnum": 100,
+      "vnum": 1800,
       "name": "bunch berries smurfberries",
       "shortDescr": "a bunch of smurfberries",
       "description": "A bunch of delicious looking smurfberries lie here.",
@@ -1288,7 +1288,7 @@
       "condition": 100
     },
     {
-      "vnum": 101,
+      "vnum": 1801,
       "name": "glasses",
       "shortDescr": "a pair of glasses",
       "description": "An odd pair of glasses has been left here.",
@@ -1323,7 +1323,7 @@
       ]
     },
     {
-      "vnum": 102,
+      "vnum": 1802,
       "name": "smurf hat",
       "shortDescr": "a smurf hat",
       "description": "A smurf hat has been left here.",
@@ -1344,7 +1344,7 @@
       "condition": 100
     },
     {
-      "vnum": 103,
+      "vnum": 1803,
       "name": "axe small",
       "shortDescr": "a small axe",
       "description": "A small axe has been dropped here.",
@@ -1368,7 +1368,7 @@
       "condition": 100
     },
     {
-      "vnum": 104,
+      "vnum": 1804,
       "name": "necklace",
       "shortDescr": "a small necklace",
       "description": "A small necklace is lying on the ground.",
@@ -1396,7 +1396,7 @@
       ]
     },
     {
-      "vnum": 105,
+      "vnum": 1805,
       "name": "pink potion",
       "shortDescr": "a pink potion",
       "description": "A pink potion is barely visible on the ground.",
@@ -1418,7 +1418,7 @@
       "condition": 100
     },
     {
-      "vnum": 106,
+      "vnum": 1806,
       "name": "wand",
       "shortDescr": "a small wand",
       "description": "A small wand lies on the ground.",
@@ -1439,7 +1439,7 @@
       "condition": 100
     },
     {
-      "vnum": 107,
+      "vnum": 1807,
       "name": "key",
       "shortDescr": "a tiny key",
       "description": "A tiny key is lying on the ground.",
@@ -1459,7 +1459,7 @@
       "condition": 100
     },
     {
-      "vnum": 108,
+      "vnum": 1808,
       "name": "well",
       "shortDescr": "a smurf well",
       "description": "A small smurfy well is here.",
@@ -1472,7 +1472,7 @@
       "condition": 100
     },
     {
-      "vnum": 109,
+      "vnum": 1809,
       "name": "key",
       "shortDescr": "a small key",
       "description": "A key to Gargamel's door lies here.",
@@ -1495,289 +1495,291 @@
   "shops": [],
   "specials": [
     {
-      "mobVnum": 101,
+      "mobVnum": 1801,
       "spec": "spec_thief"
     },
     {
-      "mobVnum": 102,
+      "mobVnum": 1802,
       "spec": "spec_thief"
     },
     {
-      "mobVnum": 103,
+      "mobVnum": 1803,
       "spec": "spec_thief"
     },
     {
-      "mobVnum": 104,
+      "mobVnum": 1804,
       "spec": "spec_thief"
     },
     {
-      "mobVnum": 105,
+      "mobVnum": 1805,
       "spec": "spec_thief"
     },
     {
-      "mobVnum": 106,
+      "mobVnum": 1806,
       "spec": "spec_thief"
     },
     {
-      "mobVnum": 107,
+      "mobVnum": 1807,
       "spec": "spec_thief"
     },
     {
-      "mobVnum": 108,
+      "mobVnum": 1808,
       "spec": "spec_thief"
     },
     {
-      "mobVnum": 109,
+      "mobVnum": 1809,
       "spec": "spec_thief"
     },
     {
-      "mobVnum": 110,
+      "mobVnum": 1810,
       "spec": "spec_cast_mage"
     },
     {
-      "mobVnum": 111,
+      "mobVnum": 1811,
       "spec": "spec_cast_cleric"
     },
     {
-      "mobVnum": 112,
+      "mobVnum": 1812,
       "spec": "spec_poison"
     }
   ],
   "mobprogs": [],
   "resets": [
     {
-      "mobVnum": 101,
+      "mobVnum": 1801,
       "maxInArea": 8,
-      "roomVnum": 104,
+      "roomVnum": 1804,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 102,
-      "roomVnum": 104,
+      "objVnum": 1802,
+      "roomVnum": 1804,
       "commandName": "giveObj"
     },
     {
-      "mobVnum": 101,
+      "mobVnum": 1801,
       "maxInArea": 8,
-      "roomVnum": 105,
+      "roomVnum": 1805,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 101,
+      "mobVnum": 1801,
       "maxInArea": 8,
-      "roomVnum": 107,
+      "roomVnum": 1807,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 101,
+      "mobVnum": 1801,
       "maxInArea": 8,
-      "roomVnum": 108,
+      "roomVnum": 1808,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 102,
-      "roomVnum": 108,
+      "objVnum": 1802,
+      "roomVnum": 1808,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 108,
-      "roomVnum": 109,
+      "objVnum": 1808,
+      "roomVnum": 1809,
       "commandName": "placeObj"
     },
     {
-      "mobVnum": 101,
+      "mobVnum": 1801,
       "maxInArea": 8,
-      "roomVnum": 109,
+      "roomVnum": 1809,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 101,
+      "mobVnum": 1801,
       "maxInArea": 8,
-      "roomVnum": 110,
+      "roomVnum": 1810,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 102,
-      "roomVnum": 110,
+      "objVnum": 1802,
+      "roomVnum": 1810,
       "commandName": "giveObj"
     },
     {
-      "mobVnum": 101,
+      "mobVnum": 1801,
       "maxInArea": 8,
-      "roomVnum": 111,
+      "roomVnum": 1811,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 101,
+      "mobVnum": 1801,
       "maxInArea": 8,
-      "roomVnum": 112,
+      "roomVnum": 1812,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 102,
-      "roomVnum": 112,
+      "objVnum": 1802,
+      "roomVnum": 1812,
       "commandName": "giveObj"
     },
     {
-      "mobVnum": 102,
+      "mobVnum": 1802,
       "maxInArea": 3,
-      "roomVnum": 116,
+      "roomVnum": 1816,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 100,
-      "roomVnum": 116,
+      "objVnum": 1800,
+      "roomVnum": 1816,
       "commandName": "giveObj"
     },
     {
-      "mobVnum": 102,
+      "mobVnum": 1802,
       "maxInArea": 3,
-      "roomVnum": 117,
+      "roomVnum": 1817,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 100,
-      "roomVnum": 117,
+      "objVnum": 1800,
+      "roomVnum": 1817,
       "commandName": "giveObj"
     },
     {
-      "mobVnum": 102,
+      "mobVnum": 1802,
       "maxInArea": 3,
-      "roomVnum": 118,
+      "roomVnum": 1818,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 100,
-      "roomVnum": 118,
+      "objVnum": 1800,
+      "roomVnum": 1818,
       "commandName": "giveObj"
     },
     {
-      "mobVnum": 103,
+      "mobVnum": 1803,
       "maxInArea": 1,
-      "roomVnum": 119,
+      "roomVnum": 1819,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 101,
+      "objVnum": 1801,
       "wearLoc": "over the head",
-      "roomVnum": 119,
+      "roomVnum": 1819,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 104,
+      "mobVnum": 1804,
       "maxInArea": 1,
-      "roomVnum": 120,
+      "roomVnum": 1820,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 103,
+      "objVnum": 1803,
       "wearLoc": "wielded",
-      "roomVnum": 120,
+      "roomVnum": 1820,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 106,
+      "mobVnum": 1806,
       "maxInArea": 1,
-      "roomVnum": 121,
+      "roomVnum": 1821,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 103,
+      "objVnum": 1803,
       "wearLoc": "wielded",
-      "roomVnum": 121,
+      "roomVnum": 1821,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 105,
+      "mobVnum": 1805,
       "maxInArea": 1,
-      "roomVnum": 122,
+      "roomVnum": 1822,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 107,
+      "mobVnum": 1807,
       "maxInArea": 1,
-      "roomVnum": 123,
+      "roomVnum": 1823,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 108,
+      "mobVnum": 1808,
       "maxInArea": 1,
-      "roomVnum": 124,
+      "roomVnum": 1824,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 110,
+      "mobVnum": 1810,
       "maxInArea": 1,
-      "roomVnum": 125,
+      "roomVnum": 1825,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 105,
-      "roomVnum": 125,
+      "objVnum": 1805,
+      "roomVnum": 1825,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 109,
-      "roomVnum": 125,
+      "objVnum": 1809,
+      "roomVnum": 1825,
       "commandName": "giveObj"
     },
     {
-      "mobVnum": 111,
+      "mobVnum": 1811,
       "maxInArea": 1,
-      "roomVnum": 128,
+      "roomVnum": 1828,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 106,
+      "objVnum": 1806,
       "wearLoc": "held in the hands",
-      "roomVnum": 128,
+      "roomVnum": 1828,
       "commandName": "equipObj"
     },
     {
-      "mobVnum": 112,
+      "mobVnum": 1812,
       "maxInArea": 1,
-      "roomVnum": 128,
+      "roomVnum": 1828,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 109,
+      "mobVnum": 1809,
       "maxInArea": 1,
-      "roomVnum": 129,
+      "roomVnum": 1829,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 104,
+      "objVnum": 1804,
       "wearLoc": "around the neck (1)",
-      "roomVnum": 129,
+      "roomVnum": 1829,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 107,
-      "roomVnum": 129,
+      "objVnum": 1807,
+      "roomVnum": 1829,
       "commandName": "giveObj"
     }
   ],
   "factions": [],
-  "quests": []
+  "quests": [],
+  "recipes": [],
+  "gatherSpawns": []
 }

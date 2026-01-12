@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "New Thalos",
     "builders": "",
     "vnumRange": [
@@ -4064,7 +4064,7 @@
           "flags": [
             "door"
           ],
-          "keyword": "secret door\n\r"
+          "keyword": "secret door\n\r\n\r\n\r"
         }
       ]
     },
@@ -4490,7 +4490,7 @@
             "locked",
             "pickproof"
           ],
-          "keyword": "cell\n\rcell"
+          "keyword": "cell\n\r\n\r\n\rcell"
         }
       ]
     },
@@ -4514,7 +4514,7 @@
             "locked",
             "pickproof"
           ],
-          "keyword": "cell\n\rcell"
+          "keyword": "cell\n\r\n\r\n\rcell"
         }
       ]
     },
@@ -7489,7 +7489,7 @@
     {
       "vnum": 9533,
       "name": "oldstyle nomad merchant",
-      "shortDescr": "a nomad merchant",
+      "shortDescr": "A nomad merchant",
       "longDescr": "A nomad merchant looks you over.\n\r",
       "description": "This robust fellow returns your gaze with a smile, but something inside\n\rtells you not to trust him very far.\n\r",
       "race": "human",
@@ -7550,7 +7550,7 @@
     {
       "vnum": 9534,
       "name": "oldstyle bodyguard",
-      "shortDescr": "a bodyguard",
+      "shortDescr": "A bodyguard",
       "longDescr": "A bodyguard sizes you up.\n\r",
       "description": "The large half-orc quickly glances you over and returns to his duties.\n\r",
       "race": "human",
@@ -8525,7 +8525,7 @@
     {
       "vnum": 9550,
       "name": "oldstyle sultan",
-      "shortDescr": "the Sultan",
+      "shortDescr": "The Sultan",
       "longDescr": "The Sultan rests here on his throne.\n\r",
       "description": "You see a large wealthy man in red robes smiling at you.\n\r",
       "race": "human",
@@ -9338,7 +9338,7 @@
     {
       "vnum": 9563,
       "name": "oldstyle sultans guard chief",
-      "shortDescr": "the chief guard",
+      "shortDescr": "The chief guard",
       "longDescr": "The chief of the sultan's guard stands here.\n\r",
       "description": "You see a large man skilled in hunting and killing.\n\r",
       "race": "human",
@@ -10497,7 +10497,7 @@
     {
       "vnum": 9582,
       "name": "oldstyle royal guard elite",
-      "shortDescr": "the Royal Guard",
+      "shortDescr": "The Royal Guard",
       "longDescr": "An Elite Royal Guard stands here smiling happily.\n\r",
       "description": "You see one of the Royal Guards from Midgaard who seems to have gone\n\rthrough some training.\n\r",
       "race": "human",
@@ -13737,6 +13737,11 @@
       "commandName": "placeObj"
     },
     {
+      "objVnum": 203,
+      "roomVnum": 9502,
+      "commandName": "placeObj"
+    },
+    {
       "mobVnum": 9507,
       "maxInArea": 1,
       "roomVnum": 9503,
@@ -14529,6 +14534,16 @@
       "commandName": "loadMob"
     },
     {
+      "objVnum": 205,
+      "roomVnum": 9605,
+      "commandName": "placeObj"
+    },
+    {
+      "objVnum": 208,
+      "roomVnum": 9606,
+      "commandName": "placeObj"
+    },
+    {
       "mobVnum": 9544,
       "maxInArea": 20,
       "roomVnum": 9607,
@@ -14697,6 +14712,11 @@
       "commandName": "giveObj"
     },
     {
+      "objVnum": 208,
+      "roomVnum": 9614,
+      "commandName": "placeObj"
+    },
+    {
       "mobVnum": 9592,
       "maxInArea": 14,
       "roomVnum": 9615,
@@ -14843,6 +14863,11 @@
       "objVnum": 9570,
       "roomVnum": 9623,
       "commandName": "giveObj"
+    },
+    {
+      "objVnum": 204,
+      "roomVnum": 9623,
+      "commandName": "placeObj"
     },
     {
       "mobVnum": 9544,
@@ -15259,6 +15284,16 @@
       "commandName": "giveObj"
     },
     {
+      "objVnum": 202,
+      "roomVnum": 9644,
+      "commandName": "placeObj"
+    },
+    {
+      "objVnum": 209,
+      "roomVnum": 9644,
+      "commandName": "placeObj"
+    },
+    {
       "mobVnum": 9567,
       "maxInArea": 6,
       "roomVnum": 9645,
@@ -15315,6 +15350,11 @@
       "commandName": "loadMob"
     },
     {
+      "objVnum": 204,
+      "roomVnum": 9648,
+      "commandName": "placeObj"
+    },
+    {
       "mobVnum": 9544,
       "maxInArea": 20,
       "roomVnum": 9649,
@@ -15341,6 +15381,11 @@
       "commandName": "loadMob"
     },
     {
+      "objVnum": 206,
+      "roomVnum": 9655,
+      "commandName": "placeObj"
+    },
+    {
       "mobVnum": 9560,
       "maxInArea": 2,
       "roomVnum": 9661,
@@ -15360,6 +15405,16 @@
       "roomVnum": 9661,
       "maxInRoom": 1,
       "commandName": "loadMob"
+    },
+    {
+      "objVnum": 203,
+      "roomVnum": 9661,
+      "commandName": "placeObj"
+    },
+    {
+      "objVnum": 201,
+      "roomVnum": 9664,
+      "commandName": "placeObj"
     },
     {
       "mobVnum": 9555,
@@ -15706,5 +15761,7 @@
     }
   ],
   "factions": [],
-  "quests": []
+  "quests": [],
+  "recipes": [],
+  "gatherSpawns": []
 }

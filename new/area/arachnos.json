@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "Arachnos",
     "builders": "",
     "vnumRange": [
@@ -1613,7 +1613,7 @@
     {
       "vnum": 6313,
       "name": "oldstyle guardian",
-      "shortDescr": "the guardian",
+      "shortDescr": "The guardian",
       "longDescr": "The guardian is obviously not doing his job.\n\r",
       "description": "He looks like a lazy bum who sleeps half the time.\n\r",
       "race": "human",
@@ -2094,7 +2094,7 @@
     },
     {
       "vnum": 6308,
-      "name": "coins copper silver",
+      "name": "coins silver gold",
       "shortDescr": "a big pile of coins",
       "description": "A big pile of coins is lying here.",
       "material": "oldstyle",
@@ -2391,5 +2391,7 @@
     }
   ],
   "factions": [],
-  "quests": []
+  "quests": [],
+  "recipes": [],
+  "gatherSpawns": []
 }

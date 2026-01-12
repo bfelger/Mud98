@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "Nirvana",
     "builders": "",
     "vnumRange": [
@@ -2357,7 +2357,7 @@
     {
       "vnum": 9000,
       "name": "sword long the",
-      "shortDescr": "the long sword",
+      "shortDescr": "THE long sword",
       "description": "THE long sword of Primus is here.",
       "material": "adamantite",
       "itemType": "weapon",
@@ -2760,5 +2760,7 @@
     }
   ],
   "factions": [],
-  "quests": []
+  "quests": [],
+  "recipes": [],
+  "gatherSpawns": []
 }

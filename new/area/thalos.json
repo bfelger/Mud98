@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "Thalos",
     "builders": "",
     "vnumRange": [
@@ -1653,7 +1653,7 @@
     {
       "vnum": 5200,
       "name": "oldstyle beholder",
-      "shortDescr": "the mighty beholder",
+      "shortDescr": "The mighty beholder",
       "longDescr": "You meet a beholder's deadly gaze!\n\r",
       "description": "It has a large central eye that projects an anti-magic ray and ten\n\reyestalks atop the round body which can do anything from charm you\n\rto disintegrate you.  Beholders are not known for their personality.\n\r",
       "race": "human",
@@ -1707,7 +1707,7 @@
     {
       "vnum": 5201,
       "name": "oldstyle lamia beast",
-      "shortDescr": "the lamia",
+      "shortDescr": "The lamia",
       "longDescr": "A strange lamia stands here waiting for her next meal.\n\r",
       "description": "This is a creature with the upper torso of a beautiful woman, but the lower\n\rbody of a four-legged beast.  She licks her lips as she looks at you greedily.\n\r",
       "race": "human",
@@ -1759,7 +1759,7 @@
     {
       "vnum": 5202,
       "name": "oldstyle mimic chest",
-      "shortDescr": "the mimic",
+      "shortDescr": "The mimic",
       "longDescr": "A strong chest lies in one corner of the room.\n\r",
       "description": "A strong, wooden chest bound with iron straps and a heavy pad-lock on the\n\rfront.\n\r",
       "race": "human",
@@ -1816,7 +1816,7 @@
     {
       "vnum": 5203,
       "name": "oldstyle mimic boulder",
-      "shortDescr": "the mimic",
+      "shortDescr": "The mimic",
       "longDescr": "Two skeletons lie crushed under a large boulder.\n\r",
       "description": "",
       "race": "human",
@@ -1873,7 +1873,7 @@
     {
       "vnum": 5204,
       "name": "oldstyle mimic floor",
-      "shortDescr": "the mimic",
+      "shortDescr": "The mimic",
       "longDescr": "The stone floor of this house has been ripped apart.\n\r",
       "description": "",
       "race": "human",
@@ -1930,7 +1930,7 @@
     {
       "vnum": 5205,
       "name": "oldstyle mimic pottery",
-      "shortDescr": "the mimic",
+      "shortDescr": "The mimic",
       "longDescr": "Some broken shards of pottery lie strewn about the floor.\n\r",
       "description": "",
       "race": "human",
@@ -1987,7 +1987,7 @@
     {
       "vnum": 5206,
       "name": "oldstyle mimic planks",
-      "shortDescr": "the mimic",
+      "shortDescr": "The mimic",
       "longDescr": "A few wooden planks lie stacked on a low shelf.\n\r",
       "description": "",
       "race": "human",
@@ -2044,7 +2044,7 @@
     {
       "vnum": 5207,
       "name": "oldstyle lizard horned",
-      "shortDescr": "the horned lizard",
+      "shortDescr": "The horned lizard",
       "longDescr": "A small horned lizard flicks his tongue and slithers away.\n\r",
       "description": "A cute little lizard, that is, if you like reptiles!\n\r",
       "race": "lizard",
@@ -2099,7 +2099,7 @@
     {
       "vnum": 5208,
       "name": "oldstyle golem stone",
-      "shortDescr": "the stone golem",
+      "shortDescr": "The stone golem",
       "longDescr": "In the corner you see a large, stone golem faithfully standing watch.\n\r",
       "description": "It is a big chunk of rock that has been magically formed into a giant\n\rstone creature. He stands here still guarding the city.\n\r",
       "race": "human",
@@ -3826,12 +3826,6 @@
       "commandName": "loadMob"
     },
     {
-      "objVnum": 5100,
-      "wearLoc": "wielded",
-      "roomVnum": 5267,
-      "commandName": "equipObj"
-    },
-    {
       "mobVnum": 5110,
       "maxInArea": 2,
       "roomVnum": 5270,
@@ -3839,23 +3833,11 @@
       "commandName": "loadMob"
     },
     {
-      "objVnum": 5100,
-      "wearLoc": "wielded",
-      "roomVnum": 5270,
-      "commandName": "equipObj"
-    },
-    {
       "mobVnum": 5110,
       "maxInArea": 2,
       "roomVnum": 5270,
       "maxInRoom": 2,
       "commandName": "loadMob"
-    },
-    {
-      "objVnum": 5100,
-      "wearLoc": "wielded",
-      "roomVnum": 5270,
-      "commandName": "equipObj"
     },
     {
       "mobVnum": 5111,
@@ -3863,14 +3845,10 @@
       "roomVnum": 5272,
       "maxInRoom": 1,
       "commandName": "loadMob"
-    },
-    {
-      "objVnum": 5100,
-      "wearLoc": "wielded",
-      "roomVnum": 5272,
-      "commandName": "equipObj"
     }
   ],
   "factions": [],
-  "quests": []
+  "quests": [],
+  "recipes": [],
+  "gatherSpawns": []
 }

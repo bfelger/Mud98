@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "Valhalla",
     "builders": "",
     "vnumRange": [
@@ -651,7 +651,7 @@
       "vnum": 1221,
       "name": "The End of the Rainbow Bridge",
       "description": "You have reached the end of the Rainbow Bridge.  Asgard stretches out above \n\ryou.  Looking around, you search for the legendary guardian of Asgard.  The\n\rclouds are far below you and a sense of beauty and peacefulness surrounds you. \n\r",
-      "sectorType": "inside",
+      "sectorType": "air",
       "exits": [
         {
           "dir": "up",
@@ -768,5 +768,7 @@
     }
   ],
   "factions": [],
-  "quests": []
+  "quests": [],
+  "recipes": [],
+  "gatherSpawns": []
 }

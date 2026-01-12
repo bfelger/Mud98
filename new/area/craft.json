@@ -1,0 +1,1059 @@
+{
+  "formatVersion": 1,
+  "areadata": {
+    "version": 3,
+    "name": "Mud98 Crafting",
+    "builders": "Mud98",
+    "vnumRange": [
+      100,
+      599
+    ],
+    "credits": "Mud98",
+    "security": 9,
+    "sector": "inside",
+    "lowLevel": 1,
+    "highLevel": 60,
+    "reset": 6,
+    "alwaysReset": false
+  },
+  "storyBeats": [],
+  "checklist": [],
+  "rooms": [],
+  "mobiles": [],
+  "objects": [
+    {
+      "vnum": 101,
+      "name": "hide raw",
+      "shortDescr": "a raw hide",
+      "description": "A raw animal hide lies here.",
+      "material": "organic",
+      "itemType": "material",
+      "wearFlags": [
+        "take"
+      ],
+      "values": [
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "level": 5,
+      "weight": 5,
+      "cost": 10,
+      "condition": 100
+    },
+    {
+      "vnum": 102,
+      "name": "leather tanned",
+      "shortDescr": "a piece of leather",
+      "description": "A piece of tanned leather lies here.",
+      "material": "leather",
+      "itemType": "material",
+      "wearFlags": [
+        "take"
+      ],
+      "values": [
+        2,
+        1,
+        0,
+        0,
+        0
+      ],
+      "level": 10,
+      "weight": 4,
+      "cost": 25,
+      "condition": 100
+    },
+    {
+      "vnum": 103,
+      "name": "leather strips",
+      "shortDescr": "some leather strips",
+      "description": "Some leather strips lie here.",
+      "material": "leather",
+      "itemType": "material",
+      "wearFlags": [
+        "take"
+      ],
+      "values": [
+        2,
+        1,
+        0,
+        0,
+        0
+      ],
+      "level": 15,
+      "weight": 2,
+      "cost": 15,
+      "condition": 100
+    },
+    {
+      "vnum": 104,
+      "name": "meat raw",
+      "shortDescr": "a chunk of raw meat",
+      "description": "A chunk of raw meat lies here.",
+      "material": "food",
+      "itemType": "material",
+      "wearFlags": [
+        "take"
+      ],
+      "values": [
+        6,
+        1,
+        0,
+        0,
+        0
+      ],
+      "level": 5,
+      "weight": 3,
+      "cost": 5,
+      "condition": 100
+    },
+    {
+      "vnum": 105,
+      "name": "meat cooked",
+      "shortDescr": "a piece of cooked meat",
+      "description": "A piece of cooked meat lies here.",
+      "material": "food",
+      "itemType": "material",
+      "wearFlags": [
+        "take"
+      ],
+      "values": [
+        6,
+        1,
+        0,
+        0,
+        0
+      ],
+      "level": 5,
+      "weight": 2,
+      "cost": 10,
+      "condition": 100
+    },
+    {
+      "vnum": 106,
+      "name": "ore copper",
+      "shortDescr": "a chunk of copper ore",
+      "description": "A chunk of copper ore lies here.",
+      "material": "copper",
+      "itemType": "material",
+      "wearFlags": [
+        "take"
+      ],
+      "values": [
+        7,
+        1,
+        0,
+        0,
+        0
+      ],
+      "level": 5,
+      "weight": 8,
+      "cost": 15,
+      "condition": 100
+    },
+    {
+      "vnum": 107,
+      "name": "ore tin",
+      "shortDescr": "a chunk of tin ore",
+      "description": "A chunk of tin ore lies here.",
+      "material": "tin",
+      "itemType": "material",
+      "wearFlags": [
+        "take"
+      ],
+      "values": [
+        7,
+        1,
+        0,
+        0,
+        0
+      ],
+      "level": 15,
+      "weight": 8,
+      "cost": 20,
+      "condition": 100
+    },
+    {
+      "vnum": 108,
+      "name": "ore iron",
+      "shortDescr": "a chunk of iron ore",
+      "description": "A chunk of iron ore lies here.",
+      "material": "iron",
+      "itemType": "material",
+      "wearFlags": [
+        "take"
+      ],
+      "values": [
+        7,
+        1,
+        0,
+        0,
+        0
+      ],
+      "level": 25,
+      "weight": 10,
+      "cost": 30,
+      "condition": 100
+    },
+    {
+      "vnum": 109,
+      "name": "ingot copper",
+      "shortDescr": "a copper ingot",
+      "description": "A copper ingot lies here.",
+      "material": "copper",
+      "itemType": "material",
+      "wearFlags": [
+        "take"
+      ],
+      "values": [
+        8,
+        1,
+        0,
+        0,
+        0
+      ],
+      "level": 5,
+      "weight": 6,
+      "cost": 40,
+      "condition": 100
+    },
+    {
+      "vnum": 110,
+      "name": "ingot tin",
+      "shortDescr": "a tin ingot",
+      "description": "A tin ingot lies here.",
+      "material": "tin",
+      "itemType": "material",
+      "wearFlags": [
+        "take"
+      ],
+      "values": [
+        8,
+        1,
+        0,
+        0,
+        0
+      ],
+      "level": 15,
+      "weight": 6,
+      "cost": 50,
+      "condition": 100
+    },
+    {
+      "vnum": 111,
+      "name": "ingot bronze",
+      "shortDescr": "a bronze ingot",
+      "description": "A bronze ingot lies here.",
+      "material": "bronze",
+      "itemType": "material",
+      "wearFlags": [
+        "take"
+      ],
+      "values": [
+        8,
+        1,
+        0,
+        0,
+        0
+      ],
+      "level": 15,
+      "weight": 7,
+      "cost": 75,
+      "condition": 100
+    },
+    {
+      "vnum": 112,
+      "name": "ingot iron",
+      "shortDescr": "an iron ingot",
+      "description": "An iron ingot lies here.",
+      "material": "iron",
+      "itemType": "material",
+      "wearFlags": [
+        "take"
+      ],
+      "values": [
+        8,
+        1,
+        0,
+        0,
+        0
+      ],
+      "level": 25,
+      "weight": 8,
+      "cost": 100,
+      "condition": 100
+    },
+    {
+      "vnum": 113,
+      "name": "flax raw",
+      "shortDescr": "a bundle of raw flax",
+      "description": "A bundle of raw flax lies here.",
+      "material": "organic",
+      "itemType": "material",
+      "wearFlags": [
+        "take"
+      ],
+      "values": [
+        12,
+        1,
+        0,
+        0,
+        0
+      ],
+      "level": 5,
+      "weight": 2,
+      "cost": 8,
+      "condition": 100
+    },
+    {
+      "vnum": 114,
+      "name": "linen scraps",
+      "shortDescr": "some linen scraps",
+      "description": "Some linen scraps lie here.",
+      "material": "cloth",
+      "itemType": "material",
+      "wearFlags": [
+        "take"
+      ],
+      "values": [
+        10,
+        1,
+        0,
+        0,
+        0
+      ],
+      "level": 5,
+      "weight": 1,
+      "cost": 5,
+      "condition": 100
+    },
+    {
+      "vnum": 115,
+      "name": "linen fabric",
+      "shortDescr": "a piece of linen fabric",
+      "description": "A piece of linen fabric lies here.",
+      "material": "cloth",
+      "itemType": "material",
+      "wearFlags": [
+        "take"
+      ],
+      "values": [
+        10,
+        1,
+        0,
+        0,
+        0
+      ],
+      "level": 5,
+      "weight": 2,
+      "cost": 20,
+      "condition": 100
+    },
+    {
+      "vnum": 116,
+      "name": "wool raw",
+      "shortDescr": "a bundle of raw wool",
+      "description": "A bundle of raw wool lies here.",
+      "material": "wool",
+      "itemType": "material",
+      "wearFlags": [
+        "take"
+      ],
+      "values": [
+        1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "level": 15,
+      "weight": 3,
+      "cost": 12,
+      "condition": 100
+    },
+    {
+      "vnum": 117,
+      "name": "wool fabric",
+      "shortDescr": "a piece of wool fabric",
+      "description": "A piece of wool fabric lies here.",
+      "material": "wool",
+      "itemType": "material",
+      "wearFlags": [
+        "take"
+      ],
+      "values": [
+        10,
+        1,
+        0,
+        0,
+        0
+      ],
+      "level": 15,
+      "weight": 2,
+      "cost": 35,
+      "condition": 100
+    },
+    {
+      "vnum": 118,
+      "name": "cotton scraps",
+      "shortDescr": "some cotton scraps",
+      "description": "Some cotton scraps lie here.",
+      "material": "cloth",
+      "itemType": "material",
+      "wearFlags": [
+        "take"
+      ],
+      "values": [
+        10,
+        1,
+        0,
+        0,
+        0
+      ],
+      "level": 25,
+      "weight": 1,
+      "cost": 8,
+      "condition": 100
+    },
+    {
+      "vnum": 119,
+      "name": "cotton fabric",
+      "shortDescr": "a piece of cotton fabric",
+      "description": "A piece of cotton fabric lies here.",
+      "material": "cloth",
+      "itemType": "material",
+      "wearFlags": [
+        "take"
+      ],
+      "values": [
+        10,
+        1,
+        0,
+        0,
+        0
+      ],
+      "level": 25,
+      "weight": 2,
+      "cost": 45,
+      "condition": 100
+    },
+    {
+      "vnum": 120,
+      "name": "herbs medicinal",
+      "shortDescr": "a bundle of medicinal herbs",
+      "description": "A bundle of medicinal herbs lies here.",
+      "material": "organic",
+      "itemType": "material",
+      "wearFlags": [
+        "take"
+      ],
+      "values": [
+        12,
+        1,
+        0,
+        0,
+        0
+      ],
+      "level": 5,
+      "weight": 1,
+      "cost": 15,
+      "condition": 100
+    },
+    {
+      "vnum": 201,
+      "name": "rack tanning leather",
+      "shortDescr": "a tanning rack",
+      "description": "A sturdy wooden tanning rack stands here.",
+      "material": "wood",
+      "itemType": "workstation",
+      "values": [
+        4,
+        0,
+        0,
+        0,
+        0
+      ],
+      "level": 10,
+      "weight": 50,
+      "cost": 500,
+      "condition": 100
+    },
+    {
+      "vnum": 202,
+      "name": "forge blacksmith",
+      "shortDescr": "a blacksmith's forge",
+      "description": "A large forge dominates this area, its coals glowing hot.",
+      "material": "iron",
+      "itemType": "workstation",
+      "values": [
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "level": 15,
+      "weight": 200,
+      "cost": 1000,
+      "condition": 100
+    },
+    {
+      "vnum": 203,
+      "name": "fire cooking campfire",
+      "shortDescr": "a cooking fire",
+      "description": "A cooking fire crackles here, ready for use.",
+      "material": "fire",
+      "itemType": "workstation",
+      "values": [
+        32,
+        0,
+        0,
+        0,
+        0
+      ],
+      "level": 5,
+      "weight": 20,
+      "cost": 100,
+      "condition": 100
+    },
+    {
+      "vnum": 204,
+      "name": "bench alchemy",
+      "shortDescr": "an alchemy bench",
+      "description": "An alchemy bench covered with vials and burners sits here.",
+      "material": "wood",
+      "itemType": "workstation",
+      "values": [
+        16,
+        0,
+        0,
+        0,
+        0
+      ],
+      "level": 20,
+      "weight": 75,
+      "cost": 750,
+      "condition": 100
+    },
+    {
+      "vnum": 205,
+      "name": "circle enchanting arcane",
+      "shortDescr": "an enchanting circle",
+      "description": "A glowing arcane circle has been inscribed on the floor here.",
+      "material": "magic",
+      "itemType": "workstation",
+      "values": [
+        64,
+        0,
+        0,
+        0,
+        0
+      ],
+      "level": 30,
+      "cost": 2000,
+      "condition": 100
+    },
+    {
+      "vnum": 206,
+      "name": "bench woodworking carpentry",
+      "shortDescr": "a woodworking bench",
+      "description": "A sturdy workbench with tools for woodworking sits here.",
+      "material": "wood",
+      "itemType": "workstation",
+      "values": [
+        128,
+        0,
+        0,
+        0,
+        0
+      ],
+      "level": 10,
+      "weight": 100,
+      "cost": 600,
+      "condition": 100
+    },
+    {
+      "vnum": 207,
+      "name": "table jeweler",
+      "shortDescr": "a jeweler's table",
+      "description": "A finely crafted jeweler's table with magnifying lenses sits here.",
+      "material": "wood",
+      "itemType": "workstation",
+      "values": [
+        256,
+        0,
+        0,
+        0,
+        0
+      ],
+      "level": 25,
+      "weight": 60,
+      "cost": 1200,
+      "condition": 100
+    },
+    {
+      "vnum": 208,
+      "name": "table sewing tailor",
+      "shortDescr": "a sewing table",
+      "description": "A sewing table with needles and thread stands ready for use.",
+      "material": "wood",
+      "itemType": "workstation",
+      "values": [
+        8,
+        0,
+        0,
+        0,
+        0
+      ],
+      "level": 10,
+      "weight": 40,
+      "cost": 400,
+      "condition": 100
+    },
+    {
+      "vnum": 209,
+      "name": "smelter ore",
+      "shortDescr": "a smelter",
+      "description": "A large smelter for processing ore stands here, radiating heat.",
+      "material": "iron",
+      "itemType": "workstation",
+      "values": [
+        2,
+        0,
+        0,
+        0,
+        0
+      ],
+      "level": 15,
+      "weight": 250,
+      "cost": 1500,
+      "condition": 100
+    },
+    {
+      "vnum": 210,
+      "name": "forge master smithy",
+      "shortDescr": "a master forge",
+      "description": "A magnificent master forge capable of smelting and smithing stands here.",
+      "material": "iron",
+      "itemType": "workstation",
+      "values": [
+        3,
+        5,
+        0,
+        0,
+        0
+      ],
+      "level": 40,
+      "weight": 400,
+      "cost": 5000,
+      "condition": 100
+    },
+    {
+      "vnum": 211,
+      "name": "skinning knife",
+      "shortDescr": "a skinning knife",
+      "description": "A skinning knife lies here.",
+      "material": "iron",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "(none)",
+        "dice": [
+          1,
+          4
+        ],
+        "damageType": "slash"
+      },
+      "level": 10,
+      "weight": 10,
+      "cost": 200,
+      "condition": 100
+    },
+    {
+      "vnum": 212,
+      "name": "butcher knife",
+      "shortDescr": "a butcher knife",
+      "description": "A butcher knife lies here.",
+      "material": "iron",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "(none)",
+        "dice": [
+          1,
+          4
+        ],
+        "damageType": "slash"
+      },
+      "level": 10,
+      "weight": 10,
+      "cost": 200,
+      "condition": 100
+    },
+    {
+      "vnum": 213,
+      "name": "mining pick",
+      "shortDescr": "a mining pick",
+      "description": "A mining pick lies here.",
+      "material": "iron",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "(none)",
+        "dice": [
+          1,
+          4
+        ],
+        "damageType": "pierce"
+      },
+      "level": 10,
+      "weight": 10,
+      "cost": 200,
+      "condition": 100
+    },
+    {
+      "vnum": 300,
+      "name": "copper vein",
+      "shortDescr": "a copper vein",
+      "description": "A faint glitter of copper shines from the walls.",
+      "material": "copper",
+      "itemType": "gather",
+      "values": [
+        1,
+        106,
+        2,
+        0,
+        0
+      ],
+      "level": 5,
+      "condition": 100
+    },
+    {
+      "vnum": 301,
+      "name": "tin vein",
+      "shortDescr": "a tin vein",
+      "description": "Traces of tin sparkle from the walls.",
+      "material": "tin",
+      "itemType": "gather",
+      "values": [
+        1,
+        107,
+        1,
+        0,
+        0
+      ],
+      "level": 15,
+      "condition": 100
+    },
+    {
+      "vnum": 302,
+      "name": "iron deposit",
+      "shortDescr": "an iron deposit",
+      "description": "The walls have faint, rusty red splotches of iron.",
+      "material": "iron",
+      "itemType": "gather",
+      "values": [
+        1,
+        108,
+        2,
+        0,
+        0
+      ],
+      "level": 25,
+      "condition": 100
+    },
+    {
+      "vnum": 401,
+      "name": "cap leather",
+      "shortDescr": "a leather cap",
+      "description": "A simple leather cap lies here.",
+      "material": "leather",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "head"
+      ],
+      "armor": {
+        "acPierce": 2,
+        "acBash": 1,
+        "acSlash": 2,
+        "armorType": "light"
+      },
+      "level": 5,
+      "weight": 3,
+      "cost": 50,
+      "condition": 100
+    },
+    {
+      "vnum": 402,
+      "name": "vest leather",
+      "shortDescr": "a leather vest",
+      "description": "A sturdy leather vest lies here.",
+      "material": "leather",
+      "itemType": "armor",
+      "wearFlags": [
+        "take",
+        "body"
+      ],
+      "armor": {
+        "acPierce": 2,
+        "acBash": 1,
+        "acSlash": 2,
+        "armorType": "light"
+      },
+      "level": 5,
+      "weight": 8,
+      "cost": 150,
+      "condition": 100
+    },
+    {
+      "vnum": 511,
+      "name": "dagger iron",
+      "shortDescr": "an iron dagger",
+      "description": "A simple iron dagger lies here.",
+      "material": "iron",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "dagger",
+        "dice": [
+          1,
+          4
+        ],
+        "damageType": "stab"
+      },
+      "level": 5,
+      "weight": 4,
+      "cost": 75,
+      "condition": 100
+    },
+    {
+      "vnum": 512,
+      "name": "sword iron",
+      "shortDescr": "an iron sword",
+      "description": "A sturdy iron sword lies here.",
+      "material": "iron",
+      "itemType": "weapon",
+      "wearFlags": [
+        "take",
+        "wield"
+      ],
+      "weapon": {
+        "class": "sword",
+        "dice": [
+          2,
+          6
+        ],
+        "damageType": "slash"
+      },
+      "level": 10,
+      "weight": 10,
+      "cost": 200,
+      "condition": 100
+    },
+    {
+      "vnum": 521,
+      "name": "rations trail",
+      "shortDescr": "some trail rations",
+      "description": "A bundle of trail rations lies here.",
+      "material": "food",
+      "itemType": "food",
+      "wearFlags": [
+        "take"
+      ],
+      "food": {
+        "foodHours": 24,
+        "fullHours": 10
+      },
+      "level": 5,
+      "weight": 2,
+      "cost": 25,
+      "condition": 100
+    }
+  ],
+  "shops": [],
+  "specials": [],
+  "mobprogs": [],
+  "resets": [],
+  "factions": [],
+  "quests": [],
+  "recipes": [
+    {
+      "vnum": 301,
+      "name": "tan hide",
+      "skill": "leatherworking",
+      "minSkill": 1,
+      "stationType": [
+        "tannery"
+      ],
+      "inputs": [
+        {
+          "vnum": 101,
+          "quantity": 1
+        }
+      ],
+      "outputVnum": 102
+    },
+    {
+      "vnum": 302,
+      "name": "cut strips",
+      "skill": "leatherworking",
+      "minSkill": 1,
+      "stationType": [
+        "tannery"
+      ],
+      "inputs": [
+        {
+          "vnum": 102,
+          "quantity": 1
+        }
+      ],
+      "outputVnum": 103,
+      "outputQuantity": 3
+    },
+    {
+      "vnum": 303,
+      "name": "leather cap",
+      "skill": "leatherworking",
+      "minSkill": 10,
+      "minLevel": 5,
+      "stationType": [
+        "tannery"
+      ],
+      "inputs": [
+        {
+          "vnum": 102,
+          "quantity": 1
+        },
+        {
+          "vnum": 103,
+          "quantity": 1
+        }
+      ],
+      "outputVnum": 401
+    },
+    {
+      "vnum": 304,
+      "name": "leather vest",
+      "skill": "leatherworking",
+      "minSkill": 1,
+      "minLevel": 5,
+      "stationType": [
+        "tannery"
+      ],
+      "inputs": [
+        {
+          "vnum": 102,
+          "quantity": 2
+        },
+        {
+          "vnum": 103,
+          "quantity": 1
+        }
+      ],
+      "outputVnum": 402
+    },
+    {
+      "vnum": 311,
+      "name": "cook meat",
+      "skill": "cooking",
+      "minSkill": 1,
+      "stationType": [
+        "cooking"
+      ],
+      "inputs": [
+        {
+          "vnum": 104,
+          "quantity": 1
+        }
+      ],
+      "outputVnum": 105
+    },
+    {
+      "vnum": 312,
+      "name": "trail rations",
+      "skill": "cooking",
+      "minSkill": 10,
+      "minLevel": 5,
+      "stationType": [
+        "cooking"
+      ],
+      "inputs": [
+        {
+          "vnum": 105,
+          "quantity": 1
+        },
+        {
+          "vnum": 120,
+          "quantity": 1
+        }
+      ],
+      "outputVnum": 521
+    },
+    {
+      "vnum": 321,
+      "name": "smelt iron",
+      "skill": "blacksmithing",
+      "minSkill": 1,
+      "stationType": [
+        "smelter"
+      ],
+      "inputs": [
+        {
+          "vnum": 108,
+          "quantity": 2
+        }
+      ],
+      "outputVnum": 112
+    },
+    {
+      "vnum": 322,
+      "name": "iron dagger",
+      "skill": "blacksmithing",
+      "minSkill": 10,
+      "minLevel": 5,
+      "stationType": [
+        "forge"
+      ],
+      "inputs": [
+        {
+          "vnum": 112,
+          "quantity": 1
+        }
+      ],
+      "outputVnum": 511
+    },
+    {
+      "vnum": 323,
+      "name": "iron sword",
+      "skill": "blacksmithing",
+      "minSkill": 20,
+      "minLevel": 10,
+      "stationType": [
+        "forge"
+      ],
+      "inputs": [
+        {
+          "vnum": 112,
+          "quantity": 2
+        }
+      ],
+      "outputVnum": 512
+    }
+  ],
+  "gatherSpawns": []
+}

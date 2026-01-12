@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "Redferne's",
     "builders": "",
     "vnumRange": [
@@ -564,7 +564,7 @@
         "take"
       ],
       "money": {
-        "gold": -100
+        "copper": -100
       },
       "condition": 100,
       "extraDescs": [
@@ -745,5 +745,7 @@
     }
   ],
   "factions": [],
-  "quests": []
+  "quests": [],
+  "recipes": [],
+  "gatherSpawns": []
 }
