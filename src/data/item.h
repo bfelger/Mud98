@@ -204,11 +204,12 @@ typedef enum weapon_type_t {
     WEAPON_WHIP             = 7,
     WEAPON_POLEARM          = 8,
     WEAPON_SKINNING_KNIFE   = 9,
-    WEAPON_MINING_PICK     = 10,
+    WEAPON_MINING_PICK      = 10,
     WEAPON_SMITHING_HAMMER  = 11,
+    WEAPON_BUTCHER_KNIFE    = 12,
 } WeaponType;
 
-#define WEAPON_TYPE_COUNT 12
+#define WEAPON_TYPE_COUNT 13
 typedef struct weapon_info_t {
     const WeaponType type;
     const char* name;

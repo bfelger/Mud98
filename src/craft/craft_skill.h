@@ -7,8 +7,10 @@
 #ifndef MUD98_CRAFT_CRAFT_SKILL_H
 #define MUD98_CRAFT_CRAFT_SKILL_H
 
-#include "merc.h"
-#include "craft/recipe.h"
+#include <merc.h>
+#include <data/skill.h>
+
+#include "recipe.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Skill Improvement Rate Constants
@@ -67,5 +69,8 @@ CraftCheckResult evaluate_craft_check(
     int recipe_level,   // Recipe's minimum level
     int roll            // The d100 roll (injected for testing)
 );
+
+// Check to see if character has required crafting tool equipped
+bool has_crafting_tool(Mobile* ch, WeaponType required_tool);
 
 #endif // MUD98_CRAFT_CRAFT_SKILL_H

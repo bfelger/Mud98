@@ -6,8 +6,9 @@
 
 #include "craft/craft_skill.h"
 
-#include "handler.h"
-#include "rng.h"
+#include <handler.h>
+#include <rng.h>
+#include <skill.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 // Quality Tier Functions
@@ -114,4 +115,20 @@ int craft_improve_multiplier(Recipe* recipe, Mobile* ch)
     if (level_diff < 5)
         return CRAFT_IMPROVE_MEDIUM; // Medium - normal improvement (3)
     return CRAFT_IMPROVE_HARD;       // Hard - faster improvement (2)
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Helper Functions
+////////////////////////////////////////////////////////////////////////////////
+
+bool has_crafting_tool(Mobile* ch, WeaponType required_tool)
+{
+    Object* wielded = get_eq_char(ch, WEAR_WIELD);
+    if (wielded && wielded->item_type == ITEM_WEAPON) {
+        WeaponType wielded_type = wielded->value[0];
+        if (wielded_type == required_tool)
+            return true;
+    }
+
+    return false;
 }

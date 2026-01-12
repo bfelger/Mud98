@@ -49,6 +49,15 @@ static int count_mob_objects_by_vnum(Mobile* ch, VNUM vnum)
     return count;
 }
 
+static void equip_mining_pick(Mobile* ch, VNUM vnum)
+{
+    Object* tool = mock_sword("mining pick", vnum, 1, 1, 4);
+    tool->weapon.weapon_type = WEAPON_MINING_PICK;
+    tool->prototype->weapon.weapon_type = WEAPON_MINING_PICK;
+    obj_to_char(tool, ch);
+    equip_char(ch, tool, WEAR_WIELD);
+}
+
 static Object* setup_mining_node(Room* room, VNUM node_vnum, VNUM mat_vnum,
     int quantity, int min_skill)
 {
@@ -183,6 +192,7 @@ static int test_mine_success_creates_materials_and_depletes_node()
     ch->level = 5;
     transfer_mob(ch, room);
     mock_skill(ch, gsn_mining, 100);
+    equip_mining_pick(ch, 62901);
 
     VNUM node_vnum = 62000;
     VNUM mat_vnum = 62010;
@@ -200,11 +210,36 @@ static int test_mine_success_creates_materials_and_depletes_node()
     return 0;
 }
 
+static int test_mine_requires_tool()
+{
+    Room* room = mock_room(62005, NULL, NULL);
+    Mobile* ch = mock_player("NoPickMiner");
+    ch->level = 5;
+    transfer_mob(ch, room);
+    mock_skill(ch, gsn_mining, 100);
+
+    VNUM node_vnum = 62005;
+    VNUM mat_vnum = 62015;
+    Object* node = setup_mining_node(room, node_vnum, mat_vnum, 1, 0);
+
+    test_socket_output_enabled = true;
+    do_mine(ch, "node");
+    test_socket_output_enabled = false;
+
+    ASSERT(count_mob_objects_by_vnum(ch, mat_vnum) == 0);
+    ASSERT(node->gather.quantity == 1);
+    ASSERT_OUTPUT_CONTAINS("need a mining pick");
+    test_output_buffer = NIL_VAL;
+
+    return 0;
+}
+
 static int test_mine_requires_skill()
 {
     Room* room = mock_room(62002, NULL, NULL);
     Mobile* ch = mock_player("NoSkillMiner");
     transfer_mob(ch, room);
+    equip_mining_pick(ch, 62902);
 
     VNUM node_vnum = 62002;
     VNUM mat_vnum = 62012;
@@ -229,6 +264,7 @@ static int test_mine_respects_min_skill()
     ch->level = 5;
     transfer_mob(ch, room);
     mock_skill(ch, gsn_mining, 25);
+    equip_mining_pick(ch, 62903);
 
     VNUM node_vnum = 62003;
     VNUM mat_vnum = 62013;
@@ -252,6 +288,7 @@ static int test_mine_already_mined()
     Mobile* ch = mock_player("MinedOut");
     transfer_mob(ch, room);
     mock_skill(ch, gsn_mining, 80);
+    equip_mining_pick(ch, 62904);
 
     VNUM node_vnum = 62004;
     VNUM mat_vnum = 62014;
@@ -284,6 +321,8 @@ void register_gather_spawn_tests()
         test_reset_area_gather_spawns_respects_respawn_timer);
     REGISTER("Mine Success Creates Materials And Depletes Node",
         test_mine_success_creates_materials_and_depletes_node);
+    REGISTER("Mine Requires Tool",
+        test_mine_requires_tool);
     REGISTER("Mine Requires Skill",
         test_mine_requires_skill);
     REGISTER("Mine Respects Min Skill",

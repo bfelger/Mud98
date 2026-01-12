@@ -43,6 +43,26 @@
 
 TestGroup craft_tests;
 
+static void equip_crafting_tool(Mobile* ch, WeaponType weapon_type, VNUM vnum,
+    const char* name)
+{
+    Object* tool = mock_sword(name, vnum, 1, 1, 4);
+    tool->weapon.weapon_type = weapon_type;
+    tool->prototype->weapon.weapon_type = weapon_type;
+    obj_to_char(tool, ch);
+    equip_char(ch, tool, WEAR_WIELD);
+}
+
+static void equip_skinning_knife(Mobile* ch, VNUM vnum)
+{
+    equip_crafting_tool(ch, WEAPON_SKINNING_KNIFE, vnum, "skinning knife");
+}
+
+static void equip_butcher_knife(Mobile* ch, VNUM vnum)
+{
+    equip_crafting_tool(ch, WEAPON_BUTCHER_KNIFE, vnum, "butcher knife");
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Issue #1: Crafting Enum Tests
 ////////////////////////////////////////////////////////////////////////////////
@@ -1120,11 +1140,57 @@ static int test_skin_not_a_corpse()
     return 0;
 }
 
+static int test_skin_requires_tool()
+{
+    Room* room = mock_room(80009, NULL, NULL);
+    Mobile* ch = mock_player("Tester");
+    transfer_mob(ch, room);
+    ch->level = 10;
+    mock_skill(ch, gsn_skinning, 100);
+
+    MobPrototype* mp = mock_mob_proto(80007);
+    ObjPrototype* hide_proto = mock_obj_proto(80024);
+    hide_proto->item_type = ITEM_MAT;
+    hide_proto->craft_mat.mat_type = MAT_HIDE;
+    hide_proto->craft_mat.amount = 1;
+    hide_proto->craft_mat.quality = 50;
+
+    mp->craft_mat_count = 1;
+    mp->craft_mats = alloc_mem(sizeof(VNUM));
+    mp->craft_mats[0] = VNUM_FIELD(hide_proto);
+
+    Mobile* mob = create_mobile(mp);
+    transfer_mob(mob, room);
+
+    make_corpse(mob);
+
+    test_socket_output_enabled = true;
+    do_skin(ch, "corpse");
+    test_socket_output_enabled = false;
+
+    ASSERT_OUTPUT_CONTAINS("need a skinning knife");
+
+    Object* corpse = NULL;
+    Object* obj = NULL;
+    FOR_EACH_ROOM_OBJ(obj, room) {
+        if (obj->item_type == ITEM_CORPSE_NPC) {
+            corpse = obj;
+            break;
+        }
+    }
+    ASSERT(corpse != NULL);
+    ASSERT(!(corpse->corpse.extraction_flags & CORPSE_SKINNED));
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
 static int test_skin_already_skinned()
 {
     Room* room = mock_room(80003, NULL, NULL);
     Mobile* ch = mock_player("Tester");
     transfer_mob(ch, room);
+    equip_skinning_knife(ch, 80901);
     
     // Create an NPC and kill it to make a corpse
     MobPrototype* mp = mock_mob_proto(80001);
@@ -1162,6 +1228,7 @@ static int test_skin_no_skinnable_mats()
     transfer_mob(ch, room);
     ch->level = 10;  // High enough for skinning skill (requires level 5)
     mock_skill(ch, gsn_skinning, 100);  // Give skill but no skinnable mats
+    equip_skinning_knife(ch, 80902);
     
     // Create mob with only meat (not skinnable)
     MobPrototype* mp = mock_mob_proto(80002);
@@ -1196,6 +1263,7 @@ static int test_skin_success()
     transfer_mob(ch, room);
     ch->level = 10;  // High enough for skinning skill (requires level 5)
     mock_skill(ch, gsn_skinning, 100);  // 100% skill guarantees success
+    equip_skinning_knife(ch, 80903);
     
     // Create mob with skinnable hide
     MobPrototype* mp = mock_mob_proto(80003);
@@ -1257,6 +1325,7 @@ static int test_skin_no_skill()
     transfer_mob(ch, room);
     ch->level = 10;
     // Don't set skinning skill - player hasn't learned it
+    equip_skinning_knife(ch, 80904);
     
     // Create mob with skinnable hide
     MobPrototype* mp = mock_mob_proto(80004);
@@ -1305,6 +1374,7 @@ static int test_skin_failure()
     transfer_mob(ch, room);
     ch->level = 10;
     mock_skill(ch, gsn_skinning, 1);  // Only 1% skill - will likely fail
+    equip_skinning_knife(ch, 80905);
     
     // Create mob with skinnable hide
     MobPrototype* mp = mock_mob_proto(80005);
@@ -1359,6 +1429,7 @@ static int test_skin_skill_improve()
     transfer_mob(ch, room);
     ch->level = 10;
     mock_skill(ch, gsn_skinning, 50);  // 50% skill
+    equip_skinning_knife(ch, 80906);
     
     // Create mob with skinnable hide
     MobPrototype* mp = mock_mob_proto(80006);
@@ -1415,11 +1486,57 @@ static int test_butcher_no_argument()
     return 0;
 }
 
+static int test_butcher_requires_tool()
+{
+    Room* room = mock_room(80106, NULL, NULL);
+    Mobile* ch = mock_player("Tester");
+    transfer_mob(ch, room);
+    ch->level = 10;
+    mock_skill(ch, gsn_butchering, 100);
+
+    MobPrototype* mp = mock_mob_proto(80016);
+    ObjPrototype* meat_proto = mock_obj_proto(80046);
+    meat_proto->item_type = ITEM_MAT;
+    meat_proto->craft_mat.mat_type = MAT_MEAT;
+    meat_proto->craft_mat.amount = 1;
+    meat_proto->craft_mat.quality = 50;
+
+    mp->craft_mat_count = 1;
+    mp->craft_mats = alloc_mem(sizeof(VNUM));
+    mp->craft_mats[0] = VNUM_FIELD(meat_proto);
+
+    Mobile* mob = create_mobile(mp);
+    transfer_mob(mob, room);
+
+    make_corpse(mob);
+
+    test_socket_output_enabled = true;
+    do_butcher(ch, "corpse");
+    test_socket_output_enabled = false;
+
+    ASSERT_OUTPUT_CONTAINS("need a butcher knife");
+
+    Object* corpse = NULL;
+    Object* obj = NULL;
+    FOR_EACH_ROOM_OBJ(obj, room) {
+        if (obj->item_type == ITEM_CORPSE_NPC) {
+            corpse = obj;
+            break;
+        }
+    }
+    ASSERT(corpse != NULL);
+    ASSERT(!(corpse->corpse.extraction_flags & CORPSE_BUTCHERED));
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
 static int test_butcher_already_butchered()
 {
     Room* room = mock_room(80102, NULL, NULL);
     Mobile* ch = mock_player("Tester");
     transfer_mob(ch, room);
+    equip_butcher_knife(ch, 80911);
     
     MobPrototype* mp = mock_mob_proto(80011);
     Mobile* mob = create_mobile(mp);
@@ -1456,6 +1573,7 @@ static int test_butcher_no_butcherable_mats()
     transfer_mob(ch, room);
     ch->level = 10;  // High enough for butchering skill (requires level 5)
     mock_skill(ch, gsn_butchering, 100);  // Give skill but no butcherable mats
+    equip_butcher_knife(ch, 80912);
     
     // Create mob with only hide (not butcherable)
     MobPrototype* mp = mock_mob_proto(80012);
@@ -1490,6 +1608,7 @@ static int test_butcher_success()
     transfer_mob(ch, room);
     ch->level = 10;  // High enough for butchering skill (requires level 5)
     mock_skill(ch, gsn_butchering, 100);  // 100% skill guarantees success
+    equip_butcher_knife(ch, 80913);
     
     // Create mob with butcherable meat
     MobPrototype* mp = mock_mob_proto(80013);
@@ -3992,6 +4111,7 @@ void register_craft_tests()
     // Issue #9: Skin Command
     REGISTER("Skin: No Argument", test_skin_no_argument);
     REGISTER("Skin: Not A Corpse", test_skin_not_a_corpse);
+    REGISTER("Skin: Requires Tool", test_skin_requires_tool);
     REGISTER("Skin: Already Skinned", test_skin_already_skinned);
     REGISTER("Skin: No Skinnable Mats", test_skin_no_skinnable_mats);
     REGISTER("Skin: Success", test_skin_success);
@@ -4003,6 +4123,7 @@ void register_craft_tests()
     
     // Issue #10: Butcher Command
     REGISTER("Butcher: No Argument", test_butcher_no_argument);
+    REGISTER("Butcher: Requires Tool", test_butcher_requires_tool);
     REGISTER("Butcher: Already Butchered", test_butcher_already_butchered);
     REGISTER("Butcher: No Butcherable Mats", test_butcher_no_butcherable_mats);
     REGISTER("Butcher: Success", test_butcher_success);

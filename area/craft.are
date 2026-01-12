@@ -257,6 +257,30 @@ iron~
 workstation 0 0
 AB 5 0 0 0
 40 400 5000 P
+#211
+skinning knife~
+a skinning knife~
+A skinning knife lies here.~
+iron~
+weapon 0 AN
+skinningknife 1 4 'slash' 0
+10 10 200 P
+#212
+butcher knife~
+a butcher knife~
+A butcher knife lies here.~
+iron~
+weapon 0 AN
+butcherknife 1 4 'slash' 0
+10 10 200 P
+#213
+mining pick~
+a mining pick~
+A mining pick lies here.~
+iron~
+weapon 0 AN
+miningpick 1 4 'pierce' 0
+10 10 200 P
 #300
 copper vein~
 a copper vein~

@@ -749,6 +749,12 @@ void do_skin(Mobile* ch, char* argument)
         send_to_char("That's not a corpse.\n\r", ch);
         return;
     }
+    // TODO: Add a value to node that specifies min tool level
+    if (!has_crafting_tool(ch, WEAPON_SKINNING_KNIFE)) {
+        send_to_char("You need a skinning knife to do that.\n\r", ch);
+        return;
+    }
+
     ExtractionResult result = evaluate_skin(ch, corpse);
     
     if (!result.success) {
@@ -777,6 +783,13 @@ void do_butcher(Mobile* ch, char* argument)
         send_to_char("That's not a corpse.\n\r", ch);
         return;
     }
+
+    // TODO: Add a value to node that specifies min tool level
+    if (!has_crafting_tool(ch, WEAPON_BUTCHER_KNIFE)) {
+        send_to_char("You need a butcher knife to do that.\n\r", ch);
+        return;
+    }
+    
     ExtractionResult result = evaluate_butcher(ch, corpse);
     
     if (!result.success) {
@@ -801,6 +814,13 @@ void do_mine(Mobile* ch, char* argument)
     }
     
     Object* node = get_obj_here(ch, arg);
+
+    // TODO: Add a value to node that specifies min tool level
+    if (!has_crafting_tool(ch, WEAPON_MINING_PICK)) {
+        send_to_char("You need a mining pick to mine with.\n\r", ch);
+        return;
+    }
+
     ExtractionResult result = evaluate_mine(ch, node);
     
     if (!result.success) {

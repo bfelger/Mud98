@@ -163,9 +163,10 @@ const WeaponInfo weapon_table[WEAPON_TYPE_COUNT] = {
     { WEAPON_FLAIL,             "flail",            &gsn_flail,     OBJ_VNUM_SCHOOL_FLAIL   },
     { WEAPON_WHIP,              "whip",             &gsn_whip,      OBJ_VNUM_SCHOOL_WHIP    },
     { WEAPON_POLEARM,           "polearm",          &gsn_polearm,   OBJ_VNUM_SCHOOL_POLEARM },
-    { WEAPON_SKINNING_KNIFE,    "skinning knife",   &gsn_skinning,          0               },
-    { WEAPON_MINING_PICK,       "mining pick",      &gsn_mining,            0               },
-    { WEAPON_SMITHING_HAMMER,   "smithing hammer",  &gsn_blacksmithing,     0               },
+    { WEAPON_SKINNING_KNIFE,    "skinningknife",    &gsn_skinning,          0               },
+    { WEAPON_MINING_PICK,       "miningpick",       &gsn_mining,            0               },
+    { WEAPON_SMITHING_HAMMER,   "smithinghammer",   &gsn_blacksmithing,     0               },
+    { WEAPON_BUTCHER_KNIFE,     "butcherknife",     &gsn_butchering,        0               },
 };
 
 const char* weapon_type_name(WeaponType type)
