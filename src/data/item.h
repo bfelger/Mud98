@@ -194,19 +194,21 @@ typedef enum weapon_flags_t {
 } WeaponFlags;
 
 typedef enum weapon_type_t {
-    WEAPON_EXOTIC       = 0,
-    WEAPON_SWORD        = 1,
-    WEAPON_DAGGER       = 2,
-    WEAPON_SPEAR        = 3,
-    WEAPON_MACE         = 4,
-    WEAPON_AXE          = 5,
-    WEAPON_FLAIL        = 6,
-    WEAPON_WHIP         = 7,
-    WEAPON_POLEARM      = 8,
+    WEAPON_EXOTIC           = 0,
+    WEAPON_SWORD            = 1,
+    WEAPON_DAGGER           = 2,
+    WEAPON_SPEAR            = 3,
+    WEAPON_MACE             = 4,
+    WEAPON_AXE              = 5,
+    WEAPON_FLAIL            = 6,
+    WEAPON_WHIP             = 7,
+    WEAPON_POLEARM          = 8,
+    WEAPON_SKINNING_KNIFE   = 9,
+    WEAPON_MINING_PICK     = 10,
+    WEAPON_SMITHING_HAMMER  = 11,
 } WeaponType;
 
-#define WEAPON_TYPE_COUNT 9
-
+#define WEAPON_TYPE_COUNT 12
 typedef struct weapon_info_t {
     const WeaponType type;
     const char* name;

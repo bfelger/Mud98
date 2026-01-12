@@ -1256,7 +1256,8 @@ static void nanny_weapon_prompt(Descriptor* d, Mobile* ch)
     write_to_buffer(d, "Please pick a weapon from the following choices:\n\r", 0);
     // Skip exotic. No one is trained in it.
     for (int i = 1; i < WEAPON_TYPE_COUNT; i++)
-        if (ch->pcdata->learned[*weapon_table[i].gsn] > 0) {
+        if (ch->pcdata->learned[*weapon_table[i].gsn] > 0 
+            && weapon_table[i].vnum > 0) {
             sb_append(sb, weapon_table[i].name);
             sb_append(sb, " ");
         }
@@ -1719,7 +1720,8 @@ void nanny(Descriptor * d, char* argument)
         write_to_buffer(d, "\n\r", 2);
         weapon = weapon_lookup(argument);
         if (weapon == WEAPON_EXOTIC
-            || ch->pcdata->learned[*weapon_table[weapon].gsn] <= 0) {
+            || ch->pcdata->learned[*weapon_table[weapon].gsn] <= 0
+            || weapon_table[weapon].vnum <= 0) {
             write_to_buffer(d, "That's not a valid selection. Choices are:\n\r",
                 0);
             StringBuffer* sb_weapon = sb_new();

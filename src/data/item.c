@@ -154,15 +154,18 @@ const LiquidInfo liquid_table[LIQ_COUNT] = {
 };
 
 const WeaponInfo weapon_table[WEAPON_TYPE_COUNT] = {
-    { WEAPON_EXOTIC,    "exotic",       &gsn_exotic,    OBJ_VNUM_SCHOOL_SWORD   },
-    { WEAPON_SWORD,     "sword",        &gsn_sword,     OBJ_VNUM_SCHOOL_SWORD   },
-    { WEAPON_DAGGER,    "dagger",       &gsn_dagger,    OBJ_VNUM_SCHOOL_DAGGER  },
-    { WEAPON_SPEAR,     "staff",        &gsn_spear,     OBJ_VNUM_SCHOOL_STAFF   },
-    { WEAPON_MACE,      "mace",         &gsn_mace,      OBJ_VNUM_SCHOOL_MACE    },
-    { WEAPON_AXE,       "axe",          &gsn_axe,       OBJ_VNUM_SCHOOL_AXE     },
-    { WEAPON_FLAIL,     "flail",        &gsn_flail,     OBJ_VNUM_SCHOOL_FLAIL   },
-    { WEAPON_WHIP,      "whip",         &gsn_whip,      OBJ_VNUM_SCHOOL_WHIP    },
-    { WEAPON_POLEARM,   "polearm",      &gsn_polearm,   OBJ_VNUM_SCHOOL_POLEARM },
+    { WEAPON_EXOTIC,            "exotic",           &gsn_exotic,    OBJ_VNUM_SCHOOL_SWORD   },
+    { WEAPON_SWORD,             "sword",            &gsn_sword,     OBJ_VNUM_SCHOOL_SWORD   },
+    { WEAPON_DAGGER,            "dagger",           &gsn_dagger,    OBJ_VNUM_SCHOOL_DAGGER  },
+    { WEAPON_SPEAR,             "staff",            &gsn_spear,     OBJ_VNUM_SCHOOL_STAFF   },
+    { WEAPON_MACE,              "mace",             &gsn_mace,      OBJ_VNUM_SCHOOL_MACE    },
+    { WEAPON_AXE,               "axe",              &gsn_axe,       OBJ_VNUM_SCHOOL_AXE     },
+    { WEAPON_FLAIL,             "flail",            &gsn_flail,     OBJ_VNUM_SCHOOL_FLAIL   },
+    { WEAPON_WHIP,              "whip",             &gsn_whip,      OBJ_VNUM_SCHOOL_WHIP    },
+    { WEAPON_POLEARM,           "polearm",          &gsn_polearm,   OBJ_VNUM_SCHOOL_POLEARM },
+    { WEAPON_SKINNING_KNIFE,    "skinning knife",   &gsn_skinning,          0               },
+    { WEAPON_MINING_PICK,       "mining pick",      &gsn_mining,            0               },
+    { WEAPON_SMITHING_HAMMER,   "smithing hammer",  &gsn_blacksmithing,     0               },
 };
 
 const char* weapon_type_name(WeaponType type)
