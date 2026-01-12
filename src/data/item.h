@@ -216,6 +216,8 @@ typedef struct weapon_info_t {
 
 extern const WeaponInfo weapon_table[WEAPON_TYPE_COUNT];
 
+const char* weapon_type_name(WeaponType type);
+
 ////////////////////////////////////////////////////////////////////////////////
 
 typedef enum wear_flags_t {

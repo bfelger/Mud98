@@ -1378,75 +1378,34 @@ void do_ostat(Mobile* ch, char* argument)
         break;
 
     case ITEM_WEAPON:
-        send_to_char("Weapon type is ", ch);
-        switch (obj->weapon.weapon_type) {
-        case (WEAPON_EXOTIC):
-            send_to_char("exotic\n\r", ch);
-            break;
-        case (WEAPON_SWORD):
-            send_to_char("sword\n\r", ch);
-            break;
-        case (WEAPON_DAGGER):
-            send_to_char("dagger\n\r", ch);
-            break;
-        case (WEAPON_SPEAR):
-            send_to_char("spear/staff\n\r", ch);
-            break;
-        case (WEAPON_MACE):
-            send_to_char("mace/club\n\r", ch);
-            break;
-        case (WEAPON_AXE):
-            send_to_char("axe\n\r", ch);
-            break;
-        case (WEAPON_FLAIL):
-            send_to_char("flail\n\r", ch);
-            break;
-        case (WEAPON_WHIP):
-            send_to_char("whip\n\r", ch);
-            break;
-        case (WEAPON_POLEARM):
-            send_to_char("polearm\n\r", ch);
-            break;
-        default:
-            send_to_char("unknown\n\r", ch);
-            break;
-        }
-        sprintf(buf, "Damage is %dd%d (average %d)\n\r", obj->weapon.num_dice,
+        printf_to_char(ch, "Weapon type is %s.\n\r", 
+            weapon_type_name(obj->weapon.weapon_type));
+        printf_to_char(ch, "Damage is %dd%d (average %d)\n\r", obj->weapon.num_dice,
                 obj->weapon.size_dice, (1 + obj->weapon.size_dice) * obj->weapon.num_dice / 2);
-        send_to_char(buf, ch);
-
-        sprintf(buf, "Damage noun is %s.\n\r",
+        printf_to_char(ch, "Damage noun is %s.\n\r",
                 (obj->weapon.damage_type > 0 && obj->weapon.damage_type < ATTACK_COUNT)
                     ? attack_table[obj->weapon.damage_type].noun
                     : "undefined");
-        send_to_char(buf, ch);
-
-        if (obj->weapon.flags) /* weapon flags */
-        {
-            sprintf(buf, "Weapons flags: %s\n\r",
+        if (obj->weapon.flags) {
+            /* weapon flags */
+            printf_to_char(ch, "Weapons flags: %s\n\r",
                     weapon_bit_name(obj->weapon.flags));
-            send_to_char(buf, ch);
         }
         break;
 
     case ITEM_ARMOR:
-        sprintf(
-            buf,
+        printf_to_char(ch,
             "Armor class is %d pierce, %d bash, %d slash, and %d vs. magic\n\r",
             obj->armor.ac_pierce, obj->armor.ac_bash, obj->armor.ac_slash, obj->armor.ac_exotic);
-        send_to_char(buf, ch);
-        sprintf(buf, "Armor type is %s.\n\r",
+        printf_to_char(ch, "Armor type is %s.\n\r",
                 armor_type_name(armor_type_from_value(obj->armor.armor_type)));
-        send_to_char(buf, ch);
         break;
 
     case ITEM_CONTAINER:
-        sprintf(buf, "Capacity: %d#  Maximum weight: %d#  flags: %s\n\r",
+        printf_to_char(ch, "Capacity: %d#  Maximum weight: %d#  flags: %s\n\r",
                 obj->container.capacity, obj->container.max_item_weight, cont_bit_name(obj->container.flags));
-        send_to_char(buf, ch);
         if (obj->container.weight_mult != 100) {
-            sprintf(buf, "Weight multiplier: %d%%\n\r", obj->container.weight_mult);
-            send_to_char(buf, ch);
+            printf_to_char(ch, "Weight multiplier: %d%%\n\r", obj->container.weight_mult);
         }
         break;
     default:
@@ -1456,30 +1415,30 @@ void do_ostat(Mobile* ch, char* argument)
     if (obj->extra_desc != NULL || obj->prototype->extra_desc != NULL) {
         ExtraDesc* ed;
 
-        send_to_char("Extra description keywords: '", ch);
+        printf_to_char(ch, "Extra description keywords: '");
 
         FOR_EACH(ed, obj->extra_desc) {
-            send_to_char(ed->keyword, ch);
-            if (ed->next != NULL) send_to_char(" ", ch);
+            printf_to_char(ch, "%s", ed->keyword);
+            if (ed->next != NULL) printf_to_char(ch, " ");
         }
 
         FOR_EACH(ed, obj->prototype->extra_desc) {
-            send_to_char(ed->keyword, ch);
-            if (ed->next != NULL) send_to_char(" ", ch);
+            printf_to_char(ch, "%s", ed->keyword);
+            if (ed->next != NULL) printf_to_char(ch, " ");
         }
 
-        send_to_char("'\n\r", ch);
+        printf_to_char(ch, "'\n\r");
     }
 
     FOR_EACH(affect, obj->affected) {
         sprintf(buf, "Affects %s by %d, level %d",
                 affect_loc_name(affect->location), affect->modifier, affect->level);
-        send_to_char(buf, ch);
+        printf_to_char(ch, "%s", buf);
         if (affect->duration > -1)
             sprintf(buf, ", %d hours.\n\r", affect->duration);
         else
             sprintf(buf, ".\n\r");
-        send_to_char(buf, ch);
+        printf_to_char(ch, "%s", buf);
         if (affect->bitvector) {
             switch (affect->where) {
             case TO_AFFECTS:

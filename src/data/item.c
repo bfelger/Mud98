@@ -165,6 +165,14 @@ const WeaponInfo weapon_table[WEAPON_TYPE_COUNT] = {
     { WEAPON_POLEARM,   "polearm",      &gsn_polearm,   OBJ_VNUM_SCHOOL_POLEARM },
 };
 
+const char* weapon_type_name(WeaponType type)
+{
+    if (type < WEAPON_TYPE_COUNT)
+        return weapon_table[type].name;
+
+    return "unknown";
+}
+
 struct wear_type {
     WearLocation wear_loc;
     WearFlags wear_bit;

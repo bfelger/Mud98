@@ -2902,39 +2902,8 @@ void spell_identify(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget tar
         break;
 
     case ITEM_WEAPON:
-        send_to_char("Weapon type is ", ch);
-        switch (obj->value[0]) {
-        case WEAPON_EXOTIC:
-            send_to_char("exotic.\n\r", ch);
-            break;
-        case WEAPON_SWORD:
-            send_to_char("sword.\n\r", ch);
-            break;
-        case WEAPON_DAGGER:
-            send_to_char("dagger.\n\r", ch);
-            break;
-        case WEAPON_SPEAR:
-            send_to_char("spear/staff.\n\r", ch);
-            break;
-        case WEAPON_MACE:
-            send_to_char("mace/club.\n\r", ch);
-            break;
-        case WEAPON_AXE:
-            send_to_char("axe.\n\r", ch);
-            break;
-        case WEAPON_FLAIL:
-            send_to_char("flail.\n\r", ch);
-            break;
-        case WEAPON_WHIP:
-            send_to_char("whip.\n\r", ch);
-            break;
-        case WEAPON_POLEARM:
-            send_to_char("polearm.\n\r", ch);
-            break;
-        default:
-            send_to_char("unknown.\n\r", ch);
-            break;
-        }
+        printf_to_char(ch, "Weapon type is %s.\n\r",
+            weapon_type_name(obj->value[0]));
         sprintf(buf, "Damage is %dd%d (average %d).\n\r", obj->value[1],
                 obj->value[2], (1 + obj->value[2]) * obj->value[1] / 2);
         send_to_char(buf, ch);
