@@ -291,5 +291,6 @@ COMMAND(do_moblist)
 COMMAND(do_quest)
 COMMAND(do_lox)
 COMMAND(do_tutorial)
+COMMAND(do_freevlist)
 
 #undef COMMAND

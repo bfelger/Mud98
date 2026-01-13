@@ -1388,6 +1388,11 @@
       "name": "mine",
       "function": "do_mine",
       "position": "standing"
+    },
+    {
+      "name": "freevlist",
+      "function": "do_freevlist",
+      "level": 51
     }
   ]
 }

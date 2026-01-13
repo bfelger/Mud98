@@ -4378,3 +4378,84 @@ void do_olist(Mobile* ch, char* argument)
         send_to_char(syntax, ch);
     }
 }
+
+// Show list of free vnums in an area
+// Usage: freevnums [<area>]
+//        freevnums objs [<area>]
+//        freevnums mobs [<area>]
+//        freevnums rooms [<area>]
+void do_freevlist(Mobile* ch, char* argument)
+{
+    char arg1[MAX_INPUT_LENGTH];
+    char arg2[MAX_INPUT_LENGTH];
+    AreaData* area = olist_get_area(ch);
+
+    typedef void* (*GetterFunc)(VNUM vnum);
+
+    GetterFunc getter = NULL;
+
+    argument = one_argument(argument, arg1);
+    argument = one_argument(argument, arg2);
+
+    if (arg1[0] != '\0') {
+        if (!str_prefix(arg1, "objs") || !str_prefix(arg1, "objects")) {
+            getter = (GetterFunc)get_object_prototype;
+        }
+        else if (!str_prefix(arg1, "mobs") || !str_prefix(arg1, "mobiles")) {
+            getter = (GetterFunc)get_mob_prototype;
+        }
+        else if (!str_prefix(arg1, "rooms")) {
+            getter = (GetterFunc)get_room_data;
+        }
+        else if (!str_prefix(arg1, "quests")) {
+            getter = (GetterFunc)get_quest;
+        }
+        else {
+            send_to_char(COLOR_INFO "Invalid type. Use objs, mobs, rooms, or quests." COLOR_EOL, ch);
+            return;
+        }
+    }
+
+    if (arg2[0] != '\0') {
+        // Try to find area by arg2
+        AreaData* found_area = olist_find_area(arg2);
+        if (found_area) {
+            area = found_area;
+        }
+        else {
+            send_to_char(COLOR_INFO "Area not found." COLOR_EOL, ch);
+            return;
+        }
+    }
+
+    VNUM start_vnum = -1;
+    
+    StringBuffer* sb = sb_new();
+
+    for (int i = area->min_vnum; i <= area->max_vnum; i++) {
+        void* ent = getter(i);
+        if (!ent) {
+            if (start_vnum < 0) {
+                start_vnum = i;
+                sb_appendf(sb, "    %7d", i);
+            }
+        }
+        else {
+            if (start_vnum == i - 1) {
+                sb_appendf(sb, "\n\r");
+                start_vnum = -1;
+            }
+            else if (start_vnum >= 0) {
+                sb_appendf(sb, "-%-7d\n\r", i - 1);
+                start_vnum = -1;
+            }
+        }
+    }
+
+    if (start_vnum >= 0) {
+        sb_appendf(sb, "-%-7d\n\r", area->max_vnum);
+    }
+
+    send_to_char(sb_string(sb), ch);
+    sb_free(sb);
+}

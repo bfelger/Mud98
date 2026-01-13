@@ -1,4 +1,4 @@
-281
+282
 
 #COMMAND
 name .~
@@ -2543,6 +2543,15 @@ name mine~
 do_fun do_mine~
 position standing~
 level 0
+log log_normal~
+show undef~
+#END
+
+#COMMAND
+name freevlist~
+do_fun do_freevlist~
+position dead~
+level 51
 log log_normal~
 show undef~
 #END
