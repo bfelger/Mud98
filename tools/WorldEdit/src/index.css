@@ -322,12 +322,69 @@ body::before {
 
 .view-card__body {
   flex: 1;
+  min-height: 0;
 }
 
 .placeholder-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: 14px;
+}
+
+.room-table {
+  height: 100%;
+  min-height: 360px;
+}
+
+.worldedit-grid {
+  height: 100%;
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(117, 88, 58, 0.25);
+}
+
+.ag-theme-quartz.worldedit-grid {
+  --ag-font-family: "Source Serif 4", "Iowan Old Style", "Palatino Linotype",
+    "Book Antiqua", serif;
+  --ag-foreground-color: var(--ink);
+  --ag-background-color: rgba(255, 255, 255, 0.95);
+  --ag-header-background-color: rgba(47, 108, 106, 0.12);
+  --ag-header-foreground-color: var(--ink-soft);
+  --ag-row-hover-color: rgba(47, 108, 106, 0.08);
+  --ag-odd-row-background-color: rgba(47, 108, 106, 0.04);
+  --ag-border-color: rgba(117, 88, 58, 0.2);
+  --ag-row-border-color: rgba(117, 88, 58, 0.12);
+  --ag-selected-row-background-color: rgba(47, 108, 106, 0.16);
+  --ag-range-selection-background-color: rgba(47, 108, 106, 0.08);
+  --ag-input-border-color: rgba(117, 88, 58, 0.35);
+}
+
+.room-table__empty {
+  height: 100%;
+  min-height: 360px;
+  border-radius: 14px;
+  border: 1px dashed rgba(47, 108, 106, 0.3);
+  background: rgba(47, 108, 106, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: var(--ink-soft);
+  padding: 32px;
+  gap: 8px;
+}
+
+.room-table__empty h3 {
+  margin: 0;
+  color: var(--accent-strong);
+  font-size: 1.1rem;
+}
+
+.room-table__empty p {
+  margin: 0;
+  font-size: 0.95rem;
 }
 
 .placeholder-block {

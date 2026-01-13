@@ -1,6 +1,10 @@
 import { useMemo, useState } from "react";
+import type { ColDef } from "ag-grid-community";
+import { AgGridReact } from "ag-grid-react";
 import { LocalFileRepository } from "./repository/localFileRepository";
 import type { AreaJson, EditorMeta, ReferenceData } from "./repository/types";
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-quartz.css";
 
 const tabs = [
   {
@@ -38,6 +42,14 @@ const entityItems = [
 
 type TabId = (typeof tabs)[number]["id"];
 type EntityKey = (typeof entityItems)[number]["key"];
+
+type RoomRow = {
+  vnum: number;
+  name: string;
+  sector: string;
+  exits: number;
+  flags: string;
+};
 
 const entityDetails: Record<
   EntityKey,
@@ -162,6 +174,43 @@ function buildEditorMeta(
   };
 }
 
+function buildRoomRows(areaData: AreaJson | null): RoomRow[] {
+  if (!areaData) {
+    return [];
+  }
+  const rooms = (areaData as { rooms?: unknown }).rooms;
+  if (!Array.isArray(rooms)) {
+    return [];
+  }
+  return rooms.map((room) => {
+    const data = room as Record<string, unknown>;
+    const vnum =
+      typeof data.vnum === "number"
+        ? data.vnum
+        : Number.isFinite(Number(data.vnum))
+          ? Number(data.vnum)
+          : -1;
+    const name = typeof data.name === "string" ? data.name : "(unnamed room)";
+    const sectorType =
+      typeof data.sectorType === "string"
+        ? data.sectorType
+        : typeof data.sector === "string"
+          ? data.sector
+          : "inside";
+    const roomFlags = Array.isArray(data.roomFlags)
+      ? data.roomFlags.filter((flag) => typeof flag === "string")
+      : [];
+    const exits = Array.isArray(data.exits) ? data.exits.length : 0;
+    return {
+      vnum,
+      name,
+      sector: sectorType,
+      exits,
+      flags: roomFlags.length ? roomFlags.join(", ") : "—"
+    };
+  });
+}
+
 export default function App() {
   const repository = useMemo(() => new LocalFileRepository(), []);
   const [activeTab, setActiveTab] = useState<TabId>(tabs[0].id);
@@ -183,6 +232,25 @@ export default function App() {
 
   const selection = entityDetails[selectedEntity];
   const areaName = fileNameFromPath(areaPath);
+  const roomRows = useMemo(() => buildRoomRows(areaData), [areaData]);
+  const roomColumns = useMemo<ColDef<RoomRow>[]>(
+    () => [
+      { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
+      { headerName: "Name", field: "name", flex: 2, minWidth: 200 },
+      { headerName: "Sector", field: "sector", flex: 1, minWidth: 140 },
+      { headerName: "Exits", field: "exits", width: 110 },
+      { headerName: "Room Flags", field: "flags", flex: 2, minWidth: 220 }
+    ],
+    []
+  );
+  const roomDefaultColDef = useMemo<ColDef>(
+    () => ({
+      sortable: true,
+      resizable: true,
+      filter: true
+    }),
+    []
+  );
 
   const handleOpenArea = async () => {
     setErrorMessage(null);
@@ -484,19 +552,41 @@ export default function App() {
               </div>
             </div>
             <div className="view-card__body">
-              <div className="placeholder-grid">
-                {tabs.map((tab) => (
-                  <div
-                    className={`placeholder-block${
-                      tab.id === activeTab ? " placeholder-block--active" : ""
-                    }`}
-                    key={tab.id}
-                  >
-                    <div className="placeholder-title">{tab.title}</div>
-                    <p>{tab.description}</p>
-                  </div>
-                ))}
-              </div>
+              {activeTab === "Table" && selectedEntity === "Rooms" ? (
+                <div className="room-table">
+                  {roomRows.length ? (
+                    <div className="ag-theme-quartz worldedit-grid">
+                      <AgGridReact<RoomRow>
+                        rowData={roomRows}
+                        columnDefs={roomColumns}
+                        defaultColDef={roomDefaultColDef}
+                        animateRows
+                        rowSelection="single"
+                        getRowId={(params) => String(params.data.vnum)}
+                      />
+                    </div>
+                  ) : (
+                    <div className="room-table__empty">
+                      <h3>Rooms will appear here</h3>
+                      <p>Load an area JSON file to populate the room table.</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="placeholder-grid">
+                  {tabs.map((tab) => (
+                    <div
+                      className={`placeholder-block${
+                        tab.id === activeTab ? " placeholder-block--active" : ""
+                      }`}
+                      key={tab.id}
+                    >
+                      <div className="placeholder-title">{tab.title}</div>
+                      <p>{tab.description}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </main>
