@@ -1,21 +1,135 @@
-const tabs = ["Table", "Form", "Map", "Script"] as const;
-const entities = [
+import { useState } from "react";
+
+const tabs = [
   {
-    label: "Area",
-    children: [
-      { label: "Rooms", count: 42 },
-      { label: "Mobiles", count: 18 },
-      { label: "Objects", count: 26 },
-      { label: "Resets", count: 31 },
-      { label: "Shops", count: 2 },
-      { label: "Quests", count: 1 },
-      { label: "Factions", count: 3 },
-      { label: "Helps", count: 9 }
-    ]
+    id: "Table",
+    title: "Table View",
+    description: "Filterable grid for Rooms, Mobiles, Objects, Resets."
+  },
+  {
+    id: "Form",
+    title: "Form View",
+    description: "Schema-driven editor with validation and pickers."
+  },
+  {
+    id: "Map",
+    title: "Map View",
+    description: "Orthogonal room layout with exit routing."
+  },
+  {
+    id: "Script",
+    title: "Script View",
+    description: "Lox script editing with events panel."
   }
-];
+] as const;
+
+const entityItems = [
+  { key: "Rooms", count: 42 },
+  { key: "Mobiles", count: 18 },
+  { key: "Objects", count: 26 },
+  { key: "Resets", count: 31 },
+  { key: "Shops", count: 2 },
+  { key: "Quests", count: 1 },
+  { key: "Factions", count: 3 },
+  { key: "Helps", count: 9 }
+] as const;
+
+type TabId = (typeof tabs)[number]["id"];
+type EntityKey = (typeof entityItems)[number]["key"];
+
+const entityDetails: Record<
+  EntityKey,
+  {
+    kindLabel: string;
+    selectionLabel: string;
+    vnumRange: string;
+    lastSave: string;
+    flags: string[];
+    exits: string;
+    validation: string;
+  }
+> = {
+  Rooms: {
+    kindLabel: "Room",
+    selectionLabel: "3001 - Hall of the Wind",
+    vnumRange: "3000-3099",
+    lastSave: "2 min ago",
+    flags: ["indoors", "safe", "no_mob"],
+    exits: "north, east, down",
+    validation: "2 warnings, 0 errors"
+  },
+  Mobiles: {
+    kindLabel: "Mobile",
+    selectionLabel: "3005 - Alia the Warden",
+    vnumRange: "3100-3199",
+    lastSave: "8 min ago",
+    flags: ["sentinel", "train", "practice"],
+    exits: "n/a",
+    validation: "0 warnings, 0 errors"
+  },
+  Objects: {
+    kindLabel: "Object",
+    selectionLabel: "3021 - Obsidian Lantern",
+    vnumRange: "3200-3299",
+    lastSave: "5 min ago",
+    flags: ["take", "light", "glow"],
+    exits: "n/a",
+    validation: "1 warning, 0 errors"
+  },
+  Resets: {
+    kindLabel: "Reset",
+    selectionLabel: "R: 3001 -> 3021",
+    vnumRange: "n/a",
+    lastSave: "12 min ago",
+    flags: ["room", "object"],
+    exits: "n/a",
+    validation: "0 warnings, 1 error"
+  },
+  Shops: {
+    kindLabel: "Shop",
+    selectionLabel: "Keeper 3012",
+    vnumRange: "n/a",
+    lastSave: "1 hour ago",
+    flags: ["weapons", "armor"],
+    exits: "n/a",
+    validation: "0 warnings, 0 errors"
+  },
+  Quests: {
+    kindLabel: "Quest",
+    selectionLabel: "Quest 1 - Fog of Glass",
+    vnumRange: "n/a",
+    lastSave: "3 hours ago",
+    flags: ["deliver", "reward"],
+    exits: "n/a",
+    validation: "0 warnings, 0 errors"
+  },
+  Factions: {
+    kindLabel: "Faction",
+    selectionLabel: "Faction 12 - Seaborn",
+    vnumRange: "n/a",
+    lastSave: "Yesterday",
+    flags: ["ally: wind", "opposed: ember"],
+    exits: "n/a",
+    validation: "1 warning, 0 errors"
+  },
+  Helps: {
+    kindLabel: "Help",
+    selectionLabel: "help: sanctuary",
+    vnumRange: "n/a",
+    lastSave: "4 days ago",
+    flags: ["level 5", "keywords 3"],
+    exits: "n/a",
+    validation: "0 warnings, 0 errors"
+  }
+};
 
 export default function App() {
+  const [activeTab, setActiveTab] = useState<TabId>(tabs[0].id);
+  const [selectedEntity, setSelectedEntity] = useState<EntityKey>(
+    entityItems[0].key
+  );
+  const selection = entityDetails[selectedEntity];
+
   return (
     <div className="app-shell">
       <header className="topbar">
@@ -41,61 +155,68 @@ export default function App() {
             </button>
           </div>
           <div className="tree">
-            {entities.map((group) => (
-              <div className="tree-group" key={group.label}>
-                <div className="tree-group__label">{group.label}</div>
-                <ul className="tree-list">
-                  {group.children.map((child) => (
-                    <li className="tree-item" key={child.label}>
-                      <span className="tree-item__label">{child.label}</span>
+            <div className="tree-group">
+              <div className="tree-group__label">Area</div>
+              <ul className="tree-list">
+                {entityItems.map((child) => (
+                  <li key={child.key}>
+                    <button
+                      className={`tree-item${
+                        child.key === selectedEntity
+                          ? " tree-item--active"
+                          : ""
+                      }`}
+                      type="button"
+                      aria-pressed={child.key === selectedEntity}
+                      onClick={() => setSelectedEntity(child.key)}
+                    >
+                      <span className="tree-item__label">{child.key}</span>
                       <span className="tree-item__count">{child.count}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </aside>
 
         <main className="center">
           <nav className="tabs" aria-label="View tabs">
-            {tabs.map((tab, index) => (
+            {tabs.map((tab) => (
               <button
-                key={tab}
+                key={tab.id}
                 type="button"
-                className={`tab${index === 0 ? " tab--active" : ""}`}
+                className={`tab${tab.id === activeTab ? " tab--active" : ""}`}
+                aria-pressed={tab.id === activeTab}
+                onClick={() => setActiveTab(tab.id)}
               >
-                {tab}
+                {tab.id}
               </button>
             ))}
           </nav>
 
           <div className="view-card">
             <div className="view-card__header">
-              <h2>Rooms</h2>
+              <h2>{selectedEntity}</h2>
               <div className="view-card__meta">
-                <span>VNUM range 3000-3099</span>
-                <span>Last save 2 min ago</span>
+                <span>VNUM range {selection.vnumRange}</span>
+                <span>Last save {selection.lastSave}</span>
+                <span>Active view {activeTab}</span>
               </div>
             </div>
             <div className="view-card__body">
               <div className="placeholder-grid">
-                <div className="placeholder-block">
-                  <div className="placeholder-title">Table View</div>
-                  <p>Filterable grid for Rooms, Mobiles, Objects, Resets.</p>
-                </div>
-                <div className="placeholder-block">
-                  <div className="placeholder-title">Map View</div>
-                  <p>Orthogonal room layout with exit routing.</p>
-                </div>
-                <div className="placeholder-block">
-                  <div className="placeholder-title">Form View</div>
-                  <p>Schema-driven editor with validation.</p>
-                </div>
-                <div className="placeholder-block">
-                  <div className="placeholder-title">Script View</div>
-                  <p>Lox script editing with events panel.</p>
-                </div>
+                {tabs.map((tab) => (
+                  <div
+                    className={`placeholder-block${
+                      tab.id === activeTab ? " placeholder-block--active" : ""
+                    }`}
+                    key={tab.id}
+                  >
+                    <div className="placeholder-title">{tab.title}</div>
+                    <p>{tab.description}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -109,25 +230,25 @@ export default function App() {
             </button>
           </div>
           <div className="inspector__section">
-            <div className="inspector__label">Selected Room</div>
-            <div className="inspector__value">3001 - Hall of the Wind</div>
+            <div className="inspector__label">Selected {selection.kindLabel}</div>
+            <div className="inspector__value">{selection.selectionLabel}</div>
           </div>
           <div className="inspector__section">
             <div className="inspector__label">Flags</div>
             <div className="inspector__tags">
-              <span>indoors</span>
-              <span>safe</span>
-              <span>no_mob</span>
+              {selection.flags.map((flag) => (
+                <span key={flag}>{flag}</span>
+              ))}
             </div>
           </div>
           <div className="inspector__section">
             <div className="inspector__label">Exits</div>
-            <div className="inspector__value">north, east, down</div>
+            <div className="inspector__value">{selection.exits}</div>
           </div>
           <div className="inspector__section">
             <div className="inspector__label">Validation</div>
             <div className="inspector__value inspector__value--warn">
-              2 warnings, 0 errors
+              {selection.validation}
             </div>
           </div>
         </aside>
@@ -136,7 +257,7 @@ export default function App() {
       <footer className="statusbar">
         <span>Schema: area-json-schema.md</span>
         <span>Repository: LocalFileRepository</span>
-        <span>Autosave: On</span>
+        <span>Selection: {selectedEntity}</span>
       </footer>
     </div>
   );

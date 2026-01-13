@@ -191,12 +191,27 @@ body::before {
 }
 
 .tree-item {
+  width: 100%;
   display: flex;
+  align-items: center;
   justify-content: space-between;
   padding: 8px 10px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.6);
   border: 1px solid rgba(117, 88, 58, 0.18);
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.tree-item:hover {
+  border-color: rgba(47, 108, 106, 0.4);
+}
+
+.tree-item--active {
+  background: rgba(47, 108, 106, 0.16);
+  border-color: rgba(47, 108, 106, 0.6);
+  color: var(--accent-strong);
 }
 
 .tree-item__label {
@@ -287,6 +302,11 @@ body::before {
   border-radius: 14px;
   background: rgba(47, 108, 106, 0.08);
   border: 1px dashed rgba(47, 108, 106, 0.3);
+}
+
+.placeholder-block--active {
+  border-style: solid;
+  background: rgba(47, 108, 106, 0.18);
 }
 
 .placeholder-title {
