@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "Wyvern's Tower",
     "builders": "",
     "vnumRange": [
@@ -1703,7 +1703,7 @@
     {
       "vnum": 1610,
       "name": "oldstyle burly minotaur",
-      "shortDescr": "a burly minotaur",
+      "shortDescr": "A burly minotaur",
       "longDescr": "A burly minotaur watches you solemnly.\n\r",
       "description": "This powerful creature wonders whether to kill you or not ...\n\r",
       "race": "human",
@@ -3940,5 +3940,7 @@
     }
   ],
   "factions": [],
-  "quests": []
+  "quests": [],
+  "recipes": [],
+  "gatherSpawns": []
 }

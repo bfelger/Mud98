@@ -174,6 +174,7 @@ add_library(Mud98Core STATIC "merc.h" "act_comm.h" "act_comm.c" "act_enter.h"
     "craft/craft_olc.h" "craft/craft_olc.c"
     "craft/recedit.h" "craft/recedit.c"
     "craft/craft_skill.h" "craft/craft_skill.c"
+    "craft/gather.h" "craft/gather.c"
     
     "entities/affect.h" "entities/affect.c"
     "entities/area.h" "entities/area.c"
@@ -297,6 +298,7 @@ add_executable(Mud98Tests
     "tests/theme_tests.c" "tests/util_tests.c" "tests/daycycle_tests.c" 
     "tests/multihit_tests.c" "tests/loot_tests.c" "tests/thief_tests.c" 
     "tests/magic_tests.c" "tests/craft_tests.c" "tests/olc_aedit_tests.c"
+    "tests/gather_spawn_tests.c"
 )
 
 target_link_libraries(Mud98Tests PRIVATE Mud98Core Mud98CompilerSettings)

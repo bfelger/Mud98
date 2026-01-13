@@ -9,10 +9,13 @@
 #include <entities/daycycle_period.h>
 #include <entities/room.h>
 
+#include <olc/olc.h>
+
 #include <color.h>
 #include <comm.h>
 #include <db.h>
 #include <format.h>
+#include <stringbuffer.h>
 
 #include "string_edit.h"
 
@@ -515,17 +518,21 @@ void olc_show_periods(Mobile* ch, Entity* entity /*, const PeriodOps* ops*/)
     DayCyclePeriod* periods = ops->get_periods(entity);
     
     if (!periods) {
+        olc_print_str_box(ch, "Time Periods", "(none)", 
+            "Type '" COLOR_TITLE "PERIOD" COLOR_ALT_TEXT_2 "' to add some.");
         return;
     }
 
-    printf_to_char(ch, "%-14s : " COLOR_ALT_TEXT_1, "Time Periods");
+    StringBuffer* buf = sb_new();
     for (DayCyclePeriod* period = periods; period != NULL; period = period->next) {
         const char* name = (period->name && period->name[0] != '\0') ? period->name : "(unnamed)";
-        printf_to_char(ch, "%s (%02d-%02d)%s",
+        sb_appendf(buf, "%s (%02d-%02d)%s",
             name,
             period->start_hour,
             period->end_hour,
             period->next ? ", " : "");
     }
-    printf_to_char(ch, COLOR_EOL);
+
+    olc_print_str(ch, "Time Periods", buf->data);
+    sb_free(buf);
 }

@@ -46,7 +46,7 @@ typedef enum item_type_t {
     ITEM_WAND           = 3,
     ITEM_STAFF          = 4,
     ITEM_WEAPON         = 5,
-    // 6
+    ITEM_GATHER         = 6,
     // 7
     ITEM_TREASURE       = 8,
     ITEM_ARMOR          = 9,
@@ -82,6 +82,15 @@ typedef enum item_type_t {
 // Add 1 because we started at 
 #define ITEM_TYPE_COUNT 38
 
+typedef struct item_info_t {
+    const ItemType type;
+    const char* name;
+} ItemInfo;
+
+const char* item_name(ItemType type);
+
+extern const ItemInfo item_type_table[ITEM_TYPE_COUNT];
+
 ////////////////////////////////////////////////////////////////////////////////
 // Armor types
 ////////////////////////////////////////////////////////////////////////////////
@@ -102,15 +111,6 @@ int armor_type_lookup(const char* name);
 ArmorTier armor_type_from_value(int value);
 bool armor_type_read(void* temp, char* arg);
 const char* armor_type_str(void* temp);
-
-typedef struct item_info_t {
-    const ItemType type;
-    const char* name;
-} ItemInfo;
-
-const char* item_name(ItemType type);
-
-extern const ItemInfo item_type_table[ITEM_TYPE_COUNT];
 
 ////////////////////////////////////////////////////////////////////////////////
 // Containers
@@ -194,19 +194,22 @@ typedef enum weapon_flags_t {
 } WeaponFlags;
 
 typedef enum weapon_type_t {
-    WEAPON_EXOTIC       = 0,
-    WEAPON_SWORD        = 1,
-    WEAPON_DAGGER       = 2,
-    WEAPON_SPEAR        = 3,
-    WEAPON_MACE         = 4,
-    WEAPON_AXE          = 5,
-    WEAPON_FLAIL        = 6,
-    WEAPON_WHIP         = 7,
-    WEAPON_POLEARM      = 8,
+    WEAPON_EXOTIC           = 0,
+    WEAPON_SWORD            = 1,
+    WEAPON_DAGGER           = 2,
+    WEAPON_SPEAR            = 3,
+    WEAPON_MACE             = 4,
+    WEAPON_AXE              = 5,
+    WEAPON_FLAIL            = 6,
+    WEAPON_WHIP             = 7,
+    WEAPON_POLEARM          = 8,
+    WEAPON_SKINNING_KNIFE   = 9,
+    WEAPON_MINING_PICK      = 10,
+    WEAPON_SMITHING_HAMMER  = 11,
+    WEAPON_BUTCHER_KNIFE    = 12,
 } WeaponType;
 
-#define WEAPON_TYPE_COUNT 9
-
+#define WEAPON_TYPE_COUNT 13
 typedef struct weapon_info_t {
     const WeaponType type;
     const char* name;
@@ -215,6 +218,8 @@ typedef struct weapon_info_t {
 } WeaponInfo;
 
 extern const WeaponInfo weapon_table[WEAPON_TYPE_COUNT];
+
+const char* weapon_type_name(WeaponType type);
 
 ////////////////////////////////////////////////////////////////////////////////
 

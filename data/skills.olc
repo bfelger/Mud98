@@ -1,4 +1,4 @@
-152
+153
 
 #SKILL
 name reserved~
@@ -2353,20 +2353,21 @@ msg_obj ~
 #END
 
 #SKILL
-name ~
-skill_level 0 0 0 0 @
-rating 0 0 0 0 @
-spell_fun ~
+name mining~
+skill_level 5 5 5 5 @
+rating 5 5 5 5 @
+spell_fun spell_null~
 target tar_ignore~
-minimum_position dead~
-pgsn ~
+minimum_position standing~
+pgsn gsn_mining~
 slot 0
 min_mana 0
-beats 0
+beats 36
 noun_damage ~
-msg_off ~
+msg_off !Mining!~
 msg_obj ~
 #END
+
 
 #SKILL
 name ~

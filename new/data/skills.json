@@ -3188,6 +3188,26 @@
       "gsn": "gsn_enchanting",
       "beats": 48,
       "msgOff": "!Enchanting!"
+    },
+    {
+      "name": "mining",
+      "levels": {
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
+      },
+      "ratings": {
+        "mage": 5,
+        "cleric": 5,
+        "thief": 5,
+        "warrior": 5
+      },
+      "target": "tar_ignore",
+      "minPosition": "standing",
+      "gsn": "gsn_mining",
+      "beats": 36,
+      "msgOff": "!Mining!"
     }
   ]
 }

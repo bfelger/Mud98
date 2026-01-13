@@ -36,7 +36,7 @@ typedef struct recipe_t {
     AreaData* area;             // Owning area for persistence
 
     SKNUM required_skill;       // Skill needed (gsn_leatherworking, etc.)
-    int16_t min_skill_pct;      // Minimum skill percentage (0-100)
+    int16_t min_skill;          // Minimum skill percentage (0-100)
     LEVEL min_level;            // Minimum character level
 
     WorkstationType station_type;   // Required workstation type flags

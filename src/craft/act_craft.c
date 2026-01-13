@@ -46,6 +46,11 @@ bool is_butcherable_type(CraftMatType type)
     return type == MAT_MEAT || type == MAT_BONE;
 }
 
+bool is_ore_type(CraftMatType type)
+{
+    return type == MAT_ORE;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Salvage Material Derivation from Object Material String
 ////////////////////////////////////////////////////////////////////////////////
@@ -102,32 +107,34 @@ static int derive_salvage_mats_from_material(const char* material, VNUM* out_mat
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Corpse Extraction Helpers
+// Material Extraction Helpers
 ////////////////////////////////////////////////////////////////////////////////
 
 // Common extraction logic for both skin and butcher
-static ExtractionResult evaluate_extraction(Mobile* ch, Object* corpse,
+static ExtractionResult evaluate_extraction(Mobile* ch, Object* target,
     bool (*type_filter)(CraftMatType), int already_flag,
     const char* already_msg, const char* nothing_msg,
     SKNUM required_skill, const char* skill_name)
 {
     ExtractionResult result = { false, false, NULL, NULL, 0, -1, 0, 0 };
     
-    // Check corpse validity
-    if (corpse == NULL) {
+    if (target == NULL) {
         result.error_msg = "You don't see that here.";
         return result;
     }
     
-    if (corpse->item_type != ITEM_CORPSE_NPC && corpse->item_type != ITEM_CORPSE_PC) {
-        result.error_msg = "That's not a corpse.";
-        return result;
-    }
-    
-    // Check if already processed
-    if (corpse->corpse.extraction_flags & already_flag) {
-        result.error_msg = already_msg;
-        return result;
+    if (required_skill == gsn_skinning || required_skill == gsn_butchering) {
+        if (target->item_type != ITEM_CORPSE_NPC 
+            && target->item_type != ITEM_CORPSE_PC) {
+            result.error_msg = "That's not a corpse.";
+            return result;
+        }
+        
+        // Check if already processed
+        if (target->corpse.extraction_flags & already_flag) {
+            result.error_msg = already_msg;
+            return result;
+        }
     }
     
     // Check if player has the required skill
@@ -142,8 +149,8 @@ static ExtractionResult evaluate_extraction(Mobile* ch, Object* corpse,
     
     // Count matching materials
     int match_count = 0;
-    for (int i = 0; i < corpse->craft_mat_count; i++) {
-        ObjPrototype* proto = get_object_prototype(corpse->craft_mats[i]);
+    for (int i = 0; i < target->craft_mat_count; i++) {
+        ObjPrototype* proto = get_object_prototype(target->craft_mats[i]);
         if (proto && proto->item_type == ITEM_MAT) {
             CraftMatType mat_type = (CraftMatType)proto->value[0];
             if (type_filter(mat_type)) {
@@ -158,19 +165,19 @@ static ExtractionResult evaluate_extraction(Mobile* ch, Object* corpse,
     }
     
     // Allocate and fill material array
-    result.mat_vnums = malloc((size_t)match_count * sizeof(VNUM));
+    result.mat_vnums = alloc_mem((size_t)match_count * sizeof(VNUM));
     if (result.mat_vnums == NULL) {
         result.error_msg = "Memory allocation failed.";
         return result;
     }
     
     int idx = 0;
-    for (int i = 0; i < corpse->craft_mat_count; i++) {
-        ObjPrototype* proto = get_object_prototype(corpse->craft_mats[i]);
+    for (int i = 0; i < target->craft_mat_count; i++) {
+        ObjPrototype* proto = get_object_prototype(target->craft_mats[i]);
         if (proto && proto->item_type == ITEM_MAT) {
             CraftMatType mat_type = (CraftMatType)proto->value[0];
             if (type_filter(mat_type)) {
-                result.mat_vnums[idx++] = corpse->craft_mats[i];
+                result.mat_vnums[idx++] = target->craft_mats[i];
             }
         }
     }
@@ -184,6 +191,72 @@ static ExtractionResult evaluate_extraction(Mobile* ch, Object* corpse,
     result.skill_target = skill_pct;
     result.skill_passed = (roll <= skill_pct);
     
+    result.success = true;
+    return result;
+}
+
+ExtractionResult evaluate_gather(Mobile* ch, Object* target, 
+    const char* already_msg, const char* nothing_msg, SKNUM required_skill, 
+    const char* skill_name)
+{
+    ExtractionResult result = { false, false, NULL, NULL, 0, -1, 0, 0 };
+
+    if (target == NULL) {
+        result.error_msg = "You don't see that here.";
+        return result;
+    }
+
+    if (target->item_type != ITEM_GATHER || target->gather.gather_type != GATHER_ORE) {
+        result.error_msg = "That's not a mining node.";
+        return result;
+    }
+
+    if (target->gather.quantity <= 0) {
+        result.error_msg = already_msg;
+        return result;
+    }
+
+    int skill_pct = get_skill(ch, gsn_mining);
+    if (skill_pct == 0) {
+        static char no_skill_msg[128];
+        snprintf(no_skill_msg, sizeof(no_skill_msg), 
+            "You don't know how to %s.", skill_name);
+        result.error_msg = no_skill_msg;
+        return result;
+    }
+    if (target->gather.min_skill > 0 && skill_pct < target->gather.min_skill) {
+        static char low_skill_msg[128];
+        snprintf(low_skill_msg, sizeof(low_skill_msg), 
+            "You're not skilled enough to mine that %s.", skill_name);
+        result.error_msg = low_skill_msg;
+        return result;
+    }
+
+    ObjPrototype* proto = get_object_prototype(target->gather.mat_vnum);
+    if (proto == NULL || proto->item_type != ITEM_MAT) {
+        result.error_msg = nothing_msg;
+        return result;
+    }
+
+    int quantity = target->gather.quantity;
+    result.mat_vnums = alloc_mem((size_t)quantity * sizeof(VNUM));
+    if (result.mat_vnums == NULL) {
+        result.error_msg = "Memory allocation failed.";
+        return result;
+    }
+
+    for (int i = 0; i < quantity; i++) {
+        result.mat_vnums[i] = target->gather.mat_vnum;
+    }
+
+    result.mat_count = quantity;
+    result.skill_used = gsn_mining;
+
+    int roll = number_percent();
+    result.skill_roll = roll;
+    result.skill_target = skill_pct;
+    result.skill_passed = (roll <= skill_pct);
+
     result.success = true;
     return result;
 }
@@ -210,23 +283,37 @@ ExtractionResult evaluate_butcher(Mobile* ch, Object* corpse)
         "butcher");
 }
 
+ExtractionResult evaluate_mine(Mobile* ch, Object* gather_node)
+{
+    return evaluate_gather(ch, gather_node,
+        "That node has already been mined.",
+        "There's nothing to mine from that node.",
+        gsn_mining,
+        "mine");
+}
+
 void free_extraction_result(ExtractionResult* result)
 {
     if (result && result->mat_vnums) {
-        free(result->mat_vnums);
+        free_mem(result->mat_vnums, (size_t)result->mat_count * sizeof(VNUM));
         result->mat_vnums = NULL;
         result->mat_count = 0;
     }
 }
 
-void apply_extraction(Mobile* ch, Object* corpse, ExtractionResult* result,
-                      int corpse_flag, const char* verb)
+void apply_extraction(Mobile* ch, Object* target, ExtractionResult* result,
+                      int target_flag, const char* verb)
 {
     if (!result->success || result->mat_count == 0)
         return;
     
-    // Always set the corpse flag (can't retry even on failure)
-    corpse->corpse.extraction_flags |= corpse_flag;
+    if (target->item_type == ITEM_CORPSE_NPC || target->item_type == ITEM_CORPSE_PC) {
+        // Always set the corpse flag (can't retry even on failure)
+        target->corpse.extraction_flags |= target_flag;
+    }
+    if (target->item_type == ITEM_GATHER) {
+        target->gather.quantity = 0;
+    }
     
     // Skill improvement check
     if (result->skill_used >= 0) {
@@ -236,7 +323,7 @@ void apply_extraction(Mobile* ch, Object* corpse, ExtractionResult* result,
     // Handle skill failure
     if (!result->skill_passed) {
         printf_to_char(ch, "You botch the %sing, ruining the materials.\n\r", verb);
-        act("$n botches $s attempt to $t $p.", ch, corpse, verb, TO_ROOM);
+        act("$n botches $s attempt to $t $p.", ch, target, verb, TO_ROOM);
         return;
     }
     
@@ -249,8 +336,12 @@ void apply_extraction(Mobile* ch, Object* corpse, ExtractionResult* result,
             obj_to_char(mat, ch);
             
             if (i > 0) {
-                if (i == result->mat_count - 1)
-                    sb_append(mat_list, " and ");
+                if (i == result->mat_count - 1) {
+                    if (result->mat_count == 2)
+                        sb_append(mat_list, " and ");
+                    else
+                        sb_append(mat_list, ", and "); // Obey the Oxford comma!
+                }
                 else
                     sb_append(mat_list, ", ");
             }
@@ -260,10 +351,10 @@ void apply_extraction(Mobile* ch, Object* corpse, ExtractionResult* result,
     
     // Send messages
     printf_to_char(ch, "You carefully %s %s, obtaining %s.\n\r",
-        verb, corpse->short_descr ? corpse->short_descr : "the corpse",
+        verb, target->short_descr ? target->short_descr : "the corpse",
         sb_string(mat_list));
     
-    act("$n $ts $p.", ch, corpse, verb, TO_ROOM);
+    act("$n $ts $p.", ch, target, verb, TO_ROOM);
     
     sb_free(mat_list);
 }
@@ -298,7 +389,10 @@ SKNUM get_salvage_skill(Object* obj)
                 || strstr(obj->material, "mithril") != NULL)
                 return gsn_blacksmithing;
         }
+
         // Default armor to blacksmithing
+        // TODO: Introduce a "scrapping" skill that covers all item types, but 
+        // at a lower efficiency than specialized skills.
         return gsn_blacksmithing;
     }
     
@@ -387,7 +481,7 @@ SalvageResult evaluate_salvage(Mobile* ch, Object* obj)
     int yield_count = (base_count * yield_pct + 50) / 100;  // Round
     if (yield_count < 1 && base_count > 0) yield_count = 1;  // At least 1
     
-    VNUM* mats = malloc((size_t)yield_count * sizeof(VNUM));
+    VNUM* mats = alloc_mem((size_t)yield_count * sizeof(VNUM));
     if (mats == NULL) {
         result.error_msg = "Memory allocation failed.";
         return result;
@@ -407,7 +501,7 @@ SalvageResult evaluate_salvage(Mobile* ch, Object* obj)
 void free_salvage_result(SalvageResult* result)
 {
     if (result && result->mat_vnums) {
-        free(result->mat_vnums);
+        free_mem(result->mat_vnums, (size_t)result->mat_count * sizeof(VNUM));
         result->mat_vnums = NULL;
         result->mat_count = 0;
     }
@@ -426,7 +520,8 @@ bool knows_recipe(Mobile* ch, Recipe* recipe)
     
     switch (recipe->discovery) {
         case DISC_KNOWN:
-            return true;  // Always known
+            return (ch->level >= recipe->min_level 
+                && get_skill(ch, recipe->required_skill) >= recipe->min_skill);
         case DISC_TRAINER:
         case DISC_SCROLL:
         case DISC_DISCOVERY:
@@ -586,21 +681,29 @@ CraftResult evaluate_craft(Mobile* ch, const char* recipe_name)
     }
     
     // Check skill requirement - player must have the skill
+    int skill = 0;
     if (recipe->required_skill >= 0) {
-        int skill = get_skill(ch, recipe->required_skill);
+        skill = get_skill(ch, recipe->required_skill);
         if (skill == 0) {
             result.error_msg = "You don't know how to do that type of crafting.";
             return result;
         }
-        if (skill < recipe->min_skill_pct) {
+        if (skill < recipe->min_skill) {
             result.error_msg = "You're not skilled enough to craft that.";
             return result;
         }
     }
     
     // Check workstation requirement
-    if (!has_required_workstation(ch->in_room, recipe)) {
+    Object* station = NULL;
+    if (!has_required_workstation(ch->in_room, recipe, &station)) {
         result.error_msg = "You need to be near a workstation to craft that.";
+        return result;
+    }
+    if (station != NULL && recipe->required_skill >= 0
+        && station->workstation.min_skill > 0
+        && skill < station->workstation.min_skill) {
+        result.error_msg = "You're not skilled enough to use that workstation.";
         return result;
     }
     
@@ -642,6 +745,16 @@ void do_skin(Mobile* ch, char* argument)
     }
     
     Object* corpse = get_obj_here(ch, arg);
+    if (corpse->item_type != ITEM_CORPSE_NPC && corpse->item_type != ITEM_CORPSE_PC) {
+        send_to_char("That's not a corpse.\n\r", ch);
+        return;
+    }
+    // TODO: Add a value to node that specifies min tool level
+    if (!has_crafting_tool(ch, WEAPON_SKINNING_KNIFE)) {
+        send_to_char("You need a skinning knife to do that.\n\r", ch);
+        return;
+    }
+
     ExtractionResult result = evaluate_skin(ch, corpse);
     
     if (!result.success) {
@@ -666,6 +779,17 @@ void do_butcher(Mobile* ch, char* argument)
     }
     
     Object* corpse = get_obj_here(ch, arg);
+    if (corpse->item_type != ITEM_CORPSE_NPC && corpse->item_type != ITEM_CORPSE_PC) {
+        send_to_char("That's not a corpse.\n\r", ch);
+        return;
+    }
+
+    // TODO: Add a value to node that specifies min tool level
+    if (!has_crafting_tool(ch, WEAPON_BUTCHER_KNIFE)) {
+        send_to_char("You need a butcher knife to do that.\n\r", ch);
+        return;
+    }
+    
     ExtractionResult result = evaluate_butcher(ch, corpse);
     
     if (!result.success) {
@@ -676,6 +800,37 @@ void do_butcher(Mobile* ch, char* argument)
     }
     
     apply_extraction(ch, corpse, &result, CORPSE_BUTCHERED, "butcher");
+    free_extraction_result(&result);
+}
+
+void do_mine(Mobile* ch, char* argument)
+{
+    char arg[MAX_INPUT_LENGTH];
+    one_argument(argument, arg);
+    
+    if (arg[0] == '\0') {
+        send_to_char("Mine what?\n\r", ch);
+        return;
+    }
+    
+    Object* node = get_obj_here(ch, arg);
+
+    // TODO: Add a value to node that specifies min tool level
+    if (!has_crafting_tool(ch, WEAPON_MINING_PICK)) {
+        send_to_char("You need a mining pick to mine with.\n\r", ch);
+        return;
+    }
+
+    ExtractionResult result = evaluate_mine(ch, node);
+    
+    if (!result.success) {
+        send_to_char(result.error_msg, ch);
+        send_to_char("\n\r", ch);
+        free_extraction_result(&result);
+        return;
+    }
+    
+    apply_extraction(ch, node, &result, 0, "mine");
     free_extraction_result(&result);
 }
 

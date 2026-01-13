@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "Shire",
     "builders": "",
     "vnumRange": [
@@ -2979,7 +2979,8 @@
         "acPierce": 6,
         "acBash": 6,
         "acSlash": 6,
-        "acExotic": 2
+        "acExotic": 2,
+        "armorType": "light"
       },
       "level": 15,
       "weight": 30,
@@ -3594,7 +3595,7 @@
       "commandName": "equipObj"
     },
     {
-      "objVnum": 616,
+      "objVnum": 2416,
       "wearLoc": "on the body",
       "roomVnum": 1110,
       "commandName": "equipObj"
@@ -3607,7 +3608,7 @@
       "commandName": "loadMob"
     },
     {
-      "objVnum": 616,
+      "objVnum": 2416,
       "wearLoc": "on the body",
       "roomVnum": 1110,
       "commandName": "equipObj"
@@ -3620,7 +3621,7 @@
       "commandName": "loadMob"
     },
     {
-      "objVnum": 616,
+      "objVnum": 2416,
       "wearLoc": "on the body",
       "roomVnum": 1110,
       "commandName": "equipObj"
@@ -3639,7 +3640,7 @@
       "commandName": "equipObj"
     },
     {
-      "objVnum": 616,
+      "objVnum": 2416,
       "wearLoc": "on the body",
       "roomVnum": 1111,
       "commandName": "equipObj"
@@ -3687,17 +3688,17 @@
       "commandName": "giveObj"
     },
     {
-      "objVnum": 648,
+      "objVnum": 2448,
       "roomVnum": 1116,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 649,
+      "objVnum": 2449,
       "roomVnum": 1116,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 650,
+      "objVnum": 2450,
       "roomVnum": 1116,
       "commandName": "giveObj"
     },
@@ -3821,7 +3822,7 @@
       "commandName": "equipObj"
     },
     {
-      "objVnum": 616,
+      "objVnum": 2416,
       "wearLoc": "on the body",
       "roomVnum": 1119,
       "commandName": "equipObj"
@@ -3834,7 +3835,7 @@
       "commandName": "loadMob"
     },
     {
-      "objVnum": 616,
+      "objVnum": 2416,
       "wearLoc": "on the body",
       "roomVnum": 1119,
       "commandName": "equipObj"
@@ -3847,7 +3848,7 @@
       "commandName": "loadMob"
     },
     {
-      "objVnum": 616,
+      "objVnum": 2416,
       "wearLoc": "on the body",
       "roomVnum": 1119,
       "commandName": "equipObj"
@@ -4016,7 +4017,7 @@
       "commandName": "equipObj"
     },
     {
-      "objVnum": 622,
+      "objVnum": 2422,
       "wearLoc": "over the head",
       "roomVnum": 1136,
       "commandName": "equipObj"
@@ -4035,7 +4036,7 @@
       "commandName": "equipObj"
     },
     {
-      "objVnum": 621,
+      "objVnum": 2421,
       "wearLoc": "on the body",
       "roomVnum": 1136,
       "commandName": "equipObj"
@@ -4060,7 +4061,7 @@
       "commandName": "equipObj"
     },
     {
-      "objVnum": 623,
+      "objVnum": 2423,
       "wearLoc": "on the legs",
       "roomVnum": 1137,
       "commandName": "equipObj"
@@ -4248,17 +4249,17 @@
       "commandName": "giveObj"
     },
     {
-      "objVnum": 648,
+      "objVnum": 2448,
       "roomVnum": 1144,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 649,
+      "objVnum": 2449,
       "roomVnum": 1144,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 650,
+      "objVnum": 2450,
       "roomVnum": 1144,
       "commandName": "giveObj"
     },
@@ -4330,7 +4331,7 @@
       "commandName": "equipObj"
     },
     {
-      "objVnum": 616,
+      "objVnum": 2416,
       "wearLoc": "on the body",
       "roomVnum": 1145,
       "commandName": "equipObj"
@@ -4343,7 +4344,7 @@
       "commandName": "loadMob"
     },
     {
-      "objVnum": 616,
+      "objVnum": 2416,
       "wearLoc": "on the body",
       "roomVnum": 1145,
       "commandName": "equipObj"
@@ -4356,7 +4357,7 @@
       "commandName": "loadMob"
     },
     {
-      "objVnum": 616,
+      "objVnum": 2416,
       "wearLoc": "on the body",
       "roomVnum": 1145,
       "commandName": "equipObj"
@@ -4375,7 +4376,7 @@
       "commandName": "equipObj"
     },
     {
-      "objVnum": 616,
+      "objVnum": 2416,
       "wearLoc": "on the body",
       "roomVnum": 1153,
       "commandName": "equipObj"
@@ -4388,7 +4389,7 @@
       "commandName": "loadMob"
     },
     {
-      "objVnum": 616,
+      "objVnum": 2416,
       "wearLoc": "on the body",
       "roomVnum": 1153,
       "commandName": "equipObj"
@@ -4401,7 +4402,7 @@
       "commandName": "loadMob"
     },
     {
-      "objVnum": 616,
+      "objVnum": 2416,
       "wearLoc": "on the body",
       "roomVnum": 1153,
       "commandName": "equipObj"
@@ -4429,5 +4430,7 @@
     }
   ],
   "factions": [],
-  "quests": []
+  "quests": [],
+  "recipes": [],
+  "gatherSpawns": []
 }

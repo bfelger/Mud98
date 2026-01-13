@@ -210,6 +210,15 @@ void load_objects(FILE* fp)
             obj_proto->weapon.damage_type = attack_lookup(fread_word(fp));
             obj_proto->weapon.flags = fread_flag(fp);
             break;
+        case ITEM_GATHER:
+            // Gather: gather_type mat_vnum quantity min_skill unused
+            CHECK_POS(obj_proto->gather.gather_type,
+                (int16_t)gather_lookup(fread_word(fp)), "gather_type");
+            obj_proto->gather.mat_vnum = fread_number(fp);
+            obj_proto->gather.quantity = fread_number(fp);
+            obj_proto->gather.min_skill = fread_number(fp);
+            obj_proto->gather.unused4 = fread_number(fp);
+            break;
         case ITEM_ARMOR:
             obj_proto->armor.ac_pierce = fread_number(fp);
             obj_proto->armor.ac_bash = fread_number(fp);
@@ -259,10 +268,10 @@ void load_objects(FILE* fp)
             obj_proto->craft_mat.unused4 = fread_number(fp);
             break;
         case ITEM_WORKSTATION:
-            // Workstation: station_flags bonus unused unused unused
+            // Workstation: station_flags bonus min_skill unused unused
             obj_proto->workstation.station_flags = fread_flag(fp);
             obj_proto->workstation.bonus = fread_number(fp);
-            obj_proto->workstation.unused2 = fread_number(fp);
+            obj_proto->workstation.min_skill = fread_number(fp);
             obj_proto->workstation.unused3 = fread_number(fp);
             obj_proto->workstation.unused4 = fread_number(fp);
             break;

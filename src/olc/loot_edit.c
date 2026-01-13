@@ -506,7 +506,6 @@ static bool lootedit_group_list(Mobile* ch, char* argument)
 
 static void lootedit_show_table_entries(Mobile* ch, LootTable* t)
 {
-#define PRETTY_IDX  "    " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "%3d" COLOR_DECOR_1 "]" COLOR_CLEAR
     if (t->op_count == 0) {
         printf_to_char(ch, COLOR_ALT_TEXT_1 "    (no operations)\n\r" 
             COLOR_EOL);
@@ -551,8 +550,7 @@ static void lootedit_show_table_entries(Mobile* ch, LootTable* t)
             break;
         }
     }
-    printf_to_char(ch, "\n\r"); 
-#undef PRETTY_IDX
+    printf_to_char(ch, "\n\r");
 }
 
 static bool lootedit_table_list(Mobile* ch, char* argument)

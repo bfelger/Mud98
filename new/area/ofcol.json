@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "Ofcol",
     "builders": "",
     "vnumRange": [
@@ -32,7 +32,7 @@
         },
         {
           "dir": "south",
-          "toVnum": 314,
+          "toVnum": 1914,
           "description": "The wide road leads south here towards the T-crossing.\n\r"
         }
       ]
@@ -91,7 +91,7 @@
       "exits": [
         {
           "dir": "east",
-          "toVnum": 601,
+          "toVnum": 2401,
           "description": "You see a big intersection.\n\r"
         },
         {
@@ -186,75 +186,49 @@
   "mobprogs": [],
   "resets": [
     {
-      "mobVnum": 303,
+      "mobVnum": 1903,
       "maxInArea": 5,
       "roomVnum": 5550,
       "maxInRoom": 3,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 304,
+      "mobVnum": 1904,
       "maxInArea": 5,
       "roomVnum": 5552,
       "maxInRoom": 3,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 3020,
-      "wearLoc": "wielded",
-      "roomVnum": 5552,
-      "commandName": "equipObj"
-    },
-    {
-      "mobVnum": 304,
+      "mobVnum": 1904,
       "maxInArea": 5,
       "roomVnum": 5553,
       "maxInRoom": 3,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 306,
+      "mobVnum": 1906,
       "maxInArea": 1,
       "roomVnum": 5555,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 304,
-      "roomVnum": 5555,
-      "commandName": "giveObj"
-    },
-    {
-      "objVnum": 3030,
-      "roomVnum": 5555,
-      "commandName": "giveObj"
-    },
-    {
-      "mobVnum": 303,
+      "mobVnum": 1903,
       "maxInArea": 5,
       "roomVnum": 5556,
       "maxInRoom": 3,
       "commandName": "loadMob"
     },
     {
-      "mobVnum": 308,
+      "mobVnum": 1908,
       "maxInArea": 1,
       "roomVnum": 5556,
       "maxInRoom": 1,
       "commandName": "loadMob"
     },
     {
-      "objVnum": 3000,
-      "roomVnum": 5556,
-      "commandName": "giveObj"
-    },
-    {
-      "objVnum": 3001,
-      "roomVnum": 5556,
-      "commandName": "giveObj"
-    },
-    {
-      "mobVnum": 350,
+      "mobVnum": 1950,
       "maxInArea": 1,
       "roomVnum": 5577,
       "maxInRoom": 1,
@@ -262,5 +236,7 @@
     }
   ],
   "factions": [],
-  "quests": []
+  "quests": [],
+  "recipes": [],
+  "gatherSpawns": []
 }

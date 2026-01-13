@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "Old Thalos",
     "builders": "",
     "vnumRange": [
@@ -2914,7 +2914,7 @@
     {
       "vnum": 5320,
       "name": "oldstyle guard imperial cityguard",
-      "shortDescr": "an imperial cityguard",
+      "shortDescr": "An imperial cityguard",
       "longDescr": "An imperial cityguard overseeing patrols in the city.\n\r",
       "description": "He is dressed in plate, and he looks quite formidable.  At the moment,\n\rhe is looking at a map of Thalos aside his fellow co-workers keeping\n\rtrack of each city patrol.\n\r",
       "race": "human",
@@ -4262,7 +4262,8 @@
         "acPierce": 5,
         "acBash": 5,
         "acSlash": 5,
-        "acExotic": 2
+        "acExotic": 2,
+        "armorType": "light"
       },
       "level": 10,
       "weight": 50,
@@ -5221,28 +5222,28 @@
       "commandName": "giveObj"
     },
     {
-      "objVnum": 601,
+      "objVnum": 2401,
       "wearLoc": "wielded",
       "roomVnum": 5317,
       "commandName": "equipObj"
     },
     {
-      "objVnum": 602,
+      "objVnum": 2402,
       "roomVnum": 5317,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 603,
+      "objVnum": 2403,
       "roomVnum": 5317,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 604,
+      "objVnum": 2404,
       "roomVnum": 5317,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 605,
+      "objVnum": 2405,
       "roomVnum": 5317,
       "commandName": "giveObj"
     },
@@ -5298,27 +5299,27 @@
       "commandName": "loadMob"
     },
     {
-      "objVnum": 609,
+      "objVnum": 2409,
       "roomVnum": 5320,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 610,
+      "objVnum": 2410,
       "roomVnum": 5320,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 611,
+      "objVnum": 2411,
       "roomVnum": 5320,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 612,
+      "objVnum": 2412,
       "roomVnum": 5320,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 613,
+      "objVnum": 2413,
       "roomVnum": 5320,
       "commandName": "giveObj"
     },
@@ -5330,12 +5331,12 @@
       "commandName": "loadMob"
     },
     {
-      "objVnum": 601,
+      "objVnum": 2401,
       "roomVnum": 5321,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 615,
+      "objVnum": 2415,
       "roomVnum": 5321,
       "commandName": "giveObj"
     },
@@ -5464,17 +5465,17 @@
       "commandName": "loadMob"
     },
     {
-      "objVnum": 648,
+      "objVnum": 2448,
       "roomVnum": 5330,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 649,
+      "objVnum": 2449,
       "roomVnum": 5330,
       "commandName": "giveObj"
     },
     {
-      "objVnum": 650,
+      "objVnum": 2450,
       "roomVnum": 5330,
       "commandName": "giveObj"
     },
@@ -6467,5 +6468,7 @@
     }
   ],
   "factions": [],
-  "quests": []
+  "quests": [],
+  "recipes": [],
+  "gatherSpawns": []
 }

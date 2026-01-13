@@ -523,10 +523,10 @@ void olc_display_entity_class_info(Mobile* ch, Entity* entity)
 {
     if (entity->klass != NULL) {
         olc_print_str_box(ch, "Lox Class", entity->klass->name->chars,
-            "Type '" COLOR_INFO "LOX" COLOR_ALT_TEXT_2 "' to edit.");
+            "Type '" COLOR_TITLE "LOX" COLOR_ALT_TEXT_2 "' to edit.");
     }
     else {
-        olc_print_str_box(ch, "Lox Class", "(none)", "Type '" COLOR_INFO "LOX"
+        olc_print_str_box(ch, "Lox Class", "(none)", "Type '" COLOR_TITLE "LOX"
             COLOR_ALT_TEXT_2 "' to create one.");
     }
 }

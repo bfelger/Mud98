@@ -255,7 +255,7 @@ void show_char_to_char_0(Mobile* victim, Mobile* ch)
     if (victim->position == victim->start_pos
         && victim->long_descr[0] != '\0') {
         sb_append(sb, victim->long_descr);
-        printf_to_char(ch, "%s" COLOR_CLEAR, sb_string(sb));
+        printf_to_char(ch, "%s" COLOR_EOL, sb_string(sb));
         sb_free(sb);
         return;
     }

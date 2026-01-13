@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "Dwarven Kingdom",
     "builders": "",
     "vnumRange": [
@@ -2504,9 +2504,6 @@
       "description": "There is a chunk of coal here.",
       "material": "oldstyle",
       "itemType": "trash",
-      "extraFlags": [
-        "nolocate"
-      ],
       "wearFlags": [
         "take",
         "hold"
@@ -3228,5 +3225,7 @@
     }
   ],
   "factions": [],
-  "quests": []
+  "quests": [],
+  "recipes": [],
+  "gatherSpawns": []
 }

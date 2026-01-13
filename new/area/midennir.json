@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "Miden'nir",
     "builders": "",
     "vnumRange": [
@@ -535,7 +535,7 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 101,
+          "toVnum": 1801,
           "description": "You see a faint trail, covered with tiny footprints. The singing grows louder.\n\r"
         },
         {
@@ -1707,7 +1707,8 @@
         "acPierce": 2,
         "acBash": 4,
         "acSlash": 4,
-        "acExotic": 2
+        "acExotic": 2,
+        "armorType": "light"
       },
       "level": 7,
       "weight": 10,
@@ -2058,5 +2059,7 @@
     }
   ],
   "factions": [],
-  "quests": []
+  "quests": [],
+  "recipes": [],
+  "gatherSpawns": []
 }

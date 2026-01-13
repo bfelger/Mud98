@@ -69,6 +69,7 @@ void run_unit_tests()
     register_magic_tests();
     register_olc_aedit_tests();
     register_craft_tests();
+    register_gather_spawn_tests();
 
     test_output_enabled = true;
     test_disassemble_on_error = true;

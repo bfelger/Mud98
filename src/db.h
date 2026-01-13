@@ -40,6 +40,7 @@
 
 #include "lox/object.h"
 
+#include <stdint.h>
 #include <stdio.h>
 
 /* macro for flag swapping */
@@ -66,6 +67,7 @@ VNUM fread_vnum(FILE* fp);
 char* fread_word(FILE* fp);
 long flag_convert(char letter);
 void* alloc_mem(size_t sMem);
+void* realloc_mem(void* pMem, size_t oldSize, size_t newSize);
 void* alloc_perm(size_t sMem);
 void free_mem(void* pMem, size_t sMem);
 char* boot_intern_string(const char* str);

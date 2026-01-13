@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "Gnome Village",
     "builders": "",
     "vnumRange": [
@@ -3595,7 +3595,7 @@
         "take"
       ],
       "money": {
-        "gold": 100
+        "copper": 100
       },
       "weight": 10,
       "condition": 100
@@ -3611,7 +3611,7 @@
         "take"
       ],
       "money": {
-        "gold": 500
+        "copper": 500
       },
       "weight": 10,
       "condition": 100
@@ -4578,5 +4578,7 @@
     }
   ],
   "factions": [],
-  "quests": []
+  "quests": [],
+  "recipes": [],
+  "gatherSpawns": []
 }

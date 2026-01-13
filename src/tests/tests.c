@@ -46,7 +46,7 @@ static void run_test_group(TestGroup* group)
 
     int failures = 0;
     for (size_t i = 0; i < group->count; i++) {
-        printf("Test: %-40s", group->tests[i].name);
+        printf("Test: %-70s", group->tests[i].name);
         group->tests[i].func();
         reset_stack();
         cleanup_mocks();  // Clean up all mocks after each test

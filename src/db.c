@@ -672,6 +672,7 @@ void area_update()
                     if (area->empty_timer >= INSTANCE_GRACE_PERIOD) {
                         list_remove_node(&area_data->instances, area_loop.node);
                         free_area(area);
+                        continue;
                     }
                     // If grace period not met, just reset the timer and wait
                     else {
@@ -687,6 +688,8 @@ void area_update()
                     area->reset_timer = 0;
                 }
             }
+
+            reset_area_gather_spawns(area);
         }
         gc_protect_clear();
     }
@@ -1504,6 +1507,18 @@ static void report_boot_string_stats(void)
 
 #endif
 
+static int get_mem_list_index(const size_t sMem)
+{
+    int iList;
+
+    for (iList = 0; iList < MAX_MEM_LIST; iList++) {
+        if (sMem <= rgSizeList[iList])
+            return iList;
+    }
+
+    return -1;
+}
+
 /*
  * Allocate some ordinary memory,
  *   with the expectation of freeing it someday.
@@ -1518,14 +1533,11 @@ void* alloc_mem(size_t sMem)
     size_t orig_sMem = sMem;
 #endif
 
-    sMem += sizeof(*magic); 
+    sMem += sizeof(*magic);
 
-    for (iList = 0; iList < MAX_MEM_LIST; iList++) {
-        if (sMem <= rgSizeList[iList])
-            break;
-    }
+    iList = get_mem_list_index(sMem);
 
-    if (iList == MAX_MEM_LIST) {
+    if (iList == -1) {
         bug("Alloc_mem: size %zu too large.", sMem);
         exit(1);
     }
@@ -1548,6 +1560,32 @@ void* alloc_mem(size_t sMem)
     mem_addr += sizeof(*magic);
 
     return (void*)mem_addr;
+}
+
+void* realloc_mem(void* pMem, size_t oldSize, size_t newSize)
+{
+    if (pMem == NULL) {
+        return alloc_mem(newSize);
+    }
+
+    if (newSize == 0) {
+        free_mem(pMem, oldSize);
+        return NULL;
+    }
+
+    const int old_mem_idx = get_mem_list_index(oldSize + sizeof(int*));
+    const int new_mem_idx = get_mem_list_index(newSize + sizeof(int*));
+
+    if (old_mem_idx == new_mem_idx) {
+        return pMem;
+    }
+
+    void* pNewMem = alloc_mem(newSize);
+    size_t copySize = oldSize < newSize ? oldSize : newSize;
+    memcpy(pNewMem, pMem, copySize);
+    memset((char*)pNewMem + copySize, 0, newSize - copySize);
+    free_mem(pMem, oldSize);
+    return pNewMem;
 }
 
 /*
@@ -1584,11 +1622,9 @@ void free_mem(void* pMem, size_t sMem)
     *magic = 0;
     sMem += sizeof(*magic);
 
-    for (iList = 0; iList < MAX_MEM_LIST; iList++) {
-        if (sMem <= rgSizeList[iList]) break;
-    }
+    iList = get_mem_list_index(sMem);
 
-    if (iList == MAX_MEM_LIST) {
+    if (iList == -1) {
         bug("Free_mem: size %zu too large.", sMem);
         exit(1);
     }

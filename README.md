@@ -221,7 +221,7 @@ Use the `-d` argument to specify the folder containing `mud98.cfg` if you don't 
   - [ ] Areas
   - [ ] Other data
 - [x] Time-of-day room descriptions
-  - [ ] Day-cycle events
+  - [x] Day-cycle events
 - [ ] Functional seams for testing
   - [x] Persistence
   - [x] RNG
@@ -250,16 +250,23 @@ Use the `-d` argument to specify the folder containing `mud98.cfg` if you don't 
 - [x] Crafting 
   - [x] Recipes
   - [x] Crafting
-  - [ ] Resource gathering
+  - [ ] Random resource nodes
+    - [x] Ore
+    - [ ] Herbs
+    - [ ] Wood
+    - [ ] Fish
 - [ ] Professions
-  - [x] Leatherworking
-  - [x] Cooking
-  - [ ] Blacksmithing
-  - [ ] Mining
-  - [ ] Alchemy
-  - [ ] Herbalism
-  - [ ] Enchanting
-  - [ ] Tailoring
+  - [ ] Resource gathering
+    - [ ] Mining
+    - [ ] Herbalism
+    - [ ] Fishing
+  - [ ] Crafting
+    - [x] Leatherworking
+    - [x] Cooking
+    - [ ] Blacksmithing
+    - [ ] Alchemy
+    - [ ] Enchanting
+    - [ ] Tailoring
 - [ ] Randomized areas (dungeons, overland, etc.)
   - [ ] Navigation skills for randomized areas
 - [ ] Integrated webserver with embedded MUD-client

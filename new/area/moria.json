@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "Moria",
     "builders": "",
     "vnumRange": [
@@ -99,7 +99,7 @@
       "exits": [
         {
           "dir": "north",
-          "toVnum": 300,
+          "toVnum": 1900,
           "description": "A small path extends into the plains.\n\r"
         },
         {
@@ -2753,8 +2753,11 @@
         "light"
       ],
       "formFlags": [
-        "humanoidDefault",
-        "poison"
+        "edible",
+        "poison",
+        "sentient",
+        "biped",
+        "mammal"
       ],
       "alignment": -400,
       "group": 0,
@@ -4000,8 +4003,9 @@
         "light"
       ],
       "formFlags": [
-        "animalDefault",
+        "edible",
         "poison",
+        "animal",
         "mammal"
       ],
       "alignment": -100,
@@ -4724,7 +4728,8 @@
         "acPierce": 5,
         "acBash": 6,
         "acSlash": 5,
-        "acExotic": 1
+        "acExotic": 1,
+        "armorType": "cloth"
       },
       "level": 8,
       "weight": 100,
@@ -4794,7 +4799,8 @@
         "acPierce": 4,
         "acBash": 4,
         "acSlash": 3,
-        "acExotic": 2
+        "acExotic": 2,
+        "armorType": "light"
       },
       "level": 5,
       "weight": 40,
@@ -5169,7 +5175,8 @@
         "acPierce": 1,
         "acBash": 3,
         "acSlash": 3,
-        "acExotic": 1
+        "acExotic": 1,
+        "armorType": "cloth"
       },
       "level": 7,
       "weight": 10,
@@ -6464,5 +6471,7 @@
     }
   ],
   "factions": [],
-  "quests": []
+  "quests": [],
+  "recipes": [],
+  "gatherSpawns": []
 }

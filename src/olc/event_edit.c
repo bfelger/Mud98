@@ -177,9 +177,8 @@ bool olc_edit_event(Mobile* ch, char* argument)
 void olc_display_events(Mobile* ch, Entity* entity)
 {
     if (entity->events.count == 0) {
-        printf_to_char(ch, "%-14s : " COLOR_ALT_TEXT_1 "(none)" 
-            COLOR_ALT_TEXT_2 " Type '" COLOR_INFO "EVENT" COLOR_ALT_TEXT_2 
-            "' to create one." COLOR_EOL, "Events");
+        olc_print_str_box(ch, "Events", "(none)", "Type '" COLOR_TITLE "EVENT" 
+            COLOR_ALT_TEXT_2 "' to create one.");
         return;
     }
 

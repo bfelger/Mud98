@@ -1378,75 +1378,34 @@ void do_ostat(Mobile* ch, char* argument)
         break;
 
     case ITEM_WEAPON:
-        send_to_char("Weapon type is ", ch);
-        switch (obj->weapon.weapon_type) {
-        case (WEAPON_EXOTIC):
-            send_to_char("exotic\n\r", ch);
-            break;
-        case (WEAPON_SWORD):
-            send_to_char("sword\n\r", ch);
-            break;
-        case (WEAPON_DAGGER):
-            send_to_char("dagger\n\r", ch);
-            break;
-        case (WEAPON_SPEAR):
-            send_to_char("spear/staff\n\r", ch);
-            break;
-        case (WEAPON_MACE):
-            send_to_char("mace/club\n\r", ch);
-            break;
-        case (WEAPON_AXE):
-            send_to_char("axe\n\r", ch);
-            break;
-        case (WEAPON_FLAIL):
-            send_to_char("flail\n\r", ch);
-            break;
-        case (WEAPON_WHIP):
-            send_to_char("whip\n\r", ch);
-            break;
-        case (WEAPON_POLEARM):
-            send_to_char("polearm\n\r", ch);
-            break;
-        default:
-            send_to_char("unknown\n\r", ch);
-            break;
-        }
-        sprintf(buf, "Damage is %dd%d (average %d)\n\r", obj->weapon.num_dice,
+        printf_to_char(ch, "Weapon type is %s.\n\r", 
+            weapon_type_name(obj->weapon.weapon_type));
+        printf_to_char(ch, "Damage is %dd%d (average %d)\n\r", obj->weapon.num_dice,
                 obj->weapon.size_dice, (1 + obj->weapon.size_dice) * obj->weapon.num_dice / 2);
-        send_to_char(buf, ch);
-
-        sprintf(buf, "Damage noun is %s.\n\r",
+        printf_to_char(ch, "Damage noun is %s.\n\r",
                 (obj->weapon.damage_type > 0 && obj->weapon.damage_type < ATTACK_COUNT)
                     ? attack_table[obj->weapon.damage_type].noun
                     : "undefined");
-        send_to_char(buf, ch);
-
-        if (obj->weapon.flags) /* weapon flags */
-        {
-            sprintf(buf, "Weapons flags: %s\n\r",
+        if (obj->weapon.flags) {
+            /* weapon flags */
+            printf_to_char(ch, "Weapons flags: %s\n\r",
                     weapon_bit_name(obj->weapon.flags));
-            send_to_char(buf, ch);
         }
         break;
 
     case ITEM_ARMOR:
-        sprintf(
-            buf,
+        printf_to_char(ch,
             "Armor class is %d pierce, %d bash, %d slash, and %d vs. magic\n\r",
             obj->armor.ac_pierce, obj->armor.ac_bash, obj->armor.ac_slash, obj->armor.ac_exotic);
-        send_to_char(buf, ch);
-        sprintf(buf, "Armor type is %s.\n\r",
+        printf_to_char(ch, "Armor type is %s.\n\r",
                 armor_type_name(armor_type_from_value(obj->armor.armor_type)));
-        send_to_char(buf, ch);
         break;
 
     case ITEM_CONTAINER:
-        sprintf(buf, "Capacity: %d#  Maximum weight: %d#  flags: %s\n\r",
+        printf_to_char(ch, "Capacity: %d#  Maximum weight: %d#  flags: %s\n\r",
                 obj->container.capacity, obj->container.max_item_weight, cont_bit_name(obj->container.flags));
-        send_to_char(buf, ch);
         if (obj->container.weight_mult != 100) {
-            sprintf(buf, "Weight multiplier: %d%%\n\r", obj->container.weight_mult);
-            send_to_char(buf, ch);
+            printf_to_char(ch, "Weight multiplier: %d%%\n\r", obj->container.weight_mult);
         }
         break;
     default:
@@ -1456,30 +1415,30 @@ void do_ostat(Mobile* ch, char* argument)
     if (obj->extra_desc != NULL || obj->prototype->extra_desc != NULL) {
         ExtraDesc* ed;
 
-        send_to_char("Extra description keywords: '", ch);
+        printf_to_char(ch, "Extra description keywords: '");
 
         FOR_EACH(ed, obj->extra_desc) {
-            send_to_char(ed->keyword, ch);
-            if (ed->next != NULL) send_to_char(" ", ch);
+            printf_to_char(ch, "%s", ed->keyword);
+            if (ed->next != NULL) printf_to_char(ch, " ");
         }
 
         FOR_EACH(ed, obj->prototype->extra_desc) {
-            send_to_char(ed->keyword, ch);
-            if (ed->next != NULL) send_to_char(" ", ch);
+            printf_to_char(ch, "%s", ed->keyword);
+            if (ed->next != NULL) printf_to_char(ch, " ");
         }
 
-        send_to_char("'\n\r", ch);
+        printf_to_char(ch, "'\n\r");
     }
 
     FOR_EACH(affect, obj->affected) {
         sprintf(buf, "Affects %s by %d, level %d",
                 affect_loc_name(affect->location), affect->modifier, affect->level);
-        send_to_char(buf, ch);
+        printf_to_char(ch, "%s", buf);
         if (affect->duration > -1)
             sprintf(buf, ", %d hours.\n\r", affect->duration);
         else
             sprintf(buf, ".\n\r");
-        send_to_char(buf, ch);
+        printf_to_char(ch, "%s", buf);
         if (affect->bitvector) {
             switch (affect->where) {
             case TO_AFFECTS:
@@ -1799,7 +1758,6 @@ void do_mfind(Mobile* ch, char* argument)
     found = false;
     nMatch = 0;
 
-    // TODO: Figure out how to get them to print in order of VNUM.
     FOR_EACH_MOB_PROTO(p_mob_proto) {
         nMatch++;
         if (fAll || is_name(argument, NAME_STR(p_mob_proto))) {
@@ -1835,7 +1793,6 @@ void do_ofind(Mobile* ch, char* argument)
     found = false;
     nMatch = 0;
 
-    // TODO: Figure out how to get them to print in order of VNUM.
     FOR_EACH_OBJ_PROTO(obj_proto) {
         nMatch++;
         if (fAll || is_name(argument, NAME_STR(obj_proto))) {
@@ -4089,7 +4046,7 @@ static void olist_objects(Mobile* ch, AreaData* area, const char* filter, bool g
         sb_append(sb, "Objects (global)");
     }
     else if (area) {
-        sb_appendf(sb, "Objects in %s", area->credits);
+        sb_appendf(sb, "Objects in %s", NAME_STR(area));
     }
     else {
         send_to_char("You must be in an area or specify one.\n\r", ch);
@@ -4167,7 +4124,7 @@ static void olist_materials(Mobile* ch, AreaData* area, CraftMatType type_filter
         sb_append(sb, " (global)");
     }
     else if (area) {
-        sb_appendf(sb, " in %s", area->credits);
+        sb_appendf(sb, " in %s", NAME_STR(area));
     }
     else {
         send_to_char("You must be in an area or specify one.\n\r", ch);
@@ -4206,6 +4163,64 @@ static void olist_materials(Mobile* ch, AreaData* area, CraftMatType type_filter
     sb_free(sb);
 }
 
+static void olist_gather_nodes(Mobile* ch, AreaData* area, GatherType type_filter, bool global)
+{
+    StringBuffer* sb = sb_new();
+    int found = 0;
+
+    if (type_filter == GATHER_NONE) {
+        sb_append(sb, "Gather nodes");
+    }
+    else {
+        sb_appendf(sb, "%s nodes", gather_type_name(type_filter));
+    }
+
+    if (global) {
+        sb_append(sb, " (global)");
+    }
+    else if (area) {
+        sb_appendf(sb, " in %s", NAME_STR(area));
+    }
+    else {
+        send_to_char("You must be in an area or specify one.\n\r", ch);
+        sb_free(sb);
+        return;
+    }
+    sb_append(sb, ":\n\r");
+
+    VNUM start_vnum = global ? 0 : area->min_vnum;
+    VNUM end_vnum = global ? 65535 : area->max_vnum;
+
+    for (VNUM vnum = start_vnum; vnum <= end_vnum; vnum++) {
+        ObjPrototype* proto = get_object_prototype(vnum);
+        if (!proto) 
+            continue;
+        if (proto->item_type != ITEM_GATHER)
+            continue;
+        if (type_filter != GATHER_NONE && proto->gather.gather_type != (int)type_filter)
+            continue;
+
+        sb_appendf(sb, "  [%5d] %-30s (%s)\n\r",
+            vnum,
+            proto->short_descr,
+            gather_type_name(proto->gather.gather_type));
+        found++;
+
+        // Limit output
+        if (found >= 100) {
+            sb_append(sb, "  ... (list truncated, use type filter or area to narrow results)\n\r");
+            break;
+        }
+    }
+
+    if (found == 0) {
+        sb_append(sb, "  (none found)\n\r");
+    }
+
+    page_to_char(sb_string(sb), ch);
+    sb_free(sb);
+}
+
 void do_olist(Mobile* ch, char* argument)
 {
     static const char* syntax = 
@@ -4213,13 +4228,15 @@ void do_olist(Mobile* ch, char* argument)
         "        olist mat [<type>] [global|<area>]\n\r"
         "\n\r"
         "Examples:\n\r"
-        "  olist obj all           - List all objects in current area\n\r"
-        "  olist obj armor         - List armor in current area\n\r"
-        "  olist obj all global    - List all objects globally\n\r"
-        "  olist mat               - List all materials in current area\n\r"
-        "  olist mat hide          - List hide materials in current area\n\r"
-        "  olist mat global        - List all materials globally\n\r"
-        "  olist mat bone midgaard - List bone materials in Midgaard\n\r";
+        "  olist obj all            - List all objects in current area\n\r"
+        "  olist obj armor          - List armor in current area\n\r"
+        "  olist obj all global     - List all objects globally\n\r"
+        "  olist mat                - List all materials in current area\n\r"
+        "  olist mat hide           - List hide materials in current area\n\r"
+        "  olist mat global         - List all materials globally\n\r"
+        "  olist mat bone midgaard  - List bone materials in Midgaard\n\r"
+        "  olist gather             - List gather nodes in current area\n\r"
+        "  olist gather global      - List gather nodes globally\n\r";
 
     char mode[MAX_INPUT_LENGTH];
     char arg1[MAX_INPUT_LENGTH];
@@ -4236,10 +4253,11 @@ void do_olist(Mobile* ch, char* argument)
     }
 
     // Determine mode
-    bool mat_mode = !str_prefix(mode, "materials") || !str_prefix(mode, "mat");
-    bool obj_mode = !str_prefix(mode, "objects") || !str_prefix(mode, "obj");
+    bool mat_mode = !str_prefix(mode, "materials");
+    bool obj_mode = !str_prefix(mode, "objects");
+    bool gather_mode = !str_prefix(mode, "gathering");
 
-    if (!mat_mode && !obj_mode) {
+    if (!mat_mode && !obj_mode && !gather_mode) {
         // Maybe they used old syntax: olist all, olist armor
         // Treat first arg as filter, shift args
         strcpy(arg2, arg1);
@@ -4268,7 +4286,7 @@ void do_olist(Mobile* ch, char* argument)
 
         olist_objects(ch, area, filter, global);
     }
-    else {
+    else if (mat_mode) {
         // olist mat [type] [global|<area>]
         CraftMatType type_filter = MAT_NONE;
         const char* area_arg = arg2;
@@ -4312,4 +4330,132 @@ void do_olist(Mobile* ch, char* argument)
 
         olist_materials(ch, area, type_filter, global);
     }
+    else if (gather_mode) {
+        // olist gather [type] [global|<area>]
+        GatherType type_filter = GATHER_NONE;
+        const char* area_arg = arg2;
+
+        // Check if arg1 is a type or "global" or area name
+        if (arg1[0]) {
+            GatherType maybe_type = gather_lookup(arg1);
+            if (maybe_type != GATHER_NONE) {
+                type_filter = maybe_type;
+            }
+            else if (!str_cmp(arg1, "global")) {
+                global = true;
+                area_arg = "";  // No more args expected
+            }
+            else {
+                // Could be an area name
+                area = olist_find_area(arg1);
+                if (!area) {
+                    printf_to_char(ch, "Unknown gather type or area '%s'.\n\r"
+                        "Valid types: ore, herb\n\r", arg1);
+                    return;
+                }
+                area_arg = "";  // Already parsed area
+            }
+        }
+
+        // Check area_arg for global or area
+        if (area_arg[0]) {
+            if (!str_cmp(area_arg, "global")) {
+                global = true;
+            }
+            else {
+                area = olist_find_area(area_arg);
+                if (!area) {
+                    printf_to_char(ch, "Area '%s' not found.\n\r", area_arg);
+                    return;
+                }
+            }
+        }
+
+        // Use existing craft_olc_list_gather_nodes function
+        olist_gather_nodes(ch, area, type_filter, global);
+    }
+    else {
+        send_to_char(syntax, ch);
+    }
+}
+
+// Show list of free vnums in an area
+// Usage: freevnums [<area>]
+//        freevnums objs [<area>]
+//        freevnums mobs [<area>]
+//        freevnums rooms [<area>]
+void do_freevlist(Mobile* ch, char* argument)
+{
+    char arg1[MAX_INPUT_LENGTH];
+    char arg2[MAX_INPUT_LENGTH];
+    AreaData* area = olist_get_area(ch);
+
+    typedef void* (*GetterFunc)(VNUM vnum);
+
+    GetterFunc getter = NULL;
+
+    argument = one_argument(argument, arg1);
+    argument = one_argument(argument, arg2);
+
+    if (arg1[0] != '\0') {
+        if (!str_prefix(arg1, "objs") || !str_prefix(arg1, "objects")) {
+            getter = (GetterFunc)get_object_prototype;
+        }
+        else if (!str_prefix(arg1, "mobs") || !str_prefix(arg1, "mobiles")) {
+            getter = (GetterFunc)get_mob_prototype;
+        }
+        else if (!str_prefix(arg1, "rooms")) {
+            getter = (GetterFunc)get_room_data;
+        }
+        else if (!str_prefix(arg1, "quests")) {
+            getter = (GetterFunc)get_quest;
+        }
+        else {
+            send_to_char(COLOR_INFO "Invalid type. Use objs, mobs, rooms, or quests." COLOR_EOL, ch);
+            return;
+        }
+    }
+
+    if (arg2[0] != '\0') {
+        // Try to find area by arg2
+        AreaData* found_area = olist_find_area(arg2);
+        if (found_area) {
+            area = found_area;
+        }
+        else {
+            send_to_char(COLOR_INFO "Area not found." COLOR_EOL, ch);
+            return;
+        }
+    }
+
+    VNUM start_vnum = -1;
+    
+    StringBuffer* sb = sb_new();
+
+    for (int i = area->min_vnum; i <= area->max_vnum; i++) {
+        void* ent = getter(i);
+        if (!ent) {
+            if (start_vnum < 0) {
+                start_vnum = i;
+                sb_appendf(sb, "    %7d", i);
+            }
+        }
+        else {
+            if (start_vnum == i - 1) {
+                sb_appendf(sb, "\n\r");
+                start_vnum = -1;
+            }
+            else if (start_vnum >= 0) {
+                sb_appendf(sb, "-%-7d\n\r", i - 1);
+                start_vnum = -1;
+            }
+        }
+    }
+
+    if (start_vnum >= 0) {
+        sb_appendf(sb, "-%-7d\n\r", area->max_vnum);
+    }
+
+    send_to_char(sb_string(sb), ch);
+    sb_free(sb);
 }

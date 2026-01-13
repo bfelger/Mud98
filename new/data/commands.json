@@ -1377,6 +1377,22 @@
       "name": "craft",
       "function": "do_craft",
       "position": "standing"
+    },
+    {
+      "name": "recedit",
+      "function": "do_recedit",
+      "level": 54,
+      "log": "log_always"
+    },
+    {
+      "name": "mine",
+      "function": "do_mine",
+      "position": "standing"
+    },
+    {
+      "name": "freevlist",
+      "function": "do_freevlist",
+      "level": 51
     }
   ]
 }

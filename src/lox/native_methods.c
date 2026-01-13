@@ -106,6 +106,55 @@ static Value echo_lox(Value receiver, int arg_count, Value* args)
     return TRUE_VAL;
 }
 
+static Value grant_skill_lox(Value receiver, int arg_count, Value* args)
+{
+    if (arg_count != 2 || !IS_STRING(args[0]) || !IS_INT(args[1])) {
+        runtime_error("grant_skill() requires two arguments: a skill name and skill level adjustment.");
+        return FALSE_VAL;
+    }
+
+    if (!IS_MOBILE(receiver) || AS_MOBILE(receiver)->pcdata == NULL) {
+        runtime_error("grant_skill() called from a non-player.");
+        return FALSE_VAL;
+    }
+
+    Mobile* mob = AS_MOBILE(receiver);
+    SKNUM sn = skill_lookup(string_value(args[0]));
+
+    if (sn < 0) {
+        runtime_error("grant_skill() called with invalid skill name.");
+        return FALSE_VAL;
+    }
+
+    int level_adjustment = AS_INT(args[1]);
+
+    mob->pcdata->learned[sn] += level_adjustment;
+    return TRUE_VAL;
+}
+
+static Value has_skill_lox(Value receiver, int arg_count, Value* args)
+{
+    if (arg_count != 1 || !IS_STRING(args[0])) {
+        runtime_error("has_skill() requires one argument: a skill name.");
+        return FALSE_VAL;
+    }
+
+    if (!IS_MOBILE(receiver) || AS_MOBILE(receiver)->pcdata == NULL) {
+        runtime_error("has_skill() called from a non-player.");
+        return FALSE_VAL;
+    }
+
+    Mobile* mob = AS_MOBILE(receiver);
+    SKNUM sn = skill_lookup(string_value(args[0]));
+
+    if (sn < 0) {
+        runtime_error("has_skill() called with invalid skill name.");
+        return FALSE_VAL;
+    }
+
+    return BOOL_VAL(mob->pcdata->learned[sn] > 0);
+}
+
 const NativeMethodEntry native_method_entries[] = {
     { "is_area",            is_area_lox                     },
     { "is_area_data",       is_area_data_lox                },
@@ -128,5 +177,7 @@ const NativeMethodEntry native_method_entries[] = {
     { "set_reputation",     faction_set_reputation_lox      },
     { "is_enemy",           faction_is_enemy_lox            },
     { "is_ally",            faction_is_ally_lox             },
+    { "grant_skill",        grant_skill_lox                 },
+    { "has_skill",          has_skill_lox                   },
     { NULL,                 NULL                            },
 };

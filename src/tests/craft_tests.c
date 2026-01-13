@@ -43,6 +43,26 @@
 
 TestGroup craft_tests;
 
+static void equip_crafting_tool(Mobile* ch, WeaponType weapon_type, VNUM vnum,
+    const char* name)
+{
+    Object* tool = mock_sword(name, vnum, 1, 1, 4);
+    tool->weapon.weapon_type = weapon_type;
+    tool->prototype->weapon.weapon_type = weapon_type;
+    obj_to_char(tool, ch);
+    equip_char(ch, tool, WEAR_WIELD);
+}
+
+static void equip_skinning_knife(Mobile* ch, VNUM vnum)
+{
+    equip_crafting_tool(ch, WEAPON_SKINNING_KNIFE, vnum, "skinning knife");
+}
+
+static void equip_butcher_knife(Mobile* ch, VNUM vnum)
+{
+    equip_crafting_tool(ch, WEAPON_BUTCHER_KNIFE, vnum, "butcher knife");
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Issue #1: Crafting Enum Tests
 ////////////////////////////////////////////////////////////////////////////////
@@ -348,7 +368,7 @@ static int test_recipe_free()
     recipe->station_type = WORK_TANNERY;
     recipe->min_level = 5;
     recipe->required_skill = 10;  // arbitrary skill number
-    recipe->min_skill_pct = 25;
+    recipe->min_skill = 75;
     
     recipe_add_ingredient(recipe, 70001, 3);
     recipe_add_ingredient(recipe, 70002, 1);
@@ -677,7 +697,7 @@ static int test_recipe_json_build()
     VNUM_FIELD(recipe) = 99001;
     recipe->header.name = AS_STRING(mock_str("test leather armor"));
     recipe->required_skill = gsn_second_attack;  // Use any available skill
-    recipe->min_skill_pct = 50;
+    recipe->min_skill = 50;
     recipe->min_level = 10;
     recipe->station_type = WORK_TANNERY | WORK_FORGE;
     recipe->station_vnum = VNUM_NONE;
@@ -706,7 +726,7 @@ static int test_recipe_json_build()
             
             // Verify fields
             ASSERT_STR_EQ("test leather armor", json_string_value(json_object_get(obj, "name")));
-            ASSERT(json_integer_value(json_object_get(obj, "minSkillPct")) == 50);
+            ASSERT(json_integer_value(json_object_get(obj, "minSkill")) == 50);
             ASSERT(json_integer_value(json_object_get(obj, "minLevel")) == 10);
             ASSERT(json_integer_value(json_object_get(obj, "outputVnum")) == 200);
             
@@ -735,7 +755,7 @@ static int test_recipe_json_parse()
     json_object_set_new(obj, "vnum", json_integer(99002));
     json_object_set_new(obj, "name", json_string("parsed recipe"));
     json_object_set_new(obj, "skill", json_string("second attack"));  // Use available skill
-    json_object_set_new(obj, "minSkillPct", json_integer(75));
+    json_object_set_new(obj, "minSkill", json_integer(75));
     json_object_set_new(obj, "minLevel", json_integer(15));
     json_object_set_new(obj, "discovery", json_string("quest"));
     json_object_set_new(obj, "outputVnum", json_integer(300));
@@ -763,7 +783,7 @@ static int test_recipe_json_parse()
     Recipe* recipe = get_recipe(99002);
     ASSERT(recipe != NULL);
     ASSERT_STR_EQ("parsed recipe", NAME_STR(recipe));
-    ASSERT(recipe->min_skill_pct == 75);
+    ASSERT(recipe->min_skill == 75);
     ASSERT(recipe->min_level == 15);
     ASSERT(recipe->discovery == DISC_QUEST);
     ASSERT(recipe->station_type == WORK_ALCHEMY);
@@ -786,7 +806,7 @@ static int test_recipe_json_roundtrip()
     VNUM_FIELD(recipe) = 99003;
     recipe->header.name = AS_STRING(mock_str("roundtrip recipe"));
     recipe->required_skill = gsn_second_attack;
-    recipe->min_skill_pct = 60;
+    recipe->min_skill = 60;
     recipe->min_level = 20;
     recipe->station_type = WORK_FORGE | WORK_SMELTER;
     recipe->station_vnum = 5000;
@@ -827,7 +847,7 @@ static int test_recipe_json_roundtrip()
     Recipe* loaded = get_recipe(99003);
     ASSERT(loaded != NULL);
     ASSERT_STR_EQ("roundtrip recipe", NAME_STR(loaded));
-    ASSERT(loaded->min_skill_pct == 60);
+    ASSERT(loaded->min_skill == 60);
     ASSERT(loaded->min_level == 20);
     ASSERT(loaded->station_type == (WORK_FORGE | WORK_SMELTER));
     ASSERT(loaded->station_vnum == 5000);
@@ -863,7 +883,7 @@ static int test_recipe_rom_olc_save()
     recipe->header.name = AS_STRING(mock_str("rom olc recipe"));
     recipe->area = area;
     recipe->required_skill = gsn_second_attack;
-    recipe->min_skill_pct = 40;
+    recipe->min_skill = 40;
     recipe->min_level = 5;
     recipe->station_type = WORK_COOKING;
     recipe->discovery = DISC_TRAINER;
@@ -1037,7 +1057,7 @@ static int test_has_required_workstation_none_needed()
     recipe->station_type = WORK_NONE;
     recipe->station_vnum = VNUM_NONE;
     
-    bool result = has_required_workstation(room, recipe);
+    bool result = has_required_workstation(room, recipe, NULL);
     
     ASSERT(result == true);
     
@@ -1056,7 +1076,7 @@ static int test_has_required_workstation_by_type()
     recipe->station_type = WORK_FORGE;
     recipe->station_vnum = VNUM_NONE;
     
-    bool result = has_required_workstation(room, recipe);
+    bool result = has_required_workstation(room, recipe, NULL);
     
     ASSERT(result == true);
     
@@ -1075,7 +1095,7 @@ static int test_has_required_workstation_by_vnum()
     recipe->station_type = WORK_NONE;
     recipe->station_vnum = 70007;
     
-    bool result = has_required_workstation(room, recipe);
+    bool result = has_required_workstation(room, recipe, NULL);
     
     ASSERT(result == true);
     
@@ -1120,11 +1140,57 @@ static int test_skin_not_a_corpse()
     return 0;
 }
 
+static int test_skin_requires_tool()
+{
+    Room* room = mock_room(80009, NULL, NULL);
+    Mobile* ch = mock_player("Tester");
+    transfer_mob(ch, room);
+    ch->level = 10;
+    mock_skill(ch, gsn_skinning, 100);
+
+    MobPrototype* mp = mock_mob_proto(80007);
+    ObjPrototype* hide_proto = mock_obj_proto(80024);
+    hide_proto->item_type = ITEM_MAT;
+    hide_proto->craft_mat.mat_type = MAT_HIDE;
+    hide_proto->craft_mat.amount = 1;
+    hide_proto->craft_mat.quality = 50;
+
+    mp->craft_mat_count = 1;
+    mp->craft_mats = alloc_mem(sizeof(VNUM));
+    mp->craft_mats[0] = VNUM_FIELD(hide_proto);
+
+    Mobile* mob = create_mobile(mp);
+    transfer_mob(mob, room);
+
+    make_corpse(mob);
+
+    test_socket_output_enabled = true;
+    do_skin(ch, "corpse");
+    test_socket_output_enabled = false;
+
+    ASSERT_OUTPUT_CONTAINS("need a skinning knife");
+
+    Object* corpse = NULL;
+    Object* obj = NULL;
+    FOR_EACH_ROOM_OBJ(obj, room) {
+        if (obj->item_type == ITEM_CORPSE_NPC) {
+            corpse = obj;
+            break;
+        }
+    }
+    ASSERT(corpse != NULL);
+    ASSERT(!(corpse->corpse.extraction_flags & CORPSE_SKINNED));
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
 static int test_skin_already_skinned()
 {
     Room* room = mock_room(80003, NULL, NULL);
     Mobile* ch = mock_player("Tester");
     transfer_mob(ch, room);
+    equip_skinning_knife(ch, 80901);
     
     // Create an NPC and kill it to make a corpse
     MobPrototype* mp = mock_mob_proto(80001);
@@ -1162,6 +1228,7 @@ static int test_skin_no_skinnable_mats()
     transfer_mob(ch, room);
     ch->level = 10;  // High enough for skinning skill (requires level 5)
     mock_skill(ch, gsn_skinning, 100);  // Give skill but no skinnable mats
+    equip_skinning_knife(ch, 80902);
     
     // Create mob with only meat (not skinnable)
     MobPrototype* mp = mock_mob_proto(80002);
@@ -1196,6 +1263,7 @@ static int test_skin_success()
     transfer_mob(ch, room);
     ch->level = 10;  // High enough for skinning skill (requires level 5)
     mock_skill(ch, gsn_skinning, 100);  // 100% skill guarantees success
+    equip_skinning_knife(ch, 80903);
     
     // Create mob with skinnable hide
     MobPrototype* mp = mock_mob_proto(80003);
@@ -1257,6 +1325,7 @@ static int test_skin_no_skill()
     transfer_mob(ch, room);
     ch->level = 10;
     // Don't set skinning skill - player hasn't learned it
+    equip_skinning_knife(ch, 80904);
     
     // Create mob with skinnable hide
     MobPrototype* mp = mock_mob_proto(80004);
@@ -1305,6 +1374,7 @@ static int test_skin_failure()
     transfer_mob(ch, room);
     ch->level = 10;
     mock_skill(ch, gsn_skinning, 1);  // Only 1% skill - will likely fail
+    equip_skinning_knife(ch, 80905);
     
     // Create mob with skinnable hide
     MobPrototype* mp = mock_mob_proto(80005);
@@ -1359,6 +1429,7 @@ static int test_skin_skill_improve()
     transfer_mob(ch, room);
     ch->level = 10;
     mock_skill(ch, gsn_skinning, 50);  // 50% skill
+    equip_skinning_knife(ch, 80906);
     
     // Create mob with skinnable hide
     MobPrototype* mp = mock_mob_proto(80006);
@@ -1415,11 +1486,57 @@ static int test_butcher_no_argument()
     return 0;
 }
 
+static int test_butcher_requires_tool()
+{
+    Room* room = mock_room(80106, NULL, NULL);
+    Mobile* ch = mock_player("Tester");
+    transfer_mob(ch, room);
+    ch->level = 10;
+    mock_skill(ch, gsn_butchering, 100);
+
+    MobPrototype* mp = mock_mob_proto(80016);
+    ObjPrototype* meat_proto = mock_obj_proto(80046);
+    meat_proto->item_type = ITEM_MAT;
+    meat_proto->craft_mat.mat_type = MAT_MEAT;
+    meat_proto->craft_mat.amount = 1;
+    meat_proto->craft_mat.quality = 50;
+
+    mp->craft_mat_count = 1;
+    mp->craft_mats = alloc_mem(sizeof(VNUM));
+    mp->craft_mats[0] = VNUM_FIELD(meat_proto);
+
+    Mobile* mob = create_mobile(mp);
+    transfer_mob(mob, room);
+
+    make_corpse(mob);
+
+    test_socket_output_enabled = true;
+    do_butcher(ch, "corpse");
+    test_socket_output_enabled = false;
+
+    ASSERT_OUTPUT_CONTAINS("need a butcher knife");
+
+    Object* corpse = NULL;
+    Object* obj = NULL;
+    FOR_EACH_ROOM_OBJ(obj, room) {
+        if (obj->item_type == ITEM_CORPSE_NPC) {
+            corpse = obj;
+            break;
+        }
+    }
+    ASSERT(corpse != NULL);
+    ASSERT(!(corpse->corpse.extraction_flags & CORPSE_BUTCHERED));
+
+    test_output_buffer = NIL_VAL;
+    return 0;
+}
+
 static int test_butcher_already_butchered()
 {
     Room* room = mock_room(80102, NULL, NULL);
     Mobile* ch = mock_player("Tester");
     transfer_mob(ch, room);
+    equip_butcher_knife(ch, 80911);
     
     MobPrototype* mp = mock_mob_proto(80011);
     Mobile* mob = create_mobile(mp);
@@ -1456,6 +1573,7 @@ static int test_butcher_no_butcherable_mats()
     transfer_mob(ch, room);
     ch->level = 10;  // High enough for butchering skill (requires level 5)
     mock_skill(ch, gsn_butchering, 100);  // Give skill but no butcherable mats
+    equip_butcher_knife(ch, 80912);
     
     // Create mob with only hide (not butcherable)
     MobPrototype* mp = mock_mob_proto(80012);
@@ -1490,6 +1608,7 @@ static int test_butcher_success()
     transfer_mob(ch, room);
     ch->level = 10;  // High enough for butchering skill (requires level 5)
     mock_skill(ch, gsn_butchering, 100);  // 100% skill guarantees success
+    equip_butcher_knife(ch, 80913);
     
     // Create mob with butcherable meat
     MobPrototype* mp = mock_mob_proto(80013);
@@ -2280,7 +2399,7 @@ static int test_recedit_skill()
     
     // Skill should be set
     ASSERT(recipe->required_skill >= 0);
-    ASSERT(recipe->min_skill_pct == 50);
+    ASSERT(recipe->min_skill == 50);
     
     test_output_buffer = NIL_VAL;
     edit_done(ch);
@@ -2517,7 +2636,7 @@ static int test_olist_obj_local()
     AreaData* ad = mock_area_data();
     ad->min_vnum = 88100;
     ad->max_vnum = 88199;
-    RESTRING(ad->credits, "Test OList Area");
+    SET_NAME(ad, lox_string("Test OList Area"));
     write_value_array(&global_areas, OBJ_VAL(ad));
     
     // Create some objects in the area
@@ -2557,7 +2676,7 @@ static int test_olist_mat_local()
     AreaData* ad = mock_area_data();
     ad->min_vnum = 88200;
     ad->max_vnum = 88299;
-    RESTRING(ad->credits, "Test Mat Area");
+    SET_NAME(ad, lox_string("Test Mat Area"));
     write_value_array(&global_areas, OBJ_VAL(ad));
     
     // Create a material object
@@ -2601,7 +2720,7 @@ static int test_olist_mat_filter()
     AreaData* ad = mock_area_data();
     ad->min_vnum = 88300;
     ad->max_vnum = 88399;
-    RESTRING(ad->credits, "Test Filter Area");
+    SET_NAME(ad, lox_string("Test Filter Area"));
     write_value_array(&global_areas, OBJ_VAL(ad));
     
     // Create material objects of different types
@@ -2645,7 +2764,7 @@ static int test_olist_olc_aware()
     AreaData* ad = mock_area_data();
     ad->min_vnum = 88400;
     ad->max_vnum = 88499;
-    RESTRING(ad->credits, "OLC Test Area");
+    SET_NAME(ad, lox_string("OLC Test Area"));
     write_value_array(&global_areas, OBJ_VAL(ad));
     
     // Create an object in this area
@@ -3077,7 +3196,7 @@ static int test_craft_no_skill()
     // Create a recipe that requires leatherworking
     Recipe* recipe = mock_recipe("leather test", 99101);
     recipe->required_skill = gsn_leatherworking;
-    recipe->min_skill_pct = 1;
+    recipe->min_skill = 1;
     recipe->discovery = DISC_KNOWN;  // Known by default
     
     CraftResult result = evaluate_craft(ch, "leather test");
@@ -3102,7 +3221,7 @@ static int test_craft_skill_too_low()
     // Create a recipe requiring 50% skill
     Recipe* recipe = mock_recipe("advanced leather", 99102);
     recipe->required_skill = gsn_leatherworking;
-    recipe->min_skill_pct = 50;  // Requires 50%
+    recipe->min_skill = 50;  // Requires 50%
     recipe->discovery = DISC_KNOWN;
     
     CraftResult result = evaluate_craft(ch, "advanced leather");
@@ -3127,7 +3246,7 @@ static int test_craft_evaluate_uses_skill_check()
     // Create a simple recipe
     Recipe* recipe = mock_recipe("skill check test", 99103);
     recipe->required_skill = gsn_leatherworking;
-    recipe->min_skill_pct = 1;
+    recipe->min_skill = 1;
     recipe->min_level = 1;
     recipe->discovery = DISC_KNOWN;
     
@@ -3992,6 +4111,7 @@ void register_craft_tests()
     // Issue #9: Skin Command
     REGISTER("Skin: No Argument", test_skin_no_argument);
     REGISTER("Skin: Not A Corpse", test_skin_not_a_corpse);
+    REGISTER("Skin: Requires Tool", test_skin_requires_tool);
     REGISTER("Skin: Already Skinned", test_skin_already_skinned);
     REGISTER("Skin: No Skinnable Mats", test_skin_no_skinnable_mats);
     REGISTER("Skin: Success", test_skin_success);
@@ -4003,6 +4123,7 @@ void register_craft_tests()
     
     // Issue #10: Butcher Command
     REGISTER("Butcher: No Argument", test_butcher_no_argument);
+    REGISTER("Butcher: Requires Tool", test_butcher_requires_tool);
     REGISTER("Butcher: Already Butchered", test_butcher_already_butchered);
     REGISTER("Butcher: No Butcherable Mats", test_butcher_no_butcherable_mats);
     REGISTER("Butcher: Success", test_butcher_success);

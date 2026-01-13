@@ -257,6 +257,54 @@ iron~
 workstation 0 0
 AB 5 0 0 0
 40 400 5000 P
+#211
+skinning knife~
+a skinning knife~
+A skinning knife lies here.~
+iron~
+weapon 0 AN
+skinningknife 1 4 'slash' 0
+10 10 200 P
+#212
+butcher knife~
+a butcher knife~
+A butcher knife lies here.~
+iron~
+weapon 0 AN
+butcherknife 1 4 'slash' 0
+10 10 200 P
+#213
+mining pick~
+a mining pick~
+A mining pick lies here.~
+iron~
+weapon 0 AN
+miningpick 1 4 'pierce' 0
+10 10 200 P
+#300
+copper vein~
+a copper vein~
+A faint glitter of copper shines from the walls.~
+copper~
+gather 0 0
+ore 106 2 0 0
+5 0 0 P
+#301
+tin vein~
+a tin vein~
+Traces of tin sparkle from the walls.~
+tin~
+gather 0 0
+ore 107 1 0 0
+15 0 0 P
+#302
+iron deposit~
+an iron deposit~
+The walls have faint, rusty red splotches of iron.~
+iron~
+gather 0 0
+ore 108 2 0 0
+25 0 0 P
 #401
 cap leather~
 a leather cap~

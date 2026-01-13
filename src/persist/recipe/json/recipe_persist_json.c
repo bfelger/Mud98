@@ -74,8 +74,8 @@ static json_t* build_single_recipe(const Recipe* recipe)
             JSON_SET_STRING(obj, "skill", skill_name);
     }
     
-    if (recipe->min_skill_pct > 0)
-        JSON_SET_INT(obj, "minSkillPct", recipe->min_skill_pct);
+    if (recipe->min_skill > 0)
+        JSON_SET_INT(obj, "minSkill", recipe->min_skill);
     
     if (recipe->min_level > 1)
         JSON_SET_INT(obj, "minLevel", recipe->min_level);
@@ -165,7 +165,10 @@ static void parse_single_recipe(json_t* obj, Entity* owner)
         recipe->required_skill = skill_lookup(skill_name);
     }
     
-    recipe->min_skill_pct = (int16_t)json_int_or_default(obj, "minSkillPct", 0);
+    int min_skill = (int)json_int_or_default(obj, "minSkill", -1);
+    if (min_skill < 0)
+        min_skill = (int)json_int_or_default(obj, "minSkillPct", 0);
+    recipe->min_skill = (int16_t)min_skill;
     recipe->min_level = (LEVEL)json_int_or_default(obj, "minLevel", 1);
     
     // Workstation type (array of names -> flags)

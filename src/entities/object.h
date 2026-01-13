@@ -85,12 +85,20 @@ typedef struct object_t {
         
         // ITEM_WEAPON (type 5)
         struct {
-            int weapon_type;  // WEAPON_* enum (WEAPON_SWORD, WEAPON_DAGGER, etc.)
-            int num_dice;     // Number of damage dice
-            int size_dice;    // Size of damage dice
-            int damage_type;  // Attack type (index into attack_table for damage type)
-            int flags;        // WEAPON_* flags
+            int weapon_type;    // WEAPON_* enum (WEAPON_SWORD, WEAPON_DAGGER, etc.)
+            int num_dice;       // Number of damage dice
+            int size_dice;      // Size of damage dice
+            int damage_type;    // Attack type (index into attack_table for damage type)
+            int flags;          // WEAPON_* flags
         } weapon;
+
+        struct {
+            int gather_type;    // GatherType enum
+            int mat_vnum;       // VNUM of material gathered from this node
+            int quantity;       // Quantity of materials
+            int min_skill;      // Minimum skill percentage required
+            int unused4;
+        } gather;
         
         // ITEM_ARMOR (type 9)
         struct {
@@ -195,7 +203,7 @@ typedef struct object_t {
         struct {
             int station_flags;  // WorkstationType bit flags
             int bonus;          // Skill bonus when using this station
-            int unused2;
+            int min_skill;      // Minimum skill percentage required
             int unused3;
             int unused4;
         } workstation;

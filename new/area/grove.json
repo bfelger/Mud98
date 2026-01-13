@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "areadata": {
-    "version": 2,
+    "version": 3,
     "name": "Holy Grove",
     "builders": "",
     "vnumRange": [
@@ -642,7 +642,7 @@
     {
       "vnum": 8900,
       "name": "oldstyle hierophant",
-      "shortDescr": "the Hierophant",
+      "shortDescr": "The Hierophant",
       "longDescr": "The old Hierophant of the holy grove is here, gathering hollies.\n\r",
       "description": "He is a very old man, dressed in an old robe; but from the glint in his\n\rclear blue eyes you can see that He is aware of the world, and wise to its\n\rtraps and pitfalls.\n\r",
       "race": "human",
@@ -699,7 +699,7 @@
     {
       "vnum": 8901,
       "name": "oldstyle hierophant",
-      "shortDescr": "the Hierophant",
+      "shortDescr": "The Hierophant",
       "longDescr": "The old Hierophant of the holy grove is here, gathering ivy.\n\r",
       "description": "She is a very old woman, dressed in an old gown; but from the glint in her\n\rclear blue eyes you can see that She is aware of the world, and wise to its\n\rtraps and pitfalls.\n\r",
       "race": "human",
@@ -1856,5 +1856,7 @@
     }
   ],
   "factions": [],
-  "quests": []
+  "quests": [],
+  "recipes": [],
+  "gatherSpawns": []
 }

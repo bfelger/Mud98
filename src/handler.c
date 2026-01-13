@@ -1933,6 +1933,9 @@ bool room_is_dark(Room* room)
     if (room->light > 0) 
         return false;
 
+    if (room->data->sector_type == SECT_UNDERGROUND)
+        return true;
+
     if (IS_SET(room->data->room_flags, ROOM_DARK))
         return true;
 

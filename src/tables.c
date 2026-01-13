@@ -372,7 +372,7 @@ const struct flag_type sector_flag_table[] = {
     { "mountain",       SECT_MOUNTAIN,      true    },
     { "swim",           SECT_WATER_SWIM,    true    },
     { "noswim",         SECT_WATER_NOSWIM,  true    },
-    { "unused",         SECT_UNUSED,        true    },
+    { "underground",    SECT_UNDERGROUND,   true    },
     { "air",            SECT_AIR,           true    },
     { "desert",         SECT_DESERT,        true    },
     { NULL,             0,                  0       }
@@ -385,7 +385,7 @@ const struct flag_type type_flag_table[] = {
     { "wand",           ITEM_WAND,          true    },
     { "staff",          ITEM_STAFF,         true    },
     { "weapon",         ITEM_WEAPON,        true    },
-    { "reserved",       ITEM_NONE,          false   },
+    { "gather",         ITEM_GATHER,        true    },
     { "reserved",       ITEM_NONE,          false   },
     { "treasure",       ITEM_TREASURE,      true    },
     { "armor",          ITEM_ARMOR,         true    },
