@@ -397,6 +397,8 @@ body::before {
 .statusbar {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 16px;
   padding: 12px 18px;
   font-size: 0.82rem;
   color: var(--ink-soft);

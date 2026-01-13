@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { LocalFileRepository } from "./repository/localFileRepository";
-import type { AreaJson } from "./repository/types";
+import type { AreaJson, EditorMeta } from "./repository/types";
 
 const tabs = [
   {
@@ -133,6 +133,35 @@ function fileNameFromPath(path: string | null): string {
   return normalized.split("/").pop() ?? path;
 }
 
+function buildEditorMeta(
+  existing: EditorMeta | null,
+  activeTab: string,
+  selectedEntity: string
+): EditorMeta {
+  const now = new Date().toISOString();
+  const base: EditorMeta = existing ?? {
+    version: 1,
+    updatedAt: now,
+    view: { activeTab },
+    selection: { entityType: selectedEntity },
+    layout: {}
+  };
+
+  return {
+    ...base,
+    version: 1,
+    updatedAt: now,
+    view: {
+      ...base.view,
+      activeTab
+    },
+    selection: {
+      ...base.selection,
+      entityType: selectedEntity
+    }
+  };
+}
+
 export default function App() {
   const repository = useMemo(() => new LocalFileRepository(), []);
   const [activeTab, setActiveTab] = useState<TabId>(tabs[0].id);
@@ -141,6 +170,8 @@ export default function App() {
   );
   const [areaPath, setAreaPath] = useState<string | null>(null);
   const [areaData, setAreaData] = useState<AreaJson | null>(null);
+  const [editorMeta, setEditorMeta] = useState<EditorMeta | null>(null);
+  const [editorMetaPath, setEditorMetaPath] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState("No area loaded");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isBusy, setIsBusy] = useState(false);
@@ -160,9 +191,22 @@ export default function App() {
         return;
       }
       const loaded = await repository.loadArea(path);
+      const metaPath = repository.editorMetaPathForArea(path);
+      let loadedMeta: EditorMeta | null = null;
       setAreaPath(path);
       setAreaData(loaded);
-      setStatusMessage(`Loaded ${fileNameFromPath(path)}`);
+      setEditorMetaPath(metaPath);
+      try {
+        loadedMeta = await repository.loadEditorMeta(metaPath);
+      } catch (error) {
+        setErrorMessage(`Failed to load editor meta. ${String(error)}`);
+      }
+      setEditorMeta(loadedMeta);
+      setStatusMessage(
+        loadedMeta
+          ? `Loaded ${fileNameFromPath(path)} + editor meta`
+          : `Loaded ${fileNameFromPath(path)}`
+      );
     } catch (error) {
       setErrorMessage(`Failed to load area JSON. ${String(error)}`);
     } finally {
@@ -176,6 +220,15 @@ export default function App() {
     }
     await repository.saveArea(path, areaData);
     setStatusMessage(`Saved ${fileNameFromPath(path)}`);
+  };
+
+  const saveEditorMetaToPath = async (path: string) => {
+    const metaPath = repository.editorMetaPathForArea(path);
+    const nextMeta = buildEditorMeta(editorMeta, activeTab, selectedEntity);
+    await repository.saveEditorMeta(metaPath, nextMeta);
+    setEditorMeta(nextMeta);
+    setEditorMetaPath(metaPath);
+    setStatusMessage(`Saved editor meta ${fileNameFromPath(metaPath)}`);
   };
 
   const handleSaveArea = async () => {
@@ -194,6 +247,7 @@ export default function App() {
         return;
       }
       setAreaPath(targetPath);
+      setEditorMetaPath(repository.editorMetaPathForArea(targetPath));
       await saveToPath(targetPath);
     } catch (error) {
       setErrorMessage(`Failed to save area JSON. ${String(error)}`);
@@ -215,9 +269,26 @@ export default function App() {
         return;
       }
       setAreaPath(targetPath);
+      setEditorMetaPath(repository.editorMetaPathForArea(targetPath));
       await saveToPath(targetPath);
     } catch (error) {
       setErrorMessage(`Failed to save area JSON. ${String(error)}`);
+    } finally {
+      setIsBusy(false);
+    }
+  };
+
+  const handleSaveEditorMeta = async () => {
+    if (!areaPath) {
+      setErrorMessage("No area loaded to save editor metadata.");
+      return;
+    }
+    setErrorMessage(null);
+    setIsBusy(true);
+    try {
+      await saveEditorMetaToPath(areaPath);
+    } catch (error) {
+      setErrorMessage(`Failed to save editor meta. ${String(error)}`);
     } finally {
       setIsBusy(false);
     }
@@ -285,6 +356,14 @@ export default function App() {
             disabled={!areaData || isBusy}
           >
             Save
+          </button>
+          <button
+            className="action-button"
+            type="button"
+            onClick={handleSaveEditorMeta}
+            disabled={!areaPath || isBusy}
+          >
+            Save Meta
           </button>
           <button
             className="action-button"
@@ -408,6 +487,7 @@ export default function App() {
       <footer className="statusbar">
         <span>Status: {errorMessage ?? statusMessage}</span>
         <span>Area file: {areaPath ?? "Not loaded"}</span>
+        <span>Meta file: {editorMetaPath ?? "Not loaded"}</span>
         <span>Area dir: {areaDirectory ?? "Not set"}</span>
         <span>Selection: {selectedEntity}</span>
       </footer>
