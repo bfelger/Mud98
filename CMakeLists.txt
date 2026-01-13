@@ -44,3 +44,4 @@ add_subdirectory(src)
 # different build settings, dependencies, and compiler flags from the main
 # game. They are built as separate targets.
 add_subdirectory(tools/mud98CombatSim)
+add_subdirectory(tools/WorldEdit)

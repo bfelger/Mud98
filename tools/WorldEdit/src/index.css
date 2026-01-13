@@ -1,0 +1,61 @@
+:root {
+  color-scheme: light;
+  font-family: "Palatino Linotype", Palatino, "Book Antiqua", serif;
+  background-color: #efe2cb;
+  color: #231a12;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(1200px 800px at 15% 20%, #f6ead5 0%, rgba(246, 234, 213, 0) 60%),
+    radial-gradient(900px 700px at 85% 10%, #e6cfa7 0%, rgba(230, 207, 167, 0) 55%),
+    linear-gradient(160deg, #f2e1c6 0%, #d8ba8d 100%);
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+
+.app {
+  width: min(640px, 90vw);
+  padding: 48px 44px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 24px 60px rgba(55, 40, 20, 0.25);
+  border: 1px solid rgba(140, 110, 72, 0.3);
+  text-align: center;
+}
+
+.app__badge {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #3f2d1f;
+  color: #f4e4ca;
+  font-size: 0.85rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.app__title {
+  margin: 20px 0 8px;
+  font-size: clamp(2.4rem, 6vw, 3.4rem);
+  letter-spacing: 0.02em;
+}
+
+.app__subtitle {
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #3a2a1d;
+}
