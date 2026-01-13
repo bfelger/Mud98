@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { LocalFileRepository } from "./repository/localFileRepository";
-import type { AreaJson, EditorMeta } from "./repository/types";
+import type { AreaJson, EditorMeta, ReferenceData } from "./repository/types";
 
 const tabs = [
   {
@@ -172,6 +172,8 @@ export default function App() {
   const [areaData, setAreaData] = useState<AreaJson | null>(null);
   const [editorMeta, setEditorMeta] = useState<EditorMeta | null>(null);
   const [editorMetaPath, setEditorMetaPath] = useState<string | null>(null);
+  const [referenceData, setReferenceData] = useState<ReferenceData | null>(null);
+  const [dataDirectory, setDataDirectory] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState("No area loaded");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isBusy, setIsBusy] = useState(false);
@@ -207,6 +209,22 @@ export default function App() {
           ? `Loaded ${fileNameFromPath(path)} + editor meta`
           : `Loaded ${fileNameFromPath(path)}`
       );
+      try {
+        const resolvedDataDir = await repository.resolveDataDirectory(
+          path,
+          areaDirectory
+        );
+        if (resolvedDataDir) {
+          const refs = await repository.loadReferenceData(resolvedDataDir);
+          setReferenceData(refs);
+          setDataDirectory(resolvedDataDir);
+          setStatusMessage(
+            `Loaded ${fileNameFromPath(path)} + reference data`
+          );
+        }
+      } catch (error) {
+        setErrorMessage(`Failed to load reference data. ${String(error)}`);
+      }
     } catch (error) {
       setErrorMessage(`Failed to load area JSON. ${String(error)}`);
     } finally {
@@ -312,6 +330,29 @@ export default function App() {
     }
   };
 
+  const handleLoadReferenceData = async () => {
+    setErrorMessage(null);
+    setIsBusy(true);
+    try {
+      const resolvedDataDir = await repository.resolveDataDirectory(
+        areaPath,
+        areaDirectory
+      );
+      if (!resolvedDataDir) {
+        setErrorMessage("Unable to resolve data directory.");
+        return;
+      }
+      const refs = await repository.loadReferenceData(resolvedDataDir);
+      setReferenceData(refs);
+      setDataDirectory(resolvedDataDir);
+      setStatusMessage(`Loaded reference data from ${resolvedDataDir}`);
+    } catch (error) {
+      setErrorMessage(`Failed to load reference data. ${String(error)}`);
+    } finally {
+      setIsBusy(false);
+    }
+  };
+
   return (
     <div className="app-shell">
       <header className="topbar">
@@ -348,6 +389,14 @@ export default function App() {
             disabled={isBusy}
           >
             Set Area Dir
+          </button>
+          <button
+            className="action-button"
+            type="button"
+            onClick={handleLoadReferenceData}
+            disabled={isBusy}
+          >
+            Load Ref Data
           </button>
           <button
             className="action-button action-button--primary"
@@ -489,7 +538,14 @@ export default function App() {
         <span>Area file: {areaPath ?? "Not loaded"}</span>
         <span>Meta file: {editorMetaPath ?? "Not loaded"}</span>
         <span>Area dir: {areaDirectory ?? "Not set"}</span>
+        <span>Data dir: {dataDirectory ?? "Not set"}</span>
         <span>Selection: {selectedEntity}</span>
+        <span>
+          Reference:{" "}
+          {referenceData
+            ? `classes ${referenceData.classes.length}, races ${referenceData.races.length}, skills ${referenceData.skills.length}, commands ${referenceData.commands.length}`
+            : "not loaded"}
+        </span>
       </footer>
     </div>
   );

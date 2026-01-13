@@ -11,3 +11,11 @@ export type EditorMeta = {
   };
   layout?: Record<string, unknown>;
 };
+
+export type ReferenceData = {
+  classes: string[];
+  races: string[];
+  skills: string[];
+  commands: string[];
+  sourceDir: string;
+};
