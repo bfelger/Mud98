@@ -68,6 +68,8 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
   padding: 16px 20px;
   background: var(--panel);
   border: 1px solid var(--panel-edge);
@@ -115,6 +117,12 @@ body::before {
   flex-wrap: wrap;
 }
 
+.topbar__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .status-pill {
   padding: 6px 12px;
   border-radius: 999px;
@@ -128,6 +136,31 @@ body::before {
   background: rgba(47, 108, 106, 0.18);
 }
 
+.status-pill--error {
+  border-color: rgba(178, 74, 47, 0.4);
+  background: rgba(178, 74, 47, 0.15);
+  color: #822616;
+}
+
+.action-button {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(47, 108, 106, 0.35);
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--accent-strong);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.action-button--primary {
+  background: rgba(47, 108, 106, 0.2);
+}
+
+.action-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
 .workspace {
   display: grid;
   grid-template-columns: minmax(220px, 1fr) minmax(480px, 2.6fr) minmax(220px, 1fr);
@@ -396,5 +429,10 @@ body::before {
 
   .tabs {
     flex-wrap: wrap;
+  }
+
+  .topbar__actions {
+    width: 100%;
+    justify-content: flex-start;
   }
 }

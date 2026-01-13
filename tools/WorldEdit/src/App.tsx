@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { LocalFileRepository } from "./repository/localFileRepository";
+import type { AreaJson } from "./repository/types";
 
 const tabs = [
   {
@@ -123,12 +125,121 @@ const entityDetails: Record<
   }
 };
 
+function fileNameFromPath(path: string | null): string {
+  if (!path) {
+    return "No area loaded";
+  }
+  const normalized = path.replace(/[/\\\\]+/g, "/");
+  return normalized.split("/").pop() ?? path;
+}
+
 export default function App() {
+  const repository = useMemo(() => new LocalFileRepository(), []);
   const [activeTab, setActiveTab] = useState<TabId>(tabs[0].id);
   const [selectedEntity, setSelectedEntity] = useState<EntityKey>(
     entityItems[0].key
   );
+  const [areaPath, setAreaPath] = useState<string | null>(null);
+  const [areaData, setAreaData] = useState<AreaJson | null>(null);
+  const [statusMessage, setStatusMessage] = useState("No area loaded");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isBusy, setIsBusy] = useState(false);
+  const [areaDirectory, setAreaDirectory] = useState<string | null>(() =>
+    localStorage.getItem("worldedit.areaDir")
+  );
+
   const selection = entityDetails[selectedEntity];
+  const areaName = fileNameFromPath(areaPath);
+
+  const handleOpenArea = async () => {
+    setErrorMessage(null);
+    setIsBusy(true);
+    try {
+      const path = await repository.pickAreaFile(areaDirectory);
+      if (!path) {
+        return;
+      }
+      const loaded = await repository.loadArea(path);
+      setAreaPath(path);
+      setAreaData(loaded);
+      setStatusMessage(`Loaded ${fileNameFromPath(path)}`);
+    } catch (error) {
+      setErrorMessage(`Failed to load area JSON. ${String(error)}`);
+    } finally {
+      setIsBusy(false);
+    }
+  };
+
+  const saveToPath = async (path: string) => {
+    if (!areaData) {
+      return;
+    }
+    await repository.saveArea(path, areaData);
+    setStatusMessage(`Saved ${fileNameFromPath(path)}`);
+  };
+
+  const handleSaveArea = async () => {
+    if (!areaData) {
+      setErrorMessage("No area loaded to save.");
+      return;
+    }
+    setErrorMessage(null);
+    setIsBusy(true);
+    try {
+      let targetPath = areaPath;
+      if (!targetPath) {
+        targetPath = await repository.pickSaveFile(areaDirectory);
+      }
+      if (!targetPath) {
+        return;
+      }
+      setAreaPath(targetPath);
+      await saveToPath(targetPath);
+    } catch (error) {
+      setErrorMessage(`Failed to save area JSON. ${String(error)}`);
+    } finally {
+      setIsBusy(false);
+    }
+  };
+
+  const handleSaveAreaAs = async () => {
+    if (!areaData) {
+      setErrorMessage("No area loaded to save.");
+      return;
+    }
+    setErrorMessage(null);
+    setIsBusy(true);
+    try {
+      const targetPath = await repository.pickSaveFile(areaPath ?? areaDirectory);
+      if (!targetPath) {
+        return;
+      }
+      setAreaPath(targetPath);
+      await saveToPath(targetPath);
+    } catch (error) {
+      setErrorMessage(`Failed to save area JSON. ${String(error)}`);
+    } finally {
+      setIsBusy(false);
+    }
+  };
+
+  const handleSetAreaDirectory = async () => {
+    setErrorMessage(null);
+    setIsBusy(true);
+    try {
+      const selected = await repository.pickAreaDirectory(areaDirectory);
+      if (!selected) {
+        return;
+      }
+      setAreaDirectory(selected);
+      localStorage.setItem("worldedit.areaDir", selected);
+      setStatusMessage(`Area directory set to ${selected}`);
+    } catch (error) {
+      setErrorMessage(`Failed to set area directory. ${String(error)}`);
+    } finally {
+      setIsBusy(false);
+    }
+  };
 
   return (
     <div className="app-shell">
@@ -141,8 +252,48 @@ export default function App() {
           </div>
         </div>
         <div className="topbar__status">
-          <span className="status-pill status-pill--ok">Workspace loaded</span>
-          <span className="status-pill">Area: Faladri</span>
+          <span
+            className={`status-pill ${
+              errorMessage ? "status-pill--error" : "status-pill--ok"
+            }`}
+          >
+            {errorMessage ?? statusMessage}
+          </span>
+          <span className="status-pill">Area: {areaName}</span>
+        </div>
+        <div className="topbar__actions">
+          <button
+            className="action-button"
+            type="button"
+            onClick={handleOpenArea}
+            disabled={isBusy}
+          >
+            Open Area
+          </button>
+          <button
+            className="action-button"
+            type="button"
+            onClick={handleSetAreaDirectory}
+            disabled={isBusy}
+          >
+            Set Area Dir
+          </button>
+          <button
+            className="action-button action-button--primary"
+            type="button"
+            onClick={handleSaveArea}
+            disabled={!areaData || isBusy}
+          >
+            Save
+          </button>
+          <button
+            className="action-button"
+            type="button"
+            onClick={handleSaveAreaAs}
+            disabled={!areaData || isBusy}
+          >
+            Save As
+          </button>
         </div>
       </header>
 
@@ -255,8 +406,9 @@ export default function App() {
       </section>
 
       <footer className="statusbar">
-        <span>Schema: area-json-schema.md</span>
-        <span>Repository: LocalFileRepository</span>
+        <span>Status: {errorMessage ?? statusMessage}</span>
+        <span>Area file: {areaPath ?? "Not loaded"}</span>
+        <span>Area dir: {areaDirectory ?? "Not set"}</span>
         <span>Selection: {selectedEntity}</span>
       </footer>
     </div>
