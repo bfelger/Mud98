@@ -165,7 +165,7 @@ const resetCommandLabels: Record<ResetCommand, string> = {
 const elk = new ELK();
 const roomNodeSize = {
   width: 180,
-  height: 90
+  height: 180
 };
 const roomPortDefinitions = [
   { id: "north-in", side: "NORTH" },

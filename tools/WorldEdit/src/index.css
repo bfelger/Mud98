@@ -587,8 +587,10 @@ body::before {
 }
 
 .room-node {
-  min-width: 160px;
-  padding: 10px 12px;
+  width: 180px;
+  height: 180px;
+  padding: 12px;
+  box-sizing: border-box;
   border-radius: 12px;
   border: 1px solid rgba(47, 108, 106, 0.35);
   background: rgba(255, 255, 255, 0.92);
@@ -614,6 +616,11 @@ body::before {
 .room-node__name {
   font-weight: 600;
   color: var(--ink);
+  line-height: 1.2;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  flex: 1;
+  min-height: 0;
 }
 
 .room-node__sector {
