@@ -7,14 +7,22 @@ import { z } from "zod";
 import { LocalFileRepository } from "./repository/localFileRepository";
 import type { AreaJson, EditorMeta, ReferenceData } from "./repository/types";
 import {
+  damageTypeEnum,
+  damageTypes,
   directionEnum,
   directions,
   exitFlagEnum,
   exitFlags,
+  positionEnum,
+  positions,
   roomFlagEnum,
   roomFlags as roomFlagOptions,
   sectorEnum,
-  sectors
+  sectors,
+  sexEnum,
+  sexes,
+  sizeEnum,
+  sizes
 } from "./schemas/enums";
 
 const tabs = [
@@ -89,6 +97,9 @@ const optionalIntSchema = z.preprocess((value) => {
   if (value === "" || value === null || value === undefined) {
     return undefined;
   }
+  if (typeof value === "number" && Number.isNaN(value)) {
+    return undefined;
+  }
   if (typeof value === "string") {
     const parsed = Number(value);
     return Number.isFinite(parsed) ? parsed : value;
@@ -96,12 +107,19 @@ const optionalIntSchema = z.preprocess((value) => {
   return value;
 }, z.number().int().optional());
 
-const optionalSectorSchema = z.preprocess((value) => {
-  if (value === "" || value === null || value === undefined) {
-    return undefined;
-  }
-  return value;
-}, sectorEnum.optional());
+const optionalEnumSchema = <T extends z.ZodTypeAny>(schema: T) =>
+  z.preprocess((value) => {
+    if (value === "" || value === null || value === undefined) {
+      return undefined;
+    }
+    return value;
+  }, schema.optional());
+
+const optionalSectorSchema = optionalEnumSchema(sectorEnum);
+const optionalPositionSchema = optionalEnumSchema(positionEnum);
+const optionalSexSchema = optionalEnumSchema(sexEnum);
+const optionalSizeSchema = optionalEnumSchema(sizeEnum);
+const optionalDamageTypeSchema = optionalEnumSchema(damageTypeEnum);
 
 const exitFormSchema = z.object({
   dir: directionEnum,
@@ -130,6 +148,38 @@ const exitFormSchema = z.object({
   )
 });
 
+const diceFormSchema = z
+  .object({
+    number: optionalIntSchema,
+    type: optionalIntSchema,
+    bonus: optionalIntSchema
+  })
+  .optional();
+
+const mobileFormSchema = z.object({
+  vnum: z.number().int(),
+  name: z.string().min(1, "Name is required."),
+  shortDescr: z.string().min(1, "Short description is required."),
+  longDescr: z.string().min(1, "Long description is required."),
+  description: z.string().min(1, "Description is required."),
+  race: z.string().min(1, "Race is required."),
+  level: optionalIntSchema,
+  hitroll: optionalIntSchema,
+  alignment: optionalIntSchema,
+  damType: optionalDamageTypeSchema,
+  startPos: optionalPositionSchema,
+  defaultPos: optionalPositionSchema,
+  sex: optionalSexSchema,
+  size: optionalSizeSchema,
+  material: z.string().optional(),
+  factionVnum: optionalIntSchema,
+  damageNoun: z.string().optional(),
+  offensiveSpell: z.string().optional(),
+  hitDice: diceFormSchema,
+  manaDice: diceFormSchema,
+  damageDice: diceFormSchema
+});
+
 const roomFormSchema = z.object({
   vnum: z.number().int(),
   name: z.string().min(1, "Name is required."),
@@ -144,6 +194,7 @@ const roomFormSchema = z.object({
 });
 
 type RoomFormValues = z.infer<typeof roomFormSchema>;
+type MobileFormValues = z.infer<typeof mobileFormSchema>;
 
 const entityKindLabels: Record<EntityKey, string> = {
   Rooms: "Room",
@@ -213,6 +264,37 @@ function parseVnum(value: unknown): number | null {
     return Number.isFinite(parsed) ? parsed : null;
   }
   return null;
+}
+
+type DiceFormInput = {
+  number?: number;
+  type?: number;
+  bonus?: number;
+};
+
+function normalizeDice(dice: DiceFormInput | undefined) {
+  if (!dice) {
+    return undefined;
+  }
+  if (dice.number === undefined || dice.type === undefined) {
+    return undefined;
+  }
+  const next: Record<string, number> = {
+    number: dice.number,
+    type: dice.type
+  };
+  if (dice.bonus !== undefined) {
+    next.bonus = dice.bonus;
+  }
+  return next;
+}
+
+function normalizeOptionalText(value: string | undefined) {
+  if (!value) {
+    return undefined;
+  }
+  const trimmed = value.trim();
+  return trimmed.length ? trimmed : undefined;
 }
 
 function findByVnum(list: unknown[], vnum: number): Record<string, unknown> | null {
@@ -646,6 +728,37 @@ export default function App() {
     control: roomFormControl,
     name: "exits"
   });
+  const mobileForm = useForm<MobileFormValues>({
+    resolver: zodResolver(mobileFormSchema),
+    defaultValues: {
+      vnum: 0,
+      name: "",
+      shortDescr: "",
+      longDescr: "",
+      description: "",
+      race: "",
+      level: undefined,
+      hitroll: undefined,
+      alignment: undefined,
+      damType: undefined,
+      startPos: undefined,
+      defaultPos: undefined,
+      sex: undefined,
+      size: undefined,
+      material: "",
+      factionVnum: undefined,
+      damageNoun: "",
+      offensiveSpell: "",
+      hitDice: { number: undefined, type: undefined, bonus: undefined },
+      manaDice: { number: undefined, type: undefined, bonus: undefined },
+      damageDice: { number: undefined, type: undefined, bonus: undefined }
+    }
+  });
+  const {
+    register: registerMobile,
+    handleSubmit: handleMobileSubmitForm,
+    formState: mobileFormState
+  } = mobileForm;
 
   useEffect(() => {
     const nextRoom = getDefaultSelection(areaData, "Rooms", selectedRoomVnum);
@@ -728,6 +841,12 @@ export default function App() {
     }
     return findByVnum(getEntityList(areaData, "Rooms"), selectedRoomVnum);
   }, [areaData, selectedRoomVnum]);
+  const selectedMobileRecord = useMemo(() => {
+    if (!areaData || selectedMobileVnum === null) {
+      return null;
+    }
+    return findByVnum(getEntityList(areaData, "Mobiles"), selectedMobileVnum);
+  }, [areaData, selectedMobileVnum]);
   const roomFormDefaults = useMemo<RoomFormValues>(() => {
     const record = selectedRoomRecord;
     const vnum =
@@ -777,6 +896,53 @@ export default function App() {
         : []
     };
   }, [selectedRoomRecord, selectedRoomVnum]);
+  const mobileFormDefaults = useMemo<MobileFormValues>(() => {
+    const record = selectedMobileRecord;
+    const vnum = selectedMobileVnum ?? parseVnum(record?.vnum) ?? 0;
+    const resolveDice = (value: unknown) => {
+      if (!value || typeof value !== "object") {
+        return { number: undefined, type: undefined, bonus: undefined };
+      }
+      const dice = value as Record<string, unknown>;
+      return {
+        number: parseVnum(dice.number) ?? undefined,
+        type: parseVnum(dice.type) ?? undefined,
+        bonus: parseVnum(dice.bonus) ?? undefined
+      };
+    };
+    return {
+      vnum,
+      name: typeof record?.name === "string" ? record.name : "",
+      shortDescr:
+        typeof record?.shortDescr === "string" ? record.shortDescr : "",
+      longDescr:
+        typeof record?.longDescr === "string" ? record.longDescr : "",
+      description:
+        typeof record?.description === "string" ? record.description : "",
+      race: typeof record?.race === "string" ? record.race : "",
+      level: parseVnum(record?.level) ?? undefined,
+      hitroll: parseVnum(record?.hitroll) ?? undefined,
+      alignment: parseVnum(record?.alignment) ?? undefined,
+      damType: typeof record?.damType === "string" ? record.damType : undefined,
+      startPos:
+        typeof record?.startPos === "string" ? record.startPos : undefined,
+      defaultPos:
+        typeof record?.defaultPos === "string" ? record.defaultPos : undefined,
+      sex: typeof record?.sex === "string" ? record.sex : undefined,
+      size: typeof record?.size === "string" ? record.size : undefined,
+      material: typeof record?.material === "string" ? record.material : "",
+      factionVnum: parseVnum(record?.factionVnum) ?? undefined,
+      damageNoun:
+        typeof record?.damageNoun === "string" ? record.damageNoun : "",
+      offensiveSpell:
+        typeof record?.offensiveSpell === "string"
+          ? record.offensiveSpell
+          : "",
+      hitDice: resolveDice(record?.hitDice),
+      manaDice: resolveDice(record?.manaDice),
+      damageDice: resolveDice(record?.damageDice)
+    };
+  }, [selectedMobileRecord, selectedMobileVnum]);
   const roomColumns = useMemo<ColDef<RoomRow>[]>(
     () => [
       { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
@@ -830,6 +996,10 @@ export default function App() {
   useEffect(() => {
     roomForm.reset(roomFormDefaults);
   }, [roomForm, roomFormDefaults]);
+
+  useEffect(() => {
+    mobileForm.reset(mobileFormDefaults);
+  }, [mobileForm, mobileFormDefaults]);
 
   useEffect(() => {
     if (activeTab !== "Table" || selectedEntity !== "Rooms") {
@@ -919,6 +1089,59 @@ export default function App() {
       };
     });
     setStatusMessage(`Updated room ${data.vnum} (unsaved)`);
+  };
+
+  const handleMobileSubmit = (data: MobileFormValues) => {
+    if (!areaData || selectedMobileVnum === null) {
+      return;
+    }
+    const hitDice = normalizeDice(data.hitDice);
+    const manaDice = normalizeDice(data.manaDice);
+    const damageDice = normalizeDice(data.damageDice);
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const mobiles = getEntityList(current, "Mobiles");
+      if (!mobiles.length) {
+        return current;
+      }
+      const nextMobiles = mobiles.map((mob) => {
+        const record = mob as Record<string, unknown>;
+        const mobVnum = parseVnum(record.vnum);
+        if (mobVnum !== selectedMobileVnum) {
+          return record;
+        }
+        return {
+          ...record,
+          name: data.name,
+          shortDescr: data.shortDescr,
+          longDescr: data.longDescr,
+          description: data.description,
+          race: data.race,
+          level: data.level ?? undefined,
+          hitroll: data.hitroll ?? undefined,
+          alignment: data.alignment ?? undefined,
+          damType: data.damType ?? undefined,
+          startPos: data.startPos ?? undefined,
+          defaultPos: data.defaultPos ?? undefined,
+          sex: data.sex ?? undefined,
+          size: data.size ?? undefined,
+          material: normalizeOptionalText(data.material),
+          factionVnum: data.factionVnum ?? undefined,
+          damageNoun: normalizeOptionalText(data.damageNoun),
+          offensiveSpell: normalizeOptionalText(data.offensiveSpell),
+          hitDice,
+          manaDice,
+          damageDice
+        };
+      });
+      return {
+        ...(current as Record<string, unknown>),
+        mobiles: nextMobiles
+      };
+    });
+    setStatusMessage(`Updated mobile ${data.vnum} (unsaved)`);
   };
 
   const handleOpenArea = async () => {
@@ -1531,6 +1754,414 @@ export default function App() {
                   <div className="entity-table__empty">
                     <h3>No rooms available</h3>
                     <p>Load an area JSON file to edit room data.</p>
+                  </div>
+                )
+              ) : activeTab === "Form" && selectedEntity === "Mobiles" ? (
+                mobileRows.length ? (
+                  <div className="form-view">
+                    <form
+                      className="form-shell"
+                      onSubmit={handleMobileSubmitForm(handleMobileSubmit)}
+                    >
+                      <div className="form-grid">
+                        <div className="form-field">
+                          <label className="form-label" htmlFor="mob-vnum">
+                            VNUM
+                          </label>
+                          <input
+                            id="mob-vnum"
+                            className="form-input"
+                            type="number"
+                            readOnly
+                            {...registerMobile("vnum", { valueAsNumber: true })}
+                          />
+                        </div>
+                        <div className="form-field form-field--wide">
+                          <label className="form-label" htmlFor="mob-name">
+                            Name
+                          </label>
+                          <input
+                            id="mob-name"
+                            className="form-input"
+                            type="text"
+                            {...registerMobile("name")}
+                          />
+                          {mobileFormState.errors.name ? (
+                            <span className="form-error">
+                              {mobileFormState.errors.name.message}
+                            </span>
+                          ) : null}
+                        </div>
+                        <div className="form-field form-field--wide">
+                          <label
+                            className="form-label"
+                            htmlFor="mob-short"
+                          >
+                            Short Description
+                          </label>
+                          <input
+                            id="mob-short"
+                            className="form-input"
+                            type="text"
+                            {...registerMobile("shortDescr")}
+                          />
+                          {mobileFormState.errors.shortDescr ? (
+                            <span className="form-error">
+                              {mobileFormState.errors.shortDescr.message}
+                            </span>
+                          ) : null}
+                        </div>
+                        <div className="form-field form-field--wide">
+                          <label
+                            className="form-label"
+                            htmlFor="mob-long"
+                          >
+                            Long Description
+                          </label>
+                          <input
+                            id="mob-long"
+                            className="form-input"
+                            type="text"
+                            {...registerMobile("longDescr")}
+                          />
+                          {mobileFormState.errors.longDescr ? (
+                            <span className="form-error">
+                              {mobileFormState.errors.longDescr.message}
+                            </span>
+                          ) : null}
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label" htmlFor="mob-race">
+                            Race
+                          </label>
+                          <input
+                            id="mob-race"
+                            className="form-input"
+                            type="text"
+                            {...registerMobile("race")}
+                          />
+                          {mobileFormState.errors.race ? (
+                            <span className="form-error">
+                              {mobileFormState.errors.race.message}
+                            </span>
+                          ) : null}
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label" htmlFor="mob-level">
+                            Level
+                          </label>
+                          <input
+                            id="mob-level"
+                            className="form-input"
+                            type="number"
+                            {...registerMobile("level")}
+                          />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label" htmlFor="mob-hitroll">
+                            Hitroll
+                          </label>
+                          <input
+                            id="mob-hitroll"
+                            className="form-input"
+                            type="number"
+                            {...registerMobile("hitroll")}
+                          />
+                        </div>
+                        <div className="form-field">
+                          <label
+                            className="form-label"
+                            htmlFor="mob-alignment"
+                          >
+                            Alignment
+                          </label>
+                          <input
+                            id="mob-alignment"
+                            className="form-input"
+                            type="number"
+                            {...registerMobile("alignment")}
+                          />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label" htmlFor="mob-damtype">
+                            Damage Type
+                          </label>
+                          <select
+                            id="mob-damtype"
+                            className="form-select"
+                            {...registerMobile("damType")}
+                          >
+                            <option value="">Default</option>
+                            {damageTypes.map((damageType) => (
+                              <option key={damageType} value={damageType}>
+                                {damageType}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label" htmlFor="mob-startpos">
+                            Start Pos
+                          </label>
+                          <select
+                            id="mob-startpos"
+                            className="form-select"
+                            {...registerMobile("startPos")}
+                          >
+                            <option value="">Default</option>
+                            {positions.map((position) => (
+                              <option key={position} value={position}>
+                                {position}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="form-field">
+                          <label
+                            className="form-label"
+                            htmlFor="mob-defaultpos"
+                          >
+                            Default Pos
+                          </label>
+                          <select
+                            id="mob-defaultpos"
+                            className="form-select"
+                            {...registerMobile("defaultPos")}
+                          >
+                            <option value="">Default</option>
+                            {positions.map((position) => (
+                              <option key={position} value={position}>
+                                {position}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label" htmlFor="mob-sex">
+                            Sex
+                          </label>
+                          <select
+                            id="mob-sex"
+                            className="form-select"
+                            {...registerMobile("sex")}
+                          >
+                            <option value="">Default</option>
+                            {sexes.map((sex) => (
+                              <option key={sex} value={sex}>
+                                {sex}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label" htmlFor="mob-size">
+                            Size
+                          </label>
+                          <select
+                            id="mob-size"
+                            className="form-select"
+                            {...registerMobile("size")}
+                          >
+                            <option value="">Default</option>
+                            {sizes.map((size) => (
+                              <option key={size} value={size}>
+                                {size}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label" htmlFor="mob-material">
+                            Material
+                          </label>
+                          <input
+                            id="mob-material"
+                            className="form-input"
+                            type="text"
+                            {...registerMobile("material")}
+                          />
+                        </div>
+                        <div className="form-field">
+                          <label
+                            className="form-label"
+                            htmlFor="mob-faction"
+                          >
+                            Faction VNUM
+                          </label>
+                          <input
+                            id="mob-faction"
+                            className="form-input"
+                            type="number"
+                            {...registerMobile("factionVnum")}
+                          />
+                        </div>
+                        <div className="form-field">
+                          <label
+                            className="form-label"
+                            htmlFor="mob-damage-noun"
+                          >
+                            Damage Noun
+                          </label>
+                          <input
+                            id="mob-damage-noun"
+                            className="form-input"
+                            type="text"
+                            {...registerMobile("damageNoun")}
+                          />
+                        </div>
+                        <div className="form-field">
+                          <label
+                            className="form-label"
+                            htmlFor="mob-offensive-spell"
+                          >
+                            Offensive Spell
+                          </label>
+                          <input
+                            id="mob-offensive-spell"
+                            className="form-input"
+                            type="text"
+                            {...registerMobile("offensiveSpell")}
+                          />
+                        </div>
+                      </div>
+                      <div className="form-field form-field--full">
+                        <label
+                          className="form-label"
+                          htmlFor="mob-description"
+                        >
+                          Description
+                        </label>
+                        <textarea
+                          id="mob-description"
+                          className="form-textarea"
+                          rows={6}
+                          {...registerMobile("description")}
+                        />
+                        {mobileFormState.errors.description ? (
+                          <span className="form-error">
+                            {mobileFormState.errors.description.message}
+                          </span>
+                        ) : null}
+                      </div>
+                      <div className="form-field form-field--full">
+                        <div className="form-section-header">
+                          <div>
+                            <div className="form-label">Dice</div>
+                            <div className="form-hint">
+                              Number, type, and optional bonus.
+                            </div>
+                          </div>
+                        </div>
+                        <div className="dice-grid">
+                          <div className="dice-card">
+                            <div className="dice-card__title">Hit Dice</div>
+                            <div className="dice-fields">
+                              <div className="form-field">
+                                <label className="form-label">Number</label>
+                                <input
+                                  className="form-input"
+                                  type="number"
+                                  {...registerMobile("hitDice.number")}
+                                />
+                              </div>
+                              <div className="form-field">
+                                <label className="form-label">Type</label>
+                                <input
+                                  className="form-input"
+                                  type="number"
+                                  {...registerMobile("hitDice.type")}
+                                />
+                              </div>
+                              <div className="form-field">
+                                <label className="form-label">Bonus</label>
+                                <input
+                                  className="form-input"
+                                  type="number"
+                                  {...registerMobile("hitDice.bonus")}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <div className="dice-card">
+                            <div className="dice-card__title">Mana Dice</div>
+                            <div className="dice-fields">
+                              <div className="form-field">
+                                <label className="form-label">Number</label>
+                                <input
+                                  className="form-input"
+                                  type="number"
+                                  {...registerMobile("manaDice.number")}
+                                />
+                              </div>
+                              <div className="form-field">
+                                <label className="form-label">Type</label>
+                                <input
+                                  className="form-input"
+                                  type="number"
+                                  {...registerMobile("manaDice.type")}
+                                />
+                              </div>
+                              <div className="form-field">
+                                <label className="form-label">Bonus</label>
+                                <input
+                                  className="form-input"
+                                  type="number"
+                                  {...registerMobile("manaDice.bonus")}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <div className="dice-card">
+                            <div className="dice-card__title">Damage Dice</div>
+                            <div className="dice-fields">
+                              <div className="form-field">
+                                <label className="form-label">Number</label>
+                                <input
+                                  className="form-input"
+                                  type="number"
+                                  {...registerMobile("damageDice.number")}
+                                />
+                              </div>
+                              <div className="form-field">
+                                <label className="form-label">Type</label>
+                                <input
+                                  className="form-input"
+                                  type="number"
+                                  {...registerMobile("damageDice.type")}
+                                />
+                              </div>
+                              <div className="form-field">
+                                <label className="form-label">Bonus</label>
+                                <input
+                                  className="form-input"
+                                  type="number"
+                                  {...registerMobile("damageDice.bonus")}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="form-actions">
+                        <button
+                          className="action-button action-button--primary"
+                          type="submit"
+                          disabled={!mobileFormState.isDirty}
+                        >
+                          Apply Changes
+                        </button>
+                        <span className="form-hint">
+                          {mobileFormState.isDirty
+                            ? "Unsaved changes"
+                            : "Up to date"}
+                        </span>
+                      </div>
+                    </form>
+                  </div>
+                ) : (
+                  <div className="entity-table__empty">
+                    <h3>No mobiles available</h3>
+                    <p>Load an area JSON file to edit mobile data.</p>
                   </div>
                 )
               ) : activeTab === "Table" &&

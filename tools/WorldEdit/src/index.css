@@ -464,6 +464,33 @@ body::before {
   gap: 12px;
 }
 
+.dice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.dice-card {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(117, 88, 58, 0.2);
+  background: rgba(255, 255, 255, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dice-card__title {
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.dice-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+}
+
 .entity-table {
   height: 100%;
   min-height: 360px;
