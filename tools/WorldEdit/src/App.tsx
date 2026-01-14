@@ -4,11 +4,15 @@ import { AgGridReact } from "ag-grid-react";
 import ReactFlow, {
   Background,
   Controls,
+  BaseEdge,
+  EdgeLabelRenderer,
   Handle,
   Position,
   type Edge,
+  type EdgeProps,
   type Node,
-  type NodeProps
+  type NodeProps,
+  useStore
 } from "reactflow";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -195,6 +199,14 @@ const oppositeDirections: Record<string, string> = {
   south: "north",
   west: "east"
 };
+const edgeStubSize = 22;
+const edgeClearance = 10;
+const edgeDirectionPriority: Record<Position, "horizontal" | "vertical"> = {
+  [Position.Left]: "horizontal",
+  [Position.Right]: "horizontal",
+  [Position.Top]: "vertical",
+  [Position.Bottom]: "vertical"
+};
 
 type TabId = (typeof tabs)[number]["id"];
 type EntityKey = (typeof entityOrder)[number];
@@ -238,6 +250,10 @@ type RoomNodeData = {
   vnum: number;
   label: string;
   sector: string;
+  grid?: {
+    x: number;
+    y: number;
+  };
 };
 
 const optionalIntSchema = z.preprocess((value) => {
@@ -911,6 +927,377 @@ function RoomNode({ data, selected }: NodeProps<RoomNodeData>) {
 
 const roomNodeTypes = { room: RoomNode };
 
+type Point = { x: number; y: number };
+type NodeBounds = {
+  id: string;
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+};
+type OrthogonalPath = {
+  points: Point[];
+  orientation: "horizontal" | "vertical";
+};
+
+function offsetPoint(point: Point, direction: Position, distance: number): Point {
+  switch (direction) {
+    case Position.Left:
+      return { x: point.x - distance, y: point.y };
+    case Position.Right:
+      return { x: point.x + distance, y: point.y };
+    case Position.Top:
+      return { x: point.x, y: point.y - distance };
+    case Position.Bottom:
+      return { x: point.x, y: point.y + distance };
+    default:
+      return point;
+  }
+}
+
+function pointsToPath(points: Point[]): string {
+  if (!points.length) {
+    return "";
+  }
+  return points
+    .map((point, index) =>
+      `${index === 0 ? "M" : "L"}${point.x} ${point.y}`
+    )
+    .join(" ");
+}
+
+function getPathLength(points: Point[]): number {
+  let length = 0;
+  for (let index = 1; index < points.length; index += 1) {
+    const prev = points[index - 1];
+    const next = points[index];
+    length += Math.abs(next.x - prev.x) + Math.abs(next.y - prev.y);
+  }
+  return length;
+}
+
+function getPathMidpoint(points: Point[]): Point {
+  if (!points.length) {
+    return { x: 0, y: 0 };
+  }
+  const total = getPathLength(points);
+  if (total === 0) {
+    return points[0];
+  }
+  let remaining = total / 2;
+  for (let index = 1; index < points.length; index += 1) {
+    const prev = points[index - 1];
+    const next = points[index];
+    const segmentLength = Math.abs(next.x - prev.x) + Math.abs(next.y - prev.y);
+    if (segmentLength >= remaining) {
+      const ratio = segmentLength === 0 ? 0 : remaining / segmentLength;
+      return {
+        x: prev.x + (next.x - prev.x) * ratio,
+        y: prev.y + (next.y - prev.y) * ratio
+      };
+    }
+    remaining -= segmentLength;
+  }
+  return points[points.length - 1];
+}
+
+function segmentIntersectsRect(
+  start: Point,
+  end: Point,
+  rect: NodeBounds,
+  padding: number
+): boolean {
+  const left = rect.left - padding;
+  const right = rect.right + padding;
+  const top = rect.top - padding;
+  const bottom = rect.bottom + padding;
+  if (start.x === end.x) {
+    const x = start.x;
+    const minY = Math.min(start.y, end.y);
+    const maxY = Math.max(start.y, end.y);
+    return x >= left && x <= right && maxY >= top && minY <= bottom;
+  }
+  if (start.y === end.y) {
+    const y = start.y;
+    const minX = Math.min(start.x, end.x);
+    const maxX = Math.max(start.x, end.x);
+    return y >= top && y <= bottom && maxX >= left && minX <= right;
+  }
+  return false;
+}
+
+function countPathIntersections(
+  points: Point[],
+  obstacles: NodeBounds[],
+  padding: number
+): number {
+  let count = 0;
+  for (let index = 1; index < points.length; index += 1) {
+    const start = points[index - 1];
+    const end = points[index];
+    for (const obstacle of obstacles) {
+      if (segmentIntersectsRect(start, end, obstacle, padding)) {
+        count += 1;
+        break;
+      }
+    }
+  }
+  return count;
+}
+
+function createOrthogonalPath(
+  start: Point,
+  end: Point,
+  sourceDirection: Position,
+  targetDirection: Position,
+  orientation: "horizontal" | "vertical"
+): OrthogonalPath {
+  const sourceStub = offsetPoint(start, sourceDirection, edgeStubSize);
+  const targetStub = offsetPoint(end, targetDirection, edgeStubSize);
+  if (orientation === "horizontal") {
+    const midX = (sourceStub.x + targetStub.x) / 2;
+    return {
+      orientation,
+      points: [
+        start,
+        sourceStub,
+        { x: midX, y: sourceStub.y },
+        { x: midX, y: targetStub.y },
+        targetStub,
+        end
+      ]
+    };
+  }
+  const midY = (sourceStub.y + targetStub.y) / 2;
+  return {
+    orientation,
+    points: [
+      start,
+      sourceStub,
+      { x: sourceStub.x, y: midY },
+      { x: targetStub.x, y: midY },
+      targetStub,
+      end
+    ]
+  };
+}
+
+function adjustOrthogonalPath(
+  path: OrthogonalPath,
+  obstacles: NodeBounds[]
+): OrthogonalPath {
+  if (path.points.length < 4) {
+    return path;
+  }
+  const points = [...path.points];
+  if (path.orientation === "horizontal") {
+    const start = points[2];
+    const end = points[3];
+    const blockers = obstacles.filter((obstacle) =>
+      segmentIntersectsRect(start, end, obstacle, edgeClearance)
+    );
+    if (!blockers.length) {
+      return path;
+    }
+    const candidateXs = new Set<number>([start.x]);
+    blockers.forEach((blocker) => {
+      candidateXs.add(blocker.left - edgeClearance * 2);
+      candidateXs.add(blocker.right + edgeClearance * 2);
+    });
+    const sortedCandidates = [...candidateXs].sort(
+      (a, b) => Math.abs(a - start.x) - Math.abs(b - start.x)
+    );
+    for (const candidate of sortedCandidates) {
+      points[2] = { x: candidate, y: points[2].y };
+      points[3] = { x: candidate, y: points[3].y };
+      if (!countPathIntersections(points, obstacles, edgeClearance)) {
+        return { ...path, points };
+      }
+    }
+    return path;
+  }
+  const start = points[2];
+  const end = points[3];
+  const blockers = obstacles.filter((obstacle) =>
+    segmentIntersectsRect(start, end, obstacle, edgeClearance)
+  );
+  if (!blockers.length) {
+    return path;
+  }
+  const candidateYs = new Set<number>([start.y]);
+  blockers.forEach((blocker) => {
+    candidateYs.add(blocker.top - edgeClearance * 2);
+    candidateYs.add(blocker.bottom + edgeClearance * 2);
+  });
+  const sortedCandidates = [...candidateYs].sort(
+    (a, b) => Math.abs(a - start.y) - Math.abs(b - start.y)
+  );
+  for (const candidate of sortedCandidates) {
+    points[2] = { x: points[2].x, y: candidate };
+    points[3] = { x: points[3].x, y: candidate };
+    if (!countPathIntersections(points, obstacles, edgeClearance)) {
+      return { ...path, points };
+    }
+  }
+  return path;
+}
+
+function buildOrthogonalEdgePath(
+  start: Point,
+  end: Point,
+  sourceDirection: Position,
+  targetDirection: Position,
+  obstacles: NodeBounds[]
+): { path: string; labelPoint: Point } {
+  const preferred = edgeDirectionPriority[sourceDirection] ?? "horizontal";
+  const alternate = preferred === "horizontal" ? "vertical" : "horizontal";
+  const primaryPath = createOrthogonalPath(
+    start,
+    end,
+    sourceDirection,
+    targetDirection,
+    preferred
+  );
+  const secondaryPath = createOrthogonalPath(
+    start,
+    end,
+    sourceDirection,
+    targetDirection,
+    alternate
+  );
+  const primaryScore = countPathIntersections(
+    primaryPath.points,
+    obstacles,
+    edgeClearance
+  );
+  const secondaryScore = countPathIntersections(
+    secondaryPath.points,
+    obstacles,
+    edgeClearance
+  );
+  let chosen =
+    primaryScore < secondaryScore
+      ? primaryPath
+      : secondaryScore < primaryScore
+        ? secondaryPath
+        : getPathLength(primaryPath.points) <=
+            getPathLength(secondaryPath.points)
+          ? primaryPath
+          : secondaryPath;
+  chosen = adjustOrthogonalPath(chosen, obstacles);
+  return {
+    path: pointsToPath(chosen.points),
+    labelPoint: getPathMidpoint(chosen.points)
+  };
+}
+
+function RoomEdge({
+  id,
+  sourceX,
+  sourceY,
+  targetX,
+  targetY,
+  source,
+  target,
+  sourcePosition,
+  targetPosition,
+  data,
+  label,
+  selected,
+  markerEnd,
+  interactionWidth
+}: EdgeProps<{ dirKey?: string; exitFlags?: string[] }>) {
+  const nodeInternals = useStore((state) => state.nodeInternals);
+  const obstacles = useMemo(() => {
+    const entries = Array.from(nodeInternals.values());
+    return entries
+      .filter((node) => node.type === "room")
+      .map((node) => {
+        const width = node.width ?? roomNodeSize.width;
+        const height = node.height ?? roomNodeSize.height;
+        const position = node.positionAbsolute ?? node.position;
+        return {
+          id: node.id,
+          left: position.x,
+          right: position.x + width,
+          top: position.y,
+          bottom: position.y + height
+        };
+      });
+  }, [nodeInternals]);
+  const filteredObstacles = useMemo(
+    () =>
+      obstacles.filter(
+        (obstacle) => obstacle.id !== source && obstacle.id !== target
+      ),
+    [obstacles, source, target]
+  );
+  const safeSourcePosition = sourcePosition ?? Position.Right;
+  const safeTargetPosition = targetPosition ?? Position.Left;
+  const { path, labelPoint } = useMemo(
+    () =>
+      buildOrthogonalEdgePath(
+        { x: sourceX, y: sourceY },
+        { x: targetX, y: targetY },
+        safeSourcePosition,
+        safeTargetPosition,
+        filteredObstacles
+      ),
+    [
+      sourceX,
+      sourceY,
+      targetX,
+      targetY,
+      safeSourcePosition,
+      safeTargetPosition,
+      filteredObstacles
+    ]
+  );
+  const exitFlags = Array.isArray(data?.exitFlags) ? data.exitFlags : [];
+  const isLocked = exitFlags.includes("locked");
+  const isDoor = isLocked || exitFlags.includes("door") || exitFlags.includes("closed");
+  const stroke = isLocked
+    ? "rgba(167, 60, 60, 0.85)"
+    : isDoor
+      ? "rgba(138, 92, 34, 0.75)"
+      : "rgba(47, 108, 106, 0.55)";
+  const edgeStyle = {
+    stroke,
+    strokeWidth: selected ? 2.4 : isLocked ? 2.1 : isDoor ? 1.8 : 1.4,
+    strokeDasharray: isLocked ? "4 3" : isDoor ? "6 4" : undefined
+  };
+  const labelClass = isLocked
+    ? "room-edge__label room-edge__label--locked"
+    : isDoor
+      ? "room-edge__label room-edge__label--door"
+      : "room-edge__label";
+  return (
+    <>
+      <BaseEdge
+        id={id}
+        path={path}
+        markerEnd={markerEnd}
+        style={edgeStyle}
+        interactionWidth={interactionWidth}
+      />
+      {typeof label === "string" && label.length ? (
+        <EdgeLabelRenderer>
+          <div
+            className={labelClass}
+            style={{
+              transform: `translate(-50%, -50%) translate(${labelPoint.x}px, ${labelPoint.y}px)`
+            }}
+          >
+            {label}
+          </div>
+        </EdgeLabelRenderer>
+      ) : null}
+    </>
+  );
+}
+
+const roomEdgeTypes = { room: RoomEdge };
+
 function buildVnumOptions(
   areaData: AreaJson | null,
   entity: "Rooms" | "Mobiles" | "Objects"
@@ -1293,6 +1680,10 @@ function layoutRoomNodesGrid(
     }
     return {
       ...node,
+      data: {
+        ...node.data,
+        grid: gridPos
+      },
       position: {
         x: gridPos.x * gridSpacingX,
         y: gridPos.y * gridSpacingY
@@ -1419,6 +1810,11 @@ function buildRoomEdges(areaData: AreaJson | null): Edge[] {
         typeof exitRecord.dir === "string" ? exitRecord.dir : "exit";
       const dirKey = dir.trim().toLowerCase();
       const handles = directionHandleMap[dirKey];
+      const exitFlags = Array.isArray(exitRecord.flags)
+        ? exitRecord.flags
+            .filter((flag) => typeof flag === "string")
+            .map((flag) => flag.trim().toLowerCase())
+        : [];
       edges.push({
         id: `exit-${fromVnum}-${dir}-${toVnum}-${index}`,
         source: String(fromVnum),
@@ -1426,10 +1822,8 @@ function buildRoomEdges(areaData: AreaJson | null): Edge[] {
         label: dir,
         sourceHandle: handles?.source,
         targetHandle: handles?.target,
-        type: "smoothstep",
-        style: { stroke: "rgba(47, 108, 106, 0.45)", strokeWidth: 1.5 },
-        labelStyle: { fill: "#184a4a", fontSize: 11, fontWeight: 600 },
-        data: { dirKey }
+        type: "room",
+        data: { dirKey, exitFlags }
       });
     });
   }
@@ -5131,6 +5525,7 @@ export default function App() {
                         nodes={mapNodes}
                         edges={roomEdges}
                         nodeTypes={roomNodeTypes}
+                        edgeTypes={roomEdgeTypes}
                         fitView
                         nodesDraggable={false}
                         nodesConnectable={false}

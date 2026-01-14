@@ -635,6 +635,32 @@ body::before {
   border: 1px solid rgba(24, 74, 74, 0.8);
 }
 
+.room-edge__label {
+  position: absolute;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(47, 108, 106, 0.28);
+  box-shadow: 0 6px 12px rgba(55, 40, 20, 0.14);
+  pointer-events: none;
+}
+
+.room-edge__label--door {
+  color: #7a4a12;
+  border-color: rgba(138, 92, 34, 0.35);
+}
+
+.room-edge__label--locked {
+  color: #a63c3c;
+  border-color: rgba(167, 60, 60, 0.45);
+  background: rgba(255, 245, 245, 0.96);
+}
+
 .entity-table {
   height: 100%;
   min-height: 360px;
