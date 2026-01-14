@@ -9,7 +9,7 @@ export type EditorMeta = {
   selection: {
     entityType: string;
   };
-  layout?: Record<string, unknown>;
+  layout?: EditorLayout;
 };
 
 export type ReferenceData = {
@@ -18,6 +18,16 @@ export type ReferenceData = {
   skills: string[];
   commands: string[];
   sourceDir: string;
+};
+
+export type RoomLayoutEntry = {
+  x: number;
+  y: number;
+  locked?: boolean;
+};
+
+export type EditorLayout = {
+  rooms?: Record<string, RoomLayoutEntry>;
 };
 
 export type AreaIndexEntry = {

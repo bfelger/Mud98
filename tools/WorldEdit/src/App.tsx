@@ -9,6 +9,7 @@ import {
 import type { ColDef, GridApi } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import ReactFlow, {
+  applyNodeChanges,
   Background,
   Controls,
   BaseEdge,
@@ -16,6 +17,7 @@ import ReactFlow, {
   Handle,
   Position,
   type Edge,
+  type NodeChange,
   type EdgeProps,
   type Node,
   type NodeProps,
@@ -36,8 +38,10 @@ import { LocalFileRepository } from "./repository/localFileRepository";
 import type {
   AreaIndexEntry,
   AreaJson,
+  EditorLayout,
   EditorMeta,
-  ReferenceData
+  ReferenceData,
+  RoomLayoutEntry
 } from "./repository/types";
 import ELK from "elkjs/lib/elk.bundled.js";
 import {
@@ -288,10 +292,14 @@ type ExternalExit = {
   areaName: string | null;
 };
 
+type RoomLayoutMap = Record<string, RoomLayoutEntry>;
+
 type RoomNodeData = {
   vnum: number;
   label: string;
   sector: string;
+  dirty?: boolean;
+  locked?: boolean;
   upExitTargets?: number[];
   downExitTargets?: number[];
   onNavigate?: (vnum: number) => void;
@@ -685,7 +693,8 @@ function fileNameFromPath(path: string | null): string {
 function buildEditorMeta(
   existing: EditorMeta | null,
   activeTab: string,
-  selectedEntity: string
+  selectedEntity: string,
+  roomLayout: RoomLayoutMap
 ): EditorMeta {
   const now = new Date().toISOString();
   const base: EditorMeta = existing ?? {
@@ -694,6 +703,10 @@ function buildEditorMeta(
     view: { activeTab },
     selection: { entityType: selectedEntity },
     layout: {}
+  };
+  const nextLayout: EditorLayout = {
+    ...(base.layout ?? {}),
+    rooms: roomLayout
   };
 
   return {
@@ -707,7 +720,8 @@ function buildEditorMeta(
     selection: {
       ...base.selection,
       entityType: selectedEntity
-    }
+    },
+    layout: nextLayout
   };
 }
 
@@ -929,6 +943,11 @@ function RoomNode({ data, selected }: NodeProps<RoomNodeData>) {
       : `${label} exit`;
   return (
     <div className={`room-node${selected ? " room-node--selected" : ""}`}>
+      {data.dirty ? (
+        <div className="room-node__dirty" title="Position moved but not locked">
+          Dirty
+        </div>
+      ) : null}
       <Handle
         id="north-out"
         type="source"
@@ -1725,6 +1744,69 @@ function applyRoomSelection(
   }));
 }
 
+function extractRoomLayout(layout: EditorLayout | null | undefined): RoomLayoutMap {
+  const rooms =
+    layout && typeof layout === "object" && "rooms" in layout
+      ? layout.rooms
+      : undefined;
+  if (!rooms || typeof rooms !== "object") {
+    return {};
+  }
+  const entries: RoomLayoutMap = {};
+  Object.entries(rooms).forEach(([key, value]) => {
+    if (!value || typeof value !== "object") {
+      return;
+    }
+    const record = value as Record<string, unknown>;
+    const x = record.x;
+    const y = record.y;
+    if (typeof x !== "number" || typeof y !== "number") {
+      return;
+    }
+    if (!Number.isFinite(x) || !Number.isFinite(y)) {
+      return;
+    }
+    if (!record.locked) {
+      return;
+    }
+    entries[key] = {
+      x,
+      y,
+      locked: true
+    };
+  });
+  return entries;
+}
+
+function applyRoomLayoutOverrides(
+  nodes: Node<RoomNodeData>[],
+  layout: RoomLayoutMap
+): Node<RoomNodeData>[] {
+  if (!Object.keys(layout).length) {
+    return nodes.map((node) => ({
+      ...node,
+      draggable: true,
+      data: {
+        ...node.data,
+        locked: false
+      }
+    }));
+  }
+  return nodes.map((node) => {
+    const override = layout[node.id];
+    const isLocked = override?.locked === true;
+    return {
+      ...node,
+      position: isLocked ? { x: override.x, y: override.y } : node.position,
+      draggable: !isLocked,
+      data: {
+        ...node.data,
+        locked: isLocked
+      }
+    };
+  });
+}
+
 function getEdgeDirKey(edge: Edge): string | null {
   if (
     typeof edge.data === "object" &&
@@ -2331,6 +2413,10 @@ export default function App() {
     localStorage.getItem("worldedit.areaDir")
   );
   const [layoutNodes, setLayoutNodes] = useState<Node<RoomNodeData>[]>([]);
+  const [roomLayout, setRoomLayout] = useState<RoomLayoutMap>({});
+  const [dirtyRoomNodes, setDirtyRoomNodes] = useState<Set<string>>(
+    () => new Set()
+  );
   const [autoLayoutEnabled, setAutoLayoutEnabled] = useState(true);
   const [preferCardinalLayout, setPreferCardinalLayout] = useState(() => {
     const stored = localStorage.getItem("worldedit.preferCardinalLayout");
@@ -2342,6 +2428,7 @@ export default function App() {
   });
   const [areaIndex, setAreaIndex] = useState<AreaIndexEntry[]>([]);
   const [layoutNonce, setLayoutNonce] = useState(0);
+  const roomLayoutRef = useRef<RoomLayoutMap>({});
   const roomGridApi = useRef<GridApi | null>(null);
   const mobileGridApi = useRef<GridApi | null>(null);
   const objectGridApi = useRef<GridApi | null>(null);
@@ -2615,6 +2702,14 @@ export default function App() {
   const objectRows = useMemo(() => buildObjectRows(areaData), [areaData]);
   const resetRows = useMemo(() => buildResetRows(areaData), [areaData]);
   const baseRoomNodes = useMemo(() => buildRoomNodes(areaData), [areaData]);
+  const layoutSourceNodes = useMemo(
+    () => (layoutNodes.length ? layoutNodes : baseRoomNodes),
+    [layoutNodes, baseRoomNodes]
+  );
+  const roomNodesWithLayout = useMemo(
+    () => applyRoomLayoutOverrides(layoutSourceNodes, roomLayout),
+    [layoutSourceNodes, roomLayout]
+  );
   const roomEdges = useMemo(
     () => buildRoomEdges(areaData, showVerticalEdges, true),
     [areaData, showVerticalEdges]
@@ -2630,19 +2725,134 @@ export default function App() {
     },
     [setSelectedRoomVnum, setSelectedEntity]
   );
-  const roomNodesWithHandlers = useMemo(() => {
-    const sourceNodes = layoutNodes.length ? layoutNodes : baseRoomNodes;
-    return sourceNodes.map((node) => ({
-      ...node,
-      data: {
-        ...node.data,
-        onNavigate: handleMapNavigate
-      }
-    }));
-  }, [layoutNodes, baseRoomNodes, handleMapNavigate]);
+  const roomNodesWithHandlers = useMemo(
+    () =>
+      roomNodesWithLayout.map((node) => ({
+        ...node,
+        data: {
+          ...node.data,
+          onNavigate: handleMapNavigate,
+          dirty: dirtyRoomNodes.has(node.id)
+        }
+      })),
+    [roomNodesWithLayout, handleMapNavigate, dirtyRoomNodes]
+  );
   const mapNodes = useMemo(
     () => applyRoomSelection(roomNodesWithHandlers, selectedRoomVnum),
     [roomNodesWithHandlers, selectedRoomVnum]
+  );
+  const selectedRoomNode = useMemo(() => {
+    if (selectedRoomVnum === null) {
+      return null;
+    }
+    return mapNodes.find((node) => node.data.vnum === selectedRoomVnum) ?? null;
+  }, [mapNodes, selectedRoomVnum]);
+  const selectedRoomLocked = Boolean(selectedRoomNode?.data.locked);
+  const dirtyRoomCount = dirtyRoomNodes.size;
+  const hasRoomLayout = Object.keys(roomLayout).length > 0;
+  const handleLockSelectedRoom = useCallback(() => {
+    if (!selectedRoomNode) {
+      return;
+    }
+    setRoomLayout((current) => ({
+      ...current,
+      [selectedRoomNode.id]: {
+        x: selectedRoomNode.position.x,
+        y: selectedRoomNode.position.y,
+        locked: true
+      }
+    }));
+    setDirtyRoomNodes((current) => {
+      if (!current.has(selectedRoomNode.id)) {
+        return current;
+      }
+      const next = new Set(current);
+      next.delete(selectedRoomNode.id);
+      return next;
+    });
+  }, [selectedRoomNode]);
+  const handleUnlockSelectedRoom = useCallback(() => {
+    if (!selectedRoomNode) {
+      return;
+    }
+    setLayoutNodes((current) => {
+      const source = current.length ? current : roomNodesWithLayout;
+      return source.map((node) =>
+        node.id === selectedRoomNode.id
+          ? { ...node, position: selectedRoomNode.position }
+          : node
+      );
+    });
+    setRoomLayout((current) => {
+      if (!current[selectedRoomNode.id]) {
+        return current;
+      }
+      const next = { ...current };
+      delete next[selectedRoomNode.id];
+      return next;
+    });
+    setDirtyRoomNodes((current) => {
+      if (current.has(selectedRoomNode.id)) {
+        return current;
+      }
+      const next = new Set(current);
+      next.add(selectedRoomNode.id);
+      return next;
+    });
+  }, [selectedRoomNode, roomNodesWithLayout]);
+  const handleClearRoomLayout = useCallback(() => {
+    setRoomLayout({});
+    setLayoutNodes([]);
+    setDirtyRoomNodes(new Set());
+    if (autoLayoutEnabled) {
+      setLayoutNonce((value) => value + 1);
+    }
+  }, [autoLayoutEnabled]);
+  const handleNodesChange = useCallback(
+    (changes: NodeChange[]) => {
+      setLayoutNodes((current) => {
+        const source = current.length ? current : roomNodesWithLayout;
+        return applyNodeChanges(changes, source);
+      });
+      const movedIds = changes
+        .filter((change) => change.type === "position")
+        .map((change) => change.id);
+      if (movedIds.length) {
+        setDirtyRoomNodes((current) => {
+          let changed = false;
+          const next = new Set(current);
+          movedIds.forEach((id) => {
+            if (!next.has(id)) {
+              next.add(id);
+              changed = true;
+            }
+          });
+          return changed ? next : current;
+        });
+      }
+    },
+    [roomNodesWithLayout]
+  );
+  const handleNodeDragStop = useCallback(
+    (_: unknown, node: Node<RoomNodeData>) => {
+      setLayoutNodes((current) => {
+        const source = current.length ? current : roomNodesWithLayout;
+        return source.map((entry) =>
+          entry.id === node.id
+            ? { ...entry, position: node.position }
+            : entry
+        );
+      });
+      setDirtyRoomNodes((current) => {
+        if (current.has(node.id)) {
+          return current;
+        }
+        const next = new Set(current);
+        next.add(node.id);
+        return next;
+      });
+    },
+    [roomNodesWithLayout]
   );
   const runRoomLayout = useCallback(
     async (cancelRef?: { current: boolean }) => {
@@ -2652,6 +2862,7 @@ export default function App() {
       if (!baseRoomNodes.length) {
         if (!cancelRef?.current) {
           setLayoutNodes([]);
+          setDirtyRoomNodes(new Set());
         }
         return;
       }
@@ -2662,16 +2873,26 @@ export default function App() {
           preferCardinalLayout
         );
         if (!cancelRef?.current) {
-          setLayoutNodes(nextNodes);
+          setLayoutNodes(
+            applyRoomLayoutOverrides(nextNodes, roomLayoutRef.current)
+          );
+          setDirtyRoomNodes(new Set());
         }
       } catch (error) {
         if (!cancelRef?.current) {
-          setLayoutNodes(baseRoomNodes);
+          setLayoutNodes(
+            applyRoomLayoutOverrides(baseRoomNodes, roomLayoutRef.current)
+          );
+          setDirtyRoomNodes(new Set());
         }
       }
     },
     [activeTab, baseRoomNodes, preferCardinalLayout, roomEdges]
   );
+
+  useEffect(() => {
+    roomLayoutRef.current = roomLayout;
+  }, [roomLayout]);
 
   useEffect(() => {
     localStorage.setItem(
@@ -3650,6 +3871,8 @@ export default function App() {
         setErrorMessage(`Failed to load editor meta. ${String(error)}`);
       }
       setEditorMeta(loadedMeta);
+      setRoomLayout(extractRoomLayout(loadedMeta?.layout));
+      setDirtyRoomNodes(new Set());
       setStatusMessage(
         loadedMeta
           ? `Loaded ${fileNameFromPath(path)} + editor meta`
@@ -3688,7 +3911,12 @@ export default function App() {
 
   const saveEditorMetaToPath = async (path: string) => {
     const metaPath = repository.editorMetaPathForArea(path);
-    const nextMeta = buildEditorMeta(editorMeta, activeTab, selectedEntity);
+    const nextMeta = buildEditorMeta(
+      editorMeta,
+      activeTab,
+      selectedEntity,
+      roomLayout
+    );
     await repository.saveEditorMeta(metaPath, nextMeta);
     setEditorMeta(nextMeta);
     setEditorMetaPath(metaPath);
@@ -5909,6 +6137,38 @@ export default function App() {
                           />
                           <span>Vertical edges</span>
                         </label>
+                        {dirtyRoomCount ? (
+                          <span
+                            className="map-dirty"
+                            title="Moved rooms are not locked or saved to meta yet."
+                          >
+                            Unpinned: {dirtyRoomCount}
+                          </span>
+                        ) : null}
+                        <button
+                          className="action-button"
+                          type="button"
+                          onClick={handleLockSelectedRoom}
+                          disabled={!selectedRoomNode || selectedRoomLocked}
+                        >
+                          Lock selected
+                        </button>
+                        <button
+                          className="action-button"
+                          type="button"
+                          onClick={handleUnlockSelectedRoom}
+                          disabled={!selectedRoomNode || !selectedRoomLocked}
+                        >
+                          Unlock selected
+                        </button>
+                        <button
+                          className="action-button"
+                          type="button"
+                          onClick={handleClearRoomLayout}
+                          disabled={!hasRoomLayout}
+                        >
+                          Clear layout
+                        </button>
                       </div>
                       <ReactFlow
                         nodes={mapNodes}
@@ -5916,8 +6176,10 @@ export default function App() {
                         nodeTypes={roomNodeTypes}
                         edgeTypes={roomEdgeTypes}
                         fitView
-                        nodesDraggable={false}
+                        nodesDraggable
                         nodesConnectable={false}
+                        onNodesChange={handleNodesChange}
+                        onNodeDragStop={handleNodeDragStop}
                         onNodeClick={(_, node) => {
                           const vnum =
                             typeof node.data?.vnum === "number"
