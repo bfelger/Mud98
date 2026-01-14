@@ -64,6 +64,14 @@ type ObjectRow = {
   level: number;
 };
 
+type ResetRow = {
+  index: number;
+  command: string;
+  entityVnum: string;
+  roomVnum: string;
+  details: string;
+};
+
 const entityKindLabels: Record<EntityKey, string> = {
   Rooms: "Room",
   Mobiles: "Mobile",
@@ -187,10 +195,16 @@ function buildSelectionSummary(
 ) {
   const list = getEntityList(areaData, selectedEntity);
   const count = list.length;
-  const selected =
+  const selectedValue =
     selectedVnums[selectedEntity] !== null &&
     selectedVnums[selectedEntity] !== undefined
-      ? findByVnum(list, selectedVnums[selectedEntity] as number)
+      ? (selectedVnums[selectedEntity] as number)
+      : null;
+  const selected =
+    selectedValue !== null
+      ? selectedEntity === "Resets"
+        ? (list[selectedValue] as Record<string, unknown> | undefined) ?? null
+        : findByVnum(list, selectedValue)
       : null;
   const first = (selected ?? list[0] ?? {}) as Record<string, unknown>;
   const vnumRange = getAreaVnumRange(areaData);
@@ -392,6 +406,76 @@ function buildObjectRows(areaData: AreaJson | null): ObjectRow[] {
   });
 }
 
+function buildResetRows(areaData: AreaJson | null): ResetRow[] {
+  if (!areaData) {
+    return [];
+  }
+  const resets = (areaData as { resets?: unknown }).resets;
+  if (!Array.isArray(resets)) {
+    return [];
+  }
+  return resets.map((reset, index) => {
+    const data = reset as Record<string, unknown>;
+    const command = getFirstString(data.commandName, getFirstString(data.command, "reset"));
+    const mobVnum = parseVnum(data.mobVnum);
+    const objVnum = parseVnum(data.objVnum);
+    const containerVnum = parseVnum(data.containerVnum);
+    const entityVnum =
+      mobVnum !== null
+        ? String(mobVnum)
+        : objVnum !== null
+          ? String(objVnum)
+          : containerVnum !== null
+            ? String(containerVnum)
+            : "—";
+    const roomVnum = parseVnum(data.roomVnum);
+    const toVnum = parseVnum(data.toVnum);
+    const roomLabel =
+      roomVnum !== null ? String(roomVnum) : toVnum !== null ? String(toVnum) : "—";
+    const count = parseVnum(data.count);
+    const maxInArea = parseVnum(data.maxInArea);
+    const maxInRoom = parseVnum(data.maxInRoom);
+    const maxInContainer = parseVnum(data.maxInContainer);
+    const wearLoc = getFirstString(data.wearLoc, "");
+    const direction = getFirstString(data.direction, "");
+    const state = parseVnum(data.state);
+    const exits = parseVnum(data.exits);
+    const detailsParts: string[] = [];
+    if (count !== null) {
+      detailsParts.push(`count ${count}`);
+    }
+    if (maxInArea !== null) {
+      detailsParts.push(`max area ${maxInArea}`);
+    }
+    if (maxInRoom !== null) {
+      detailsParts.push(`max room ${maxInRoom}`);
+    }
+    if (maxInContainer !== null) {
+      detailsParts.push(`max container ${maxInContainer}`);
+    }
+    if (wearLoc) {
+      detailsParts.push(`wear ${wearLoc}`);
+    }
+    if (direction) {
+      detailsParts.push(`dir ${direction}`);
+    }
+    if (state !== null) {
+      detailsParts.push(`state ${state}`);
+    }
+    if (exits !== null) {
+      detailsParts.push(`exits ${exits}`);
+    }
+    const details = detailsParts.length ? detailsParts.join(", ") : "—";
+    return {
+      index,
+      command,
+      entityVnum,
+      roomVnum: roomLabel,
+      details
+    };
+  });
+}
+
 function syncGridSelection(api: GridApi | null, vnum: number | null) {
   if (!api) {
     return;
@@ -419,6 +503,9 @@ export default function App() {
   const [selectedObjectVnum, setSelectedObjectVnum] = useState<number | null>(
     null
   );
+  const [selectedResetIndex, setSelectedResetIndex] = useState<number | null>(
+    null
+  );
   const [areaPath, setAreaPath] = useState<string | null>(null);
   const [areaData, setAreaData] = useState<AreaJson | null>(null);
   const [editorMeta, setEditorMeta] = useState<EditorMeta | null>(null);
@@ -434,11 +521,13 @@ export default function App() {
   const roomGridApi = useRef<GridApi | null>(null);
   const mobileGridApi = useRef<GridApi | null>(null);
   const objectGridApi = useRef<GridApi | null>(null);
+  const resetGridApi = useRef<GridApi | null>(null);
 
   useEffect(() => {
     setSelectedRoomVnum(null);
     setSelectedMobileVnum(null);
     setSelectedObjectVnum(null);
+    setSelectedResetIndex(null);
   }, [areaData]);
 
   const selection = useMemo(
@@ -446,14 +535,16 @@ export default function App() {
       buildSelectionSummary(selectedEntity, areaData, {
         Rooms: selectedRoomVnum,
         Mobiles: selectedMobileVnum,
-        Objects: selectedObjectVnum
+        Objects: selectedObjectVnum,
+        Resets: selectedResetIndex
       }),
     [
       areaData,
       selectedEntity,
       selectedRoomVnum,
       selectedMobileVnum,
-      selectedObjectVnum
+      selectedObjectVnum,
+      selectedResetIndex
     ]
   );
   const areaName = fileNameFromPath(areaPath);
@@ -469,6 +560,7 @@ export default function App() {
   const roomRows = useMemo(() => buildRoomRows(areaData), [areaData]);
   const mobileRows = useMemo(() => buildMobileRows(areaData), [areaData]);
   const objectRows = useMemo(() => buildObjectRows(areaData), [areaData]);
+  const resetRows = useMemo(() => buildResetRows(areaData), [areaData]);
   const roomColumns = useMemo<ColDef<RoomRow>[]>(
     () => [
       { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
@@ -495,6 +587,16 @@ export default function App() {
       { headerName: "Name", field: "name", flex: 2, minWidth: 200 },
       { headerName: "Item Type", field: "itemType", flex: 1, minWidth: 160 },
       { headerName: "Level", field: "level", width: 110 }
+    ],
+    []
+  );
+  const resetColumns = useMemo<ColDef<ResetRow>[]>(
+    () => [
+      { headerName: "#", field: "index", width: 80, sort: "asc" },
+      { headerName: "Type", field: "command", flex: 1, minWidth: 160 },
+      { headerName: "Entity VNUM", field: "entityVnum", width: 140 },
+      { headerName: "Room VNUM", field: "roomVnum", width: 140 },
+      { headerName: "Details", field: "details", flex: 2, minWidth: 220 }
     ],
     []
   );
@@ -529,6 +631,13 @@ export default function App() {
     }
     syncGridSelection(objectGridApi.current, selectedObjectVnum);
   }, [activeTab, selectedEntity, selectedObjectVnum, objectRows]);
+
+  useEffect(() => {
+    if (activeTab !== "Table" || selectedEntity !== "Resets") {
+      return;
+    }
+    syncGridSelection(resetGridApi.current, selectedResetIndex);
+  }, [activeTab, selectedEntity, selectedResetIndex, resetRows]);
 
   const handleOpenArea = async () => {
     setErrorMessage(null);
@@ -833,7 +942,8 @@ export default function App() {
               {activeTab === "Table" &&
               (selectedEntity === "Rooms" ||
                 selectedEntity === "Mobiles" ||
-                selectedEntity === "Objects") ? (
+                selectedEntity === "Objects" ||
+                selectedEntity === "Resets") ? (
                 <div className="entity-table">
                   {selectedEntity === "Rooms" ? (
                     roomRows.length ? (
@@ -915,6 +1025,34 @@ export default function App() {
                         <h3>Objects will appear here</h3>
                         <p>
                           Load an area JSON file to populate the object table.
+                        </p>
+                      </div>
+                    )
+                  ) : null}
+                  {selectedEntity === "Resets" ? (
+                    resetRows.length ? (
+                      <div className="ag-theme-quartz worldedit-grid">
+                        <AgGridReact<ResetRow>
+                          rowData={resetRows}
+                          columnDefs={resetColumns}
+                          defaultColDef={roomDefaultColDef}
+                          animateRows
+                          rowSelection="single"
+                          getRowId={(params) => String(params.data.index)}
+                          domLayout="autoHeight"
+                          onRowClicked={(event) =>
+                            setSelectedResetIndex(event.data?.index ?? null)
+                          }
+                          onGridReady={(event) => {
+                            resetGridApi.current = event.api;
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="entity-table__empty">
+                        <h3>Resets will appear here</h3>
+                        <p>
+                          Load an area JSON file to populate the reset table.
                         </p>
                       </div>
                     )
