@@ -2,17 +2,27 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { ColDef, GridApi } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { LocalFileRepository } from "./repository/localFileRepository";
 import type { AreaJson, EditorMeta, ReferenceData } from "./repository/types";
 import {
+  containerFlagEnum,
+  containerFlags,
   damageTypeEnum,
   damageTypes,
   directionEnum,
   directions,
   exitFlagEnum,
   exitFlags,
+  extraFlagEnum,
+  extraFlags,
+  furnitureFlagEnum,
+  furnitureFlags,
+  liquidEnum,
+  liquids,
+  portalFlagEnum,
+  portalFlags,
   positionEnum,
   positions,
   roomFlagEnum,
@@ -22,7 +32,13 @@ import {
   sexEnum,
   sexes,
   sizeEnum,
-  sizes
+  sizes,
+  wearFlagEnum,
+  wearFlags,
+  weaponClassEnum,
+  weaponClasses,
+  weaponFlagEnum,
+  weaponFlags
 } from "./schemas/enums";
 
 const tabs = [
@@ -57,6 +73,42 @@ const entityOrder = [
   "Quests",
   "Factions",
   "Helps"
+] as const;
+
+const itemTypeOptions = [
+  "none",
+  "light",
+  "scroll",
+  "wand",
+  "staff",
+  "weapon",
+  "gather",
+  "treasure",
+  "armor",
+  "potion",
+  "clothing",
+  "furniture",
+  "trash",
+  "container",
+  "drink",
+  "key",
+  "food",
+  "money",
+  "boat",
+  "npc_corpse",
+  "pc_corpse",
+  "fountain",
+  "pill",
+  "protect",
+  "map",
+  "portal",
+  "warp_stone",
+  "room_key",
+  "gem",
+  "jewelry",
+  "jukebox",
+  "material",
+  "workstation"
 ] as const;
 
 type TabId = (typeof tabs)[number]["id"];
@@ -180,6 +232,132 @@ const mobileFormSchema = z.object({
   damageDice: diceFormSchema
 });
 
+const weaponFormSchema = z
+  .object({
+    class: optionalEnumSchema(weaponClassEnum),
+    diceNumber: optionalIntSchema,
+    diceType: optionalIntSchema,
+    damageType: optionalDamageTypeSchema,
+    flags: z.array(weaponFlagEnum).optional()
+  })
+  .optional();
+
+const armorFormSchema = z
+  .object({
+    acPierce: optionalIntSchema,
+    acBash: optionalIntSchema,
+    acSlash: optionalIntSchema,
+    acExotic: optionalIntSchema
+  })
+  .optional();
+
+const containerFormSchema = z
+  .object({
+    capacity: optionalIntSchema,
+    flags: z.array(containerFlagEnum).optional(),
+    keyVnum: optionalIntSchema,
+    maxWeight: optionalIntSchema,
+    weightMult: optionalIntSchema
+  })
+  .optional();
+
+const lightFormSchema = z
+  .object({
+    hours: optionalIntSchema
+  })
+  .optional();
+
+const drinkFormSchema = z
+  .object({
+    capacity: optionalIntSchema,
+    remaining: optionalIntSchema,
+    liquid: optionalEnumSchema(liquidEnum),
+    poisoned: z.boolean().optional()
+  })
+  .optional();
+
+const foodFormSchema = z
+  .object({
+    foodHours: optionalIntSchema,
+    fullHours: optionalIntSchema,
+    poisoned: z.boolean().optional()
+  })
+  .optional();
+
+const moneyFormSchema = z
+  .object({
+    gold: optionalIntSchema,
+    silver: optionalIntSchema
+  })
+  .optional();
+
+const wandFormSchema = z
+  .object({
+    level: optionalIntSchema,
+    totalCharges: optionalIntSchema,
+    chargesLeft: optionalIntSchema,
+    spell: z.string().optional()
+  })
+  .optional();
+
+const spellsFormSchema = z
+  .object({
+    level: optionalIntSchema,
+    spell1: z.string().optional(),
+    spell2: z.string().optional(),
+    spell3: z.string().optional(),
+    spell4: z.string().optional()
+  })
+  .optional();
+
+const portalFormSchema = z
+  .object({
+    charges: optionalIntSchema,
+    exitFlags: z.array(exitFlagEnum).optional(),
+    portalFlags: z.array(portalFlagEnum).optional(),
+    toVnum: optionalIntSchema
+  })
+  .optional();
+
+const furnitureFormSchema = z
+  .object({
+    slots: optionalIntSchema,
+    weight: optionalIntSchema,
+    flags: z.array(furnitureFlagEnum).optional(),
+    healBonus: optionalIntSchema,
+    manaBonus: optionalIntSchema,
+    maxPeople: optionalIntSchema
+  })
+  .optional();
+
+const objectFormSchema = z.object({
+  vnum: z.number().int(),
+  name: z.string().min(1, "Name is required."),
+  shortDescr: z.string().min(1, "Short description is required."),
+  description: z.string().min(1, "Description is required."),
+  material: z.string().min(1, "Material is required."),
+  itemType: z.string().min(1, "Item type is required."),
+  extraFlags: z.array(extraFlagEnum).optional(),
+  wearFlags: z.array(wearFlagEnum).optional(),
+  level: optionalIntSchema,
+  weight: optionalIntSchema,
+  cost: optionalIntSchema,
+  condition: optionalIntSchema,
+  weapon: weaponFormSchema,
+  armor: armorFormSchema,
+  container: containerFormSchema,
+  light: lightFormSchema,
+  drink: drinkFormSchema,
+  fountain: drinkFormSchema,
+  food: foodFormSchema,
+  money: moneyFormSchema,
+  wand: wandFormSchema,
+  staff: wandFormSchema,
+  spells: spellsFormSchema,
+  portal: portalFormSchema,
+  furniture: furnitureFormSchema
+});
+
 const roomFormSchema = z.object({
   vnum: z.number().int(),
   name: z.string().min(1, "Name is required."),
@@ -195,6 +373,7 @@ const roomFormSchema = z.object({
 
 type RoomFormValues = z.infer<typeof roomFormSchema>;
 type MobileFormValues = z.infer<typeof mobileFormSchema>;
+type ObjectFormValues = z.infer<typeof objectFormSchema>;
 
 const entityKindLabels: Record<EntityKey, string> = {
   Rooms: "Room",
@@ -296,6 +475,39 @@ function normalizeOptionalText(value: string | undefined) {
   const trimmed = value.trim();
   return trimmed.length ? trimmed : undefined;
 }
+
+type ObjectBlockKey =
+  | "weapon"
+  | "armor"
+  | "container"
+  | "light"
+  | "drink"
+  | "fountain"
+  | "food"
+  | "money"
+  | "wand"
+  | "staff"
+  | "spells"
+  | "portal"
+  | "furniture";
+
+const itemTypeBlockMap: Record<string, ObjectBlockKey> = {
+  weapon: "weapon",
+  armor: "armor",
+  container: "container",
+  light: "light",
+  drink: "drink",
+  fountain: "fountain",
+  food: "food",
+  money: "money",
+  wand: "wand",
+  staff: "staff",
+  scroll: "spells",
+  potion: "spells",
+  pill: "spells",
+  portal: "portal",
+  furniture: "furniture"
+};
 
 function findByVnum(list: unknown[], vnum: number): Record<string, unknown> | null {
   for (const entry of list) {
@@ -759,6 +971,109 @@ export default function App() {
     handleSubmit: handleMobileSubmitForm,
     formState: mobileFormState
   } = mobileForm;
+  const objectForm = useForm<ObjectFormValues>({
+    resolver: zodResolver(objectFormSchema),
+    defaultValues: {
+      vnum: 0,
+      name: "",
+      shortDescr: "",
+      description: "",
+      material: "",
+      itemType: "",
+      extraFlags: [],
+      wearFlags: [],
+      level: undefined,
+      weight: undefined,
+      cost: undefined,
+      condition: undefined,
+      weapon: {
+        class: undefined,
+        diceNumber: undefined,
+        diceType: undefined,
+        damageType: undefined,
+        flags: []
+      },
+      armor: {
+        acPierce: undefined,
+        acBash: undefined,
+        acSlash: undefined,
+        acExotic: undefined
+      },
+      container: {
+        capacity: undefined,
+        flags: [],
+        keyVnum: undefined,
+        maxWeight: undefined,
+        weightMult: undefined
+      },
+      light: {
+        hours: undefined
+      },
+      drink: {
+        capacity: undefined,
+        remaining: undefined,
+        liquid: undefined,
+        poisoned: undefined
+      },
+      fountain: {
+        capacity: undefined,
+        remaining: undefined,
+        liquid: undefined,
+        poisoned: undefined
+      },
+      food: {
+        foodHours: undefined,
+        fullHours: undefined,
+        poisoned: undefined
+      },
+      money: {
+        gold: undefined,
+        silver: undefined
+      },
+      wand: {
+        level: undefined,
+        totalCharges: undefined,
+        chargesLeft: undefined,
+        spell: ""
+      },
+      staff: {
+        level: undefined,
+        totalCharges: undefined,
+        chargesLeft: undefined,
+        spell: ""
+      },
+      spells: {
+        level: undefined,
+        spell1: "",
+        spell2: "",
+        spell3: "",
+        spell4: ""
+      },
+      portal: {
+        charges: undefined,
+        exitFlags: [],
+        portalFlags: [],
+        toVnum: undefined
+      },
+      furniture: {
+        slots: undefined,
+        weight: undefined,
+        flags: [],
+        healBonus: undefined,
+        manaBonus: undefined,
+        maxPeople: undefined
+      }
+    }
+  });
+  const {
+    register: registerObject,
+    handleSubmit: handleObjectSubmitForm,
+    formState: objectFormState
+  } = objectForm;
+  const watchedObjectItemType = useWatch({
+    control: objectForm.control,
+    name: "itemType"
+  });
 
   useEffect(() => {
     const nextRoom = getDefaultSelection(areaData, "Rooms", selectedRoomVnum);
@@ -847,6 +1162,12 @@ export default function App() {
     }
     return findByVnum(getEntityList(areaData, "Mobiles"), selectedMobileVnum);
   }, [areaData, selectedMobileVnum]);
+  const selectedObjectRecord = useMemo(() => {
+    if (!areaData || selectedObjectVnum === null) {
+      return null;
+    }
+    return findByVnum(getEntityList(areaData, "Objects"), selectedObjectVnum);
+  }, [areaData, selectedObjectVnum]);
   const roomFormDefaults = useMemo<RoomFormValues>(() => {
     const record = selectedRoomRecord;
     const vnum =
@@ -943,6 +1264,228 @@ export default function App() {
       damageDice: resolveDice(record?.damageDice)
     };
   }, [selectedMobileRecord, selectedMobileVnum]);
+  const objectFormDefaults = useMemo<ObjectFormValues>(() => {
+    const record = selectedObjectRecord;
+    const vnum = selectedObjectVnum ?? parseVnum(record?.vnum) ?? 0;
+    const resolveWeapon = (value: unknown) => {
+      if (!value || typeof value !== "object") {
+        return {
+          class: undefined,
+          diceNumber: undefined,
+          diceType: undefined,
+          damageType: undefined,
+          flags: []
+        };
+      }
+      const weapon = value as Record<string, unknown>;
+      const dice = Array.isArray(weapon.dice) ? weapon.dice : [];
+      return {
+        class: typeof weapon.class === "string" ? weapon.class : undefined,
+        diceNumber: parseVnum(dice[0]) ?? undefined,
+        diceType: parseVnum(dice[1]) ?? undefined,
+        damageType:
+          typeof weapon.damageType === "string" ? weapon.damageType : undefined,
+        flags: Array.isArray(weapon.flags)
+          ? weapon.flags.filter((flag) => typeof flag === "string")
+          : []
+      };
+    };
+    const resolveArmor = (value: unknown) => {
+      if (!value || typeof value !== "object") {
+        return {
+          acPierce: undefined,
+          acBash: undefined,
+          acSlash: undefined,
+          acExotic: undefined
+        };
+      }
+      const armor = value as Record<string, unknown>;
+      return {
+        acPierce: parseVnum(armor.acPierce) ?? undefined,
+        acBash: parseVnum(armor.acBash) ?? undefined,
+        acSlash: parseVnum(armor.acSlash) ?? undefined,
+        acExotic: parseVnum(armor.acExotic) ?? undefined
+      };
+    };
+    const resolveContainer = (value: unknown) => {
+      if (!value || typeof value !== "object") {
+        return {
+          capacity: undefined,
+          flags: [],
+          keyVnum: undefined,
+          maxWeight: undefined,
+          weightMult: undefined
+        };
+      }
+      const container = value as Record<string, unknown>;
+      return {
+        capacity: parseVnum(container.capacity) ?? undefined,
+        flags: Array.isArray(container.flags)
+          ? container.flags.filter((flag) => typeof flag === "string")
+          : [],
+        keyVnum: parseVnum(container.keyVnum) ?? undefined,
+        maxWeight: parseVnum(container.maxWeight) ?? undefined,
+        weightMult: parseVnum(container.weightMult) ?? undefined
+      };
+    };
+    const resolveLight = (value: unknown) => {
+      if (!value || typeof value !== "object") {
+        return { hours: undefined };
+      }
+      const light = value as Record<string, unknown>;
+      return { hours: parseVnum(light.hours) ?? undefined };
+    };
+    const resolveDrink = (value: unknown) => {
+      if (!value || typeof value !== "object") {
+        return {
+          capacity: undefined,
+          remaining: undefined,
+          liquid: undefined,
+          poisoned: undefined
+        };
+      }
+      const drink = value as Record<string, unknown>;
+      return {
+        capacity: parseVnum(drink.capacity) ?? undefined,
+        remaining: parseVnum(drink.remaining) ?? undefined,
+        liquid: typeof drink.liquid === "string" ? drink.liquid : undefined,
+        poisoned: typeof drink.poisoned === "boolean" ? drink.poisoned : undefined
+      };
+    };
+    const resolveFood = (value: unknown) => {
+      if (!value || typeof value !== "object") {
+        return { foodHours: undefined, fullHours: undefined, poisoned: undefined };
+      }
+      const food = value as Record<string, unknown>;
+      return {
+        foodHours: parseVnum(food.foodHours) ?? undefined,
+        fullHours: parseVnum(food.fullHours) ?? undefined,
+        poisoned: typeof food.poisoned === "boolean" ? food.poisoned : undefined
+      };
+    };
+    const resolveMoney = (value: unknown) => {
+      if (!value || typeof value !== "object") {
+        return { gold: undefined, silver: undefined };
+      }
+      const money = value as Record<string, unknown>;
+      return {
+        gold: parseVnum(money.gold) ?? undefined,
+        silver: parseVnum(money.silver) ?? undefined
+      };
+    };
+    const resolveWand = (value: unknown) => {
+      if (!value || typeof value !== "object") {
+        return {
+          level: undefined,
+          totalCharges: undefined,
+          chargesLeft: undefined,
+          spell: ""
+        };
+      }
+      const wand = value as Record<string, unknown>;
+      return {
+        level: parseVnum(wand.level) ?? undefined,
+        totalCharges: parseVnum(wand.totalCharges) ?? undefined,
+        chargesLeft: parseVnum(wand.chargesLeft) ?? undefined,
+        spell: typeof wand.spell === "string" ? wand.spell : ""
+      };
+    };
+    const resolveSpells = (value: unknown) => {
+      if (!value || typeof value !== "object") {
+        return { level: undefined, spell1: "", spell2: "", spell3: "", spell4: "" };
+      }
+      const spells = value as Record<string, unknown>;
+      return {
+        level: parseVnum(spells.level) ?? undefined,
+        spell1: typeof spells.spell1 === "string" ? spells.spell1 : "",
+        spell2: typeof spells.spell2 === "string" ? spells.spell2 : "",
+        spell3: typeof spells.spell3 === "string" ? spells.spell3 : "",
+        spell4: typeof spells.spell4 === "string" ? spells.spell4 : ""
+      };
+    };
+    const resolvePortal = (value: unknown) => {
+      if (!value || typeof value !== "object") {
+        return { charges: undefined, exitFlags: [], portalFlags: [], toVnum: undefined };
+      }
+      const portal = value as Record<string, unknown>;
+      return {
+        charges: parseVnum(portal.charges) ?? undefined,
+        exitFlags: Array.isArray(portal.exitFlags)
+          ? portal.exitFlags.filter((flag) => typeof flag === "string")
+          : [],
+        portalFlags: Array.isArray(portal.portalFlags)
+          ? portal.portalFlags.filter((flag) => typeof flag === "string")
+          : [],
+        toVnum: parseVnum(portal.toVnum) ?? undefined
+      };
+    };
+    const resolveFurniture = (value: unknown) => {
+      if (!value || typeof value !== "object") {
+        return {
+          slots: undefined,
+          weight: undefined,
+          flags: [],
+          healBonus: undefined,
+          manaBonus: undefined,
+          maxPeople: undefined
+        };
+      }
+      const furniture = value as Record<string, unknown>;
+      return {
+        slots: parseVnum(furniture.slots) ?? undefined,
+        weight: parseVnum(furniture.weight) ?? undefined,
+        flags: Array.isArray(furniture.flags)
+          ? furniture.flags.filter((flag) => typeof flag === "string")
+          : [],
+        healBonus: parseVnum(furniture.healBonus) ?? undefined,
+        manaBonus: parseVnum(furniture.manaBonus) ?? undefined,
+        maxPeople: parseVnum(furniture.maxPeople) ?? undefined
+      };
+    };
+    return {
+      vnum,
+      name: typeof record?.name === "string" ? record.name : "",
+      shortDescr:
+        typeof record?.shortDescr === "string" ? record.shortDescr : "",
+      description:
+        typeof record?.description === "string" ? record.description : "",
+      material: typeof record?.material === "string" ? record.material : "",
+      itemType: typeof record?.itemType === "string" ? record.itemType : "",
+      extraFlags: Array.isArray(record?.extraFlags)
+        ? record.extraFlags.filter((flag) => typeof flag === "string")
+        : [],
+      wearFlags: Array.isArray(record?.wearFlags)
+        ? record.wearFlags.filter((flag) => typeof flag === "string")
+        : [],
+      level: parseVnum(record?.level) ?? undefined,
+      weight: parseVnum(record?.weight) ?? undefined,
+      cost: parseVnum(record?.cost) ?? undefined,
+      condition: parseVnum(record?.condition) ?? undefined,
+      weapon: resolveWeapon(record?.weapon),
+      armor: resolveArmor(record?.armor),
+      container: resolveContainer(record?.container),
+      light: resolveLight(record?.light),
+      drink: resolveDrink(record?.drink),
+      fountain: resolveDrink(record?.fountain),
+      food: resolveFood(record?.food),
+      money: resolveMoney(record?.money),
+      wand: resolveWand(record?.wand),
+      staff: resolveWand(record?.staff),
+      spells: resolveSpells(record?.spells),
+      portal: resolvePortal(record?.portal),
+      furniture: resolveFurniture(record?.furniture)
+    };
+  }, [selectedObjectRecord, selectedObjectVnum]);
+  const activeObjectBlock = useMemo(() => {
+    const key = (
+      watchedObjectItemType ??
+      objectFormDefaults.itemType ??
+      ""
+    )
+      .trim()
+      .toLowerCase();
+    return itemTypeBlockMap[key] ?? null;
+  }, [objectFormDefaults.itemType, watchedObjectItemType]);
   const roomColumns = useMemo<ColDef<RoomRow>[]>(
     () => [
       { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
@@ -1000,6 +1543,10 @@ export default function App() {
   useEffect(() => {
     mobileForm.reset(mobileFormDefaults);
   }, [mobileForm, mobileFormDefaults]);
+
+  useEffect(() => {
+    objectForm.reset(objectFormDefaults);
+  }, [objectForm, objectFormDefaults]);
 
   useEffect(() => {
     if (activeTab !== "Table" || selectedEntity !== "Rooms") {
@@ -1142,6 +1689,216 @@ export default function App() {
       };
     });
     setStatusMessage(`Updated mobile ${data.vnum} (unsaved)`);
+  };
+
+  const handleObjectSubmit = (data: ObjectFormValues) => {
+    if (!areaData || selectedObjectVnum === null) {
+      return;
+    }
+    const itemTypeKey = data.itemType.trim().toLowerCase();
+    const activeBlock = itemTypeBlockMap[itemTypeKey] ?? null;
+    const buildWeapon = () => {
+      if (!data.weapon) {
+        return undefined;
+      }
+      const next: Record<string, unknown> = {};
+      if (data.weapon.class) {
+        next.class = data.weapon.class;
+      }
+      if (
+        data.weapon.diceNumber !== undefined &&
+        data.weapon.diceType !== undefined
+      ) {
+        next.dice = [data.weapon.diceNumber, data.weapon.diceType];
+      }
+      if (data.weapon.damageType) {
+        next.damageType = data.weapon.damageType;
+      }
+      if (data.weapon.flags && data.weapon.flags.length) {
+        next.flags = data.weapon.flags;
+      }
+      return Object.keys(next).length ? next : undefined;
+    };
+    const buildArmor = () => {
+      if (!data.armor) {
+        return undefined;
+      }
+      const next: Record<string, unknown> = {};
+      if (data.armor.acPierce !== undefined) next.acPierce = data.armor.acPierce;
+      if (data.armor.acBash !== undefined) next.acBash = data.armor.acBash;
+      if (data.armor.acSlash !== undefined) next.acSlash = data.armor.acSlash;
+      if (data.armor.acExotic !== undefined) next.acExotic = data.armor.acExotic;
+      return Object.keys(next).length ? next : undefined;
+    };
+    const buildContainer = () => {
+      if (!data.container) {
+        return undefined;
+      }
+      const next: Record<string, unknown> = {};
+      if (data.container.capacity !== undefined)
+        next.capacity = data.container.capacity;
+      if (data.container.flags && data.container.flags.length)
+        next.flags = data.container.flags;
+      if (data.container.keyVnum !== undefined)
+        next.keyVnum = data.container.keyVnum;
+      if (data.container.maxWeight !== undefined)
+        next.maxWeight = data.container.maxWeight;
+      if (data.container.weightMult !== undefined)
+        next.weightMult = data.container.weightMult;
+      return Object.keys(next).length ? next : undefined;
+    };
+    const buildLight = () => {
+      if (!data.light) {
+        return undefined;
+      }
+      const next: Record<string, unknown> = {};
+      if (data.light.hours !== undefined) next.hours = data.light.hours;
+      return Object.keys(next).length ? next : undefined;
+    };
+    const buildDrink = (block?: ObjectFormValues["drink"]) => {
+      if (!block) {
+        return undefined;
+      }
+      const next: Record<string, unknown> = {};
+      if (block.capacity !== undefined) next.capacity = block.capacity;
+      if (block.remaining !== undefined) next.remaining = block.remaining;
+      if (block.liquid) next.liquid = block.liquid;
+      if (block.poisoned) next.poisoned = true;
+      return Object.keys(next).length ? next : undefined;
+    };
+    const buildFood = () => {
+      if (!data.food) {
+        return undefined;
+      }
+      const next: Record<string, unknown> = {};
+      if (data.food.foodHours !== undefined)
+        next.foodHours = data.food.foodHours;
+      if (data.food.fullHours !== undefined)
+        next.fullHours = data.food.fullHours;
+      if (data.food.poisoned) next.poisoned = true;
+      return Object.keys(next).length ? next : undefined;
+    };
+    const buildMoney = () => {
+      if (!data.money) {
+        return undefined;
+      }
+      const next: Record<string, unknown> = {};
+      if (data.money.gold !== undefined) next.gold = data.money.gold;
+      if (data.money.silver !== undefined) next.silver = data.money.silver;
+      return Object.keys(next).length ? next : undefined;
+    };
+    const buildWand = (block?: ObjectFormValues["wand"]) => {
+      if (!block) {
+        return undefined;
+      }
+      const next: Record<string, unknown> = {};
+      if (block.level !== undefined) next.level = block.level;
+      if (block.totalCharges !== undefined)
+        next.totalCharges = block.totalCharges;
+      if (block.chargesLeft !== undefined)
+        next.chargesLeft = block.chargesLeft;
+      const spell = normalizeOptionalText(block.spell);
+      if (spell) next.spell = spell;
+      return Object.keys(next).length ? next : undefined;
+    };
+    const buildSpells = () => {
+      if (!data.spells) {
+        return undefined;
+      }
+      const next: Record<string, unknown> = {};
+      if (data.spells.level !== undefined) next.level = data.spells.level;
+      const spell1 = normalizeOptionalText(data.spells.spell1);
+      const spell2 = normalizeOptionalText(data.spells.spell2);
+      const spell3 = normalizeOptionalText(data.spells.spell3);
+      const spell4 = normalizeOptionalText(data.spells.spell4);
+      if (spell1) next.spell1 = spell1;
+      if (spell2) next.spell2 = spell2;
+      if (spell3) next.spell3 = spell3;
+      if (spell4) next.spell4 = spell4;
+      return Object.keys(next).length ? next : undefined;
+    };
+    const buildPortal = () => {
+      if (!data.portal) {
+        return undefined;
+      }
+      const next: Record<string, unknown> = {};
+      if (data.portal.charges !== undefined) next.charges = data.portal.charges;
+      if (data.portal.exitFlags && data.portal.exitFlags.length)
+        next.exitFlags = data.portal.exitFlags;
+      if (data.portal.portalFlags && data.portal.portalFlags.length)
+        next.portalFlags = data.portal.portalFlags;
+      if (data.portal.toVnum !== undefined) next.toVnum = data.portal.toVnum;
+      return Object.keys(next).length ? next : undefined;
+    };
+    const buildFurniture = () => {
+      if (!data.furniture) {
+        return undefined;
+      }
+      const next: Record<string, unknown> = {};
+      if (data.furniture.slots !== undefined) next.slots = data.furniture.slots;
+      if (data.furniture.weight !== undefined)
+        next.weight = data.furniture.weight;
+      if (data.furniture.flags && data.furniture.flags.length)
+        next.flags = data.furniture.flags;
+      if (data.furniture.healBonus !== undefined)
+        next.healBonus = data.furniture.healBonus;
+      if (data.furniture.manaBonus !== undefined)
+        next.manaBonus = data.furniture.manaBonus;
+      if (data.furniture.maxPeople !== undefined)
+        next.maxPeople = data.furniture.maxPeople;
+      return Object.keys(next).length ? next : undefined;
+    };
+
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const objects = getEntityList(current, "Objects");
+      if (!objects.length) {
+        return current;
+      }
+      const nextObjects = objects.map((obj) => {
+        const record = obj as Record<string, unknown>;
+        const objVnum = parseVnum(record.vnum);
+        if (objVnum !== selectedObjectVnum) {
+          return record;
+        }
+        const nextObject: Record<string, unknown> = {
+          ...record,
+          name: data.name,
+          shortDescr: data.shortDescr,
+          description: data.description,
+          material: data.material,
+          itemType: data.itemType,
+          extraFlags: data.extraFlags?.length ? data.extraFlags : undefined,
+          wearFlags: data.wearFlags?.length ? data.wearFlags : undefined,
+          level: data.level ?? undefined,
+          weight: data.weight ?? undefined,
+          cost: data.cost ?? undefined,
+          condition: data.condition ?? undefined,
+          weapon: activeBlock === "weapon" ? buildWeapon() : undefined,
+          armor: activeBlock === "armor" ? buildArmor() : undefined,
+          container: activeBlock === "container" ? buildContainer() : undefined,
+          light: activeBlock === "light" ? buildLight() : undefined,
+          drink: activeBlock === "drink" ? buildDrink(data.drink) : undefined,
+          fountain:
+            activeBlock === "fountain" ? buildDrink(data.fountain) : undefined,
+          food: activeBlock === "food" ? buildFood() : undefined,
+          money: activeBlock === "money" ? buildMoney() : undefined,
+          wand: activeBlock === "wand" ? buildWand(data.wand) : undefined,
+          staff: activeBlock === "staff" ? buildWand(data.staff) : undefined,
+          spells: activeBlock === "spells" ? buildSpells() : undefined,
+          portal: activeBlock === "portal" ? buildPortal() : undefined,
+          furniture: activeBlock === "furniture" ? buildFurniture() : undefined
+        };
+        return nextObject;
+      });
+      return {
+        ...(current as Record<string, unknown>),
+        objects: nextObjects
+      };
+    });
+    setStatusMessage(`Updated object ${data.vnum} (unsaved)`);
   };
 
   const handleOpenArea = async () => {
@@ -2162,6 +2919,867 @@ export default function App() {
                   <div className="entity-table__empty">
                     <h3>No mobiles available</h3>
                     <p>Load an area JSON file to edit mobile data.</p>
+                  </div>
+                )
+              ) : activeTab === "Form" && selectedEntity === "Objects" ? (
+                objectRows.length ? (
+                  <div className="form-view">
+                    <form
+                      className="form-shell"
+                      onSubmit={handleObjectSubmitForm(handleObjectSubmit)}
+                    >
+                      <div className="form-grid">
+                        <div className="form-field">
+                          <label className="form-label" htmlFor="obj-vnum">
+                            VNUM
+                          </label>
+                          <input
+                            id="obj-vnum"
+                            className="form-input"
+                            type="number"
+                            readOnly
+                            {...registerObject("vnum", { valueAsNumber: true })}
+                          />
+                        </div>
+                        <div className="form-field form-field--wide">
+                          <label className="form-label" htmlFor="obj-name">
+                            Name
+                          </label>
+                          <input
+                            id="obj-name"
+                            className="form-input"
+                            type="text"
+                            {...registerObject("name")}
+                          />
+                          {objectFormState.errors.name ? (
+                            <span className="form-error">
+                              {objectFormState.errors.name.message}
+                            </span>
+                          ) : null}
+                        </div>
+                        <div className="form-field form-field--wide">
+                          <label className="form-label" htmlFor="obj-short">
+                            Short Description
+                          </label>
+                          <input
+                            id="obj-short"
+                            className="form-input"
+                            type="text"
+                            {...registerObject("shortDescr")}
+                          />
+                          {objectFormState.errors.shortDescr ? (
+                            <span className="form-error">
+                              {objectFormState.errors.shortDescr.message}
+                            </span>
+                          ) : null}
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label" htmlFor="obj-itemtype">
+                            Item Type
+                          </label>
+                          <select
+                            id="obj-itemtype"
+                            className="form-select"
+                            {...registerObject("itemType")}
+                          >
+                            <option value="">Select</option>
+                            {itemTypeOptions.map((itemType) => (
+                              <option key={itemType} value={itemType}>
+                                {itemType}
+                              </option>
+                            ))}
+                          </select>
+                          {objectFormState.errors.itemType ? (
+                            <span className="form-error">
+                              {objectFormState.errors.itemType.message}
+                            </span>
+                          ) : null}
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label" htmlFor="obj-material">
+                            Material
+                          </label>
+                          <input
+                            id="obj-material"
+                            className="form-input"
+                            type="text"
+                            {...registerObject("material")}
+                          />
+                          {objectFormState.errors.material ? (
+                            <span className="form-error">
+                              {objectFormState.errors.material.message}
+                            </span>
+                          ) : null}
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label" htmlFor="obj-level">
+                            Level
+                          </label>
+                          <input
+                            id="obj-level"
+                            className="form-input"
+                            type="number"
+                            {...registerObject("level")}
+                          />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label" htmlFor="obj-weight">
+                            Weight
+                          </label>
+                          <input
+                            id="obj-weight"
+                            className="form-input"
+                            type="number"
+                            {...registerObject("weight")}
+                          />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label" htmlFor="obj-cost">
+                            Cost
+                          </label>
+                          <input
+                            id="obj-cost"
+                            className="form-input"
+                            type="number"
+                            {...registerObject("cost")}
+                          />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label" htmlFor="obj-condition">
+                            Condition
+                          </label>
+                          <input
+                            id="obj-condition"
+                            className="form-input"
+                            type="number"
+                            {...registerObject("condition")}
+                          />
+                        </div>
+                      </div>
+                      <div className="form-field form-field--full">
+                        <label
+                          className="form-label"
+                          htmlFor="obj-description"
+                        >
+                          Description
+                        </label>
+                        <textarea
+                          id="obj-description"
+                          className="form-textarea"
+                          rows={6}
+                          {...registerObject("description")}
+                        />
+                        {objectFormState.errors.description ? (
+                          <span className="form-error">
+                            {objectFormState.errors.description.message}
+                          </span>
+                        ) : null}
+                      </div>
+                      <div className="form-field form-field--full">
+                        <label className="form-label">Wear Flags</label>
+                        <div className="form-checkboxes">
+                          {wearFlags.map((flag) => (
+                            <label key={flag} className="checkbox-pill">
+                              <input
+                                type="checkbox"
+                                value={flag}
+                                {...registerObject("wearFlags")}
+                              />
+                              <span>{flag}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="form-field form-field--full">
+                        <label className="form-label">Extra Flags</label>
+                        <div className="form-checkboxes">
+                          {extraFlags.map((flag) => (
+                            <label key={flag} className="checkbox-pill">
+                              <input
+                                type="checkbox"
+                                value={flag}
+                                {...registerObject("extraFlags")}
+                              />
+                              <span>{flag}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="form-field form-field--full">
+                        <div className="form-section-header">
+                          <div>
+                            <div className="form-label">Typed Block</div>
+                            <div className="form-hint">
+                              Determined by item type.
+                            </div>
+                          </div>
+                        </div>
+                        <div className="block-list">
+                          {!activeObjectBlock ? (
+                            <div className="placeholder-block">
+                              <div className="placeholder-title">
+                                No typed block
+                              </div>
+                              <p>
+                                Choose an item type with typed data to edit.
+                              </p>
+                            </div>
+                          ) : null}
+                          {activeObjectBlock === "weapon" ? (
+                            <div className="block-card">
+                              <div className="block-card__header">
+                                <span>Weapon</span>
+                              </div>
+                              <div className="block-grid">
+                                <div className="form-field">
+                                  <label className="form-label">
+                                    Weapon Class
+                                  </label>
+                                  <select
+                                    className="form-select"
+                                    {...registerObject("weapon.class")}
+                                  >
+                                    <option value="">Select</option>
+                                    {weaponClasses.map((weaponClass) => (
+                                      <option
+                                        key={weaponClass}
+                                        value={weaponClass}
+                                      >
+                                        {weaponClass}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">Dice #</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("weapon.diceNumber")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">Dice Type</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("weapon.diceType")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">
+                                    Damage Type
+                                  </label>
+                                  <select
+                                    className="form-select"
+                                    {...registerObject("weapon.damageType")}
+                                  >
+                                    <option value="">Select</option>
+                                    {damageTypes.map((damageType) => (
+                                      <option
+                                        key={damageType}
+                                        value={damageType}
+                                      >
+                                        {damageType}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                                <div className="form-field form-field--full">
+                                  <label className="form-label">
+                                    Weapon Flags
+                                  </label>
+                                  <div className="form-checkboxes">
+                                    {weaponFlags.map((flag) => (
+                                      <label
+                                        key={flag}
+                                        className="checkbox-pill"
+                                      >
+                                        <input
+                                          type="checkbox"
+                                          value={flag}
+                                          {...registerObject("weapon.flags")}
+                                        />
+                                        <span>{flag}</span>
+                                      </label>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ) : null}
+                          {activeObjectBlock === "armor" ? (
+                            <div className="block-card">
+                              <div className="block-card__header">
+                                <span>Armor</span>
+                              </div>
+                              <div className="block-grid">
+                                <div className="form-field">
+                                  <label className="form-label">AC Pierce</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("armor.acPierce")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">AC Bash</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("armor.acBash")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">AC Slash</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("armor.acSlash")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">AC Exotic</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("armor.acExotic")}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ) : null}
+                          {activeObjectBlock === "container" ? (
+                            <div className="block-card">
+                              <div className="block-card__header">
+                                <span>Container</span>
+                              </div>
+                              <div className="block-grid">
+                                <div className="form-field">
+                                  <label className="form-label">Capacity</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("container.capacity")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">Key VNUM</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("container.keyVnum")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">Max Weight</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("container.maxWeight")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">Weight Mult</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("container.weightMult")}
+                                  />
+                                </div>
+                                <div className="form-field form-field--full">
+                                  <label className="form-label">
+                                    Container Flags
+                                  </label>
+                                  <div className="form-checkboxes">
+                                    {containerFlags.map((flag) => (
+                                      <label
+                                        key={flag}
+                                        className="checkbox-pill"
+                                      >
+                                        <input
+                                          type="checkbox"
+                                          value={flag}
+                                          {...registerObject("container.flags")}
+                                        />
+                                        <span>{flag}</span>
+                                      </label>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ) : null}
+                          {activeObjectBlock === "light" ? (
+                            <div className="block-card">
+                              <div className="block-card__header">
+                                <span>Light</span>
+                              </div>
+                              <div className="block-grid">
+                                <div className="form-field">
+                                  <label className="form-label">Hours</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("light.hours")}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ) : null}
+                          {activeObjectBlock === "drink" ? (
+                            <div className="block-card">
+                              <div className="block-card__header">
+                                <span>Drink</span>
+                              </div>
+                              <div className="block-grid">
+                                <div className="form-field">
+                                  <label className="form-label">Capacity</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("drink.capacity")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">Remaining</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("drink.remaining")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">Liquid</label>
+                                  <select
+                                    className="form-select"
+                                    {...registerObject("drink.liquid")}
+                                  >
+                                    <option value="">Select</option>
+                                    {liquids.map((liquid) => (
+                                      <option key={liquid} value={liquid}>
+                                        {liquid}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">Poisoned</label>
+                                  <label className="checkbox-pill">
+                                    <input
+                                      type="checkbox"
+                                      {...registerObject("drink.poisoned")}
+                                    />
+                                    <span>Poisoned</span>
+                                  </label>
+                                </div>
+                              </div>
+                            </div>
+                          ) : null}
+                          {activeObjectBlock === "fountain" ? (
+                            <div className="block-card">
+                              <div className="block-card__header">
+                                <span>Fountain</span>
+                              </div>
+                              <div className="block-grid">
+                                <div className="form-field">
+                                  <label className="form-label">Capacity</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("fountain.capacity")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">Remaining</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("fountain.remaining")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">Liquid</label>
+                                  <select
+                                    className="form-select"
+                                    {...registerObject("fountain.liquid")}
+                                  >
+                                    <option value="">Select</option>
+                                    {liquids.map((liquid) => (
+                                      <option key={liquid} value={liquid}>
+                                        {liquid}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">Poisoned</label>
+                                  <label className="checkbox-pill">
+                                    <input
+                                      type="checkbox"
+                                      {...registerObject("fountain.poisoned")}
+                                    />
+                                    <span>Poisoned</span>
+                                  </label>
+                                </div>
+                              </div>
+                            </div>
+                          ) : null}
+                          {activeObjectBlock === "food" ? (
+                            <div className="block-card">
+                              <div className="block-card__header">
+                                <span>Food</span>
+                              </div>
+                              <div className="block-grid">
+                                <div className="form-field">
+                                  <label className="form-label">Food Hours</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("food.foodHours")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">Full Hours</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("food.fullHours")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">Poisoned</label>
+                                  <label className="checkbox-pill">
+                                    <input
+                                      type="checkbox"
+                                      {...registerObject("food.poisoned")}
+                                    />
+                                    <span>Poisoned</span>
+                                  </label>
+                                </div>
+                              </div>
+                            </div>
+                          ) : null}
+                          {activeObjectBlock === "money" ? (
+                            <div className="block-card">
+                              <div className="block-card__header">
+                                <span>Money</span>
+                              </div>
+                              <div className="block-grid">
+                                <div className="form-field">
+                                  <label className="form-label">Gold</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("money.gold")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">Silver</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("money.silver")}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ) : null}
+                          {activeObjectBlock === "wand" ? (
+                            <div className="block-card">
+                              <div className="block-card__header">
+                                <span>Wand</span>
+                              </div>
+                              <div className="block-grid">
+                                <div className="form-field">
+                                  <label className="form-label">Level</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("wand.level")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">
+                                    Total Charges
+                                  </label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("wand.totalCharges")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">
+                                    Charges Left
+                                  </label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("wand.chargesLeft")}
+                                  />
+                                </div>
+                                <div className="form-field form-field--wide">
+                                  <label className="form-label">Spell</label>
+                                  <input
+                                    className="form-input"
+                                    type="text"
+                                    {...registerObject("wand.spell")}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ) : null}
+                          {activeObjectBlock === "staff" ? (
+                            <div className="block-card">
+                              <div className="block-card__header">
+                                <span>Staff</span>
+                              </div>
+                              <div className="block-grid">
+                                <div className="form-field">
+                                  <label className="form-label">Level</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("staff.level")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">
+                                    Total Charges
+                                  </label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("staff.totalCharges")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">
+                                    Charges Left
+                                  </label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("staff.chargesLeft")}
+                                  />
+                                </div>
+                                <div className="form-field form-field--wide">
+                                  <label className="form-label">Spell</label>
+                                  <input
+                                    className="form-input"
+                                    type="text"
+                                    {...registerObject("staff.spell")}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ) : null}
+                          {activeObjectBlock === "spells" ? (
+                            <div className="block-card">
+                              <div className="block-card__header">
+                                <span>Spells</span>
+                              </div>
+                              <div className="block-grid">
+                                <div className="form-field">
+                                  <label className="form-label">Level</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("spells.level")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">Spell 1</label>
+                                  <input
+                                    className="form-input"
+                                    type="text"
+                                    {...registerObject("spells.spell1")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">Spell 2</label>
+                                  <input
+                                    className="form-input"
+                                    type="text"
+                                    {...registerObject("spells.spell2")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">Spell 3</label>
+                                  <input
+                                    className="form-input"
+                                    type="text"
+                                    {...registerObject("spells.spell3")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">Spell 4</label>
+                                  <input
+                                    className="form-input"
+                                    type="text"
+                                    {...registerObject("spells.spell4")}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ) : null}
+                          {activeObjectBlock === "portal" ? (
+                            <div className="block-card">
+                              <div className="block-card__header">
+                                <span>Portal</span>
+                              </div>
+                              <div className="block-grid">
+                                <div className="form-field">
+                                  <label className="form-label">Charges</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("portal.charges")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">To VNUM</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("portal.toVnum")}
+                                  />
+                                </div>
+                                <div className="form-field form-field--full">
+                                  <label className="form-label">Exit Flags</label>
+                                  <div className="form-checkboxes">
+                                    {exitFlags.map((flag) => (
+                                      <label
+                                        key={flag}
+                                        className="checkbox-pill"
+                                      >
+                                        <input
+                                          type="checkbox"
+                                          value={flag}
+                                          {...registerObject("portal.exitFlags")}
+                                        />
+                                        <span>{flag}</span>
+                                      </label>
+                                    ))}
+                                  </div>
+                                </div>
+                                <div className="form-field form-field--full">
+                                  <label className="form-label">
+                                    Portal Flags
+                                  </label>
+                                  <div className="form-checkboxes">
+                                    {portalFlags.map((flag) => (
+                                      <label
+                                        key={flag}
+                                        className="checkbox-pill"
+                                      >
+                                        <input
+                                          type="checkbox"
+                                          value={flag}
+                                          {...registerObject(
+                                            "portal.portalFlags"
+                                          )}
+                                        />
+                                        <span>{flag}</span>
+                                      </label>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ) : null}
+                          {activeObjectBlock === "furniture" ? (
+                            <div className="block-card">
+                              <div className="block-card__header">
+                                <span>Furniture</span>
+                              </div>
+                              <div className="block-grid">
+                                <div className="form-field">
+                                  <label className="form-label">Slots</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("furniture.slots")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">Weight</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("furniture.weight")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">Heal Bonus</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("furniture.healBonus")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">Mana Bonus</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("furniture.manaBonus")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">Max People</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerObject("furniture.maxPeople")}
+                                  />
+                                </div>
+                                <div className="form-field form-field--full">
+                                  <label className="form-label">
+                                    Furniture Flags
+                                  </label>
+                                  <div className="form-checkboxes">
+                                    {furnitureFlags.map((flag) => (
+                                      <label
+                                        key={flag}
+                                        className="checkbox-pill"
+                                      >
+                                        <input
+                                          type="checkbox"
+                                          value={flag}
+                                          {...registerObject("furniture.flags")}
+                                        />
+                                        <span>{flag}</span>
+                                      </label>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ) : null}
+                        </div>
+                      </div>
+                      <div className="form-actions">
+                        <button
+                          className="action-button action-button--primary"
+                          type="submit"
+                          disabled={!objectFormState.isDirty}
+                        >
+                          Apply Changes
+                        </button>
+                        <span className="form-hint">
+                          {objectFormState.isDirty
+                            ? "Unsaved changes"
+                            : "Up to date"}
+                        </span>
+                      </div>
+                    </form>
+                  </div>
+                ) : (
+                  <div className="entity-table__empty">
+                    <h3>No objects available</h3>
+                    <p>Load an area JSON file to edit object data.</p>
                   </div>
                 )
               ) : activeTab === "Table" &&
