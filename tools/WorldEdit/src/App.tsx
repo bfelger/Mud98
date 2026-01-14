@@ -294,6 +294,16 @@ type ExternalExit = {
 
 type RoomLayoutMap = Record<string, RoomLayoutEntry>;
 
+type ValidationSeverity = "error" | "warning";
+
+type ValidationIssue = {
+  id: string;
+  severity: ValidationSeverity;
+  entityType: EntityKey;
+  message: string;
+  vnum?: number;
+};
+
 type RoomNodeData = {
   vnum: number;
   label: string;
@@ -875,6 +885,28 @@ function getAreaVnumRange(areaData: AreaJson | null): string | null {
     typeof vnumRange[1] === "number"
   ) {
     return `${vnumRange[0]}-${vnumRange[1]}`;
+  }
+  return null;
+}
+
+function getAreaVnumBounds(
+  areaData: AreaJson | null
+): { min: number; max: number } | null {
+  if (!areaData) {
+    return null;
+  }
+  const areadata = (areaData as Record<string, unknown>).areadata;
+  if (!areadata || typeof areadata !== "object") {
+    return null;
+  }
+  const vnumRange = (areadata as Record<string, unknown>).vnumRange;
+  if (
+    Array.isArray(vnumRange) &&
+    vnumRange.length === 2 &&
+    typeof vnumRange[0] === "number" &&
+    typeof vnumRange[1] === "number"
+  ) {
+    return { min: vnumRange[0], max: vnumRange[1] };
   }
   return null;
 }
@@ -1641,6 +1673,74 @@ function buildSelectionSummary(
     exits,
     validation: "validation not run"
   };
+}
+
+function validateVnumRanges(areaData: AreaJson | null): ValidationIssue[] {
+  if (!areaData) {
+    return [];
+  }
+  const bounds = getAreaVnumBounds(areaData);
+  if (!bounds) {
+    return [];
+  }
+  const { min, max } = bounds;
+  const issues: ValidationIssue[] = [];
+  const checkEntity = (entity: EntityKey) => {
+    const list = getEntityList(areaData, entity);
+    list.forEach((entry, index) => {
+      if (!entry || typeof entry !== "object") {
+        return;
+      }
+      const record = entry as Record<string, unknown>;
+      const vnum = parseVnum(record.vnum);
+      if (vnum === null) {
+        return;
+      }
+      if (vnum < min || vnum > max) {
+        const kindLabel = entityKindLabels[entity] ?? "Entity";
+        issues.push({
+          id: `vnum-range-${entity}-${vnum}-${index}`,
+          severity: "error",
+          entityType: entity,
+          vnum,
+          message: `${kindLabel} vnum ${vnum} outside area range ${min}-${max}`
+        });
+      }
+    });
+  };
+
+  checkEntity("Rooms");
+  checkEntity("Mobiles");
+  checkEntity("Objects");
+
+  return issues;
+}
+
+function buildValidationSummary(
+  issues: ValidationIssue[],
+  selectedEntity: EntityKey,
+  selectedVnum: number | null
+): string {
+  if (!issues.length) {
+    return "No validation issues";
+  }
+  if (selectedVnum !== null) {
+    const selectedIssue = issues.find(
+      (issue) =>
+        issue.entityType === selectedEntity && issue.vnum === selectedVnum
+    );
+    if (selectedIssue) {
+      return selectedIssue.message;
+    }
+  }
+  const counts = issues.reduce<Record<string, number>>((acc, issue) => {
+    acc[issue.entityType] = (acc[issue.entityType] ?? 0) + 1;
+    return acc;
+  }, {});
+  const parts = Object.entries(counts).map(
+    ([entity, count]) => `${entity} ${count}`
+  );
+  return `VNUM range errors: ${parts.join(", ")}`;
 }
 
 function buildAreaDebugSummary(areaData: AreaJson | null): {
@@ -2685,6 +2785,31 @@ export default function App() {
       selectedObjectVnum,
       selectedResetIndex
     ]
+  );
+  const selectedEntityVnum = useMemo(() => {
+    if (selectedEntity === "Rooms") {
+      return selectedRoomVnum;
+    }
+    if (selectedEntity === "Mobiles") {
+      return selectedMobileVnum;
+    }
+    if (selectedEntity === "Objects") {
+      return selectedObjectVnum;
+    }
+    return null;
+  }, [selectedEntity, selectedRoomVnum, selectedMobileVnum, selectedObjectVnum]);
+  const validationIssues = useMemo(
+    () => validateVnumRanges(areaData),
+    [areaData]
+  );
+  const validationSummary = useMemo(
+    () =>
+      buildValidationSummary(
+        validationIssues,
+        selectedEntity,
+        selectedEntityVnum
+      ),
+    [validationIssues, selectedEntity, selectedEntityVnum]
   );
   const areaName = fileNameFromPath(areaPath);
   const areaDebug = useMemo(() => buildAreaDebugSummary(areaData), [areaData]);
@@ -6416,7 +6541,7 @@ export default function App() {
           <div className="inspector__section">
             <div className="inspector__label">Validation</div>
             <div className="inspector__value inspector__value--warn">
-              {selection.validation}
+              {validationSummary}
             </div>
           </div>
           <div className="inspector__section">
