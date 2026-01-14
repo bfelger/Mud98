@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ColDef, GridApi } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
+import ReactFlow, {
+  Background,
+  Controls,
+  type Edge,
+  type Node,
+  type NodeProps
+} from "reactflow";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   useFieldArray,
@@ -188,6 +195,12 @@ type ResetRow = {
   entityVnum: string;
   roomVnum: string;
   details: string;
+};
+
+type RoomNodeData = {
+  vnum: number;
+  label: string;
+  sector: string;
 };
 
 const optionalIntSchema = z.preprocess((value) => {
@@ -801,6 +814,18 @@ function VnumPicker<TFieldValues extends FieldValues>({
   );
 }
 
+function RoomNode({ data }: NodeProps<RoomNodeData>) {
+  return (
+    <div className="room-node">
+      <div className="room-node__vnum">{data.vnum}</div>
+      <div className="room-node__name">{data.label}</div>
+      <div className="room-node__sector">{data.sector}</div>
+    </div>
+  );
+}
+
+const roomNodeTypes = { room: RoomNode };
+
 function buildVnumOptions(
   areaData: AreaJson | null,
   entity: "Rooms" | "Mobiles" | "Objects"
@@ -979,6 +1004,42 @@ function buildAreaDebugSummary(areaData: AreaJson | null): {
     })
     .filter((entry): entry is { key: string; count: number } => entry !== null);
   return { keys, arrayCounts };
+}
+
+function buildRoomNodes(areaData: AreaJson | null): Node<RoomNodeData>[] {
+  if (!areaData) {
+    return [];
+  }
+  const rooms = getEntityList(areaData, "Rooms");
+  if (!rooms.length) {
+    return [];
+  }
+  const columns = 6;
+  const spacingX = 220;
+  const spacingY = 140;
+  return rooms.map((room, index) => {
+    const record = room as Record<string, unknown>;
+    const vnum = parseVnum(record.vnum);
+    const name = getFirstString(record.name, "(unnamed room)");
+    const sector =
+      typeof record.sectorType === "string"
+        ? record.sectorType
+        : typeof record.sector === "string"
+          ? record.sector
+          : "unknown";
+    const col = index % columns;
+    const row = Math.floor(index / columns);
+    return {
+      id: vnum !== null ? String(vnum) : `room-${index}`,
+      type: "room",
+      position: { x: col * spacingX, y: row * spacingY },
+      data: {
+        vnum: vnum ?? -1,
+        label: name,
+        sector
+      }
+    };
+  });
 }
 
 function buildRoomRows(areaData: AreaJson | null): RoomRow[] {
@@ -1421,6 +1482,7 @@ export default function App() {
   );
   const areaName = fileNameFromPath(areaPath);
   const areaDebug = useMemo(() => buildAreaDebugSummary(areaData), [areaData]);
+  const areaVnumRange = useMemo(() => getAreaVnumRange(areaData), [areaData]);
   const entityItems = useMemo(
     () =>
       entityOrder.map((key) => ({
@@ -1433,6 +1495,8 @@ export default function App() {
   const mobileRows = useMemo(() => buildMobileRows(areaData), [areaData]);
   const objectRows = useMemo(() => buildObjectRows(areaData), [areaData]);
   const resetRows = useMemo(() => buildResetRows(areaData), [areaData]);
+  const roomNodes = useMemo(() => buildRoomNodes(areaData), [areaData]);
+  const roomEdges = useMemo<Edge[]>(() => [], []);
   const selectedRoomRecord = useMemo(() => {
     if (!areaData || selectedRoomVnum === null) {
       return null;
@@ -4552,6 +4616,35 @@ export default function App() {
                   <div className="entity-table__empty">
                     <h3>No resets available</h3>
                     <p>Load an area JSON file to edit reset data.</p>
+                  </div>
+                )
+              ) : activeTab === "Map" ? (
+                roomNodes.length ? (
+                  <div className="map-shell">
+                    <div className="map-canvas">
+                      <ReactFlow
+                        nodes={roomNodes}
+                        edges={roomEdges}
+                        nodeTypes={roomNodeTypes}
+                        fitView
+                        nodesDraggable={false}
+                        nodesConnectable={false}
+                        panOnScroll
+                      >
+                        <Background gap={24} size={1} />
+                        <Controls showInteractive={false} />
+                      </ReactFlow>
+                      {areaVnumRange ? (
+                        <div className="map-overlay">
+                          VNUM range: {areaVnumRange}
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="entity-table__empty">
+                    <h3>No rooms available</h3>
+                    <p>Load an area JSON file to view the room map.</p>
                   </div>
                 )
               ) : activeTab === "Table" &&
