@@ -334,10 +334,13 @@ body::before {
 .room-table {
   height: 100%;
   min-height: 360px;
+  display: flex;
+  flex-direction: column;
 }
 
 .worldedit-grid {
-  height: 100%;
+  flex: 1;
+  min-height: 360px;
   width: 100%;
   border-radius: 14px;
   overflow: hidden;
@@ -449,6 +452,19 @@ body::before {
   border: 1px solid rgba(47, 108, 106, 0.3);
   font-size: 0.8rem;
   color: var(--accent-strong);
+}
+
+.inspector__empty {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
+.inspector__debug-list {
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  display: grid;
+  gap: 4px;
 }
 
 .statusbar {

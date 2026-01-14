@@ -29,19 +29,19 @@ const tabs = [
   }
 ] as const;
 
-const entityItems = [
-  { key: "Rooms", count: 42 },
-  { key: "Mobiles", count: 18 },
-  { key: "Objects", count: 26 },
-  { key: "Resets", count: 31 },
-  { key: "Shops", count: 2 },
-  { key: "Quests", count: 1 },
-  { key: "Factions", count: 3 },
-  { key: "Helps", count: 9 }
+const entityOrder = [
+  "Rooms",
+  "Mobiles",
+  "Objects",
+  "Resets",
+  "Shops",
+  "Quests",
+  "Factions",
+  "Helps"
 ] as const;
 
 type TabId = (typeof tabs)[number]["id"];
-type EntityKey = (typeof entityItems)[number]["key"];
+type EntityKey = (typeof entityOrder)[number];
 
 type RoomRow = {
   vnum: number;
@@ -51,90 +51,26 @@ type RoomRow = {
   flags: string;
 };
 
-const entityDetails: Record<
-  EntityKey,
-  {
-    kindLabel: string;
-    selectionLabel: string;
-    vnumRange: string;
-    lastSave: string;
-    flags: string[];
-    exits: string;
-    validation: string;
-  }
-> = {
-  Rooms: {
-    kindLabel: "Room",
-    selectionLabel: "3001 - Hall of the Wind",
-    vnumRange: "3000-3099",
-    lastSave: "2 min ago",
-    flags: ["indoors", "safe", "no_mob"],
-    exits: "north, east, down",
-    validation: "2 warnings, 0 errors"
-  },
-  Mobiles: {
-    kindLabel: "Mobile",
-    selectionLabel: "3005 - Alia the Warden",
-    vnumRange: "3100-3199",
-    lastSave: "8 min ago",
-    flags: ["sentinel", "train", "practice"],
-    exits: "n/a",
-    validation: "0 warnings, 0 errors"
-  },
-  Objects: {
-    kindLabel: "Object",
-    selectionLabel: "3021 - Obsidian Lantern",
-    vnumRange: "3200-3299",
-    lastSave: "5 min ago",
-    flags: ["take", "light", "glow"],
-    exits: "n/a",
-    validation: "1 warning, 0 errors"
-  },
-  Resets: {
-    kindLabel: "Reset",
-    selectionLabel: "R: 3001 -> 3021",
-    vnumRange: "n/a",
-    lastSave: "12 min ago",
-    flags: ["room", "object"],
-    exits: "n/a",
-    validation: "0 warnings, 1 error"
-  },
-  Shops: {
-    kindLabel: "Shop",
-    selectionLabel: "Keeper 3012",
-    vnumRange: "n/a",
-    lastSave: "1 hour ago",
-    flags: ["weapons", "armor"],
-    exits: "n/a",
-    validation: "0 warnings, 0 errors"
-  },
-  Quests: {
-    kindLabel: "Quest",
-    selectionLabel: "Quest 1 - Fog of Glass",
-    vnumRange: "n/a",
-    lastSave: "3 hours ago",
-    flags: ["deliver", "reward"],
-    exits: "n/a",
-    validation: "0 warnings, 0 errors"
-  },
-  Factions: {
-    kindLabel: "Faction",
-    selectionLabel: "Faction 12 - Seaborn",
-    vnumRange: "n/a",
-    lastSave: "Yesterday",
-    flags: ["ally: wind", "opposed: ember"],
-    exits: "n/a",
-    validation: "1 warning, 0 errors"
-  },
-  Helps: {
-    kindLabel: "Help",
-    selectionLabel: "help: sanctuary",
-    vnumRange: "n/a",
-    lastSave: "4 days ago",
-    flags: ["level 5", "keywords 3"],
-    exits: "n/a",
-    validation: "0 warnings, 0 errors"
-  }
+const entityKindLabels: Record<EntityKey, string> = {
+  Rooms: "Room",
+  Mobiles: "Mobile",
+  Objects: "Object",
+  Resets: "Reset",
+  Shops: "Shop",
+  Quests: "Quest",
+  Factions: "Faction",
+  Helps: "Help"
+};
+
+const entityDataKeys: Record<EntityKey, string> = {
+  Rooms: "rooms",
+  Mobiles: "mobiles",
+  Objects: "objects",
+  Resets: "resets",
+  Shops: "shops",
+  Quests: "quests",
+  Factions: "factions",
+  Helps: "helps"
 };
 
 function fileNameFromPath(path: string | null): string {
@@ -172,6 +108,190 @@ function buildEditorMeta(
       entityType: selectedEntity
     }
   };
+}
+
+function getEntityList(areaData: AreaJson | null, key: EntityKey): unknown[] {
+  if (!areaData) {
+    return [];
+  }
+  const list = (areaData as Record<string, unknown>)[entityDataKeys[key]];
+  return Array.isArray(list) ? list : [];
+}
+
+function getAreaVnumRange(areaData: AreaJson | null): string | null {
+  if (!areaData) {
+    return null;
+  }
+  const areadata = (areaData as Record<string, unknown>).areadata;
+  if (!areadata || typeof areadata !== "object") {
+    return null;
+  }
+  const vnumRange = (areadata as Record<string, unknown>).vnumRange;
+  if (
+    Array.isArray(vnumRange) &&
+    vnumRange.length === 2 &&
+    typeof vnumRange[0] === "number" &&
+    typeof vnumRange[1] === "number"
+  ) {
+    return `${vnumRange[0]}-${vnumRange[1]}`;
+  }
+  return null;
+}
+
+function getFirstString(value: unknown, fallback: string): string {
+  return typeof value === "string" && value.trim().length ? value : fallback;
+}
+
+function buildSelectionSummary(
+  selectedEntity: EntityKey,
+  areaData: AreaJson | null
+) {
+  const list = getEntityList(areaData, selectedEntity);
+  const count = list.length;
+  const first = (list[0] ?? {}) as Record<string, unknown>;
+  const vnumRange = getAreaVnumRange(areaData);
+  const vnum =
+    typeof first.vnum === "number"
+      ? first.vnum
+      : Number.isFinite(Number(first.vnum))
+        ? Number(first.vnum)
+        : null;
+  const emptyLabel = `No ${selectedEntity.toLowerCase()} loaded`;
+
+  let selectionLabel = emptyLabel;
+  let flags: string[] = [];
+  let exits = "n/a";
+
+  switch (selectedEntity) {
+    case "Rooms": {
+      selectionLabel =
+        vnum !== null
+          ? `${vnum} - ${getFirstString(first.name, "(unnamed room)")}`
+          : emptyLabel;
+      flags = Array.isArray(first.roomFlags)
+        ? first.roomFlags.filter((flag) => typeof flag === "string")
+        : [];
+      const exitList = Array.isArray(first.exits) ? first.exits : [];
+      exits =
+        exitList.length > 0
+          ? exitList
+              .map((exit) =>
+                typeof exit === "object" && exit
+                  ? (exit as Record<string, unknown>).dir
+                  : null
+              )
+              .filter((dir): dir is string => typeof dir === "string")
+              .join(", ")
+          : "none";
+      break;
+    }
+    case "Mobiles": {
+      selectionLabel =
+        vnum !== null
+          ? `${vnum} - ${getFirstString(first.shortDescr, "(unnamed mobile)")}`
+          : emptyLabel;
+      flags = Array.isArray(first.actFlags)
+        ? first.actFlags.filter((flag) => typeof flag === "string")
+        : [];
+      break;
+    }
+    case "Objects": {
+      selectionLabel =
+        vnum !== null
+          ? `${vnum} - ${getFirstString(first.shortDescr, "(unnamed object)")}`
+          : emptyLabel;
+      flags = Array.isArray(first.wearFlags)
+        ? first.wearFlags.filter((flag) => typeof flag === "string")
+        : [];
+      break;
+    }
+    case "Resets": {
+      const commandName = getFirstString(first.commandName, "reset");
+      const roomVnum =
+        typeof first.roomVnum === "number"
+          ? first.roomVnum
+          : Number.isFinite(Number(first.roomVnum))
+            ? Number(first.roomVnum)
+            : null;
+      selectionLabel =
+        roomVnum !== null
+          ? `${commandName} -> room ${roomVnum}`
+          : count
+            ? commandName
+            : emptyLabel;
+      break;
+    }
+    case "Shops": {
+      const keeper =
+        typeof first.keeper === "number"
+          ? first.keeper
+          : Number.isFinite(Number(first.keeper))
+            ? Number(first.keeper)
+            : null;
+      selectionLabel =
+        keeper !== null ? `Keeper ${keeper}` : count ? "Shop entry" : emptyLabel;
+      break;
+    }
+    case "Quests": {
+      selectionLabel =
+        vnum !== null
+          ? `${vnum} - ${getFirstString(first.name, "Quest")}`
+          : count
+            ? "Quest entry"
+            : emptyLabel;
+      break;
+    }
+    case "Factions": {
+      selectionLabel =
+        vnum !== null
+          ? `${vnum} - ${getFirstString(first.name, "Faction")}`
+          : count
+            ? "Faction entry"
+            : emptyLabel;
+      break;
+    }
+    case "Helps": {
+      const keyword = getFirstString(first.keyword, "help");
+      selectionLabel = count ? `help: ${keyword}` : emptyLabel;
+      break;
+    }
+    default:
+      break;
+  }
+
+  const range =
+    selectedEntity === "Rooms" ||
+    selectedEntity === "Mobiles" ||
+    selectedEntity === "Objects"
+      ? vnumRange ?? "n/a"
+      : "n/a";
+
+  return {
+    kindLabel: entityKindLabels[selectedEntity],
+    selectionLabel,
+    vnumRange: range,
+    lastSave: areaData ? "loaded" : "n/a",
+    flags,
+    exits,
+    validation: "validation not run"
+  };
+}
+
+function buildAreaDebugSummary(areaData: AreaJson | null): {
+  keys: string[];
+  arrayCounts: Array<{ key: string; count: number }>;
+} {
+  if (!areaData || typeof areaData !== "object") {
+    return { keys: [], arrayCounts: [] };
+  }
+  const keys = Object.keys(areaData as Record<string, unknown>).sort();
+  const arrayCounts = keys
+    .map((key) => {
+      const value = (areaData as Record<string, unknown>)[key];
+      return Array.isArray(value) ? { key, count: value.length } : null;
+    })
+    .filter((entry): entry is { key: string; count: number } => entry !== null);
+  return { keys, arrayCounts };
 }
 
 function buildRoomRows(areaData: AreaJson | null): RoomRow[] {
@@ -215,7 +335,7 @@ export default function App() {
   const repository = useMemo(() => new LocalFileRepository(), []);
   const [activeTab, setActiveTab] = useState<TabId>(tabs[0].id);
   const [selectedEntity, setSelectedEntity] = useState<EntityKey>(
-    entityItems[0].key
+    entityOrder[0]
   );
   const [areaPath, setAreaPath] = useState<string | null>(null);
   const [areaData, setAreaData] = useState<AreaJson | null>(null);
@@ -230,8 +350,20 @@ export default function App() {
     localStorage.getItem("worldedit.areaDir")
   );
 
-  const selection = entityDetails[selectedEntity];
+  const selection = useMemo(
+    () => buildSelectionSummary(selectedEntity, areaData),
+    [areaData, selectedEntity]
+  );
   const areaName = fileNameFromPath(areaPath);
+  const areaDebug = useMemo(() => buildAreaDebugSummary(areaData), [areaData]);
+  const entityItems = useMemo(
+    () =>
+      entityOrder.map((key) => ({
+        key,
+        count: getEntityList(areaData, key).length
+      })),
+    [areaData]
+  );
   const roomRows = useMemo(() => buildRoomRows(areaData), [areaData]);
   const roomColumns = useMemo<ColDef<RoomRow>[]>(
     () => [
@@ -563,6 +695,7 @@ export default function App() {
                         animateRows
                         rowSelection="single"
                         getRowId={(params) => String(params.data.vnum)}
+                        domLayout="autoHeight"
                       />
                     </div>
                   ) : (
@@ -605,9 +738,11 @@ export default function App() {
           <div className="inspector__section">
             <div className="inspector__label">Flags</div>
             <div className="inspector__tags">
-              {selection.flags.map((flag) => (
-                <span key={flag}>{flag}</span>
-              ))}
+              {selection.flags.length ? (
+                selection.flags.map((flag) => <span key={flag}>{flag}</span>)
+              ) : (
+                <span className="inspector__empty">No flags</span>
+              )}
             </div>
           </div>
           <div className="inspector__section">
@@ -619,6 +754,27 @@ export default function App() {
             <div className="inspector__value inspector__value--warn">
               {selection.validation}
             </div>
+          </div>
+          <div className="inspector__section">
+            <div className="inspector__label">Area Data Debug</div>
+            {areaDebug.keys.length ? (
+              <>
+                <div className="inspector__value">
+                  Top-level keys: {areaDebug.keys.join(", ")}
+                </div>
+                {areaDebug.arrayCounts.length ? (
+                  <div className="inspector__debug-list">
+                    {areaDebug.arrayCounts.map((entry) => (
+                      <div key={entry.key}>
+                        {entry.key}: {entry.count}
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+              </>
+            ) : (
+              <div className="inspector__empty">No area data loaded.</div>
+            )}
           </div>
         </aside>
       </section>
