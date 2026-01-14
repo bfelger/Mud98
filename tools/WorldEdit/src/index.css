@@ -559,6 +559,33 @@ body::before {
   box-shadow: 0 12px 24px rgba(55, 40, 20, 0.12);
 }
 
+.map-toolbar {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(117, 88, 58, 0.2);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 12px 24px rgba(55, 40, 20, 0.12);
+  z-index: 5;
+}
+
+.map-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
+.map-toggle input {
+  accent-color: var(--accent);
+}
+
 .room-node {
   min-width: 160px;
   padding: 10px 12px;

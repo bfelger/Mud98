@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ColDef, GridApi } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import ReactFlow, {
@@ -1432,6 +1432,8 @@ export default function App() {
     localStorage.getItem("worldedit.areaDir")
   );
   const [layoutNodes, setLayoutNodes] = useState<Node<RoomNodeData>[]>([]);
+  const [autoLayoutEnabled, setAutoLayoutEnabled] = useState(true);
+  const [layoutNonce, setLayoutNonce] = useState(0);
   const roomGridApi = useRef<GridApi | null>(null);
   const mobileGridApi = useRef<GridApi | null>(null);
   const objectGridApi = useRef<GridApi | null>(null);
@@ -1714,32 +1716,30 @@ export default function App() {
       ),
     [layoutNodes, baseRoomNodes, selectedRoomVnum]
   );
-  useEffect(() => {
-    if (activeTab !== "Map") {
-      return;
-    }
-    if (!baseRoomNodes.length) {
-      setLayoutNodes([]);
-      return;
-    }
-    let cancelled = false;
-    const runLayout = async () => {
+  const runRoomLayout = useCallback(
+    async (cancelRef?: { current: boolean }) => {
+      if (activeTab !== "Map") {
+        return;
+      }
+      if (!baseRoomNodes.length) {
+        if (!cancelRef?.current) {
+          setLayoutNodes([]);
+        }
+        return;
+      }
       try {
         const nextNodes = await layoutRoomNodes(baseRoomNodes, roomEdges);
-        if (!cancelled) {
+        if (!cancelRef?.current) {
           setLayoutNodes(nextNodes);
         }
       } catch (error) {
-        if (!cancelled) {
+        if (!cancelRef?.current) {
           setLayoutNodes(baseRoomNodes);
         }
       }
-    };
-    runLayout();
-    return () => {
-      cancelled = true;
-    };
-  }, [activeTab, baseRoomNodes, roomEdges]);
+    },
+    [activeTab, baseRoomNodes, roomEdges]
+  );
   const selectedRoomRecord = useMemo(() => {
     if (!areaData || selectedRoomVnum === null) {
       return null;
@@ -2225,6 +2225,28 @@ export default function App() {
       setSelectedEntity("Rooms");
     }
   }, [activeTab, selectedEntity]);
+
+  useEffect(() => {
+    if (!autoLayoutEnabled) {
+      return;
+    }
+    const cancelRef = { current: false };
+    runRoomLayout(cancelRef);
+    return () => {
+      cancelRef.current = true;
+    };
+  }, [autoLayoutEnabled, runRoomLayout]);
+
+  useEffect(() => {
+    if (layoutNonce === 0) {
+      return;
+    }
+    const cancelRef = { current: false };
+    runRoomLayout(cancelRef);
+    return () => {
+      cancelRef.current = true;
+    };
+  }, [layoutNonce, runRoomLayout]);
 
   const handleRoomSubmit = (data: RoomFormValues) => {
     if (!areaData || selectedRoomVnum === null) {
@@ -4871,6 +4893,25 @@ export default function App() {
                 mapNodes.length ? (
                   <div className="map-shell">
                     <div className="map-canvas">
+                      <div className="map-toolbar">
+                        <button
+                          className="action-button"
+                          type="button"
+                          onClick={() => setLayoutNonce((value) => value + 1)}
+                        >
+                          Re-layout
+                        </button>
+                        <label className="map-toggle">
+                          <input
+                            type="checkbox"
+                            checked={autoLayoutEnabled}
+                            onChange={(event) =>
+                              setAutoLayoutEnabled(event.target.checked)
+                            }
+                          />
+                          <span>Auto layout</span>
+                        </label>
+                      </div>
                       <ReactFlow
                         nodes={mapNodes}
                         edges={roomEdges}
