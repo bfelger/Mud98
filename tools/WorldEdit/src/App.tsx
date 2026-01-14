@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type MouseEvent
+} from "react";
 import type { ColDef, GridApi } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import ReactFlow, {
@@ -250,6 +257,9 @@ type RoomNodeData = {
   vnum: number;
   label: string;
   sector: string;
+  upExitTargets?: number[];
+  downExitTargets?: number[];
+  onNavigate?: (vnum: number) => void;
   grid?: {
     x: number;
     y: number;
@@ -868,6 +878,20 @@ function VnumPicker<TFieldValues extends FieldValues>({
 }
 
 function RoomNode({ data, selected }: NodeProps<RoomNodeData>) {
+  const upTargets = data.upExitTargets ?? [];
+  const downTargets = data.downExitTargets ?? [];
+  const handleNavigate =
+    (targets: number[]) => (event: MouseEvent<HTMLButtonElement>) => {
+      event.stopPropagation();
+      if (!targets.length) {
+        return;
+      }
+      data.onNavigate?.(targets[0]);
+    };
+  const buildTitle = (label: string, targets: number[]) =>
+    targets.length
+      ? `${label} to ${targets.join(", ")}`
+      : `${label} exit`;
   return (
     <div className={`room-node${selected ? " room-node--selected" : ""}`}>
       <Handle
@@ -918,6 +942,36 @@ function RoomNode({ data, selected }: NodeProps<RoomNodeData>) {
         position={Position.Left}
         className="room-node__handle"
       />
+      {upTargets.length || downTargets.length ? (
+        <div className="room-node__exits">
+          {upTargets.length ? (
+            <button
+              className="room-node__exit-button room-node__exit-button--up"
+              type="button"
+              onClick={handleNavigate(upTargets)}
+              title={buildTitle("Up exit", upTargets)}
+            >
+              <span className="room-node__exit-icon">⬆</span>
+              {upTargets.length > 1 ? (
+                <span className="room-node__exit-count">{upTargets.length}</span>
+              ) : null}
+            </button>
+          ) : null}
+          {downTargets.length ? (
+            <button
+              className="room-node__exit-button room-node__exit-button--down"
+              type="button"
+              onClick={handleNavigate(downTargets)}
+              title={buildTitle("Down exit", downTargets)}
+            >
+              <span className="room-node__exit-icon">⬇</span>
+              {downTargets.length > 1 ? (
+                <span className="room-node__exit-count">{downTargets.length}</span>
+              ) : null}
+            </button>
+          ) : null}
+        </div>
+      ) : null}
       <div className="room-node__vnum">{data.vnum}</div>
       <div className="room-node__name">{data.label}</div>
       <div className="room-node__sector">{data.sector}</div>
@@ -1296,7 +1350,32 @@ function RoomEdge({
   );
 }
 
-const roomEdgeTypes = { room: RoomEdge };
+function VerticalEdge({
+  id,
+  sourceX,
+  sourceY,
+  targetX,
+  targetY,
+  markerEnd,
+  interactionWidth
+}: EdgeProps<{ dirKey?: string }>) {
+  const path = `M${sourceX} ${sourceY} L${targetX} ${targetY}`;
+  return (
+    <BaseEdge
+      id={id}
+      path={path}
+      markerEnd={markerEnd}
+      interactionWidth={interactionWidth}
+      style={{
+        stroke: "rgba(47, 108, 106, 0.4)",
+        strokeWidth: 1.2,
+        strokeDasharray: "4 5"
+      }}
+    />
+  );
+}
+
+const roomEdgeTypes = { room: RoomEdge, vertical: VerticalEdge };
 
 function buildVnumOptions(
   areaData: AreaJson | null,
@@ -1486,6 +1565,16 @@ function buildRoomNodes(areaData: AreaJson | null): Node<RoomNodeData>[] {
   if (!rooms.length) {
     return [];
   }
+  const roomVnums = new Set<number>();
+  rooms.forEach((room) => {
+    if (!room || typeof room !== "object") {
+      return;
+    }
+    const vnum = parseVnum((room as Record<string, unknown>).vnum);
+    if (vnum !== null) {
+      roomVnums.add(vnum);
+    }
+  });
   const columns = 6;
   const spacingX = 220;
   const spacingY = 140;
@@ -1499,6 +1588,29 @@ function buildRoomNodes(areaData: AreaJson | null): Node<RoomNodeData>[] {
         : typeof record.sector === "string"
           ? record.sector
           : "unknown";
+    const exits = Array.isArray(record.exits) ? record.exits : [];
+    const upExitTargets: number[] = [];
+    const downExitTargets: number[] = [];
+    exits.forEach((exit) => {
+      if (!exit || typeof exit !== "object") {
+        return;
+      }
+      const exitRecord = exit as Record<string, unknown>;
+      const dir = typeof exitRecord.dir === "string" ? exitRecord.dir : "";
+      const dirKey = dir.trim().toLowerCase();
+      if (dirKey !== "up" && dirKey !== "down") {
+        return;
+      }
+      const targetVnum = parseVnum(exitRecord.toVnum);
+      if (targetVnum === null || !roomVnums.has(targetVnum)) {
+        return;
+      }
+      if (dirKey === "up") {
+        upExitTargets.push(targetVnum);
+      } else {
+        downExitTargets.push(targetVnum);
+      }
+    });
     const col = index % columns;
     const row = Math.floor(index / columns);
     return {
@@ -1508,7 +1620,9 @@ function buildRoomNodes(areaData: AreaJson | null): Node<RoomNodeData>[] {
       data: {
         vnum: vnum ?? -1,
         label: name,
-        sector
+        sector,
+        upExitTargets,
+        downExitTargets
       }
     };
   });
@@ -1768,7 +1882,10 @@ async function layoutRoomNodes(
   });
 }
 
-function buildRoomEdges(areaData: AreaJson | null): Edge[] {
+function buildRoomEdges(
+  areaData: AreaJson | null,
+  includeVerticalEdges: boolean
+): Edge[] {
   if (!areaData) {
     return [];
   }
@@ -1810,11 +1927,25 @@ function buildRoomEdges(areaData: AreaJson | null): Edge[] {
         typeof exitRecord.dir === "string" ? exitRecord.dir : "exit";
       const dirKey = dir.trim().toLowerCase();
       const handles = directionHandleMap[dirKey];
+      const isVertical = dirKey === "up" || dirKey === "down";
+      if (!handles && !(includeVerticalEdges && isVertical)) {
+        return;
+      }
       const exitFlags = Array.isArray(exitRecord.flags)
         ? exitRecord.flags
             .filter((flag) => typeof flag === "string")
             .map((flag) => flag.trim().toLowerCase())
         : [];
+      if (!handles) {
+        edges.push({
+          id: `exit-${fromVnum}-${dir}-${toVnum}-${index}`,
+          source: String(fromVnum),
+          target: String(toVnum),
+          type: "vertical",
+          data: { dirKey, exitFlags }
+        });
+        return;
+      }
       edges.push({
         id: `exit-${fromVnum}-${dir}-${toVnum}-${index}`,
         source: String(fromVnum),
@@ -2016,6 +2147,10 @@ export default function App() {
   const [preferCardinalLayout, setPreferCardinalLayout] = useState(() => {
     const stored = localStorage.getItem("worldedit.preferCardinalLayout");
     return stored ? stored === "true" : true;
+  });
+  const [showVerticalEdges, setShowVerticalEdges] = useState(() => {
+    const stored = localStorage.getItem("worldedit.showVerticalEdges");
+    return stored ? stored === "true" : false;
   });
   const [layoutNonce, setLayoutNonce] = useState(0);
   const roomGridApi = useRef<GridApi | null>(null);
@@ -2291,14 +2426,30 @@ export default function App() {
   const objectRows = useMemo(() => buildObjectRows(areaData), [areaData]);
   const resetRows = useMemo(() => buildResetRows(areaData), [areaData]);
   const baseRoomNodes = useMemo(() => buildRoomNodes(areaData), [areaData]);
-  const roomEdges = useMemo(() => buildRoomEdges(areaData), [areaData]);
+  const roomEdges = useMemo(
+    () => buildRoomEdges(areaData, showVerticalEdges),
+    [areaData, showVerticalEdges]
+  );
+  const handleMapNavigate = useCallback(
+    (vnum: number) => {
+      setSelectedRoomVnum(vnum);
+      setSelectedEntity("Rooms");
+    },
+    [setSelectedRoomVnum, setSelectedEntity]
+  );
+  const roomNodesWithHandlers = useMemo(() => {
+    const sourceNodes = layoutNodes.length ? layoutNodes : baseRoomNodes;
+    return sourceNodes.map((node) => ({
+      ...node,
+      data: {
+        ...node.data,
+        onNavigate: handleMapNavigate
+      }
+    }));
+  }, [layoutNodes, baseRoomNodes, handleMapNavigate]);
   const mapNodes = useMemo(
-    () =>
-      applyRoomSelection(
-        layoutNodes.length ? layoutNodes : baseRoomNodes,
-        selectedRoomVnum
-      ),
-    [layoutNodes, baseRoomNodes, selectedRoomVnum]
+    () => applyRoomSelection(roomNodesWithHandlers, selectedRoomVnum),
+    [roomNodesWithHandlers, selectedRoomVnum]
   );
   const runRoomLayout = useCallback(
     async (cancelRef?: { current: boolean }) => {
@@ -2335,6 +2486,13 @@ export default function App() {
       String(preferCardinalLayout)
     );
   }, [preferCardinalLayout]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "worldedit.showVerticalEdges",
+      String(showVerticalEdges)
+    );
+  }, [showVerticalEdges]);
   const selectedRoomRecord = useMemo(() => {
     if (!areaData || selectedRoomVnum === null) {
       return null;
@@ -5519,6 +5677,16 @@ export default function App() {
                             }}
                           />
                           <span>Prefer grid layout</span>
+                        </label>
+                        <label className="map-toggle">
+                          <input
+                            type="checkbox"
+                            checked={showVerticalEdges}
+                            onChange={(event) =>
+                              setShowVerticalEdges(event.target.checked)
+                            }
+                          />
+                          <span>Vertical edges</span>
                         </label>
                       </div>
                       <ReactFlow
