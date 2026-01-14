@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ColDef } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import { LocalFileRepository } from "./repository/localFileRepository";
@@ -108,6 +108,31 @@ function buildEditorMeta(
   };
 }
 
+function parseVnum(value: unknown): number | null {
+  if (typeof value === "number") {
+    return value;
+  }
+  if (typeof value === "string" && value.trim().length) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+}
+
+function findByVnum(list: unknown[], vnum: number): Record<string, unknown> | null {
+  for (const entry of list) {
+    if (!entry || typeof entry !== "object") {
+      continue;
+    }
+    const record = entry as Record<string, unknown>;
+    const entryVnum = parseVnum(record.vnum);
+    if (entryVnum === vnum) {
+      return record;
+    }
+  }
+  return null;
+}
+
 function getEntityList(areaData: AreaJson | null, key: EntityKey): unknown[] {
   if (!areaData) {
     return [];
@@ -142,18 +167,18 @@ function getFirstString(value: unknown, fallback: string): string {
 
 function buildSelectionSummary(
   selectedEntity: EntityKey,
-  areaData: AreaJson | null
+  areaData: AreaJson | null,
+  selectedRoomVnum: number | null
 ) {
   const list = getEntityList(areaData, selectedEntity);
   const count = list.length;
-  const first = (list[0] ?? {}) as Record<string, unknown>;
+  const selected =
+    selectedEntity === "Rooms" && selectedRoomVnum !== null
+      ? findByVnum(list, selectedRoomVnum)
+      : null;
+  const first = (selected ?? list[0] ?? {}) as Record<string, unknown>;
   const vnumRange = getAreaVnumRange(areaData);
-  const vnum =
-    typeof first.vnum === "number"
-      ? first.vnum
-      : Number.isFinite(Number(first.vnum))
-        ? Number(first.vnum)
-        : null;
+  const vnum = parseVnum(first.vnum);
   const emptyLabel = `No ${selectedEntity.toLowerCase()} loaded`;
 
   let selectionLabel = emptyLabel;
@@ -205,12 +230,7 @@ function buildSelectionSummary(
     }
     case "Resets": {
       const commandName = getFirstString(first.commandName, "reset");
-      const roomVnum =
-        typeof first.roomVnum === "number"
-          ? first.roomVnum
-          : Number.isFinite(Number(first.roomVnum))
-            ? Number(first.roomVnum)
-            : null;
+      const roomVnum = parseVnum(first.roomVnum);
       selectionLabel =
         roomVnum !== null
           ? `${commandName} -> room ${roomVnum}`
@@ -220,12 +240,7 @@ function buildSelectionSummary(
       break;
     }
     case "Shops": {
-      const keeper =
-        typeof first.keeper === "number"
-          ? first.keeper
-          : Number.isFinite(Number(first.keeper))
-            ? Number(first.keeper)
-            : null;
+      const keeper = parseVnum(first.keeper);
       selectionLabel =
         keeper !== null ? `Keeper ${keeper}` : count ? "Shop entry" : emptyLabel;
       break;
@@ -335,6 +350,7 @@ export default function App() {
   const [selectedEntity, setSelectedEntity] = useState<EntityKey>(
     entityOrder[0]
   );
+  const [selectedRoomVnum, setSelectedRoomVnum] = useState<number | null>(null);
   const [areaPath, setAreaPath] = useState<string | null>(null);
   const [areaData, setAreaData] = useState<AreaJson | null>(null);
   const [editorMeta, setEditorMeta] = useState<EditorMeta | null>(null);
@@ -348,9 +364,13 @@ export default function App() {
     localStorage.getItem("worldedit.areaDir")
   );
 
+  useEffect(() => {
+    setSelectedRoomVnum(null);
+  }, [areaData]);
+
   const selection = useMemo(
-    () => buildSelectionSummary(selectedEntity, areaData),
-    [areaData, selectedEntity]
+    () => buildSelectionSummary(selectedEntity, areaData, selectedRoomVnum),
+    [areaData, selectedEntity, selectedRoomVnum]
   );
   const areaName = fileNameFromPath(areaPath);
   const areaDebug = useMemo(() => buildAreaDebugSummary(areaData), [areaData]);
@@ -694,6 +714,9 @@ export default function App() {
                         rowSelection="single"
                         getRowId={(params) => String(params.data.vnum)}
                         domLayout="autoHeight"
+                        onRowClicked={(event) =>
+                          setSelectedRoomVnum(event.data?.vnum ?? null)
+                        }
                       />
                     </div>
                   ) : (
