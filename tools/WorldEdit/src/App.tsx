@@ -33,6 +33,8 @@ import {
   sexes,
   sizeEnum,
   sizes,
+  wearLocationEnum,
+  wearLocations,
   wearFlagEnum,
   wearFlags,
   weaponClassEnum,
@@ -111,6 +113,38 @@ const itemTypeOptions = [
   "workstation"
 ] as const;
 
+const resetCommandOptions = [
+  "loadMob",
+  "placeObj",
+  "putObj",
+  "giveObj",
+  "equipObj",
+  "setDoor",
+  "randomizeExits"
+] as const;
+
+type ResetCommand = (typeof resetCommandOptions)[number];
+
+const resetCommandMap: Record<string, ResetCommand> = {
+  M: "loadMob",
+  O: "placeObj",
+  P: "putObj",
+  G: "giveObj",
+  E: "equipObj",
+  D: "setDoor",
+  R: "randomizeExits"
+};
+
+const resetCommandLabels: Record<ResetCommand, string> = {
+  loadMob: "Load Mobile",
+  placeObj: "Place Object",
+  putObj: "Put Object",
+  giveObj: "Give Object",
+  equipObj: "Equip Object",
+  setDoor: "Set Door",
+  randomizeExits: "Randomize Exits"
+};
+
 type TabId = (typeof tabs)[number]["id"];
 type EntityKey = (typeof entityOrder)[number];
 
@@ -172,6 +206,8 @@ const optionalPositionSchema = optionalEnumSchema(positionEnum);
 const optionalSexSchema = optionalEnumSchema(sexEnum);
 const optionalSizeSchema = optionalEnumSchema(sizeEnum);
 const optionalDamageTypeSchema = optionalEnumSchema(damageTypeEnum);
+const optionalDirectionSchema = optionalEnumSchema(directionEnum);
+const optionalWearLocationSchema = optionalEnumSchema(wearLocationEnum);
 
 const exitFormSchema = z.object({
   dir: directionEnum,
@@ -358,6 +394,124 @@ const objectFormSchema = z.object({
   furniture: furnitureFormSchema
 });
 
+const resetFormSchema = z
+  .object({
+    index: z.number().int(),
+    commandName: z.string().min(1, "Command is required."),
+    mobVnum: optionalIntSchema,
+    objVnum: optionalIntSchema,
+    roomVnum: optionalIntSchema,
+    containerVnum: optionalIntSchema,
+    maxInArea: optionalIntSchema,
+    maxInRoom: optionalIntSchema,
+    count: optionalIntSchema,
+    maxInContainer: optionalIntSchema,
+    wearLoc: optionalWearLocationSchema,
+    direction: optionalDirectionSchema,
+    state: optionalIntSchema,
+    exits: optionalIntSchema
+  })
+  .superRefine((value, ctx) => {
+    const command = value.commandName as ResetCommand;
+    const requireField = (
+      condition: boolean,
+      field: keyof typeof value,
+      message: string
+    ) => {
+      if (!condition) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [field],
+          message
+        });
+      }
+    };
+    if (command === "loadMob") {
+      requireField(
+        value.mobVnum !== undefined,
+        "mobVnum",
+        "Mob VNUM is required."
+      );
+      requireField(
+        value.roomVnum !== undefined,
+        "roomVnum",
+        "Room VNUM is required."
+      );
+    }
+    if (command === "placeObj") {
+      requireField(
+        value.objVnum !== undefined,
+        "objVnum",
+        "Object VNUM is required."
+      );
+      requireField(
+        value.roomVnum !== undefined,
+        "roomVnum",
+        "Room VNUM is required."
+      );
+    }
+    if (command === "putObj") {
+      requireField(
+        value.objVnum !== undefined,
+        "objVnum",
+        "Object VNUM is required."
+      );
+      requireField(
+        value.containerVnum !== undefined,
+        "containerVnum",
+        "Container VNUM is required."
+      );
+    }
+    if (command === "giveObj") {
+      requireField(
+        value.objVnum !== undefined,
+        "objVnum",
+        "Object VNUM is required."
+      );
+    }
+    if (command === "equipObj") {
+      requireField(
+        value.objVnum !== undefined,
+        "objVnum",
+        "Object VNUM is required."
+      );
+      requireField(
+        value.wearLoc !== undefined,
+        "wearLoc",
+        "Wear location is required."
+      );
+    }
+    if (command === "setDoor") {
+      requireField(
+        value.roomVnum !== undefined,
+        "roomVnum",
+        "Room VNUM is required."
+      );
+      requireField(
+        value.direction !== undefined,
+        "direction",
+        "Direction is required."
+      );
+      requireField(
+        value.state !== undefined,
+        "state",
+        "State is required."
+      );
+    }
+    if (command === "randomizeExits") {
+      requireField(
+        value.roomVnum !== undefined,
+        "roomVnum",
+        "Room VNUM is required."
+      );
+      requireField(
+        value.exits !== undefined,
+        "exits",
+        "Exit count is required."
+      );
+    }
+  });
+
 const roomFormSchema = z.object({
   vnum: z.number().int(),
   name: z.string().min(1, "Name is required."),
@@ -374,6 +528,7 @@ const roomFormSchema = z.object({
 type RoomFormValues = z.infer<typeof roomFormSchema>;
 type MobileFormValues = z.infer<typeof mobileFormSchema>;
 type ObjectFormValues = z.infer<typeof objectFormSchema>;
+type ResetFormValues = z.infer<typeof resetFormSchema>;
 
 const entityKindLabels: Record<EntityKey, string> = {
   Rooms: "Room",
@@ -521,6 +676,21 @@ function findByVnum(list: unknown[], vnum: number): Record<string, unknown> | nu
     }
   }
   return null;
+}
+
+function resolveResetCommand(record: Record<string, unknown> | null): string {
+  if (record && typeof record.commandName === "string") {
+    const trimmed = record.commandName.trim();
+    if (trimmed) {
+      return trimmed;
+    }
+  }
+  const command = record && typeof record.command === "string" ? record.command : "";
+  if (!command) {
+    return "";
+  }
+  const mapped = resetCommandMap[command.toUpperCase()];
+  return mapped ?? command;
 }
 
 function getDefaultSelection(
@@ -1070,6 +1240,34 @@ export default function App() {
     handleSubmit: handleObjectSubmitForm,
     formState: objectFormState
   } = objectForm;
+  const resetForm = useForm<ResetFormValues>({
+    resolver: zodResolver(resetFormSchema),
+    defaultValues: {
+      index: 0,
+      commandName: resetCommandOptions[0],
+      mobVnum: undefined,
+      objVnum: undefined,
+      roomVnum: undefined,
+      containerVnum: undefined,
+      maxInArea: undefined,
+      maxInRoom: undefined,
+      count: undefined,
+      maxInContainer: undefined,
+      wearLoc: undefined,
+      direction: undefined,
+      state: undefined,
+      exits: undefined
+    }
+  });
+  const {
+    register: registerReset,
+    handleSubmit: handleResetSubmitForm,
+    formState: resetFormState
+  } = resetForm;
+  const watchedResetCommand = useWatch({
+    control: resetForm.control,
+    name: "commandName"
+  });
   const watchedObjectItemType = useWatch({
     control: objectForm.control,
     name: "itemType"
@@ -1168,6 +1366,19 @@ export default function App() {
     }
     return findByVnum(getEntityList(areaData, "Objects"), selectedObjectVnum);
   }, [areaData, selectedObjectVnum]);
+  const selectedResetRecord = useMemo(() => {
+    if (!areaData || selectedResetIndex === null) {
+      return null;
+    }
+    const resets = getEntityList(areaData, "Resets");
+    if (selectedResetIndex < 0 || selectedResetIndex >= resets.length) {
+      return null;
+    }
+    const record = resets[selectedResetIndex];
+    return record && typeof record === "object"
+      ? (record as Record<string, unknown>)
+      : null;
+  }, [areaData, selectedResetIndex]);
   const roomFormDefaults = useMemo<RoomFormValues>(() => {
     const record = selectedRoomRecord;
     const vnum =
@@ -1476,6 +1687,31 @@ export default function App() {
       furniture: resolveFurniture(record?.furniture)
     };
   }, [selectedObjectRecord, selectedObjectVnum]);
+  const resetFormDefaults = useMemo<ResetFormValues>(() => {
+    const record = selectedResetRecord;
+    const index = selectedResetIndex ?? 0;
+    const commandName = resolveResetCommand(record);
+    return {
+      index,
+      commandName: commandName || resetCommandOptions[0],
+      mobVnum: parseVnum(record?.mobVnum) ?? undefined,
+      objVnum: parseVnum(record?.objVnum) ?? undefined,
+      roomVnum: parseVnum(record?.roomVnum) ?? undefined,
+      containerVnum: parseVnum(record?.containerVnum) ?? undefined,
+      maxInArea: parseVnum(record?.maxInArea) ?? undefined,
+      maxInRoom: parseVnum(record?.maxInRoom) ?? undefined,
+      count: parseVnum(record?.count) ?? undefined,
+      maxInContainer: parseVnum(record?.maxInContainer) ?? undefined,
+      wearLoc: typeof record?.wearLoc === "string" ? record.wearLoc : undefined,
+      direction:
+        typeof record?.direction === "string" ? record.direction : undefined,
+      state: parseVnum(record?.state) ?? undefined,
+      exits: parseVnum(record?.exits) ?? undefined
+    };
+  }, [selectedResetIndex, selectedResetRecord]);
+  const activeResetCommand = (watchedResetCommand ??
+    resetFormDefaults.commandName ??
+    "").trim();
   const activeObjectBlock = useMemo(() => {
     const key = (
       watchedObjectItemType ??
@@ -1547,6 +1783,10 @@ export default function App() {
   useEffect(() => {
     objectForm.reset(objectFormDefaults);
   }, [objectForm, objectFormDefaults]);
+
+  useEffect(() => {
+    resetForm.reset(resetFormDefaults);
+  }, [resetForm, resetFormDefaults]);
 
   useEffect(() => {
     if (activeTab !== "Table" || selectedEntity !== "Rooms") {
@@ -1899,6 +2139,89 @@ export default function App() {
       };
     });
     setStatusMessage(`Updated object ${data.vnum} (unsaved)`);
+  };
+
+  const handleResetSubmit = (data: ResetFormValues) => {
+    if (!areaData || selectedResetIndex === null) {
+      return;
+    }
+    const commandName = data.commandName.trim();
+    const isKnown = resetCommandOptions.includes(commandName as ResetCommand);
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const resets = getEntityList(current, "Resets");
+      if (!resets.length) {
+        return current;
+      }
+      const nextResets = resets.map((reset, index) => {
+        if (index !== selectedResetIndex) {
+          return reset as Record<string, unknown>;
+        }
+        const record = reset as Record<string, unknown>;
+        if (!isKnown) {
+          return {
+            ...record,
+            commandName,
+            command: undefined
+          };
+        }
+        const nextReset: Record<string, unknown> = {
+          ...record,
+          commandName,
+          command: undefined,
+          mobVnum: undefined,
+          objVnum: undefined,
+          roomVnum: undefined,
+          containerVnum: undefined,
+          maxInArea: undefined,
+          maxInRoom: undefined,
+          count: undefined,
+          maxInContainer: undefined,
+          wearLoc: undefined,
+          direction: undefined,
+          state: undefined,
+          exits: undefined,
+          arg1: undefined,
+          arg2: undefined,
+          arg3: undefined,
+          arg4: undefined
+        };
+        if (commandName === "loadMob") {
+          nextReset.mobVnum = data.mobVnum ?? undefined;
+          nextReset.roomVnum = data.roomVnum ?? undefined;
+          nextReset.maxInArea = data.maxInArea ?? undefined;
+          nextReset.maxInRoom = data.maxInRoom ?? undefined;
+        } else if (commandName === "placeObj") {
+          nextReset.objVnum = data.objVnum ?? undefined;
+          nextReset.roomVnum = data.roomVnum ?? undefined;
+        } else if (commandName === "putObj") {
+          nextReset.objVnum = data.objVnum ?? undefined;
+          nextReset.containerVnum = data.containerVnum ?? undefined;
+          nextReset.count = data.count ?? undefined;
+          nextReset.maxInContainer = data.maxInContainer ?? undefined;
+        } else if (commandName === "giveObj") {
+          nextReset.objVnum = data.objVnum ?? undefined;
+        } else if (commandName === "equipObj") {
+          nextReset.objVnum = data.objVnum ?? undefined;
+          nextReset.wearLoc = data.wearLoc ?? undefined;
+        } else if (commandName === "setDoor") {
+          nextReset.roomVnum = data.roomVnum ?? undefined;
+          nextReset.direction = data.direction ?? undefined;
+          nextReset.state = data.state ?? undefined;
+        } else if (commandName === "randomizeExits") {
+          nextReset.roomVnum = data.roomVnum ?? undefined;
+          nextReset.exits = data.exits ?? undefined;
+        }
+        return nextReset;
+      });
+      return {
+        ...(current as Record<string, unknown>),
+        resets: nextResets
+      };
+    });
+    setStatusMessage(`Updated reset #${data.index} (unsaved)`);
   };
 
   const handleOpenArea = async () => {
@@ -3780,6 +4103,434 @@ export default function App() {
                   <div className="entity-table__empty">
                     <h3>No objects available</h3>
                     <p>Load an area JSON file to edit object data.</p>
+                  </div>
+                )
+              ) : activeTab === "Form" && selectedEntity === "Resets" ? (
+                resetRows.length ? (
+                  <div className="form-view">
+                    <form
+                      className="form-shell"
+                      onSubmit={handleResetSubmitForm(handleResetSubmit)}
+                    >
+                      <div className="form-grid">
+                        <div className="form-field">
+                          <label className="form-label" htmlFor="reset-index">
+                            Index
+                          </label>
+                          <input
+                            id="reset-index"
+                            className="form-input"
+                            type="number"
+                            readOnly
+                            {...registerReset("index", { valueAsNumber: true })}
+                          />
+                        </div>
+                        <div className="form-field form-field--wide">
+                          <label className="form-label" htmlFor="reset-command">
+                            Command
+                          </label>
+                          <select
+                            id="reset-command"
+                            className="form-select"
+                            {...registerReset("commandName")}
+                          >
+                            <option value="">Select</option>
+                            {activeResetCommand &&
+                            !resetCommandOptions.includes(
+                              activeResetCommand as ResetCommand
+                            ) ? (
+                              <option value={activeResetCommand}>
+                                {activeResetCommand}
+                              </option>
+                            ) : null}
+                            {resetCommandOptions.map((command) => (
+                              <option key={command} value={command}>
+                                {command}
+                              </option>
+                            ))}
+                          </select>
+                          {resetFormState.errors.commandName ? (
+                            <span className="form-error">
+                              {resetFormState.errors.commandName.message}
+                            </span>
+                          ) : null}
+                        </div>
+                      </div>
+                      <div className="form-field form-field--full">
+                        <div className="form-section-header">
+                          <div>
+                            <div className="form-label">Reset Details</div>
+                            <div className="form-hint">
+                              {resetCommandOptions.includes(
+                                activeResetCommand as ResetCommand
+                              )
+                                ? resetCommandLabels[
+                                    activeResetCommand as ResetCommand
+                                  ]
+                                : "Select a reset command."}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="block-list">
+                          {!resetCommandOptions.includes(
+                            activeResetCommand as ResetCommand
+                          ) ? (
+                            <div className="placeholder-block">
+                              <div className="placeholder-title">
+                                No reset selected
+                              </div>
+                              <p>
+                                Choose a command to edit reset-specific
+                                fields.
+                              </p>
+                            </div>
+                          ) : null}
+                          {activeResetCommand === "loadMob" ? (
+                            <div className="block-card">
+                              <div className="block-card__header">
+                                <span>Load Mobile</span>
+                              </div>
+                              <div className="block-grid">
+                                <div className="form-field">
+                                  <label className="form-label">Mob VNUM</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerReset("mobVnum")}
+                                  />
+                                  {resetFormState.errors.mobVnum ? (
+                                    <span className="form-error">
+                                      {resetFormState.errors.mobVnum.message}
+                                    </span>
+                                  ) : null}
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">
+                                    Room VNUM
+                                  </label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerReset("roomVnum")}
+                                  />
+                                  {resetFormState.errors.roomVnum ? (
+                                    <span className="form-error">
+                                      {resetFormState.errors.roomVnum.message}
+                                    </span>
+                                  ) : null}
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">
+                                    Max In Area
+                                  </label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerReset("maxInArea")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">
+                                    Max In Room
+                                  </label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerReset("maxInRoom")}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ) : null}
+                          {activeResetCommand === "placeObj" ? (
+                            <div className="block-card">
+                              <div className="block-card__header">
+                                <span>Place Object</span>
+                              </div>
+                              <div className="block-grid">
+                                <div className="form-field">
+                                  <label className="form-label">
+                                    Object VNUM
+                                  </label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerReset("objVnum")}
+                                  />
+                                  {resetFormState.errors.objVnum ? (
+                                    <span className="form-error">
+                                      {resetFormState.errors.objVnum.message}
+                                    </span>
+                                  ) : null}
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">
+                                    Room VNUM
+                                  </label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerReset("roomVnum")}
+                                  />
+                                  {resetFormState.errors.roomVnum ? (
+                                    <span className="form-error">
+                                      {resetFormState.errors.roomVnum.message}
+                                    </span>
+                                  ) : null}
+                                </div>
+                              </div>
+                            </div>
+                          ) : null}
+                          {activeResetCommand === "putObj" ? (
+                            <div className="block-card">
+                              <div className="block-card__header">
+                                <span>Put Object</span>
+                              </div>
+                              <div className="block-grid">
+                                <div className="form-field">
+                                  <label className="form-label">
+                                    Object VNUM
+                                  </label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerReset("objVnum")}
+                                  />
+                                  {resetFormState.errors.objVnum ? (
+                                    <span className="form-error">
+                                      {resetFormState.errors.objVnum.message}
+                                    </span>
+                                  ) : null}
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">
+                                    Container VNUM
+                                  </label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerReset("containerVnum")}
+                                  />
+                                  {resetFormState.errors.containerVnum ? (
+                                    <span className="form-error">
+                                      {
+                                        resetFormState.errors.containerVnum
+                                          .message
+                                      }
+                                    </span>
+                                  ) : null}
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">Count</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerReset("count")}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">
+                                    Max In Container
+                                  </label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerReset("maxInContainer")}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ) : null}
+                          {activeResetCommand === "giveObj" ? (
+                            <div className="block-card">
+                              <div className="block-card__header">
+                                <span>Give Object</span>
+                              </div>
+                              <div className="block-grid">
+                                <div className="form-field">
+                                  <label className="form-label">
+                                    Object VNUM
+                                  </label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerReset("objVnum")}
+                                  />
+                                  {resetFormState.errors.objVnum ? (
+                                    <span className="form-error">
+                                      {resetFormState.errors.objVnum.message}
+                                    </span>
+                                  ) : null}
+                                </div>
+                              </div>
+                            </div>
+                          ) : null}
+                          {activeResetCommand === "equipObj" ? (
+                            <div className="block-card">
+                              <div className="block-card__header">
+                                <span>Equip Object</span>
+                              </div>
+                              <div className="block-grid">
+                                <div className="form-field">
+                                  <label className="form-label">
+                                    Object VNUM
+                                  </label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerReset("objVnum")}
+                                  />
+                                  {resetFormState.errors.objVnum ? (
+                                    <span className="form-error">
+                                      {resetFormState.errors.objVnum.message}
+                                    </span>
+                                  ) : null}
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">
+                                    Wear Location
+                                  </label>
+                                  <select
+                                    className="form-select"
+                                    {...registerReset("wearLoc")}
+                                  >
+                                    <option value="">Select</option>
+                                    {wearLocations.map((loc) => (
+                                      <option key={loc} value={loc}>
+                                        {loc}
+                                      </option>
+                                    ))}
+                                  </select>
+                                  {resetFormState.errors.wearLoc ? (
+                                    <span className="form-error">
+                                      {resetFormState.errors.wearLoc.message}
+                                    </span>
+                                  ) : null}
+                                </div>
+                              </div>
+                            </div>
+                          ) : null}
+                          {activeResetCommand === "setDoor" ? (
+                            <div className="block-card">
+                              <div className="block-card__header">
+                                <span>Set Door</span>
+                              </div>
+                              <div className="block-grid">
+                                <div className="form-field">
+                                  <label className="form-label">
+                                    Room VNUM
+                                  </label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerReset("roomVnum")}
+                                  />
+                                  {resetFormState.errors.roomVnum ? (
+                                    <span className="form-error">
+                                      {resetFormState.errors.roomVnum.message}
+                                    </span>
+                                  ) : null}
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">
+                                    Direction
+                                  </label>
+                                  <select
+                                    className="form-select"
+                                    {...registerReset("direction")}
+                                  >
+                                    <option value="">Select</option>
+                                    {directions.map((dir) => (
+                                      <option key={dir} value={dir}>
+                                        {dir}
+                                      </option>
+                                    ))}
+                                  </select>
+                                  {resetFormState.errors.direction ? (
+                                    <span className="form-error">
+                                      {
+                                        resetFormState.errors.direction.message
+                                      }
+                                    </span>
+                                  ) : null}
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">State</label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerReset("state")}
+                                  />
+                                  {resetFormState.errors.state ? (
+                                    <span className="form-error">
+                                      {resetFormState.errors.state.message}
+                                    </span>
+                                  ) : null}
+                                </div>
+                              </div>
+                            </div>
+                          ) : null}
+                          {activeResetCommand === "randomizeExits" ? (
+                            <div className="block-card">
+                              <div className="block-card__header">
+                                <span>Randomize Exits</span>
+                              </div>
+                              <div className="block-grid">
+                                <div className="form-field">
+                                  <label className="form-label">
+                                    Room VNUM
+                                  </label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerReset("roomVnum")}
+                                  />
+                                  {resetFormState.errors.roomVnum ? (
+                                    <span className="form-error">
+                                      {resetFormState.errors.roomVnum.message}
+                                    </span>
+                                  ) : null}
+                                </div>
+                                <div className="form-field">
+                                  <label className="form-label">
+                                    Exit Count
+                                  </label>
+                                  <input
+                                    className="form-input"
+                                    type="number"
+                                    {...registerReset("exits")}
+                                  />
+                                  {resetFormState.errors.exits ? (
+                                    <span className="form-error">
+                                      {resetFormState.errors.exits.message}
+                                    </span>
+                                  ) : null}
+                                </div>
+                              </div>
+                            </div>
+                          ) : null}
+                        </div>
+                      </div>
+                      <div className="form-actions">
+                        <button
+                          className="action-button action-button--primary"
+                          type="submit"
+                          disabled={!resetFormState.isDirty}
+                        >
+                          Apply Changes
+                        </button>
+                        <span className="form-hint">
+                          {resetFormState.isDirty
+                            ? "Unsaved changes"
+                            : "Up to date"}
+                        </span>
+                      </div>
+                    </form>
+                  </div>
+                ) : (
+                  <div className="entity-table__empty">
+                    <h3>No resets available</h3>
+                    <p>Load an area JSON file to edit reset data.</p>
                   </div>
                 )
               ) : activeTab === "Table" &&
