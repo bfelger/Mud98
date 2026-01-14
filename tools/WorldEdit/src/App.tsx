@@ -2,7 +2,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { ColDef, GridApi } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import {
+  useFieldArray,
+  useForm,
+  useWatch,
+  type FieldPath,
+  type FieldValues,
+  type UseFormRegister
+} from "react-hook-form";
 import { z } from "zod";
 import { LocalFileRepository } from "./repository/localFileRepository";
 import type { AreaJson, EditorMeta, ReferenceData } from "./repository/types";
@@ -147,6 +154,10 @@ const resetCommandLabels: Record<ResetCommand, string> = {
 
 type TabId = (typeof tabs)[number]["id"];
 type EntityKey = (typeof entityOrder)[number];
+type VnumOption = {
+  vnum: number;
+  label: string;
+};
 
 type RoomRow = {
   vnum: number;
@@ -745,6 +756,80 @@ function getAreaVnumRange(areaData: AreaJson | null): string | null {
 
 function getFirstString(value: unknown, fallback: string): string {
   return typeof value === "string" && value.trim().length ? value : fallback;
+}
+
+type VnumPickerProps<TFieldValues extends FieldValues> = {
+  id: string;
+  label: string;
+  name: FieldPath<TFieldValues>;
+  register: UseFormRegister<TFieldValues>;
+  options: VnumOption[];
+  error?: string;
+};
+
+function VnumPicker<TFieldValues extends FieldValues>({
+  id,
+  label,
+  name,
+  register,
+  options,
+  error
+}: VnumPickerProps<TFieldValues>) {
+  const listId = `${id}-options`;
+  return (
+    <div className="form-field">
+      <label className="form-label" htmlFor={id}>
+        {label}
+      </label>
+      <input
+        id={id}
+        className="form-input"
+        type="text"
+        inputMode="numeric"
+        list={listId}
+        {...register(name)}
+      />
+      <datalist id={listId}>
+        {options.map((option) => (
+          <option key={option.vnum} value={String(option.vnum)}>
+            {option.label}
+          </option>
+        ))}
+      </datalist>
+      {error ? <span className="form-error">{error}</span> : null}
+    </div>
+  );
+}
+
+function buildVnumOptions(
+  areaData: AreaJson | null,
+  entity: "Rooms" | "Mobiles" | "Objects"
+): VnumOption[] {
+  if (!areaData) {
+    return [];
+  }
+  const list = getEntityList(areaData, entity);
+  const options: VnumOption[] = [];
+  for (const entry of list) {
+    if (!entry || typeof entry !== "object") {
+      continue;
+    }
+    const record = entry as Record<string, unknown>;
+    const vnum = parseVnum(record.vnum);
+    if (vnum === null) {
+      continue;
+    }
+    let label = "VNUM";
+    if (entity === "Rooms") {
+      label = getFirstString(record.name, "(unnamed room)");
+    } else if (entity === "Mobiles") {
+      label = getFirstString(record.shortDescr, "(unnamed mobile)");
+    } else {
+      label = getFirstString(record.shortDescr, "(unnamed object)");
+    }
+    options.push({ vnum, label: `${vnum} - ${label}` });
+  }
+  return options;
 }
 
 function buildSelectionSummary(
@@ -1712,6 +1797,18 @@ export default function App() {
   const activeResetCommand = (watchedResetCommand ??
     resetFormDefaults.commandName ??
     "").trim();
+  const roomVnumOptions = useMemo(
+    () => buildVnumOptions(areaData, "Rooms"),
+    [areaData]
+  );
+  const mobileVnumOptions = useMemo(
+    () => buildVnumOptions(areaData, "Mobiles"),
+    [areaData]
+  );
+  const objectVnumOptions = useMemo(
+    () => buildVnumOptions(areaData, "Objects"),
+    [areaData]
+  );
   const activeObjectBlock = useMemo(() => {
     const key = (
       watchedObjectItemType ??
@@ -2721,42 +2818,24 @@ export default function App() {
                                     ))}
                                   </select>
                                 </div>
-                                <div className="form-field">
-                                  <label
-                                    className="form-label"
-                                    htmlFor={`exit-to-${field.id}`}
-                                  >
-                                    To VNUM
-                                  </label>
-                                  <input
-                                    id={`exit-to-${field.id}`}
-                                    className="form-input"
-                                    type="number"
-                                    {...registerRoom(`exits.${index}.toVnum`)}
-                                  />
-                                  {roomFormState.errors.exits?.[index]?.toVnum ? (
-                                    <span className="form-error">
-                                      {
-                                        roomFormState.errors.exits?.[index]
-                                          ?.toVnum?.message
-                                      }
-                                    </span>
-                                  ) : null}
-                                </div>
-                                <div className="form-field">
-                                  <label
-                                    className="form-label"
-                                    htmlFor={`exit-key-${field.id}`}
-                                  >
-                                    Key VNUM
-                                  </label>
-                                  <input
-                                    id={`exit-key-${field.id}`}
-                                    className="form-input"
-                                    type="number"
-                                    {...registerRoom(`exits.${index}.key`)}
-                                  />
-                                </div>
+                                <VnumPicker<RoomFormValues>
+                                  id={`exit-to-${field.id}`}
+                                  label="To VNUM"
+                                  name={`exits.${index}.toVnum` as FieldPath<RoomFormValues>}
+                                  register={registerRoom}
+                                  options={roomVnumOptions}
+                                  error={
+                                    roomFormState.errors.exits?.[index]?.toVnum
+                                      ?.message
+                                  }
+                                />
+                                <VnumPicker<RoomFormValues>
+                                  id={`exit-key-${field.id}`}
+                                  label="Key VNUM"
+                                  name={`exits.${index}.key` as FieldPath<RoomFormValues>}
+                                  register={registerRoom}
+                                  options={objectVnumOptions}
+                                />
                                 <div className="form-field">
                                   <label
                                     className="form-label"
@@ -3586,14 +3665,19 @@ export default function App() {
                                     {...registerObject("container.capacity")}
                                   />
                                 </div>
-                                <div className="form-field">
-                                  <label className="form-label">Key VNUM</label>
-                                  <input
-                                    className="form-input"
-                                    type="number"
-                                    {...registerObject("container.keyVnum")}
-                                  />
-                                </div>
+                                <VnumPicker<ObjectFormValues>
+                                  id="object-container-key"
+                                  label="Key VNUM"
+                                  name={
+                                    "container.keyVnum" as FieldPath<ObjectFormValues>
+                                  }
+                                  register={registerObject}
+                                  options={objectVnumOptions}
+                                  error={
+                                    objectFormState.errors.container?.keyVnum
+                                      ?.message
+                                  }
+                                />
                                 <div className="form-field">
                                   <label className="form-label">Max Weight</label>
                                   <input
@@ -3961,14 +4045,18 @@ export default function App() {
                                     {...registerObject("portal.charges")}
                                   />
                                 </div>
-                                <div className="form-field">
-                                  <label className="form-label">To VNUM</label>
-                                  <input
-                                    className="form-input"
-                                    type="number"
-                                    {...registerObject("portal.toVnum")}
-                                  />
-                                </div>
+                                <VnumPicker<ObjectFormValues>
+                                  id="object-portal-to"
+                                  label="To VNUM"
+                                  name={
+                                    "portal.toVnum" as FieldPath<ObjectFormValues>
+                                  }
+                                  register={registerObject}
+                                  options={roomVnumOptions}
+                                  error={
+                                    objectFormState.errors.portal?.toVnum?.message
+                                  }
+                                />
                                 <div className="form-field form-field--full">
                                   <label className="form-label">Exit Flags</label>
                                   <div className="form-checkboxes">
@@ -4191,34 +4279,22 @@ export default function App() {
                                 <span>Load Mobile</span>
                               </div>
                               <div className="block-grid">
-                                <div className="form-field">
-                                  <label className="form-label">Mob VNUM</label>
-                                  <input
-                                    className="form-input"
-                                    type="number"
-                                    {...registerReset("mobVnum")}
-                                  />
-                                  {resetFormState.errors.mobVnum ? (
-                                    <span className="form-error">
-                                      {resetFormState.errors.mobVnum.message}
-                                    </span>
-                                  ) : null}
-                                </div>
-                                <div className="form-field">
-                                  <label className="form-label">
-                                    Room VNUM
-                                  </label>
-                                  <input
-                                    className="form-input"
-                                    type="number"
-                                    {...registerReset("roomVnum")}
-                                  />
-                                  {resetFormState.errors.roomVnum ? (
-                                    <span className="form-error">
-                                      {resetFormState.errors.roomVnum.message}
-                                    </span>
-                                  ) : null}
-                                </div>
+                                <VnumPicker<ResetFormValues>
+                                  id="reset-load-mob"
+                                  label="Mob VNUM"
+                                  name={"mobVnum" as FieldPath<ResetFormValues>}
+                                  register={registerReset}
+                                  options={mobileVnumOptions}
+                                  error={resetFormState.errors.mobVnum?.message}
+                                />
+                                <VnumPicker<ResetFormValues>
+                                  id="reset-load-room"
+                                  label="Room VNUM"
+                                  name={"roomVnum" as FieldPath<ResetFormValues>}
+                                  register={registerReset}
+                                  options={roomVnumOptions}
+                                  error={resetFormState.errors.roomVnum?.message}
+                                />
                                 <div className="form-field">
                                   <label className="form-label">
                                     Max In Area
@@ -4248,36 +4324,22 @@ export default function App() {
                                 <span>Place Object</span>
                               </div>
                               <div className="block-grid">
-                                <div className="form-field">
-                                  <label className="form-label">
-                                    Object VNUM
-                                  </label>
-                                  <input
-                                    className="form-input"
-                                    type="number"
-                                    {...registerReset("objVnum")}
-                                  />
-                                  {resetFormState.errors.objVnum ? (
-                                    <span className="form-error">
-                                      {resetFormState.errors.objVnum.message}
-                                    </span>
-                                  ) : null}
-                                </div>
-                                <div className="form-field">
-                                  <label className="form-label">
-                                    Room VNUM
-                                  </label>
-                                  <input
-                                    className="form-input"
-                                    type="number"
-                                    {...registerReset("roomVnum")}
-                                  />
-                                  {resetFormState.errors.roomVnum ? (
-                                    <span className="form-error">
-                                      {resetFormState.errors.roomVnum.message}
-                                    </span>
-                                  ) : null}
-                                </div>
+                                <VnumPicker<ResetFormValues>
+                                  id="reset-place-obj"
+                                  label="Object VNUM"
+                                  name={"objVnum" as FieldPath<ResetFormValues>}
+                                  register={registerReset}
+                                  options={objectVnumOptions}
+                                  error={resetFormState.errors.objVnum?.message}
+                                />
+                                <VnumPicker<ResetFormValues>
+                                  id="reset-place-room"
+                                  label="Room VNUM"
+                                  name={"roomVnum" as FieldPath<ResetFormValues>}
+                                  register={registerReset}
+                                  options={roomVnumOptions}
+                                  error={resetFormState.errors.roomVnum?.message}
+                                />
                               </div>
                             </div>
                           ) : null}
@@ -4287,39 +4349,26 @@ export default function App() {
                                 <span>Put Object</span>
                               </div>
                               <div className="block-grid">
-                                <div className="form-field">
-                                  <label className="form-label">
-                                    Object VNUM
-                                  </label>
-                                  <input
-                                    className="form-input"
-                                    type="number"
-                                    {...registerReset("objVnum")}
-                                  />
-                                  {resetFormState.errors.objVnum ? (
-                                    <span className="form-error">
-                                      {resetFormState.errors.objVnum.message}
-                                    </span>
-                                  ) : null}
-                                </div>
-                                <div className="form-field">
-                                  <label className="form-label">
-                                    Container VNUM
-                                  </label>
-                                  <input
-                                    className="form-input"
-                                    type="number"
-                                    {...registerReset("containerVnum")}
-                                  />
-                                  {resetFormState.errors.containerVnum ? (
-                                    <span className="form-error">
-                                      {
-                                        resetFormState.errors.containerVnum
-                                          .message
-                                      }
-                                    </span>
-                                  ) : null}
-                                </div>
+                                <VnumPicker<ResetFormValues>
+                                  id="reset-put-obj"
+                                  label="Object VNUM"
+                                  name={"objVnum" as FieldPath<ResetFormValues>}
+                                  register={registerReset}
+                                  options={objectVnumOptions}
+                                  error={resetFormState.errors.objVnum?.message}
+                                />
+                                <VnumPicker<ResetFormValues>
+                                  id="reset-put-container"
+                                  label="Container VNUM"
+                                  name={
+                                    "containerVnum" as FieldPath<ResetFormValues>
+                                  }
+                                  register={registerReset}
+                                  options={objectVnumOptions}
+                                  error={
+                                    resetFormState.errors.containerVnum?.message
+                                  }
+                                />
                                 <div className="form-field">
                                   <label className="form-label">Count</label>
                                   <input
@@ -4347,21 +4396,14 @@ export default function App() {
                                 <span>Give Object</span>
                               </div>
                               <div className="block-grid">
-                                <div className="form-field">
-                                  <label className="form-label">
-                                    Object VNUM
-                                  </label>
-                                  <input
-                                    className="form-input"
-                                    type="number"
-                                    {...registerReset("objVnum")}
-                                  />
-                                  {resetFormState.errors.objVnum ? (
-                                    <span className="form-error">
-                                      {resetFormState.errors.objVnum.message}
-                                    </span>
-                                  ) : null}
-                                </div>
+                                <VnumPicker<ResetFormValues>
+                                  id="reset-give-obj"
+                                  label="Object VNUM"
+                                  name={"objVnum" as FieldPath<ResetFormValues>}
+                                  register={registerReset}
+                                  options={objectVnumOptions}
+                                  error={resetFormState.errors.objVnum?.message}
+                                />
                               </div>
                             </div>
                           ) : null}
@@ -4371,21 +4413,14 @@ export default function App() {
                                 <span>Equip Object</span>
                               </div>
                               <div className="block-grid">
-                                <div className="form-field">
-                                  <label className="form-label">
-                                    Object VNUM
-                                  </label>
-                                  <input
-                                    className="form-input"
-                                    type="number"
-                                    {...registerReset("objVnum")}
-                                  />
-                                  {resetFormState.errors.objVnum ? (
-                                    <span className="form-error">
-                                      {resetFormState.errors.objVnum.message}
-                                    </span>
-                                  ) : null}
-                                </div>
+                                <VnumPicker<ResetFormValues>
+                                  id="reset-equip-obj"
+                                  label="Object VNUM"
+                                  name={"objVnum" as FieldPath<ResetFormValues>}
+                                  register={registerReset}
+                                  options={objectVnumOptions}
+                                  error={resetFormState.errors.objVnum?.message}
+                                />
                                 <div className="form-field">
                                   <label className="form-label">
                                     Wear Location
@@ -4416,21 +4451,14 @@ export default function App() {
                                 <span>Set Door</span>
                               </div>
                               <div className="block-grid">
-                                <div className="form-field">
-                                  <label className="form-label">
-                                    Room VNUM
-                                  </label>
-                                  <input
-                                    className="form-input"
-                                    type="number"
-                                    {...registerReset("roomVnum")}
-                                  />
-                                  {resetFormState.errors.roomVnum ? (
-                                    <span className="form-error">
-                                      {resetFormState.errors.roomVnum.message}
-                                    </span>
-                                  ) : null}
-                                </div>
+                                <VnumPicker<ResetFormValues>
+                                  id="reset-door-room"
+                                  label="Room VNUM"
+                                  name={"roomVnum" as FieldPath<ResetFormValues>}
+                                  register={registerReset}
+                                  options={roomVnumOptions}
+                                  error={resetFormState.errors.roomVnum?.message}
+                                />
                                 <div className="form-field">
                                   <label className="form-label">
                                     Direction
@@ -4476,21 +4504,14 @@ export default function App() {
                                 <span>Randomize Exits</span>
                               </div>
                               <div className="block-grid">
-                                <div className="form-field">
-                                  <label className="form-label">
-                                    Room VNUM
-                                  </label>
-                                  <input
-                                    className="form-input"
-                                    type="number"
-                                    {...registerReset("roomVnum")}
-                                  />
-                                  {resetFormState.errors.roomVnum ? (
-                                    <span className="form-error">
-                                      {resetFormState.errors.roomVnum.message}
-                                    </span>
-                                  ) : null}
-                                </div>
+                                <VnumPicker<ResetFormValues>
+                                  id="reset-random-room"
+                                  label="Room VNUM"
+                                  name={"roomVnum" as FieldPath<ResetFormValues>}
+                                  register={registerReset}
+                                  options={roomVnumOptions}
+                                  error={resetFormState.errors.roomVnum?.message}
+                                />
                                 <div className="form-field">
                                   <label className="form-label">
                                     Exit Count
