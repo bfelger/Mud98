@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import type { ColDef } from "ag-grid-community";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { ColDef, GridApi } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import { LocalFileRepository } from "./repository/localFileRepository";
 import type { AreaJson, EditorMeta, ReferenceData } from "./repository/types";
@@ -47,6 +47,21 @@ type RoomRow = {
   sector: string;
   exits: number;
   flags: string;
+};
+
+type MobileRow = {
+  vnum: number;
+  name: string;
+  level: number;
+  race: string;
+  alignment: number;
+};
+
+type ObjectRow = {
+  vnum: number;
+  name: string;
+  itemType: string;
+  level: number;
 };
 
 const entityKindLabels: Record<EntityKey, string> = {
@@ -168,13 +183,14 @@ function getFirstString(value: unknown, fallback: string): string {
 function buildSelectionSummary(
   selectedEntity: EntityKey,
   areaData: AreaJson | null,
-  selectedRoomVnum: number | null
+  selectedVnums: Partial<Record<EntityKey, number | null>>
 ) {
   const list = getEntityList(areaData, selectedEntity);
   const count = list.length;
   const selected =
-    selectedEntity === "Rooms" && selectedRoomVnum !== null
-      ? findByVnum(list, selectedRoomVnum)
+    selectedVnums[selectedEntity] !== null &&
+    selectedVnums[selectedEntity] !== undefined
+      ? findByVnum(list, selectedVnums[selectedEntity] as number)
       : null;
   const first = (selected ?? list[0] ?? {}) as Record<string, unknown>;
   const vnumRange = getAreaVnumRange(areaData);
@@ -317,12 +333,7 @@ function buildRoomRows(areaData: AreaJson | null): RoomRow[] {
   }
   return rooms.map((room) => {
     const data = room as Record<string, unknown>;
-    const vnum =
-      typeof data.vnum === "number"
-        ? data.vnum
-        : Number.isFinite(Number(data.vnum))
-          ? Number(data.vnum)
-          : -1;
+    const vnum = parseVnum(data.vnum) ?? -1;
     const name = typeof data.name === "string" ? data.name : "(unnamed room)";
     const sectorType =
       typeof data.sectorType === "string"
@@ -344,6 +355,57 @@ function buildRoomRows(areaData: AreaJson | null): RoomRow[] {
   });
 }
 
+function buildMobileRows(areaData: AreaJson | null): MobileRow[] {
+  if (!areaData) {
+    return [];
+  }
+  const mobiles = (areaData as { mobiles?: unknown }).mobiles;
+  if (!Array.isArray(mobiles)) {
+    return [];
+  }
+  return mobiles.map((mob) => {
+    const data = mob as Record<string, unknown>;
+    const vnum = parseVnum(data.vnum) ?? -1;
+    const name = getFirstString(data.shortDescr, "(unnamed mobile)");
+    const level = parseVnum(data.level) ?? 0;
+    const race = getFirstString(data.race, "unknown");
+    const alignment = parseVnum(data.alignment) ?? 0;
+    return { vnum, name, level, race, alignment };
+  });
+}
+
+function buildObjectRows(areaData: AreaJson | null): ObjectRow[] {
+  if (!areaData) {
+    return [];
+  }
+  const objects = (areaData as { objects?: unknown }).objects;
+  if (!Array.isArray(objects)) {
+    return [];
+  }
+  return objects.map((obj) => {
+    const data = obj as Record<string, unknown>;
+    const vnum = parseVnum(data.vnum) ?? -1;
+    const name = getFirstString(data.shortDescr, "(unnamed object)");
+    const itemType = getFirstString(data.itemType, "unknown");
+    const level = parseVnum(data.level) ?? 0;
+    return { vnum, name, itemType, level };
+  });
+}
+
+function syncGridSelection(api: GridApi | null, vnum: number | null) {
+  if (!api) {
+    return;
+  }
+  api.deselectAll();
+  if (vnum === null) {
+    return;
+  }
+  const node = api.getRowNode(String(vnum));
+  if (node) {
+    node.setSelected(true);
+  }
+}
+
 export default function App() {
   const repository = useMemo(() => new LocalFileRepository(), []);
   const [activeTab, setActiveTab] = useState<TabId>(tabs[0].id);
@@ -351,6 +413,12 @@ export default function App() {
     entityOrder[0]
   );
   const [selectedRoomVnum, setSelectedRoomVnum] = useState<number | null>(null);
+  const [selectedMobileVnum, setSelectedMobileVnum] = useState<number | null>(
+    null
+  );
+  const [selectedObjectVnum, setSelectedObjectVnum] = useState<number | null>(
+    null
+  );
   const [areaPath, setAreaPath] = useState<string | null>(null);
   const [areaData, setAreaData] = useState<AreaJson | null>(null);
   const [editorMeta, setEditorMeta] = useState<EditorMeta | null>(null);
@@ -363,14 +431,30 @@ export default function App() {
   const [areaDirectory, setAreaDirectory] = useState<string | null>(() =>
     localStorage.getItem("worldedit.areaDir")
   );
+  const roomGridApi = useRef<GridApi | null>(null);
+  const mobileGridApi = useRef<GridApi | null>(null);
+  const objectGridApi = useRef<GridApi | null>(null);
 
   useEffect(() => {
     setSelectedRoomVnum(null);
+    setSelectedMobileVnum(null);
+    setSelectedObjectVnum(null);
   }, [areaData]);
 
   const selection = useMemo(
-    () => buildSelectionSummary(selectedEntity, areaData, selectedRoomVnum),
-    [areaData, selectedEntity, selectedRoomVnum]
+    () =>
+      buildSelectionSummary(selectedEntity, areaData, {
+        Rooms: selectedRoomVnum,
+        Mobiles: selectedMobileVnum,
+        Objects: selectedObjectVnum
+      }),
+    [
+      areaData,
+      selectedEntity,
+      selectedRoomVnum,
+      selectedMobileVnum,
+      selectedObjectVnum
+    ]
   );
   const areaName = fileNameFromPath(areaPath);
   const areaDebug = useMemo(() => buildAreaDebugSummary(areaData), [areaData]);
@@ -383,6 +467,8 @@ export default function App() {
     [areaData]
   );
   const roomRows = useMemo(() => buildRoomRows(areaData), [areaData]);
+  const mobileRows = useMemo(() => buildMobileRows(areaData), [areaData]);
+  const objectRows = useMemo(() => buildObjectRows(areaData), [areaData]);
   const roomColumns = useMemo<ColDef<RoomRow>[]>(
     () => [
       { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
@@ -390,6 +476,25 @@ export default function App() {
       { headerName: "Sector", field: "sector", flex: 1, minWidth: 140 },
       { headerName: "Exits", field: "exits", width: 110 },
       { headerName: "Room Flags", field: "flags", flex: 2, minWidth: 220 }
+    ],
+    []
+  );
+  const mobileColumns = useMemo<ColDef<MobileRow>[]>(
+    () => [
+      { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
+      { headerName: "Name", field: "name", flex: 2, minWidth: 200 },
+      { headerName: "Level", field: "level", width: 110 },
+      { headerName: "Race", field: "race", flex: 1, minWidth: 140 },
+      { headerName: "Alignment", field: "alignment", width: 130 }
+    ],
+    []
+  );
+  const objectColumns = useMemo<ColDef<ObjectRow>[]>(
+    () => [
+      { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
+      { headerName: "Name", field: "name", flex: 2, minWidth: 200 },
+      { headerName: "Item Type", field: "itemType", flex: 1, minWidth: 160 },
+      { headerName: "Level", field: "level", width: 110 }
     ],
     []
   );
@@ -401,6 +506,29 @@ export default function App() {
     }),
     []
   );
+  const mobileDefaultColDef = roomDefaultColDef;
+  const objectDefaultColDef = roomDefaultColDef;
+
+  useEffect(() => {
+    if (activeTab !== "Table" || selectedEntity !== "Rooms") {
+      return;
+    }
+    syncGridSelection(roomGridApi.current, selectedRoomVnum);
+  }, [activeTab, selectedEntity, selectedRoomVnum, roomRows]);
+
+  useEffect(() => {
+    if (activeTab !== "Table" || selectedEntity !== "Mobiles") {
+      return;
+    }
+    syncGridSelection(mobileGridApi.current, selectedMobileVnum);
+  }, [activeTab, selectedEntity, selectedMobileVnum, mobileRows]);
+
+  useEffect(() => {
+    if (activeTab !== "Table" || selectedEntity !== "Objects") {
+      return;
+    }
+    syncGridSelection(objectGridApi.current, selectedObjectVnum);
+  }, [activeTab, selectedEntity, selectedObjectVnum, objectRows]);
 
   const handleOpenArea = async () => {
     setErrorMessage(null);
@@ -702,29 +830,95 @@ export default function App() {
               </div>
             </div>
             <div className="view-card__body">
-              {activeTab === "Table" && selectedEntity === "Rooms" ? (
-                <div className="room-table">
-                  {roomRows.length ? (
-                    <div className="ag-theme-quartz worldedit-grid">
-                      <AgGridReact<RoomRow>
-                        rowData={roomRows}
-                        columnDefs={roomColumns}
-                        defaultColDef={roomDefaultColDef}
-                        animateRows
-                        rowSelection="single"
-                        getRowId={(params) => String(params.data.vnum)}
-                        domLayout="autoHeight"
-                        onRowClicked={(event) =>
-                          setSelectedRoomVnum(event.data?.vnum ?? null)
-                        }
-                      />
-                    </div>
-                  ) : (
-                    <div className="room-table__empty">
-                      <h3>Rooms will appear here</h3>
-                      <p>Load an area JSON file to populate the room table.</p>
-                    </div>
-                  )}
+              {activeTab === "Table" &&
+              (selectedEntity === "Rooms" ||
+                selectedEntity === "Mobiles" ||
+                selectedEntity === "Objects") ? (
+                <div className="entity-table">
+                  {selectedEntity === "Rooms" ? (
+                    roomRows.length ? (
+                      <div className="ag-theme-quartz worldedit-grid">
+                        <AgGridReact<RoomRow>
+                          rowData={roomRows}
+                          columnDefs={roomColumns}
+                          defaultColDef={roomDefaultColDef}
+                          animateRows
+                          rowSelection="single"
+                          getRowId={(params) => String(params.data.vnum)}
+                          domLayout="autoHeight"
+                          onRowClicked={(event) =>
+                            setSelectedRoomVnum(event.data?.vnum ?? null)
+                          }
+                          onGridReady={(event) => {
+                            roomGridApi.current = event.api;
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="entity-table__empty">
+                        <h3>Rooms will appear here</h3>
+                        <p>
+                          Load an area JSON file to populate the room table.
+                        </p>
+                      </div>
+                    )
+                  ) : null}
+                  {selectedEntity === "Mobiles" ? (
+                    mobileRows.length ? (
+                      <div className="ag-theme-quartz worldedit-grid">
+                        <AgGridReact<MobileRow>
+                          rowData={mobileRows}
+                          columnDefs={mobileColumns}
+                          defaultColDef={mobileDefaultColDef}
+                          animateRows
+                          rowSelection="single"
+                          getRowId={(params) => String(params.data.vnum)}
+                          domLayout="autoHeight"
+                          onRowClicked={(event) =>
+                            setSelectedMobileVnum(event.data?.vnum ?? null)
+                          }
+                          onGridReady={(event) => {
+                            mobileGridApi.current = event.api;
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="entity-table__empty">
+                        <h3>Mobiles will appear here</h3>
+                        <p>
+                          Load an area JSON file to populate the mobile table.
+                        </p>
+                      </div>
+                    )
+                  ) : null}
+                  {selectedEntity === "Objects" ? (
+                    objectRows.length ? (
+                      <div className="ag-theme-quartz worldedit-grid">
+                        <AgGridReact<ObjectRow>
+                          rowData={objectRows}
+                          columnDefs={objectColumns}
+                          defaultColDef={objectDefaultColDef}
+                          animateRows
+                          rowSelection="single"
+                          getRowId={(params) => String(params.data.vnum)}
+                          domLayout="autoHeight"
+                          onRowClicked={(event) =>
+                            setSelectedObjectVnum(event.data?.vnum ?? null)
+                          }
+                          onGridReady={(event) => {
+                            objectGridApi.current = event.api;
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="entity-table__empty">
+                        <h3>Objects will appear here</h3>
+                        <p>
+                          Load an area JSON file to populate the object table.
+                        </p>
+                      </div>
+                    )
+                  ) : null}
                 </div>
               ) : (
                 <div className="placeholder-grid">

@@ -334,7 +334,7 @@ body::before {
   gap: 14px;
 }
 
-.room-table {
+.entity-table {
   height: 100%;
   min-height: 360px;
   display: flex;
@@ -366,7 +366,7 @@ body::before {
   --ag-input-border-color: rgba(117, 88, 58, 0.35);
 }
 
-.room-table__empty {
+.entity-table__empty {
   height: 100%;
   min-height: 360px;
   border-radius: 14px;
@@ -382,13 +382,13 @@ body::before {
   gap: 8px;
 }
 
-.room-table__empty h3 {
+.entity-table__empty h3 {
   margin: 0;
   color: var(--accent-strong);
   font-size: 1.1rem;
 }
 
-.room-table__empty p {
+.entity-table__empty p {
   margin: 0;
   font-size: 0.95rem;
 }
