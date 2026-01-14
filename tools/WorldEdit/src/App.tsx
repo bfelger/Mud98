@@ -1716,6 +1716,46 @@ function validateVnumRanges(areaData: AreaJson | null): ValidationIssue[] {
   return issues;
 }
 
+function validateDuplicateVnums(areaData: AreaJson | null): ValidationIssue[] {
+  if (!areaData) {
+    return [];
+  }
+  const issues: ValidationIssue[] = [];
+  const checkEntity = (entity: EntityKey) => {
+    const list = getEntityList(areaData, entity);
+    const counts = new Map<number, number>();
+    list.forEach((entry) => {
+      if (!entry || typeof entry !== "object") {
+        return;
+      }
+      const vnum = parseVnum((entry as Record<string, unknown>).vnum);
+      if (vnum === null) {
+        return;
+      }
+      counts.set(vnum, (counts.get(vnum) ?? 0) + 1);
+    });
+    counts.forEach((count, vnum) => {
+      if (count <= 1) {
+        return;
+      }
+      const kindLabel = entityKindLabels[entity] ?? "Entity";
+      issues.push({
+        id: `duplicate-${entity}-${vnum}`,
+        severity: "error",
+        entityType: entity,
+        vnum,
+        message: `${kindLabel} vnum ${vnum} is duplicated (${count} entries)`
+      });
+    });
+  };
+
+  checkEntity("Rooms");
+  checkEntity("Mobiles");
+  checkEntity("Objects");
+
+  return issues;
+}
+
 function buildValidationSummary(
   issues: ValidationIssue[],
   selectedEntity: EntityKey,
@@ -1733,14 +1773,25 @@ function buildValidationSummary(
       return selectedIssue.message;
     }
   }
-  const counts = issues.reduce<Record<string, number>>((acc, issue) => {
+  const countsByEntity = issues.reduce<Record<string, number>>((acc, issue) => {
     acc[issue.entityType] = (acc[issue.entityType] ?? 0) + 1;
     return acc;
   }, {});
-  const parts = Object.entries(counts).map(
+  const severityCounts = issues.reduce<Record<string, number>>((acc, issue) => {
+    acc[issue.severity] = (acc[issue.severity] ?? 0) + 1;
+    return acc;
+  }, {});
+  const severityParts = Object.entries(severityCounts).map(
+    ([severity, count]) =>
+      `${severity === "error" ? "Errors" : "Warnings"} ${count}`
+  );
+  const entityParts = Object.entries(countsByEntity).map(
     ([entity, count]) => `${entity} ${count}`
   );
-  return `VNUM range errors: ${parts.join(", ")}`;
+  const severitySummary = severityParts.length
+    ? ` (${severityParts.join(", ")})`
+    : "";
+  return `Validation issues${severitySummary}: ${entityParts.join(", ")}`;
 }
 
 function buildAreaDebugSummary(areaData: AreaJson | null): {
@@ -2799,7 +2850,10 @@ export default function App() {
     return null;
   }, [selectedEntity, selectedRoomVnum, selectedMobileVnum, selectedObjectVnum]);
   const validationIssues = useMemo(
-    () => validateVnumRanges(areaData),
+    () => [
+      ...validateVnumRanges(areaData),
+      ...validateDuplicateVnums(areaData)
+    ],
     [areaData]
   );
   const validationSummary = useMemo(
