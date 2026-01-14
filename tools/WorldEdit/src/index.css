@@ -395,6 +395,14 @@ body::before {
   gap: 8px;
 }
 
+.form-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
 .checkbox-pill {
   display: inline-flex;
   align-items: center;
@@ -425,6 +433,35 @@ body::before {
 .form-hint {
   font-size: 0.85rem;
   color: var(--ink-soft);
+}
+
+.exit-list {
+  display: grid;
+  gap: 12px;
+}
+
+.exit-card {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(117, 88, 58, 0.2);
+  background: rgba(255, 255, 255, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.exit-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.exit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
 }
 
 .entity-table {

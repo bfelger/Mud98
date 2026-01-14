@@ -2,11 +2,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { ColDef, GridApi } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { LocalFileRepository } from "./repository/localFileRepository";
 import type { AreaJson, EditorMeta, ReferenceData } from "./repository/types";
 import {
+  directionEnum,
+  directions,
+  exitFlagEnum,
+  exitFlags,
   roomFlagEnum,
   roomFlags as roomFlagOptions,
   sectorEnum,
@@ -99,6 +103,33 @@ const optionalSectorSchema = z.preprocess((value) => {
   return value;
 }, sectorEnum.optional());
 
+const exitFormSchema = z.object({
+  dir: directionEnum,
+  toVnum: z.preprocess(
+    (value) => {
+      if (value === "" || value === null || value === undefined) {
+        return value;
+      }
+      if (typeof value === "string") {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : value;
+      }
+      return value;
+    },
+    z.number().int()
+  ),
+  key: optionalIntSchema,
+  flags: z.array(exitFlagEnum).optional(),
+  description: z.preprocess(
+    (value) => (typeof value === "string" ? value : ""),
+    z.string().optional()
+  ),
+  keyword: z.preprocess(
+    (value) => (typeof value === "string" ? value : ""),
+    z.string().optional()
+  )
+});
+
 const roomFormSchema = z.object({
   vnum: z.number().int(),
   name: z.string().min(1, "Name is required."),
@@ -108,7 +139,8 @@ const roomFormSchema = z.object({
   manaRate: optionalIntSchema,
   healRate: optionalIntSchema,
   clan: optionalIntSchema,
-  owner: z.string().optional()
+  owner: z.string().optional(),
+  exits: z.array(exitFormSchema).optional()
 });
 
 type RoomFormValues = z.infer<typeof roomFormSchema>;
@@ -596,14 +628,24 @@ export default function App() {
       manaRate: undefined,
       healRate: undefined,
       clan: undefined,
-      owner: ""
+      owner: "",
+      exits: []
     }
   });
   const {
     register: registerRoom,
     handleSubmit: handleRoomSubmitForm,
-    formState: roomFormState
+    formState: roomFormState,
+    control: roomFormControl
   } = roomForm;
+  const {
+    fields: exitFields,
+    append: appendExit,
+    remove: removeExit
+  } = useFieldArray({
+    control: roomFormControl,
+    name: "exits"
+  });
 
   useEffect(() => {
     const nextRoom = getDefaultSelection(areaData, "Rooms", selectedRoomVnum);
@@ -712,7 +754,27 @@ export default function App() {
       manaRate,
       healRate,
       clan,
-      owner: typeof record?.owner === "string" ? record.owner : ""
+      owner: typeof record?.owner === "string" ? record.owner : "",
+      exits: Array.isArray(record?.exits)
+        ? record.exits
+            .filter((exit): exit is Record<string, unknown> =>
+              Boolean(exit && typeof exit === "object")
+            )
+            .map((exit) => ({
+              dir:
+                typeof exit.dir === "string"
+                  ? exit.dir
+                  : directions[0],
+              toVnum: parseVnum(exit.toVnum) ?? 0,
+              key: parseVnum(exit.key) ?? undefined,
+              flags: Array.isArray(exit.flags)
+                ? exit.flags.filter((flag) => typeof flag === "string")
+                : [],
+              description:
+                typeof exit.description === "string" ? exit.description : "",
+              keyword: typeof exit.keyword === "string" ? exit.keyword : ""
+            }))
+        : []
     };
   }, [selectedRoomRecord, selectedRoomVnum]);
   const roomColumns = useMemo<ColDef<RoomRow>[]>(
@@ -801,6 +863,25 @@ export default function App() {
     if (!areaData || selectedRoomVnum === null) {
       return;
     }
+    const normalizedExits = (data.exits ?? []).map((exit) => {
+      const nextExit: Record<string, unknown> = {
+        dir: exit.dir,
+        toVnum: exit.toVnum
+      };
+      if (exit.key !== undefined) {
+        nextExit.key = exit.key;
+      }
+      if (exit.flags && exit.flags.length) {
+        nextExit.flags = exit.flags;
+      }
+      if (exit.description && exit.description.trim().length) {
+        nextExit.description = exit.description;
+      }
+      if (exit.keyword && exit.keyword.trim().length) {
+        nextExit.keyword = exit.keyword;
+      }
+      return nextExit;
+    });
     setAreaData((current) => {
       if (!current) {
         return current;
@@ -824,7 +905,8 @@ export default function App() {
           manaRate: data.manaRate ?? undefined,
           healRate: data.healRate ?? undefined,
           clan: data.clan ?? undefined,
-          owner: data.owner ?? undefined
+          owner: data.owner ?? undefined,
+          exits: normalizedExits.length ? normalizedExits : undefined
         };
         if (!("sectorType" in record) && "sector" in record) {
           nextRoom.sector = data.sectorType ?? undefined;
@@ -1271,6 +1353,161 @@ export default function App() {
                               />
                               <span>{flag}</span>
                             </label>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="form-field form-field--full">
+                        <div className="form-section-header">
+                          <div>
+                            <div className="form-label">Exits</div>
+                            <div className="form-hint">
+                              {exitFields.length
+                                ? `${exitFields.length} exit${
+                                    exitFields.length === 1 ? "" : "s"
+                                  }`
+                                : "No exits defined"}
+                            </div>
+                          </div>
+                          <button
+                            className="ghost-button"
+                            type="button"
+                            onClick={() =>
+                              appendExit({
+                                dir: directions[0],
+                                toVnum: 0,
+                                key: undefined,
+                                flags: [],
+                                description: "",
+                                keyword: ""
+                              })
+                            }
+                          >
+                            Add Exit
+                          </button>
+                        </div>
+                        <div className="exit-list">
+                          {exitFields.map((field, index) => (
+                            <div key={field.id} className="exit-card">
+                              <div className="exit-card__header">
+                                <span>Exit {index + 1}</span>
+                                <button
+                                  className="ghost-button"
+                                  type="button"
+                                  onClick={() => removeExit(index)}
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                              <div className="exit-grid">
+                                <div className="form-field">
+                                  <label
+                                    className="form-label"
+                                    htmlFor={`exit-dir-${field.id}`}
+                                  >
+                                    Direction
+                                  </label>
+                                  <select
+                                    id={`exit-dir-${field.id}`}
+                                    className="form-select"
+                                    {...registerRoom(`exits.${index}.dir`)}
+                                  >
+                                    {directions.map((dir) => (
+                                      <option key={dir} value={dir}>
+                                        {dir}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                                <div className="form-field">
+                                  <label
+                                    className="form-label"
+                                    htmlFor={`exit-to-${field.id}`}
+                                  >
+                                    To VNUM
+                                  </label>
+                                  <input
+                                    id={`exit-to-${field.id}`}
+                                    className="form-input"
+                                    type="number"
+                                    {...registerRoom(`exits.${index}.toVnum`)}
+                                  />
+                                  {roomFormState.errors.exits?.[index]?.toVnum ? (
+                                    <span className="form-error">
+                                      {
+                                        roomFormState.errors.exits?.[index]
+                                          ?.toVnum?.message
+                                      }
+                                    </span>
+                                  ) : null}
+                                </div>
+                                <div className="form-field">
+                                  <label
+                                    className="form-label"
+                                    htmlFor={`exit-key-${field.id}`}
+                                  >
+                                    Key VNUM
+                                  </label>
+                                  <input
+                                    id={`exit-key-${field.id}`}
+                                    className="form-input"
+                                    type="number"
+                                    {...registerRoom(`exits.${index}.key`)}
+                                  />
+                                </div>
+                                <div className="form-field">
+                                  <label
+                                    className="form-label"
+                                    htmlFor={`exit-keyword-${field.id}`}
+                                  >
+                                    Keyword
+                                  </label>
+                                  <input
+                                    id={`exit-keyword-${field.id}`}
+                                    className="form-input"
+                                    type="text"
+                                    {...registerRoom(`exits.${index}.keyword`)}
+                                  />
+                                </div>
+                                <div className="form-field form-field--full">
+                                  <label
+                                    className="form-label"
+                                    htmlFor={`exit-description-${field.id}`}
+                                  >
+                                    Description
+                                  </label>
+                                  <textarea
+                                    id={`exit-description-${field.id}`}
+                                    className="form-textarea"
+                                    rows={3}
+                                    {...registerRoom(
+                                      `exits.${index}.description`
+                                    )}
+                                  />
+                                </div>
+                                <div className="form-field form-field--full">
+                                  <label className="form-label">
+                                    Exit Flags
+                                  </label>
+                                  <div className="form-checkboxes">
+                                    {exitFlags.map((flag) => (
+                                      <label
+                                        key={flag}
+                                        className="checkbox-pill"
+                                      >
+                                        <input
+                                          type="checkbox"
+                                          value={flag}
+                                          {...registerRoom(
+                                            `exits.${index}.flags`
+                                          )}
+                                        />
+                                        <span>{flag}</span>
+                                      </label>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
                           ))}
                         </div>
                       </div>
