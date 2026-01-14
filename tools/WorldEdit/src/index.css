@@ -1,3 +1,6 @@
+@import "ag-grid-community/styles/ag-grid.css";
+@import "ag-grid-community/styles/ag-theme-quartz.css";
+
 :root {
   color-scheme: light;
   font-family: "Source Serif 4", "Iowan Old Style", "Palatino Linotype",
