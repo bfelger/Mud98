@@ -4,6 +4,8 @@ import { AgGridReact } from "ag-grid-react";
 import ReactFlow, {
   Background,
   Controls,
+  Handle,
+  Position,
   type Edge,
   type Node,
   type NodeProps
@@ -817,6 +819,14 @@ function VnumPicker<TFieldValues extends FieldValues>({
 function RoomNode({ data }: NodeProps<RoomNodeData>) {
   return (
     <div className="room-node">
+      <Handle type="source" position={Position.Top} className="room-node__handle" />
+      <Handle type="source" position={Position.Right} className="room-node__handle" />
+      <Handle type="source" position={Position.Bottom} className="room-node__handle" />
+      <Handle type="source" position={Position.Left} className="room-node__handle" />
+      <Handle type="target" position={Position.Top} className="room-node__handle" />
+      <Handle type="target" position={Position.Right} className="room-node__handle" />
+      <Handle type="target" position={Position.Bottom} className="room-node__handle" />
+      <Handle type="target" position={Position.Left} className="room-node__handle" />
       <div className="room-node__vnum">{data.vnum}</div>
       <div className="room-node__name">{data.label}</div>
       <div className="room-node__sector">{data.sector}</div>
@@ -1040,6 +1050,60 @@ function buildRoomNodes(areaData: AreaJson | null): Node<RoomNodeData>[] {
       }
     };
   });
+}
+
+function buildRoomEdges(areaData: AreaJson | null): Edge[] {
+  if (!areaData) {
+    return [];
+  }
+  const rooms = getEntityList(areaData, "Rooms");
+  if (!rooms.length) {
+    return [];
+  }
+  const roomVnums = new Set<number>();
+  for (const room of rooms) {
+    if (!room || typeof room !== "object") {
+      continue;
+    }
+    const vnum = parseVnum((room as Record<string, unknown>).vnum);
+    if (vnum !== null) {
+      roomVnums.add(vnum);
+    }
+  }
+  const edges: Edge[] = [];
+  for (const room of rooms) {
+    if (!room || typeof room !== "object") {
+      continue;
+    }
+    const record = room as Record<string, unknown>;
+    const fromVnum = parseVnum(record.vnum);
+    if (fromVnum === null) {
+      continue;
+    }
+    const exits = Array.isArray(record.exits) ? record.exits : [];
+    exits.forEach((exit, index) => {
+      if (!exit || typeof exit !== "object") {
+        return;
+      }
+      const exitRecord = exit as Record<string, unknown>;
+      const toVnum = parseVnum(exitRecord.toVnum);
+      if (toVnum === null || !roomVnums.has(toVnum)) {
+        return;
+      }
+      const dir =
+        typeof exitRecord.dir === "string" ? exitRecord.dir : "exit";
+      edges.push({
+        id: `exit-${fromVnum}-${dir}-${toVnum}-${index}`,
+        source: String(fromVnum),
+        target: String(toVnum),
+        label: dir,
+        type: "smoothstep",
+        style: { stroke: "rgba(47, 108, 106, 0.45)", strokeWidth: 1.5 },
+        labelStyle: { fill: "#184a4a", fontSize: 11, fontWeight: 600 }
+      });
+    });
+  }
+  return edges;
 }
 
 function buildRoomRows(areaData: AreaJson | null): RoomRow[] {
@@ -1496,7 +1560,7 @@ export default function App() {
   const objectRows = useMemo(() => buildObjectRows(areaData), [areaData]);
   const resetRows = useMemo(() => buildResetRows(areaData), [areaData]);
   const roomNodes = useMemo(() => buildRoomNodes(areaData), [areaData]);
-  const roomEdges = useMemo<Edge[]>(() => [], []);
+  const roomEdges = useMemo(() => buildRoomEdges(areaData), [areaData]);
   const selectedRoomRecord = useMemo(() => {
     if (!areaData || selectedRoomVnum === null) {
       return null;

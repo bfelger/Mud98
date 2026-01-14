@@ -588,6 +588,13 @@ body::before {
   color: var(--accent-strong);
 }
 
+.room-node__handle {
+  width: 8px;
+  height: 8px;
+  background: rgba(47, 108, 106, 0.7);
+  border: 1px solid rgba(24, 74, 74, 0.8);
+}
+
 .entity-table {
   height: 100%;
   min-height: 360px;
