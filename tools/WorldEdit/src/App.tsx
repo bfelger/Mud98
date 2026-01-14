@@ -167,6 +167,22 @@ const roomNodeSize = {
   width: 180,
   height: 90
 };
+const roomPortDefinitions = [
+  { id: "north-in", side: "NORTH" },
+  { id: "north-out", side: "NORTH" },
+  { id: "east-in", side: "EAST" },
+  { id: "east-out", side: "EAST" },
+  { id: "south-in", side: "SOUTH" },
+  { id: "south-out", side: "SOUTH" },
+  { id: "west-in", side: "WEST" },
+  { id: "west-out", side: "WEST" }
+] as const;
+const directionHandleMap: Record<string, { source: string; target: string }> = {
+  north: { source: "north-out", target: "south-in" },
+  east: { source: "east-out", target: "west-in" },
+  south: { source: "south-out", target: "north-in" },
+  west: { source: "west-out", target: "east-in" }
+};
 
 type TabId = (typeof tabs)[number]["id"];
 type EntityKey = (typeof entityOrder)[number];
@@ -826,14 +842,54 @@ function VnumPicker<TFieldValues extends FieldValues>({
 function RoomNode({ data, selected }: NodeProps<RoomNodeData>) {
   return (
     <div className={`room-node${selected ? " room-node--selected" : ""}`}>
-      <Handle type="source" position={Position.Top} className="room-node__handle" />
-      <Handle type="source" position={Position.Right} className="room-node__handle" />
-      <Handle type="source" position={Position.Bottom} className="room-node__handle" />
-      <Handle type="source" position={Position.Left} className="room-node__handle" />
-      <Handle type="target" position={Position.Top} className="room-node__handle" />
-      <Handle type="target" position={Position.Right} className="room-node__handle" />
-      <Handle type="target" position={Position.Bottom} className="room-node__handle" />
-      <Handle type="target" position={Position.Left} className="room-node__handle" />
+      <Handle
+        id="north-out"
+        type="source"
+        position={Position.Top}
+        className="room-node__handle"
+      />
+      <Handle
+        id="north-in"
+        type="target"
+        position={Position.Top}
+        className="room-node__handle"
+      />
+      <Handle
+        id="east-out"
+        type="source"
+        position={Position.Right}
+        className="room-node__handle"
+      />
+      <Handle
+        id="east-in"
+        type="target"
+        position={Position.Right}
+        className="room-node__handle"
+      />
+      <Handle
+        id="south-out"
+        type="source"
+        position={Position.Bottom}
+        className="room-node__handle"
+      />
+      <Handle
+        id="south-in"
+        type="target"
+        position={Position.Bottom}
+        className="room-node__handle"
+      />
+      <Handle
+        id="west-out"
+        type="source"
+        position={Position.Left}
+        className="room-node__handle"
+      />
+      <Handle
+        id="west-in"
+        type="target"
+        position={Position.Left}
+        className="room-node__handle"
+      />
       <div className="room-node__vnum">{data.vnum}</div>
       <div className="room-node__name">{data.label}</div>
       <div className="room-node__sector">{data.sector}</div>
@@ -1079,6 +1135,9 @@ async function layoutRoomNodes(
   if (!nodes.length) {
     return [];
   }
+  const layoutEdges = edges.filter(
+    (edge) => edge.sourceHandle && edge.targetHandle
+  );
   const graph = {
     id: "root",
     layoutOptions: {
@@ -1086,17 +1145,32 @@ async function layoutRoomNodes(
       "elk.direction": "RIGHT",
       "elk.spacing.nodeNode": "80",
       "elk.layered.spacing.nodeNodeBetweenLayers": "140",
-      "elk.spacing.componentComponent": "120"
+      "elk.spacing.componentComponent": "120",
+      "elk.portConstraints": "FIXED_SIDE"
     },
     children: nodes.map((node) => ({
       id: node.id,
       width: roomNodeSize.width,
-      height: roomNodeSize.height
+      height: roomNodeSize.height,
+      ports: roomPortDefinitions.map((port) => ({
+        id: `${node.id}.${port.id}`,
+        layoutOptions: {
+          "elk.port.side": port.side
+        }
+      }))
     })),
-    edges: edges.map((edge) => ({
+    edges: layoutEdges.map((edge) => ({
       id: edge.id,
-      sources: [edge.source],
-      targets: [edge.target]
+      sources: [
+        edge.sourceHandle
+          ? `${edge.source}.${edge.sourceHandle}`
+          : edge.source
+      ],
+      targets: [
+        edge.targetHandle
+          ? `${edge.target}.${edge.targetHandle}`
+          : edge.target
+      ]
     }))
   };
   const layout = await elk.layout(graph);
@@ -1158,11 +1232,15 @@ function buildRoomEdges(areaData: AreaJson | null): Edge[] {
       }
       const dir =
         typeof exitRecord.dir === "string" ? exitRecord.dir : "exit";
+      const dirKey = dir.trim().toLowerCase();
+      const handles = directionHandleMap[dirKey];
       edges.push({
         id: `exit-${fromVnum}-${dir}-${toVnum}-${index}`,
         source: String(fromVnum),
         target: String(toVnum),
         label: dir,
+        sourceHandle: handles?.source,
+        targetHandle: handles?.target,
         type: "smoothstep",
         style: { stroke: "rgba(47, 108, 106, 0.45)", strokeWidth: 1.5 },
         labelStyle: { fill: "#184a4a", fontSize: 11, fontWeight: 600 }
