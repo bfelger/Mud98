@@ -156,6 +156,28 @@ function findByVnum(list: unknown[], vnum: number): Record<string, unknown> | nu
   return null;
 }
 
+function getDefaultSelection(
+  areaData: AreaJson | null,
+  entity: EntityKey,
+  current: number | null
+): number | null {
+  const list = getEntityList(areaData, entity);
+  if (!list.length) {
+    return null;
+  }
+  if (entity === "Resets") {
+    if (current !== null && current >= 0 && current < list.length) {
+      return current;
+    }
+    return 0;
+  }
+  if (current !== null && findByVnum(list, current)) {
+    return current;
+  }
+  const first = list[0] as Record<string, unknown>;
+  return parseVnum(first?.vnum);
+}
+
 function getEntityList(areaData: AreaJson | null, key: EntityKey): unknown[] {
   if (!areaData) {
     return [];
@@ -522,6 +544,43 @@ export default function App() {
   const mobileGridApi = useRef<GridApi | null>(null);
   const objectGridApi = useRef<GridApi | null>(null);
   const resetGridApi = useRef<GridApi | null>(null);
+
+  useEffect(() => {
+    const nextRoom = getDefaultSelection(areaData, "Rooms", selectedRoomVnum);
+    if (selectedRoomVnum !== nextRoom) {
+      setSelectedRoomVnum(nextRoom);
+    }
+    const nextMobile = getDefaultSelection(
+      areaData,
+      "Mobiles",
+      selectedMobileVnum
+    );
+    if (selectedMobileVnum !== nextMobile) {
+      setSelectedMobileVnum(nextMobile);
+    }
+    const nextObject = getDefaultSelection(
+      areaData,
+      "Objects",
+      selectedObjectVnum
+    );
+    if (selectedObjectVnum !== nextObject) {
+      setSelectedObjectVnum(nextObject);
+    }
+    const nextReset = getDefaultSelection(
+      areaData,
+      "Resets",
+      selectedResetIndex
+    );
+    if (selectedResetIndex !== nextReset) {
+      setSelectedResetIndex(nextReset);
+    }
+  }, [
+    areaData,
+    selectedRoomVnum,
+    selectedMobileVnum,
+    selectedObjectVnum,
+    selectedResetIndex
+  ]);
 
   useEffect(() => {
     setSelectedRoomVnum(null);
