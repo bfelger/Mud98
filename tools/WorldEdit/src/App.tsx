@@ -1,8 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ColDef, GridApi } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { LocalFileRepository } from "./repository/localFileRepository";
 import type { AreaJson, EditorMeta, ReferenceData } from "./repository/types";
+import {
+  roomFlagEnum,
+  roomFlags as roomFlagOptions,
+  sectorEnum,
+  sectors
+} from "./schemas/enums";
 
 const tabs = [
   {
@@ -71,6 +80,38 @@ type ResetRow = {
   roomVnum: string;
   details: string;
 };
+
+const optionalIntSchema = z.preprocess((value) => {
+  if (value === "" || value === null || value === undefined) {
+    return undefined;
+  }
+  if (typeof value === "string") {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : value;
+  }
+  return value;
+}, z.number().int().optional());
+
+const optionalSectorSchema = z.preprocess((value) => {
+  if (value === "" || value === null || value === undefined) {
+    return undefined;
+  }
+  return value;
+}, sectorEnum.optional());
+
+const roomFormSchema = z.object({
+  vnum: z.number().int(),
+  name: z.string().min(1, "Name is required."),
+  description: z.string().min(1, "Description is required."),
+  sectorType: optionalSectorSchema,
+  roomFlags: z.array(roomFlagEnum).optional(),
+  manaRate: optionalIntSchema,
+  healRate: optionalIntSchema,
+  clan: optionalIntSchema,
+  owner: z.string().optional()
+});
+
+type RoomFormValues = z.infer<typeof roomFormSchema>;
 
 const entityKindLabels: Record<EntityKey, string> = {
   Rooms: "Room",
@@ -544,6 +585,25 @@ export default function App() {
   const mobileGridApi = useRef<GridApi | null>(null);
   const objectGridApi = useRef<GridApi | null>(null);
   const resetGridApi = useRef<GridApi | null>(null);
+  const roomForm = useForm<RoomFormValues>({
+    resolver: zodResolver(roomFormSchema),
+    defaultValues: {
+      vnum: 0,
+      name: "",
+      description: "",
+      sectorType: undefined,
+      roomFlags: [],
+      manaRate: undefined,
+      healRate: undefined,
+      clan: undefined,
+      owner: ""
+    }
+  });
+  const {
+    register: registerRoom,
+    handleSubmit: handleRoomSubmitForm,
+    formState: roomFormState
+  } = roomForm;
 
   useEffect(() => {
     const nextRoom = getDefaultSelection(areaData, "Rooms", selectedRoomVnum);
@@ -620,6 +680,41 @@ export default function App() {
   const mobileRows = useMemo(() => buildMobileRows(areaData), [areaData]);
   const objectRows = useMemo(() => buildObjectRows(areaData), [areaData]);
   const resetRows = useMemo(() => buildResetRows(areaData), [areaData]);
+  const selectedRoomRecord = useMemo(() => {
+    if (!areaData || selectedRoomVnum === null) {
+      return null;
+    }
+    return findByVnum(getEntityList(areaData, "Rooms"), selectedRoomVnum);
+  }, [areaData, selectedRoomVnum]);
+  const roomFormDefaults = useMemo<RoomFormValues>(() => {
+    const record = selectedRoomRecord;
+    const vnum =
+      selectedRoomVnum ?? parseVnum(record?.vnum) ?? 0;
+    const sectorType =
+      typeof record?.sectorType === "string"
+        ? record.sectorType
+        : typeof record?.sector === "string"
+          ? record.sector
+          : undefined;
+    const roomFlags = Array.isArray(record?.roomFlags)
+      ? record.roomFlags.filter((flag) => typeof flag === "string")
+      : [];
+    const manaRate = parseVnum(record?.manaRate) ?? undefined;
+    const healRate = parseVnum(record?.healRate) ?? undefined;
+    const clan = parseVnum(record?.clan) ?? undefined;
+    return {
+      vnum,
+      name: typeof record?.name === "string" ? record.name : "",
+      description:
+        typeof record?.description === "string" ? record.description : "",
+      sectorType,
+      roomFlags,
+      manaRate,
+      healRate,
+      clan,
+      owner: typeof record?.owner === "string" ? record.owner : ""
+    };
+  }, [selectedRoomRecord, selectedRoomVnum]);
   const roomColumns = useMemo<ColDef<RoomRow>[]>(
     () => [
       { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
@@ -671,6 +766,10 @@ export default function App() {
   const objectDefaultColDef = roomDefaultColDef;
 
   useEffect(() => {
+    roomForm.reset(roomFormDefaults);
+  }, [roomForm, roomFormDefaults]);
+
+  useEffect(() => {
     if (activeTab !== "Table" || selectedEntity !== "Rooms") {
       return;
     }
@@ -697,6 +796,48 @@ export default function App() {
     }
     syncGridSelection(resetGridApi.current, selectedResetIndex);
   }, [activeTab, selectedEntity, selectedResetIndex, resetRows]);
+
+  const handleRoomSubmit = (data: RoomFormValues) => {
+    if (!areaData || selectedRoomVnum === null) {
+      return;
+    }
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const rooms = getEntityList(current, "Rooms");
+      if (!rooms.length) {
+        return current;
+      }
+      const nextRooms = rooms.map((room) => {
+        const record = room as Record<string, unknown>;
+        const roomVnum = parseVnum(record.vnum);
+        if (roomVnum !== selectedRoomVnum) {
+          return record;
+        }
+        const nextRoom: Record<string, unknown> = {
+          ...record,
+          name: data.name,
+          description: data.description,
+          sectorType: data.sectorType ?? undefined,
+          roomFlags: data.roomFlags?.length ? data.roomFlags : undefined,
+          manaRate: data.manaRate ?? undefined,
+          healRate: data.healRate ?? undefined,
+          clan: data.clan ?? undefined,
+          owner: data.owner ?? undefined
+        };
+        if (!("sectorType" in record) && "sector" in record) {
+          nextRoom.sector = data.sectorType ?? undefined;
+        }
+        return nextRoom;
+      });
+      return {
+        ...(current as Record<string, unknown>),
+        rooms: nextRooms
+      };
+    });
+    setStatusMessage(`Updated room ${data.vnum} (unsaved)`);
+  };
 
   const handleOpenArea = async () => {
     setErrorMessage(null);
@@ -998,7 +1139,164 @@ export default function App() {
               </div>
             </div>
             <div className="view-card__body">
-              {activeTab === "Table" &&
+              {activeTab === "Form" && selectedEntity === "Rooms" ? (
+                roomRows.length ? (
+                  <div className="form-view">
+                    <form
+                      className="form-shell"
+                      onSubmit={handleRoomSubmitForm(handleRoomSubmit)}
+                    >
+                      <div className="form-grid">
+                        <div className="form-field">
+                          <label className="form-label" htmlFor="room-vnum">
+                            VNUM
+                          </label>
+                          <input
+                            id="room-vnum"
+                            className="form-input"
+                            type="number"
+                            readOnly
+                            {...registerRoom("vnum", { valueAsNumber: true })}
+                          />
+                        </div>
+                        <div className="form-field form-field--wide">
+                          <label className="form-label" htmlFor="room-name">
+                            Name
+                          </label>
+                          <input
+                            id="room-name"
+                            className="form-input"
+                            type="text"
+                            {...registerRoom("name")}
+                          />
+                          {roomFormState.errors.name ? (
+                            <span className="form-error">
+                              {roomFormState.errors.name.message}
+                            </span>
+                          ) : null}
+                        </div>
+                        <div className="form-field">
+                          <label
+                            className="form-label"
+                            htmlFor="room-sector"
+                          >
+                            Sector
+                          </label>
+                          <select
+                            id="room-sector"
+                            className="form-select"
+                            {...registerRoom("sectorType")}
+                          >
+                            <option value="">Default (inside)</option>
+                            {sectors.map((sector) => (
+                              <option key={sector} value={sector}>
+                                {sector}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label" htmlFor="room-mana">
+                            Mana Rate
+                          </label>
+                          <input
+                            id="room-mana"
+                            className="form-input"
+                            type="number"
+                            {...registerRoom("manaRate")}
+                          />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label" htmlFor="room-heal">
+                            Heal Rate
+                          </label>
+                          <input
+                            id="room-heal"
+                            className="form-input"
+                            type="number"
+                            {...registerRoom("healRate")}
+                          />
+                        </div>
+                        <div className="form-field">
+                          <label className="form-label" htmlFor="room-clan">
+                            Clan
+                          </label>
+                          <input
+                            id="room-clan"
+                            className="form-input"
+                            type="number"
+                            {...registerRoom("clan")}
+                          />
+                        </div>
+                        <div className="form-field form-field--wide">
+                          <label className="form-label" htmlFor="room-owner">
+                            Owner
+                          </label>
+                          <input
+                            id="room-owner"
+                            className="form-input"
+                            type="text"
+                            {...registerRoom("owner")}
+                          />
+                        </div>
+                      </div>
+                      <div className="form-field form-field--full">
+                        <label
+                          className="form-label"
+                          htmlFor="room-description"
+                        >
+                          Description
+                        </label>
+                        <textarea
+                          id="room-description"
+                          className="form-textarea"
+                          rows={6}
+                          {...registerRoom("description")}
+                        />
+                        {roomFormState.errors.description ? (
+                          <span className="form-error">
+                            {roomFormState.errors.description.message}
+                          </span>
+                        ) : null}
+                      </div>
+                      <div className="form-field form-field--full">
+                        <label className="form-label">Room Flags</label>
+                        <div className="form-checkboxes">
+                          {roomFlagOptions.map((flag) => (
+                            <label key={flag} className="checkbox-pill">
+                              <input
+                                type="checkbox"
+                                value={flag}
+                                {...registerRoom("roomFlags")}
+                              />
+                              <span>{flag}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="form-actions">
+                        <button
+                          className="action-button action-button--primary"
+                          type="submit"
+                          disabled={!roomFormState.isDirty}
+                        >
+                          Apply Changes
+                        </button>
+                        <span className="form-hint">
+                          {roomFormState.isDirty
+                            ? "Unsaved changes"
+                            : "Up to date"}
+                        </span>
+                      </div>
+                    </form>
+                  </div>
+                ) : (
+                  <div className="entity-table__empty">
+                    <h3>No rooms available</h3>
+                    <p>Load an area JSON file to edit room data.</p>
+                  </div>
+                )
+              ) : activeTab === "Table" &&
               (selectedEntity === "Rooms" ||
                 selectedEntity === "Mobiles" ||
                 selectedEntity === "Objects" ||
