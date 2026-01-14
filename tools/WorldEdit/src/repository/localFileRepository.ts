@@ -2,7 +2,12 @@ import { open, save } from "@tauri-apps/plugin-dialog";
 import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 import { basename, dirname, homeDir, join } from "@tauri-apps/api/path";
 import { canonicalStringify } from "../utils/canonicalJson";
-import type { AreaJson, EditorMeta, ReferenceData } from "./types";
+import type {
+  AreaIndexEntry,
+  AreaJson,
+  EditorMeta,
+  ReferenceData
+} from "./types";
 import type { WorldRepository } from "./worldRepository";
 
 const jsonFilter = {
@@ -70,6 +75,18 @@ function parseOlcNames(content: string): string[] {
   }
 
   return names;
+}
+
+function parseVnumRange(value: unknown): [number, number] | null {
+  if (!Array.isArray(value) || value.length < 2) {
+    return null;
+  }
+  const start = Number(value[0]);
+  const end = Number(value[1]);
+  if (!Number.isFinite(start) || !Number.isFinite(end)) {
+    return null;
+  }
+  return [start, end];
 }
 
 async function tryReadText(path: string): Promise<string | null> {
@@ -210,6 +227,60 @@ export class LocalFileRepository implements WorldRepository {
   async saveArea(path: string, area: AreaJson): Promise<void> {
     const payload = canonicalStringify(area);
     await writeTextFile(path, payload);
+  }
+
+  async loadAreaIndex(areaDir: string): Promise<AreaIndexEntry[]> {
+    const listPath = await join(areaDir, "area.lst");
+    const rawList = await tryReadText(listPath);
+    if (!rawList) {
+      return [];
+    }
+    const files = rawList
+      .split(/\r?\n/)
+      .map((line) => stripTilde(line).trim())
+      .filter((line) => line && !line.startsWith("#"));
+    const entries: AreaIndexEntry[] = [];
+    const seen = new Set<string>();
+
+    for (const fileName of files) {
+      if (!fileName.toLowerCase().endsWith(".json")) {
+        continue;
+      }
+      if (seen.has(fileName)) {
+        continue;
+      }
+      seen.add(fileName);
+      const path = await join(areaDir, fileName);
+      const raw = await tryReadText(path);
+      if (!raw) {
+        continue;
+      }
+      try {
+        const parsed = JSON.parse(raw) as Record<string, unknown>;
+        const areadata =
+          parsed.areadata && typeof parsed.areadata === "object"
+            ? (parsed.areadata as Record<string, unknown>)
+            : null;
+        const name =
+          areadata && typeof areadata.name === "string"
+            ? areadata.name
+            : fileName;
+        const vnumRange = parseVnumRange(areadata?.vnumRange);
+        entries.push({
+          fileName,
+          name,
+          vnumRange
+        });
+      } catch {
+        continue;
+      }
+    }
+
+    return entries.sort((a, b) => {
+      const aStart = a.vnumRange ? a.vnumRange[0] : Number.MAX_SAFE_INTEGER;
+      const bStart = b.vnumRange ? b.vnumRange[0] : Number.MAX_SAFE_INTEGER;
+      return aStart - bStart;
+    });
   }
 
   async loadEditorMeta(path: string): Promise<EditorMeta | null> {

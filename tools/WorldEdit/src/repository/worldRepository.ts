@@ -1,4 +1,9 @@
-import type { AreaJson, EditorMeta, ReferenceData } from "./types";
+import type {
+  AreaIndexEntry,
+  AreaJson,
+  EditorMeta,
+  ReferenceData
+} from "./types";
 
 export interface WorldRepository {
   pickAreaDirectory(defaultPath?: string | null): Promise<string | null>;
@@ -11,6 +16,7 @@ export interface WorldRepository {
   ): Promise<string | null>;
   loadArea(path: string): Promise<AreaJson>;
   saveArea(path: string, area: AreaJson): Promise<void>;
+  loadAreaIndex(areaDir: string): Promise<AreaIndexEntry[]>;
   loadEditorMeta(path: string): Promise<EditorMeta | null>;
   saveEditorMeta(path: string, meta: EditorMeta): Promise<void>;
   loadReferenceData(dataDir: string): Promise<ReferenceData>;

@@ -21,6 +21,7 @@ import ReactFlow, {
   type NodeProps,
   useStore
 } from "reactflow";
+import { dirname } from "@tauri-apps/api/path";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   useFieldArray,
@@ -32,7 +33,12 @@ import {
 } from "react-hook-form";
 import { z } from "zod";
 import { LocalFileRepository } from "./repository/localFileRepository";
-import type { AreaJson, EditorMeta, ReferenceData } from "./repository/types";
+import type {
+  AreaIndexEntry,
+  AreaJson,
+  EditorMeta,
+  ReferenceData
+} from "./repository/types";
 import ELK from "elkjs/lib/elk.bundled.js";
 import {
   containerFlagEnum,
@@ -206,8 +212,29 @@ const oppositeDirections: Record<string, string> = {
   south: "north",
   west: "east"
 };
+const externalSourceHandles: Record<string, string> = {
+  up: "north-out",
+  down: "south-out"
+};
+const externalDirectionMap: Record<string, Position> = {
+  north: Position.Top,
+  south: Position.Bottom,
+  east: Position.Right,
+  west: Position.Left,
+  up: Position.Top,
+  down: Position.Bottom
+};
+const externalDirectionLabels: Record<string, string> = {
+  north: "N",
+  south: "S",
+  east: "E",
+  west: "W",
+  up: "U",
+  down: "D"
+};
 const edgeStubSize = 22;
 const edgeClearance = 10;
+const externalStubSize = 34;
 const edgeDirectionPriority: Record<Position, "horizontal" | "vertical"> = {
   [Position.Left]: "horizontal",
   [Position.Right]: "horizontal",
@@ -251,6 +278,14 @@ type ResetRow = {
   entityVnum: string;
   roomVnum: string;
   details: string;
+};
+
+type ExternalExit = {
+  fromVnum: number;
+  fromName: string;
+  direction: string;
+  toVnum: number;
+  areaName: string | null;
 };
 
 type RoomNodeData = {
@@ -1375,7 +1410,56 @@ function VerticalEdge({
   );
 }
 
-const roomEdgeTypes = { room: RoomEdge, vertical: VerticalEdge };
+function ExternalStubEdge({
+  id,
+  sourceX,
+  sourceY,
+  sourcePosition,
+  data,
+  markerEnd,
+  interactionWidth
+}: EdgeProps<{ dirKey?: string; targetVnum?: number }>) {
+  const dirKey = data?.dirKey ?? "";
+  const rawLabel =
+    externalDirectionLabels[dirKey] ?? dirKey.trim().toUpperCase();
+  const labelCode = rawLabel.length ? rawLabel : "X";
+  const labelSuffix =
+    typeof data?.targetVnum === "number" ? ` ${data.targetVnum}` : "";
+  const direction =
+    externalDirectionMap[dirKey] ?? sourcePosition ?? Position.Right;
+  const start = { x: sourceX, y: sourceY };
+  const end = offsetPoint(start, direction, externalStubSize);
+  const labelPoint = offsetPoint(start, direction, externalStubSize + 16);
+  const path = `M${start.x} ${start.y} L${end.x} ${end.y}`;
+  return (
+    <>
+      <BaseEdge
+        id={id}
+        path={path}
+        markerEnd={markerEnd}
+        interactionWidth={interactionWidth}
+        style={{
+          stroke: "rgba(47, 108, 106, 0.35)",
+          strokeWidth: 1.1,
+          strokeDasharray: "2 6"
+        }}
+      />
+      <EdgeLabelRenderer>
+        <div
+          className="room-edge__label room-edge__label--external"
+          style={{
+            transform: `translate(-50%, -50%) translate(${labelPoint.x}px, ${labelPoint.y}px)`
+          }}
+        >
+          {labelCode}
+          {labelSuffix}
+        </div>
+      </EdgeLabelRenderer>
+    </>
+  );
+}
+
+const roomEdgeTypes = { room: RoomEdge, vertical: VerticalEdge, external: ExternalStubEdge };
 
 function buildVnumOptions(
   areaData: AreaJson | null,
@@ -1884,7 +1968,8 @@ async function layoutRoomNodes(
 
 function buildRoomEdges(
   areaData: AreaJson | null,
-  includeVerticalEdges: boolean
+  includeVerticalEdges: boolean,
+  includeExternalEdges: boolean
 ): Edge[] {
   if (!areaData) {
     return [];
@@ -1920,7 +2005,7 @@ function buildRoomEdges(
       }
       const exitRecord = exit as Record<string, unknown>;
       const toVnum = parseVnum(exitRecord.toVnum);
-      if (toVnum === null || !roomVnums.has(toVnum)) {
+      if (toVnum === null) {
         return;
       }
       const dir =
@@ -1928,22 +2013,38 @@ function buildRoomEdges(
       const dirKey = dir.trim().toLowerCase();
       const handles = directionHandleMap[dirKey];
       const isVertical = dirKey === "up" || dirKey === "down";
-      if (!handles && !(includeVerticalEdges && isVertical)) {
-        return;
-      }
+      const isInternal = roomVnums.has(toVnum);
       const exitFlags = Array.isArray(exitRecord.flags)
         ? exitRecord.flags
             .filter((flag) => typeof flag === "string")
             .map((flag) => flag.trim().toLowerCase())
         : [];
-      if (!handles) {
+      if (!isInternal && includeExternalEdges) {
+        const externalHandle =
+          handles?.source ?? externalSourceHandles[dirKey];
         edges.push({
-          id: `exit-${fromVnum}-${dir}-${toVnum}-${index}`,
+          id: `external-${fromVnum}-${dir}-${toVnum}-${index}`,
           source: String(fromVnum),
-          target: String(toVnum),
-          type: "vertical",
-          data: { dirKey, exitFlags }
+          target: String(fromVnum),
+          sourceHandle: externalHandle,
+          type: "external",
+          data: { dirKey, exitFlags, targetVnum: toVnum }
         });
+        return;
+      }
+      if (!isInternal) {
+        return;
+      }
+      if (!handles) {
+        if (includeVerticalEdges && isVertical) {
+          edges.push({
+            id: `exit-${fromVnum}-${dir}-${toVnum}-${index}`,
+            source: String(fromVnum),
+            target: String(toVnum),
+            type: "vertical",
+            data: { dirKey, exitFlags }
+          });
+        }
         return;
       }
       edges.push({
@@ -1951,14 +2052,101 @@ function buildRoomEdges(
         source: String(fromVnum),
         target: String(toVnum),
         label: dir,
-        sourceHandle: handles?.source,
-        targetHandle: handles?.target,
+        sourceHandle: handles.source,
+        targetHandle: handles.target,
         type: "room",
         data: { dirKey, exitFlags }
       });
     });
   }
   return edges;
+}
+
+function findAreaForVnum(
+  areaIndex: AreaIndexEntry[],
+  vnum: number
+): AreaIndexEntry | null {
+  for (const entry of areaIndex) {
+    if (!entry.vnumRange) {
+      continue;
+    }
+    const [start, end] = entry.vnumRange;
+    if (vnum >= start && vnum <= end) {
+      return entry;
+    }
+  }
+  return null;
+}
+
+function buildExternalExits(
+  areaData: AreaJson | null,
+  areaIndex: AreaIndexEntry[]
+): ExternalExit[] {
+  if (!areaData) {
+    return [];
+  }
+  const rooms = getEntityList(areaData, "Rooms");
+  if (!rooms.length) {
+    return [];
+  }
+  const roomVnums = new Set<number>();
+  const roomNames = new Map<number, string>();
+  rooms.forEach((room) => {
+    if (!room || typeof room !== "object") {
+      return;
+    }
+    const record = room as Record<string, unknown>;
+    const vnum = parseVnum(record.vnum);
+    if (vnum === null) {
+      return;
+    }
+    roomVnums.add(vnum);
+    roomNames.set(vnum, getFirstString(record.name, "(unnamed room)"));
+  });
+  const externals: ExternalExit[] = [];
+  const seen = new Set<string>();
+  rooms.forEach((room) => {
+    if (!room || typeof room !== "object") {
+      return;
+    }
+    const record = room as Record<string, unknown>;
+    const fromVnum = parseVnum(record.vnum);
+    if (fromVnum === null) {
+      return;
+    }
+    const exits = Array.isArray(record.exits) ? record.exits : [];
+    exits.forEach((exit) => {
+      if (!exit || typeof exit !== "object") {
+        return;
+      }
+      const exitRecord = exit as Record<string, unknown>;
+      const toVnum = parseVnum(exitRecord.toVnum);
+      if (toVnum === null || roomVnums.has(toVnum)) {
+        return;
+      }
+      const dir =
+        typeof exitRecord.dir === "string" ? exitRecord.dir : "exit";
+      const key = `${fromVnum}-${dir}-${toVnum}`;
+      if (seen.has(key)) {
+        return;
+      }
+      seen.add(key);
+      const area = findAreaForVnum(areaIndex, toVnum);
+      externals.push({
+        fromVnum,
+        fromName: roomNames.get(fromVnum) ?? "(unnamed room)",
+        direction: dir.trim() ? dir.trim() : "exit",
+        toVnum,
+        areaName: area?.name ?? null
+      });
+    });
+  });
+  return externals.sort((a, b) => {
+    if (a.fromVnum !== b.fromVnum) {
+      return a.fromVnum - b.fromVnum;
+    }
+    return a.direction.localeCompare(b.direction);
+  });
 }
 
 function buildRoomRows(areaData: AreaJson | null): RoomRow[] {
@@ -2152,6 +2340,7 @@ export default function App() {
     const stored = localStorage.getItem("worldedit.showVerticalEdges");
     return stored ? stored === "true" : false;
   });
+  const [areaIndex, setAreaIndex] = useState<AreaIndexEntry[]>([]);
   const [layoutNonce, setLayoutNonce] = useState(0);
   const roomGridApi = useRef<GridApi | null>(null);
   const mobileGridApi = useRef<GridApi | null>(null);
@@ -2427,8 +2616,12 @@ export default function App() {
   const resetRows = useMemo(() => buildResetRows(areaData), [areaData]);
   const baseRoomNodes = useMemo(() => buildRoomNodes(areaData), [areaData]);
   const roomEdges = useMemo(
-    () => buildRoomEdges(areaData, showVerticalEdges),
+    () => buildRoomEdges(areaData, showVerticalEdges, true),
     [areaData, showVerticalEdges]
+  );
+  const externalExits = useMemo(
+    () => buildExternalExits(areaData, areaIndex),
+    [areaData, areaIndex]
   );
   const handleMapNavigate = useCallback(
     (vnum: number) => {
@@ -2493,6 +2686,34 @@ export default function App() {
       String(showVerticalEdges)
     );
   }, [showVerticalEdges]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadIndex = async () => {
+      const baseDir =
+        areaDirectory ?? (areaPath ? await dirname(areaPath) : null);
+      if (!baseDir) {
+        if (!cancelled) {
+          setAreaIndex([]);
+        }
+        return;
+      }
+      try {
+        const entries = await repository.loadAreaIndex(baseDir);
+        if (!cancelled) {
+          setAreaIndex(entries);
+        }
+      } catch {
+        if (!cancelled) {
+          setAreaIndex([]);
+        }
+      }
+    };
+    loadIndex();
+    return () => {
+      cancelled = true;
+    };
+  }, [areaDirectory, areaPath, repository]);
   const selectedRoomRecord = useMemo(() => {
     if (!areaData || selectedRoomVnum === null) {
       return null;
@@ -5717,6 +5938,48 @@ export default function App() {
                           VNUM range: {areaVnumRange}
                         </div>
                       ) : null}
+                    </div>
+                    <div className="map-panel">
+                      <div className="map-panel__header">
+                        <span>External exits</span>
+                        <span className="map-panel__count">
+                          {externalExits.length}
+                        </span>
+                      </div>
+                      {externalExits.length ? (
+                        <ul className="map-panel__list">
+                          {externalExits.map((exit) => (
+                            <li
+                              key={`${exit.fromVnum}-${exit.direction}-${exit.toVnum}`}
+                              className="map-panel__item"
+                            >
+                              <button
+                                type="button"
+                                className="map-panel__link"
+                                onClick={() =>
+                                  handleMapNavigate(exit.fromVnum)
+                                }
+                                title={`${exit.fromName} (${exit.fromVnum})`}
+                              >
+                                {exit.fromVnum}
+                              </button>
+                              <span className="map-panel__dir">
+                                {exit.direction.toUpperCase()}
+                              </span>
+                              <span className="map-panel__target">
+                                -&gt; {exit.toVnum}
+                                <span className="map-panel__area">
+                                  {exit.areaName ?? "Unknown area"}
+                                </span>
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <div className="map-panel__empty">
+                          No external exits detected.
+                        </div>
+                      )}
                     </div>
                   </div>
                 ) : (

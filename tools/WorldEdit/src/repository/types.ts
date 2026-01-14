@@ -19,3 +19,9 @@ export type ReferenceData = {
   commands: string[];
   sourceDir: string;
 };
+
+export type AreaIndexEntry = {
+  fileName: string;
+  name: string;
+  vnumRange: [number, number] | null;
+};
