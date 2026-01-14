@@ -22,6 +22,7 @@ import {
 import { z } from "zod";
 import { LocalFileRepository } from "./repository/localFileRepository";
 import type { AreaJson, EditorMeta, ReferenceData } from "./repository/types";
+import ELK from "elkjs/lib/elk.bundled.js";
 import {
   containerFlagEnum,
   containerFlags,
@@ -159,6 +160,12 @@ const resetCommandLabels: Record<ResetCommand, string> = {
   equipObj: "Equip Object",
   setDoor: "Set Door",
   randomizeExits: "Randomize Exits"
+};
+
+const elk = new ELK();
+const roomNodeSize = {
+  width: 180,
+  height: 90
 };
 
 type TabId = (typeof tabs)[number]["id"];
@@ -1016,10 +1023,7 @@ function buildAreaDebugSummary(areaData: AreaJson | null): {
   return { keys, arrayCounts };
 }
 
-function buildRoomNodes(
-  areaData: AreaJson | null,
-  selectedVnum: number | null
-): Node<RoomNodeData>[] {
+function buildRoomNodes(areaData: AreaJson | null): Node<RoomNodeData>[] {
   if (!areaData) {
     return [];
   }
@@ -1046,12 +1050,70 @@ function buildRoomNodes(
       id: vnum !== null ? String(vnum) : `room-${index}`,
       type: "room",
       position: { x: col * spacingX, y: row * spacingY },
-      selected: selectedVnum !== null && vnum === selectedVnum,
       data: {
         vnum: vnum ?? -1,
         label: name,
         sector
       }
+    };
+  });
+}
+
+function applyRoomSelection(
+  nodes: Node<RoomNodeData>[],
+  selectedVnum: number | null
+): Node<RoomNodeData>[] {
+  if (selectedVnum === null) {
+    return nodes.map((node) => ({ ...node, selected: false }));
+  }
+  return nodes.map((node) => ({
+    ...node,
+    selected: node.data.vnum === selectedVnum
+  }));
+}
+
+async function layoutRoomNodes(
+  nodes: Node<RoomNodeData>[],
+  edges: Edge[]
+): Promise<Node<RoomNodeData>[]> {
+  if (!nodes.length) {
+    return [];
+  }
+  const graph = {
+    id: "root",
+    layoutOptions: {
+      "elk.algorithm": "layered",
+      "elk.direction": "RIGHT",
+      "elk.spacing.nodeNode": "80",
+      "elk.layered.spacing.nodeNodeBetweenLayers": "140",
+      "elk.spacing.componentComponent": "120"
+    },
+    children: nodes.map((node) => ({
+      id: node.id,
+      width: roomNodeSize.width,
+      height: roomNodeSize.height
+    })),
+    edges: edges.map((edge) => ({
+      id: edge.id,
+      sources: [edge.source],
+      targets: [edge.target]
+    }))
+  };
+  const layout = await elk.layout(graph);
+  const positions = new Map<string, { x: number; y: number }>();
+  layout.children?.forEach((child) => {
+    if (child.id && typeof child.x === "number" && typeof child.y === "number") {
+      positions.set(child.id, { x: child.x, y: child.y });
+    }
+  });
+  return nodes.map((node) => {
+    const position = positions.get(node.id);
+    if (!position) {
+      return node;
+    }
+    return {
+      ...node,
+      position
     };
   });
 }
@@ -1291,6 +1353,7 @@ export default function App() {
   const [areaDirectory, setAreaDirectory] = useState<string | null>(() =>
     localStorage.getItem("worldedit.areaDir")
   );
+  const [layoutNodes, setLayoutNodes] = useState<Node<RoomNodeData>[]>([]);
   const roomGridApi = useRef<GridApi | null>(null);
   const mobileGridApi = useRef<GridApi | null>(null);
   const objectGridApi = useRef<GridApi | null>(null);
@@ -1563,12 +1626,42 @@ export default function App() {
   const mobileRows = useMemo(() => buildMobileRows(areaData), [areaData]);
   const objectRows = useMemo(() => buildObjectRows(areaData), [areaData]);
   const resetRows = useMemo(() => buildResetRows(areaData), [areaData]);
-  const roomNodes = useMemo(
-    () => buildRoomNodes(areaData, selectedRoomVnum),
-    [areaData, selectedRoomVnum]
-  );
+  const baseRoomNodes = useMemo(() => buildRoomNodes(areaData), [areaData]);
   const roomEdges = useMemo(() => buildRoomEdges(areaData), [areaData]);
-  const selectedRoomId = selectedRoomVnum !== null ? String(selectedRoomVnum) : null;
+  const mapNodes = useMemo(
+    () =>
+      applyRoomSelection(
+        layoutNodes.length ? layoutNodes : baseRoomNodes,
+        selectedRoomVnum
+      ),
+    [layoutNodes, baseRoomNodes, selectedRoomVnum]
+  );
+  useEffect(() => {
+    if (activeTab !== "Map") {
+      return;
+    }
+    if (!baseRoomNodes.length) {
+      setLayoutNodes([]);
+      return;
+    }
+    let cancelled = false;
+    const runLayout = async () => {
+      try {
+        const nextNodes = await layoutRoomNodes(baseRoomNodes, roomEdges);
+        if (!cancelled) {
+          setLayoutNodes(nextNodes);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setLayoutNodes(baseRoomNodes);
+        }
+      }
+    };
+    runLayout();
+    return () => {
+      cancelled = true;
+    };
+  }, [activeTab, baseRoomNodes, roomEdges]);
   const selectedRoomRecord = useMemo(() => {
     if (!areaData || selectedRoomVnum === null) {
       return null;
@@ -4697,11 +4790,11 @@ export default function App() {
                   </div>
                 )
               ) : activeTab === "Map" ? (
-                roomNodes.length ? (
+                mapNodes.length ? (
                   <div className="map-shell">
                     <div className="map-canvas">
                       <ReactFlow
-                        nodes={roomNodes}
+                        nodes={mapNodes}
                         edges={roomEdges}
                         nodeTypes={roomNodeTypes}
                         fitView

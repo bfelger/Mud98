@@ -17,6 +17,7 @@
     "@tauri-apps/plugin-fs": "^2.0.0",
     "ag-grid-community": "^35.0.0",
     "ag-grid-react": "^35.0.0",
+    "elkjs": "^0.9.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.71.1",
