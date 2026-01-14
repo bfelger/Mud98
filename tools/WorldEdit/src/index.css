@@ -571,6 +571,12 @@ body::before {
   gap: 4px;
 }
 
+.room-node--selected {
+  border-color: rgba(47, 108, 106, 0.85);
+  box-shadow: 0 16px 28px rgba(55, 40, 20, 0.2);
+  background: rgba(255, 255, 255, 1);
+}
+
 .room-node__vnum {
   font-size: 0.7rem;
   text-transform: uppercase;

@@ -816,9 +816,9 @@ function VnumPicker<TFieldValues extends FieldValues>({
   );
 }
 
-function RoomNode({ data }: NodeProps<RoomNodeData>) {
+function RoomNode({ data, selected }: NodeProps<RoomNodeData>) {
   return (
-    <div className="room-node">
+    <div className={`room-node${selected ? " room-node--selected" : ""}`}>
       <Handle type="source" position={Position.Top} className="room-node__handle" />
       <Handle type="source" position={Position.Right} className="room-node__handle" />
       <Handle type="source" position={Position.Bottom} className="room-node__handle" />
@@ -1016,7 +1016,10 @@ function buildAreaDebugSummary(areaData: AreaJson | null): {
   return { keys, arrayCounts };
 }
 
-function buildRoomNodes(areaData: AreaJson | null): Node<RoomNodeData>[] {
+function buildRoomNodes(
+  areaData: AreaJson | null,
+  selectedVnum: number | null
+): Node<RoomNodeData>[] {
   if (!areaData) {
     return [];
   }
@@ -1043,6 +1046,7 @@ function buildRoomNodes(areaData: AreaJson | null): Node<RoomNodeData>[] {
       id: vnum !== null ? String(vnum) : `room-${index}`,
       type: "room",
       position: { x: col * spacingX, y: row * spacingY },
+      selected: selectedVnum !== null && vnum === selectedVnum,
       data: {
         vnum: vnum ?? -1,
         label: name,
@@ -1559,8 +1563,12 @@ export default function App() {
   const mobileRows = useMemo(() => buildMobileRows(areaData), [areaData]);
   const objectRows = useMemo(() => buildObjectRows(areaData), [areaData]);
   const resetRows = useMemo(() => buildResetRows(areaData), [areaData]);
-  const roomNodes = useMemo(() => buildRoomNodes(areaData), [areaData]);
+  const roomNodes = useMemo(
+    () => buildRoomNodes(areaData, selectedRoomVnum),
+    [areaData, selectedRoomVnum]
+  );
   const roomEdges = useMemo(() => buildRoomEdges(areaData), [areaData]);
+  const selectedRoomId = selectedRoomVnum !== null ? String(selectedRoomVnum) : null;
   const selectedRoomRecord = useMemo(() => {
     if (!areaData || selectedRoomVnum === null) {
       return null;
@@ -2040,6 +2048,12 @@ export default function App() {
     }
     syncGridSelection(resetGridApi.current, selectedResetIndex);
   }, [activeTab, selectedEntity, selectedResetIndex, resetRows]);
+
+  useEffect(() => {
+    if (activeTab === "Map" && selectedEntity !== "Rooms") {
+      setSelectedEntity("Rooms");
+    }
+  }, [activeTab, selectedEntity]);
 
   const handleRoomSubmit = (data: RoomFormValues) => {
     if (!areaData || selectedRoomVnum === null) {
@@ -4693,6 +4707,16 @@ export default function App() {
                         fitView
                         nodesDraggable={false}
                         nodesConnectable={false}
+                        onNodeClick={(_, node) => {
+                          const vnum =
+                            typeof node.data?.vnum === "number"
+                              ? node.data.vnum
+                              : parseVnum(node.id);
+                          if (vnum !== null && vnum >= 0) {
+                            setSelectedRoomVnum(vnum);
+                            setSelectedEntity("Rooms");
+                          }
+                        }}
                         panOnScroll
                       >
                         <Background gap={24} size={1} />
