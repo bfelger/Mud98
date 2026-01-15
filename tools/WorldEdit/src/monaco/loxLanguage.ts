@@ -23,7 +23,55 @@ const keywords = [
 
 const literals = ["true", "false", "nil"];
 
-const typeKeywords = ["Race", "DamageType"];
+const typeKeywords = ["Race", "DamageType", "Reputation"];
+
+const builtinGlobals = [
+  "global_areas",
+  "global_objs",
+  "global_mobs",
+  "native_cmds",
+  "native_mob_cmds"
+];
+
+const builtinFunctions = [
+  "clock",
+  "marshal",
+  "floor",
+  "string",
+  "damage",
+  "dice",
+  "do",
+  "saves_spell",
+  "delay"
+];
+
+const builtinMethods = [
+  "is_area",
+  "is_area_data",
+  "is_room",
+  "is_room_data",
+  "is_mob",
+  "is_mob_proto",
+  "is_obj",
+  "is_obj_proto",
+  "send",
+  "say",
+  "echo",
+  "can_quest",
+  "has_quest",
+  "grant_quest",
+  "can_finish_quest",
+  "finish_quest",
+  "get_reputation",
+  "adjust_reputation",
+  "set_reputation",
+  "is_enemy",
+  "is_ally",
+  "each",
+  "count",
+  "add",
+  "contains"
+];
 
 const operators = [
   "=",
@@ -80,6 +128,9 @@ export function registerLoxLanguage(monaco: Monaco) {
     typeKeywords,
     literals,
     operators,
+    builtinGlobals,
+    builtinFunctions,
+    builtinMethods,
     symbols: /[=><!~?:&|+\-*/^%]+/,
     escapes: /\\(?:[nrt"\\$]|x[0-9A-Fa-f]{2})/,
     tokenizer: {
@@ -92,6 +143,9 @@ export function registerLoxLanguage(monaco: Monaco) {
               "@keywords": "keyword",
               "@typeKeywords": "type.identifier",
               "@literals": "constant.language",
+              "@builtinGlobals": "variable.predefined",
+              "@builtinFunctions": "function",
+              "@builtinMethods": "method",
               "@default": "identifier"
             }
           }
