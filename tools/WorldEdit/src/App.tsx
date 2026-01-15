@@ -304,6 +304,11 @@ type ValidationIssue = {
   vnum?: number;
 };
 
+type ExitValidationResult = {
+  issues: ValidationIssue[];
+  invalidEdgeIds: Set<string>;
+};
+
 type RoomNodeData = {
   vnum: number;
   label: string;
@@ -1346,7 +1351,7 @@ function RoomEdge({
   selected,
   markerEnd,
   interactionWidth
-}: EdgeProps<{ dirKey?: string; exitFlags?: string[] }>) {
+}: EdgeProps<{ dirKey?: string; exitFlags?: string[]; invalid?: boolean }>) {
   const nodeInternals = useStore((state) => state.nodeInternals);
   const obstacles = useMemo(() => {
     const entries = Array.from(nodeInternals.values());
@@ -1394,23 +1399,42 @@ function RoomEdge({
     ]
   );
   const exitFlags = Array.isArray(data?.exitFlags) ? data.exitFlags : [];
+  const isInvalid = data?.invalid === true;
   const isLocked = exitFlags.includes("locked");
   const isDoor = isLocked || exitFlags.includes("door") || exitFlags.includes("closed");
-  const stroke = isLocked
-    ? "rgba(167, 60, 60, 0.85)"
-    : isDoor
-      ? "rgba(138, 92, 34, 0.75)"
-      : "rgba(47, 108, 106, 0.55)";
+  const stroke = isInvalid
+    ? "rgba(167, 60, 60, 0.9)"
+    : isLocked
+      ? "rgba(167, 60, 60, 0.85)"
+      : isDoor
+        ? "rgba(138, 92, 34, 0.75)"
+        : "rgba(47, 108, 106, 0.55)";
   const edgeStyle = {
     stroke,
-    strokeWidth: selected ? 2.4 : isLocked ? 2.1 : isDoor ? 1.8 : 1.4,
-    strokeDasharray: isLocked ? "4 3" : isDoor ? "6 4" : undefined
+    strokeWidth: selected
+      ? 2.4
+      : isInvalid
+        ? 2.2
+        : isLocked
+          ? 2.1
+          : isDoor
+            ? 1.8
+            : 1.4,
+    strokeDasharray: isInvalid
+      ? "3 3"
+      : isLocked
+        ? "4 3"
+        : isDoor
+          ? "6 4"
+          : undefined
   };
-  const labelClass = isLocked
-    ? "room-edge__label room-edge__label--locked"
-    : isDoor
-      ? "room-edge__label room-edge__label--door"
-      : "room-edge__label";
+  const labelClass = isInvalid
+    ? "room-edge__label room-edge__label--invalid"
+    : isLocked
+      ? "room-edge__label room-edge__label--locked"
+      : isDoor
+        ? "room-edge__label room-edge__label--door"
+        : "room-edge__label";
   return (
     <>
       <BaseEdge
@@ -1469,13 +1493,14 @@ function ExternalStubEdge({
   data,
   markerEnd,
   interactionWidth
-}: EdgeProps<{ dirKey?: string; targetVnum?: number }>) {
+}: EdgeProps<{ dirKey?: string; targetVnum?: number; invalid?: boolean }>) {
   const dirKey = data?.dirKey ?? "";
   const rawLabel =
     externalDirectionLabels[dirKey] ?? dirKey.trim().toUpperCase();
   const labelCode = rawLabel.length ? rawLabel : "X";
   const labelSuffix =
     typeof data?.targetVnum === "number" ? ` ${data.targetVnum}` : "";
+  const isInvalid = data?.invalid === true;
   const direction =
     externalDirectionMap[dirKey] ?? sourcePosition ?? Position.Right;
   const start = { x: sourceX, y: sourceY };
@@ -1490,14 +1515,16 @@ function ExternalStubEdge({
         markerEnd={markerEnd}
         interactionWidth={interactionWidth}
         style={{
-          stroke: "rgba(47, 108, 106, 0.35)",
-          strokeWidth: 1.1,
-          strokeDasharray: "2 6"
+          stroke: isInvalid ? "rgba(167, 60, 60, 0.7)" : "rgba(47, 108, 106, 0.35)",
+          strokeWidth: isInvalid ? 1.6 : 1.1,
+          strokeDasharray: isInvalid ? "3 4" : "2 6"
         }}
       />
       <EdgeLabelRenderer>
         <div
-          className="room-edge__label room-edge__label--external"
+          className={`room-edge__label room-edge__label--external${
+            isInvalid ? " room-edge__label--invalid" : ""
+          }`}
           style={{
             transform: `translate(-50%, -50%) translate(${labelPoint.x}px, ${labelPoint.y}px)`
           }}
@@ -1754,6 +1781,92 @@ function validateDuplicateVnums(areaData: AreaJson | null): ValidationIssue[] {
   checkEntity("Objects");
 
   return issues;
+}
+
+function buildExitTargetValidation(
+  areaData: AreaJson | null,
+  areaIndex: AreaIndexEntry[]
+): ExitValidationResult {
+  const empty = { issues: [], invalidEdgeIds: new Set<string>() };
+  if (!areaData) {
+    return empty;
+  }
+  const rooms = getEntityList(areaData, "Rooms");
+  if (!rooms.length) {
+    return empty;
+  }
+  const bounds = getAreaVnumBounds(areaData);
+  const roomVnums = new Set<number>();
+  rooms.forEach((room) => {
+    if (!room || typeof room !== "object") {
+      return;
+    }
+    const vnum = parseVnum((room as Record<string, unknown>).vnum);
+    if (vnum !== null) {
+      roomVnums.add(vnum);
+    }
+  });
+  const issues: ValidationIssue[] = [];
+  const invalidEdgeIds = new Set<string>();
+  rooms.forEach((room, index) => {
+    if (!room || typeof room !== "object") {
+      return;
+    }
+    const record = room as Record<string, unknown>;
+    const fromVnum = parseVnum(record.vnum);
+    if (fromVnum === null) {
+      return;
+    }
+    const exits = Array.isArray(record.exits) ? record.exits : [];
+    exits.forEach((exit, exitIndex) => {
+      if (!exit || typeof exit !== "object") {
+        return;
+      }
+      const exitRecord = exit as Record<string, unknown>;
+      const toVnum = parseVnum(exitRecord.toVnum);
+      const dir =
+        typeof exitRecord.dir === "string" && exitRecord.dir.trim().length
+          ? exitRecord.dir.trim()
+          : "exit";
+      if (toVnum === null) {
+        issues.push({
+          id: `exit-target-${fromVnum}-${dir}-${index}-${exitIndex}`,
+          severity: "error",
+          entityType: "Rooms",
+          vnum: fromVnum,
+          message: `Exit ${dir} from room ${fromVnum} has no target vnum`
+        });
+        return;
+      }
+      if (roomVnums.has(toVnum)) {
+        return;
+      }
+      const internalEdgeId = `exit-${fromVnum}-${dir}-${toVnum}-${exitIndex}`;
+      const externalEdgeId = `external-${fromVnum}-${dir}-${toVnum}-${exitIndex}`;
+      if (bounds && (toVnum < bounds.min || toVnum > bounds.max)) {
+        if (areaIndex.length && !findAreaForVnum(areaIndex, toVnum)) {
+          issues.push({
+            id: `exit-target-${fromVnum}-${dir}-${toVnum}-${index}-${exitIndex}`,
+            severity: "error",
+            entityType: "Rooms",
+            vnum: fromVnum,
+            message: `Exit ${dir} from room ${fromVnum} targets unknown area vnum ${toVnum}`
+          });
+          invalidEdgeIds.add(externalEdgeId);
+        }
+        return;
+      }
+      issues.push({
+        id: `exit-target-${fromVnum}-${dir}-${toVnum}-${index}-${exitIndex}`,
+        severity: "error",
+        entityType: "Rooms",
+        vnum: fromVnum,
+        message: `Exit ${dir} from room ${fromVnum} targets missing room ${toVnum}`
+      });
+      invalidEdgeIds.add(internalEdgeId);
+    });
+  });
+  return { issues, invalidEdgeIds };
 }
 
 function buildValidationSummary(
@@ -2202,7 +2315,8 @@ async function layoutRoomNodes(
 function buildRoomEdges(
   areaData: AreaJson | null,
   includeVerticalEdges: boolean,
-  includeExternalEdges: boolean
+  includeExternalEdges: boolean,
+  invalidEdgeIds?: Set<string>
 ): Edge[] {
   if (!areaData) {
     return [];
@@ -2255,13 +2369,15 @@ function buildRoomEdges(
       if (!isInternal && includeExternalEdges) {
         const externalHandle =
           handles?.source ?? externalSourceHandles[dirKey];
+        const edgeId = `external-${fromVnum}-${dir}-${toVnum}-${index}`;
+        const isInvalid = invalidEdgeIds?.has(edgeId) ?? false;
         edges.push({
-          id: `external-${fromVnum}-${dir}-${toVnum}-${index}`,
+          id: edgeId,
           source: String(fromVnum),
           target: String(fromVnum),
           sourceHandle: externalHandle,
           type: "external",
-          data: { dirKey, exitFlags, targetVnum: toVnum }
+          data: { dirKey, exitFlags, targetVnum: toVnum, invalid: isInvalid }
         });
         return;
       }
@@ -2270,25 +2386,29 @@ function buildRoomEdges(
       }
       if (!handles) {
         if (includeVerticalEdges && isVertical) {
+          const edgeId = `exit-${fromVnum}-${dir}-${toVnum}-${index}`;
+          const isInvalid = invalidEdgeIds?.has(edgeId) ?? false;
           edges.push({
-            id: `exit-${fromVnum}-${dir}-${toVnum}-${index}`,
+            id: edgeId,
             source: String(fromVnum),
             target: String(toVnum),
             type: "vertical",
-            data: { dirKey, exitFlags }
+            data: { dirKey, exitFlags, invalid: isInvalid }
           });
         }
         return;
       }
+      const edgeId = `exit-${fromVnum}-${dir}-${toVnum}-${index}`;
+      const isInvalid = invalidEdgeIds?.has(edgeId) ?? false;
       edges.push({
-        id: `exit-${fromVnum}-${dir}-${toVnum}-${index}`,
+        id: edgeId,
         source: String(fromVnum),
         target: String(toVnum),
         label: dir,
         sourceHandle: handles.source,
         targetHandle: handles.target,
         type: "room",
-        data: { dirKey, exitFlags }
+        data: { dirKey, exitFlags, invalid: isInvalid }
       });
     });
   }
@@ -2849,12 +2969,17 @@ export default function App() {
     }
     return null;
   }, [selectedEntity, selectedRoomVnum, selectedMobileVnum, selectedObjectVnum]);
+  const exitValidation = useMemo(
+    () => buildExitTargetValidation(areaData, areaIndex),
+    [areaData, areaIndex]
+  );
   const validationIssues = useMemo(
     () => [
       ...validateVnumRanges(areaData),
-      ...validateDuplicateVnums(areaData)
+      ...validateDuplicateVnums(areaData),
+      ...exitValidation.issues
     ],
-    [areaData]
+    [areaData, exitValidation]
   );
   const validationSummary = useMemo(
     () =>
@@ -2890,8 +3015,14 @@ export default function App() {
     [layoutSourceNodes, roomLayout]
   );
   const roomEdges = useMemo(
-    () => buildRoomEdges(areaData, showVerticalEdges, true),
-    [areaData, showVerticalEdges]
+    () =>
+      buildRoomEdges(
+        areaData,
+        showVerticalEdges,
+        true,
+        exitValidation.invalidEdgeIds
+      ),
+    [areaData, showVerticalEdges, exitValidation.invalidEdgeIds]
   );
   const externalExits = useMemo(
     () => buildExternalExits(areaData, areaIndex),
