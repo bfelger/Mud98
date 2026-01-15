@@ -35,6 +35,7 @@ import {
 } from "react-hook-form";
 import { z } from "zod";
 import { LocalFileRepository } from "./repository/localFileRepository";
+import { ScriptView } from "./components/ScriptView";
 import type {
   AreaIndexEntry,
   AreaJson,
@@ -3648,6 +3649,117 @@ export default function App() {
       ? (record as Record<string, unknown>)
       : null;
   }, [areaData, selectedResetIndex]);
+  const scriptContext = useMemo(() => {
+    if (selectedEntity === "Rooms") {
+      return {
+        entity: "Rooms" as const,
+        vnum: selectedRoomVnum,
+        record: selectedRoomRecord
+      };
+    }
+    if (selectedEntity === "Mobiles") {
+      return {
+        entity: "Mobiles" as const,
+        vnum: selectedMobileVnum,
+        record: selectedMobileRecord
+      };
+    }
+    if (selectedEntity === "Objects") {
+      return {
+        entity: "Objects" as const,
+        vnum: selectedObjectVnum,
+        record: selectedObjectRecord
+      };
+    }
+    return null;
+  }, [
+    selectedEntity,
+    selectedRoomVnum,
+    selectedRoomRecord,
+    selectedMobileVnum,
+    selectedMobileRecord,
+    selectedObjectVnum,
+    selectedObjectRecord
+  ]);
+  const scriptValue = useMemo(() => {
+    if (!scriptContext?.record) {
+      return "";
+    }
+    const raw = (scriptContext.record as Record<string, unknown>).loxScript;
+    return typeof raw === "string" ? raw : "";
+  }, [scriptContext]);
+  const scriptTitle = useMemo(() => {
+    if (!scriptContext) {
+      return "Script View";
+    }
+    if (scriptContext.vnum === null) {
+      return entityKindLabels[scriptContext.entity];
+    }
+    return `${entityKindLabels[scriptContext.entity]} ${scriptContext.vnum}`;
+  }, [scriptContext]);
+  const scriptSubtitle = useMemo(() => {
+    if (!scriptContext?.record) {
+      return "";
+    }
+    const record = scriptContext.record as Record<string, unknown>;
+    if (scriptContext.entity === "Rooms") {
+      return getFirstString(record.name, "");
+    }
+    if (scriptContext.entity === "Mobiles") {
+      return getFirstString(record.shortDescr, "");
+    }
+    if (scriptContext.entity === "Objects") {
+      return getFirstString(record.shortDescr, "");
+    }
+    return "";
+  }, [scriptContext]);
+  const canEditScript = Boolean(
+    scriptContext?.record && scriptContext?.vnum !== null
+  );
+  const handleApplyScript = useCallback(
+    (nextScript: string) => {
+      if (!scriptContext || scriptContext.vnum === null) {
+        return;
+      }
+      const normalized = normalizeOptionalText(nextScript);
+      setAreaData((current) => {
+        if (!current) {
+          return current;
+        }
+        const list = getEntityList(current, scriptContext.entity);
+        if (!list.length) {
+          return current;
+        }
+        const nextList = list.map((entry) => {
+          if (!entry || typeof entry !== "object") {
+            return entry;
+          }
+          const record = entry as Record<string, unknown>;
+          const vnum = parseVnum(record.vnum);
+          if (vnum !== scriptContext.vnum) {
+            return record;
+          }
+          const nextRecord: Record<string, unknown> = { ...record };
+          if (normalized) {
+            nextRecord.loxScript = normalized;
+          } else {
+            delete nextRecord.loxScript;
+          }
+          return nextRecord;
+        });
+        return {
+          ...(current as Record<string, unknown>),
+          [entityDataKeys[scriptContext.entity]]: nextList
+        };
+      });
+      setStatusMessage(
+        `Updated ${entityKindLabels[scriptContext.entity].toLowerCase()} ${
+          scriptContext.vnum
+        } script (unsaved)`
+      );
+    },
+    [scriptContext]
+  );
   const roomFormDefaults = useMemo<RoomFormValues>(() => {
     const record = selectedRoomRecord;
     const vnum =
@@ -6932,6 +7044,15 @@ export default function App() {
                     <p>Load an area JSON file to view the room map.</p>
                   </div>
                 )
+              ) : activeTab === "Script" ? (
+                <ScriptView
+                  title={scriptTitle}
+                  subtitle={scriptSubtitle}
+                  value={scriptValue}
+                  canEdit={canEditScript}
+                  emptyState="Select a room, mobile, or object to edit its Lox script."
+                  onApply={handleApplyScript}
+                />
               ) : activeTab === "Table" &&
               (selectedEntity === "Rooms" ||
                 selectedEntity === "Mobiles" ||
