@@ -2083,6 +2083,65 @@ function validateOneWayExits(areaData: AreaJson | null): ValidationIssue[] {
   return issues;
 }
 
+function validateOrphanRooms(areaData: AreaJson | null): ValidationIssue[] {
+  if (!areaData) {
+    return [];
+  }
+  const rooms = getEntityList(areaData, "Rooms");
+  if (!rooms.length) {
+    return [];
+  }
+  const roomVnums = new Set<number>();
+  const incomingCounts = new Map<number, number>();
+  rooms.forEach((room) => {
+    if (!room || typeof room !== "object") {
+      return;
+    }
+    const record = room as Record<string, unknown>;
+    const vnum = parseVnum(record.vnum);
+    if (vnum === null) {
+      return;
+    }
+    roomVnums.add(vnum);
+    incomingCounts.set(vnum, 0);
+  });
+
+  rooms.forEach((room) => {
+    if (!room || typeof room !== "object") {
+      return;
+    }
+    const record = room as Record<string, unknown>;
+    const exits = Array.isArray(record.exits) ? record.exits : [];
+    exits.forEach((exit) => {
+      if (!exit || typeof exit !== "object") {
+        return;
+      }
+      const exitRecord = exit as Record<string, unknown>;
+      const toVnum = parseVnum(exitRecord.toVnum);
+      if (toVnum === null || !roomVnums.has(toVnum)) {
+        return;
+      }
+      incomingCounts.set(toVnum, (incomingCounts.get(toVnum) ?? 0) + 1);
+    });
+  });
+
+  const issues: ValidationIssue[] = [];
+  incomingCounts.forEach((count, vnum) => {
+    if (count > 0) {
+      return;
+    }
+    issues.push({
+      id: `orphan-${vnum}`,
+      severity: "warning",
+      entityType: "Rooms",
+      vnum,
+      message: `Orphan room ${vnum} has no incoming exits`
+    });
+  });
+
+  return issues;
+}
+
 function buildValidationSummary(
   issues: ValidationIssue[],
   selectedEntity: EntityKey,
@@ -3193,7 +3252,8 @@ export default function App() {
       ...validateDuplicateVnums(areaData),
       ...exitValidation.issues,
       ...validateResetReferences(areaData),
-      ...validateOneWayExits(areaData)
+      ...validateOneWayExits(areaData),
+      ...validateOrphanRooms(areaData)
     ],
     [areaData, exitValidation]
   );
