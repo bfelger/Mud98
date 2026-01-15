@@ -36,6 +36,8 @@ import {
 import { z } from "zod";
 import { LocalFileRepository } from "./repository/localFileRepository";
 import { ScriptView } from "./components/ScriptView";
+import { EventBindingsView } from "./components/EventBindingsView";
+import type { EventBinding } from "./data/eventTypes";
 import type {
   AreaIndexEntry,
   AreaJson,
@@ -397,7 +399,6 @@ const mobileFormSchema = z.object({
   shortDescr: z.string().min(1, "Short description is required."),
   longDescr: z.string().min(1, "Long description is required."),
   description: z.string().min(1, "Description is required."),
-  loxScript: z.string().optional(),
   race: z.string().min(1, "Race is required."),
   level: optionalIntSchema,
   hitroll: optionalIntSchema,
@@ -519,7 +520,6 @@ const objectFormSchema = z.object({
   name: z.string().min(1, "Name is required."),
   shortDescr: z.string().min(1, "Short description is required."),
   description: z.string().min(1, "Description is required."),
-  loxScript: z.string().optional(),
   material: z.string().min(1, "Material is required."),
   itemType: z.string().min(1, "Item type is required."),
   extraFlags: z.array(extraFlagEnum).optional(),
@@ -665,7 +665,6 @@ const roomFormSchema = z.object({
   vnum: z.number().int(),
   name: z.string().min(1, "Name is required."),
   description: z.string().min(1, "Description is required."),
-  loxScript: z.string().optional(),
   sectorType: optionalSectorSchema,
   roomFlags: z.array(roomFlagEnum).optional(),
   manaRate: optionalIntSchema,
@@ -3057,7 +3056,6 @@ export default function App() {
       vnum: 0,
       name: "",
       description: "",
-      loxScript: "",
       sectorType: undefined,
       roomFlags: [],
       manaRate: undefined,
@@ -3089,7 +3087,6 @@ export default function App() {
       shortDescr: "",
       longDescr: "",
       description: "",
-      loxScript: "",
       race: "",
       level: undefined,
       hitroll: undefined,
@@ -3120,7 +3117,6 @@ export default function App() {
       name: "",
       shortDescr: "",
       description: "",
-      loxScript: "",
       material: "",
       itemType: "",
       extraFlags: [],
@@ -3752,9 +3748,36 @@ export default function App() {
     }
     return "";
   }, [scriptContext]);
+  const eventBindings = useMemo<EventBinding[]>(() => {
+    if (!scriptContext?.record) {
+      return [];
+    }
+    const raw = (scriptContext.record as Record<string, unknown>).events;
+    if (!Array.isArray(raw)) {
+      return [];
+    }
+    return raw
+      .filter((event) => event && typeof event === "object")
+      .map((event) => {
+        const record = event as Record<string, unknown>;
+        const trigger = typeof record.trigger === "string" ? record.trigger : "";
+        const callback =
+          typeof record.callback === "string" ? record.callback : "";
+        const criteria =
+          typeof record.criteria === "string" || typeof record.criteria === "number"
+            ? record.criteria
+            : undefined;
+        return {
+          trigger,
+          callback,
+          criteria
+        };
+      });
+  }, [scriptContext]);
   const canEditScript = Boolean(
     scriptContext?.record && scriptContext?.vnum !== null
   );
+  const scriptEventEntity = scriptContext?.entity ?? null;
   const handleApplyScript = useCallback(
     (nextScript: string) => {
       if (!scriptContext || scriptContext.vnum === null) {
@@ -3799,6 +3822,60 @@ export default function App() {
     },
     [scriptContext]
   );
+  const handleEventBindingsChange = useCallback(
+    (nextEvents: EventBinding[]) => {
+      if (!scriptContext || scriptContext.vnum === null) {
+        return;
+      }
+      setAreaData((current) => {
+        if (!current) {
+          return current;
+        }
+        const list = getEntityList(current, scriptContext.entity);
+        if (!list.length) {
+          return current;
+        }
+        const nextList = list.map((entry) => {
+          if (!entry || typeof entry !== "object") {
+            return entry;
+          }
+          const record = entry as Record<string, unknown>;
+          const vnum = parseVnum(record.vnum);
+          if (vnum !== scriptContext.vnum) {
+            return record;
+          }
+          const nextRecord: Record<string, unknown> = { ...record };
+          if (nextEvents.length) {
+            nextRecord.events = nextEvents.map((event) => {
+              const trigger = event.trigger.trim();
+              const callback = event.callback.trim();
+              const nextEvent: Record<string, unknown> = {
+                trigger,
+                callback
+              };
+              if (event.criteria !== undefined && event.criteria !== "") {
+                nextEvent.criteria = event.criteria;
+              }
+              return nextEvent;
+            });
+          } else {
+            delete nextRecord.events;
+          }
+          return nextRecord;
+        });
+        return {
+          ...(current as Record<string, unknown>),
+          [entityDataKeys[scriptContext.entity]]: nextList
+        };
+      });
+      setStatusMessage(
+        `Updated ${entityKindLabels[scriptContext.entity].toLowerCase()} ${
+          scriptContext.vnum
+        } events (unsaved)`
+      );
+    },
+    [scriptContext]
+  );
   const roomFormDefaults = useMemo<RoomFormValues>(() => {
     const record = selectedRoomRecord;
     const vnum =
@@ -3821,10 +3898,6 @@ export default function App() {
       description:
         typeof record?.description === "string"
           ? normalizeLineEndingsForDisplay(record.description)
-          : "",
-      loxScript:
-        typeof record?.loxScript === "string"
-          ? normalizeLineEndingsForDisplay(record.loxScript)
           : "",
       sectorType,
       roomFlags,
@@ -3882,10 +3955,6 @@ export default function App() {
       description:
         typeof record?.description === "string"
           ? normalizeLineEndingsForDisplay(record.description)
-          : "",
-      loxScript:
-        typeof record?.loxScript === "string"
-          ? normalizeLineEndingsForDisplay(record.loxScript)
           : "",
       race: typeof record?.race === "string" ? record.race : "",
       level: parseVnum(record?.level) ?? undefined,
@@ -4098,10 +4167,6 @@ export default function App() {
         typeof record?.description === "string"
           ? normalizeLineEndingsForDisplay(record.description)
           : "",
-      loxScript:
-        typeof record?.loxScript === "string"
-          ? normalizeLineEndingsForDisplay(record.loxScript)
-          : "",
       material: typeof record?.material === "string" ? record.material : "",
       itemType: typeof record?.itemType === "string" ? record.itemType : "",
       extraFlags: Array.isArray(record?.extraFlags)
@@ -4302,7 +4367,6 @@ export default function App() {
     if (!areaData || selectedRoomVnum === null) {
       return;
     }
-    const loxScript = normalizeOptionalScript(data.loxScript);
     const normalizedExits = (data.exits ?? []).map((exit) => {
       const nextExit: Record<string, unknown> = {
         dir: exit.dir,
@@ -4349,11 +4413,6 @@ export default function App() {
           owner: data.owner ?? undefined,
           exits: normalizedExits.length ? normalizedExits : undefined
         };
-        if (loxScript !== undefined) {
-          nextRoom.loxScript = loxScript;
-        } else {
-          delete nextRoom.loxScript;
-        }
         if (!("sectorType" in record) && "sector" in record) {
           nextRoom.sector = data.sectorType ?? undefined;
         }
@@ -4374,7 +4433,6 @@ export default function App() {
     const hitDice = normalizeDice(data.hitDice);
     const manaDice = normalizeDice(data.manaDice);
     const damageDice = normalizeDice(data.damageDice);
-    const loxScript = normalizeOptionalScript(data.loxScript);
     setAreaData((current) => {
       if (!current) {
         return current;
@@ -4412,11 +4470,6 @@ export default function App() {
           manaDice,
           damageDice
         };
-        if (loxScript !== undefined) {
-          nextMobile.loxScript = loxScript;
-        } else {
-          delete nextMobile.loxScript;
-        }
         return nextMobile;
       });
       return {
@@ -4431,7 +4484,6 @@ export default function App() {
     if (!areaData || selectedObjectVnum === null) {
       return;
     }
-    const loxScript = normalizeOptionalScript(data.loxScript);
     const itemTypeKey = data.itemType.trim().toLowerCase();
     const activeBlock = itemTypeBlockMap[itemTypeKey] ?? null;
     const buildWeapon = () => {
@@ -4628,11 +4680,6 @@ export default function App() {
           portal: activeBlock === "portal" ? buildPortal() : undefined,
           furniture: activeBlock === "furniture" ? buildFurniture() : undefined
         };
-        if (loxScript !== undefined) {
-          nextObject.loxScript = loxScript;
-        } else {
-          delete nextObject.loxScript;
-        }
         return nextObject;
       });
       return {
@@ -5306,15 +5353,12 @@ export default function App() {
                         </div>
                       </div>
                       <div className="form-field form-field--full">
-                        <label className="form-label" htmlFor="room-lox-script">
-                          Lox Script
-                        </label>
-                        <textarea
-                          id="room-lox-script"
-                          className="form-textarea form-textarea--code"
-                          rows={10}
-                          placeholder="on_greet(vch) { ... }"
-                          {...registerRoom("loxScript")}
+                        <EventBindingsView
+                          entityType={canEditScript ? scriptEventEntity : null}
+                          events={eventBindings}
+                          script={scriptValue}
+                          canEdit={canEditScript}
+                          onChange={handleEventBindingsChange}
                         />
                       </div>
                       <div className="form-actions">
@@ -5726,15 +5770,12 @@ export default function App() {
                         </div>
                       </div>
                       <div className="form-field form-field--full">
-                        <label className="form-label" htmlFor="mob-lox-script">
-                          Lox Script
-                        </label>
-                        <textarea
-                          id="mob-lox-script"
-                          className="form-textarea form-textarea--code"
-                          rows={10}
-                          placeholder="on_greet(vch) { ... }"
-                          {...registerMobile("loxScript")}
+                        <EventBindingsView
+                          entityType={canEditScript ? scriptEventEntity : null}
+                          events={eventBindings}
+                          script={scriptValue}
+                          canEdit={canEditScript}
+                          onChange={handleEventBindingsChange}
                         />
                       </div>
                       <div className="form-actions">
@@ -6608,15 +6649,12 @@ export default function App() {
                         </div>
                       </div>
                       <div className="form-field form-field--full">
-                        <label className="form-label" htmlFor="obj-lox-script">
-                          Lox Script
-                        </label>
-                        <textarea
-                          id="obj-lox-script"
-                          className="form-textarea form-textarea--code"
-                          rows={10}
-                          placeholder="on_use(user) { ... }"
-                          {...registerObject("loxScript")}
+                        <EventBindingsView
+                          entityType={canEditScript ? scriptEventEntity : null}
+                          events={eventBindings}
+                          script={scriptValue}
+                          canEdit={canEditScript}
+                          onChange={handleEventBindingsChange}
                         />
                       </div>
                       <div className="form-actions">

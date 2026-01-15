@@ -54,7 +54,7 @@ export const eventSchema = z
   .object({
     trigger: eventTriggerEnum,
     callback: stringSchema,
-    criteria: stringSchema.optional()
+    criteria: z.union([stringSchema, z.number().int()]).optional()
   })
   .passthrough();
 
