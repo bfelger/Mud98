@@ -1981,6 +1981,108 @@ function validateResetReferences(areaData: AreaJson | null): ValidationIssue[] {
   return issues;
 }
 
+function validateOneWayExits(areaData: AreaJson | null): ValidationIssue[] {
+  if (!areaData) {
+    return [];
+  }
+  const rooms = getEntityList(areaData, "Rooms");
+  if (!rooms.length) {
+    return [];
+  }
+  const roomVnums = new Set<number>();
+  const roomExitMap = new Map<number, Set<string>>();
+  rooms.forEach((room) => {
+    if (!room || typeof room !== "object") {
+      return;
+    }
+    const record = room as Record<string, unknown>;
+    const vnum = parseVnum(record.vnum);
+    if (vnum === null) {
+      return;
+    }
+    roomVnums.add(vnum);
+    const exits = Array.isArray(record.exits) ? record.exits : [];
+    const exitSet = new Set<string>();
+    exits.forEach((exit) => {
+      if (!exit || typeof exit !== "object") {
+        return;
+      }
+      const exitRecord = exit as Record<string, unknown>;
+      const toVnum = parseVnum(exitRecord.toVnum);
+      if (toVnum === null) {
+        return;
+      }
+      const dirKey =
+        typeof exitRecord.dir === "string"
+          ? exitRecord.dir.trim().toLowerCase()
+          : "";
+      if (!dirKey) {
+        return;
+      }
+      exitSet.add(`${dirKey}:${toVnum}`);
+    });
+    if (exitSet.size) {
+      roomExitMap.set(vnum, exitSet);
+    }
+  });
+
+  const oppositeMap: Record<string, string> = {
+    north: "south",
+    south: "north",
+    east: "west",
+    west: "east",
+    up: "down",
+    down: "up"
+  };
+  const issues: ValidationIssue[] = [];
+  rooms.forEach((room, index) => {
+    if (!room || typeof room !== "object") {
+      return;
+    }
+    const record = room as Record<string, unknown>;
+    const fromVnum = parseVnum(record.vnum);
+    if (fromVnum === null) {
+      return;
+    }
+    const exits = Array.isArray(record.exits) ? record.exits : [];
+    exits.forEach((exit, exitIndex) => {
+      if (!exit || typeof exit !== "object") {
+        return;
+      }
+      const exitRecord = exit as Record<string, unknown>;
+      const toVnum = parseVnum(exitRecord.toVnum);
+      if (toVnum === null || !roomVnums.has(toVnum)) {
+        return;
+      }
+      const dirKey =
+        typeof exitRecord.dir === "string"
+          ? exitRecord.dir.trim().toLowerCase()
+          : "";
+      if (!dirKey) {
+        return;
+      }
+      const opposite = oppositeMap[dirKey];
+      if (!opposite) {
+        return;
+      }
+      const targetExits = roomExitMap.get(toVnum);
+      const reciprocalKey = `${opposite}:${fromVnum}`;
+      if (targetExits && targetExits.has(reciprocalKey)) {
+        return;
+      }
+      issues.push({
+        id: `one-way-${fromVnum}-${dirKey}-${toVnum}-${index}-${exitIndex}`,
+        severity: "warning",
+        entityType: "Rooms",
+        vnum: fromVnum,
+        message: `One-way exit: ${dirKey} from room ${fromVnum} to ${toVnum} has no ${opposite} return`
+      });
+    });
+  });
+
+  return issues;
+}
+
 function buildValidationSummary(
   issues: ValidationIssue[],
   selectedEntity: EntityKey,
@@ -3090,7 +3192,8 @@ export default function App() {
       ...validateVnumRanges(areaData),
       ...validateDuplicateVnums(areaData),
       ...exitValidation.issues,
-      ...validateResetReferences(areaData)
+      ...validateResetReferences(areaData),
+      ...validateOneWayExits(areaData)
     ],
     [areaData, exitValidation]
   );
