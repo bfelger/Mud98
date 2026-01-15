@@ -40,6 +40,8 @@ import { ResetForm } from "./components/ResetForm";
 import { TableView } from "./components/TableView";
 import { InspectorPanel } from "./components/InspectorPanel";
 import { EntityTree } from "./components/EntityTree";
+import { Topbar } from "./components/Topbar";
+import { Statusbar } from "./components/Statusbar";
 import type { VnumOption } from "./components/VnumPicker";
 import type { EventBinding } from "./data/eventTypes";
 import type {
@@ -4907,75 +4909,20 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <header className="topbar">
-        <div className="brand">
-          <span className="brand__badge">Mud98</span>
-          <div className="brand__text">
-            <span className="brand__title">WorldEdit</span>
-            <span className="brand__subtitle">Area JSON editor</span>
-          </div>
-        </div>
-        <div className="topbar__status">
-          <span
-            className={`status-pill ${
-              errorMessage ? "status-pill--error" : "status-pill--ok"
-            }`}
-          >
-            {errorMessage ?? statusMessage}
-          </span>
-          <span className="status-pill">Area: {areaName}</span>
-        </div>
-        <div className="topbar__actions">
-          <button
-            className="action-button"
-            type="button"
-            onClick={handleOpenArea}
-            disabled={isBusy}
-          >
-            Open Area
-          </button>
-          <button
-            className="action-button"
-            type="button"
-            onClick={handleSetAreaDirectory}
-            disabled={isBusy}
-          >
-            Set Area Dir
-          </button>
-          <button
-            className="action-button"
-            type="button"
-            onClick={handleLoadReferenceData}
-            disabled={isBusy}
-          >
-            Load Ref Data
-          </button>
-          <button
-            className="action-button action-button--primary"
-            type="button"
-            onClick={handleSaveArea}
-            disabled={!areaData || isBusy}
-          >
-            Save
-          </button>
-          <button
-            className="action-button"
-            type="button"
-            onClick={handleSaveEditorMeta}
-            disabled={!areaPath || isBusy}
-          >
-            Save Meta
-          </button>
-          <button
-            className="action-button"
-            type="button"
-            onClick={handleSaveAreaAs}
-            disabled={!areaData || isBusy}
-          >
-            Save As
-          </button>
-        </div>
-      </header>
+      <Topbar
+        areaName={areaName}
+        errorMessage={errorMessage}
+        statusMessage={statusMessage}
+        isBusy={isBusy}
+        hasArea={Boolean(areaData)}
+        hasAreaPath={Boolean(areaPath)}
+        onOpenArea={handleOpenArea}
+        onSetAreaDirectory={handleSetAreaDirectory}
+        onLoadReferenceData={handleLoadReferenceData}
+        onSaveArea={handleSaveArea}
+        onSaveEditorMeta={handleSaveEditorMeta}
+        onSaveAreaAs={handleSaveAreaAs}
+      />
 
       <section className="workspace">
         <EntityTree
@@ -5342,20 +5289,20 @@ export default function App() {
         />
       </section>
 
-      <footer className="statusbar">
-        <span>Status: {errorMessage ?? statusMessage}</span>
-        <span>Area file: {areaPath ?? "Not loaded"}</span>
-        <span>Meta file: {editorMetaPath ?? "Not loaded"}</span>
-        <span>Area dir: {areaDirectory ?? "Not set"}</span>
-        <span>Data dir: {dataDirectory ?? "Not set"}</span>
-        <span>Selection: {selectedEntity}</span>
-        <span>
-          Reference:{" "}
-          {referenceData
+      <Statusbar
+        errorMessage={errorMessage}
+        statusMessage={statusMessage}
+        areaPath={areaPath}
+        editorMetaPath={editorMetaPath}
+        areaDirectory={areaDirectory}
+        dataDirectory={dataDirectory}
+        selectedEntity={selectedEntity}
+        referenceSummary={
+          referenceData
             ? `classes ${referenceData.classes.length}, races ${referenceData.races.length}, skills ${referenceData.skills.length}, commands ${referenceData.commands.length}`
-            : "not loaded"}
-        </span>
-      </footer>
+            : "not loaded"
+        }
+      />
     </div>
   );
 }
