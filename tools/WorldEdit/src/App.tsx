@@ -46,6 +46,7 @@ import { MapToolbar } from "./components/MapToolbar";
 import { MapExternalExitsPanel } from "./components/MapExternalExitsPanel";
 import { ViewCardHeader } from "./components/ViewCardHeader";
 import { ViewTabs } from "./components/ViewTabs";
+import { MapOverlay } from "./components/MapOverlay";
 import type { VnumOption } from "./components/VnumPicker";
 import type { EventBinding } from "./data/eventTypes";
 import type {
@@ -5104,11 +5105,7 @@ export default function App() {
                         <Background gap={24} size={1} />
                         <Controls showInteractive={false} />
                       </ReactFlow>
-                      {areaVnumRange ? (
-                        <div className="map-overlay">
-                          VNUM range: {areaVnumRange}
-                        </div>
-                      ) : null}
+                      <MapOverlay areaVnumRange={areaVnumRange} />
                     </div>
                     <MapExternalExitsPanel
                       externalExits={externalExits}
