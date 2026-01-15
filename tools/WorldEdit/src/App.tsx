@@ -47,6 +47,7 @@ import { MapExternalExitsPanel } from "./components/MapExternalExitsPanel";
 import { ViewCardHeader } from "./components/ViewCardHeader";
 import { ViewTabs } from "./components/ViewTabs";
 import { MapOverlay } from "./components/MapOverlay";
+import { PlaceholderGrid } from "./components/PlaceholderGrid";
 import type { VnumOption } from "./components/VnumPicker";
 import type { EventBinding } from "./data/eventTypes";
 import type {
@@ -5156,19 +5157,7 @@ export default function App() {
                   resetGridApiRef={resetGridApi}
                 />
               ) : (
-                <div className="placeholder-grid">
-                  {tabs.map((tab) => (
-                    <div
-                      className={`placeholder-block${
-                        tab.id === activeTab ? " placeholder-block--active" : ""
-                      }`}
-                      key={tab.id}
-                    >
-                      <div className="placeholder-title">{tab.title}</div>
-                      <p>{tab.description}</p>
-                    </div>
-                  ))}
-                </div>
+                <PlaceholderGrid tabs={tabs} activeTab={activeTab} />
               )}
             </div>
           </div>
