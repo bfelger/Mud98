@@ -45,6 +45,7 @@ import { Statusbar } from "./components/Statusbar";
 import { MapToolbar } from "./components/MapToolbar";
 import { MapExternalExitsPanel } from "./components/MapExternalExitsPanel";
 import { ViewCardHeader } from "./components/ViewCardHeader";
+import { ViewTabs } from "./components/ViewTabs";
 import type { VnumOption } from "./components/VnumPicker";
 import type { EventBinding } from "./data/eventTypes";
 import type {
@@ -4935,19 +4936,11 @@ export default function App() {
         />
 
         <main className="center">
-          <nav className="tabs" aria-label="View tabs">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                className={`tab${tab.id === activeTab ? " tab--active" : ""}`}
-                aria-pressed={tab.id === activeTab}
-                onClick={() => setActiveTab(tab.id)}
-              >
-                {tab.id}
-              </button>
-            ))}
-          </nav>
+          <ViewTabs
+            tabs={tabs}
+            activeTab={activeTab}
+            onSelectTab={setActiveTab}
+          />
 
           <div className="view-card">
             <ViewCardHeader
