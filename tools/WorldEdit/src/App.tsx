@@ -1869,6 +1869,118 @@ function buildExitTargetValidation(
   return { issues, invalidEdgeIds };
 }
 
+function validateResetReferences(areaData: AreaJson | null): ValidationIssue[] {
+  if (!areaData) {
+    return [];
+  }
+  const resets = getEntityList(areaData, "Resets");
+  if (!resets.length) {
+    return [];
+  }
+  const mobiles = getEntityList(areaData, "Mobiles");
+  const objects = getEntityList(areaData, "Objects");
+  const mobVnums = new Set<number>();
+  const objVnums = new Set<number>();
+
+  mobiles.forEach((entry) => {
+    if (!entry || typeof entry !== "object") {
+      return;
+    }
+    const vnum = parseVnum((entry as Record<string, unknown>).vnum);
+    if (vnum !== null) {
+      mobVnums.add(vnum);
+    }
+  });
+
+  objects.forEach((entry) => {
+    if (!entry || typeof entry !== "object") {
+      return;
+    }
+    const vnum = parseVnum((entry as Record<string, unknown>).vnum);
+    if (vnum !== null) {
+      objVnums.add(vnum);
+    }
+  });
+
+  const issues: ValidationIssue[] = [];
+  const addIssue = (message: string, vnum?: number) => {
+    issues.push({
+      id: `reset-ref-${issues.length}`,
+      severity: "error",
+      entityType: "Resets",
+      vnum,
+      message
+    });
+  };
+
+  resets.forEach((reset, index) => {
+    if (!reset || typeof reset !== "object") {
+      return;
+    }
+    const record = reset as Record<string, unknown>;
+    const command = resolveResetCommand(record);
+    const label = `Reset #${index + 1}`;
+    if (command === "loadMob") {
+      const mobVnum = parseVnum(record.mobVnum);
+      if (mobVnum === null) {
+        addIssue(`${label} loadMob missing mob vnum`);
+        return;
+      }
+      if (!mobVnums.has(mobVnum)) {
+        addIssue(`${label} loadMob references missing mob ${mobVnum}`, mobVnum);
+      }
+    } else if (command === "placeObj") {
+      const objVnum = parseVnum(record.objVnum);
+      if (objVnum === null) {
+        addIssue(`${label} placeObj missing object vnum`);
+        return;
+      }
+      if (!objVnums.has(objVnum)) {
+        addIssue(`${label} placeObj references missing object ${objVnum}`, objVnum);
+      }
+    } else if (command === "putObj") {
+      const objVnum = parseVnum(record.objVnum);
+      const containerVnum = parseVnum(record.containerVnum);
+      if (objVnum === null) {
+        addIssue(`${label} putObj missing object vnum`);
+      } else if (!objVnums.has(objVnum)) {
+        addIssue(`${label} putObj references missing object ${objVnum}`, objVnum);
+      }
+      if (containerVnum === null) {
+        addIssue(`${label} putObj missing container vnum`);
+      } else if (!objVnums.has(containerVnum)) {
+        addIssue(
+          `${label} putObj references missing container ${containerVnum}`,
+          containerVnum
+        );
+      }
+    } else if (command === "giveObj") {
+      const objVnum = parseVnum(record.objVnum);
+      if (objVnum === null) {
+        addIssue(`${label} giveObj missing object vnum`);
+        return;
+      }
+      if (!objVnums.has(objVnum)) {
+        addIssue(`${label} giveObj references missing object ${objVnum}`, objVnum);
+      }
+    } else if (command === "equipObj") {
+      const objVnum = parseVnum(record.objVnum);
+      if (objVnum === null) {
+        addIssue(`${label} equipObj missing object vnum`);
+        return;
+      }
+      if (!objVnums.has(objVnum)) {
+        addIssue(
+          `${label} equipObj references missing object ${objVnum}`,
+          objVnum
+        );
+      }
+    }
+  });
+
+  return issues;
+}
+
 function buildValidationSummary(
   issues: ValidationIssue[],
   selectedEntity: EntityKey,
@@ -2977,7 +3089,8 @@ export default function App() {
     () => [
       ...validateVnumRanges(areaData),
       ...validateDuplicateVnums(areaData),
-      ...exitValidation.issues
+      ...exitValidation.issues,
+      ...validateResetReferences(areaData)
     ],
     [areaData, exitValidation]
   );
