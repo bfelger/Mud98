@@ -43,6 +43,7 @@ import { EntityTree } from "./components/EntityTree";
 import { Topbar } from "./components/Topbar";
 import { Statusbar } from "./components/Statusbar";
 import { MapToolbar } from "./components/MapToolbar";
+import { MapExternalExitsPanel } from "./components/MapExternalExitsPanel";
 import type { VnumOption } from "./components/VnumPicker";
 import type { EventBinding } from "./data/eventTypes";
 import type {
@@ -5117,48 +5118,10 @@ export default function App() {
                         </div>
                       ) : null}
                     </div>
-                    <div className="map-panel">
-                      <div className="map-panel__header">
-                        <span>External exits</span>
-                        <span className="map-panel__count">
-                          {externalExits.length}
-                        </span>
-                      </div>
-                      {externalExits.length ? (
-                        <ul className="map-panel__list">
-                          {externalExits.map((exit) => (
-                            <li
-                              key={`${exit.fromVnum}-${exit.direction}-${exit.toVnum}`}
-                              className="map-panel__item"
-                            >
-                              <button
-                                type="button"
-                                className="map-panel__link"
-                                onClick={() =>
-                                  handleMapNavigate(exit.fromVnum)
-                                }
-                                title={`${exit.fromName} (${exit.fromVnum})`}
-                              >
-                                {exit.fromVnum}
-                              </button>
-                              <span className="map-panel__dir">
-                                {exit.direction.toUpperCase()}
-                              </span>
-                              <span className="map-panel__target">
-                                -&gt; {exit.toVnum}
-                                <span className="map-panel__area">
-                                  {exit.areaName ?? "Unknown area"}
-                                </span>
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <div className="map-panel__empty">
-                          No external exits detected.
-                        </div>
-                      )}
-                    </div>
+                    <MapExternalExitsPanel
+                      externalExits={externalExits}
+                      onNavigate={handleMapNavigate}
+                    />
                   </div>
                 ) : (
                   <div className="entity-table__empty">
