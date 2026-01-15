@@ -2,6 +2,12 @@
 
 This describes the JSON area format. Fields omitted when at default are treated as defaults on load.
 
+Serialization order (Mud98)
+- Mud98 writes JSON fields in a fixed order defined in `src/persist/area/json/area_persist_json.c`. WorldEdit preserves that ordering when saving.
+- Mud98 emits JSON with 2-space indentation; WorldEdit matches this to minimize diffs.
+- Top-level order: `formatVersion`, `areadata`, `storyBeats`, `checklist`, `daycycle`, `rooms`, `mobiles`, `objects`, `shops`, `specials`, `mobprogs`, `resets`, `factions`, `helps`, `quests`, `loot`, `recipes`, `gatherSpawns`.
+- Per-entity field order follows the `build_*` functions; for example rooms are emitted as `vnum`, `name`, `description`, `roomFlags`, `roomFlagsValue`, `sectorType`, `manaRate`, `healRate`, `clan`, `owner`, `suppressDaycycleMessages`, `timePeriods`, `exits`, `extraDescs`, `loxScript`, `events`.
+
 Top-level object
 - `formatVersion`: integer, currently `1`.
 - `areadata`: object (see below).
