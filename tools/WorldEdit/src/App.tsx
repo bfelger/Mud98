@@ -7,7 +7,6 @@ import {
   type MouseEvent
 } from "react";
 import type { ColDef, GridApi } from "ag-grid-community";
-import { AgGridReact } from "ag-grid-react";
 import ReactFlow, {
   applyNodeChanges,
   Background,
@@ -38,6 +37,7 @@ import { RoomForm } from "./components/RoomForm";
 import { MobileForm } from "./components/MobileForm";
 import { ObjectForm } from "./components/ObjectForm";
 import { ResetForm } from "./components/ResetForm";
+import { TableView } from "./components/TableView";
 import type { VnumOption } from "./components/VnumPicker";
 import type { EventBinding } from "./data/eventTypes";
 import type {
@@ -5309,120 +5309,29 @@ export default function App() {
                 selectedEntity === "Mobiles" ||
                 selectedEntity === "Objects" ||
                 selectedEntity === "Resets") ? (
-                <div className="entity-table">
-                  {selectedEntity === "Rooms" ? (
-                    roomRows.length ? (
-                      <div className="ag-theme-quartz worldedit-grid">
-                        <AgGridReact<RoomRow>
-                          rowData={roomRows}
-                          columnDefs={roomColumns}
-                          defaultColDef={roomDefaultColDef}
-                          animateRows
-                          rowSelection="single"
-                          getRowId={(params) => String(params.data.vnum)}
-                          domLayout="autoHeight"
-                          onRowClicked={(event) =>
-                            setSelectedRoomVnum(event.data?.vnum ?? null)
-                          }
-                          onGridReady={(event) => {
-                            roomGridApi.current = event.api;
-                          }}
-                        />
-                      </div>
-                    ) : (
-                      <div className="entity-table__empty">
-                        <h3>Rooms will appear here</h3>
-                        <p>
-                          Load an area JSON file to populate the room table.
-                        </p>
-                      </div>
-                    )
-                  ) : null}
-                  {selectedEntity === "Mobiles" ? (
-                    mobileRows.length ? (
-                      <div className="ag-theme-quartz worldedit-grid">
-                        <AgGridReact<MobileRow>
-                          rowData={mobileRows}
-                          columnDefs={mobileColumns}
-                          defaultColDef={mobileDefaultColDef}
-                          animateRows
-                          rowSelection="single"
-                          getRowId={(params) => String(params.data.vnum)}
-                          domLayout="autoHeight"
-                          onRowClicked={(event) =>
-                            setSelectedMobileVnum(event.data?.vnum ?? null)
-                          }
-                          onGridReady={(event) => {
-                            mobileGridApi.current = event.api;
-                          }}
-                        />
-                      </div>
-                    ) : (
-                      <div className="entity-table__empty">
-                        <h3>Mobiles will appear here</h3>
-                        <p>
-                          Load an area JSON file to populate the mobile table.
-                        </p>
-                      </div>
-                    )
-                  ) : null}
-                  {selectedEntity === "Objects" ? (
-                    objectRows.length ? (
-                      <div className="ag-theme-quartz worldedit-grid">
-                        <AgGridReact<ObjectRow>
-                          rowData={objectRows}
-                          columnDefs={objectColumns}
-                          defaultColDef={objectDefaultColDef}
-                          animateRows
-                          rowSelection="single"
-                          getRowId={(params) => String(params.data.vnum)}
-                          domLayout="autoHeight"
-                          onRowClicked={(event) =>
-                            setSelectedObjectVnum(event.data?.vnum ?? null)
-                          }
-                          onGridReady={(event) => {
-                            objectGridApi.current = event.api;
-                          }}
-                        />
-                      </div>
-                    ) : (
-                      <div className="entity-table__empty">
-                        <h3>Objects will appear here</h3>
-                        <p>
-                          Load an area JSON file to populate the object table.
-                        </p>
-                      </div>
-                    )
-                  ) : null}
-                  {selectedEntity === "Resets" ? (
-                    resetRows.length ? (
-                      <div className="ag-theme-quartz worldedit-grid">
-                        <AgGridReact<ResetRow>
-                          rowData={resetRows}
-                          columnDefs={resetColumns}
-                          defaultColDef={roomDefaultColDef}
-                          animateRows
-                          rowSelection="single"
-                          getRowId={(params) => String(params.data.index)}
-                          domLayout="autoHeight"
-                          onRowClicked={(event) =>
-                            setSelectedResetIndex(event.data?.index ?? null)
-                          }
-                          onGridReady={(event) => {
-                            resetGridApi.current = event.api;
-                          }}
-                        />
-                      </div>
-                    ) : (
-                      <div className="entity-table__empty">
-                        <h3>Resets will appear here</h3>
-                        <p>
-                          Load an area JSON file to populate the reset table.
-                        </p>
-                      </div>
-                    )
-                  ) : null}
-                </div>
+                <TableView
+                  selectedEntity={selectedEntity}
+                  roomRows={roomRows}
+                  mobileRows={mobileRows}
+                  objectRows={objectRows}
+                  resetRows={resetRows}
+                  roomColumns={roomColumns}
+                  mobileColumns={mobileColumns}
+                  objectColumns={objectColumns}
+                  resetColumns={resetColumns}
+                  roomDefaultColDef={roomDefaultColDef}
+                  mobileDefaultColDef={mobileDefaultColDef}
+                  objectDefaultColDef={objectDefaultColDef}
+                  resetDefaultColDef={roomDefaultColDef}
+                  onSelectRoom={setSelectedRoomVnum}
+                  onSelectMobile={setSelectedMobileVnum}
+                  onSelectObject={setSelectedObjectVnum}
+                  onSelectReset={setSelectedResetIndex}
+                  roomGridApiRef={roomGridApi}
+                  mobileGridApiRef={mobileGridApi}
+                  objectGridApiRef={objectGridApi}
+                  resetGridApiRef={resetGridApi}
+                />
               ) : (
                 <div className="placeholder-grid">
                   {tabs.map((tab) => (
