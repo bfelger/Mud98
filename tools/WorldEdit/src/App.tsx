@@ -42,6 +42,7 @@ import { InspectorPanel } from "./components/InspectorPanel";
 import { EntityTree } from "./components/EntityTree";
 import { Topbar } from "./components/Topbar";
 import { Statusbar } from "./components/Statusbar";
+import { MapToolbar } from "./components/MapToolbar";
 import type { VnumOption } from "./components/VnumPicker";
 import type { EventBinding } from "./data/eventTypes";
 import type {
@@ -5062,81 +5063,29 @@ export default function App() {
                 mapNodes.length ? (
                   <div className="map-shell">
                     <div className="map-canvas">
-                      <div className="map-toolbar">
-                        <button
-                          className="action-button"
-                          type="button"
-                          onClick={() => setLayoutNonce((value) => value + 1)}
-                        >
-                          Re-layout
-                        </button>
-                        <label className="map-toggle">
-                          <input
-                            type="checkbox"
-                            checked={autoLayoutEnabled}
-                            onChange={(event) =>
-                              setAutoLayoutEnabled(event.target.checked)
-                            }
-                          />
-                          <span>Auto layout</span>
-                        </label>
-                        <label className="map-toggle">
-                          <input
-                            type="checkbox"
-                            checked={preferCardinalLayout}
-                            onChange={(event) => {
-                              const nextValue = event.target.checked;
-                              setPreferCardinalLayout(nextValue);
-                              if (!autoLayoutEnabled) {
-                                setLayoutNonce((value) => value + 1);
-                              }
-                            }}
-                          />
-                          <span>Prefer grid layout</span>
-                        </label>
-                        <label className="map-toggle">
-                          <input
-                            type="checkbox"
-                            checked={showVerticalEdges}
-                            onChange={(event) =>
-                              setShowVerticalEdges(event.target.checked)
-                            }
-                          />
-                          <span>Vertical edges</span>
-                        </label>
-                        {dirtyRoomCount ? (
-                          <span
-                            className="map-dirty"
-                            title="Moved rooms are not locked or saved to meta yet."
-                          >
-                            Unpinned: {dirtyRoomCount}
-                          </span>
-                        ) : null}
-                        <button
-                          className="action-button"
-                          type="button"
-                          onClick={handleLockSelectedRoom}
-                          disabled={!selectedRoomNode || selectedRoomLocked}
-                        >
-                          Lock selected
-                        </button>
-                        <button
-                          className="action-button"
-                          type="button"
-                          onClick={handleUnlockSelectedRoom}
-                          disabled={!selectedRoomNode || !selectedRoomLocked}
-                        >
-                          Unlock selected
-                        </button>
-                        <button
-                          className="action-button"
-                          type="button"
-                          onClick={handleClearRoomLayout}
-                          disabled={!hasRoomLayout}
-                        >
-                          Clear layout
-                        </button>
-                      </div>
+                      <MapToolbar
+                        autoLayoutEnabled={autoLayoutEnabled}
+                        preferCardinalLayout={preferCardinalLayout}
+                        showVerticalEdges={showVerticalEdges}
+                        dirtyRoomCount={dirtyRoomCount}
+                        selectedRoomNode={Boolean(selectedRoomNode)}
+                        selectedRoomLocked={selectedRoomLocked}
+                        hasRoomLayout={hasRoomLayout}
+                        onRelayout={() =>
+                          setLayoutNonce((value) => value + 1)
+                        }
+                        onToggleAutoLayout={setAutoLayoutEnabled}
+                        onTogglePreferGrid={(nextValue) => {
+                          setPreferCardinalLayout(nextValue);
+                          if (!autoLayoutEnabled) {
+                            setLayoutNonce((value) => value + 1);
+                          }
+                        }}
+                        onToggleVerticalEdges={setShowVerticalEdges}
+                        onLockSelected={handleLockSelectedRoom}
+                        onUnlockSelected={handleUnlockSelectedRoom}
+                        onClearLayout={handleClearRoomLayout}
+                      />
                       <ReactFlow
                         nodes={mapNodes}
                         edges={roomEdges}
