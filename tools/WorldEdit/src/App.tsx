@@ -302,6 +302,7 @@ type ValidationIssue = {
   entityType: EntityKey;
   message: string;
   vnum?: number;
+  resetIndex?: number;
 };
 
 type ExitValidationResult = {
@@ -1903,11 +1904,16 @@ function validateResetReferences(areaData: AreaJson | null): ValidationIssue[] {
   });
 
   const issues: ValidationIssue[] = [];
-  const addIssue = (message: string, vnum?: number) => {
+  const addIssue = (
+    message: string,
+    index: number,
+    vnum?: number
+  ) => {
     issues.push({
-      id: `reset-ref-${issues.length}`,
+      id: `reset-ref-${index}-${issues.length}`,
       severity: "error",
       entityType: "Resets",
+      resetIndex: index,
       vnum,
       message
     });
@@ -1923,55 +1929,73 @@ function validateResetReferences(areaData: AreaJson | null): ValidationIssue[] {
     if (command === "loadMob") {
       const mobVnum = parseVnum(record.mobVnum);
       if (mobVnum === null) {
-        addIssue(`${label} loadMob missing mob vnum`);
+        addIssue(`${label} loadMob missing mob vnum`, index);
         return;
       }
       if (!mobVnums.has(mobVnum)) {
-        addIssue(`${label} loadMob references missing mob ${mobVnum}`, mobVnum);
+        addIssue(
+          `${label} loadMob references missing mob ${mobVnum}`,
+          index,
+          mobVnum
+        );
       }
     } else if (command === "placeObj") {
       const objVnum = parseVnum(record.objVnum);
       if (objVnum === null) {
-        addIssue(`${label} placeObj missing object vnum`);
+        addIssue(`${label} placeObj missing object vnum`, index);
         return;
       }
       if (!objVnums.has(objVnum)) {
-        addIssue(`${label} placeObj references missing object ${objVnum}`, objVnum);
+        addIssue(
+          `${label} placeObj references missing object ${objVnum}`,
+          index,
+          objVnum
+        );
       }
     } else if (command === "putObj") {
       const objVnum = parseVnum(record.objVnum);
       const containerVnum = parseVnum(record.containerVnum);
       if (objVnum === null) {
-        addIssue(`${label} putObj missing object vnum`);
+        addIssue(`${label} putObj missing object vnum`, index);
       } else if (!objVnums.has(objVnum)) {
-        addIssue(`${label} putObj references missing object ${objVnum}`, objVnum);
+        addIssue(
+          `${label} putObj references missing object ${objVnum}`,
+          index,
+          objVnum
+        );
       }
       if (containerVnum === null) {
-        addIssue(`${label} putObj missing container vnum`);
+        addIssue(`${label} putObj missing container vnum`, index);
       } else if (!objVnums.has(containerVnum)) {
         addIssue(
           `${label} putObj references missing container ${containerVnum}`,
+          index,
           containerVnum
         );
       }
     } else if (command === "giveObj") {
       const objVnum = parseVnum(record.objVnum);
       if (objVnum === null) {
-        addIssue(`${label} giveObj missing object vnum`);
+        addIssue(`${label} giveObj missing object vnum`, index);
         return;
       }
       if (!objVnums.has(objVnum)) {
-        addIssue(`${label} giveObj references missing object ${objVnum}`, objVnum);
+        addIssue(
+          `${label} giveObj references missing object ${objVnum}`,
+          index,
+          objVnum
+        );
       }
     } else if (command === "equipObj") {
       const objVnum = parseVnum(record.objVnum);
       if (objVnum === null) {
-        addIssue(`${label} equipObj missing object vnum`);
+        addIssue(`${label} equipObj missing object vnum`, index);
         return;
       }
       if (!objVnums.has(objVnum)) {
         addIssue(
           `${label} equipObj references missing object ${objVnum}`,
+          index,
           objVnum
         );
       }
@@ -2145,12 +2169,22 @@ function validateOrphanRooms(areaData: AreaJson | null): ValidationIssue[] {
 function buildValidationSummary(
   issues: ValidationIssue[],
   selectedEntity: EntityKey,
-  selectedVnum: number | null
+  selectedVnum: number | null,
+  selectedResetIndex: number | null
 ): string {
   if (!issues.length) {
     return "No validation issues";
   }
-  if (selectedVnum !== null) {
+  if (selectedEntity === "Resets" && selectedResetIndex !== null) {
+    const selectedIssue = issues.find(
+      (issue) =>
+        issue.entityType === "Resets" &&
+        issue.resetIndex === selectedResetIndex
+    );
+    if (selectedIssue) {
+      return selectedIssue.message;
+    }
+  } else if (selectedVnum !== null) {
     const selectedIssue = issues.find(
       (issue) =>
         issue.entityType === selectedEntity && issue.vnum === selectedVnum
@@ -2961,6 +2995,9 @@ export default function App() {
   const [dirtyRoomNodes, setDirtyRoomNodes] = useState<Set<string>>(
     () => new Set()
   );
+  const [diagnosticFilter, setDiagnosticFilter] = useState<
+    "All" | EntityKey
+  >("All");
   const [autoLayoutEnabled, setAutoLayoutEnabled] = useState(true);
   const [preferCardinalLayout, setPreferCardinalLayout] = useState(() => {
     const stored = localStorage.getItem("worldedit.preferCardinalLayout");
@@ -3262,9 +3299,68 @@ export default function App() {
       buildValidationSummary(
         validationIssues,
         selectedEntity,
-        selectedEntityVnum
+        selectedEntityVnum,
+        selectedResetIndex
       ),
-    [validationIssues, selectedEntity, selectedEntityVnum]
+    [validationIssues, selectedEntity, selectedEntityVnum, selectedResetIndex]
+  );
+  const diagnosticsList = useMemo(() => {
+    const filtered =
+      diagnosticFilter === "All"
+        ? validationIssues
+        : validationIssues.filter(
+            (issue) => issue.entityType === diagnosticFilter
+          );
+    const priority: Record<ValidationSeverity, number> = {
+      error: 0,
+      warning: 1
+    };
+    return [...filtered].sort((a, b) => {
+      const severityOrder = priority[a.severity] - priority[b.severity];
+      if (severityOrder !== 0) {
+        return severityOrder;
+      }
+      if (a.entityType !== b.entityType) {
+        return a.entityType.localeCompare(b.entityType);
+      }
+      const aKey = a.resetIndex ?? a.vnum ?? 0;
+      const bKey = b.resetIndex ?? b.vnum ?? 0;
+      return aKey - bKey;
+    });
+  }, [validationIssues, diagnosticFilter]);
+  const diagnosticsCount = diagnosticsList.length;
+  const handleDiagnosticsClick = useCallback(
+    (issue: ValidationIssue) => {
+      if (issue.entityType === "Rooms" && typeof issue.vnum === "number") {
+        setSelectedEntity("Rooms");
+        setSelectedRoomVnum(issue.vnum);
+        return;
+      }
+      if (issue.entityType === "Mobiles" && typeof issue.vnum === "number") {
+        setSelectedEntity("Mobiles");
+        setSelectedMobileVnum(issue.vnum);
+        return;
+      }
+      if (issue.entityType === "Objects" && typeof issue.vnum === "number") {
+        setSelectedEntity("Objects");
+        setSelectedObjectVnum(issue.vnum);
+        return;
+      }
+      if (
+        issue.entityType === "Resets" &&
+        typeof issue.resetIndex === "number"
+      ) {
+        setSelectedEntity("Resets");
+        setSelectedResetIndex(issue.resetIndex);
+      }
+    },
+    [
+      setSelectedEntity,
+      setSelectedRoomVnum,
+      setSelectedMobileVnum,
+      setSelectedObjectVnum,
+      setSelectedResetIndex
+    ]
   );
   const areaName = fileNameFromPath(areaPath);
   const areaDebug = useMemo(() => buildAreaDebugSummary(areaData), [areaData]);
@@ -7004,6 +7100,75 @@ export default function App() {
             <div className="inspector__value inspector__value--warn">
               {validationSummary}
             </div>
+          </div>
+          <div className="inspector__section">
+            <div className="diagnostics__header">
+              <span className="inspector__label">Diagnostics</span>
+              <span className="diagnostics__count">{diagnosticsCount}</span>
+            </div>
+            <div className="diagnostics__filters">
+              <label className="diagnostics__filter-label" htmlFor="diag-filter">
+                Entity
+              </label>
+              <select
+                id="diag-filter"
+                className="form-select diagnostics__select"
+                value={diagnosticFilter}
+                onChange={(event) =>
+                  setDiagnosticFilter(
+                    event.target.value as "All" | EntityKey
+                  )
+                }
+              >
+                <option value="All">All</option>
+                {entityOrder.map((entity) => (
+                  <option key={entity} value={entity}>
+                    {entity}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {diagnosticsCount ? (
+              <ul className="diagnostics__list">
+                {diagnosticsList.map((issue) => {
+                  const targetLabel =
+                    issue.entityType === "Resets" &&
+                    typeof issue.resetIndex === "number"
+                      ? `Reset #${issue.resetIndex + 1}`
+                      : typeof issue.vnum === "number"
+                        ? `${entityKindLabels[issue.entityType]} ${issue.vnum}`
+                        : issue.entityType;
+                  const canNavigate =
+                    (issue.entityType === "Resets" &&
+                      typeof issue.resetIndex === "number") ||
+                    typeof issue.vnum === "number";
+                  return (
+                    <li key={issue.id}>
+                      <button
+                        type="button"
+                        className={`diagnostics__item diagnostics__item--${issue.severity}`}
+                        onClick={() => handleDiagnosticsClick(issue)}
+                        disabled={!canNavigate}
+                      >
+                        <span
+                          className={`diagnostics__severity diagnostics__severity--${issue.severity}`}
+                        >
+                          {issue.severity}
+                        </span>
+                        <span className="diagnostics__message">
+                          {issue.message}
+                        </span>
+                        <span className="diagnostics__meta">
+                          {targetLabel}
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <div className="diagnostics__empty">No diagnostics.</div>
+            )}
           </div>
           <div className="inspector__section">
             <div className="inspector__label">Area Data Debug</div>

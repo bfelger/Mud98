@@ -133,7 +133,10 @@ export const weaponClasses = [
   "axe",
   "flail",
   "whip",
-  "polearm"
+  "polearm",
+  "skinningknife",
+  "miningpick",
+  "smithinghammer"
 ] as const;
 
 export const weaponFlags = [

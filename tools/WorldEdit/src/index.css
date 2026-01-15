@@ -949,6 +949,112 @@ body::before {
   color: var(--warn);
 }
 
+.diagnostics__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.diagnostics__count {
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(117, 88, 58, 0.2);
+  background: rgba(117, 88, 58, 0.08);
+  font-size: 0.7rem;
+  color: var(--ink-soft);
+}
+
+.diagnostics__filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.diagnostics__filter-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.diagnostics__select {
+  min-width: 120px;
+}
+
+.diagnostics__list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.diagnostics__item {
+  width: 100%;
+  text-align: left;
+  border-radius: 12px;
+  padding: 8px 10px;
+  border: 1px solid rgba(117, 88, 58, 0.2);
+  background: rgba(255, 255, 255, 0.95);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 10px;
+  cursor: pointer;
+}
+
+.diagnostics__item:disabled {
+  cursor: default;
+  opacity: 0.65;
+}
+
+.diagnostics__item--error {
+  border-color: rgba(167, 60, 60, 0.35);
+}
+
+.diagnostics__item--warning {
+  border-color: rgba(138, 92, 34, 0.35);
+}
+
+.diagnostics__severity {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  align-self: start;
+}
+
+.diagnostics__severity--error {
+  color: #a63c3c;
+  border: 1px solid rgba(167, 60, 60, 0.45);
+  background: rgba(255, 236, 236, 0.95);
+}
+
+.diagnostics__severity--warning {
+  color: #7a4a12;
+  border: 1px solid rgba(138, 92, 34, 0.35);
+  background: rgba(255, 244, 230, 0.95);
+}
+
+.diagnostics__message {
+  font-size: 0.82rem;
+  color: var(--ink);
+}
+
+.diagnostics__meta {
+  grid-column: 2 / 3;
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+}
+
+.diagnostics__empty {
+  margin-top: 8px;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
 .inspector__tags {
   display: flex;
   flex-wrap: wrap;
