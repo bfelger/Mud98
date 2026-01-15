@@ -39,6 +39,7 @@ import { ObjectForm } from "./components/ObjectForm";
 import { ResetForm } from "./components/ResetForm";
 import { TableView } from "./components/TableView";
 import { InspectorPanel } from "./components/InspectorPanel";
+import { EntityTree } from "./components/EntityTree";
 import type { VnumOption } from "./components/VnumPicker";
 import type { EventBinding } from "./data/eventTypes";
 import type {
@@ -4977,38 +4978,11 @@ export default function App() {
       </header>
 
       <section className="workspace">
-        <aside className="sidebar">
-          <div className="panel-header">
-            <h2>Entity Tree</h2>
-            <button className="ghost-button" type="button">
-              New
-            </button>
-          </div>
-          <div className="tree">
-            <div className="tree-group">
-              <div className="tree-group__label">Area</div>
-              <ul className="tree-list">
-                {entityItems.map((child) => (
-                  <li key={child.key}>
-                    <button
-                      className={`tree-item${
-                        child.key === selectedEntity
-                          ? " tree-item--active"
-                          : ""
-                      }`}
-                      type="button"
-                      aria-pressed={child.key === selectedEntity}
-                      onClick={() => setSelectedEntity(child.key)}
-                    >
-                      <span className="tree-item__label">{child.key}</span>
-                      <span className="tree-item__count">{child.count}</span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </aside>
+        <EntityTree
+          items={entityItems}
+          selectedEntity={selectedEntity}
+          onSelectEntity={setSelectedEntity}
+        />
 
         <main className="center">
           <nav className="tabs" aria-label="View tabs">
