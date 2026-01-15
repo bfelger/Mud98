@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Editor from "@monaco-editor/react";
+import { registerLoxLanguage } from "../monaco/loxLanguage";
 
 type ScriptViewProps = {
   title: string;
@@ -60,7 +61,8 @@ export function ScriptView({
       </div>
       <div className="script-view__editor">
         <Editor
-          language="plaintext"
+          beforeMount={registerLoxLanguage}
+          language="lox"
           theme="vs"
           value={draft}
           height="100%"
