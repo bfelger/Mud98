@@ -787,11 +787,37 @@ function normalizeOptionalText(value: string | undefined) {
   return trimmed.length ? trimmed : undefined;
 }
 
+function normalizeLineEndingsForDisplay(value: string | undefined) {
+  if (typeof value !== "string") {
+    return "";
+  }
+  return value.replace(/\r\n/g, "\n").replace(/\n\r/g, "\n").replace(/\r/g, "\n");
+}
+
+function normalizeLineEndingsForMud(value: string) {
+  const normalized = value
+    .replace(/\r\n/g, "\n")
+    .replace(/\n\r/g, "\n")
+    .replace(/\r/g, "\n");
+  return normalized.replace(/\n/g, "\n\r");
+}
+
+function normalizeOptionalMudText(value: string | undefined) {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (!value.trim().length) {
+    return undefined;
+  }
+  return normalizeLineEndingsForMud(value);
+}
+
 function normalizeOptionalScript(value: string | undefined) {
   if (value === undefined) {
     return undefined;
   }
-  return value.trim().length ? value : undefined;
+  const normalized = normalizeLineEndingsForMud(value);
+  return normalized.trim().length ? normalized : undefined;
 }
 
 type ObjectBlockKey =
@@ -3699,7 +3725,7 @@ export default function App() {
       return "";
     }
     const raw = (scriptContext.record as Record<string, unknown>).loxScript;
-    return typeof raw === "string" ? raw : "";
+    return typeof raw === "string" ? normalizeLineEndingsForDisplay(raw) : "";
   }, [scriptContext]);
   const scriptTitle = useMemo(() => {
     if (!scriptContext) {
@@ -3793,9 +3819,13 @@ export default function App() {
       vnum,
       name: typeof record?.name === "string" ? record.name : "",
       description:
-        typeof record?.description === "string" ? record.description : "",
+        typeof record?.description === "string"
+          ? normalizeLineEndingsForDisplay(record.description)
+          : "",
       loxScript:
-        typeof record?.loxScript === "string" ? record.loxScript : "",
+        typeof record?.loxScript === "string"
+          ? normalizeLineEndingsForDisplay(record.loxScript)
+          : "",
       sectorType,
       roomFlags,
       manaRate,
@@ -3818,7 +3848,9 @@ export default function App() {
                 ? exit.flags.filter((flag) => typeof flag === "string")
                 : [],
               description:
-                typeof exit.description === "string" ? exit.description : "",
+                typeof exit.description === "string"
+                  ? normalizeLineEndingsForDisplay(exit.description)
+                  : "",
               keyword: typeof exit.keyword === "string" ? exit.keyword : ""
             }))
         : []
@@ -3844,11 +3876,17 @@ export default function App() {
       shortDescr:
         typeof record?.shortDescr === "string" ? record.shortDescr : "",
       longDescr:
-        typeof record?.longDescr === "string" ? record.longDescr : "",
+        typeof record?.longDescr === "string"
+          ? normalizeLineEndingsForDisplay(record.longDescr)
+          : "",
       description:
-        typeof record?.description === "string" ? record.description : "",
+        typeof record?.description === "string"
+          ? normalizeLineEndingsForDisplay(record.description)
+          : "",
       loxScript:
-        typeof record?.loxScript === "string" ? record.loxScript : "",
+        typeof record?.loxScript === "string"
+          ? normalizeLineEndingsForDisplay(record.loxScript)
+          : "",
       race: typeof record?.race === "string" ? record.race : "",
       level: parseVnum(record?.level) ?? undefined,
       hitroll: parseVnum(record?.hitroll) ?? undefined,
@@ -4057,9 +4095,13 @@ export default function App() {
       shortDescr:
         typeof record?.shortDescr === "string" ? record.shortDescr : "",
       description:
-        typeof record?.description === "string" ? record.description : "",
+        typeof record?.description === "string"
+          ? normalizeLineEndingsForDisplay(record.description)
+          : "",
       loxScript:
-        typeof record?.loxScript === "string" ? record.loxScript : "",
+        typeof record?.loxScript === "string"
+          ? normalizeLineEndingsForDisplay(record.loxScript)
+          : "",
       material: typeof record?.material === "string" ? record.material : "",
       itemType: typeof record?.itemType === "string" ? record.itemType : "",
       extraFlags: Array.isArray(record?.extraFlags)
@@ -4272,8 +4314,9 @@ export default function App() {
       if (exit.flags && exit.flags.length) {
         nextExit.flags = exit.flags;
       }
-      if (exit.description && exit.description.trim().length) {
-        nextExit.description = exit.description;
+      const description = normalizeOptionalMudText(exit.description);
+      if (description) {
+        nextExit.description = description;
       }
       if (exit.keyword && exit.keyword.trim().length) {
         nextExit.keyword = exit.keyword;
@@ -4297,7 +4340,7 @@ export default function App() {
         const nextRoom: Record<string, unknown> = {
           ...record,
           name: data.name,
-          description: data.description,
+          description: normalizeLineEndingsForMud(data.description),
           sectorType: data.sectorType ?? undefined,
           roomFlags: data.roomFlags?.length ? data.roomFlags : undefined,
           manaRate: data.manaRate ?? undefined,
@@ -4350,8 +4393,8 @@ export default function App() {
           ...record,
           name: data.name,
           shortDescr: data.shortDescr,
-          longDescr: data.longDescr,
-          description: data.description,
+          longDescr: normalizeLineEndingsForMud(data.longDescr),
+          description: normalizeLineEndingsForMud(data.description),
           race: data.race,
           level: data.level ?? undefined,
           hitroll: data.hitroll ?? undefined,
@@ -4561,7 +4604,7 @@ export default function App() {
           ...record,
           name: data.name,
           shortDescr: data.shortDescr,
-          description: data.description,
+          description: normalizeLineEndingsForMud(data.description),
           material: data.material,
           itemType: data.itemType,
           extraFlags: data.extraFlags?.length ? data.extraFlags : undefined,
