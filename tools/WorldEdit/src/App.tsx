@@ -30,13 +30,13 @@ import {
   useForm,
   useWatch,
   type FieldPath,
-  type FieldValues,
-  type UseFormRegister
 } from "react-hook-form";
 import { z } from "zod";
 import { LocalFileRepository } from "./repository/localFileRepository";
 import { ScriptView } from "./components/ScriptView";
 import { EventBindingsView } from "./components/EventBindingsView";
+import { RoomForm } from "./components/RoomForm";
+import { VnumPicker, type VnumOption } from "./components/VnumPicker";
 import type { EventBinding } from "./data/eventTypes";
 import type {
   AreaIndexEntry,
@@ -251,11 +251,6 @@ const edgeDirectionPriority: Record<Position, "horizontal" | "vertical"> = {
 
 type TabId = (typeof tabs)[number]["id"];
 type EntityKey = (typeof entityOrder)[number];
-type VnumOption = {
-  vnum: number;
-  label: string;
-};
-
 type RoomRow = {
   vnum: number;
   name: string;
@@ -955,49 +950,6 @@ function getAreaVnumBounds(
 
 function getFirstString(value: unknown, fallback: string): string {
   return typeof value === "string" && value.trim().length ? value : fallback;
-}
-
-type VnumPickerProps<TFieldValues extends FieldValues> = {
-  id: string;
-  label: string;
-  name: FieldPath<TFieldValues>;
-  register: UseFormRegister<TFieldValues>;
-  options: VnumOption[];
-  error?: string;
-};
-
-function VnumPicker<TFieldValues extends FieldValues>({
-  id,
-  label,
-  name,
-  register,
-  options,
-  error
-}: VnumPickerProps<TFieldValues>) {
-  const listId = `${id}-options`;
-  return (
-    <div className="form-field">
-      <label className="form-label" htmlFor={id}>
-        {label}
-      </label>
-      <input
-        id={id}
-        className="form-input"
-        type="text"
-        inputMode="numeric"
-        list={listId}
-        {...register(name)}
-      />
-      <datalist id={listId}>
-        {options.map((option) => (
-          <option key={option.vnum} value={String(option.vnum)}>
-            {option.label}
-          </option>
-        ))}
-      </datalist>
-      {error ? <span className="form-error">{error}</span> : null}
-    </div>
-  );
 }
 
 function RoomNode({ data, selected }: NodeProps<RoomNodeData>) {
@@ -5082,301 +5034,25 @@ export default function App() {
             <div className="view-card__body">
               {activeTab === "Form" && selectedEntity === "Rooms" ? (
                 roomRows.length ? (
-                  <div className="form-view">
-                    <form
-                      className="form-shell"
-                      onSubmit={handleRoomSubmitForm(handleRoomSubmit)}
-                    >
-                      <div className="form-grid">
-                        <div className="form-field">
-                          <label className="form-label" htmlFor="room-vnum">
-                            VNUM
-                          </label>
-                          <input
-                            id="room-vnum"
-                            className="form-input"
-                            type="number"
-                            readOnly
-                            {...registerRoom("vnum", { valueAsNumber: true })}
-                          />
-                        </div>
-                        <div className="form-field form-field--wide">
-                          <label className="form-label" htmlFor="room-name">
-                            Name
-                          </label>
-                          <input
-                            id="room-name"
-                            className="form-input"
-                            type="text"
-                            {...registerRoom("name")}
-                          />
-                          {roomFormState.errors.name ? (
-                            <span className="form-error">
-                              {roomFormState.errors.name.message}
-                            </span>
-                          ) : null}
-                        </div>
-                        <div className="form-field">
-                          <label
-                            className="form-label"
-                            htmlFor="room-sector"
-                          >
-                            Sector
-                          </label>
-                          <select
-                            id="room-sector"
-                            className="form-select"
-                            {...registerRoom("sectorType")}
-                          >
-                            <option value="">Default (inside)</option>
-                            {sectors.map((sector) => (
-                              <option key={sector} value={sector}>
-                                {sector}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                        <div className="form-field">
-                          <label className="form-label" htmlFor="room-mana">
-                            Mana Rate
-                          </label>
-                          <input
-                            id="room-mana"
-                            className="form-input"
-                            type="number"
-                            {...registerRoom("manaRate")}
-                          />
-                        </div>
-                        <div className="form-field">
-                          <label className="form-label" htmlFor="room-heal">
-                            Heal Rate
-                          </label>
-                          <input
-                            id="room-heal"
-                            className="form-input"
-                            type="number"
-                            {...registerRoom("healRate")}
-                          />
-                        </div>
-                        <div className="form-field">
-                          <label className="form-label" htmlFor="room-clan">
-                            Clan
-                          </label>
-                          <input
-                            id="room-clan"
-                            className="form-input"
-                            type="number"
-                            {...registerRoom("clan")}
-                          />
-                        </div>
-                        <div className="form-field form-field--wide">
-                          <label className="form-label" htmlFor="room-owner">
-                            Owner
-                          </label>
-                          <input
-                            id="room-owner"
-                            className="form-input"
-                            type="text"
-                            {...registerRoom("owner")}
-                          />
-                        </div>
-                      </div>
-                      <div className="form-field form-field--full">
-                        <label
-                          className="form-label"
-                          htmlFor="room-description"
-                        >
-                          Description
-                        </label>
-                        <textarea
-                          id="room-description"
-                          className="form-textarea"
-                          rows={6}
-                          {...registerRoom("description")}
-                        />
-                        {roomFormState.errors.description ? (
-                          <span className="form-error">
-                            {roomFormState.errors.description.message}
-                          </span>
-                        ) : null}
-                      </div>
-                      <div className="form-field form-field--full">
-                        <label className="form-label">Room Flags</label>
-                        <div className="form-checkboxes">
-                          {roomFlagOptions.map((flag) => (
-                            <label key={flag} className="checkbox-pill">
-                              <input
-                                type="checkbox"
-                                value={flag}
-                                {...registerRoom("roomFlags")}
-                              />
-                              <span>{flag}</span>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="form-field form-field--full">
-                        <div className="form-section-header">
-                          <div>
-                            <div className="form-label">Exits</div>
-                            <div className="form-hint">
-                              {exitFields.length
-                                ? `${exitFields.length} exit${
-                                    exitFields.length === 1 ? "" : "s"
-                                  }`
-                                : "No exits defined"}
-                            </div>
-                          </div>
-                          <button
-                            className="ghost-button"
-                            type="button"
-                            onClick={() =>
-                              appendExit({
-                                dir: directions[0],
-                                toVnum: 0,
-                                key: undefined,
-                                flags: [],
-                                description: "",
-                                keyword: ""
-                              })
-                            }
-                          >
-                            Add Exit
-                          </button>
-                        </div>
-                        <div className="exit-list">
-                          {exitFields.map((field, index) => (
-                            <div key={field.id} className="exit-card">
-                              <div className="exit-card__header">
-                                <span>Exit {index + 1}</span>
-                                <button
-                                  className="ghost-button"
-                                  type="button"
-                                  onClick={() => removeExit(index)}
-                                >
-                                  Remove
-                                </button>
-                              </div>
-                              <div className="exit-grid">
-                                <div className="form-field">
-                                  <label
-                                    className="form-label"
-                                    htmlFor={`exit-dir-${field.id}`}
-                                  >
-                                    Direction
-                                  </label>
-                                  <select
-                                    id={`exit-dir-${field.id}`}
-                                    className="form-select"
-                                    {...registerRoom(`exits.${index}.dir`)}
-                                  >
-                                    {directions.map((dir) => (
-                                      <option key={dir} value={dir}>
-                                        {dir}
-                                      </option>
-                                    ))}
-                                  </select>
-                                </div>
-                                <VnumPicker<RoomFormValues>
-                                  id={`exit-to-${field.id}`}
-                                  label="To VNUM"
-                                  name={`exits.${index}.toVnum` as FieldPath<RoomFormValues>}
-                                  register={registerRoom}
-                                  options={roomVnumOptions}
-                                  error={
-                                    roomFormState.errors.exits?.[index]?.toVnum
-                                      ?.message
-                                  }
-                                />
-                                <VnumPicker<RoomFormValues>
-                                  id={`exit-key-${field.id}`}
-                                  label="Key VNUM"
-                                  name={`exits.${index}.key` as FieldPath<RoomFormValues>}
-                                  register={registerRoom}
-                                  options={objectVnumOptions}
-                                />
-                                <div className="form-field">
-                                  <label
-                                    className="form-label"
-                                    htmlFor={`exit-keyword-${field.id}`}
-                                  >
-                                    Keyword
-                                  </label>
-                                  <input
-                                    id={`exit-keyword-${field.id}`}
-                                    className="form-input"
-                                    type="text"
-                                    {...registerRoom(`exits.${index}.keyword`)}
-                                  />
-                                </div>
-                                <div className="form-field form-field--full">
-                                  <label
-                                    className="form-label"
-                                    htmlFor={`exit-description-${field.id}`}
-                                  >
-                                    Description
-                                  </label>
-                                  <textarea
-                                    id={`exit-description-${field.id}`}
-                                    className="form-textarea form-textarea--exit"
-                                    rows={3}
-                                    {...registerRoom(
-                                      `exits.${index}.description`
-                                    )}
-                                  />
-                                </div>
-                                <div className="form-field form-field--full">
-                                  <label className="form-label">
-                                    Exit Flags
-                                  </label>
-                                  <div className="form-checkboxes">
-                                    {exitFlags.map((flag) => (
-                                      <label
-                                        key={flag}
-                                        className="checkbox-pill"
-                                      >
-                                        <input
-                                          type="checkbox"
-                                          value={flag}
-                                          {...registerRoom(
-                                            `exits.${index}.flags`
-                                          )}
-                                        />
-                                        <span>{flag}</span>
-                                      </label>
-                                    ))}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="form-field form-field--full">
-                        <EventBindingsView
-                          entityType={canEditScript ? scriptEventEntity : null}
-                          events={eventBindings}
-                          script={scriptValue}
-                          canEdit={canEditScript}
-                          onChange={handleEventBindingsChange}
-                        />
-                      </div>
-                      <div className="form-actions">
-                        <button
-                          className="action-button action-button--primary"
-                          type="submit"
-                          disabled={!roomFormState.isDirty}
-                        >
-                          Apply Changes
-                        </button>
-                        <span className="form-hint">
-                          {roomFormState.isDirty
-                            ? "Unsaved changes"
-                            : "Up to date"}
-                        </span>
-                      </div>
-                    </form>
-                  </div>
+                  <RoomForm
+                    onSubmit={handleRoomSubmitForm(handleRoomSubmit)}
+                    register={registerRoom}
+                    formState={roomFormState}
+                    exitFields={exitFields}
+                    appendExit={appendExit}
+                    removeExit={removeExit}
+                    directions={directions}
+                    sectors={sectors}
+                    roomFlags={roomFlagOptions}
+                    exitFlags={exitFlags}
+                    roomVnumOptions={roomVnumOptions}
+                    objectVnumOptions={objectVnumOptions}
+                    canEditScript={canEditScript}
+                    scriptEventEntity={scriptEventEntity}
+                    eventBindings={eventBindings}
+                    scriptValue={scriptValue}
+                    onEventBindingsChange={handleEventBindingsChange}
+                  />
                 ) : (
                   <div className="entity-table__empty">
                     <h3>No rooms available</h3>
