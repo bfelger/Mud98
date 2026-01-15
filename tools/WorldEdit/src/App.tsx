@@ -44,6 +44,7 @@ import { Topbar } from "./components/Topbar";
 import { Statusbar } from "./components/Statusbar";
 import { MapToolbar } from "./components/MapToolbar";
 import { MapExternalExitsPanel } from "./components/MapExternalExitsPanel";
+import { ViewCardHeader } from "./components/ViewCardHeader";
 import type { VnumOption } from "./components/VnumPicker";
 import type { EventBinding } from "./data/eventTypes";
 import type {
@@ -4949,14 +4950,12 @@ export default function App() {
           </nav>
 
           <div className="view-card">
-            <div className="view-card__header">
-              <h2>{selectedEntity}</h2>
-              <div className="view-card__meta">
-                <span>VNUM range {selection.vnumRange}</span>
-                <span>Last save {selection.lastSave}</span>
-                <span>Active view {activeTab}</span>
-              </div>
-            </div>
+            <ViewCardHeader
+              title={selectedEntity}
+              vnumRange={selection.vnumRange}
+              lastSave={selection.lastSave}
+              activeTab={activeTab}
+            />
             <div className="view-card__body">
               {activeTab === "Form" && selectedEntity === "Rooms" ? (
                 roomRows.length ? (
