@@ -397,6 +397,7 @@ const mobileFormSchema = z.object({
   shortDescr: z.string().min(1, "Short description is required."),
   longDescr: z.string().min(1, "Long description is required."),
   description: z.string().min(1, "Description is required."),
+  loxScript: z.string().optional(),
   race: z.string().min(1, "Race is required."),
   level: optionalIntSchema,
   hitroll: optionalIntSchema,
@@ -518,6 +519,7 @@ const objectFormSchema = z.object({
   name: z.string().min(1, "Name is required."),
   shortDescr: z.string().min(1, "Short description is required."),
   description: z.string().min(1, "Description is required."),
+  loxScript: z.string().optional(),
   material: z.string().min(1, "Material is required."),
   itemType: z.string().min(1, "Item type is required."),
   extraFlags: z.array(extraFlagEnum).optional(),
@@ -663,6 +665,7 @@ const roomFormSchema = z.object({
   vnum: z.number().int(),
   name: z.string().min(1, "Name is required."),
   description: z.string().min(1, "Description is required."),
+  loxScript: z.string().optional(),
   sectorType: optionalSectorSchema,
   roomFlags: z.array(roomFlagEnum).optional(),
   manaRate: optionalIntSchema,
@@ -782,6 +785,13 @@ function normalizeOptionalText(value: string | undefined) {
   }
   const trimmed = value.trim();
   return trimmed.length ? trimmed : undefined;
+}
+
+function normalizeOptionalScript(value: string | undefined) {
+  if (value === undefined) {
+    return undefined;
+  }
+  return value.trim().length ? value : undefined;
 }
 
 type ObjectBlockKey =
@@ -3021,6 +3031,7 @@ export default function App() {
       vnum: 0,
       name: "",
       description: "",
+      loxScript: "",
       sectorType: undefined,
       roomFlags: [],
       manaRate: undefined,
@@ -3052,6 +3063,7 @@ export default function App() {
       shortDescr: "",
       longDescr: "",
       description: "",
+      loxScript: "",
       race: "",
       level: undefined,
       hitroll: undefined,
@@ -3082,6 +3094,7 @@ export default function App() {
       name: "",
       shortDescr: "",
       description: "",
+      loxScript: "",
       material: "",
       itemType: "",
       extraFlags: [],
@@ -3721,7 +3734,7 @@ export default function App() {
       if (!scriptContext || scriptContext.vnum === null) {
         return;
       }
-      const normalized = normalizeOptionalText(nextScript);
+      const normalized = normalizeOptionalScript(nextScript);
       setAreaData((current) => {
         if (!current) {
           return current;
@@ -3781,6 +3794,8 @@ export default function App() {
       name: typeof record?.name === "string" ? record.name : "",
       description:
         typeof record?.description === "string" ? record.description : "",
+      loxScript:
+        typeof record?.loxScript === "string" ? record.loxScript : "",
       sectorType,
       roomFlags,
       manaRate,
@@ -3832,6 +3847,8 @@ export default function App() {
         typeof record?.longDescr === "string" ? record.longDescr : "",
       description:
         typeof record?.description === "string" ? record.description : "",
+      loxScript:
+        typeof record?.loxScript === "string" ? record.loxScript : "",
       race: typeof record?.race === "string" ? record.race : "",
       level: parseVnum(record?.level) ?? undefined,
       hitroll: parseVnum(record?.hitroll) ?? undefined,
@@ -4041,6 +4058,8 @@ export default function App() {
         typeof record?.shortDescr === "string" ? record.shortDescr : "",
       description:
         typeof record?.description === "string" ? record.description : "",
+      loxScript:
+        typeof record?.loxScript === "string" ? record.loxScript : "",
       material: typeof record?.material === "string" ? record.material : "",
       itemType: typeof record?.itemType === "string" ? record.itemType : "",
       extraFlags: Array.isArray(record?.extraFlags)
@@ -4241,6 +4260,7 @@ export default function App() {
     if (!areaData || selectedRoomVnum === null) {
       return;
     }
+    const loxScript = normalizeOptionalScript(data.loxScript);
     const normalizedExits = (data.exits ?? []).map((exit) => {
       const nextExit: Record<string, unknown> = {
         dir: exit.dir,
@@ -4286,6 +4306,11 @@ export default function App() {
           owner: data.owner ?? undefined,
           exits: normalizedExits.length ? normalizedExits : undefined
         };
+        if (loxScript !== undefined) {
+          nextRoom.loxScript = loxScript;
+        } else {
+          delete nextRoom.loxScript;
+        }
         if (!("sectorType" in record) && "sector" in record) {
           nextRoom.sector = data.sectorType ?? undefined;
         }
@@ -4306,6 +4331,7 @@ export default function App() {
     const hitDice = normalizeDice(data.hitDice);
     const manaDice = normalizeDice(data.manaDice);
     const damageDice = normalizeDice(data.damageDice);
+    const loxScript = normalizeOptionalScript(data.loxScript);
     setAreaData((current) => {
       if (!current) {
         return current;
@@ -4320,7 +4346,7 @@ export default function App() {
         if (mobVnum !== selectedMobileVnum) {
           return record;
         }
-        return {
+        const nextMobile: Record<string, unknown> = {
           ...record,
           name: data.name,
           shortDescr: data.shortDescr,
@@ -4343,6 +4369,12 @@ export default function App() {
           manaDice,
           damageDice
         };
+        if (loxScript !== undefined) {
+          nextMobile.loxScript = loxScript;
+        } else {
+          delete nextMobile.loxScript;
+        }
+        return nextMobile;
       });
       return {
         ...(current as Record<string, unknown>),
@@ -4356,6 +4388,7 @@ export default function App() {
     if (!areaData || selectedObjectVnum === null) {
       return;
     }
+    const loxScript = normalizeOptionalScript(data.loxScript);
     const itemTypeKey = data.itemType.trim().toLowerCase();
     const activeBlock = itemTypeBlockMap[itemTypeKey] ?? null;
     const buildWeapon = () => {
@@ -4552,6 +4585,11 @@ export default function App() {
           portal: activeBlock === "portal" ? buildPortal() : undefined,
           furniture: activeBlock === "furniture" ? buildFurniture() : undefined
         };
+        if (loxScript !== undefined) {
+          nextObject.loxScript = loxScript;
+        } else {
+          delete nextObject.loxScript;
+        }
         return nextObject;
       });
       return {
@@ -5224,6 +5262,18 @@ export default function App() {
                           ))}
                         </div>
                       </div>
+                      <div className="form-field form-field--full">
+                        <label className="form-label" htmlFor="room-lox-script">
+                          Lox Script
+                        </label>
+                        <textarea
+                          id="room-lox-script"
+                          className="form-textarea form-textarea--code"
+                          rows={10}
+                          placeholder="on_greet(vch) { ... }"
+                          {...registerRoom("loxScript")}
+                        />
+                      </div>
                       <div className="form-actions">
                         <button
                           className="action-button action-button--primary"
@@ -5631,6 +5681,18 @@ export default function App() {
                             </div>
                           </div>
                         </div>
+                      </div>
+                      <div className="form-field form-field--full">
+                        <label className="form-label" htmlFor="mob-lox-script">
+                          Lox Script
+                        </label>
+                        <textarea
+                          id="mob-lox-script"
+                          className="form-textarea form-textarea--code"
+                          rows={10}
+                          placeholder="on_greet(vch) { ... }"
+                          {...registerMobile("loxScript")}
+                        />
                       </div>
                       <div className="form-actions">
                         <button
@@ -6501,6 +6563,18 @@ export default function App() {
                             </div>
                           ) : null}
                         </div>
+                      </div>
+                      <div className="form-field form-field--full">
+                        <label className="form-label" htmlFor="obj-lox-script">
+                          Lox Script
+                        </label>
+                        <textarea
+                          id="obj-lox-script"
+                          className="form-textarea form-textarea--code"
+                          rows={10}
+                          placeholder="on_use(user) { ... }"
+                          {...registerObject("loxScript")}
+                        />
                       </div>
                       <div className="form-actions">
                         <button

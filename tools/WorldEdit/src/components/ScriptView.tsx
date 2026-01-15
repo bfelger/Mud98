@@ -12,6 +12,7 @@ type ScriptViewProps = {
 };
 
 const editorOptions = {
+  automaticLayout: true,
   minimap: { enabled: false },
   scrollBeyondLastLine: false,
   tabSize: 2,

@@ -327,6 +327,8 @@ body::before {
 .view-card__body {
   flex: 1;
   min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .placeholder-grid {
@@ -345,7 +347,8 @@ body::before {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  min-height: 520px;
+  flex: 1;
+  min-height: 0;
   border-radius: 16px;
   border: 1px solid rgba(117, 88, 58, 0.2);
   background: rgba(255, 255, 255, 0.85);
@@ -388,7 +391,7 @@ body::before {
 }
 
 .script-view__editor {
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 320px;
   border-radius: 12px;
   overflow: hidden;
@@ -455,6 +458,13 @@ body::before {
 .form-textarea {
   resize: vertical;
   min-height: 140px;
+}
+
+.form-textarea--code {
+  font-family: "IBM Plex Mono", "Fira Mono", "Menlo", monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  white-space: pre;
 }
 
 .form-checkboxes {
