@@ -69,7 +69,8 @@ void reset_room(Room* room)
         ObjPrototype* obj_to_proto;
         Room* target_room;
         char buf[MAX_STRING_LENGTH];
-        int count, limit = 0;
+        int limit;
+        int count;
 
         // Defensive check - reset should never be NULL in a well-formed list
         if (!reset) {
@@ -105,33 +106,45 @@ void reset_room(Room* room)
                 continue;
             }
 
-            if (reset->arg2 == -1)
-                limit = 999;    // No limit
-            else
-                limit = reset->arg2;
+            if (reset->arg4 > 0) {
+                count = 0;
+                Mobile* temp_mob;
+                FOR_EACH_ROOM_MOB(temp_mob, target_room)
+                    if (temp_mob->prototype == mob_proto) {
+                        count++;
+                        if (count >= reset->arg4) {
+                            last = false;
+                            break;
+                        }
+                    }
 
-            if (mob_proto->count >= limit) {
-                last = false;
-                break;
+                if (count >= reset->arg4)
+                    break;
             }
 
-            /* */
+            if (reset->arg2 != -1) {
+                count = 0;
+                Room* temp_room;
+                Mobile* temp_mob;
 
-            count = 0;
-            Mobile* temp_mob;
-            FOR_EACH_ROOM_MOB(temp_mob, target_room)
-                if (temp_mob->prototype == mob_proto) {
-                    count++;
-                    if (count >= reset->arg4) {
-                        last = false;
-                        break;
-                    }
+                // Check all mobs in area
+                FOR_EACH_AREA_ROOM(temp_room, target_room->area) {
+                    FOR_EACH_ROOM_MOB(temp_mob, temp_room)
+                        if (temp_mob->prototype == mob_proto) {
+                            count++;
+                            if (count >= reset->arg2) {
+                                last = false;
+                                // Leaving both loops
+                                goto for_each_area_mob_break;
+                            }
+                        }
                 }
 
-            if (count >= reset->arg4)
-                break;
+for_each_area_mob_break:
 
-            /* */
+                if (count >= reset->arg2)
+                    break;
+            }
 
             mob = create_mobile(mob_proto);
 

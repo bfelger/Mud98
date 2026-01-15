@@ -534,6 +534,10 @@ body::before {
   min-height: 140px;
 }
 
+.form-textarea--exit {
+  min-height: 20px;
+}
+
 .form-textarea--code {
   font-family: "IBM Plex Mono", "Fira Mono", "Menlo", monospace;
   font-size: 0.85rem;

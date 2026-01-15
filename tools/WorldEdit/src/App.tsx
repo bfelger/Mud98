@@ -5318,7 +5318,7 @@ export default function App() {
                                   </label>
                                   <textarea
                                     id={`exit-description-${field.id}`}
-                                    className="form-textarea"
+                                    className="form-textarea form-textarea--exit"
                                     rows={3}
                                     {...registerRoom(
                                       `exits.${index}.description`
