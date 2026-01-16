@@ -55,3 +55,7 @@ venv/
 
 # Dependencies
 **/_deps/*
+
+# WorldEdit
+**/area/*.editor.json
+**/area/*.lock.json

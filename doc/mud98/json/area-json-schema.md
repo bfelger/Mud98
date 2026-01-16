@@ -2,6 +2,12 @@
 
 This describes the JSON area format. Fields omitted when at default are treated as defaults on load.
 
+Serialization order (Mud98)
+- Mud98 writes JSON fields in a fixed order defined in `src/persist/area/json/area_persist_json.c`. WorldEdit preserves that ordering when saving.
+- Mud98 emits JSON with 2-space indentation; WorldEdit matches this to minimize diffs.
+- Top-level order: `formatVersion`, `areadata`, `storyBeats`, `checklist`, `daycycle`, `rooms`, `mobiles`, `objects`, `shops`, `specials`, `mobprogs`, `resets`, `factions`, `helps`, `quests`, `loot`, `recipes`, `gatherSpawns`.
+- Per-entity field order follows the `build_*` functions; for example rooms are emitted as `vnum`, `name`, `description`, `roomFlags`, `roomFlagsValue`, `sectorType`, `manaRate`, `healRate`, `clan`, `owner`, `suppressDaycycleMessages`, `timePeriods`, `exits`, `extraDescs`, `loxScript`, `events`.
+
 Top-level object
 - `formatVersion`: integer, currently `1`.
 - `areadata`: object (see below).
@@ -28,7 +34,7 @@ Top-level object
 
 `rooms` (array of objects)
 - Required: `vnum` int, `name` string, `description` string.
-- Optional: `roomFlags` [string flags] (defaults to none), `sector` string (defaults to `inside`), `manaRate` int (default `100`), `healRate` int (`100`), `clan` int (`0`), `owner` string (empty string by default).
+- Optional: `roomFlags` [string flags] (defaults to none), `sectorType` string (defaults to `inside`), `manaRate` int (default `100`), `healRate` int (`100`), `clan` int (`0`), `owner` string (empty string by default).
 - `exits`: array of exit objects; omit if none.
 - `extraDescs`: array of `{ keyword, description }`; omit if none.
 
@@ -114,28 +120,31 @@ Notes and defaults
 - `formatVersion` lets the format evolve; additive changes should remain backward compatible.
 
 Reference: flag/enumeration values (strings)
-- Sectors (area/room): `inside`, `city`, `field`, `forest`, `hills`, `mountain`, `water_swim`, `water_noswim`, `unused`, `air`, `desert`, `caves`, `road`.
-- Room flags: `dark`, `no_mob`, `indoors`, `peace`, `soundproof`, `no_recall`, `no_quest`, `private`, `safe`, `solitary`, `pet_shop`, `no_donate`, `no_flee`, `law`, `imp_only`, `gods_only`, `heroes_only`, `newbies_only`, `no_magic`, `no_pkill`, `no_teleport`, `hotel`.
-- Exit flags: `isdoor`, `closed`, `locked`, `pickproof`, `nopass`, `easy`, `hard`, `infuriating`, `noclose`, `nolock`, `nopassdoor`, `secret`.
-- Wear locations (equip): `light`, `finger_l`, `finger_r`, `neck_1`, `neck_2`, `body`, `head`, `legs`, `feet`, `hands`, `arms`, `shield`, `about`, `waist`, `wrist_l`, `wrist_r`, `wield`, `hold`, `float`, `tattoo`.
-- Wear flags (where an item can be worn): `take`, `finger`, `neck`, `body`, `head`, `legs`, `feet`, `hands`, `arms`, `shield`, `about`, `waist`, `wrist`, `wield`, `hold`, `float`, `tattoo`.
-- Extra flags (objects): `glow`, `hum`, `dark`, `lock`, `evil`, `invis`, `magic`, `nodrop`, `bless`, `antigood`, `antievil`, `antineutral`, `noremove`, `inventory`, `nopurge`, `rot_death`, `vis_death`, `nonmetal`, `nolocate`, `meltdrop`, `hadtimer`, `sellextract`, `burnproof`, `nouncurse`.
+- Sectors (area/room): `inside`, `city`, `field`, `forest`, `hills`, `mountain`, `swim`, `noswim`, `underground`, `air`, `desert`.
+- Room flags: `dark`, `no_mob`, `indoors`, `private`, `safe`, `solitary`, `pet_shop`, `no_recall`, `imp_only`, `gods_only`, `heroes_only`, `newbies_only`, `law`, `nowhere`, `recall`.
+- Exit flags: `door`, `closed`, `locked`, `pickproof`, `nopass`, `easy`, `hard`, `infuriating`, `noclose`, `nolock`.
+- Wear locations (equip): `in the inventory`, `as a light`, `on the left finger`, `on the right finger`, `around the neck (1)`, `around the neck (2)`, `on the body`, `over the head`, `on the legs`, `on the feet`, `on the hands`, `on the arms`, `as a shield`, `about the shoulders`, `around the waist`, `on the left wrist`, `on the right wrist`, `wielded`, `held in the hands`, `floating nearby`.
+- Wear flags (where an item can be worn): `take`, `finger`, `neck`, `body`, `head`, `legs`, `feet`, `hands`, `arms`, `shield`, `about`, `waist`, `wrist`, `wield`, `hold`, `nosac`, `wearfloat`.
+- Extra flags (objects): `glow`, `hum`, `dark`, `lock`, `evil`, `invis`, `magic`, `nodrop`, `bless`, `antigood`, `antievil`, `antineutral`, `noremove`, `inventory`, `nopurge`, `rotdeath`, `visdeath`, `nonmetal`, `nolocate`, `meltdrop`, `hadtimer`, `sellextract`, `burnproof`, `nouncurse`.
 - Weapon class: `exotic`, `sword`, `dagger`, `spear`, `mace`, `axe`, `flail`, `whip`, `polearm`.
-- Weapon flags (`weapon` block): `flaming`, `frost`, `vampiric`, `sharp`, `vorpal`, `two_handed`, `shocking`, `poison`, `plague`.
-- Container flags: `closeable`, `pickproof`, `closed`, `locked`, `put_on`.
-- Portal flags: `normal_exit`, `no_curse`, `go_with`, `buggy`, `random`, `stay_in`, `no_flee`.
+- Weapon flags (`weapon` block): `flaming`, `frost`, `vampiric`, `sharp`, `vorpal`, `twohands`, `shocking`, `poison`.
+- Container flags: `closeable`, `pickproof`, `closed`, `locked`, `puton`.
+- Portal flags: `normal_exit`, `no_curse`, `go_with`, `buggy`, `random`.
 - Exit flags (portal): same as exit flags above.
 - Furniture flags: `stand_at`, `stand_on`, `stand_in`, `sit_at`, `sit_on`, `sit_in`, `rest_at`, `rest_on`, `rest_in`, `sleep_at`, `sleep_on`, `sleep_in`, `put_at`, `put_on`, `put_in`, `put_inside`.
-- Liquids: `water`, `beer`, `wine`, `ale`, `darkale`, `whisky`, `lemonade`, `firebreather`, `localbrew`, `slime`, `milk`, `tea`, `coffee`, `blood`, `saltwater`, `coke`, `rootbeer`, `chocolate`, `champagne`, `mead`.
-- Positions: `dead`, `mortal`, `incapacitated`, `stunned`, `sleeping`, `resting`, `sitting`, `fighting`, `standing`.
+- Liquids: `water`, `beer`, `red wine`, `ale`, `dark ale`, `whisky`, `lemonade`, `firebreather`, `local specialty`, `slime mold juice`, `milk`, `tea`, `coffee`, `blood`, `salt water`, `coke`, `root beer`, `elvish wine`, `white wine`, `champagne`, `mead`, `rose wine`, `benedictine wine`, `vodka`, `cranberry juice`, `orange juice`, `absinthe`, `brandy`, `aquavit`, `schnapps`, `icewine`, `amontillado`, `sherry`, `framboise`, `rum`, `cordial`.
+- Positions: `dead`, `mortally wounded`, `incapacitated`, `stunned`, `sleeping`, `resting`, `sitting`, `fighting`, `standing`.
 - Sizes: `tiny`, `small`, `medium`, `large`, `huge`, `giant`.
-- Sex: `neutral`, `male`, `female`.
-- Damage types (weapon/spell nouns): `hit`, `slice`, `stab`, `slash`, `whip`, `claw`, `blast`, `pound`, `crush`, `grep`, `bite`, `pierce`, `suction`, `beating`, `digestion`, `charge`, `chop`, `sting`, `smash`, `shockingbite`, `flame`, `chill`, `lightning`, `acid`.
+- Sex: `none`, `male`, `female`, `either`, `you`.
+- Damage types (weapon/spell nouns): `none`, `slice`, `stab`, `slash`, `whip`, `claw`, `blast`, `pound`, `crush`, `grep`, `bite`, `pierce`, `suction`, `beating`, `digestion`, `charge`, `slap`, `punch`, `wrath`, `magic`, `divine`, `cleave`, `scratch`, `peck`, `peckb`, `chop`, `sting`, `smash`, `shbite`, `flbite`, `frbite`, `acbite`, `chomp`, `drain`, `thrust`, `slime`, `shock`, `thwack`, `flame`, `chill`.
 - Act flags (mobiles): `npc`, `sentinel`, `scavenger`, `aggressive`, `stay_area`, `wimpy`, `pet`, `train`, `practice`, `undead`, `cleric`, `mage`, `thief`, `warrior`, `noalign`, `nopurge`, `outdoors`, `indoors`, `healer`, `gain`, `update_always`, `changer`.
-- Affect flags (mobiles): common names include `blind`, `invisible`, `detect_evil`, `detect_invis`, `detect_magic`, `detect_hidden`, `detect_good`, `sanctuary`, `faerie_fire`, `infrared`, `curse`, `poison`, `protect_evil`, `protect_good`, `sneak`, `hide`, `sleep`, `charm`, `flying`, `pass_door`, `haste`, `calm`, `plague`, `weaken`, `dark_vision`, `berserk`, `swim`, `regeneration`, `slow`.
-- Off/imm/res/vuln flags (mobiles): use flag names from the tables—e.g., off: `backstab`, `berserk`, `disarm`, `dodge`, `fast`, `kick`, `parry`, `rescue`, `tail`, `trip`, `crush`, `assist_all`, `assist_vnum`, `assist_race`, `assist_align`, `assist_guard`, `assist_vnum`; imm/res/vuln: `summon`, `charm`, `magic`, `weapon`, `bash`, `pierce`, `slash`, `fire`, `cold`, `lightning`, `acid`, `poison`, `negative`, `holy`, `energy`, `mental`, `disease`, `drowning`, `light`, `sound`, `wood`, `silver`, `iron`.
-- Form/part flags (mobiles): forms like `edible`, `poison`, `magical`, `instant_decay`, `other`, `animal`, `sentient`, `undead`, `construct`, `mist`, `intangible`, `biped`, `centaur`, `insect`, `spider`, `crustacean`, `worm`, `blob`; parts like `head`, `arms`, `legs`, `heart`, `brains`, `guts`, `hands`, `feet`, `fingers`, `ear`, `eye`, `long_tongue`, `eyestalks`, `tentacles`, `fins`, `wings`, `tail`, `claws`, `fangs`, `horns`, `scales`, `tusks`.
+- Affect flags (mobiles): `blind`, `invisible`, `detect_evil`, `detect_invis`, `detect_magic`, `detect_hidden`, `detect_good`, `sanctuary`, `faerie_fire`, `infrared`, `curse`, `poison`, `protect_evil`, `protect_good`, `sneak`, `hide`, `sleep`, `charm`, `flying`, `pass_door`, `haste`, `calm`, `plague`, `weaken`, `dark_vision`, `berserk`, `swim`, `regeneration`, `slow`.
+- Off flags (mobiles): `area_attack`, `backstab`, `bash`, `berserk`, `disarm`, `dodge`, `fade`, `fast`, `kick`, `dirt_kick`, `parry`, `rescue`, `tail`, `trip`, `crush`, `assist_all`, `assist_align`, `assist_race`, `assist_players`, `assist_guard`, `assist_vnum`.
+- Imm/res flags (mobiles): `summon`, `charm`, `magic`, `weapon`, `bash`, `pierce`, `slash`, `fire`, `cold`, `lightning`, `acid`, `poison`, `negative`, `holy`, `energy`, `mental`, `disease`, `drowning`, `light`, `sound`, `wood`, `silver`, `iron`.
+- Vuln flags (mobiles): `none` plus the imm/res list above.
+- Form flags (mobiles): `edible`, `poison`, `magical`, `instant_decay`, `other`, `bleeds`, `animal`, `sentient`, `undead`, `construct`, `mist`, `intangible`, `biped`, `centaur`, `insect`, `spider`, `crustacean`, `worm`, `blob`, `mammal`, `bird`, `reptile`, `snake`, `dragon`, `amphibian`, `fish`, `cold_blood`, `humanoidDefault`, `animalDefault`.
+- Part flags (mobiles): `head`, `arms`, `legs`, `heart`, `brains`, `guts`, `hands`, `feet`, `fingers`, `ear`, `eye`, `long_tongue`, `eyestalks`, `tentacles`, `fins`, `wings`, `tail`, `claws`, `fangs`, `horns`, `scales`, `tusks`, `humanoidDefault`, `animalDefault`.
 - Wear locations for equips: use `wearLoc` strings above.
-- Apply locations (affects): names from `apply_flag_table`, e.g., `strength`, `dexterity`, `intelligence`, `wisdom`, `constitution`, `sex`, `level`, `age`, `height`, `weight`, `mana`, `hit`, `move`, `gold`, `experience`, `ac`, `hitroll`, `damroll`, `saves`, `savingpara`, `savingrod`, `savingpetri`, `savingbreath`, `savingspell`, `spell_affect`.
-- Event triggers (Lox events; `events` entries use these names): `ACT`, `ATTACKED`, `BRIBE`, `DEATH`, `ENTRY`, `FIGHT`, `GIVE`, `GREET`, `GRALL`, `HPCNT`, `RANDOM`, `SPEECH`, `EXIT`, `EXALL`, `DELAY` (unused in events, mobprog only), `SURR`, `LOGIN`, `GIVEN`, `TAKEN`, `DROPPED`.
+- Apply locations (affects): `none`, `strength`, `dexterity`, `intelligence`, `wisdom`, `constitution`, `sex`, `class`, `level`, `age`, `height`, `weight`, `mana`, `hp`, `move`, `gold`, `experience`, `ac`, `hitroll`, `damroll`, `saves`, `savingpara`, `savingrod`, `savingpetri`, `savingbreath`, `savingspell`, `spellaffect`.
+- Event triggers (Lox events; `events` entries use these names): `act`, `attacked`, `bribe`, `death`, `entry`, `fight`, `give`, `greet`, `grall`, `hpcnt`, `random`, `speech`, `exit`, `exall`, `delay` (unused in events, mobprog only), `surr`, `login`, `given`, `taken`, `dropped`, `prdstart`, `prdstop`.
 - Scripts/events: `rooms`, `mobiles`, and `objects` may each include `loxScript` (string source) and `events` (array of `{ trigger, callback, criteria? }`, where `callback` names a function defined in `loxScript`). Class names/wrappers are derived at load time from entity type + VNUM, so they are not stored. When absent, scripting is simply disabled for that entity.

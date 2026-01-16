@@ -100,7 +100,7 @@
     {
       "vnum": 12000,
       "name": "The Awakening",
-      "description": "You stand next to the great old trunk of Cuivealda. The light is dim, as\n\rthe dense, high canopy that forms Tauremar covers the sky. There is little\n\rground cover, and the forest floor is a desolate place of perpetual\n\rtwilight.\n\r",
+      "description": "You stand next to the great old trunk of Cuivealda. The light is dim, as the dense, high canopy that forms Tauremar covers the sky. There is little ground cover, and the forest floor is a desolate place of perpetual twilight.\n\r",
       "roomFlags": [
         "no_recall"
       ],
@@ -153,11 +153,12 @@
     {
       "vnum": 12002,
       "name": "A Dark Path Through the Woods",
-      "description": "  This path through the forest is just out of sight of Cuivealda to the\n\rwest.  The trees are densely packed on all sides except on the path, which\n\rcontinues east.  \n\r  There is a hand-written note posted to a tree.\n\r",
+      "description": "  This path through the forest is just out of sight of Cuivealda to the west.  The trees are densely packed on all sides except on the path, which continues east.  \n\r  There is a hand-written note posted to a tree.\n\r",
       "roomFlags": [
         "no_recall"
       ],
       "sectorType": "forest",
+      "owner": "",
       "exits": [
         {
           "dir": "east",
@@ -185,7 +186,7 @@
     {
       "vnum": 12003,
       "name": "A Dark Path Through the Woods",
-      "description": "  The path through the dark woods continues.  The way west leads back to\n\rCuivealda, while the path continuing east leads to sunlight.  \n\r",
+      "description": "  The path through the dark woods continues.  The way west leads back to Cuivealda, while the path continuing east leads to sunlight.  \n\r",
       "roomFlags": [
         "no_recall"
       ],
@@ -223,7 +224,7 @@
     {
       "vnum": 12005,
       "name": "The Training Ground",
-      "description": "  Dappled sunlight breaks through the canopy in this clearing.  A patch of\n\rgrass grows, green and vibrant, in the center.  Dark pathways through the\n\rtrees go out in all directions.  \n\r",
+      "description": "  Dappled sunlight breaks through the canopy in this clearing.  A patch of grass grows, green and vibrant, in the center.  Dark pathways through the trees go out in all directions.  \n\r",
       "roomFlags": [
         "safe",
         "no_recall"
@@ -247,7 +248,7 @@
     {
       "vnum": 12010,
       "name": "The Poisoned Woods",
-      "description": "There is only a glimmer of light from the clearing to the south. \n\rOtherwise, the forest floor is almost completely obscured by the high canopy\n\rof trees.  You can see signs of some sort of blight that is infecting plant\n\rand animal alike.  Tree trunks are turning ashen white, and there are\n\rcarcasses of hairless creatures strewn about.  The sickened forest extends\n\rin all directions.  \n\r",
+      "description": "  There is only a glimmer of light from the clearing to the south. Otherwise, the forest floor is almost completely obscured by the high canopy of trees.  You can see signs of some sort of blight that is infecting plant\n\rand animal alike.  Tree trunks are turning ashen white, and there are carcasses of hairless creatures strewn about.\n\r  The sickened forest extends in all directions.  \n\r",
       "roomFlags": [
         "no_recall"
       ],
@@ -274,7 +275,7 @@
     {
       "vnum": 12011,
       "name": "The Poisoned Woods",
-      "description": "The woods grow more dark and impenetrable in this direction.  Signs of\n\rthe blight are much clearer here than to the east.  It's hard to believe\n\rthat the very trees that hold Tauremar aloft are rotting like this.  \n\r",
+      "description": "The woods grow more dark and impenetrable in this direction.  Signs of the blight are much clearer here than to the east.  It's hard to believe that the very trees that hold Tauremar aloft are rotting like this.  \n\r",
       "roomFlags": [
         "no_recall"
       ],
@@ -293,7 +294,7 @@
     {
       "vnum": 12012,
       "name": "The Poisoned Woods",
-      "description": "The woods grow even darker here.  You can hear the strange, agonizing\n\rcries of blighted forest creatures all around you.  \n\r",
+      "description": "The woods grow even darker here.  You can hear the strange, agonizing cries of blighted forest creatures all around you.  \n\r",
       "roomFlags": [
         "no_recall"
       ],

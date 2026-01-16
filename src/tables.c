@@ -594,6 +594,9 @@ const struct flag_type weapon_class[] = {
     { "flail",          WEAPON_FLAIL,       true    },
     { "whip",           WEAPON_WHIP,        true    },
     { "polearm",        WEAPON_POLEARM,     true    },
+    { "skinningknife",  WEAPON_SKINNING_KNIFE,  true},
+    { "miningpick",     WEAPON_MINING_PICK,     true},
+    { "smithinghammer", WEAPON_SMITHING_HAMMER, true},
     { NULL,             0,                  0       }
 };
 
