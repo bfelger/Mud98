@@ -42,8 +42,8 @@ import { Topbar } from "./components/Topbar";
 import { Statusbar } from "./components/Statusbar";
 import { ViewCardHeader } from "./components/ViewCardHeader";
 import { ViewTabs } from "./components/ViewTabs";
-import { PlaceholderGrid } from "./components/PlaceholderGrid";
 import { MapView } from "./components/MapView";
+import { ViewBody } from "./components/ViewBody";
 import type { VnumOption } from "./components/VnumPicker";
 import type { EventBinding } from "./data/eventTypes";
 import type {
@@ -4935,6 +4935,148 @@ export default function App() {
     }
   };
 
+  const roomFormNode = (
+    <RoomForm
+      onSubmit={handleRoomSubmitForm(handleRoomSubmit)}
+      register={registerRoom}
+      formState={roomFormState}
+      exitFields={exitFields}
+      appendExit={appendExit}
+      removeExit={removeExit}
+      directions={directions}
+      sectors={sectors}
+      roomFlags={roomFlagOptions}
+      exitFlags={exitFlags}
+      roomVnumOptions={roomVnumOptions}
+      objectVnumOptions={objectVnumOptions}
+      canEditScript={canEditScript}
+      scriptEventEntity={scriptEventEntity}
+      eventBindings={eventBindings}
+      scriptValue={scriptValue}
+      onEventBindingsChange={handleEventBindingsChange}
+    />
+  );
+  const mobileFormNode = (
+    <MobileForm
+      onSubmit={handleMobileSubmitForm(handleMobileSubmit)}
+      register={registerMobile}
+      formState={mobileFormState}
+      positions={positions}
+      sexes={sexes}
+      sizes={sizes}
+      damageTypes={damageTypes}
+      canEditScript={canEditScript}
+      scriptEventEntity={scriptEventEntity}
+      eventBindings={eventBindings}
+      scriptValue={scriptValue}
+      onEventBindingsChange={handleEventBindingsChange}
+    />
+  );
+  const objectFormNode = (
+    <ObjectForm
+      onSubmit={handleObjectSubmitForm(handleObjectSubmit)}
+      register={registerObject}
+      formState={objectFormState}
+      itemTypeOptions={itemTypeOptions}
+      wearFlags={wearFlags}
+      extraFlags={extraFlags}
+      weaponClasses={weaponClasses}
+      weaponFlags={weaponFlags}
+      damageTypes={damageTypes}
+      liquids={liquids}
+      exitFlags={exitFlags}
+      portalFlags={portalFlags}
+      containerFlags={containerFlags}
+      furnitureFlags={furnitureFlags}
+      activeObjectBlock={activeObjectBlock}
+      objectVnumOptions={objectVnumOptions}
+      roomVnumOptions={roomVnumOptions}
+      canEditScript={canEditScript}
+      scriptEventEntity={scriptEventEntity}
+      eventBindings={eventBindings}
+      scriptValue={scriptValue}
+      onEventBindingsChange={handleEventBindingsChange}
+    />
+  );
+  const resetFormNode = (
+    <ResetForm
+      onSubmit={handleResetSubmitForm(handleResetSubmit)}
+      register={registerReset}
+      formState={resetFormState}
+      activeResetCommand={activeResetCommand}
+      resetCommandOptions={resetCommandOptions}
+      resetCommandLabels={resetCommandLabels}
+      directions={directions}
+      wearLocations={wearLocations}
+      roomVnumOptions={roomVnumOptions}
+      objectVnumOptions={objectVnumOptions}
+      mobileVnumOptions={mobileVnumOptions}
+    />
+  );
+  const tableViewNode = (
+    <TableView
+      selectedEntity={selectedEntity}
+      roomRows={roomRows}
+      mobileRows={mobileRows}
+      objectRows={objectRows}
+      resetRows={resetRows}
+      roomColumns={roomColumns}
+      mobileColumns={mobileColumns}
+      objectColumns={objectColumns}
+      resetColumns={resetColumns}
+      roomDefaultColDef={roomDefaultColDef}
+      mobileDefaultColDef={mobileDefaultColDef}
+      objectDefaultColDef={objectDefaultColDef}
+      resetDefaultColDef={roomDefaultColDef}
+      onSelectRoom={setSelectedRoomVnum}
+      onSelectMobile={setSelectedMobileVnum}
+      onSelectObject={setSelectedObjectVnum}
+      onSelectReset={setSelectedResetIndex}
+      roomGridApiRef={roomGridApi}
+      mobileGridApiRef={mobileGridApi}
+      objectGridApiRef={objectGridApi}
+      resetGridApiRef={resetGridApi}
+    />
+  );
+  const mapViewNode = (
+    <MapView
+      mapNodes={mapNodes}
+      roomEdges={roomEdges}
+      roomNodeTypes={roomNodeTypes}
+      roomEdgeTypes={roomEdgeTypes}
+      areaVnumRange={areaVnumRange}
+      externalExits={externalExits}
+      onNavigateExit={handleMapNavigate}
+      onNodeClick={handleMapNodeClick}
+      onNodesChange={handleNodesChange}
+      onNodeDragStop={handleNodeDragStop}
+      autoLayoutEnabled={autoLayoutEnabled}
+      preferCardinalLayout={preferCardinalLayout}
+      showVerticalEdges={showVerticalEdges}
+      dirtyRoomCount={dirtyRoomCount}
+      selectedRoomNode={Boolean(selectedRoomNode)}
+      selectedRoomLocked={selectedRoomLocked}
+      hasRoomLayout={hasRoomLayout}
+      onRelayout={handleRelayout}
+      onToggleAutoLayout={setAutoLayoutEnabled}
+      onTogglePreferGrid={handleTogglePreferGrid}
+      onToggleVerticalEdges={setShowVerticalEdges}
+      onLockSelected={handleLockSelectedRoom}
+      onUnlockSelected={handleUnlockSelectedRoom}
+      onClearLayout={handleClearRoomLayout}
+    />
+  );
+  const scriptViewNode = (
+    <ScriptView
+      title={scriptTitle}
+      subtitle={scriptSubtitle}
+      value={scriptValue}
+      canEdit={canEditScript}
+      emptyState="Select a room, mobile, or object to edit its Lox script."
+      onApply={handleApplyScript}
+    />
+  );
+
   return (
     <div className="app-shell">
       <Topbar
@@ -4974,182 +5116,23 @@ export default function App() {
               activeTab={activeTab}
             />
             <div className="view-card__body">
-              {activeTab === "Form" && selectedEntity === "Rooms" ? (
-                roomRows.length ? (
-                  <RoomForm
-                    onSubmit={handleRoomSubmitForm(handleRoomSubmit)}
-                    register={registerRoom}
-                    formState={roomFormState}
-                    exitFields={exitFields}
-                    appendExit={appendExit}
-                    removeExit={removeExit}
-                    directions={directions}
-                    sectors={sectors}
-                    roomFlags={roomFlagOptions}
-                    exitFlags={exitFlags}
-                    roomVnumOptions={roomVnumOptions}
-                    objectVnumOptions={objectVnumOptions}
-                    canEditScript={canEditScript}
-                    scriptEventEntity={scriptEventEntity}
-                    eventBindings={eventBindings}
-                    scriptValue={scriptValue}
-                    onEventBindingsChange={handleEventBindingsChange}
-                  />
-                ) : (
-                  <div className="entity-table__empty">
-                    <h3>No rooms available</h3>
-                    <p>Load an area JSON file to edit room data.</p>
-                  </div>
-                )
-              ) : activeTab === "Form" && selectedEntity === "Mobiles" ? (
-                mobileRows.length ? (
-                  <MobileForm
-                    onSubmit={handleMobileSubmitForm(handleMobileSubmit)}
-                    register={registerMobile}
-                    formState={mobileFormState}
-                    positions={positions}
-                    sexes={sexes}
-                    sizes={sizes}
-                    damageTypes={damageTypes}
-                    canEditScript={canEditScript}
-                    scriptEventEntity={scriptEventEntity}
-                    eventBindings={eventBindings}
-                    scriptValue={scriptValue}
-                    onEventBindingsChange={handleEventBindingsChange}
-                  />
-                ) : (
-                  <div className="entity-table__empty">
-                    <h3>No mobiles available</h3>
-                    <p>Load an area JSON file to edit mobile data.</p>
-                  </div>
-                )
-              ) : activeTab === "Form" && selectedEntity === "Objects" ? (
-                objectRows.length ? (
-                  <ObjectForm
-                    onSubmit={handleObjectSubmitForm(handleObjectSubmit)}
-                    register={registerObject}
-                    formState={objectFormState}
-                    itemTypeOptions={itemTypeOptions}
-                    wearFlags={wearFlags}
-                    extraFlags={extraFlags}
-                    weaponClasses={weaponClasses}
-                    weaponFlags={weaponFlags}
-                    damageTypes={damageTypes}
-                    liquids={liquids}
-                    exitFlags={exitFlags}
-                    portalFlags={portalFlags}
-                    containerFlags={containerFlags}
-                    furnitureFlags={furnitureFlags}
-                    activeObjectBlock={activeObjectBlock}
-                    objectVnumOptions={objectVnumOptions}
-                    roomVnumOptions={roomVnumOptions}
-                    canEditScript={canEditScript}
-                    scriptEventEntity={scriptEventEntity}
-                    eventBindings={eventBindings}
-                    scriptValue={scriptValue}
-                    onEventBindingsChange={handleEventBindingsChange}
-                  />
-                ) : (
-                  <div className="entity-table__empty">
-                    <h3>No objects available</h3>
-                    <p>Load an area JSON file to edit object data.</p>
-                  </div>
-                )
-              ) : activeTab === "Form" && selectedEntity === "Resets" ? (
-                resetRows.length ? (
-                  <ResetForm
-                    onSubmit={handleResetSubmitForm(handleResetSubmit)}
-                    register={registerReset}
-                    formState={resetFormState}
-                    activeResetCommand={activeResetCommand}
-                    resetCommandOptions={resetCommandOptions}
-                    resetCommandLabels={resetCommandLabels}
-                    directions={directions}
-                    wearLocations={wearLocations}
-                    roomVnumOptions={roomVnumOptions}
-                    objectVnumOptions={objectVnumOptions}
-                    mobileVnumOptions={mobileVnumOptions}
-                  />
-                ) : (
-                  <div className="entity-table__empty">
-                    <h3>No resets available</h3>
-                    <p>Load an area JSON file to edit reset data.</p>
-                  </div>
-                )
-              ) : activeTab === "Map" ? (
-                mapNodes.length ? (
-                  <MapView
-                    mapNodes={mapNodes}
-                    roomEdges={roomEdges}
-                    roomNodeTypes={roomNodeTypes}
-                    roomEdgeTypes={roomEdgeTypes}
-                    areaVnumRange={areaVnumRange}
-                    externalExits={externalExits}
-                    onNavigateExit={handleMapNavigate}
-                    onNodeClick={handleMapNodeClick}
-                    onNodesChange={handleNodesChange}
-                    onNodeDragStop={handleNodeDragStop}
-                    autoLayoutEnabled={autoLayoutEnabled}
-                    preferCardinalLayout={preferCardinalLayout}
-                    showVerticalEdges={showVerticalEdges}
-                    dirtyRoomCount={dirtyRoomCount}
-                    selectedRoomNode={Boolean(selectedRoomNode)}
-                    selectedRoomLocked={selectedRoomLocked}
-                    hasRoomLayout={hasRoomLayout}
-                    onRelayout={handleRelayout}
-                    onToggleAutoLayout={setAutoLayoutEnabled}
-                    onTogglePreferGrid={handleTogglePreferGrid}
-                    onToggleVerticalEdges={setShowVerticalEdges}
-                    onLockSelected={handleLockSelectedRoom}
-                    onUnlockSelected={handleUnlockSelectedRoom}
-                    onClearLayout={handleClearRoomLayout}
-                  />
-                ) : (
-                  <div className="entity-table__empty">
-                    <h3>No rooms available</h3>
-                    <p>Load an area JSON file to view the room map.</p>
-                  </div>
-                )
-              ) : activeTab === "Script" ? (
-                <ScriptView
-                  title={scriptTitle}
-                  subtitle={scriptSubtitle}
-                  value={scriptValue}
-                  canEdit={canEditScript}
-                  emptyState="Select a room, mobile, or object to edit its Lox script."
-                  onApply={handleApplyScript}
-                />
-              ) : activeTab === "Table" &&
-              (selectedEntity === "Rooms" ||
-                selectedEntity === "Mobiles" ||
-                selectedEntity === "Objects" ||
-                selectedEntity === "Resets") ? (
-                <TableView
-                  selectedEntity={selectedEntity}
-                  roomRows={roomRows}
-                  mobileRows={mobileRows}
-                  objectRows={objectRows}
-                  resetRows={resetRows}
-                  roomColumns={roomColumns}
-                  mobileColumns={mobileColumns}
-                  objectColumns={objectColumns}
-                  resetColumns={resetColumns}
-                  roomDefaultColDef={roomDefaultColDef}
-                  mobileDefaultColDef={mobileDefaultColDef}
-                  objectDefaultColDef={objectDefaultColDef}
-                  resetDefaultColDef={roomDefaultColDef}
-                  onSelectRoom={setSelectedRoomVnum}
-                  onSelectMobile={setSelectedMobileVnum}
-                  onSelectObject={setSelectedObjectVnum}
-                  onSelectReset={setSelectedResetIndex}
-                  roomGridApiRef={roomGridApi}
-                  mobileGridApiRef={mobileGridApi}
-                  objectGridApiRef={objectGridApi}
-                  resetGridApiRef={resetGridApi}
-                />
-              ) : (
-                <PlaceholderGrid tabs={tabs} activeTab={activeTab} />
-              )}
+              <ViewBody
+                activeTab={activeTab}
+                selectedEntity={selectedEntity}
+                tabs={tabs}
+                roomCount={roomRows.length}
+                mobileCount={mobileRows.length}
+                objectCount={objectRows.length}
+                resetCount={resetRows.length}
+                mapHasRooms={mapNodes.length > 0}
+                roomForm={roomFormNode}
+                mobileForm={mobileFormNode}
+                objectForm={objectFormNode}
+                resetForm={resetFormNode}
+                tableView={tableViewNode}
+                mapView={mapViewNode}
+                scriptView={scriptViewNode}
+              />
             </div>
           </div>
         </main>
