@@ -7,10 +7,8 @@ import {
   type MouseEvent
 } from "react";
 import type { ColDef, GridApi } from "ag-grid-community";
-import ReactFlow, {
+import {
   applyNodeChanges,
-  Background,
-  Controls,
   BaseEdge,
   EdgeLabelRenderer,
   Handle,
@@ -42,12 +40,10 @@ import { InspectorPanel } from "./components/InspectorPanel";
 import { EntityTree } from "./components/EntityTree";
 import { Topbar } from "./components/Topbar";
 import { Statusbar } from "./components/Statusbar";
-import { MapToolbar } from "./components/MapToolbar";
-import { MapExternalExitsPanel } from "./components/MapExternalExitsPanel";
 import { ViewCardHeader } from "./components/ViewCardHeader";
 import { ViewTabs } from "./components/ViewTabs";
-import { MapOverlay } from "./components/MapOverlay";
 import { PlaceholderGrid } from "./components/PlaceholderGrid";
+import { MapView } from "./components/MapView";
 import type { VnumOption } from "./components/VnumPicker";
 import type { EventBinding } from "./data/eventTypes";
 import type {
@@ -3407,6 +3403,32 @@ export default function App() {
     },
     [setSelectedRoomVnum, setSelectedEntity]
   );
+  const handleMapNodeClick = useCallback(
+    (node: Node<RoomNodeData>) => {
+      const vnum =
+        typeof node.data?.vnum === "number"
+          ? node.data.vnum
+          : parseVnum(node.id);
+      if (vnum !== null && vnum >= 0) {
+        setSelectedRoomVnum(vnum);
+        setSelectedEntity("Rooms");
+      }
+    },
+    [setSelectedRoomVnum, setSelectedEntity]
+  );
+  const handleRelayout = useCallback(
+    () => setLayoutNonce((value) => value + 1),
+    []
+  );
+  const handleTogglePreferGrid = useCallback(
+    (nextValue: boolean) => {
+      setPreferCardinalLayout(nextValue);
+      if (!autoLayoutEnabled) {
+        setLayoutNonce((value) => value + 1);
+      }
+    },
+    [autoLayoutEnabled]
+  );
   const roomNodesWithHandlers = useMemo(
     () =>
       roomNodesWithLayout.map((node) => ({
@@ -5056,63 +5078,32 @@ export default function App() {
                 )
               ) : activeTab === "Map" ? (
                 mapNodes.length ? (
-                  <div className="map-shell">
-                    <div className="map-canvas">
-                      <MapToolbar
-                        autoLayoutEnabled={autoLayoutEnabled}
-                        preferCardinalLayout={preferCardinalLayout}
-                        showVerticalEdges={showVerticalEdges}
-                        dirtyRoomCount={dirtyRoomCount}
-                        selectedRoomNode={Boolean(selectedRoomNode)}
-                        selectedRoomLocked={selectedRoomLocked}
-                        hasRoomLayout={hasRoomLayout}
-                        onRelayout={() =>
-                          setLayoutNonce((value) => value + 1)
-                        }
-                        onToggleAutoLayout={setAutoLayoutEnabled}
-                        onTogglePreferGrid={(nextValue) => {
-                          setPreferCardinalLayout(nextValue);
-                          if (!autoLayoutEnabled) {
-                            setLayoutNonce((value) => value + 1);
-                          }
-                        }}
-                        onToggleVerticalEdges={setShowVerticalEdges}
-                        onLockSelected={handleLockSelectedRoom}
-                        onUnlockSelected={handleUnlockSelectedRoom}
-                        onClearLayout={handleClearRoomLayout}
-                      />
-                      <ReactFlow
-                        nodes={mapNodes}
-                        edges={roomEdges}
-                        nodeTypes={roomNodeTypes}
-                        edgeTypes={roomEdgeTypes}
-                        fitView
-                        nodesDraggable
-                        nodesConnectable={false}
-                        onNodesChange={handleNodesChange}
-                        onNodeDragStop={handleNodeDragStop}
-                        onNodeClick={(_, node) => {
-                          const vnum =
-                            typeof node.data?.vnum === "number"
-                              ? node.data.vnum
-                              : parseVnum(node.id);
-                          if (vnum !== null && vnum >= 0) {
-                            setSelectedRoomVnum(vnum);
-                            setSelectedEntity("Rooms");
-                          }
-                        }}
-                        panOnScroll
-                      >
-                        <Background gap={24} size={1} />
-                        <Controls showInteractive={false} />
-                      </ReactFlow>
-                      <MapOverlay areaVnumRange={areaVnumRange} />
-                    </div>
-                    <MapExternalExitsPanel
-                      externalExits={externalExits}
-                      onNavigate={handleMapNavigate}
-                    />
-                  </div>
+                  <MapView
+                    mapNodes={mapNodes}
+                    roomEdges={roomEdges}
+                    roomNodeTypes={roomNodeTypes}
+                    roomEdgeTypes={roomEdgeTypes}
+                    areaVnumRange={areaVnumRange}
+                    externalExits={externalExits}
+                    onNavigateExit={handleMapNavigate}
+                    onNodeClick={handleMapNodeClick}
+                    onNodesChange={handleNodesChange}
+                    onNodeDragStop={handleNodeDragStop}
+                    autoLayoutEnabled={autoLayoutEnabled}
+                    preferCardinalLayout={preferCardinalLayout}
+                    showVerticalEdges={showVerticalEdges}
+                    dirtyRoomCount={dirtyRoomCount}
+                    selectedRoomNode={Boolean(selectedRoomNode)}
+                    selectedRoomLocked={selectedRoomLocked}
+                    hasRoomLayout={hasRoomLayout}
+                    onRelayout={handleRelayout}
+                    onToggleAutoLayout={setAutoLayoutEnabled}
+                    onTogglePreferGrid={handleTogglePreferGrid}
+                    onToggleVerticalEdges={setShowVerticalEdges}
+                    onLockSelected={handleLockSelectedRoom}
+                    onUnlockSelected={handleUnlockSelectedRoom}
+                    onClearLayout={handleClearRoomLayout}
+                  />
                 ) : (
                   <div className="entity-table__empty">
                     <h3>No rooms available</h3>
