@@ -261,15 +261,22 @@ const mobprogSchema = z
 const questSchema = z
   .object({
     vnum: vnumSchema,
-    minLevel: z.number().int(),
-    maxLevel: z.number().int(),
-    race: stringSchema.optional(),
-    class: stringSchema.optional(),
-    time: z.number().int().optional(),
-    creator: stringSchema.optional(),
-    description: stringSchema.optional(),
-    objectives: z.array(z.unknown()).optional(),
-    rewards: z.array(z.unknown()).optional()
+    name: stringSchema.optional(),
+    entry: stringSchema.optional(),
+    type: stringSchema.optional(),
+    xp: z.number().int().optional(),
+    level: z.number().int().optional(),
+    end: vnumSchema.optional(),
+    target: vnumSchema.optional(),
+    upper: vnumSchema.optional(),
+    count: z.number().int().optional(),
+    rewardFaction: vnumSchema.optional(),
+    rewardReputation: z.number().int().optional(),
+    rewardGold: z.number().int().optional(),
+    rewardSilver: z.number().int().optional(),
+    rewardCopper: z.number().int().optional(),
+    rewardObjs: z.array(vnumSchema).optional(),
+    rewardCounts: z.array(z.number().int()).optional()
   })
   .passthrough();
 

@@ -10,12 +10,18 @@ type ViewBodyProps = {
   mobileCount: number;
   objectCount: number;
   resetCount: number;
+  shopCount: number;
+  questCount: number;
+  factionCount: number;
   mapHasRooms: boolean;
   areaForm: ReactNode;
   roomForm: ReactNode;
   mobileForm: ReactNode;
   objectForm: ReactNode;
   resetForm: ReactNode;
+  shopForm: ReactNode;
+  questForm: ReactNode;
+  factionForm: ReactNode;
   tableView: ReactNode;
   mapView: ReactNode;
   worldView: ReactNode;
@@ -31,12 +37,18 @@ export function ViewBody({
   mobileCount,
   objectCount,
   resetCount,
+  shopCount,
+  questCount,
+  factionCount,
   mapHasRooms,
   areaForm,
   roomForm,
   mobileForm,
   objectForm,
   resetForm,
+  shopForm,
+  questForm,
+  factionForm,
   tableView,
   mapView,
   worldView,
@@ -97,6 +109,39 @@ export function ViewBody({
     );
   }
 
+  if (activeTab === "Form" && selectedEntity === "Shops") {
+    return shopCount ? (
+      <>{shopForm}</>
+    ) : (
+      <div className="entity-table__empty">
+        <h3>No shops available</h3>
+        <p>Load an area JSON file to edit shop data.</p>
+      </div>
+    );
+  }
+
+  if (activeTab === "Form" && selectedEntity === "Quests") {
+    return questCount ? (
+      <>{questForm}</>
+    ) : (
+      <div className="entity-table__empty">
+        <h3>No quests available</h3>
+        <p>Load an area JSON file to edit quest data.</p>
+      </div>
+    );
+  }
+
+  if (activeTab === "Form" && selectedEntity === "Factions") {
+    return factionCount ? (
+      <>{factionForm}</>
+    ) : (
+      <div className="entity-table__empty">
+        <h3>No factions available</h3>
+        <p>Load an area JSON file to edit faction data.</p>
+      </div>
+    );
+  }
+
   if (activeTab === "Map") {
     return mapHasRooms ? (
       <>{mapView}</>
@@ -120,7 +165,10 @@ export function ViewBody({
     selectedEntity === "Rooms" ||
     selectedEntity === "Mobiles" ||
     selectedEntity === "Objects" ||
-    selectedEntity === "Resets";
+    selectedEntity === "Resets" ||
+    selectedEntity === "Shops" ||
+    selectedEntity === "Quests" ||
+    selectedEntity === "Factions";
 
   if (activeTab === "Table" && isTableEntity) {
     return <>{tableView}</>;

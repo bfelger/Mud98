@@ -36,6 +36,9 @@ import { RoomForm } from "./components/RoomForm";
 import { MobileForm } from "./components/MobileForm";
 import { ObjectForm } from "./components/ObjectForm";
 import { ResetForm } from "./components/ResetForm";
+import { ShopForm } from "./components/ShopForm";
+import { QuestForm } from "./components/QuestForm";
+import { FactionForm } from "./components/FactionForm";
 import { TableView } from "./components/TableView";
 import { InspectorPanel } from "./components/InspectorPanel";
 import { EntityTree } from "./components/EntityTree";
@@ -193,6 +196,8 @@ const resetCommandOptions = [
   "randomizeExits"
 ] as const;
 
+const questTypeOptions = ["visit_mob", "kill_mob", "get_obj"] as const;
+
 type ResetCommand = (typeof resetCommandOptions)[number];
 
 const resetCommandMap: Record<string, ResetCommand> = {
@@ -322,6 +327,31 @@ type ResetRow = {
   entityVnum: string;
   roomVnum: string;
   details: string;
+};
+
+type ShopRow = {
+  keeper: number;
+  buyTypes: string;
+  profitBuy: number;
+  profitSell: number;
+  hours: string;
+};
+
+type QuestRow = {
+  vnum: number;
+  name: string;
+  type: string;
+  level: number;
+  target: string;
+  rewards: string;
+};
+
+type FactionRow = {
+  vnum: number;
+  name: string;
+  defaultStanding: number;
+  allies: string;
+  opposing: string;
 };
 
 type ExternalExit = {
@@ -739,11 +769,51 @@ const roomFormSchema = z.object({
   exits: z.array(exitFormSchema).optional()
 });
 
+const shopFormSchema = z.object({
+  keeper: optionalIntSchema,
+  buyTypes: z.array(optionalIntSchema).length(5),
+  profitBuy: optionalIntSchema,
+  profitSell: optionalIntSchema,
+  openHour: optionalIntSchema,
+  closeHour: optionalIntSchema
+});
+
+const questFormSchema = z.object({
+  vnum: z.number().int(),
+  name: z.string().optional(),
+  entry: z.string().optional(),
+  type: z.string().optional(),
+  xp: optionalIntSchema,
+  level: optionalIntSchema,
+  end: optionalIntSchema,
+  target: optionalIntSchema,
+  upper: optionalIntSchema,
+  count: optionalIntSchema,
+  rewardFaction: optionalIntSchema,
+  rewardReputation: optionalIntSchema,
+  rewardGold: optionalIntSchema,
+  rewardSilver: optionalIntSchema,
+  rewardCopper: optionalIntSchema,
+  rewardObjs: z.array(optionalIntSchema).length(3),
+  rewardCounts: z.array(optionalIntSchema).length(3)
+});
+
+const factionFormSchema = z.object({
+  vnum: z.number().int(),
+  name: z.string().optional(),
+  defaultStanding: optionalIntSchema,
+  alliesCsv: z.string().optional(),
+  opposingCsv: z.string().optional()
+});
+
 type RoomFormValues = z.infer<typeof roomFormSchema>;
 type AreaFormValues = z.infer<typeof areaFormSchema>;
 type MobileFormValues = z.infer<typeof mobileFormSchema>;
 type ObjectFormValues = z.infer<typeof objectFormSchema>;
 type ResetFormValues = z.infer<typeof resetFormSchema>;
+type ShopFormValues = z.infer<typeof shopFormSchema>;
+type QuestFormValues = z.infer<typeof questFormSchema>;
+type FactionFormValues = z.infer<typeof factionFormSchema>;
 
 const entityKindLabels: Record<EntityKey, string> = {
   Area: "Area",
@@ -821,6 +891,26 @@ function parseVnum(value: unknown): number | null {
     return Number.isFinite(parsed) ? parsed : null;
   }
   return null;
+}
+
+function parseNumberList(value: string | undefined): number[] {
+  if (!value) {
+    return [];
+  }
+  return value
+    .split(/[,\\s]+/)
+    .map((token) => Number(token.trim()))
+    .filter((num) => Number.isFinite(num));
+}
+
+function formatNumberList(values: unknown): string {
+  if (!Array.isArray(values)) {
+    return "";
+  }
+  return values
+    .map((value) => parseVnum(value))
+    .filter((num): num is number => num !== null)
+    .join(", ");
 }
 
 type DiceFormInput = {
@@ -965,6 +1055,23 @@ function findByVnum(list: unknown[], vnum: number): Record<string, unknown> | nu
   return null;
 }
 
+function findShopByKeeper(
+  list: unknown[],
+  keeper: number
+): Record<string, unknown> | null {
+  for (const entry of list) {
+    if (!entry || typeof entry !== "object") {
+      continue;
+    }
+    const record = entry as Record<string, unknown>;
+    const entryKeeper = parseVnum(record.keeper);
+    if (entryKeeper === keeper) {
+      return record;
+    }
+  }
+  return null;
+}
+
 function resolveResetCommand(record: Record<string, unknown> | null): string {
   if (record && typeof record.commandName === "string") {
     const trimmed = record.commandName.trim();
@@ -994,6 +1101,13 @@ function getDefaultSelection(
       return current;
     }
     return 0;
+  }
+  if (entity === "Shops") {
+    if (current !== null && findShopByKeeper(list, current)) {
+      return current;
+    }
+    const first = list[0] as Record<string, unknown>;
+    return parseVnum(first?.keeper);
   }
   if (current !== null && findByVnum(list, current)) {
     return current;
@@ -1690,7 +1804,9 @@ function buildSelectionSummary(
     selectedValue !== null
       ? selectedEntity === "Resets"
         ? (list[selectedValue] as Record<string, unknown> | undefined) ?? null
-        : findByVnum(list, selectedValue)
+        : selectedEntity === "Shops"
+          ? findShopByKeeper(list, selectedValue)
+          : findByVnum(list, selectedValue)
       : null;
   const first = (selected ?? list[0] ?? {}) as Record<string, unknown>;
   const vnumRange = getAreaVnumRange(areaData);
@@ -3271,6 +3387,103 @@ function buildResetRows(areaData: AreaJson | null): ResetRow[] {
   });
 }
 
+function buildShopRows(areaData: AreaJson | null): ShopRow[] {
+  if (!areaData) {
+    return [];
+  }
+  const shops = getEntityList(areaData, "Shops");
+  if (!shops.length) {
+    return [];
+  }
+  return shops.map((shop) => {
+    const record = shop as Record<string, unknown>;
+    const keeper = parseVnum(record.keeper) ?? -1;
+    const buyTypes = Array.isArray(record.buyTypes)
+      ? record.buyTypes
+          .map((value) => parseVnum(value))
+          .filter((value): value is number => value !== null)
+          .join(", ")
+      : "—";
+    const profitBuy = parseVnum(record.profitBuy) ?? 0;
+    const profitSell = parseVnum(record.profitSell) ?? 0;
+    const openHour = parseVnum(record.openHour);
+    const closeHour = parseVnum(record.closeHour);
+    const hours =
+      openHour !== null && closeHour !== null
+        ? `${openHour}-${closeHour}`
+        : "—";
+    return {
+      keeper,
+      buyTypes,
+      profitBuy,
+      profitSell,
+      hours
+    };
+  });
+}
+
+function buildQuestRows(areaData: AreaJson | null): QuestRow[] {
+  if (!areaData) {
+    return [];
+  }
+  const quests = getEntityList(areaData, "Quests");
+  if (!quests.length) {
+    return [];
+  }
+  return quests.map((quest) => {
+    const record = quest as Record<string, unknown>;
+    const vnum = parseVnum(record.vnum) ?? -1;
+    const name = getFirstString(record.name, "(unnamed quest)");
+    const type = getFirstString(record.type, "—");
+    const level = parseVnum(record.level) ?? 0;
+    const target = parseVnum(record.target);
+    const end = parseVnum(record.end);
+    const targetLabel =
+      target !== null && end !== null ? `${target} -> ${end}` : "—";
+    const rewardGold = parseVnum(record.rewardGold) ?? 0;
+    const rewardSilver = parseVnum(record.rewardSilver) ?? 0;
+    const rewardCopper = parseVnum(record.rewardCopper) ?? 0;
+    const rewards = `G:${rewardGold} S:${rewardSilver} C:${rewardCopper}`;
+    return {
+      vnum,
+      name,
+      type,
+      level,
+      target: targetLabel,
+      rewards
+    };
+  });
+}
+
+function buildFactionRows(areaData: AreaJson | null): FactionRow[] {
+  if (!areaData) {
+    return [];
+  }
+  const factions = getEntityList(areaData, "Factions");
+  if (!factions.length) {
+    return [];
+  }
+  return factions.map((faction) => {
+    const record = faction as Record<string, unknown>;
+    const vnum = parseVnum(record.vnum) ?? -1;
+    const name = getFirstString(record.name, "(unnamed faction)");
+    const defaultStanding = parseVnum(record.defaultStanding) ?? 0;
+    const allies = Array.isArray(record.allies)
+      ? String(record.allies.length)
+      : "0";
+    const opposing = Array.isArray(record.opposing)
+      ? String(record.opposing.length)
+      : "0";
+    return {
+      vnum,
+      name,
+      defaultStanding,
+      allies,
+      opposing
+    };
+  });
+}
+
 function syncGridSelection(api: GridApi | null, vnum: number | null) {
   if (!api) {
     return;
@@ -3297,6 +3510,13 @@ export default function App({ repository }: AppProps) {
     null
   );
   const [selectedResetIndex, setSelectedResetIndex] = useState<number | null>(
+    null
+  );
+  const [selectedShopKeeper, setSelectedShopKeeper] = useState<number | null>(
+    null
+  );
+  const [selectedQuestVnum, setSelectedQuestVnum] = useState<number | null>(null);
+  const [selectedFactionVnum, setSelectedFactionVnum] = useState<number | null>(
     null
   );
   const [areaPath, setAreaPath] = useState<string | null>(null);
@@ -3342,6 +3562,9 @@ export default function App({ repository }: AppProps) {
   const mobileGridApi = useRef<GridApi | null>(null);
   const objectGridApi = useRef<GridApi | null>(null);
   const resetGridApi = useRef<GridApi | null>(null);
+  const shopGridApi = useRef<GridApi | null>(null);
+  const questGridApi = useRef<GridApi | null>(null);
+  const factionGridApi = useRef<GridApi | null>(null);
   const areaForm = useForm<AreaFormValues>({
     resolver: zodResolver(areaFormSchema),
     defaultValues: {
@@ -3565,6 +3788,64 @@ export default function App({ repository }: AppProps) {
     handleSubmit: handleResetSubmitForm,
     formState: resetFormState
   } = resetForm;
+  const shopForm = useForm<ShopFormValues>({
+    resolver: zodResolver(shopFormSchema),
+    defaultValues: {
+      keeper: undefined,
+      buyTypes: [0, 0, 0, 0, 0],
+      profitBuy: undefined,
+      profitSell: undefined,
+      openHour: undefined,
+      closeHour: undefined
+    }
+  });
+  const {
+    register: registerShop,
+    handleSubmit: handleShopSubmitForm,
+    formState: shopFormState
+  } = shopForm;
+  const questForm = useForm<QuestFormValues>({
+    resolver: zodResolver(questFormSchema),
+    defaultValues: {
+      vnum: 0,
+      name: "",
+      entry: "",
+      type: "",
+      xp: undefined,
+      level: undefined,
+      end: undefined,
+      target: undefined,
+      upper: undefined,
+      count: undefined,
+      rewardFaction: undefined,
+      rewardReputation: undefined,
+      rewardGold: undefined,
+      rewardSilver: undefined,
+      rewardCopper: undefined,
+      rewardObjs: [0, 0, 0],
+      rewardCounts: [0, 0, 0]
+    }
+  });
+  const {
+    register: registerQuest,
+    handleSubmit: handleQuestSubmitForm,
+    formState: questFormState
+  } = questForm;
+  const factionForm = useForm<FactionFormValues>({
+    resolver: zodResolver(factionFormSchema),
+    defaultValues: {
+      vnum: 0,
+      name: "",
+      defaultStanding: undefined,
+      alliesCsv: "",
+      opposingCsv: ""
+    }
+  });
+  const {
+    register: registerFaction,
+    handleSubmit: handleFactionSubmitForm,
+    formState: factionFormState
+  } = factionForm;
   const watchedResetCommand = useWatch({
     control: resetForm.control,
     name: "commandName"
@@ -3603,12 +3884,39 @@ export default function App({ repository }: AppProps) {
     if (selectedResetIndex !== nextReset) {
       setSelectedResetIndex(nextReset);
     }
+    const nextShop = getDefaultSelection(
+      areaData,
+      "Shops",
+      selectedShopKeeper
+    );
+    if (selectedShopKeeper !== nextShop) {
+      setSelectedShopKeeper(nextShop);
+    }
+    const nextQuest = getDefaultSelection(
+      areaData,
+      "Quests",
+      selectedQuestVnum
+    );
+    if (selectedQuestVnum !== nextQuest) {
+      setSelectedQuestVnum(nextQuest);
+    }
+    const nextFaction = getDefaultSelection(
+      areaData,
+      "Factions",
+      selectedFactionVnum
+    );
+    if (selectedFactionVnum !== nextFaction) {
+      setSelectedFactionVnum(nextFaction);
+    }
   }, [
     areaData,
     selectedRoomVnum,
     selectedMobileVnum,
     selectedObjectVnum,
-    selectedResetIndex
+    selectedResetIndex,
+    selectedShopKeeper,
+    selectedQuestVnum,
+    selectedFactionVnum
   ]);
 
   useEffect(() => {
@@ -3616,6 +3924,9 @@ export default function App({ repository }: AppProps) {
     setSelectedMobileVnum(null);
     setSelectedObjectVnum(null);
     setSelectedResetIndex(null);
+    setSelectedShopKeeper(null);
+    setSelectedQuestVnum(null);
+    setSelectedFactionVnum(null);
   }, [areaData]);
 
   const selection = useMemo(
@@ -3624,7 +3935,10 @@ export default function App({ repository }: AppProps) {
         Rooms: selectedRoomVnum,
         Mobiles: selectedMobileVnum,
         Objects: selectedObjectVnum,
-        Resets: selectedResetIndex
+        Resets: selectedResetIndex,
+        Shops: selectedShopKeeper,
+        Quests: selectedQuestVnum,
+        Factions: selectedFactionVnum
       }),
     [
       areaData,
@@ -3632,7 +3946,10 @@ export default function App({ repository }: AppProps) {
       selectedRoomVnum,
       selectedMobileVnum,
       selectedObjectVnum,
-      selectedResetIndex
+      selectedResetIndex,
+      selectedShopKeeper,
+      selectedQuestVnum,
+      selectedFactionVnum
     ]
   );
   const selectedEntityVnum = useMemo(() => {
@@ -3786,6 +4103,9 @@ export default function App({ repository }: AppProps) {
   const mobileRows = useMemo(() => buildMobileRows(areaData), [areaData]);
   const objectRows = useMemo(() => buildObjectRows(areaData), [areaData]);
   const resetRows = useMemo(() => buildResetRows(areaData), [areaData]);
+  const shopRows = useMemo(() => buildShopRows(areaData), [areaData]);
+  const questRows = useMemo(() => buildQuestRows(areaData), [areaData]);
+  const factionRows = useMemo(() => buildFactionRows(areaData), [areaData]);
   const baseRoomNodes = useMemo(() => buildRoomNodes(areaData), [areaData]);
   const layoutSourceNodes = useMemo(
     () => (layoutNodes.length ? layoutNodes : baseRoomNodes),
@@ -4327,6 +4647,25 @@ export default function App({ repository }: AppProps) {
       ? (record as Record<string, unknown>)
       : null;
   }, [areaData, selectedResetIndex]);
+  const selectedShopRecord = useMemo(() => {
+    if (!areaData || selectedShopKeeper === null) {
+      return null;
+    }
+    const shops = getEntityList(areaData, "Shops");
+    return findShopByKeeper(shops, selectedShopKeeper);
+  }, [areaData, selectedShopKeeper]);
+  const selectedQuestRecord = useMemo(() => {
+    if (!areaData || selectedQuestVnum === null) {
+      return null;
+    }
+    return findByVnum(getEntityList(areaData, "Quests"), selectedQuestVnum);
+  }, [areaData, selectedQuestVnum]);
+  const selectedFactionRecord = useMemo(() => {
+    if (!areaData || selectedFactionVnum === null) {
+      return null;
+    }
+    return findByVnum(getEntityList(areaData, "Factions"), selectedFactionVnum);
+  }, [areaData, selectedFactionVnum]);
   const scriptContext = useMemo(() => {
     if (selectedEntity === "Rooms") {
       return {
@@ -4908,6 +5247,63 @@ export default function App({ repository }: AppProps) {
       exits: parseVnum(record?.exits) ?? undefined
     };
   }, [selectedResetIndex, selectedResetRecord]);
+  const shopFormDefaults = useMemo<ShopFormValues>(() => {
+    const record = selectedShopRecord ?? {};
+    const buyTypes = Array.isArray(record.buyTypes) ? record.buyTypes : [];
+    return {
+      keeper: parseVnum(record.keeper) ?? undefined,
+      buyTypes: Array.from({ length: 5 }).map(
+        (_, index) => parseVnum(buyTypes[index]) ?? 0
+      ),
+      profitBuy: parseVnum(record.profitBuy) ?? undefined,
+      profitSell: parseVnum(record.profitSell) ?? undefined,
+      openHour: parseVnum(record.openHour) ?? undefined,
+      closeHour: parseVnum(record.closeHour) ?? undefined
+    };
+  }, [selectedShopRecord]);
+  const questFormDefaults = useMemo<QuestFormValues>(() => {
+    const record = selectedQuestRecord ?? {};
+    const rewardObjs = Array.isArray(record.rewardObjs) ? record.rewardObjs : [];
+    const rewardCounts = Array.isArray(record.rewardCounts)
+      ? record.rewardCounts
+      : [];
+    return {
+      vnum: parseVnum(record.vnum) ?? 0,
+      name: getFirstString(record.name, ""),
+      entry:
+        typeof record.entry === "string"
+          ? normalizeLineEndingsForDisplay(record.entry)
+          : "",
+      type: getFirstString(record.type, ""),
+      xp: parseVnum(record.xp) ?? undefined,
+      level: parseVnum(record.level) ?? undefined,
+      end: parseVnum(record.end) ?? undefined,
+      target: parseVnum(record.target) ?? undefined,
+      upper: parseVnum(record.upper) ?? undefined,
+      count: parseVnum(record.count) ?? undefined,
+      rewardFaction: parseVnum(record.rewardFaction) ?? undefined,
+      rewardReputation: parseVnum(record.rewardReputation) ?? undefined,
+      rewardGold: parseVnum(record.rewardGold) ?? undefined,
+      rewardSilver: parseVnum(record.rewardSilver) ?? undefined,
+      rewardCopper: parseVnum(record.rewardCopper) ?? undefined,
+      rewardObjs: Array.from({ length: 3 }).map(
+        (_, index) => parseVnum(rewardObjs[index]) ?? 0
+      ),
+      rewardCounts: Array.from({ length: 3 }).map(
+        (_, index) => parseVnum(rewardCounts[index]) ?? 0
+      )
+    };
+  }, [selectedQuestRecord]);
+  const factionFormDefaults = useMemo<FactionFormValues>(() => {
+    const record = selectedFactionRecord ?? {};
+    return {
+      vnum: parseVnum(record.vnum) ?? 0,
+      name: getFirstString(record.name, ""),
+      defaultStanding: parseVnum(record.defaultStanding) ?? undefined,
+      alliesCsv: formatNumberList(record.allies),
+      opposingCsv: formatNumberList(record.opposing)
+    };
+  }, [selectedFactionRecord]);
   const activeResetCommand = (watchedResetCommand ??
     resetFormDefaults.commandName ??
     "").trim();
@@ -4972,6 +5368,37 @@ export default function App({ repository }: AppProps) {
     ],
     []
   );
+  const shopColumns = useMemo<ColDef<ShopRow>[]>(
+    () => [
+      { headerName: "Keeper", field: "keeper", width: 120, sort: "asc" },
+      { headerName: "Buy Types", field: "buyTypes", flex: 2, minWidth: 220 },
+      { headerName: "Profit Buy", field: "profitBuy", width: 120 },
+      { headerName: "Profit Sell", field: "profitSell", width: 120 },
+      { headerName: "Hours", field: "hours", width: 120 }
+    ],
+    []
+  );
+  const questColumns = useMemo<ColDef<QuestRow>[]>(
+    () => [
+      { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
+      { headerName: "Name", field: "name", flex: 2, minWidth: 200 },
+      { headerName: "Type", field: "type", flex: 1, minWidth: 140 },
+      { headerName: "Level", field: "level", width: 110 },
+      { headerName: "Target", field: "target", flex: 1, minWidth: 160 },
+      { headerName: "Rewards", field: "rewards", flex: 1, minWidth: 160 }
+    ],
+    []
+  );
+  const factionColumns = useMemo<ColDef<FactionRow>[]>(
+    () => [
+      { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
+      { headerName: "Name", field: "name", flex: 2, minWidth: 200 },
+      { headerName: "Default", field: "defaultStanding", width: 120 },
+      { headerName: "Allies", field: "allies", width: 110 },
+      { headerName: "Opposing", field: "opposing", width: 120 }
+    ],
+    []
+  );
   const roomDefaultColDef = useMemo<ColDef>(
     () => ({
       sortable: true,
@@ -5004,6 +5431,18 @@ export default function App({ repository }: AppProps) {
   }, [resetForm, resetFormDefaults]);
 
   useEffect(() => {
+    shopForm.reset(shopFormDefaults);
+  }, [shopForm, shopFormDefaults]);
+
+  useEffect(() => {
+    questForm.reset(questFormDefaults);
+  }, [questForm, questFormDefaults]);
+
+  useEffect(() => {
+    factionForm.reset(factionFormDefaults);
+  }, [factionForm, factionFormDefaults]);
+
+  useEffect(() => {
     if (activeTab !== "Table" || selectedEntity !== "Rooms") {
       return;
     }
@@ -5030,6 +5469,27 @@ export default function App({ repository }: AppProps) {
     }
     syncGridSelection(resetGridApi.current, selectedResetIndex);
   }, [activeTab, selectedEntity, selectedResetIndex, resetRows]);
+
+  useEffect(() => {
+    if (activeTab !== "Table" || selectedEntity !== "Shops") {
+      return;
+    }
+    syncGridSelection(shopGridApi.current, selectedShopKeeper);
+  }, [activeTab, selectedEntity, selectedShopKeeper, shopRows]);
+
+  useEffect(() => {
+    if (activeTab !== "Table" || selectedEntity !== "Quests") {
+      return;
+    }
+    syncGridSelection(questGridApi.current, selectedQuestVnum);
+  }, [activeTab, selectedEntity, selectedQuestVnum, questRows]);
+
+  useEffect(() => {
+    if (activeTab !== "Table" || selectedEntity !== "Factions") {
+      return;
+    }
+    syncGridSelection(factionGridApi.current, selectedFactionVnum);
+  }, [activeTab, selectedEntity, selectedFactionVnum, factionRows]);
 
   useEffect(() => {
     if (activeTab === "Map" && selectedEntity !== "Rooms") {
@@ -5534,6 +5994,147 @@ export default function App({ repository }: AppProps) {
     setStatusMessage(`Updated reset #${data.index} (unsaved)`);
   };
 
+  const handleShopSubmit = (data: ShopFormValues) => {
+    if (!areaData || selectedShopKeeper === null) {
+      return;
+    }
+    const keeper =
+      data.keeper !== undefined ? data.keeper : selectedShopKeeper;
+    const buyTypes = Array.from({ length: 5 }).map(
+      (_, index) => data.buyTypes?.[index] ?? 0
+    );
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const shops = getEntityList(current, "Shops");
+      if (!shops.length) {
+        return current;
+      }
+      const nextShops = shops.map((shop) => {
+        const record = shop as Record<string, unknown>;
+        const shopKeeper = parseVnum(record.keeper);
+        if (shopKeeper !== selectedShopKeeper) {
+          return record;
+        }
+        return {
+          ...record,
+          keeper,
+          buyTypes,
+          profitBuy: data.profitBuy ?? 0,
+          profitSell: data.profitSell ?? 0,
+          openHour: data.openHour ?? 0,
+          closeHour: data.closeHour ?? 0
+        };
+      });
+      return {
+        ...(current as Record<string, unknown>),
+        shops: nextShops
+      };
+    });
+    setSelectedShopKeeper(keeper);
+    setStatusMessage(`Updated shop ${keeper} (unsaved)`);
+  };
+
+  const handleQuestSubmit = (data: QuestFormValues) => {
+    if (!areaData || selectedQuestVnum === null) {
+      return;
+    }
+    const rewardObjs = Array.from({ length: 3 }).map(
+      (_, index) => data.rewardObjs?.[index] ?? 0
+    );
+    const rewardCounts = Array.from({ length: 3 }).map(
+      (_, index) => data.rewardCounts?.[index] ?? 0
+    );
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const quests = getEntityList(current, "Quests");
+      if (!quests.length) {
+        return current;
+      }
+      const nextQuests = quests.map((quest) => {
+        const record = quest as Record<string, unknown>;
+        const vnum = parseVnum(record.vnum);
+        if (vnum !== selectedQuestVnum) {
+          return record;
+        }
+        return {
+          ...record,
+          vnum: data.vnum,
+          name: data.name ?? "",
+          entry: normalizeLineEndingsForMud(data.entry ?? ""),
+          type: data.type ?? "",
+          xp: data.xp ?? 0,
+          level: data.level ?? 0,
+          end: data.end ?? 0,
+          target: data.target ?? 0,
+          upper: data.upper ?? 0,
+          count: data.count ?? 0,
+          rewardFaction: data.rewardFaction ?? 0,
+          rewardReputation: data.rewardReputation ?? 0,
+          rewardGold: data.rewardGold ?? 0,
+          rewardSilver: data.rewardSilver ?? 0,
+          rewardCopper: data.rewardCopper ?? 0,
+          rewardObjs,
+          rewardCounts
+        };
+      });
+      return {
+        ...(current as Record<string, unknown>),
+        quests: nextQuests
+      };
+    });
+    setStatusMessage(`Updated quest ${data.vnum} (unsaved)`);
+  };
+
+  const handleFactionSubmit = (data: FactionFormValues) => {
+    if (!areaData || selectedFactionVnum === null) {
+      return;
+    }
+    const allies = parseNumberList(data.alliesCsv);
+    const opposing = parseNumberList(data.opposingCsv);
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const factions = getEntityList(current, "Factions");
+      if (!factions.length) {
+        return current;
+      }
+      const nextFactions = factions.map((faction) => {
+        const record = faction as Record<string, unknown>;
+        const vnum = parseVnum(record.vnum);
+        if (vnum !== selectedFactionVnum) {
+          return record;
+        }
+        const nextFaction: Record<string, unknown> = {
+          ...record,
+          vnum: data.vnum,
+          name: data.name ?? "",
+          defaultStanding: data.defaultStanding ?? 0
+        };
+        if (allies.length) {
+          nextFaction.allies = allies;
+        } else {
+          nextFaction.allies = undefined;
+        }
+        if (opposing.length) {
+          nextFaction.opposing = opposing;
+        } else {
+          nextFaction.opposing = undefined;
+        }
+        return nextFaction;
+      });
+      return {
+        ...(current as Record<string, unknown>),
+        factions: nextFactions
+      };
+    });
+    setStatusMessage(`Updated faction ${data.vnum} (unsaved)`);
+  };
+
   const warnLegacyAreaFiles = useCallback(
     async (areaDir: string | null) => {
       if (!areaDir) {
@@ -5846,6 +6447,30 @@ export default function App({ repository }: AppProps) {
       mobileVnumOptions={mobileVnumOptions}
     />
   );
+  const shopFormNode = (
+    <ShopForm
+      onSubmit={handleShopSubmitForm(handleShopSubmit)}
+      register={registerShop}
+      formState={shopFormState}
+      mobileVnumOptions={mobileVnumOptions}
+    />
+  );
+  const questFormNode = (
+    <QuestForm
+      onSubmit={handleQuestSubmitForm(handleQuestSubmit)}
+      register={registerQuest}
+      formState={questFormState}
+      questTypeOptions={[...questTypeOptions]}
+      objectVnumOptions={objectVnumOptions}
+    />
+  );
+  const factionFormNode = (
+    <FactionForm
+      onSubmit={handleFactionSubmitForm(handleFactionSubmit)}
+      register={registerFaction}
+      formState={factionFormState}
+    />
+  );
   const tableViewNode = (
     <TableView
       selectedEntity={selectedEntity}
@@ -5853,22 +6478,37 @@ export default function App({ repository }: AppProps) {
       mobileRows={mobileRows}
       objectRows={objectRows}
       resetRows={resetRows}
+      shopRows={shopRows}
+      questRows={questRows}
+      factionRows={factionRows}
       roomColumns={roomColumns}
       mobileColumns={mobileColumns}
       objectColumns={objectColumns}
       resetColumns={resetColumns}
+      shopColumns={shopColumns}
+      questColumns={questColumns}
+      factionColumns={factionColumns}
       roomDefaultColDef={roomDefaultColDef}
       mobileDefaultColDef={mobileDefaultColDef}
       objectDefaultColDef={objectDefaultColDef}
       resetDefaultColDef={roomDefaultColDef}
+      shopDefaultColDef={roomDefaultColDef}
+      questDefaultColDef={roomDefaultColDef}
+      factionDefaultColDef={roomDefaultColDef}
       onSelectRoom={setSelectedRoomVnum}
       onSelectMobile={setSelectedMobileVnum}
       onSelectObject={setSelectedObjectVnum}
       onSelectReset={setSelectedResetIndex}
+      onSelectShop={setSelectedShopKeeper}
+      onSelectQuest={setSelectedQuestVnum}
+      onSelectFaction={setSelectedFactionVnum}
       roomGridApiRef={roomGridApi}
       mobileGridApiRef={mobileGridApi}
       objectGridApiRef={objectGridApi}
       resetGridApiRef={resetGridApi}
+      shopGridApiRef={shopGridApi}
+      questGridApiRef={questGridApi}
+      factionGridApiRef={factionGridApi}
     />
   );
   const mapViewNode = (
@@ -5970,12 +6610,18 @@ export default function App({ repository }: AppProps) {
                 mobileCount={mobileRows.length}
                 objectCount={objectRows.length}
                 resetCount={resetRows.length}
+                shopCount={shopRows.length}
+                questCount={questRows.length}
+                factionCount={factionRows.length}
                 mapHasRooms={mapNodes.length > 0}
                 areaForm={areaFormNode}
                 roomForm={roomFormNode}
                 mobileForm={mobileFormNode}
                 objectForm={objectFormNode}
                 resetForm={resetFormNode}
+                shopForm={shopFormNode}
+                questForm={questFormNode}
+                factionForm={factionFormNode}
                 tableView={tableViewNode}
                 mapView={mapViewNode}
                 worldView={worldViewNode}

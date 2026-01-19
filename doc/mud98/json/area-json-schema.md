@@ -103,7 +103,7 @@ Affect object (used for object affects)
 - `{ vnum, code }`.
 
 `quests` (array)
-- Mirrors ROM save: `{ vnum, minLevel, maxLevel, race?, class?, time?, creator?, description?, objectives: [...], rewards: [...] }` (structure follows existing `save_quests`).
+- `{ vnum, name, entry, type, xp, level, end, target, upper, count, rewardFaction, rewardReputation, rewardGold, rewardSilver, rewardCopper, rewardObjs:[vnum...], rewardCounts:[int...] }`.
 
 `helps` (array)
 - `{ level, keyword, text }`. Empty helps array omitted.
