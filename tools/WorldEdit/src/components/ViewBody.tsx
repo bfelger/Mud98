@@ -5,11 +5,13 @@ type ViewBodyProps = {
   activeTab: string;
   selectedEntity: string;
   tabs: Array<{ id: string; title: string; description: string }>;
+  hasAreaData: boolean;
   roomCount: number;
   mobileCount: number;
   objectCount: number;
   resetCount: number;
   mapHasRooms: boolean;
+  areaForm: ReactNode;
   roomForm: ReactNode;
   mobileForm: ReactNode;
   objectForm: ReactNode;
@@ -23,11 +25,13 @@ export function ViewBody({
   activeTab,
   selectedEntity,
   tabs,
+  hasAreaData,
   roomCount,
   mobileCount,
   objectCount,
   resetCount,
   mapHasRooms,
+  areaForm,
   roomForm,
   mobileForm,
   objectForm,
@@ -36,6 +40,17 @@ export function ViewBody({
   mapView,
   scriptView
 }: ViewBodyProps) {
+  if (activeTab === "Form" && selectedEntity === "Area") {
+    return hasAreaData ? (
+      <>{areaForm}</>
+    ) : (
+      <div className="entity-table__empty">
+        <h3>No area loaded</h3>
+        <p>Load an area JSON file to edit area data.</p>
+      </div>
+    );
+  }
+
   if (activeTab === "Form" && selectedEntity === "Rooms") {
     return roomCount ? (
       <>{roomForm}</>

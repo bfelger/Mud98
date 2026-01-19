@@ -30,6 +30,7 @@ import {
 } from "react-hook-form";
 import { z } from "zod";
 import { ScriptView } from "./components/ScriptView";
+import { AreaForm } from "./components/AreaForm";
 import { RoomForm } from "./components/RoomForm";
 import { MobileForm } from "./components/MobileForm";
 import { ObjectForm } from "./components/ObjectForm";
@@ -128,6 +129,7 @@ type AppProps = {
 };
 
 const entityOrder = [
+  "Area",
   "Rooms",
   "Mobiles",
   "Objects",
@@ -361,6 +363,36 @@ const optionalSizeSchema = optionalEnumSchema(sizeEnum);
 const optionalDamageTypeSchema = optionalEnumSchema(damageTypeEnum);
 const optionalDirectionSchema = optionalEnumSchema(directionEnum);
 const optionalWearLocationSchema = optionalEnumSchema(wearLocationEnum);
+const checklistStatusOptions = ["todo", "inProgress", "done"] as const;
+
+const areaFormSchema = z.object({
+  name: z.string().min(1, "Name is required."),
+  version: z.number().int(),
+  vnumRangeStart: z.number().int(),
+  vnumRangeEnd: z.number().int(),
+  builders: z.string().optional(),
+  credits: z.string().optional(),
+  security: optionalIntSchema,
+  sector: optionalSectorSchema,
+  lowLevel: optionalIntSchema,
+  highLevel: optionalIntSchema,
+  reset: optionalIntSchema,
+  alwaysReset: z.boolean().optional(),
+  instType: z.enum(["single", "multi"]),
+  storyBeats: z.array(
+    z.object({
+      title: z.string().min(1, "Title is required."),
+      description: z.string().optional()
+    })
+  ),
+  checklist: z.array(
+    z.object({
+      title: z.string().min(1, "Title is required."),
+      status: z.enum(checklistStatusOptions),
+      description: z.string().optional()
+    })
+  )
+});
 
 const exitFormSchema = z.object({
   dir: directionEnum,
@@ -675,11 +707,13 @@ const roomFormSchema = z.object({
 });
 
 type RoomFormValues = z.infer<typeof roomFormSchema>;
+type AreaFormValues = z.infer<typeof areaFormSchema>;
 type MobileFormValues = z.infer<typeof mobileFormSchema>;
 type ObjectFormValues = z.infer<typeof objectFormSchema>;
 type ResetFormValues = z.infer<typeof resetFormSchema>;
 
 const entityKindLabels: Record<EntityKey, string> = {
+  Area: "Area",
   Rooms: "Room",
   Mobiles: "Mobile",
   Objects: "Object",
@@ -691,6 +725,7 @@ const entityKindLabels: Record<EntityKey, string> = {
 };
 
 const entityDataKeys: Record<EntityKey, string> = {
+  Area: "areadata",
   Rooms: "rooms",
   Mobiles: "mobiles",
   Objects: "objects",
@@ -784,6 +819,37 @@ function normalizeOptionalText(value: string | undefined) {
   }
   const trimmed = value.trim();
   return trimmed.length ? trimmed : undefined;
+}
+
+function normalizeChecklistStatus(
+  value: unknown
+): "todo" | "inProgress" | "done" {
+  if (value === "todo" || value === "inProgress" || value === "done") {
+    return value;
+  }
+  if (typeof value === "number") {
+    if (value === 1) {
+      return "inProgress";
+    }
+    if (value === 2) {
+      return "done";
+    }
+    return "todo";
+  }
+  if (typeof value === "string") {
+    const trimmed = value.trim().toLowerCase();
+    if (trimmed === "inprogress") {
+      return "inProgress";
+    }
+    if (trimmed === "done") {
+      return "done";
+    }
+    const numeric = Number(trimmed);
+    if (Number.isFinite(numeric)) {
+      return normalizeChecklistStatus(numeric);
+    }
+  }
+  return "todo";
 }
 
 function normalizeLineEndingsForDisplay(value: string | undefined) {
@@ -906,6 +972,10 @@ function getDefaultSelection(
 function getEntityList(areaData: AreaJson | null, key: EntityKey): unknown[] {
   if (!areaData) {
     return [];
+  }
+  if (key === "Area") {
+    const areadata = (areaData as Record<string, unknown>).areadata;
+    return areadata && typeof areadata === "object" ? [areadata] : [];
   }
   const list = (areaData as Record<string, unknown>)[entityDataKeys[key]];
   return Array.isArray(list) ? list : [];
@@ -1592,6 +1662,13 @@ function buildSelectionSummary(
   let exits = "n/a";
 
   switch (selectedEntity) {
+    case "Area": {
+      selectionLabel = count
+        ? getFirstString(first.name, "Area data")
+        : emptyLabel;
+      exits = "n/a";
+      break;
+    }
     case "Rooms": {
       selectionLabel =
         vnum !== null
@@ -1681,7 +1758,8 @@ function buildSelectionSummary(
   const range =
     selectedEntity === "Rooms" ||
     selectedEntity === "Mobiles" ||
-    selectedEntity === "Objects"
+    selectedEntity === "Objects" ||
+    selectedEntity === "Area"
       ? vnumRange ?? "n/a"
       : "n/a";
 
@@ -2967,9 +3045,8 @@ function syncGridSelection(api: GridApi | null, vnum: number | null) {
 
 export default function App({ repository }: AppProps) {
   const [activeTab, setActiveTab] = useState<TabId>(tabs[0].id);
-  const [selectedEntity, setSelectedEntity] = useState<EntityKey>(
-    entityOrder[0]
-  );
+  const [selectedEntity, setSelectedEntity] =
+    useState<EntityKey>("Rooms");
   const [selectedRoomVnum, setSelectedRoomVnum] = useState<number | null>(null);
   const [selectedMobileVnum, setSelectedMobileVnum] = useState<number | null>(
     null
@@ -3017,6 +3094,50 @@ export default function App({ repository }: AppProps) {
   const mobileGridApi = useRef<GridApi | null>(null);
   const objectGridApi = useRef<GridApi | null>(null);
   const resetGridApi = useRef<GridApi | null>(null);
+  const areaForm = useForm<AreaFormValues>({
+    resolver: zodResolver(areaFormSchema),
+    defaultValues: {
+      name: "",
+      version: 1,
+      vnumRangeStart: 0,
+      vnumRangeEnd: 0,
+      builders: "",
+      credits: "",
+      security: undefined,
+      sector: undefined,
+      lowLevel: undefined,
+      highLevel: undefined,
+      reset: undefined,
+      alwaysReset: false,
+      instType: "single",
+      storyBeats: [],
+      checklist: []
+    }
+  });
+  const {
+    register: registerArea,
+    handleSubmit: handleAreaSubmitForm,
+    formState: areaFormState,
+    control: areaFormControl
+  } = areaForm;
+  const {
+    fields: storyBeatFields,
+    append: appendStoryBeat,
+    remove: removeStoryBeat,
+    move: moveStoryBeat
+  } = useFieldArray({
+    control: areaFormControl,
+    name: "storyBeats"
+  });
+  const {
+    fields: checklistFields,
+    append: appendChecklist,
+    remove: removeChecklist,
+    move: moveChecklist
+  } = useFieldArray({
+    control: areaFormControl,
+    name: "checklist"
+  });
   const roomForm = useForm<RoomFormValues>({
     resolver: zodResolver(roomFormSchema),
     defaultValues: {
@@ -3906,6 +4027,62 @@ export default function App({ repository }: AppProps) {
     },
     [scriptContext]
   );
+  const areaFormDefaults = useMemo<AreaFormValues>(() => {
+    const areadata =
+      areaData && typeof (areaData as Record<string, unknown>).areadata === "object"
+        ? ((areaData as Record<string, unknown>).areadata as Record<string, unknown>)
+        : {};
+    const vnumRange = Array.isArray(areadata.vnumRange) ? areadata.vnumRange : [];
+    const vnumRangeStart = parseVnum(vnumRange[0]) ?? 0;
+    const vnumRangeEnd = parseVnum(vnumRange[1]) ?? 0;
+    const storyBeats = Array.isArray((areaData as Record<string, unknown>)?.storyBeats)
+      ? ((areaData as Record<string, unknown>).storyBeats as unknown[])
+          .filter((entry) => entry && typeof entry === "object")
+          .map((entry) => {
+            const record = entry as Record<string, unknown>;
+            return {
+              title: typeof record.title === "string" ? record.title : "",
+              description:
+                typeof record.description === "string"
+                  ? normalizeLineEndingsForDisplay(record.description)
+                  : ""
+            };
+          })
+      : [];
+    const checklist = Array.isArray((areaData as Record<string, unknown>)?.checklist)
+      ? ((areaData as Record<string, unknown>).checklist as unknown[])
+          .filter((entry) => entry && typeof entry === "object")
+          .map((entry) => {
+            const record = entry as Record<string, unknown>;
+            return {
+              title: typeof record.title === "string" ? record.title : "",
+              status: normalizeChecklistStatus(record.status),
+              description:
+                typeof record.description === "string"
+                  ? normalizeLineEndingsForDisplay(record.description)
+                  : ""
+            };
+          })
+      : [];
+    return {
+      name: typeof areadata.name === "string" ? areadata.name : "",
+      version: parseVnum(areadata.version) ?? 1,
+      vnumRangeStart,
+      vnumRangeEnd,
+      builders: typeof areadata.builders === "string" ? areadata.builders : "",
+      credits: typeof areadata.credits === "string" ? areadata.credits : "",
+      security: parseVnum(areadata.security) ?? undefined,
+      sector: typeof areadata.sector === "string" ? areadata.sector : undefined,
+      lowLevel: parseVnum(areadata.lowLevel) ?? undefined,
+      highLevel: parseVnum(areadata.highLevel) ?? undefined,
+      reset: parseVnum(areadata.reset) ?? undefined,
+      alwaysReset:
+        typeof areadata.alwaysReset === "boolean" ? areadata.alwaysReset : false,
+      instType: areadata.instType === "multi" ? "multi" : "single",
+      storyBeats,
+      checklist
+    };
+  }, [areaData]);
   const roomFormDefaults = useMemo<RoomFormValues>(() => {
     const record = selectedRoomRecord;
     const vnum =
@@ -4315,6 +4492,10 @@ export default function App({ repository }: AppProps) {
   const objectDefaultColDef = roomDefaultColDef;
 
   useEffect(() => {
+    areaForm.reset(areaFormDefaults);
+  }, [areaForm, areaFormDefaults]);
+
+  useEffect(() => {
     roomForm.reset(roomFormDefaults);
   }, [roomForm, roomFormDefaults]);
 
@@ -4385,6 +4566,71 @@ export default function App({ repository }: AppProps) {
       cancelRef.current = true;
     };
   }, [layoutNonce, runRoomLayout]);
+
+  const handleAreaSubmit = (data: AreaFormValues) => {
+    if (!areaData) {
+      return;
+    }
+    const nextStoryBeats = (data.storyBeats ?? [])
+      .map((beat) => {
+        const title = beat.title.trim();
+        const description = normalizeOptionalText(beat.description);
+        const nextBeat: Record<string, unknown> = {
+          title
+        };
+        if (description) {
+          nextBeat.description = normalizeLineEndingsForMud(description);
+        }
+        return nextBeat;
+      })
+      .filter((beat) => Boolean(beat.title));
+    const nextChecklist = (data.checklist ?? [])
+      .map((item) => {
+        const title = item.title.trim();
+        const description = normalizeOptionalText(item.description);
+        const nextItem: Record<string, unknown> = {
+          title,
+          status: item.status
+        };
+        if (description) {
+          nextItem.description = normalizeLineEndingsForMud(description);
+        }
+        return nextItem;
+      })
+      .filter((item) => Boolean(item.title));
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const record = current as Record<string, unknown>;
+      const areadata =
+        record.areadata && typeof record.areadata === "object"
+          ? (record.areadata as Record<string, unknown>)
+          : {};
+      const nextAreadata: Record<string, unknown> = {
+        ...areadata,
+        version: data.version,
+        name: data.name,
+        vnumRange: [data.vnumRangeStart, data.vnumRangeEnd],
+        builders: normalizeOptionalText(data.builders),
+        credits: normalizeOptionalText(data.credits),
+        security: data.security ?? undefined,
+        sector: data.sector ?? undefined,
+        lowLevel: data.lowLevel ?? undefined,
+        highLevel: data.highLevel ?? undefined,
+        reset: data.reset ?? undefined,
+        alwaysReset: data.alwaysReset ? true : undefined,
+        instType: data.instType === "multi" ? "multi" : undefined
+      };
+      return {
+        ...record,
+        areadata: nextAreadata,
+        storyBeats: nextStoryBeats.length ? nextStoryBeats : undefined,
+        checklist: nextChecklist.length ? nextChecklist : undefined
+      };
+    });
+    setStatusMessage("Updated area data (unsaved)");
+  };
 
   const handleRoomSubmit = (data: RoomFormValues) => {
     if (!areaData || selectedRoomVnum === null) {
@@ -5014,6 +5260,22 @@ export default function App({ repository }: AppProps) {
     }
   };
 
+  const areaFormNode = (
+    <AreaForm
+      onSubmit={handleAreaSubmitForm(handleAreaSubmit)}
+      register={registerArea}
+      formState={areaFormState}
+      sectors={sectors}
+      storyBeatFields={storyBeatFields}
+      appendStoryBeat={appendStoryBeat}
+      removeStoryBeat={removeStoryBeat}
+      moveStoryBeat={moveStoryBeat}
+      checklistFields={checklistFields}
+      appendChecklist={appendChecklist}
+      removeChecklist={removeChecklist}
+      moveChecklist={moveChecklist}
+    />
+  );
   const roomFormNode = (
     <RoomForm
       onSubmit={handleRoomSubmitForm(handleRoomSubmit)}
@@ -5199,11 +5461,13 @@ export default function App({ repository }: AppProps) {
                 activeTab={activeTab}
                 selectedEntity={selectedEntity}
                 tabs={tabs}
+                hasAreaData={Boolean(areaData)}
                 roomCount={roomRows.length}
                 mobileCount={mobileRows.length}
                 objectCount={objectRows.length}
                 resetCount={resetRows.length}
                 mapHasRooms={mapNodes.length > 0}
+                areaForm={areaFormNode}
                 roomForm={roomFormNode}
                 mobileForm={mobileFormNode}
                 objectForm={objectFormNode}

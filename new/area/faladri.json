@@ -158,7 +158,6 @@
         "no_recall"
       ],
       "sectorType": "forest",
-      "owner": "",
       "exits": [
         {
           "dir": "east",
