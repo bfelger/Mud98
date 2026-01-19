@@ -25,7 +25,11 @@
     },
     {
       "identifier": "fs:allow-mkdir",
-      "allow": [{ "path": "$HOME/**" }, { "path": "$HOME/**/.worldedit/**" }]
+      "allow": [
+        { "path": "$HOME/**" },
+        { "path": "$HOME/**/.worldedit" },
+        { "path": "$HOME/**/.worldedit/**" }
+      ]
     }
   ]
 }

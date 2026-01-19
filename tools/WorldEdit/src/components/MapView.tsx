@@ -83,6 +83,7 @@ export function MapView({
           onClearLayout={onClearLayout}
         />
         <ReactFlow
+          id="area-map"
           nodes={mapNodes}
           edges={roomEdges}
           nodeTypes={roomNodeTypes}

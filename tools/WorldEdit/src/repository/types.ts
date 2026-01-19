@@ -35,3 +35,9 @@ export type AreaIndexEntry = {
   name: string;
   vnumRange: [number, number] | null;
 };
+
+export type AreaGraphLink = {
+  fromFile: string;
+  toFile: string;
+  count: number;
+};

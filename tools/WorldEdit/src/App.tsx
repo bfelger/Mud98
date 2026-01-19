@@ -31,6 +31,7 @@ import {
 import { z } from "zod";
 import { ScriptView } from "./components/ScriptView";
 import { AreaForm } from "./components/AreaForm";
+import { AreaGraphView } from "./components/AreaGraphView";
 import { RoomForm } from "./components/RoomForm";
 import { MobileForm } from "./components/MobileForm";
 import { ObjectForm } from "./components/ObjectForm";
@@ -47,6 +48,7 @@ import { ViewBody } from "./components/ViewBody";
 import type { VnumOption } from "./components/VnumPicker";
 import type { EventBinding } from "./data/eventTypes";
 import type {
+  AreaGraphLink,
   AreaIndexEntry,
   AreaJson,
   EditorLayout,
@@ -116,6 +118,11 @@ const tabs = [
     id: "Map",
     title: "Map View",
     description: "Orthogonal room layout with exit routing."
+  },
+  {
+    id: "World",
+    title: "World Graph",
+    description: "Project-level view of area links."
   },
   {
     id: "Script",
@@ -212,6 +219,10 @@ const elk = new ELK();
 const roomNodeSize = {
   width: 180,
   height: 180
+};
+const areaNodeSize = {
+  width: 200,
+  height: 120
 };
 const roomPortDefinitions = [
   { id: "north-in", side: "NORTH" },
@@ -313,6 +324,19 @@ type ExternalExit = {
 };
 
 type RoomLayoutMap = Record<string, RoomLayoutEntry>;
+
+type AreaGraphEntry = {
+  id: string;
+  name: string;
+  vnumRange: [number, number] | null;
+};
+
+type AreaGraphNodeData = {
+  label: string;
+  range: string;
+  isCurrent?: boolean;
+  isMatch?: boolean;
+};
 
 type ExitValidationResult = {
   issues: ValidationIssueBase[];
@@ -999,6 +1023,13 @@ function getAreaVnumRange(areaData: AreaJson | null): string | null {
     return `${vnumRange[0]}-${vnumRange[1]}`;
   }
   return null;
+}
+
+function formatVnumRange(range: [number, number] | null): string {
+  if (!range) {
+    return "n/a";
+  }
+  return `${range[0]}-${range[1]}`;
 }
 
 function getAreaVnumBounds(
@@ -2700,6 +2731,57 @@ async function layoutRoomNodes(
   });
 }
 
+async function layoutAreaGraphNodes(
+  nodes: Node<AreaGraphNodeData>[],
+  edges: Edge[]
+): Promise<Node<AreaGraphNodeData>[]> {
+  if (!nodes.length) {
+    return [];
+  }
+  const nodeIds = new Set(nodes.map((node) => node.id));
+  const layoutOptions: Record<string, string> = {
+    "elk.algorithm": "layered",
+    "elk.direction": "RIGHT",
+    "elk.spacing.nodeNode": "120",
+    "elk.layered.spacing.nodeNodeBetweenLayers": "180",
+    "elk.spacing.componentComponent": "160",
+    "elk.edgeRouting": "ORTHOGONAL"
+  };
+  const graph = {
+    id: "world-graph",
+    layoutOptions,
+    children: nodes.map((node) => ({
+      id: node.id,
+      width: areaNodeSize.width,
+      height: areaNodeSize.height
+    })),
+    edges: edges
+      .filter((edge) => nodeIds.has(edge.source) && nodeIds.has(edge.target))
+      .map((edge) => ({
+        id: edge.id,
+        sources: [edge.source],
+        targets: [edge.target]
+      }))
+  };
+  const layout = await elk.layout(graph);
+  const positions = new Map<string, { x: number; y: number }>();
+  layout.children?.forEach((child) => {
+    if (child.id && typeof child.x === "number" && typeof child.y === "number") {
+      positions.set(child.id, { x: child.x, y: child.y });
+    }
+  });
+  return nodes.map((node) => {
+    const position = positions.get(node.id);
+    if (!position) {
+      return node;
+    }
+    return {
+      ...node,
+      position
+    };
+  });
+}
+
 function buildRoomEdges(
   areaData: AreaJson | null,
   includeVerticalEdges: boolean,
@@ -3086,7 +3168,13 @@ export default function App({ repository }: AppProps) {
     const stored = localStorage.getItem("worldedit.showVerticalEdges");
     return stored ? stored === "true" : false;
   });
+  const [areaGraphFilter, setAreaGraphFilter] = useState("");
+  const [areaGraphVnumQuery, setAreaGraphVnumQuery] = useState("");
   const [areaIndex, setAreaIndex] = useState<AreaIndexEntry[]>([]);
+  const [areaGraphLinks, setAreaGraphLinks] = useState<AreaGraphLink[]>([]);
+  const [areaGraphLayoutNodes, setAreaGraphLayoutNodes] = useState<
+    Node<AreaGraphNodeData>[]
+  >([]);
   const [layoutNonce, setLayoutNonce] = useState(0);
   const roomLayoutRef = useRef<RoomLayoutMap>({});
   const legacyScanDirRef = useRef<string | null>(null);
@@ -3561,6 +3649,194 @@ export default function App({ repository }: AppProps) {
     () => buildExternalExits(areaData, areaIndex),
     [areaData, areaIndex]
   );
+  const areaGraphContext = useMemo(() => {
+    const entries: AreaGraphEntry[] = areaIndex.map((entry) => ({
+      id: entry.fileName,
+      name: entry.name,
+      vnumRange: entry.vnumRange ?? null
+    }));
+    let currentId: string | null = null;
+    if (areaData) {
+      const currentFile = areaPath ? fileNameFromPath(areaPath) : null;
+      const bounds = getAreaVnumBounds(areaData);
+      if (currentFile) {
+        const match = entries.find((entry) => entry.id === currentFile);
+        if (match) {
+          currentId = match.id;
+        } else {
+          const areadata =
+            (areaData as Record<string, unknown>).areadata &&
+            typeof (areaData as Record<string, unknown>).areadata === "object"
+              ? ((areaData as Record<string, unknown>).areadata as Record<
+                  string,
+                  unknown
+                >)
+              : {};
+          const name = getFirstString(areadata.name, currentFile);
+          const syntheticId = `current:${currentFile}`;
+          entries.unshift({
+            id: syntheticId,
+            name,
+            vnumRange: bounds ? [bounds.min, bounds.max] : null
+          });
+          currentId = syntheticId;
+        }
+      } else {
+        const areadata =
+          (areaData as Record<string, unknown>).areadata &&
+          typeof (areaData as Record<string, unknown>).areadata === "object"
+            ? ((areaData as Record<string, unknown>).areadata as Record<
+                string,
+                unknown
+              >)
+            : {};
+        entries.unshift({
+          id: "current-area",
+          name: getFirstString(areadata.name, "Current area"),
+          vnumRange: bounds ? [bounds.min, bounds.max] : null
+        });
+        currentId = "current-area";
+      }
+    }
+    return { entries, currentId };
+  }, [areaIndex, areaData, areaPath]);
+  const areaGraphFilterValue = areaGraphFilter.trim().toLowerCase();
+  const areaGraphFilteredEntries = useMemo(() => {
+    if (!areaGraphFilterValue) {
+      return areaGraphContext.entries;
+    }
+    return areaGraphContext.entries.filter((entry) => {
+      const name = entry.name.toLowerCase();
+      const id = entry.id.toLowerCase();
+      return name.includes(areaGraphFilterValue) || id.includes(areaGraphFilterValue);
+    });
+  }, [areaGraphContext.entries, areaGraphFilterValue]);
+  const areaGraphMatch = useMemo(() => {
+    const vnum = parseVnum(areaGraphVnumQuery);
+    if (vnum === null) {
+      return null;
+    }
+    return (
+      areaGraphContext.entries.find((entry) => {
+        if (!entry.vnumRange) {
+          return false;
+        }
+        const [start, end] = entry.vnumRange;
+        return vnum >= start && vnum <= end;
+      }) ?? null
+    );
+  }, [areaGraphContext.entries, areaGraphVnumQuery]);
+  const areaGraphMatchLabel = useMemo(() => {
+    if (!areaGraphMatch) {
+      return null;
+    }
+    return `${areaGraphMatch.name} (${formatVnumRange(areaGraphMatch.vnumRange)})`;
+  }, [areaGraphMatch]);
+  const areaGraphNodes = useMemo(() => {
+    if (!areaGraphFilteredEntries.length) {
+      return [];
+    }
+    return areaGraphFilteredEntries.map((entry, index) => ({
+      id: entry.id,
+      type: "area",
+      position: {
+        x: 0,
+        y: index * 10
+      },
+      data: {
+        label: entry.name || entry.id,
+        range: formatVnumRange(entry.vnumRange),
+        isCurrent: entry.id === areaGraphContext.currentId,
+        isMatch: entry.id === areaGraphMatch?.id
+      }
+    }));
+  }, [areaGraphFilteredEntries, areaGraphContext.currentId, areaGraphMatch]);
+  const areaGraphEdges = useMemo(() => {
+    const visible = new Set(areaGraphFilteredEntries.map((entry) => entry.id));
+    const edges: Edge[] = [];
+    for (const link of areaGraphLinks) {
+      if (!visible.has(link.fromFile) || !visible.has(link.toFile)) {
+        continue;
+      }
+      edges.push({
+        id: `area-link-${link.fromFile}-${link.toFile}`,
+        source: link.fromFile,
+        target: link.toFile,
+        label: link.count === 1 ? "1 exit" : `${link.count} exits`,
+        animated: false
+      });
+    }
+
+    const currentId = areaGraphContext.currentId;
+    if (!currentId) {
+      return edges;
+    }
+    const indexIds = new Set(areaIndex.map((entry) => entry.fileName));
+    const shouldUseExternal =
+      !areaGraphLinks.length || !indexIds.has(currentId);
+    if (!shouldUseExternal) {
+      return edges;
+    }
+    const counts = new Map<string, number>();
+    for (const exit of externalExits) {
+      const target = findAreaForVnum(areaIndex, exit.toVnum);
+      if (!target) {
+        continue;
+      }
+      const targetId = target.fileName;
+      if (targetId === currentId) {
+        continue;
+      }
+      counts.set(targetId, (counts.get(targetId) ?? 0) + 1);
+    }
+    for (const [targetId, count] of counts.entries()) {
+      if (!visible.has(currentId) || !visible.has(targetId)) {
+        continue;
+      }
+      edges.push({
+        id: `area-link-${currentId}-${targetId}`,
+        source: currentId,
+        target: targetId,
+        label: count === 1 ? "1 exit" : `${count} exits`,
+        animated: false
+      });
+    }
+    return edges;
+  }, [
+    areaGraphContext.currentId,
+    areaGraphFilteredEntries,
+    areaGraphLinks,
+    areaIndex,
+    externalExits
+  ]);
+  useEffect(() => {
+    let cancelled = false;
+    const runLayout = async () => {
+      if (!areaGraphNodes.length) {
+        if (!cancelled) {
+          setAreaGraphLayoutNodes([]);
+        }
+        return;
+      }
+      try {
+        const nextNodes = await layoutAreaGraphNodes(
+          areaGraphNodes,
+          areaGraphEdges
+        );
+        if (!cancelled) {
+          setAreaGraphLayoutNodes(nextNodes);
+        }
+      } catch {
+        if (!cancelled) {
+          setAreaGraphLayoutNodes(areaGraphNodes);
+        }
+      }
+    };
+    runLayout();
+    return () => {
+      cancelled = true;
+    };
+  }, [areaGraphNodes, areaGraphEdges]);
   const handleMapNavigate = useCallback(
     (vnum: number) => {
       setSelectedRoomVnum(vnum);
@@ -3781,7 +4057,8 @@ export default function App({ repository }: AppProps) {
     let cancelled = false;
     const loadIndex = async () => {
       const baseDir =
-        areaDirectory ?? (areaPath ? await dirname(areaPath) : null);
+        areaDirectory ??
+        (areaPath ? await repository.resolveAreaDirectory(areaPath) : null);
       if (!baseDir) {
         if (!cancelled) {
           setAreaIndex([]);
@@ -3804,6 +4081,40 @@ export default function App({ repository }: AppProps) {
       cancelled = true;
     };
   }, [areaDirectory, areaPath, repository]);
+  useEffect(() => {
+    let cancelled = false;
+    const loadLinks = async () => {
+      if (!areaIndex.length) {
+        if (!cancelled) {
+          setAreaGraphLinks([]);
+        }
+        return;
+      }
+      const baseDir =
+        areaDirectory ??
+        (areaPath ? await repository.resolveAreaDirectory(areaPath) : null);
+      if (!baseDir) {
+        if (!cancelled) {
+          setAreaGraphLinks([]);
+        }
+        return;
+      }
+      try {
+        const links = await repository.loadAreaGraphLinks(baseDir, areaIndex);
+        if (!cancelled) {
+          setAreaGraphLinks(links);
+        }
+      } catch {
+        if (!cancelled) {
+          setAreaGraphLinks([]);
+        }
+      }
+    };
+    loadLinks();
+    return () => {
+      cancelled = true;
+    };
+  }, [areaDirectory, areaPath, areaIndex, repository]);
   const selectedRoomRecord = useMemo(() => {
     if (!areaData || selectedRoomVnum === null) {
       return null;
@@ -5407,6 +5718,18 @@ export default function App({ repository }: AppProps) {
       onClearLayout={handleClearRoomLayout}
     />
   );
+  const worldViewNode = (
+    <AreaGraphView
+      nodes={areaGraphLayoutNodes.length ? areaGraphLayoutNodes : areaGraphNodes}
+      edges={areaGraphEdges}
+      filterValue={areaGraphFilter}
+      vnumQuery={areaGraphVnumQuery}
+      matchLabel={areaGraphMatchLabel}
+      onFilterChange={setAreaGraphFilter}
+      onVnumQueryChange={setAreaGraphVnumQuery}
+      onNodeClick={() => null}
+    />
+  );
   const scriptViewNode = (
     <ScriptView
       title={scriptTitle}
@@ -5474,6 +5797,7 @@ export default function App({ repository }: AppProps) {
                 resetForm={resetFormNode}
                 tableView={tableViewNode}
                 mapView={mapViewNode}
+                worldView={worldViewNode}
                 scriptView={scriptViewNode}
               />
             </div>

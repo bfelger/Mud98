@@ -1,4 +1,5 @@
 import type {
+  AreaGraphLink,
   AreaIndexEntry,
   AreaJson,
   EditorMeta,
@@ -18,6 +19,10 @@ export interface WorldRepository {
   loadArea(path: string): Promise<AreaJson>;
   saveArea(path: string, area: AreaJson): Promise<void>;
   loadAreaIndex(areaDir: string): Promise<AreaIndexEntry[]>;
+  loadAreaGraphLinks(
+    areaDir: string,
+    areaIndex: AreaIndexEntry[]
+  ): Promise<AreaGraphLink[]>;
   loadEditorMeta(path: string): Promise<EditorMeta | null>;
   saveEditorMeta(path: string, meta: EditorMeta): Promise<void>;
   loadReferenceData(dataDir: string): Promise<ReferenceData>;

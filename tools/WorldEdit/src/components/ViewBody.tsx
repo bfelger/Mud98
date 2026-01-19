@@ -18,6 +18,7 @@ type ViewBodyProps = {
   resetForm: ReactNode;
   tableView: ReactNode;
   mapView: ReactNode;
+  worldView: ReactNode;
   scriptView: ReactNode;
 };
 
@@ -38,6 +39,7 @@ export function ViewBody({
   resetForm,
   tableView,
   mapView,
+  worldView,
   scriptView
 }: ViewBodyProps) {
   if (activeTab === "Form" && selectedEntity === "Area") {
@@ -104,6 +106,10 @@ export function ViewBody({
         <p>Load an area JSON file to view the room map.</p>
       </div>
     );
+  }
+
+  if (activeTab === "World") {
+    return <>{worldView}</>;
   }
 
   if (activeTab === "Script") {

@@ -9,6 +9,7 @@ import {
 import { basename, dirname, homeDir, join } from "@tauri-apps/api/path";
 import { canonicalStringify } from "../utils/canonicalJson";
 import type {
+  AreaGraphLink,
   AreaIndexEntry,
   AreaJson,
   EditorMeta,
@@ -126,6 +127,33 @@ function parseVnumRange(value: unknown): [number, number] | null {
     return null;
   }
   return [start, end];
+}
+
+function parseVnum(value: unknown): number | null {
+  if (typeof value === "number") {
+    return value;
+  }
+  if (typeof value === "string" && value.trim().length) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+}
+
+function findAreaForVnum(
+  areaIndex: AreaIndexEntry[],
+  vnum: number
+): AreaIndexEntry | null {
+  for (const entry of areaIndex) {
+    if (!entry.vnumRange) {
+      continue;
+    }
+    const [start, end] = entry.vnumRange;
+    if (vnum >= start && vnum <= end) {
+      return entry;
+    }
+  }
+  return null;
 }
 
 function stripRoomLegacyFields(area: AreaJson): AreaJson {
@@ -350,6 +378,100 @@ export class LocalFileRepository implements WorldRepository {
       const aStart = a.vnumRange ? a.vnumRange[0] : Number.MAX_SAFE_INTEGER;
       const bStart = b.vnumRange ? b.vnumRange[0] : Number.MAX_SAFE_INTEGER;
       return aStart - bStart;
+    });
+  }
+
+  async loadAreaGraphLinks(
+    areaDir: string,
+    areaIndex: AreaIndexEntry[]
+  ): Promise<AreaGraphLink[]> {
+    if (!areaIndex.length) {
+      return [];
+    }
+    const entries = areaIndex.filter((entry) =>
+      entry.fileName.toLowerCase().endsWith(".json")
+    );
+    if (!entries.length) {
+      return [];
+    }
+    const links = new Map<string, AreaGraphLink>();
+
+    for (const entry of entries) {
+      const path = await join(areaDir, entry.fileName);
+      const raw = await tryReadText(path);
+      if (!raw) {
+        continue;
+      }
+      let parsed: Record<string, unknown>;
+      try {
+        parsed = JSON.parse(raw) as Record<string, unknown>;
+      } catch {
+        continue;
+      }
+      const rooms = Array.isArray(parsed.rooms) ? parsed.rooms : [];
+      if (!rooms.length) {
+        continue;
+      }
+      const roomVnums = new Set<number>();
+      rooms.forEach((room) => {
+        if (!room || typeof room !== "object") {
+          return;
+        }
+        const vnum = parseVnum((room as Record<string, unknown>).vnum);
+        if (vnum !== null) {
+          roomVnums.add(vnum);
+        }
+      });
+
+      for (const room of rooms) {
+        if (!room || typeof room !== "object") {
+          continue;
+        }
+        const record = room as Record<string, unknown>;
+        const exits = Array.isArray(record.exits) ? record.exits : [];
+        for (const exit of exits) {
+          if (!exit || typeof exit !== "object") {
+            continue;
+          }
+          const exitRecord = exit as Record<string, unknown>;
+          const toVnum = parseVnum(exitRecord.toVnum);
+          if (toVnum === null) {
+            continue;
+          }
+          const inRange = entry.vnumRange
+            ? toVnum >= entry.vnumRange[0] && toVnum <= entry.vnumRange[1]
+            : roomVnums.has(toVnum);
+          if (inRange) {
+            continue;
+          }
+          const target = findAreaForVnum(areaIndex, toVnum);
+          if (!target || target.fileName === entry.fileName) {
+            continue;
+          }
+          const pair =
+            entry.fileName < target.fileName
+              ? [entry.fileName, target.fileName]
+              : [target.fileName, entry.fileName];
+          const key = `${pair[0]}::${pair[1]}`;
+          const existing = links.get(key);
+          if (existing) {
+            existing.count += 1;
+          } else {
+            links.set(key, {
+              fromFile: pair[0],
+              toFile: pair[1],
+              count: 1
+            });
+          }
+        }
+      }
+    }
+
+    return Array.from(links.values()).sort((a, b) => {
+      if (a.fromFile === b.fromFile) {
+        return a.toFile.localeCompare(b.toFile);
+      }
+      return a.fromFile.localeCompare(b.fromFile);
     });
   }
 
