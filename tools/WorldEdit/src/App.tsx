@@ -54,6 +54,14 @@ import type {
   RoomLayoutEntry
 } from "./repository/types";
 import type { WorldRepository } from "./repository/worldRepository";
+import type {
+  ValidationIssue,
+  ValidationIssueBase,
+  ValidationRule,
+  ValidationSeverity
+} from "./validation/types";
+import { buildValidationIssues, loadValidationConfig } from "./validation/registry";
+import { loadPluginRules } from "./validation/plugins";
 import ELK from "elkjs/lib/elk.bundled.js";
 import {
   containerFlagEnum,
@@ -304,19 +312,8 @@ type ExternalExit = {
 
 type RoomLayoutMap = Record<string, RoomLayoutEntry>;
 
-type ValidationSeverity = "error" | "warning";
-
-type ValidationIssue = {
-  id: string;
-  severity: ValidationSeverity;
-  entityType: EntityKey;
-  message: string;
-  vnum?: number;
-  resetIndex?: number;
-};
-
 type ExitValidationResult = {
-  issues: ValidationIssue[];
+  issues: ValidationIssueBase[];
   invalidEdgeIds: Set<string>;
 };
 
@@ -1699,7 +1696,9 @@ function buildSelectionSummary(
   };
 }
 
-function validateVnumRanges(areaData: AreaJson | null): ValidationIssue[] {
+function validateVnumRanges(
+  areaData: AreaJson | null
+): ValidationIssueBase[] {
   if (!areaData) {
     return [];
   }
@@ -1708,7 +1707,7 @@ function validateVnumRanges(areaData: AreaJson | null): ValidationIssue[] {
     return [];
   }
   const { min, max } = bounds;
-  const issues: ValidationIssue[] = [];
+  const issues: ValidationIssueBase[] = [];
   const checkEntity = (entity: EntityKey) => {
     const list = getEntityList(areaData, entity);
     list.forEach((entry, index) => {
@@ -1740,11 +1739,13 @@ function validateVnumRanges(areaData: AreaJson | null): ValidationIssue[] {
   return issues;
 }
 
-function validateDuplicateVnums(areaData: AreaJson | null): ValidationIssue[] {
+function validateDuplicateVnums(
+  areaData: AreaJson | null
+): ValidationIssueBase[] {
   if (!areaData) {
     return [];
   }
-  const issues: ValidationIssue[] = [];
+  const issues: ValidationIssueBase[] = [];
   const checkEntity = (entity: EntityKey) => {
     const list = getEntityList(areaData, entity);
     const counts = new Map<number, number>();
@@ -1803,7 +1804,7 @@ function buildExitTargetValidation(
       roomVnums.add(vnum);
     }
   });
-  const issues: ValidationIssue[] = [];
+  const issues: ValidationIssueBase[] = [];
   const invalidEdgeIds = new Set<string>();
   rooms.forEach((room, index) => {
     if (!room || typeof room !== "object") {
@@ -1866,7 +1867,9 @@ function buildExitTargetValidation(
   return { issues, invalidEdgeIds };
 }
 
-function validateResetReferences(areaData: AreaJson | null): ValidationIssue[] {
+function validateResetReferences(
+  areaData: AreaJson | null
+): ValidationIssueBase[] {
   if (!areaData) {
     return [];
   }
@@ -1899,7 +1902,7 @@ function validateResetReferences(areaData: AreaJson | null): ValidationIssue[] {
     }
   });
 
-  const issues: ValidationIssue[] = [];
+  const issues: ValidationIssueBase[] = [];
   const addIssue = (
     message: string,
     index: number,
@@ -2001,7 +2004,9 @@ function validateResetReferences(areaData: AreaJson | null): ValidationIssue[] {
   return issues;
 }
 
-function validateOneWayExits(areaData: AreaJson | null): ValidationIssue[] {
+function validateOneWayExits(
+  areaData: AreaJson | null
+): ValidationIssueBase[] {
   if (!areaData) {
     return [];
   }
@@ -2054,7 +2059,7 @@ function validateOneWayExits(areaData: AreaJson | null): ValidationIssue[] {
     up: "down",
     down: "up"
   };
-  const issues: ValidationIssue[] = [];
+  const issues: ValidationIssueBase[] = [];
   rooms.forEach((room, index) => {
     if (!room || typeof room !== "object") {
       return;
@@ -2103,7 +2108,9 @@ function validateOneWayExits(areaData: AreaJson | null): ValidationIssue[] {
   return issues;
 }
 
-function validateOrphanRooms(areaData: AreaJson | null): ValidationIssue[] {
+function validateOrphanRooms(
+  areaData: AreaJson | null
+): ValidationIssueBase[] {
   if (!areaData) {
     return [];
   }
@@ -2145,7 +2152,7 @@ function validateOrphanRooms(areaData: AreaJson | null): ValidationIssue[] {
     });
   });
 
-  const issues: ValidationIssue[] = [];
+  const issues: ValidationIssueBase[] = [];
   incomingCounts.forEach((count, vnum) => {
     if (count > 0) {
       return;
@@ -3271,20 +3278,61 @@ export default function App({ repository }: AppProps) {
     }
     return null;
   }, [selectedEntity, selectedRoomVnum, selectedMobileVnum, selectedObjectVnum]);
+  const validationConfig = useMemo(() => loadValidationConfig(), []);
+  const pluginValidationRules = useMemo(() => loadPluginRules(), []);
   const exitValidation = useMemo(
     () => buildExitTargetValidation(areaData, areaIndex),
     [areaData, areaIndex]
   );
-  const validationIssues = useMemo(
+  const coreValidationRules = useMemo<ValidationRule[]>(
     () => [
-      ...validateVnumRanges(areaData),
-      ...validateDuplicateVnums(areaData),
-      ...exitValidation.issues,
-      ...validateResetReferences(areaData),
-      ...validateOneWayExits(areaData),
-      ...validateOrphanRooms(areaData)
+      {
+        id: "vnum-range",
+        label: "VNUM range",
+        source: "core",
+        run: ({ areaData: data }) => validateVnumRanges(data)
+      },
+      {
+        id: "duplicate-vnum",
+        label: "Duplicate VNUMs",
+        source: "core",
+        run: ({ areaData: data }) => validateDuplicateVnums(data)
+      },
+      {
+        id: "exit-targets",
+        label: "Exit targets",
+        source: "core",
+        run: () => exitValidation.issues
+      },
+      {
+        id: "reset-references",
+        label: "Reset references",
+        source: "core",
+        run: ({ areaData: data }) => validateResetReferences(data)
+      },
+      {
+        id: "one-way-exits",
+        label: "One-way exits",
+        source: "core",
+        run: ({ areaData: data }) => validateOneWayExits(data)
+      },
+      {
+        id: "orphan-rooms",
+        label: "Orphan rooms",
+        source: "core",
+        run: ({ areaData: data }) => validateOrphanRooms(data)
+      }
     ],
-    [areaData, exitValidation]
+    [exitValidation]
+  );
+  const validationIssues = useMemo(
+    () =>
+      buildValidationIssues(
+        [...coreValidationRules, ...pluginValidationRules],
+        { areaData, areaIndex },
+        validationConfig
+      ),
+    [areaData, areaIndex, coreValidationRules, pluginValidationRules, validationConfig]
   );
   const validationSummary = useMemo(
     () =>

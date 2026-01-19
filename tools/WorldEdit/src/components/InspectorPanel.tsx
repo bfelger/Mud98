@@ -1,19 +1,10 @@
+import type { ValidationIssue } from "../validation/types";
+
 type SelectionSummary = {
   kindLabel: string;
   selectionLabel: string;
   flags: string[];
   exits: string;
-};
-
-type ValidationSeverity = "error" | "warning";
-
-type DiagnosticsIssue = {
-  id: string;
-  severity: ValidationSeverity;
-  entityType: string;
-  message: string;
-  vnum?: number;
-  resetIndex?: number;
 };
 
 type AreaDebugSummary = {
@@ -27,10 +18,10 @@ type InspectorPanelProps = {
   diagnosticsCount: number;
   diagnosticFilter: string;
   entityOrder: readonly string[];
-  diagnosticsList: DiagnosticsIssue[];
+  diagnosticsList: ValidationIssue[];
   entityKindLabels: Record<string, string>;
   onDiagnosticFilterChange: (value: string) => void;
-  onDiagnosticsClick: (issue: DiagnosticsIssue) => void;
+  onDiagnosticsClick: (issue: ValidationIssue) => void;
   areaDebug: AreaDebugSummary;
 };
 
@@ -115,6 +106,7 @@ export function InspectorPanel({
                 (issue.entityType === "Resets" &&
                   typeof issue.resetIndex === "number") ||
                 typeof issue.vnum === "number";
+              const sourceLabel = issue.source === "plugin" ? "plugin" : "core";
               return (
                 <li key={issue.id}>
                   <button
@@ -131,7 +123,9 @@ export function InspectorPanel({
                     <span className="diagnostics__message">
                       {issue.message}
                     </span>
-                    <span className="diagnostics__meta">{targetLabel}</span>
+                    <span className="diagnostics__meta">
+                      {targetLabel} | {sourceLabel}
+                    </span>
                   </button>
                 </li>
               );
