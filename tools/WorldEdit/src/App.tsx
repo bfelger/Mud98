@@ -20,7 +20,6 @@ import {
   type NodeProps,
   useStore
 } from "reactflow";
-import { dirname } from "@tauri-apps/api/path";
 import { message } from "@tauri-apps/plugin-dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -30,7 +29,6 @@ import {
   type FieldPath,
 } from "react-hook-form";
 import { z } from "zod";
-import { LocalFileRepository } from "./repository/localFileRepository";
 import { ScriptView } from "./components/ScriptView";
 import { RoomForm } from "./components/RoomForm";
 import { MobileForm } from "./components/MobileForm";
@@ -55,6 +53,7 @@ import type {
   ReferenceData,
   RoomLayoutEntry
 } from "./repository/types";
+import type { WorldRepository } from "./repository/worldRepository";
 import ELK from "elkjs/lib/elk.bundled.js";
 import {
   containerFlagEnum,
@@ -115,6 +114,10 @@ const tabs = [
     description: "Lox script editing with events panel."
   }
 ] as const;
+
+type AppProps = {
+  repository: WorldRepository;
+};
 
 const entityOrder = [
   "Rooms",
@@ -2955,8 +2958,7 @@ function syncGridSelection(api: GridApi | null, vnum: number | null) {
   }
 }
 
-export default function App() {
-  const repository = useMemo(() => new LocalFileRepository(), []);
+export default function App({ repository }: AppProps) {
   const [activeTab, setActiveTab] = useState<TabId>(tabs[0].id);
   const [selectedEntity, setSelectedEntity] = useState<EntityKey>(
     entityOrder[0]
@@ -4793,7 +4795,7 @@ export default function App() {
       if (!path) {
         return;
       }
-      const areaDir = await dirname(path);
+      const areaDir = await repository.resolveAreaDirectory(path);
       await warnLegacyAreaFiles(areaDir);
       const loaded = await repository.loadArea(path);
       const metaPath = repository.editorMetaPathForArea(path);

@@ -10,6 +10,7 @@ export interface WorldRepository {
   pickAreaFile(defaultPath?: string | null): Promise<string | null>;
   pickSaveFile(defaultPath?: string | null): Promise<string | null>;
   editorMetaPathForArea(areaPath: string): string;
+  resolveAreaDirectory(areaPath: string): Promise<string | null>;
   resolveDataDirectory(
     areaPath: string | null,
     areaDirectory: string | null

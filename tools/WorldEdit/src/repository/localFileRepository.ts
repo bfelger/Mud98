@@ -281,6 +281,13 @@ export class LocalFileRepository implements WorldRepository {
     return await join(baseDir, "data");
   }
 
+  async resolveAreaDirectory(areaPath: string): Promise<string | null> {
+    if (!areaPath) {
+      return null;
+    }
+    return await dirname(areaPath);
+  }
+
   async loadArea(path: string): Promise<AreaJson> {
     const raw = await readTextFile(path);
     const parsed = JSON.parse(raw) as AreaJson;
