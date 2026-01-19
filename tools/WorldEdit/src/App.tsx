@@ -240,6 +240,15 @@ const directionHandleMap: Record<string, { source: string; target: string }> = {
   south: { source: "south-out", target: "north-in" },
   west: { source: "west-out", target: "east-in" }
 };
+const areaDirectionHandleMap: Record<string, { source: string; target: string }> =
+  {
+    north: { source: "north-out", target: "south-in" },
+    east: { source: "east-out", target: "west-in" },
+    south: { source: "south-out", target: "north-in" },
+    west: { source: "west-out", target: "east-in" },
+    up: { source: "north-out", target: "south-in" },
+    down: { source: "south-out", target: "north-in" }
+  };
 const directionOffsets: Record<string, { x: number; y: number }> = {
   north: { x: 0, y: -1 },
   east: { x: 1, y: 0 },
@@ -2506,6 +2515,28 @@ function getEdgeDirKey(edge: Edge): string | null {
   return null;
 }
 
+function getDominantExitDirection(
+  directionCounts: Partial<Record<string, number>> | null | undefined
+): string | null {
+  if (!directionCounts) {
+    return null;
+  }
+  const order = ["north", "east", "south", "west", "up", "down"];
+  let best: string | null = null;
+  let bestCount = -1;
+  order.forEach((dir) => {
+    const count = directionCounts[dir];
+    if (typeof count !== "number") {
+      return;
+    }
+    if (count > bestCount) {
+      best = dir;
+      bestCount = count;
+    }
+  });
+  return best;
+}
+
 function findOpenGridCoord(
   start: { x: number; y: number },
   occupied: Map<string, string>
@@ -2528,6 +2559,179 @@ function findOpenGridCoord(
     }
   }
   return start;
+}
+
+function getAreaGridDirection(dirKey: string | null): string | null {
+  if (!dirKey) {
+    return null;
+  }
+  if (dirKey in directionOffsets) {
+    return dirKey;
+  }
+  if (dirKey === "up") {
+    return "north";
+  }
+  if (dirKey === "down") {
+    return "south";
+  }
+  return null;
+}
+
+function layoutAreaGraphNodesGrid(
+  nodes: Node<AreaGraphNodeData>[],
+  edges: Edge[]
+): Node<AreaGraphNodeData>[] {
+  if (!nodes.length) {
+    return [];
+  }
+  const nodeIds = new Set(nodes.map((node) => node.id));
+  const adjacency = new Map<string, Array<{ id: string; dir: string }>>();
+  const addAdjacency = (from: string, to: string, dir: string) => {
+    if (!adjacency.has(from)) {
+      adjacency.set(from, []);
+    }
+    adjacency.get(from)?.push({ id: to, dir });
+  };
+  edges.forEach((edge) => {
+    const dirKey = getAreaGridDirection(getEdgeDirKey(edge));
+    if (!dirKey || !(dirKey in directionOffsets)) {
+      return;
+    }
+    if (!nodeIds.has(edge.source) || !nodeIds.has(edge.target)) {
+      return;
+    }
+    addAdjacency(edge.source, edge.target, dirKey);
+    const opposite = oppositeDirections[dirKey];
+    if (opposite) {
+      addAdjacency(edge.target, edge.source, opposite);
+    }
+  });
+  const sortedNodeIds = [...nodeIds].sort((a, b) => a.localeCompare(b));
+  const positions = new Map<string, { x: number; y: number }>();
+  const visited = new Set<string>();
+  const components: Array<{
+    nodes: Map<string, { x: number; y: number }>;
+    width: number;
+    height: number;
+  }> = [];
+
+  sortedNodeIds.forEach((startId) => {
+    if (visited.has(startId)) {
+      return;
+    }
+    const queue: string[] = [startId];
+    const componentPositions = new Map<string, { x: number; y: number }>();
+    const occupied = new Map<string, string>();
+    const startPos = { x: 0, y: 0 };
+    componentPositions.set(startId, startPos);
+    occupied.set(`${startPos.x},${startPos.y}`, startId);
+    visited.add(startId);
+
+    while (queue.length) {
+      const current = queue.shift();
+      if (!current) {
+        break;
+      }
+      const currentPos = componentPositions.get(current);
+      if (!currentPos) {
+        continue;
+      }
+      const neighbors = adjacency.get(current) ?? [];
+      neighbors.forEach((neighbor) => {
+        if (componentPositions.has(neighbor.id)) {
+          return;
+        }
+        const offset = directionOffsets[neighbor.dir];
+        if (!offset) {
+          return;
+        }
+        let nextPos = {
+          x: currentPos.x + offset.x,
+          y: currentPos.y + offset.y
+        };
+        if (occupied.has(`${nextPos.x},${nextPos.y}`)) {
+          nextPos = findOpenGridCoord(nextPos, occupied);
+        }
+        componentPositions.set(neighbor.id, nextPos);
+        occupied.set(`${nextPos.x},${nextPos.y}`, neighbor.id);
+        queue.push(neighbor.id);
+        visited.add(neighbor.id);
+      });
+    }
+
+    let minX = 0;
+    let maxX = 0;
+    let minY = 0;
+    let maxY = 0;
+    componentPositions.forEach((pos) => {
+      minX = Math.min(minX, pos.x);
+      maxX = Math.max(maxX, pos.x);
+      minY = Math.min(minY, pos.y);
+      maxY = Math.max(maxY, pos.y);
+    });
+    const normalized = new Map<string, { x: number; y: number }>();
+    componentPositions.forEach((pos, nodeId) => {
+      normalized.set(nodeId, { x: pos.x - minX, y: pos.y - minY });
+    });
+    components.push({
+      nodes: normalized,
+      width: maxX - minX + 1,
+      height: maxY - minY + 1
+    });
+  });
+
+  const componentGap = 2;
+  const columns = Math.max(1, Math.ceil(Math.sqrt(components.length)));
+  const rowCount = Math.ceil(components.length / columns);
+  const columnWidths = new Array(columns).fill(0);
+  const rowHeights = new Array(rowCount).fill(0);
+
+  components.forEach((component, index) => {
+    const column = index % columns;
+    const row = Math.floor(index / columns);
+    columnWidths[column] = Math.max(columnWidths[column], component.width);
+    rowHeights[row] = Math.max(rowHeights[row], component.height);
+  });
+
+  const columnOffsets: number[] = [];
+  let columnCursor = 0;
+  columnWidths.forEach((width, index) => {
+    columnOffsets[index] = columnCursor;
+    columnCursor += width + componentGap;
+  });
+  const rowOffsets: number[] = [];
+  let rowCursor = 0;
+  rowHeights.forEach((height, index) => {
+    rowOffsets[index] = rowCursor;
+    rowCursor += height + componentGap;
+  });
+
+  const gridSpacingX = areaNodeSize.width + 140;
+  const gridSpacingY = areaNodeSize.height + 120;
+
+  components.forEach((component, index) => {
+    const column = index % columns;
+    const row = Math.floor(index / columns);
+    const offsetX = columnOffsets[column] ?? 0;
+    const offsetY = rowOffsets[row] ?? 0;
+    component.nodes.forEach((pos, nodeId) => {
+      positions.set(nodeId, {
+        x: (pos.x + offsetX) * gridSpacingX,
+        y: (pos.y + offsetY) * gridSpacingY
+      });
+    });
+  });
+
+  return nodes.map((node) => {
+    const position = positions.get(node.id);
+    if (!position) {
+      return node;
+    }
+    return {
+      ...node,
+      position
+    };
+  });
 }
 
 function layoutRoomNodesGrid(
@@ -2735,51 +2939,7 @@ async function layoutAreaGraphNodes(
   nodes: Node<AreaGraphNodeData>[],
   edges: Edge[]
 ): Promise<Node<AreaGraphNodeData>[]> {
-  if (!nodes.length) {
-    return [];
-  }
-  const nodeIds = new Set(nodes.map((node) => node.id));
-  const layoutOptions: Record<string, string> = {
-    "elk.algorithm": "layered",
-    "elk.direction": "RIGHT",
-    "elk.spacing.nodeNode": "120",
-    "elk.layered.spacing.nodeNodeBetweenLayers": "180",
-    "elk.spacing.componentComponent": "160",
-    "elk.edgeRouting": "ORTHOGONAL"
-  };
-  const graph = {
-    id: "world-graph",
-    layoutOptions,
-    children: nodes.map((node) => ({
-      id: node.id,
-      width: areaNodeSize.width,
-      height: areaNodeSize.height
-    })),
-    edges: edges
-      .filter((edge) => nodeIds.has(edge.source) && nodeIds.has(edge.target))
-      .map((edge) => ({
-        id: edge.id,
-        sources: [edge.source],
-        targets: [edge.target]
-      }))
-  };
-  const layout = await elk.layout(graph);
-  const positions = new Map<string, { x: number; y: number }>();
-  layout.children?.forEach((child) => {
-    if (child.id && typeof child.x === "number" && typeof child.y === "number") {
-      positions.set(child.id, { x: child.x, y: child.y });
-    }
-  });
-  return nodes.map((node) => {
-    const position = positions.get(node.id);
-    if (!position) {
-      return node;
-    }
-    return {
-      ...node,
-      position
-    };
-  });
+  return layoutAreaGraphNodesGrid(nodes, edges);
 }
 
 function buildRoomEdges(
@@ -3758,12 +3918,17 @@ export default function App({ repository }: AppProps) {
       if (!visible.has(link.fromFile) || !visible.has(link.toFile)) {
         continue;
       }
+      const dirKey = getDominantExitDirection(link.directionCounts);
+      const handles = dirKey ? areaDirectionHandleMap[dirKey] : null;
       edges.push({
         id: `area-link-${link.fromFile}-${link.toFile}`,
         source: link.fromFile,
         target: link.toFile,
         label: link.count === 1 ? "1 exit" : `${link.count} exits`,
-        animated: false
+        animated: false,
+        sourceHandle: handles?.source,
+        targetHandle: handles?.target,
+        data: dirKey ? { dirKey } : undefined
       });
     }
 
@@ -3778,6 +3943,7 @@ export default function App({ repository }: AppProps) {
       return edges;
     }
     const counts = new Map<string, number>();
+    const directions = new Map<string, Record<string, number>>();
     for (const exit of externalExits) {
       const target = findAreaForVnum(areaIndex, exit.toVnum);
       if (!target) {
@@ -3788,17 +3954,32 @@ export default function App({ repository }: AppProps) {
         continue;
       }
       counts.set(targetId, (counts.get(targetId) ?? 0) + 1);
+      const dirKey = exit.direction.trim().toLowerCase();
+      if (dirKey) {
+        if (!directions.has(targetId)) {
+          directions.set(targetId, {});
+        }
+        const record = directions.get(targetId);
+        if (record) {
+          record[dirKey] = (record[dirKey] ?? 0) + 1;
+        }
+      }
     }
     for (const [targetId, count] of counts.entries()) {
       if (!visible.has(currentId) || !visible.has(targetId)) {
         continue;
       }
+      const dirKey = getDominantExitDirection(directions.get(targetId));
+      const handles = dirKey ? areaDirectionHandleMap[dirKey] : null;
       edges.push({
         id: `area-link-${currentId}-${targetId}`,
         source: currentId,
         target: targetId,
         label: count === 1 ? "1 exit" : `${count} exits`,
-        animated: false
+        animated: false,
+        sourceHandle: handles?.source,
+        targetHandle: handles?.target,
+        data: dirKey ? { dirKey } : undefined
       });
     }
     return edges;

@@ -6,7 +6,12 @@ import type {
   NodeTypes,
   ReactFlowInstance
 } from "reactflow";
-import ReactFlow, { Background, Controls, Handle, Position } from "reactflow";
+import ReactFlow, {
+  Background,
+  Controls,
+  Handle,
+  Position
+} from "reactflow";
 
 type AreaGraphNodeData = {
   label: string;
@@ -39,14 +44,52 @@ function AreaGraphNode({ data, selected }: NodeProps<AreaGraphNodeData>) {
     <div className={classes}>
       <Handle
         type="target"
-        position={Position.Left}
+        id="north-in"
+        position={Position.Top}
+        className="area-node__handle"
+      />
+      <Handle
+        type="source"
+        id="north-out"
+        position={Position.Top}
+        className="area-node__handle"
+      />
+      <Handle
+        type="target"
+        id="east-in"
+        position={Position.Right}
+        className="area-node__handle"
+      />
+      <Handle
+        type="source"
+        id="east-out"
+        position={Position.Right}
         className="area-node__handle"
       />
       <div className="area-node__title">{data.label}</div>
       <div className="area-node__range">{data.range}</div>
       <Handle
         type="source"
-        position={Position.Right}
+        id="south-out"
+        position={Position.Bottom}
+        className="area-node__handle"
+      />
+      <Handle
+        type="target"
+        id="south-in"
+        position={Position.Bottom}
+        className="area-node__handle"
+      />
+      <Handle
+        type="target"
+        id="west-in"
+        position={Position.Left}
+        className="area-node__handle"
+      />
+      <Handle
+        type="source"
+        id="west-out"
+        position={Position.Left}
         className="area-node__handle"
       />
     </div>
@@ -68,12 +111,14 @@ export function AreaGraphView({
   const [flowInstance, setFlowInstance] = useState<ReactFlowInstance | null>(
     null
   );
-
   useEffect(() => {
     if (!flowInstance || !nodes.length) {
       return;
     }
-    flowInstance.fitView({ padding: 0.2 });
+    const handle = requestAnimationFrame(() => {
+      flowInstance.fitView({ padding: 0.2 });
+    });
+    return () => cancelAnimationFrame(handle);
   }, [flowInstance, nodes, edges]);
 
   return (

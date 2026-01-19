@@ -9,6 +9,7 @@ import {
 import { basename, dirname, homeDir, join } from "@tauri-apps/api/path";
 import { canonicalStringify } from "../utils/canonicalJson";
 import type {
+  AreaExitDirection,
   AreaGraphLink,
   AreaIndexEntry,
   AreaJson,
@@ -127,6 +128,29 @@ function parseVnumRange(value: unknown): [number, number] | null {
     return null;
   }
   return [start, end];
+}
+
+const exitDirectionAliases: Record<string, AreaExitDirection> = {
+  n: "north",
+  north: "north",
+  e: "east",
+  east: "east",
+  s: "south",
+  south: "south",
+  w: "west",
+  west: "west",
+  u: "up",
+  up: "up",
+  d: "down",
+  down: "down"
+};
+
+function normalizeExitDirection(value: unknown): AreaExitDirection | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+  const key = value.trim().toLowerCase();
+  return exitDirectionAliases[key] ?? null;
 }
 
 function parseVnum(value: unknown): number | null {
@@ -448,19 +472,21 @@ export class LocalFileRepository implements WorldRepository {
           if (!target || target.fileName === entry.fileName) {
             continue;
           }
-          const pair =
-            entry.fileName < target.fileName
-              ? [entry.fileName, target.fileName]
-              : [target.fileName, entry.fileName];
-          const key = `${pair[0]}::${pair[1]}`;
+          const key = `${entry.fileName}::${target.fileName}`;
           const existing = links.get(key);
+          const dir = normalizeExitDirection(exitRecord.dir);
           if (existing) {
             existing.count += 1;
+            if (dir) {
+              existing.directionCounts[dir] =
+                (existing.directionCounts[dir] ?? 0) + 1;
+            }
           } else {
             links.set(key, {
-              fromFile: pair[0],
-              toFile: pair[1],
-              count: 1
+              fromFile: entry.fileName,
+              toFile: target.fileName,
+              count: 1,
+              directionCounts: dir ? { [dir]: 1 } : {}
             });
           }
         }

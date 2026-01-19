@@ -36,8 +36,11 @@ export type AreaIndexEntry = {
   vnumRange: [number, number] | null;
 };
 
+export type AreaExitDirection = "north" | "east" | "south" | "west" | "up" | "down";
+
 export type AreaGraphLink = {
   fromFile: string;
   toFile: string;
   count: number;
+  directionCounts: Partial<Record<AreaExitDirection, number>>;
 };
