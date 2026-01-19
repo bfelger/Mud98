@@ -20,4 +20,5 @@ export interface WorldRepository {
   loadEditorMeta(path: string): Promise<EditorMeta | null>;
   saveEditorMeta(path: string, meta: EditorMeta): Promise<void>;
   loadReferenceData(dataDir: string): Promise<ReferenceData>;
+  listLegacyAreaFiles(areaDir: string): Promise<string[]>;
 }

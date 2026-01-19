@@ -1,5 +1,11 @@
 import { open, save } from "@tauri-apps/plugin-dialog";
-import { mkdir, readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
+import {
+  exists,
+  mkdir,
+  readDir,
+  readTextFile,
+  writeTextFile
+} from "@tauri-apps/plugin-fs";
 import { basename, dirname, homeDir, join } from "@tauri-apps/api/path";
 import { canonicalStringify } from "../utils/canonicalJson";
 import type {
@@ -14,6 +20,8 @@ const jsonFilter = {
   name: "Mud98 Area JSON",
   extensions: ["json"]
 };
+
+const LEGACY_AREA_IGNORE = new Set(["help.are", "group.are", "music.txt", "olc.hlp", "rom.are"]);
 
 async function defaultDialogPath(
   fallbackPath?: string | null
@@ -384,5 +392,31 @@ export class LocalFileRepository implements WorldRepository {
       commands,
       sourceDir: dataDir
     };
+  }
+
+  async listLegacyAreaFiles(areaDir: string): Promise<string[]> {
+    const entries = await readDir(areaDir);
+    const legacyFiles: string[] = [];
+
+    for (const entry of entries) {
+      if (!entry.isFile) {
+        continue;
+      }
+      const name = entry.name ?? "";
+      if (!name.toLowerCase().endsWith(".are")) {
+        continue;
+      }
+      if (LEGACY_AREA_IGNORE.has(name.toLowerCase())) {
+        continue;
+      }
+      const jsonName = name.replace(/\.are$/i, ".json");
+      const jsonPath = await join(areaDir, jsonName);
+      if (await exists(jsonPath)) {
+        continue;
+      }
+      legacyFiles.push(name);
+    }
+
+    return legacyFiles.sort((a, b) => a.localeCompare(b));
   }
 }

@@ -21,6 +21,7 @@ import {
   useStore
 } from "reactflow";
 import { dirname } from "@tauri-apps/api/path";
+import { message } from "@tauri-apps/plugin-dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   useFieldArray,
@@ -3002,6 +3003,7 @@ export default function App() {
   const [areaIndex, setAreaIndex] = useState<AreaIndexEntry[]>([]);
   const [layoutNonce, setLayoutNonce] = useState(0);
   const roomLayoutRef = useRef<RoomLayoutMap>({});
+  const legacyScanDirRef = useRef<string | null>(null);
   const roomGridApi = useRef<GridApi | null>(null);
   const mobileGridApi = useRef<GridApi | null>(null);
   const objectGridApi = useRef<GridApi | null>(null);
@@ -4744,6 +4746,45 @@ export default function App() {
     setStatusMessage(`Updated reset #${data.index} (unsaved)`);
   };
 
+  const warnLegacyAreaFiles = useCallback(
+    async (areaDir: string | null) => {
+      if (!areaDir) {
+        return;
+      }
+      if (legacyScanDirRef.current === areaDir) {
+        return;
+      }
+      legacyScanDirRef.current = areaDir;
+      try {
+        const legacyFiles = await repository.listLegacyAreaFiles(areaDir);
+        if (!legacyFiles.length) {
+          return;
+        }
+        const warningMessage = [
+          `Legacy ROM-OLC area files found in ${areaDir}:`,
+          "",
+          ...legacyFiles.map((file) => `- ${file}`),
+          "",
+          "WorldEdit edits JSON only. Load these areas in Mud98 and save to convert them to JSON before editing."
+        ].join("\n");
+        await message(warningMessage, {
+          title: "Legacy .are files detected",
+          kind: "warning"
+        });
+      } catch (error) {
+        setErrorMessage(`Failed to scan area directory. ${String(error)}`);
+      }
+    },
+    [repository]
+  );
+
+  useEffect(() => {
+    if (!areaDirectory) {
+      return;
+    }
+    void warnLegacyAreaFiles(areaDirectory);
+  }, [areaDirectory, warnLegacyAreaFiles]);
+
   const handleOpenArea = async () => {
     setErrorMessage(null);
     setIsBusy(true);
@@ -4752,6 +4793,8 @@ export default function App() {
       if (!path) {
         return;
       }
+      const areaDir = await dirname(path);
+      await warnLegacyAreaFiles(areaDir);
       const loaded = await repository.loadArea(path);
       const metaPath = repository.editorMetaPathForArea(path);
       let loadedMeta: EditorMeta | null = null;
@@ -4890,6 +4933,7 @@ export default function App() {
       setAreaDirectory(selected);
       localStorage.setItem("worldedit.areaDir", selected);
       setStatusMessage(`Area directory set to ${selected}`);
+      await warnLegacyAreaFiles(selected);
     } catch (error) {
       setErrorMessage(`Failed to set area directory. ${String(error)}`);
     } finally {
