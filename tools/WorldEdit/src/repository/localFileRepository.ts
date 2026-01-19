@@ -89,6 +89,29 @@ function parseVnumRange(value: unknown): [number, number] | null {
   return [start, end];
 }
 
+function stripRoomLegacyFields(area: AreaJson): AreaJson {
+  if (!area || typeof area !== "object") {
+    return area;
+  }
+  const record = area as Record<string, unknown>;
+  const rooms = record.rooms;
+  if (!Array.isArray(rooms)) {
+    return area;
+  }
+  const nextRooms = rooms.map((room) => {
+    if (!room || typeof room !== "object") {
+      return room;
+    }
+    const next = { ...(room as Record<string, unknown>) };
+    delete next.manaRate;
+    delete next.healRate;
+    delete next.clan;
+    delete next.owner;
+    return next;
+  });
+  return { ...record, rooms: nextRooms } as AreaJson;
+}
+
 async function tryReadText(path: string): Promise<string | null> {
   try {
     return await readTextFile(path);
@@ -221,11 +244,12 @@ export class LocalFileRepository implements WorldRepository {
 
   async loadArea(path: string): Promise<AreaJson> {
     const raw = await readTextFile(path);
-    return JSON.parse(raw) as AreaJson;
+    const parsed = JSON.parse(raw) as AreaJson;
+    return stripRoomLegacyFields(parsed);
   }
 
   async saveArea(path: string, area: AreaJson): Promise<void> {
-    const payload = canonicalStringify(area);
+    const payload = canonicalStringify(stripRoomLegacyFields(area));
     await writeTextFile(path, payload);
   }
 

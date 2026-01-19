@@ -670,10 +670,6 @@ const roomFormSchema = z.object({
   description: z.string().min(1, "Description is required."),
   sectorType: optionalSectorSchema,
   roomFlags: z.array(roomFlagEnum).optional(),
-  manaRate: optionalIntSchema,
-  healRate: optionalIntSchema,
-  clan: optionalIntSchema,
-  owner: z.string().optional(),
   exits: z.array(exitFormSchema).optional()
 });
 
@@ -3018,10 +3014,6 @@ export default function App() {
       description: "",
       sectorType: undefined,
       roomFlags: [],
-      manaRate: undefined,
-      healRate: undefined,
-      clan: undefined,
-      owner: "",
       exits: []
     }
   });
@@ -3875,9 +3867,6 @@ export default function App() {
     const roomFlags = Array.isArray(record?.roomFlags)
       ? record.roomFlags.filter((flag) => typeof flag === "string")
       : [];
-    const manaRate = parseVnum(record?.manaRate) ?? undefined;
-    const healRate = parseVnum(record?.healRate) ?? undefined;
-    const clan = parseVnum(record?.clan) ?? undefined;
     return {
       vnum,
       name: typeof record?.name === "string" ? record.name : "",
@@ -3887,10 +3876,6 @@ export default function App() {
           : "",
       sectorType,
       roomFlags,
-      manaRate,
-      healRate,
-      clan,
-      owner: typeof record?.owner === "string" ? record.owner : "",
       exits: Array.isArray(record?.exits)
         ? record.exits
             .filter((exit): exit is Record<string, unknown> =>
@@ -4393,10 +4378,10 @@ export default function App() {
           description: normalizeLineEndingsForMud(data.description),
           sectorType: data.sectorType ?? undefined,
           roomFlags: data.roomFlags?.length ? data.roomFlags : undefined,
-          manaRate: data.manaRate ?? undefined,
-          healRate: data.healRate ?? undefined,
-          clan: data.clan ?? undefined,
-          owner: data.owner ?? undefined,
+          manaRate: undefined,
+          healRate: undefined,
+          clan: undefined,
+          owner: undefined,
           exits: normalizedExits.length ? normalizedExits : undefined
         };
         if (!("sectorType" in record) && "sector" in record) {

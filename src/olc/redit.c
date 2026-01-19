@@ -46,13 +46,9 @@ const OlcCmdEntry room_olc_comm_table[] = {
     { "name",	    U(&xRoom.header.name),  ed_line_lox_string, 0		        },
     { "desc",	    U(&xRoom.description),	ed_desc,		    0		        },
     { "ed",	        U(&xRoom.extra_desc),	ed_ed,			    0		        },
-    { "heal",	    U(&xRoom.heal_rate),	ed_number_s_pos,	0		        },
-    { "mana",	    U(&xRoom.mana_rate),	ed_number_s_pos,	0		        },
-    { "owner",	    U(&xRoom.owner),		ed_line_string,		0		        },
     { "roomflags",	U(&xRoom.room_flags),	ed_flag_toggle,		U(room_flag_table)	},
     { "flags",	    U(&xRoom.room_flags),	ed_flag_toggle,		U(room_flag_table)	},
     { "room_flags",	U(&xRoom.room_flags),	ed_flag_toggle,		U(room_flag_table)	},
-    { "clan",	    U(&xRoom.clan),		    ed_int16lookup,		U(clan_lookup)	},
     { "sector",	    U(&xRoom.sector_type),	ed_flag_set_sh,		U(sector_flag_table)},
     { "north",	    0,				        ed_direction,		DIR_NORTH	    },
     { "south",	    0,				        ed_direction,		DIR_SOUTH	    },
@@ -308,17 +304,6 @@ REDIT(redit_show)
     olc_print_num_str(ch, "Area", VNUM_FIELD(pRoom->area_data), NAME_STR(pRoom->area_data));
     olc_print_flags(ch, "Sector", sector_flag_table, pRoom->sector_type);
     olc_print_flags(ch, "Room Flags", room_flag_table, pRoom->room_flags);
-    olc_print_num(ch, "Heal Recover", pRoom->heal_rate);
-    olc_print_num(ch, "Mana Recover", pRoom->mana_rate);
-
-    if (pRoom->clan) {
-        olc_print_num_str(ch, "Clan", pRoom->clan, 
-            ((pRoom->clan > 0) ? clan_table[pRoom->clan].name : "(none)"));
-    }
-
-    if (pRoom->owner && pRoom->owner[0] != '\0') {
-        olc_print_str(ch, "Owner", pRoom->owner);
-    }
 
     olc_print_yesno_ex(ch, "Daycycle Msgs", pRoom->suppress_daycycle_messages,
         pRoom->suppress_daycycle_messages ? "Day-cycle messages are shown." :
@@ -1057,28 +1042,6 @@ REDIT(redit_oreset)
     return true;
 }
 
-REDIT(redit_owner)
-{
-    RoomData* pRoom;
-
-    EDIT_ROOM(ch, pRoom);
-
-    if (argument[0] == '\0') {
-        send_to_char("Syntax:  owner [owner]\n\r", ch);
-        send_to_char("         owner none\n\r", ch);
-        return false;
-    }
-
-    free_string(pRoom->owner);
-    if (!str_cmp(argument, "none"))
-        pRoom->owner = str_dup("");
-    else
-        pRoom->owner = str_dup(argument);
-
-    send_to_char("Owner set.\n\r", ch);
-    return true;
-}
-
 void showresets(Mobile* ch, Buffer* buf, AreaData* area, MobPrototype* mob, ObjPrototype* obj)
 {
     RoomData* room;
@@ -1262,17 +1225,12 @@ REDIT(redit_copy)
     }
 
     free_string(this->description);
-    free_string(this->owner);
 
     SET_NAME(this, NAME_FIELD(that));
     this->description = str_dup(that->description);
-    this->owner = str_dup(that->owner);
 
     this->room_flags = that->room_flags;
     this->sector_type = that->sector_type;
-    this->clan = that->clan;
-    this->heal_rate = that->heal_rate;
-    this->mana_rate = that->mana_rate;
     room_daycycle_period_clear(this);
     this->periods = room_daycycle_period_clone(that->periods);
 
@@ -1298,13 +1256,8 @@ REDIT(redit_clear)
     EDIT_ROOM(ch, pRoom);
 
     pRoom->sector_type = SECT_INSIDE;
-    pRoom->heal_rate = 100;
-    pRoom->mana_rate = 100;
-    pRoom->clan = 0;
     pRoom->room_flags = 0;
-    free_string(pRoom->owner);
     free_string(pRoom->description);
-    pRoom->owner = str_dup("");
     SET_NAME(pRoom, lox_empty_string);
     pRoom->description = str_dup("");
 

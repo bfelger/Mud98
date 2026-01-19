@@ -459,9 +459,6 @@ RoomData* new_room_data()
 
     SET_NAME(room_data, lox_empty_string);
     room_data->description = &str_empty[0];
-    room_data->owner = &str_empty[0];
-    room_data->heal_rate = 100;
-    room_data->mana_rate = 100;
     room_data->periods = NULL;
     room_data->suppress_daycycle_messages = false;
 
@@ -475,7 +472,6 @@ void free_room_data(RoomData* room_data)
     int i;
 
     free_string(room_data->description);
-    free_string(room_data->owner);
 
     for (i = 0; i < DIR_MAX; i++)
         free_room_exit_data(room_data->exit_data[i]);
@@ -626,7 +622,6 @@ void load_rooms(FILE* fp)
         fBootDb = true;
 
         room_data = new_room_data();
-        room_data->owner = str_dup("");
         room_data->area_data = LAST_AREA_DATA;
         VNUM_FIELD(room_data) = vnum;
         SET_NAME(room_data, fread_lox_string(fp));
@@ -638,29 +633,24 @@ void load_rooms(FILE* fp)
             SET_BIT(room_data->room_flags, ROOM_LAW);
         room_data->sector_type = (int16_t)fread_number(fp);
 
-        /* defaults */
-        room_data->heal_rate = 100;
-        room_data->mana_rate = 100;
-
         for (;;) {
             letter = fread_letter(fp);
 
             if (letter == 'S')
                 break;
 
-            if (letter == 'H') /* healing room */
-                room_data->heal_rate = (int16_t)fread_number(fp);
+            if (letter == 'H') {
+                // Toss it away
+                fread_number(fp);
+            }
 
-            else if (letter == 'M') /* mana room */
-                room_data->mana_rate = (int16_t)fread_number(fp);
-
-            else if (letter == 'C') /* clan */
-            {
-                if (room_data->clan) {
-                    bug("Load_rooms: duplicate clan fields.", 0);
-                    exit(1);
-                }
-                room_data->clan = (int16_t)clan_lookup(fread_string(fp));
+            else if (letter == 'M') {
+                // Toss it away
+                fread_number(fp);
+            }
+            else if (letter == 'C') {
+                // Toss it away; it's in the perm strings table
+                fread_string(fp);
             }
 
             else if (letter == 'D') {
@@ -743,12 +733,8 @@ void load_rooms(FILE* fp)
             }
 
             else if (letter == 'O') {
-                if (room_data->owner[0] != '\0') {
-                    bug("Load_rooms: duplicate owner.", 0);
-                    exit(1);
-                }
-
-                room_data->owner = fread_string(fp);
+                // Toss it away; it's in the perm strings table
+                fread_string(fp);
             }
 
             else if (letter == 'V') {

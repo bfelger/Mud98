@@ -84,12 +84,8 @@ typedef struct room_data_t {
     Reset* reset_first;
     Reset* reset_last;
     char* description;
-    char* owner;
     FLAGS room_flags;
     Sector sector_type;
-    int16_t heal_rate;
-    int16_t mana_rate;
-    int16_t clan;
     int16_t reset_num;
     bool suppress_daycycle_messages;
 } RoomData;

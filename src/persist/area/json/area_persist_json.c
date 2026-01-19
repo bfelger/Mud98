@@ -411,14 +411,6 @@ static json_t* build_rooms(const AreaData* area)
         }
         if (sector_name && sector_name[0] != '\0')
             JSON_SET_STRING(obj, "sectorType", sector_name);
-        if (room_data->mana_rate != 100)
-            JSON_SET_INT(obj, "manaRate", room_data->mana_rate);
-        if (room_data->heal_rate != 100)
-            JSON_SET_INT(obj, "healRate", room_data->heal_rate);
-        if (room_data->clan > 0)
-            JSON_SET_INT(obj, "clan", room_data->clan);
-        if (room_data->owner && room_data->owner[0] != '\0')
-            JSON_SET_STRING(obj, "owner", room_data->owner);
         if (room_data->suppress_daycycle_messages)
             json_object_set_new(obj, "suppressDaycycleMessages", json_true());
         json_t* periods = build_room_periods(room_data);
@@ -740,11 +732,6 @@ static PersistResult parse_rooms(json_t* root, AreaData* area)
         }
         else
             room->sector_type = (Sector)json_int_or_default(r, "sectorType", room->sector_type);
-        room->mana_rate = (int16_t)json_int_or_default(r, "manaRate", room->mana_rate);
-        room->heal_rate = (int16_t)json_int_or_default(r, "healRate", room->heal_rate);
-        room->clan = (int16_t)json_int_or_default(r, "clan", room->clan);
-        const char* owner = JSON_STRING(r, "owner");
-        JSON_INTERN(owner, room->owner)
         bool suppress = json_bool_or_default(r, "suppressDaycycleMessages", room->suppress_daycycle_messages);
         suppress = json_bool_or_default(r, "suppressWeatherMessages", suppress);
         room->suppress_daycycle_messages = suppress;

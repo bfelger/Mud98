@@ -95,50 +95,6 @@ export function RoomForm({
               ))}
             </select>
           </div>
-          <div className="form-field">
-            <label className="form-label" htmlFor="room-mana">
-              Mana Rate
-            </label>
-            <input
-              id="room-mana"
-              className="form-input"
-              type="number"
-              {...register("manaRate")}
-            />
-          </div>
-          <div className="form-field">
-            <label className="form-label" htmlFor="room-heal">
-              Heal Rate
-            </label>
-            <input
-              id="room-heal"
-              className="form-input"
-              type="number"
-              {...register("healRate")}
-            />
-          </div>
-          <div className="form-field">
-            <label className="form-label" htmlFor="room-clan">
-              Clan
-            </label>
-            <input
-              id="room-clan"
-              className="form-input"
-              type="number"
-              {...register("clan")}
-            />
-          </div>
-          <div className="form-field form-field--wide">
-            <label className="form-label" htmlFor="room-owner">
-              Owner
-            </label>
-            <input
-              id="room-owner"
-              className="form-input"
-              type="text"
-              {...register("owner")}
-            />
-          </div>
         </div>
         <div className="form-field form-field--full">
           <label className="form-label" htmlFor="room-description">

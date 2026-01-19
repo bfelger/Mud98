@@ -6,7 +6,7 @@ Serialization order (Mud98)
 - Mud98 writes JSON fields in a fixed order defined in `src/persist/area/json/area_persist_json.c`. WorldEdit preserves that ordering when saving.
 - Mud98 emits JSON with 2-space indentation; WorldEdit matches this to minimize diffs.
 - Top-level order: `formatVersion`, `areadata`, `storyBeats`, `checklist`, `daycycle`, `rooms`, `mobiles`, `objects`, `shops`, `specials`, `mobprogs`, `resets`, `factions`, `helps`, `quests`, `loot`, `recipes`, `gatherSpawns`.
-- Per-entity field order follows the `build_*` functions; for example rooms are emitted as `vnum`, `name`, `description`, `roomFlags`, `roomFlagsValue`, `sectorType`, `manaRate`, `healRate`, `clan`, `owner`, `suppressDaycycleMessages`, `timePeriods`, `exits`, `extraDescs`, `loxScript`, `events`.
+- Per-entity field order follows the `build_*` functions; for example rooms are emitted as `vnum`, `name`, `description`, `roomFlags`, `roomFlagsValue`, `sectorType`, `suppressDaycycleMessages`, `timePeriods`, `exits`, `extraDescs`, `loxScript`, `events`.
 
 Top-level object
 - `formatVersion`: integer, currently `1`.
@@ -34,7 +34,7 @@ Top-level object
 
 `rooms` (array of objects)
 - Required: `vnum` int, `name` string, `description` string.
-- Optional: `roomFlags` [string flags] (defaults to none), `sectorType` string (defaults to `inside`), `manaRate` int (default `100`), `healRate` int (`100`), `clan` int (`0`), `owner` string (empty string by default).
+- Optional: `roomFlags` [string flags] (defaults to none), `sectorType` string (defaults to `inside`).
 - `exits`: array of exit objects; omit if none.
 - `extraDescs`: array of `{ keyword, description }`; omit if none.
 
@@ -114,7 +114,7 @@ Affect object (used for object affects)
 Notes and defaults
 - Flags are stored as arrays of flag names; empty arrays are omitted.
 - Sector, wear locations, positions, sizes, sexes, damage types, etc. are stored as names (not numbers).
-- Numeric fields omitted = default (e.g., healRate/manaRate 100, hours 0, key 0).
+- Numeric fields omitted = default (e.g., hours 0, key 0).
 - Exits omitted entirely when a room has none; keys omitted when 0; empty `exits`/`affects`/`extraDescs` removed for brevity.
 - `instType` omitted means single-instance.
 - `formatVersion` lets the format evolve; additive changes should remain backward compatible.

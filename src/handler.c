@@ -1949,24 +1949,12 @@ bool room_is_dark(Room* room)
     return false;
 }
 
-bool is_room_owner(Mobile* ch, Room* room)
-{
-    if (room->data->owner == NULL || room->data->owner[0] == '\0')
-        return false;
-
-    return is_name(NAME_STR(ch), room->data->owner);
-}
-
 // true if room is private.
 bool room_is_private(Room* room)
 {
     Mobile* rch;
-    int count;
+    int count = 0;
 
-    if (room->data->owner != NULL && room->data->owner[0] != '\0')
-        return true;
-
-    count = 0;
     FOR_EACH_ROOM_MOB(rch, room)
         count++;
 
@@ -1997,9 +1985,6 @@ bool can_see_room(Mobile* ch, RoomData* room)
 
     if (IS_SET(room->room_flags, ROOM_NEWBIES_ONLY) && ch->level > 5
         && !IS_IMMORTAL(ch))
-        return false;
-
-    if (!IS_IMMORTAL(ch) && room->clan && ch->clan != room->clan)
         return false;
 
     return true;

@@ -83,7 +83,6 @@ int get_obj_number(Object* obj);
 int get_obj_weight(Object* obj);
 int get_true_weight(Object* obj);
 bool room_is_dark(Room* pRoomIndex);
-bool is_room_owner(Mobile* ch, Room* room);
 bool room_is_private(Room* pRoomIndex);
 bool can_see(Mobile* ch, Mobile* victim);
 bool can_see_obj(Mobile* ch, Object* obj);

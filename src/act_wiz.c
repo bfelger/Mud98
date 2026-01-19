@@ -940,8 +940,7 @@ void do_transfer(Mobile* ch, char* argument)
             return;
         }
 
-        if (!is_room_owner(ch, location) && room_is_private(location)
-            && get_trust(ch) < MAX_LEVEL) {
+        if (room_is_private(location) && get_trust(ch) < MAX_LEVEL) {
             send_to_char("That room is private right now.\n\r", ch);
             return;
         }
@@ -991,8 +990,7 @@ void do_at(Mobile* ch, char* argument)
         return;
     }
 
-    if (!is_room_owner(ch, location) && room_is_private(location)
-        && get_trust(ch) < MAX_LEVEL) {
+    if (room_is_private(location) && get_trust(ch) < MAX_LEVEL) {
         send_to_char("That room is private right now.\n\r", ch);
         return;
     }
@@ -1042,8 +1040,7 @@ void do_goto(Mobile* ch, char* argument)
 
     count = location->mobiles.count;
 
-    if (!is_room_owner(ch, location) && room_is_private(location)
-        && (count > 1 || get_trust(ch) < MAX_LEVEL)) {
+    if (room_is_private(location) && (count > 1 || get_trust(ch) < MAX_LEVEL)) {
         send_to_char("That room is private right now.\n\r", ch);
         return;
     }
@@ -1196,8 +1193,8 @@ void do_rstat(Mobile* ch, char* argument)
     }
     location = room->data;
 
-    if (!is_room_owner(ch, room) && ch->in_room != room
-        && room_is_private(room) && !IS_TRUSTED(ch, IMPLEMENTOR)) {
+    if (ch->in_room != room && room_is_private(room) 
+        && !IS_TRUSTED(ch, IMPLEMENTOR)) {
         send_to_char("That room is private right now.\n\r", ch);
         return;
     }
@@ -1206,9 +1203,8 @@ void do_rstat(Mobile* ch, char* argument)
             NAME_STR(location->area_data));
     send_to_char(buf, ch);
 
-    sprintf(buf, "Vnum: %d  Sector: %d  Light: %d  Healing: %d  Mana: %d\n\r",
-            VNUM_FIELD(location), location->sector_type, room->light,
-            location->heal_rate, location->mana_rate);
+    sprintf(buf, "Vnum: %d  Sector: %d  Light: %d\n\r",
+            VNUM_FIELD(location), location->sector_type, room->light);
     send_to_char(buf, ch);
 
     sprintf(buf, "Room flags: %d.\n\rDescription:\n\r%s", location->room_flags,
@@ -2057,8 +2053,8 @@ void do_snoop(Mobile* ch, char* argument)
         return;
     }
 
-    if (!is_room_owner(ch, victim->in_room) && ch->in_room != victim->in_room
-        && room_is_private(victim->in_room) && !IS_TRUSTED(ch, IMPLEMENTOR)) {
+    if (ch->in_room != victim->in_room && room_is_private(victim->in_room) 
+        && !IS_TRUSTED(ch, IMPLEMENTOR)) {
         send_to_char("That character is in a private room.\n\r", ch);
         return;
     }
@@ -2120,8 +2116,8 @@ void do_switch(Mobile* ch, char* argument)
         return;
     }
 
-    if (!is_room_owner(ch, victim->in_room) && ch->in_room != victim->in_room
-        && room_is_private(victim->in_room) && !IS_TRUSTED(ch, IMPLEMENTOR)) {
+    if (ch->in_room != victim->in_room && room_is_private(victim->in_room) 
+        && !IS_TRUSTED(ch, IMPLEMENTOR)) {
         send_to_char("That character is in a private room.\n\r", ch);
         return;
     }
@@ -3674,8 +3670,8 @@ void do_rset(Mobile* ch, char* argument)
         return;
     }
 
-    if (!is_room_owner(ch, location) && ch->in_room != location
-        && room_is_private(location) && !IS_TRUSTED(ch, IMPLEMENTOR)) {
+    if (ch->in_room != location && room_is_private(location) 
+        && !IS_TRUSTED(ch, IMPLEMENTOR)) {
         send_to_char("That room is private right now.\n\r", ch);
         return;
     }
@@ -3823,8 +3819,7 @@ void do_force(Mobile* ch, char* argument)
             return;
         }
 
-        if (!is_room_owner(ch, victim->in_room)
-            && ch->in_room != victim->in_room
+        if (ch->in_room != victim->in_room
             && room_is_private(victim->in_room)
             && !IS_TRUSTED(ch, IMPLEMENTOR)) {
             send_to_char("That character is in a private room.\n\r", ch);

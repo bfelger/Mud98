@@ -279,18 +279,6 @@ const struct olc_show_table_type redit_olc_show_table[] = {
         60, 1, 15, 1, 1, U(areaname)
     },
     {
-        "heal", U(&xRoom.heal_rate), "Heal:", OLCS_INT16,
-        1, 2, 3, 1, 1, 0
-    },
-    {
-        "mana", U(&xRoom.mana_rate), "Mana:", OLCS_INT16,
-        10, 2, 3, 1, 1, 0
-    },
-    {
-        "clan", U(&xRoom.clan), "Clan:", OLCS_STRFUNC,
-        19, 2, 10, 1, 1, U(clan2str)
-    },
-    {
         "sector", U(&xRoom.sector_type), "Sector:", OLCS_FLAGSTR_INT16,
         35, 2, 10, 1, 1, U(sector_flag_table)
     },
@@ -317,11 +305,6 @@ const struct olc_show_table_type redit_olc_show_table[] = {
     {
         "exits", U(&xRoom.exit_data), "", OLCS_STRFUNC,
         1, 13, -1, -1, 1, U(exits2str)
-    },
-    // page 2
-    {
-        "owner", U(&xRoom.owner), "Owner:", OLCS_STRING,
-        1, 1, 10, 1, 2, 0
     },
     {
         NULL, 0, NULL, 0, 0, 0, 0, 0, 0, 0
