@@ -1,5 +1,5 @@
 import { open, save } from "@tauri-apps/plugin-dialog";
-import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
+import { mkdir, readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 import { basename, dirname, homeDir, join } from "@tauri-apps/api/path";
 import { canonicalStringify } from "../utils/canonicalJson";
 import type {
@@ -24,14 +24,45 @@ async function defaultDialogPath(
   return await homeDir();
 }
 
+function splitPath(pathValue: string): {
+  dir: string;
+  file: string;
+  separator: string;
+} {
+  const lastSlash = pathValue.lastIndexOf("/");
+  const lastBackslash = pathValue.lastIndexOf("\\");
+  const index = Math.max(lastSlash, lastBackslash);
+  if (index === -1) {
+    return { dir: "", file: pathValue, separator: "/" };
+  }
+  const separator = lastBackslash > lastSlash ? "\\" : "/";
+  return {
+    dir: pathValue.slice(0, index),
+    file: pathValue.slice(index + 1),
+    separator
+  };
+}
+
 function editorMetaPathForArea(areaPath: string): string {
   if (areaPath.endsWith(".editor.json")) {
     return areaPath;
   }
-  if (areaPath.endsWith(".json")) {
-    return areaPath.replace(/\.json$/i, ".editor.json");
+  const { dir, file, separator } = splitPath(areaPath);
+  const metaFile = file.toLowerCase().endsWith(".json")
+    ? file.replace(/\.json$/i, ".editor.json")
+    : `${file}.editor.json`;
+  const metaDir = dir ? `${dir}${separator}.worldedit` : ".worldedit";
+  return `${metaDir}${separator}${metaFile}`;
+}
+
+function legacyMetaPathFor(pathValue: string): string | null {
+  if (pathValue.includes("/.worldedit/")) {
+    return pathValue.replace("/.worldedit/", "/");
   }
-  return `${areaPath}.editor.json`;
+  if (pathValue.includes("\\.worldedit\\")) {
+    return pathValue.replace("\\.worldedit\\", "\\");
+  }
+  return null;
 }
 
 function isMissingFileError(error: unknown): boolean {
@@ -313,7 +344,19 @@ export class LocalFileRepository implements WorldRepository {
       return JSON.parse(raw) as EditorMeta;
     } catch (error) {
       if (isMissingFileError(error)) {
-        return null;
+        const legacyPath = legacyMetaPathFor(path);
+        if (!legacyPath || legacyPath === path) {
+          return null;
+        }
+        try {
+          const raw = await readTextFile(legacyPath);
+          return JSON.parse(raw) as EditorMeta;
+        } catch (legacyError) {
+          if (isMissingFileError(legacyError)) {
+            return null;
+          }
+          throw legacyError;
+        }
       }
       throw error;
     }
@@ -321,6 +364,10 @@ export class LocalFileRepository implements WorldRepository {
 
   async saveEditorMeta(path: string, meta: EditorMeta): Promise<void> {
     const payload = canonicalStringify(meta);
+    const { dir } = splitPath(path);
+    if (dir) {
+      await mkdir(dir, { recursive: true });
+    }
     await writeTextFile(path, payload);
   }
 
