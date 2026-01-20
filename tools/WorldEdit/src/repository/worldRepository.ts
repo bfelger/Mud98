@@ -9,6 +9,8 @@ import type {
   ProjectDataFiles,
   RaceDataFile,
   RaceDataSource,
+  SkillDataFile,
+  SkillDataSource,
   ReferenceData
 } from "./types";
 
@@ -56,6 +58,18 @@ export interface WorldRepository {
   saveRacesData(
     dataDir: string,
     data: RaceDataFile,
+    format: "json" | "olc",
+    fileName?: string,
+    classNames?: string[]
+  ): Promise<string>;
+  loadSkillsData(
+    dataDir: string,
+    fileName?: string,
+    defaultFormat?: "json" | "olc"
+  ): Promise<SkillDataSource>;
+  saveSkillsData(
+    dataDir: string,
+    data: SkillDataFile,
     format: "json" | "olc",
     fileName?: string,
     classNames?: string[]

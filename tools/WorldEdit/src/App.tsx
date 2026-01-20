@@ -41,9 +41,11 @@ import { QuestForm } from "./components/QuestForm";
 import { FactionForm } from "./components/FactionForm";
 import { ClassForm } from "./components/ClassForm";
 import { RaceForm } from "./components/RaceForm";
+import { SkillForm } from "./components/SkillForm";
 import { TableView } from "./components/TableView";
 import { ClassTableView } from "./components/ClassTableView";
 import { RaceTableView } from "./components/RaceTableView";
+import { SkillTableView } from "./components/SkillTableView";
 import { InspectorPanel } from "./components/InspectorPanel";
 import { EntityTree } from "./components/EntityTree";
 import { Topbar } from "./components/Topbar";
@@ -65,6 +67,8 @@ import type {
   ProjectConfig,
   RaceDataFile,
   RaceDefinition,
+  SkillDataFile,
+  SkillDefinition,
   ReferenceData,
   RoomLayoutEntry
 } from "./repository/types";
@@ -95,6 +99,7 @@ import {
   vulnFlags,
   formFlags,
   partFlags,
+  skillTargets,
   extraFlagEnum,
   extraFlags,
   furnitureFlagEnum,
@@ -183,6 +188,8 @@ const classTitleCount = 61;
 const classGuildCount = 2;
 const raceSkillCount = 5;
 const raceStatKeys = ["str", "int", "wis", "dex", "con"] as const;
+const defaultSkillLevel = 53;
+const defaultSkillRating = 0;
 
 const itemTypeOptions = [
   "none",
@@ -383,6 +390,15 @@ type RaceRow = {
   points: number;
   size: string;
   startLoc: number;
+};
+
+type SkillRow = {
+  index: number;
+  name: string;
+  target: string;
+  minPosition: string;
+  spell: string;
+  slot: number;
 };
 
 type ShopRow = {
@@ -916,6 +932,23 @@ const raceFormSchema = z.object({
   skills: z.array(z.string()).length(raceSkillCount)
 });
 
+const skillFormSchema = z.object({
+  name: z.string().min(1),
+  levels: z.record(z.number().int()),
+  ratings: z.record(z.number().int()),
+  spell: z.string().optional(),
+  loxSpell: z.string().optional(),
+  target: z.string().optional(),
+  minPosition: z.string().optional(),
+  gsn: z.string().optional(),
+  slot: z.number().int(),
+  minMana: z.number().int(),
+  beats: z.number().int(),
+  nounDamage: z.string().optional(),
+  msgOff: z.string().optional(),
+  msgObj: z.string().optional()
+});
+
 type RoomFormValues = z.infer<typeof roomFormSchema>;
 type AreaFormValues = z.infer<typeof areaFormSchema>;
 type MobileFormValues = z.infer<typeof mobileFormSchema>;
@@ -926,6 +959,7 @@ type QuestFormValues = z.infer<typeof questFormSchema>;
 type FactionFormValues = z.infer<typeof factionFormSchema>;
 type ClassFormValues = z.infer<typeof classFormSchema>;
 type RaceFormValues = z.infer<typeof raceFormSchema>;
+type SkillFormValues = z.infer<typeof skillFormSchema>;
 
 const entityKindLabels: Record<EntityKey, string> = {
   Area: "Area",
@@ -3643,7 +3677,7 @@ function normalizeRaceStats(
 }
 
 function normalizeRaceClassMap(
-  value: RaceDefinition["classMult"] | RaceDefinition["classStart"],
+  value: Record<string, number> | number[] | undefined,
   classNames: string[],
   defaultValue: number
 ): Record<string, number> {
@@ -3682,6 +3716,20 @@ function buildRaceRows(raceData: RaceDataFile | null): RaceRow[] {
     points: race.points ?? 0,
     size: race.size ?? "medium",
     startLoc: race.startLoc ?? 0
+  }));
+}
+
+function buildSkillRows(skillData: SkillDataFile | null): SkillRow[] {
+  if (!skillData) {
+    return [];
+  }
+  return skillData.skills.map((skill, index) => ({
+    index,
+    name: skill.name ?? "(unnamed)",
+    target: skill.target ?? "tar_ignore",
+    minPosition: skill.minPosition ?? "dead",
+    spell: skill.spell ?? "",
+    slot: skill.slot ?? 0
   }));
 }
 
@@ -3746,6 +3794,9 @@ export default function App({ repository }: AppProps) {
   const [selectedRaceIndex, setSelectedRaceIndex] = useState<number | null>(
     null
   );
+  const [selectedSkillIndex, setSelectedSkillIndex] = useState<number | null>(
+    null
+  );
   const [selectedRoomVnum, setSelectedRoomVnum] = useState<number | null>(null);
   const [selectedMobileVnum, setSelectedMobileVnum] = useState<number | null>(
     null
@@ -3777,6 +3828,12 @@ export default function App({ repository }: AppProps) {
     "json" | "olc" | null
   >(null);
   const [raceDataDir, setRaceDataDir] = useState<string | null>(null);
+  const [skillData, setSkillData] = useState<SkillDataFile | null>(null);
+  const [skillDataPath, setSkillDataPath] = useState<string | null>(null);
+  const [skillDataFormat, setSkillDataFormat] = useState<
+    "json" | "olc" | null
+  >(null);
+  const [skillDataDir, setSkillDataDir] = useState<string | null>(null);
   const [projectConfig, setProjectConfig] = useState<ProjectConfig | null>(null);
   const [editorMeta, setEditorMeta] = useState<EditorMeta | null>(null);
   const [editorMetaPath, setEditorMetaPath] = useState<string | null>(null);
@@ -3824,6 +3881,7 @@ export default function App({ repository }: AppProps) {
   const factionGridApi = useRef<GridApi | null>(null);
   const classGridApi = useRef<GridApi | null>(null);
   const raceGridApi = useRef<GridApi | null>(null);
+  const skillGridApi = useRef<GridApi | null>(null);
   const areaForm = useForm<AreaFormValues>({
     resolver: zodResolver(areaFormSchema),
     defaultValues: {
@@ -4188,6 +4246,40 @@ export default function App({ repository }: AppProps) {
     formState: raceFormState,
     reset: resetRaceForm
   } = raceForm;
+  const skillClassNames = referenceData?.classes ?? [];
+  const skillFormDefaults = useMemo<SkillFormValues>(
+    () => ({
+      name: "",
+      levels: Object.fromEntries(
+        skillClassNames.map((name) => [name, defaultSkillLevel])
+      ),
+      ratings: Object.fromEntries(
+        skillClassNames.map((name) => [name, defaultSkillRating])
+      ),
+      spell: "",
+      loxSpell: "",
+      target: "",
+      minPosition: "",
+      gsn: "",
+      slot: 0,
+      minMana: 0,
+      beats: 0,
+      nounDamage: "",
+      msgOff: "",
+      msgObj: ""
+    }),
+    [skillClassNames]
+  );
+  const skillForm = useForm<SkillFormValues>({
+    resolver: zodResolver(skillFormSchema),
+    defaultValues: skillFormDefaults
+  });
+  const {
+    register: registerSkill,
+    handleSubmit: handleSkillSubmitForm,
+    formState: skillFormState,
+    reset: resetSkillForm
+  } = skillForm;
   const watchedResetCommand = useWatch({
     control: resetForm.control,
     name: "commandName"
@@ -4330,6 +4422,78 @@ export default function App({ repository }: AppProps) {
     repository
   ]);
 
+  const handleLoadSkillsData = useCallback(
+    async (overrideDir?: string) => {
+      const targetDir =
+        typeof overrideDir === "string" ? overrideDir : dataDirectory;
+      if (!targetDir) {
+        setErrorMessage("No data directory set for skills.");
+        return;
+      }
+      const skillsFile = projectConfig?.dataFiles.skills;
+      const defaultFormat = projectConfig?.defaultFormat;
+      setErrorMessage(null);
+      setIsBusy(true);
+      try {
+        const source = await repository.loadSkillsData(
+          targetDir,
+          skillsFile,
+          defaultFormat
+        );
+        setSkillData(source.data);
+        setSkillDataPath(source.path);
+        setSkillDataFormat(source.format);
+        setSkillDataDir(targetDir);
+        setStatusMessage(`Loaded skills (${source.format})`);
+      } catch (error) {
+        setErrorMessage(`Failed to load skills. ${String(error)}`);
+      } finally {
+        setIsBusy(false);
+      }
+    },
+    [dataDirectory, projectConfig, repository]
+  );
+
+  const handleSaveSkillsData = useCallback(async () => {
+    if (!skillData) {
+      setErrorMessage("No skills loaded to save.");
+      return;
+    }
+    if (!dataDirectory) {
+      setErrorMessage("No data directory set for skills.");
+      return;
+    }
+    setErrorMessage(null);
+    setIsBusy(true);
+    try {
+      const format = skillDataFormat ?? projectConfig?.defaultFormat ?? "json";
+      const skillsFile = projectConfig?.dataFiles.skills;
+      const classNames = referenceData?.classes ?? [];
+      const path = await repository.saveSkillsData(
+        dataDirectory,
+        skillData,
+        format,
+        skillsFile,
+        classNames
+      );
+      setSkillDataPath(path);
+      setSkillDataFormat(format);
+      setSkillDataDir(dataDirectory);
+      setStatusMessage(`Saved skills (${format})`);
+    } catch (error) {
+      setErrorMessage(`Failed to save skills. ${String(error)}`);
+    } finally {
+      setIsBusy(false);
+    }
+  }, [
+    dataDirectory,
+    projectConfig,
+    referenceData,
+    repository,
+    skillData,
+    skillDataFormat
+  ]);
+
   useEffect(() => {
     const nextRoom = getDefaultSelection(areaData, "Rooms", selectedRoomVnum);
     if (selectedRoomVnum !== nextRoom) {
@@ -4455,6 +4619,26 @@ export default function App({ repository }: AppProps) {
   ]);
 
   useEffect(() => {
+    if (editorMode !== "Global" || selectedGlobalEntity !== "Skills") {
+      return;
+    }
+    if (!dataDirectory) {
+      return;
+    }
+    if (skillData && skillDataDir === dataDirectory) {
+      return;
+    }
+    void handleLoadSkillsData(dataDirectory);
+  }, [
+    editorMode,
+    selectedGlobalEntity,
+    dataDirectory,
+    skillData,
+    skillDataDir,
+    handleLoadSkillsData
+  ]);
+
+  useEffect(() => {
     if (!classData || classData.classes.length === 0) {
       if (selectedClassIndex !== null) {
         setSelectedClassIndex(null);
@@ -4483,6 +4667,21 @@ export default function App({ repository }: AppProps) {
       setSelectedRaceIndex(0);
     }
   }, [raceData, selectedRaceIndex]);
+
+  useEffect(() => {
+    if (!skillData || skillData.skills.length === 0) {
+      if (selectedSkillIndex !== null) {
+        setSelectedSkillIndex(null);
+      }
+      return;
+    }
+    if (
+      selectedSkillIndex === null ||
+      selectedSkillIndex >= skillData.skills.length
+    ) {
+      setSelectedSkillIndex(0);
+    }
+  }, [skillData, selectedSkillIndex]);
 
   useEffect(() => {
     if (!classData || selectedClassIndex === null) {
@@ -4547,6 +4746,45 @@ export default function App({ repository }: AppProps) {
     raceFormDefaults,
     referenceData,
     resetRaceForm
+  ]);
+
+  useEffect(() => {
+    if (!skillData || selectedSkillIndex === null) {
+      resetSkillForm(skillFormDefaults);
+      return;
+    }
+    const skill = skillData.skills[selectedSkillIndex];
+    const classNames = referenceData?.classes ?? [];
+    resetSkillForm({
+      name: skill.name ?? "",
+      levels: normalizeRaceClassMap(
+        skill.levels as Record<string, number> | number[] | undefined,
+        classNames,
+        defaultSkillLevel
+      ),
+      ratings: normalizeRaceClassMap(
+        skill.ratings as Record<string, number> | number[] | undefined,
+        classNames,
+        defaultSkillRating
+      ),
+      spell: skill.spell ?? "",
+      loxSpell: skill.loxSpell ?? "",
+      target: skill.target ?? "",
+      minPosition: skill.minPosition ?? "",
+      gsn: skill.gsn ?? "",
+      slot: skill.slot ?? 0,
+      minMana: skill.minMana ?? 0,
+      beats: skill.beats ?? 0,
+      nounDamage: skill.nounDamage ?? "",
+      msgOff: skill.msgOff ?? "",
+      msgObj: skill.msgObj ?? ""
+    });
+  }, [
+    skillData,
+    selectedSkillIndex,
+    skillFormDefaults,
+    referenceData,
+    resetSkillForm
   ]);
 
   const selection = useMemo(
@@ -4736,6 +4974,7 @@ export default function App({ repository }: AppProps) {
   }, [referenceData]);
   const classRows = useMemo(() => buildClassRows(classData), [classData]);
   const raceRows = useMemo(() => buildRaceRows(raceData), [raceData]);
+  const skillRows = useMemo(() => buildSkillRows(skillData), [skillData]);
   const roomRows = useMemo(() => buildRoomRows(areaData), [areaData]);
   const mobileRows = useMemo(() => buildMobileRows(areaData), [areaData]);
   const objectRows = useMemo(() => buildObjectRows(areaData), [areaData]);
@@ -5993,6 +6232,17 @@ export default function App({ repository }: AppProps) {
     ],
     []
   );
+  const skillColumns = useMemo<ColDef<SkillRow>[]>(
+    () => [
+      { headerName: "#", field: "index", width: 80, sort: "asc" },
+      { headerName: "Name", field: "name", flex: 2, minWidth: 220 },
+      { headerName: "Target", field: "target", width: 150 },
+      { headerName: "Position", field: "minPosition", width: 140 },
+      { headerName: "Spell", field: "spell", flex: 1, minWidth: 160 },
+      { headerName: "Slot", field: "slot", width: 110 }
+    ],
+    []
+  );
   const roomColumns = useMemo<ColDef<RoomRow>[]>(
     () => [
       { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
@@ -6075,6 +6325,7 @@ export default function App({ repository }: AppProps) {
   const objectDefaultColDef = roomDefaultColDef;
   const classDefaultColDef = roomDefaultColDef;
   const raceDefaultColDef = roomDefaultColDef;
+  const skillDefaultColDef = roomDefaultColDef;
 
   useEffect(() => {
     areaForm.reset(areaFormDefaults);
@@ -6189,6 +6440,23 @@ export default function App({ repository }: AppProps) {
     activeTab,
     selectedRaceIndex,
     raceRows
+  ]);
+
+  useEffect(() => {
+    if (
+      editorMode !== "Global" ||
+      selectedGlobalEntity !== "Skills" ||
+      activeTab !== "Table"
+    ) {
+      return;
+    }
+    syncGridSelection(skillGridApi.current, selectedSkillIndex);
+  }, [
+    editorMode,
+    selectedGlobalEntity,
+    activeTab,
+    selectedSkillIndex,
+    skillRows
   ]);
 
   useEffect(() => {
@@ -6920,6 +7188,46 @@ export default function App({ repository }: AppProps) {
     setStatusMessage(`Updated race ${data.name} (unsaved)`);
   };
 
+  const handleSkillSubmit = (data: SkillFormValues) => {
+    if (!skillData || selectedSkillIndex === null) {
+      return;
+    }
+    const classNames = referenceData?.classes ?? [];
+    const levels: Record<string, number> = {};
+    const ratings: Record<string, number> = {};
+    classNames.forEach((name) => {
+      const level = Number(data.levels?.[name] ?? defaultSkillLevel);
+      levels[name] = Number.isFinite(level) ? Math.trunc(level) : defaultSkillLevel;
+      const rating = Number(data.ratings?.[name] ?? defaultSkillRating);
+      ratings[name] = Number.isFinite(rating) ? Math.trunc(rating) : defaultSkillRating;
+    });
+    const nextRecord: SkillDefinition = {
+      name: data.name,
+      levels: classNames.length ? levels : undefined,
+      ratings: classNames.length ? ratings : undefined,
+      spell: cleanOptionalString(data.spell),
+      loxSpell: cleanOptionalString(data.loxSpell),
+      target: cleanOptionalString(data.target),
+      minPosition: cleanOptionalString(data.minPosition),
+      gsn: cleanOptionalString(data.gsn),
+      slot: data.slot,
+      minMana: data.minMana,
+      beats: data.beats,
+      nounDamage: cleanOptionalString(data.nounDamage),
+      msgOff: cleanOptionalString(data.msgOff),
+      msgObj: cleanOptionalString(data.msgObj)
+    };
+    setSkillData((current) => {
+      if (!current) {
+        return current;
+      }
+      const nextSkills = [...current.skills];
+      nextSkills[selectedSkillIndex] = nextRecord;
+      return { ...current, skills: nextSkills };
+    });
+    setStatusMessage(`Updated skill ${data.name} (unsaved)`);
+  };
+
   const warnLegacyAreaFiles = useCallback(
     async (areaDir: string | null) => {
       if (!areaDir) {
@@ -7322,6 +7630,16 @@ export default function App({ repository }: AppProps) {
       skillCount={raceSkillCount}
     />
   );
+  const skillFormNode = (
+    <SkillForm
+      onSubmit={handleSkillSubmitForm(handleSkillSubmit)}
+      register={registerSkill}
+      formState={skillFormState}
+      classNames={skillClassNames}
+      targetOptions={[...skillTargets]}
+      positionOptions={[...positions]}
+    />
+  );
   const tableViewNode = (
     <TableView
       selectedEntity={selectedEntity}
@@ -7378,6 +7696,15 @@ export default function App({ repository }: AppProps) {
       defaultColDef={raceDefaultColDef}
       onSelectRace={setSelectedRaceIndex}
       gridApiRef={raceGridApi}
+    />
+  );
+  const skillTableViewNode = (
+    <SkillTableView
+      rows={skillRows}
+      columns={skillColumns}
+      defaultColDef={skillDefaultColDef}
+      onSelectSkill={setSelectedSkillIndex}
+      gridApiRef={skillGridApi}
     />
   );
   const mapViewNode = (
@@ -7442,7 +7769,11 @@ export default function App({ repository }: AppProps) {
         ? raceDataPath
           ? fileNameFromPath(raceDataPath)
           : "not loaded"
-        : "not loaded";
+        : selectedGlobalEntity === "Skills"
+          ? skillDataPath
+            ? fileNameFromPath(skillDataPath)
+            : "not loaded"
+          : "not loaded";
   const viewTitle =
     editorMode === "Area" ? selectedEntity : selectedGlobalEntity;
   const viewMeta =
@@ -7459,18 +7790,30 @@ export default function App({ repository }: AppProps) {
           `Active view ${activeTab}`
         ];
   const supportsGlobalData =
-    selectedGlobalEntity === "Classes" || selectedGlobalEntity === "Races";
+    selectedGlobalEntity === "Classes" ||
+    selectedGlobalEntity === "Races" ||
+    selectedGlobalEntity === "Skills";
   const showGlobalActions = editorMode === "Global" && supportsGlobalData;
   const globalLoadHandler =
-    selectedGlobalEntity === "Races" ? handleLoadRacesData : handleLoadClassesData;
+    selectedGlobalEntity === "Races"
+      ? handleLoadRacesData
+      : selectedGlobalEntity === "Skills"
+        ? handleLoadSkillsData
+        : handleLoadClassesData;
   const globalSaveHandler =
-    selectedGlobalEntity === "Races" ? handleSaveRacesData : handleSaveClassesData;
+    selectedGlobalEntity === "Races"
+      ? handleSaveRacesData
+      : selectedGlobalEntity === "Skills"
+        ? handleSaveSkillsData
+        : handleSaveClassesData;
   const globalSaveDisabled =
     selectedGlobalEntity === "Classes"
       ? !classData
       : selectedGlobalEntity === "Races"
         ? !raceData
-        : true;
+        : selectedGlobalEntity === "Skills"
+          ? !skillData
+          : true;
   const visibleTabs =
     editorMode === "Area"
       ? tabs
@@ -7545,6 +7888,7 @@ export default function App({ repository }: AppProps) {
                 hasAreaData={Boolean(areaData)}
                 classCount={classRows.length}
                 raceCount={raceRows.length}
+                skillCount={skillRows.length}
                 roomCount={roomRows.length}
                 mobileCount={mobileRows.length}
                 objectCount={objectRows.length}
@@ -7563,9 +7907,11 @@ export default function App({ repository }: AppProps) {
                 factionForm={factionFormNode}
                 classForm={classFormNode}
                 raceForm={raceFormNode}
+                skillForm={skillFormNode}
                 tableView={tableViewNode}
                 classTableView={classTableViewNode}
                 raceTableView={raceTableViewNode}
+                skillTableView={skillTableViewNode}
                 mapView={mapViewNode}
                 worldView={worldViewNode}
                 scriptView={scriptViewNode}

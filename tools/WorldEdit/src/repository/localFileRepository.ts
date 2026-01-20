@@ -33,6 +33,9 @@ import type {
   RaceDataSource,
   RaceDefinition,
   RaceStats,
+  SkillDataFile,
+  SkillDataSource,
+  SkillDefinition,
   ReferenceData
 } from "./types";
 import type { WorldRepository } from "./worldRepository";
@@ -77,6 +80,8 @@ const RACE_PART_DEFAULTS: Record<string, string[]> = {
 const VULN_FLAG_BITS = vulnFlags.filter((flag) => flag !== "none");
 const FORM_FLAG_BITS = formFlags.filter((flag) => !flag.endsWith("Default"));
 const PART_FLAG_BITS = partFlags.filter((flag) => !flag.endsWith("Default"));
+const DEFAULT_SKILL_LEVEL = 53;
+const DEFAULT_SKILL_RATING = 0;
 
 async function defaultDialogPath(
   fallbackPath?: string | null
@@ -887,6 +892,279 @@ function hasAnyNonZero(stats: RaceStats | undefined): boolean {
     return false;
   }
   return RACE_STAT_KEYS.some((key) => Number(stats[key]) !== 0);
+}
+
+function normalizeSkillClassMap(
+  value: SkillDefinition["levels"] | SkillDefinition["ratings"]
+): Record<string, number> | number[] | undefined {
+  if (Array.isArray(value)) {
+    return normalizeRaceNumberList(value);
+  }
+  if (value && typeof value === "object") {
+    const entries = Object.entries(value);
+    if (!entries.length) {
+      return undefined;
+    }
+    const next: Record<string, number> = {};
+    entries.forEach(([key, entry]) => {
+      const parsed = Number(entry);
+      if (Number.isFinite(parsed)) {
+        next[key] = Math.trunc(parsed);
+      }
+    });
+    return Object.keys(next).length ? next : undefined;
+  }
+  return undefined;
+}
+
+function normalizeSkillRecord(record: Partial<SkillDefinition>): SkillDefinition {
+  return {
+    name: record.name?.trim() || "unnamed",
+    levels: normalizeSkillClassMap(record.levels),
+    ratings: normalizeSkillClassMap(record.ratings),
+    spell: record.spell?.trim(),
+    loxSpell: record.loxSpell?.trim(),
+    target: record.target?.trim(),
+    minPosition: record.minPosition?.trim(),
+    gsn: record.gsn?.trim(),
+    slot:
+      typeof record.slot === "number" && Number.isFinite(record.slot)
+        ? Math.trunc(record.slot)
+        : 0,
+    minMana:
+      typeof record.minMana === "number" && Number.isFinite(record.minMana)
+        ? Math.trunc(record.minMana)
+        : 0,
+    beats:
+      typeof record.beats === "number" && Number.isFinite(record.beats)
+        ? Math.trunc(record.beats)
+        : 0,
+    nounDamage: record.nounDamage?.trim(),
+    msgOff: record.msgOff?.trim(),
+    msgObj: record.msgObj?.trim()
+  };
+}
+
+function parseSkillJson(content: string): SkillDataFile {
+  const parsed = JSON.parse(content) as Record<string, unknown>;
+  const formatVersion = Number(parsed.formatVersion);
+  const skillsRaw = parsed.skills;
+  const skills = Array.isArray(skillsRaw)
+    ? skillsRaw.map((skill) =>
+        normalizeSkillRecord((skill ?? {}) as Partial<SkillDefinition>)
+      )
+    : [];
+  return {
+    formatVersion: Number.isFinite(formatVersion) ? formatVersion : 1,
+    skills
+  };
+}
+
+function parseSkillOlc(content: string): SkillDataFile {
+  const scanner = new OlcScanner(content);
+  const skills: SkillDefinition[] = [];
+
+  while (!scanner.eof()) {
+    const word = scanner.readWord();
+    if (!word) {
+      break;
+    }
+    const upper = word.toUpperCase();
+    if (upper !== "#SKILL") {
+      if (upper === "#END") {
+        break;
+      }
+      continue;
+    }
+    const record: Partial<SkillDefinition> = {};
+    while (!scanner.eof()) {
+      const field = scanner.readWord();
+      if (!field) {
+        break;
+      }
+      const fieldUpper = field.toUpperCase();
+      if (fieldUpper === "#END") {
+        break;
+      }
+      switch (field.toLowerCase()) {
+        case "name":
+          record.name = scanner.readString();
+          break;
+        case "skill_level":
+          record.levels = readOlcNumberList(scanner);
+          break;
+        case "rating":
+          record.ratings = readOlcNumberList(scanner);
+          break;
+        case "spell_fun": {
+          const value = scanner.readString();
+          record.spell = value.trim().length ? value.trim() : undefined;
+          break;
+        }
+        case "lox_spell": {
+          const value = scanner.readString();
+          record.loxSpell = value.trim().length ? value.trim() : undefined;
+          break;
+        }
+        case "target":
+          record.target = scanner.readString();
+          break;
+        case "minimum_position":
+          record.minPosition = scanner.readString();
+          break;
+        case "pgsn": {
+          const value = scanner.readString();
+          record.gsn = value.trim().length ? value.trim() : undefined;
+          break;
+        }
+        case "slot":
+          record.slot = scanner.readNumber();
+          break;
+        case "min_mana":
+          record.minMana = scanner.readNumber();
+          break;
+        case "beats":
+          record.beats = scanner.readNumber();
+          break;
+        case "noun_damage": {
+          const value = scanner.readString();
+          record.nounDamage = value.trim().length ? value.trim() : undefined;
+          break;
+        }
+        case "msg_off": {
+          const value = scanner.readString();
+          record.msgOff = value.trim().length ? value.trim() : undefined;
+          break;
+        }
+        case "msg_obj": {
+          const value = scanner.readString();
+          record.msgObj = value.trim().length ? value.trim() : undefined;
+          break;
+        }
+        default:
+          break;
+      }
+    }
+    skills.push(normalizeSkillRecord(record));
+  }
+
+  return { formatVersion: 1, skills };
+}
+
+function serializeSkillJson(
+  data: SkillDataFile,
+  classNames?: string[]
+): string {
+  const root: Record<string, unknown> = {
+    formatVersion: 1,
+    skills: data.skills.map((skill) => {
+      const record = normalizeSkillRecord(skill);
+      const obj: Record<string, unknown> = {
+        name: record.name
+      };
+      if (record.levels && Object.keys(record.levels).length) {
+        if (Array.isArray(record.levels) && classNames?.length) {
+          obj.levels = Object.fromEntries(
+            classNames.map((name, index) => [
+              name,
+              record.levels?.[index] ?? DEFAULT_SKILL_LEVEL
+            ])
+          );
+        } else {
+          obj.levels = record.levels;
+        }
+      }
+      if (record.ratings && Object.keys(record.ratings).length) {
+        if (Array.isArray(record.ratings) && classNames?.length) {
+          obj.ratings = Object.fromEntries(
+            classNames.map((name, index) => [
+              name,
+              record.ratings?.[index] ?? DEFAULT_SKILL_RATING
+            ])
+          );
+        } else {
+          obj.ratings = record.ratings;
+        }
+      }
+      if (record.spell) {
+        obj.spell = record.spell;
+      }
+      if (record.loxSpell) {
+        obj.loxSpell = record.loxSpell;
+      }
+      if (record.target) {
+        obj.target = record.target;
+      }
+      if (record.minPosition) {
+        obj.minPosition = record.minPosition;
+      }
+      if (record.gsn) {
+        obj.gsn = record.gsn;
+      }
+      if (record.slot) {
+        obj.slot = record.slot;
+      }
+      if (record.minMana) {
+        obj.minMana = record.minMana;
+      }
+      if (record.beats) {
+        obj.beats = record.beats;
+      }
+      if (record.nounDamage) {
+        obj.nounDamage = record.nounDamage;
+      }
+      if (record.msgOff) {
+        obj.msgOff = record.msgOff;
+      }
+      if (record.msgObj) {
+        obj.msgObj = record.msgObj;
+      }
+      return obj;
+    })
+  };
+  return JSON.stringify(root, null, 2);
+}
+
+function serializeSkillOlc(
+  data: SkillDataFile,
+  classNames?: string[]
+): string {
+  const skills = data.skills.map((skill) => normalizeSkillRecord(skill));
+  const lines: string[] = [];
+  lines.push(String(skills.length));
+  lines.push("");
+  skills.forEach((skill) => {
+    const levels = buildClassNumberList(
+      skill.levels as Record<string, number> | number[] | undefined,
+      classNames,
+      DEFAULT_SKILL_LEVEL
+    );
+    const ratings = buildClassNumberList(
+      skill.ratings as Record<string, number> | number[] | undefined,
+      classNames,
+      DEFAULT_SKILL_RATING
+    );
+    lines.push("#SKILL");
+    lines.push(`name ${sanitizeOlcString(skill.name)}~`);
+    lines.push(`skill_level ${levels.join(" ")} @`);
+    lines.push(`rating ${ratings.join(" ")} @`);
+    lines.push(`spell_fun ${sanitizeOlcString(skill.spell ?? "")}~`);
+    lines.push(`lox_spell ${sanitizeOlcString(skill.loxSpell ?? "")}~`);
+    lines.push(`target ${sanitizeOlcString(skill.target ?? "tar_ignore")}~`);
+    lines.push(
+      `minimum_position ${sanitizeOlcString(skill.minPosition ?? "dead")}~`
+    );
+    lines.push(`pgsn ${sanitizeOlcString(skill.gsn ?? "")}~`);
+    lines.push(`slot ${skill.slot ?? 0}`);
+    lines.push(`min_mana ${skill.minMana ?? 0}`);
+    lines.push(`beats ${skill.beats ?? 0}`);
+    lines.push(`noun_damage ${sanitizeOlcString(skill.nounDamage ?? "")}~`);
+    lines.push(`msg_off ${sanitizeOlcString(skill.msgOff ?? "")}~`);
+    lines.push(`msg_obj ${sanitizeOlcString(skill.msgObj ?? "")}~`);
+    lines.push("#END");
+    lines.push("");
+  });
+  return lines.join("\n");
 }
 
 function parseRaceJson(content: string): RaceDataFile {
@@ -1867,6 +2145,96 @@ export class LocalFileRepository implements WorldRepository {
       outputFormat === "json"
         ? serializeRaceJson(data)
         : serializeRaceOlc(data, classNames);
+    await writeTextFile(path, payload);
+    return path;
+  }
+
+  async loadSkillsData(
+    dataDir: string,
+    fileName?: string,
+    defaultFormat?: "json" | "olc"
+  ): Promise<SkillDataSource> {
+    const candidates: Array<{ path: string; format: "json" | "olc" }> = [];
+    if (fileName) {
+      const lower = fileName.toLowerCase();
+      if (lower.endsWith(".json")) {
+        candidates.push({
+          path: isAbsolutePath(fileName) ? fileName : await join(dataDir, fileName),
+          format: "json"
+        });
+      } else if (lower.endsWith(".olc")) {
+        candidates.push({
+          path: isAbsolutePath(fileName) ? fileName : await join(dataDir, fileName),
+          format: "olc"
+        });
+      } else if (defaultFormat) {
+        candidates.push({
+          path: isAbsolutePath(fileName)
+            ? `${fileName}.${defaultFormat}`
+            : await join(dataDir, `${fileName}.${defaultFormat}`),
+          format: defaultFormat
+        });
+      } else {
+        candidates.push({
+          path: isAbsolutePath(fileName)
+            ? `${fileName}.json`
+            : await join(dataDir, `${fileName}.json`),
+          format: "json"
+        });
+        candidates.push({
+          path: isAbsolutePath(fileName)
+            ? `${fileName}.olc`
+            : await join(dataDir, `${fileName}.olc`),
+          format: "olc"
+        });
+      }
+    }
+    if (!candidates.length) {
+      candidates.push({
+        path: await join(dataDir, "skills.json"),
+        format: "json"
+      });
+      candidates.push({
+        path: await join(dataDir, "skills.olc"),
+        format: "olc"
+      });
+    }
+    for (const candidate of candidates) {
+      const raw = await tryReadText(candidate.path);
+      if (!raw) {
+        continue;
+      }
+      return {
+        path: candidate.path,
+        format: candidate.format,
+        data:
+          candidate.format === "json"
+            ? parseSkillJson(raw)
+            : parseSkillOlc(raw)
+      };
+    }
+
+    throw new Error("Missing skills data file.");
+  }
+
+  async saveSkillsData(
+    dataDir: string,
+    data: SkillDataFile,
+    format: "json" | "olc",
+    fileName?: string,
+    classNames?: string[]
+  ): Promise<string> {
+    const resolvedName = fileName ?? (format === "json" ? "skills.json" : "skills.olc");
+    const lower = resolvedName.toLowerCase();
+    const outputFormat =
+      lower.endsWith(".json") ? "json" : lower.endsWith(".olc") ? "olc" : format;
+    const path = isAbsolutePath(resolvedName)
+      ? resolvedName
+      : await join(dataDir, resolvedName);
+    const payload =
+      outputFormat === "json"
+        ? serializeSkillJson(data, classNames)
+        : serializeSkillOlc(data, classNames);
     await writeTextFile(path, payload);
     return path;
   }

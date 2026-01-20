@@ -94,6 +94,34 @@ export type RaceDataSource = {
   data: RaceDataFile;
 };
 
+export type SkillDefinition = {
+  name: string;
+  levels?: Record<string, number> | number[];
+  ratings?: Record<string, number> | number[];
+  spell?: string;
+  loxSpell?: string;
+  target?: string;
+  minPosition?: string;
+  gsn?: string;
+  slot?: number;
+  minMana?: number;
+  beats?: number;
+  nounDamage?: string;
+  msgOff?: string;
+  msgObj?: string;
+};
+
+export type SkillDataFile = {
+  formatVersion: number;
+  skills: SkillDefinition[];
+};
+
+export type SkillDataSource = {
+  path: string;
+  format: "json" | "olc";
+  data: SkillDataFile;
+};
+
 export type ProjectDataFiles = {
   classes: string;
   races: string;

@@ -453,6 +453,16 @@ export const partFlags = [
   "animalDefault"
 ] as const;
 
+export const skillTargets = [
+  "tar_ignore",
+  "tar_char_offensive",
+  "tar_char_defensive",
+  "tar_char_self",
+  "tar_obj_inv",
+  "tar_obj_char_def",
+  "tar_obj_char_off"
+] as const;
+
 export const applyLocations = [
   "none",
   "strength",
@@ -534,4 +544,5 @@ export const vulnFlagEnum = z.enum(vulnFlags);
 export const formFlagEnum = z.enum(formFlags);
 export const partFlagEnum = z.enum(partFlags);
 export const applyLocationEnum = z.enum(applyLocations);
+export const skillTargetEnum = z.enum(skillTargets);
 export const eventTriggerEnum = z.enum(eventTriggers);

@@ -10,6 +10,7 @@ type ViewBodyProps = {
   hasAreaData: boolean;
   classCount: number;
   raceCount: number;
+  skillCount: number;
   roomCount: number;
   mobileCount: number;
   objectCount: number;
@@ -28,9 +29,11 @@ type ViewBodyProps = {
   factionForm: ReactNode;
   classForm: ReactNode;
   raceForm: ReactNode;
+  skillForm: ReactNode;
   tableView: ReactNode;
   classTableView: ReactNode;
   raceTableView: ReactNode;
+  skillTableView: ReactNode;
   mapView: ReactNode;
   worldView: ReactNode;
   scriptView: ReactNode;
@@ -45,6 +48,7 @@ export function ViewBody({
   hasAreaData,
   classCount,
   raceCount,
+  skillCount,
   roomCount,
   mobileCount,
   objectCount,
@@ -63,9 +67,11 @@ export function ViewBody({
   factionForm,
   classForm,
   raceForm,
+  skillForm,
   tableView,
   classTableView,
   raceTableView,
+  skillTableView,
   mapView,
   worldView,
   scriptView
@@ -101,6 +107,21 @@ export function ViewBody({
       }
       if (activeTab === "Table") {
         return <>{raceTableView}</>;
+      }
+    }
+    if (selectedGlobalEntity === "Skills") {
+      if (activeTab === "Form") {
+        return skillCount ? (
+          <>{skillForm}</>
+        ) : (
+          <div className="entity-table__empty">
+            <h3>No skills loaded</h3>
+            <p>Load the skills file from the data directory.</p>
+          </div>
+        );
+      }
+      if (activeTab === "Table") {
+        return <>{skillTableView}</>;
       }
     }
     return (
