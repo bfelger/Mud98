@@ -7,6 +7,8 @@ import type {
   EditorMeta,
   ProjectConfig,
   ProjectDataFiles,
+  RaceDataFile,
+  RaceDataSource,
   ReferenceData
 } from "./types";
 
@@ -45,6 +47,18 @@ export interface WorldRepository {
     data: ClassDataFile,
     format: "json" | "olc",
     fileName?: string
+  ): Promise<string>;
+  loadRacesData(
+    dataDir: string,
+    fileName?: string,
+    defaultFormat?: "json" | "olc"
+  ): Promise<RaceDataSource>;
+  saveRacesData(
+    dataDir: string,
+    data: RaceDataFile,
+    format: "json" | "olc",
+    fileName?: string,
+    classNames?: string[]
   ): Promise<string>;
   listLegacyAreaFiles(areaDir: string): Promise<string[]>;
 }

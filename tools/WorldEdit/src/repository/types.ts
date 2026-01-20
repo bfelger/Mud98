@@ -53,6 +53,47 @@ export type ClassDataSource = {
   data: ClassDataFile;
 };
 
+export type RaceStats = {
+  str?: number;
+  int?: number;
+  wis?: number;
+  dex?: number;
+  con?: number;
+};
+
+export type RaceDefinition = {
+  name: string;
+  whoName?: string;
+  pc?: boolean;
+  points?: number;
+  size?: string;
+  stats?: RaceStats;
+  maxStats?: RaceStats;
+  actFlags?: string[];
+  affectFlags?: string[];
+  offFlags?: string[];
+  immFlags?: string[];
+  resFlags?: string[];
+  vulnFlags?: string[];
+  formFlags?: string[];
+  partFlags?: string[];
+  classMult?: Record<string, number> | number[];
+  startLoc?: number;
+  classStart?: Record<string, number> | number[];
+  skills?: string[];
+};
+
+export type RaceDataFile = {
+  formatVersion: number;
+  races: RaceDefinition[];
+};
+
+export type RaceDataSource = {
+  path: string;
+  format: "json" | "olc";
+  data: RaceDataFile;
+};
+
 export type ProjectDataFiles = {
   classes: string;
   races: string;

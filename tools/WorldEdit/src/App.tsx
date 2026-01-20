@@ -40,8 +40,10 @@ import { ShopForm } from "./components/ShopForm";
 import { QuestForm } from "./components/QuestForm";
 import { FactionForm } from "./components/FactionForm";
 import { ClassForm } from "./components/ClassForm";
+import { RaceForm } from "./components/RaceForm";
 import { TableView } from "./components/TableView";
 import { ClassTableView } from "./components/ClassTableView";
+import { RaceTableView } from "./components/RaceTableView";
 import { InspectorPanel } from "./components/InspectorPanel";
 import { EntityTree } from "./components/EntityTree";
 import { Topbar } from "./components/Topbar";
@@ -61,6 +63,8 @@ import type {
   EditorLayout,
   EditorMeta,
   ProjectConfig,
+  RaceDataFile,
+  RaceDefinition,
   ReferenceData,
   RoomLayoutEntry
 } from "./repository/types";
@@ -83,6 +87,14 @@ import {
   directions,
   exitFlagEnum,
   exitFlags,
+  actFlags,
+  affectFlags,
+  offFlags,
+  immFlags,
+  resFlags,
+  vulnFlags,
+  formFlags,
+  partFlags,
   extraFlagEnum,
   extraFlags,
   furnitureFlagEnum,
@@ -169,6 +181,8 @@ const primeStatOptions = ["str", "int", "wis", "dex", "con"] as const;
 const armorProfOptions = ["old_style", "cloth", "light", "medium", "heavy"] as const;
 const classTitleCount = 61;
 const classGuildCount = 2;
+const raceSkillCount = 5;
+const raceStatKeys = ["str", "int", "wis", "dex", "con"] as const;
 
 const itemTypeOptions = [
   "none",
@@ -358,6 +372,16 @@ type ClassRow = {
   primeStat: string;
   armorProf: string;
   weaponVnum: number;
+  startLoc: number;
+};
+
+type RaceRow = {
+  index: number;
+  name: string;
+  whoName: string;
+  pc: string;
+  points: number;
+  size: string;
   startLoc: number;
 };
 
@@ -858,6 +882,40 @@ const classFormSchema = z.object({
   titlesFemale: z.string().optional()
 });
 
+const raceFormSchema = z.object({
+  name: z.string().min(1),
+  whoName: z.string().optional(),
+  pc: z.boolean(),
+  points: z.number().int(),
+  size: z.string().optional(),
+  startLoc: z.number().int(),
+  stats: z.object({
+    str: z.number().int(),
+    int: z.number().int(),
+    wis: z.number().int(),
+    dex: z.number().int(),
+    con: z.number().int()
+  }),
+  maxStats: z.object({
+    str: z.number().int(),
+    int: z.number().int(),
+    wis: z.number().int(),
+    dex: z.number().int(),
+    con: z.number().int()
+  }),
+  actFlags: z.array(z.string()).optional(),
+  affectFlags: z.array(z.string()).optional(),
+  offFlags: z.array(z.string()).optional(),
+  immFlags: z.array(z.string()).optional(),
+  resFlags: z.array(z.string()).optional(),
+  vulnFlags: z.array(z.string()).optional(),
+  formFlags: z.array(z.string()).optional(),
+  partFlags: z.array(z.string()).optional(),
+  classMult: z.record(z.number().int()).optional(),
+  classStart: z.record(z.number().int()).optional(),
+  skills: z.array(z.string()).length(raceSkillCount)
+});
+
 type RoomFormValues = z.infer<typeof roomFormSchema>;
 type AreaFormValues = z.infer<typeof areaFormSchema>;
 type MobileFormValues = z.infer<typeof mobileFormSchema>;
@@ -867,6 +925,7 @@ type ShopFormValues = z.infer<typeof shopFormSchema>;
 type QuestFormValues = z.infer<typeof questFormSchema>;
 type FactionFormValues = z.infer<typeof factionFormSchema>;
 type ClassFormValues = z.infer<typeof classFormSchema>;
+type RaceFormValues = z.infer<typeof raceFormSchema>;
 
 const entityKindLabels: Record<EntityKey, string> = {
   Area: "Area",
@@ -3552,6 +3611,80 @@ function buildClassRows(classData: ClassDataFile | null): ClassRow[] {
   }));
 }
 
+function normalizeRaceStats(
+  value: RaceDefinition["stats"] | RaceDefinition["maxStats"]
+): Record<string, number> {
+  const stats: Record<string, number> = {
+    str: 0,
+    int: 0,
+    wis: 0,
+    dex: 0,
+    con: 0
+  };
+  if (Array.isArray(value)) {
+    raceStatKeys.forEach((key, index) => {
+      const parsed = Number(value[index]);
+      if (Number.isFinite(parsed)) {
+        stats[key] = parsed;
+      }
+    });
+    return stats;
+  }
+  if (value && typeof value === "object") {
+    raceStatKeys.forEach((key) => {
+      const record = value as Record<string, unknown>;
+      const parsed = Number(record[key]);
+      if (Number.isFinite(parsed)) {
+        stats[key] = parsed;
+      }
+    });
+  }
+  return stats;
+}
+
+function normalizeRaceClassMap(
+  value: RaceDefinition["classMult"] | RaceDefinition["classStart"],
+  classNames: string[],
+  defaultValue: number
+): Record<string, number> {
+  const result: Record<string, number> = {};
+  if (!classNames.length) {
+    return result;
+  }
+  classNames.forEach((name, index) => {
+    let parsed: number | null = null;
+    if (Array.isArray(value)) {
+      parsed = Number(value[index]);
+    } else if (value && typeof value === "object") {
+      parsed = Number((value as Record<string, unknown>)[name]);
+    }
+    result[name] = Number.isFinite(parsed) ? Math.trunc(parsed) : defaultValue;
+  });
+  return result;
+}
+
+function normalizeRaceSkills(value: string[] | undefined): string[] {
+  return Array.from({ length: raceSkillCount }).map((_, index) => {
+    const entry = value?.[index];
+    return typeof entry === "string" ? entry : "";
+  });
+}
+
+function buildRaceRows(raceData: RaceDataFile | null): RaceRow[] {
+  if (!raceData) {
+    return [];
+  }
+  return raceData.races.map((race, index) => ({
+    index,
+    name: race.name ?? "(unnamed)",
+    whoName: race.whoName ?? "",
+    pc: race.pc ? "yes" : "no",
+    points: race.points ?? 0,
+    size: race.size ?? "medium",
+    startLoc: race.startLoc ?? 0
+  }));
+}
+
 function titlesToText(titles: string[][] | undefined, column: 0 | 1): string {
   const lines: string[] = [];
   for (let i = 0; i < classTitleCount; i += 1) {
@@ -3610,6 +3743,9 @@ export default function App({ repository }: AppProps) {
   const [selectedClassIndex, setSelectedClassIndex] = useState<number | null>(
     null
   );
+  const [selectedRaceIndex, setSelectedRaceIndex] = useState<number | null>(
+    null
+  );
   const [selectedRoomVnum, setSelectedRoomVnum] = useState<number | null>(null);
   const [selectedMobileVnum, setSelectedMobileVnum] = useState<number | null>(
     null
@@ -3635,6 +3771,12 @@ export default function App({ repository }: AppProps) {
     "json" | "olc" | null
   >(null);
   const [classDataDir, setClassDataDir] = useState<string | null>(null);
+  const [raceData, setRaceData] = useState<RaceDataFile | null>(null);
+  const [raceDataPath, setRaceDataPath] = useState<string | null>(null);
+  const [raceDataFormat, setRaceDataFormat] = useState<
+    "json" | "olc" | null
+  >(null);
+  const [raceDataDir, setRaceDataDir] = useState<string | null>(null);
   const [projectConfig, setProjectConfig] = useState<ProjectConfig | null>(null);
   const [editorMeta, setEditorMeta] = useState<EditorMeta | null>(null);
   const [editorMetaPath, setEditorMetaPath] = useState<string | null>(null);
@@ -3681,6 +3823,7 @@ export default function App({ repository }: AppProps) {
   const questGridApi = useRef<GridApi | null>(null);
   const factionGridApi = useRef<GridApi | null>(null);
   const classGridApi = useRef<GridApi | null>(null);
+  const raceGridApi = useRef<GridApi | null>(null);
   const areaForm = useForm<AreaFormValues>({
     resolver: zodResolver(areaFormSchema),
     defaultValues: {
@@ -3994,6 +4137,57 @@ export default function App({ repository }: AppProps) {
     formState: classFormState,
     reset: resetClassForm
   } = classForm;
+  const raceClassNames = referenceData?.classes ?? [];
+  const raceFormDefaults = useMemo<RaceFormValues>(
+    () => ({
+      name: "",
+      whoName: "",
+      pc: false,
+      points: 0,
+      size: "",
+      startLoc: 0,
+      stats: {
+        str: 0,
+        int: 0,
+        wis: 0,
+        dex: 0,
+        con: 0
+      },
+      maxStats: {
+        str: 0,
+        int: 0,
+        wis: 0,
+        dex: 0,
+        con: 0
+      },
+      actFlags: [],
+      affectFlags: [],
+      offFlags: [],
+      immFlags: [],
+      resFlags: [],
+      vulnFlags: [],
+      formFlags: [],
+      partFlags: [],
+      classMult: Object.fromEntries(
+        raceClassNames.map((name) => [name, 100])
+      ),
+      classStart: Object.fromEntries(
+        raceClassNames.map((name) => [name, 0])
+      ),
+      skills: new Array(raceSkillCount).fill("")
+    }),
+    [raceClassNames]
+  );
+  const raceForm = useForm<RaceFormValues>({
+    resolver: zodResolver(raceFormSchema),
+    defaultValues: raceFormDefaults
+  });
+  const {
+    register: registerRace,
+    handleSubmit: handleRaceSubmitForm,
+    formState: raceFormState,
+    reset: resetRaceForm
+  } = raceForm;
   const watchedResetCommand = useWatch({
     control: resetForm.control,
     name: "commandName"
@@ -4063,6 +4257,78 @@ export default function App({ repository }: AppProps) {
       setIsBusy(false);
     }
   }, [classData, classDataFormat, dataDirectory, projectConfig, repository]);
+
+  const handleLoadRacesData = useCallback(
+    async (overrideDir?: string) => {
+      const targetDir =
+        typeof overrideDir === "string" ? overrideDir : dataDirectory;
+      if (!targetDir) {
+        setErrorMessage("No data directory set for races.");
+        return;
+      }
+      const racesFile = projectConfig?.dataFiles.races;
+      const defaultFormat = projectConfig?.defaultFormat;
+      setErrorMessage(null);
+      setIsBusy(true);
+      try {
+        const source = await repository.loadRacesData(
+          targetDir,
+          racesFile,
+          defaultFormat
+        );
+        setRaceData(source.data);
+        setRaceDataPath(source.path);
+        setRaceDataFormat(source.format);
+        setRaceDataDir(targetDir);
+        setStatusMessage(`Loaded races (${source.format})`);
+      } catch (error) {
+        setErrorMessage(`Failed to load races. ${String(error)}`);
+      } finally {
+        setIsBusy(false);
+      }
+    },
+    [dataDirectory, projectConfig, repository]
+  );
+
+  const handleSaveRacesData = useCallback(async () => {
+    if (!raceData) {
+      setErrorMessage("No races loaded to save.");
+      return;
+    }
+    if (!dataDirectory) {
+      setErrorMessage("No data directory set for races.");
+      return;
+    }
+    setErrorMessage(null);
+    setIsBusy(true);
+    try {
+      const format = raceDataFormat ?? projectConfig?.defaultFormat ?? "json";
+      const racesFile = projectConfig?.dataFiles.races;
+      const classNames = referenceData?.classes ?? [];
+      const path = await repository.saveRacesData(
+        dataDirectory,
+        raceData,
+        format,
+        racesFile,
+        classNames
+      );
+      setRaceDataPath(path);
+      setRaceDataFormat(format);
+      setRaceDataDir(dataDirectory);
+      setStatusMessage(`Saved races (${format})`);
+    } catch (error) {
+      setErrorMessage(`Failed to save races. ${String(error)}`);
+    } finally {
+      setIsBusy(false);
+    }
+  }, [
+    dataDirectory,
+    projectConfig,
+    raceData,
+    raceDataFormat,
+    referenceData,
+    repository
+  ]);
 
   useEffect(() => {
     const nextRoom = getDefaultSelection(areaData, "Rooms", selectedRoomVnum);
@@ -4169,6 +4435,26 @@ export default function App({ repository }: AppProps) {
   ]);
 
   useEffect(() => {
+    if (editorMode !== "Global" || selectedGlobalEntity !== "Races") {
+      return;
+    }
+    if (!dataDirectory) {
+      return;
+    }
+    if (raceData && raceDataDir === dataDirectory) {
+      return;
+    }
+    void handleLoadRacesData(dataDirectory);
+  }, [
+    editorMode,
+    selectedGlobalEntity,
+    dataDirectory,
+    raceData,
+    raceDataDir,
+    handleLoadRacesData
+  ]);
+
+  useEffect(() => {
     if (!classData || classData.classes.length === 0) {
       if (selectedClassIndex !== null) {
         setSelectedClassIndex(null);
@@ -4182,6 +4468,21 @@ export default function App({ repository }: AppProps) {
       setSelectedClassIndex(0);
     }
   }, [classData, selectedClassIndex]);
+
+  useEffect(() => {
+    if (!raceData || raceData.races.length === 0) {
+      if (selectedRaceIndex !== null) {
+        setSelectedRaceIndex(null);
+      }
+      return;
+    }
+    if (
+      selectedRaceIndex === null ||
+      selectedRaceIndex >= raceData.races.length
+    ) {
+      setSelectedRaceIndex(0);
+    }
+  }, [raceData, selectedRaceIndex]);
 
   useEffect(() => {
     if (!classData || selectedClassIndex === null) {
@@ -4211,6 +4512,42 @@ export default function App({ repository }: AppProps) {
       titlesFemale: titlesToText(cls.titles, 1)
     });
   }, [classData, classFormDefaults, resetClassForm, selectedClassIndex]);
+
+  useEffect(() => {
+    if (!raceData || selectedRaceIndex === null) {
+      resetRaceForm(raceFormDefaults);
+      return;
+    }
+    const race = raceData.races[selectedRaceIndex];
+    const classNames = referenceData?.classes ?? [];
+    resetRaceForm({
+      name: race.name ?? "",
+      whoName: race.whoName ?? "",
+      pc: race.pc ?? false,
+      points: race.points ?? 0,
+      size: race.size ?? "",
+      startLoc: race.startLoc ?? 0,
+      stats: normalizeRaceStats(race.stats),
+      maxStats: normalizeRaceStats(race.maxStats),
+      actFlags: race.actFlags ?? [],
+      affectFlags: race.affectFlags ?? [],
+      offFlags: race.offFlags ?? [],
+      immFlags: race.immFlags ?? [],
+      resFlags: race.resFlags ?? [],
+      vulnFlags: race.vulnFlags ?? [],
+      formFlags: race.formFlags ?? [],
+      partFlags: race.partFlags ?? [],
+      classMult: normalizeRaceClassMap(race.classMult, classNames, 100),
+      classStart: normalizeRaceClassMap(race.classStart, classNames, 0),
+      skills: normalizeRaceSkills(race.skills)
+    });
+  }, [
+    raceData,
+    selectedRaceIndex,
+    raceFormDefaults,
+    referenceData,
+    resetRaceForm
+  ]);
 
   const selection = useMemo(
     () =>
@@ -4398,6 +4735,7 @@ export default function App({ repository }: AppProps) {
     }));
   }, [referenceData]);
   const classRows = useMemo(() => buildClassRows(classData), [classData]);
+  const raceRows = useMemo(() => buildRaceRows(raceData), [raceData]);
   const roomRows = useMemo(() => buildRoomRows(areaData), [areaData]);
   const mobileRows = useMemo(() => buildMobileRows(areaData), [areaData]);
   const objectRows = useMemo(() => buildObjectRows(areaData), [areaData]);
@@ -5643,6 +5981,18 @@ export default function App({ repository }: AppProps) {
     ],
     []
   );
+  const raceColumns = useMemo<ColDef<RaceRow>[]>(
+    () => [
+      { headerName: "#", field: "index", width: 80, sort: "asc" },
+      { headerName: "Name", field: "name", flex: 2, minWidth: 200 },
+      { headerName: "Who", field: "whoName", width: 120 },
+      { headerName: "PC", field: "pc", width: 80 },
+      { headerName: "Points", field: "points", width: 110 },
+      { headerName: "Size", field: "size", width: 110 },
+      { headerName: "Start", field: "startLoc", width: 110 }
+    ],
+    []
+  );
   const roomColumns = useMemo<ColDef<RoomRow>[]>(
     () => [
       { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
@@ -5724,6 +6074,7 @@ export default function App({ repository }: AppProps) {
   const mobileDefaultColDef = roomDefaultColDef;
   const objectDefaultColDef = roomDefaultColDef;
   const classDefaultColDef = roomDefaultColDef;
+  const raceDefaultColDef = roomDefaultColDef;
 
   useEffect(() => {
     areaForm.reset(areaFormDefaults);
@@ -5821,6 +6172,23 @@ export default function App({ repository }: AppProps) {
     activeTab,
     selectedClassIndex,
     classRows
+  ]);
+
+  useEffect(() => {
+    if (
+      editorMode !== "Global" ||
+      selectedGlobalEntity !== "Races" ||
+      activeTab !== "Table"
+    ) {
+      return;
+    }
+    syncGridSelection(raceGridApi.current, selectedRaceIndex);
+  }, [
+    editorMode,
+    selectedGlobalEntity,
+    activeTab,
+    selectedRaceIndex,
+    raceRows
   ]);
 
   useEffect(() => {
@@ -6504,6 +6872,54 @@ export default function App({ repository }: AppProps) {
     setStatusMessage(`Updated class ${data.name} (unsaved)`);
   };
 
+  const handleRaceSubmit = (data: RaceFormValues) => {
+    if (!raceData || selectedRaceIndex === null) {
+      return;
+    }
+    const classNames = referenceData?.classes ?? [];
+    const classMult: Record<string, number> = {};
+    const classStart: Record<string, number> = {};
+    classNames.forEach((name) => {
+      const mult = Number(data.classMult?.[name] ?? 100);
+      classMult[name] = Number.isFinite(mult) ? Math.trunc(mult) : 100;
+      const start = Number(data.classStart?.[name] ?? 0);
+      classStart[name] = Number.isFinite(start) ? Math.trunc(start) : 0;
+    });
+    const skills = (data.skills ?? [])
+      .map((entry) => entry.trim())
+      .filter((entry) => entry.length);
+    const nextRecord: RaceDefinition = {
+      name: data.name,
+      whoName: cleanOptionalString(data.whoName),
+      pc: data.pc,
+      points: data.points,
+      size: cleanOptionalString(data.size),
+      startLoc: data.startLoc,
+      stats: data.stats,
+      maxStats: data.maxStats,
+      actFlags: data.actFlags?.length ? data.actFlags : undefined,
+      affectFlags: data.affectFlags?.length ? data.affectFlags : undefined,
+      offFlags: data.offFlags?.length ? data.offFlags : undefined,
+      immFlags: data.immFlags?.length ? data.immFlags : undefined,
+      resFlags: data.resFlags?.length ? data.resFlags : undefined,
+      vulnFlags: data.vulnFlags?.length ? data.vulnFlags : undefined,
+      formFlags: data.formFlags?.length ? data.formFlags : undefined,
+      partFlags: data.partFlags?.length ? data.partFlags : undefined,
+      classMult: classNames.length ? classMult : undefined,
+      classStart: classNames.length ? classStart : undefined,
+      skills
+    };
+    setRaceData((current) => {
+      if (!current) {
+        return current;
+      }
+      const nextRaces = [...current.races];
+      nextRaces[selectedRaceIndex] = nextRecord;
+      return { ...current, races: nextRaces };
+    });
+    setStatusMessage(`Updated race ${data.name} (unsaved)`);
+  };
+
   const warnLegacyAreaFiles = useCallback(
     async (areaDir: string | null) => {
       if (!areaDir) {
@@ -6887,6 +7303,25 @@ export default function App({ repository }: AppProps) {
       titleCount={classTitleCount}
     />
   );
+  const raceFormNode = (
+    <RaceForm
+      onSubmit={handleRaceSubmitForm(handleRaceSubmit)}
+      register={registerRace}
+      formState={raceFormState}
+      sizeOptions={[...sizes]}
+      statKeys={[...raceStatKeys]}
+      actFlags={[...actFlags]}
+      affectFlags={[...affectFlags]}
+      offFlags={[...offFlags]}
+      immFlags={[...immFlags]}
+      resFlags={[...resFlags]}
+      vulnFlags={[...vulnFlags.filter((flag) => flag !== "none")]}
+      formFlags={[...formFlags]}
+      partFlags={[...partFlags]}
+      classNames={raceClassNames}
+      skillCount={raceSkillCount}
+    />
+  );
   const tableViewNode = (
     <TableView
       selectedEntity={selectedEntity}
@@ -6934,6 +7369,15 @@ export default function App({ repository }: AppProps) {
       defaultColDef={classDefaultColDef}
       onSelectClass={setSelectedClassIndex}
       gridApiRef={classGridApi}
+    />
+  );
+  const raceTableViewNode = (
+    <RaceTableView
+      rows={raceRows}
+      columns={raceColumns}
+      defaultColDef={raceDefaultColDef}
+      onSelectRace={setSelectedRaceIndex}
+      gridApiRef={raceGridApi}
     />
   );
   const mapViewNode = (
@@ -6994,7 +7438,11 @@ export default function App({ repository }: AppProps) {
       ? classDataPath
         ? fileNameFromPath(classDataPath)
         : "not loaded"
-      : "not loaded";
+      : selectedGlobalEntity === "Races"
+        ? raceDataPath
+          ? fileNameFromPath(raceDataPath)
+          : "not loaded"
+        : "not loaded";
   const viewTitle =
     editorMode === "Area" ? selectedEntity : selectedGlobalEntity;
   const viewMeta =
@@ -7010,8 +7458,19 @@ export default function App({ repository }: AppProps) {
           `Reference ${referenceSummary}`,
           `Active view ${activeTab}`
         ];
-  const showGlobalActions =
-    editorMode === "Global" && selectedGlobalEntity === "Classes";
+  const supportsGlobalData =
+    selectedGlobalEntity === "Classes" || selectedGlobalEntity === "Races";
+  const showGlobalActions = editorMode === "Global" && supportsGlobalData;
+  const globalLoadHandler =
+    selectedGlobalEntity === "Races" ? handleLoadRacesData : handleLoadClassesData;
+  const globalSaveHandler =
+    selectedGlobalEntity === "Races" ? handleSaveRacesData : handleSaveClassesData;
+  const globalSaveDisabled =
+    selectedGlobalEntity === "Classes"
+      ? !classData
+      : selectedGlobalEntity === "Races"
+        ? !raceData
+        : true;
   const visibleTabs =
     editorMode === "Area"
       ? tabs
@@ -7043,16 +7502,16 @@ export default function App({ repository }: AppProps) {
         showGlobalActions={showGlobalActions}
         globalEntityLabel={selectedGlobalEntity}
         globalLoadDisabled={!dataDirectory}
-        globalSaveDisabled={!classData}
+        globalSaveDisabled={globalSaveDisabled}
         onOpenProject={handleOpenProject}
         onOpenArea={handleOpenArea}
         onSetAreaDirectory={handleSetAreaDirectory}
         onLoadReferenceData={handleLoadReferenceData}
-        onLoadGlobalData={handleLoadClassesData}
+        onLoadGlobalData={globalLoadHandler}
         onSaveArea={handleSaveArea}
         onSaveEditorMeta={handleSaveEditorMeta}
         onSaveAreaAs={handleSaveAreaAs}
-        onSaveGlobalData={handleSaveClassesData}
+        onSaveGlobalData={globalSaveHandler}
       />
 
       <section className="workspace">
@@ -7085,6 +7544,7 @@ export default function App({ repository }: AppProps) {
                 tabs={visibleTabs}
                 hasAreaData={Boolean(areaData)}
                 classCount={classRows.length}
+                raceCount={raceRows.length}
                 roomCount={roomRows.length}
                 mobileCount={mobileRows.length}
                 objectCount={objectRows.length}
@@ -7102,8 +7562,10 @@ export default function App({ repository }: AppProps) {
                 questForm={questFormNode}
                 factionForm={factionFormNode}
                 classForm={classFormNode}
+                raceForm={raceFormNode}
                 tableView={tableViewNode}
                 classTableView={classTableViewNode}
+                raceTableView={raceTableViewNode}
                 mapView={mapViewNode}
                 worldView={worldViewNode}
                 scriptView={scriptViewNode}

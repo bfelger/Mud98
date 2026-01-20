@@ -9,6 +9,7 @@ type ViewBodyProps = {
   tabs: Array<{ id: string; title: string; description: string }>;
   hasAreaData: boolean;
   classCount: number;
+  raceCount: number;
   roomCount: number;
   mobileCount: number;
   objectCount: number;
@@ -26,8 +27,10 @@ type ViewBodyProps = {
   questForm: ReactNode;
   factionForm: ReactNode;
   classForm: ReactNode;
+  raceForm: ReactNode;
   tableView: ReactNode;
   classTableView: ReactNode;
+  raceTableView: ReactNode;
   mapView: ReactNode;
   worldView: ReactNode;
   scriptView: ReactNode;
@@ -41,6 +44,7 @@ export function ViewBody({
   tabs,
   hasAreaData,
   classCount,
+  raceCount,
   roomCount,
   mobileCount,
   objectCount,
@@ -58,8 +62,10 @@ export function ViewBody({
   questForm,
   factionForm,
   classForm,
+  raceForm,
   tableView,
   classTableView,
+  raceTableView,
   mapView,
   worldView,
   scriptView
@@ -80,6 +86,21 @@ export function ViewBody({
       }
       if (activeTab === "Table") {
         return <>{classTableView}</>;
+      }
+    }
+    if (selectedGlobalEntity === "Races") {
+      if (activeTab === "Form") {
+        return raceCount ? (
+          <>{raceForm}</>
+        ) : (
+          <div className="entity-table__empty">
+            <h3>No races loaded</h3>
+            <p>Load the races file from the data directory.</p>
+          </div>
+        );
+      }
+      if (activeTab === "Table") {
+        return <>{raceTableView}</>;
       }
     }
     return (

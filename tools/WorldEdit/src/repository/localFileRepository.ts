@@ -8,6 +8,16 @@ import {
 } from "@tauri-apps/plugin-fs";
 import { basename, dirname, homeDir, join } from "@tauri-apps/api/path";
 import { canonicalStringify } from "../utils/canonicalJson";
+import {
+  actFlags,
+  affectFlags,
+  formFlags,
+  immFlags,
+  offFlags,
+  partFlags,
+  resFlags,
+  vulnFlags
+} from "../schemas/enums";
 import type {
   AreaExitDirection,
   AreaGraphLink,
@@ -19,6 +29,10 @@ import type {
   EditorMeta,
   ProjectConfig,
   ProjectDataFiles,
+  RaceDataFile,
+  RaceDataSource,
+  RaceDefinition,
+  RaceStats,
   ReferenceData
 } from "./types";
 import type { WorldRepository } from "./worldRepository";
@@ -38,6 +52,31 @@ const CLASS_TITLE_PAIRS = CLASS_MAX_LEVEL + 1;
 const CLASS_GUILD_COUNT = 2;
 const PRIME_STAT_NAMES = ["str", "int", "wis", "dex", "con"];
 const ARMOR_PROF_NAMES = ["old_style", "cloth", "light", "medium", "heavy"];
+const RACE_STAT_KEYS = ["str", "int", "wis", "dex", "con"] as const;
+const RACE_SKILL_COUNT = 5;
+const RACE_FORM_DEFAULTS: Record<string, string[]> = {
+  humanoidDefault: ["edible", "biped", "mammal", "sentient", "bleeds"],
+  animalDefault: ["edible", "animal", "bleeds"]
+};
+const RACE_PART_DEFAULTS: Record<string, string[]> = {
+  humanoidDefault: [
+    "head",
+    "legs",
+    "heart",
+    "brains",
+    "guts",
+    "ear",
+    "eye",
+    "arms",
+    "hands",
+    "feet",
+    "fingers"
+  ],
+  animalDefault: ["head", "legs", "heart", "brains", "guts", "ear", "eye"]
+};
+const VULN_FLAG_BITS = vulnFlags.filter((flag) => flag !== "none");
+const FORM_FLAG_BITS = formFlags.filter((flag) => !flag.endsWith("Default"));
+const PART_FLAG_BITS = partFlags.filter((flag) => !flag.endsWith("Default"));
 
 async function defaultDialogPath(
   fallbackPath?: string | null
@@ -350,6 +389,19 @@ function sanitizeOlcString(value: string): string {
   return value.replace(/~/g, "").trim();
 }
 
+function readOlcNumberList(scanner: OlcScanner): number[] {
+  const values: number[] = [];
+  while (!scanner.eof()) {
+    const word = scanner.readWord();
+    if (!word || word === "@") {
+      break;
+    }
+    const parsed = Number.parseInt(word, 10);
+    values.push(Number.isNaN(parsed) ? 0 : parsed);
+  }
+  return values;
+}
+
 function normalizeClassRecord(record: Partial<ClassDefinition>): ClassDefinition {
   return {
     name: record.name?.trim() || "unnamed",
@@ -608,6 +660,488 @@ function serializeClassOlc(data: ClassDataFile): string {
       `titles ${flatTitles.map((entry) => `${entry}~`).join(" ")} @~`
     );
     lines.push(`start_loc ${cls.startLoc ?? 0}`);
+    lines.push("#END");
+    lines.push("");
+  });
+  return lines.join("\n");
+}
+
+function parseFlagBits(value: string | undefined, table: readonly string[]): string[] {
+  if (!value) {
+    return [];
+  }
+  const trimmed = value.trim();
+  if (!trimmed || trimmed === "0") {
+    return [];
+  }
+  if (/^-?\d+$/.test(trimmed)) {
+    const bits = Number.parseInt(trimmed, 10);
+    if (!Number.isFinite(bits)) {
+      return [];
+    }
+    const flags: string[] = [];
+    for (let i = 0; i < table.length; i += 1) {
+      if (bits & (1 << i)) {
+        flags.push(table[i]);
+      }
+    }
+    return flags;
+  }
+  const flags: string[] = [];
+  for (const char of trimmed) {
+    let index = -1;
+    if (char >= "A" && char <= "Z") {
+      index = char.charCodeAt(0) - 65;
+    } else if (char >= "a" && char <= "z") {
+      index = char.charCodeAt(0) - 97 + 26;
+    }
+    if (index < 0 || index >= table.length) {
+      continue;
+    }
+    const flag = table[index];
+    if (!flags.includes(flag)) {
+      flags.push(flag);
+    }
+  }
+  return flags;
+}
+
+function flagIndexToChar(index: number): string {
+  if (index < 26) {
+    return String.fromCharCode(65 + index);
+  }
+  return String.fromCharCode(97 + index - 26);
+}
+
+function encodeFlagBits(
+  values: string[] | undefined,
+  table: readonly string[],
+  defaults?: Record<string, string[]>
+): string {
+  if (!values || !values.length) {
+    return "0";
+  }
+  const expanded = new Set<string>();
+  values.forEach((value) => {
+    const key = value.trim();
+    if (!key) {
+      return;
+    }
+    const mapped = defaults?.[key];
+    if (mapped) {
+      mapped.forEach((entry) => expanded.add(entry));
+      return;
+    }
+    expanded.add(key);
+  });
+  let encoded = "";
+  table.forEach((flag, index) => {
+    if (expanded.has(flag)) {
+      encoded += flagIndexToChar(index);
+    }
+  });
+  return encoded.length ? encoded : "0";
+}
+
+function normalizeRaceStats(value: unknown): RaceStats | undefined {
+  if (!value) {
+    return undefined;
+  }
+  const stats: RaceStats = {};
+  if (Array.isArray(value)) {
+    RACE_STAT_KEYS.forEach((key, index) => {
+      const parsed = Number(value[index]);
+      stats[key] = Number.isFinite(parsed) ? parsed : 0;
+    });
+    return stats;
+  }
+  if (typeof value === "object") {
+    RACE_STAT_KEYS.forEach((key) => {
+      const record = value as Record<string, unknown>;
+      const parsed = Number(record[key]);
+      stats[key] = Number.isFinite(parsed) ? parsed : 0;
+    });
+    return stats;
+  }
+  return undefined;
+}
+
+function normalizeRaceFlagList(value: unknown): string[] | undefined {
+  if (!Array.isArray(value)) {
+    return undefined;
+  }
+  const flags = value
+    .map((entry) => (typeof entry === "string" ? entry.trim() : ""))
+    .filter((entry) => entry.length);
+  return flags.length ? flags : undefined;
+}
+
+function normalizeRaceNumberList(value: unknown): number[] | undefined {
+  if (!Array.isArray(value)) {
+    return undefined;
+  }
+  const numbers = value
+    .map((entry) => Number(entry))
+    .filter((entry) => Number.isFinite(entry))
+    .map((entry) => Math.trunc(entry));
+  return numbers.length ? numbers : undefined;
+}
+
+function normalizeRaceMap(
+  value: unknown
+): Record<string, number> | number[] | undefined {
+  if (Array.isArray(value)) {
+    return normalizeRaceNumberList(value);
+  }
+  if (value && typeof value === "object") {
+    const entries = Object.entries(value);
+    if (!entries.length) {
+      return undefined;
+    }
+    const next: Record<string, number> = {};
+    entries.forEach(([key, entry]) => {
+      const parsed = Number(entry);
+      if (Number.isFinite(parsed)) {
+        next[key] = Math.trunc(parsed);
+      }
+    });
+    return Object.keys(next).length ? next : undefined;
+  }
+  return undefined;
+}
+
+function normalizeRaceSkills(value: unknown): string[] | undefined {
+  if (!Array.isArray(value)) {
+    return undefined;
+  }
+  const skills = value
+    .map((entry) => (typeof entry === "string" ? entry.trim() : ""))
+    .filter((entry) => entry.length);
+  return skills.length ? skills.slice(0, RACE_SKILL_COUNT) : undefined;
+}
+
+function normalizeRaceRecord(record: Partial<RaceDefinition>): RaceDefinition {
+  const name = record.name?.trim() || "unnamed";
+  const whoName = record.whoName?.trim();
+  const size = record.size?.trim();
+  return {
+    name,
+    whoName,
+    pc: record.pc ?? false,
+    points:
+      typeof record.points === "number" && Number.isFinite(record.points)
+        ? Math.trunc(record.points)
+        : 0,
+    size: size && size.length ? size : undefined,
+    stats: normalizeRaceStats(record.stats),
+    maxStats: normalizeRaceStats(record.maxStats),
+    actFlags: normalizeRaceFlagList(record.actFlags),
+    affectFlags: normalizeRaceFlagList(record.affectFlags),
+    offFlags: normalizeRaceFlagList(record.offFlags),
+    immFlags: normalizeRaceFlagList(record.immFlags),
+    resFlags: normalizeRaceFlagList(record.resFlags),
+    vulnFlags: normalizeRaceFlagList(record.vulnFlags),
+    formFlags: normalizeRaceFlagList(record.formFlags),
+    partFlags: normalizeRaceFlagList(record.partFlags),
+    classMult: normalizeRaceMap(record.classMult),
+    startLoc:
+      typeof record.startLoc === "number" && Number.isFinite(record.startLoc)
+        ? Math.trunc(record.startLoc)
+        : 0,
+    classStart: normalizeRaceMap(record.classStart),
+    skills: normalizeRaceSkills(record.skills)
+  };
+}
+
+function buildClassNumberList(
+  value: Record<string, number> | number[] | undefined,
+  classNames: string[] | undefined,
+  defaultValue: number
+): number[] {
+  if (Array.isArray(value)) {
+    return value.map((entry) =>
+      Number.isFinite(entry) ? Math.trunc(entry) : defaultValue
+    );
+  }
+  if (classNames && classNames.length) {
+    return classNames.map((name) => {
+      if (value && typeof value === "object") {
+        const parsed = Number((value as Record<string, unknown>)[name]);
+        if (Number.isFinite(parsed)) {
+          return Math.trunc(parsed);
+        }
+      }
+      return defaultValue;
+    });
+  }
+  if (value && typeof value === "object") {
+    return Object.values(value).map((entry) =>
+      Number.isFinite(entry) ? Math.trunc(entry) : defaultValue
+    );
+  }
+  return [];
+}
+
+function hasAnyNonZero(stats: RaceStats | undefined): boolean {
+  if (!stats) {
+    return false;
+  }
+  return RACE_STAT_KEYS.some((key) => Number(stats[key]) !== 0);
+}
+
+function parseRaceJson(content: string): RaceDataFile {
+  const parsed = JSON.parse(content) as Record<string, unknown>;
+  const formatVersion = Number(parsed.formatVersion);
+  const racesRaw = parsed.races;
+  const races = Array.isArray(racesRaw)
+    ? racesRaw.map((race) =>
+        normalizeRaceRecord((race ?? {}) as Partial<RaceDefinition>)
+      )
+    : [];
+  return {
+    formatVersion: Number.isFinite(formatVersion) ? formatVersion : 1,
+    races
+  };
+}
+
+function parseRaceOlc(content: string): RaceDataFile {
+  const scanner = new OlcScanner(content);
+  const races: RaceDefinition[] = [];
+
+  while (!scanner.eof()) {
+    const word = scanner.readWord();
+    if (!word) {
+      break;
+    }
+    const upper = word.toUpperCase();
+    if (upper !== "#RACE") {
+      if (upper === "#END") {
+        break;
+      }
+      continue;
+    }
+    const record: Partial<RaceDefinition> = {};
+    while (!scanner.eof()) {
+      const field = scanner.readWord();
+      if (!field) {
+        break;
+      }
+      const fieldUpper = field.toUpperCase();
+      if (fieldUpper === "#END") {
+        break;
+      }
+      switch (field.toLowerCase()) {
+        case "name":
+          record.name = scanner.readString();
+          break;
+        case "pc": {
+          const value = scanner.readWord();
+          const normalized = value ? value.toLowerCase() : "";
+          record.pc = normalized === "true" || normalized === "1";
+          break;
+        }
+        case "act":
+          record.actFlags = parseFlagBits(scanner.readWord(), actFlags);
+          break;
+        case "aff":
+          record.affectFlags = parseFlagBits(scanner.readWord(), affectFlags);
+          break;
+        case "off":
+          record.offFlags = parseFlagBits(scanner.readWord(), offFlags);
+          break;
+        case "imm":
+          record.immFlags = parseFlagBits(scanner.readWord(), immFlags);
+          break;
+        case "res":
+          record.resFlags = parseFlagBits(scanner.readWord(), resFlags);
+          break;
+        case "vuln":
+          record.vulnFlags = parseFlagBits(scanner.readWord(), VULN_FLAG_BITS);
+          break;
+        case "form":
+          record.formFlags = parseFlagBits(scanner.readWord(), FORM_FLAG_BITS);
+          break;
+        case "parts":
+          record.partFlags = parseFlagBits(scanner.readWord(), PART_FLAG_BITS);
+          break;
+        case "points":
+          record.points = scanner.readNumber();
+          break;
+        case "class_mult":
+          record.classMult = normalizeRaceNumberList(readOlcNumberList(scanner));
+          break;
+        case "who_name":
+          record.whoName = scanner.readString();
+          break;
+        case "skills": {
+          const skills: string[] = [];
+          while (!scanner.eof()) {
+            const value = scanner.readString();
+            if (value === "@") {
+              break;
+            }
+            if (value.trim().length) {
+              skills.push(value.trim());
+            }
+          }
+          record.skills = skills;
+          break;
+        }
+        case "stats":
+          record.stats = normalizeRaceStats(readOlcNumberList(scanner));
+          break;
+        case "max_stats":
+          record.maxStats = normalizeRaceStats(readOlcNumberList(scanner));
+          break;
+        case "size":
+          record.size = scanner.readString();
+          break;
+        case "start_loc":
+          record.startLoc = scanner.readNumber();
+          break;
+        case "class_start":
+          record.classStart = normalizeRaceNumberList(readOlcNumberList(scanner));
+          break;
+        default:
+          break;
+      }
+    }
+    races.push(normalizeRaceRecord(record));
+  }
+
+  return { formatVersion: 1, races };
+}
+
+function serializeRaceJson(data: RaceDataFile): string {
+  const root: Record<string, unknown> = {
+    formatVersion: 1,
+    races: data.races.map((race) => {
+      const record = normalizeRaceRecord(race);
+      const obj: Record<string, unknown> = {
+        name: record.name
+      };
+      if (record.whoName) {
+        obj.whoName = record.whoName;
+      }
+      if (record.pc) {
+        obj.pc = true;
+      }
+      if (record.points) {
+        obj.points = record.points;
+      }
+      if (record.size) {
+        obj.size = record.size;
+      }
+      if (record.stats && hasAnyNonZero(record.stats)) {
+        obj.stats = record.stats;
+      }
+      if (record.maxStats && hasAnyNonZero(record.maxStats)) {
+        obj.maxStats = record.maxStats;
+      }
+      if (record.actFlags?.length) {
+        obj.actFlags = record.actFlags;
+      }
+      if (record.affectFlags?.length) {
+        obj.affectFlags = record.affectFlags;
+      }
+      if (record.offFlags?.length) {
+        obj.offFlags = record.offFlags;
+      }
+      if (record.immFlags?.length) {
+        obj.immFlags = record.immFlags;
+      }
+      if (record.resFlags?.length) {
+        obj.resFlags = record.resFlags;
+      }
+      if (record.vulnFlags?.length) {
+        obj.vulnFlags = record.vulnFlags;
+      }
+      if (record.formFlags?.length) {
+        obj.formFlags = record.formFlags;
+      }
+      if (record.partFlags?.length) {
+        obj.partFlags = record.partFlags;
+      }
+      if (record.classMult && Object.keys(record.classMult).length) {
+        obj.classMult = record.classMult;
+      }
+      if (record.startLoc) {
+        obj.startLoc = record.startLoc;
+      }
+      if (record.classStart && Object.keys(record.classStart).length) {
+        obj.classStart = record.classStart;
+      }
+      if (record.skills?.length) {
+        obj.skills = record.skills;
+      }
+      return obj;
+    })
+  };
+  return JSON.stringify(root, null, 2);
+}
+
+function serializeRaceOlc(
+  data: RaceDataFile,
+  classNames?: string[]
+): string {
+  const races = data.races.map((race) => normalizeRaceRecord(race));
+  const lines: string[] = [];
+  lines.push(String(races.length));
+  lines.push("");
+  races.forEach((race) => {
+    const classMult = buildClassNumberList(
+      race.classMult as Record<string, number> | number[] | undefined,
+      classNames,
+      100
+    );
+    const classStart = buildClassNumberList(
+      race.classStart as Record<string, number> | number[] | undefined,
+      classNames,
+      0
+    );
+    const stats =
+      race.stats && hasAnyNonZero(race.stats)
+        ? RACE_STAT_KEYS.map((key) => Number(race.stats?.[key] ?? 0))
+        : RACE_STAT_KEYS.map(() => 0);
+    const maxStats =
+      race.maxStats && hasAnyNonZero(race.maxStats)
+        ? RACE_STAT_KEYS.map((key) => Number(race.maxStats?.[key] ?? 0))
+        : RACE_STAT_KEYS.map(() => 0);
+    const skills = (race.skills ?? []).slice(0, RACE_SKILL_COUNT);
+    lines.push("#RACE");
+    lines.push(`name ${sanitizeOlcString(race.name)}~`);
+    lines.push(`pc ${race.pc ? "true" : "false"}`);
+    lines.push(`act ${encodeFlagBits(race.actFlags, actFlags)}`);
+    lines.push(`aff ${encodeFlagBits(race.affectFlags, affectFlags)}`);
+    lines.push(`off ${encodeFlagBits(race.offFlags, offFlags)}`);
+    lines.push(`imm ${encodeFlagBits(race.immFlags, immFlags)}`);
+    lines.push(`res ${encodeFlagBits(race.resFlags, resFlags)}`);
+    lines.push(`vuln ${encodeFlagBits(race.vulnFlags, VULN_FLAG_BITS)}`);
+    lines.push(
+      `form ${encodeFlagBits(race.formFlags, FORM_FLAG_BITS, RACE_FORM_DEFAULTS)}`
+    );
+    lines.push(
+      `parts ${encodeFlagBits(
+        race.partFlags,
+        PART_FLAG_BITS,
+        RACE_PART_DEFAULTS
+      )}`
+    );
+    lines.push(`points ${race.points ?? 0}`);
+    lines.push(
+      `class_mult ${classMult.length ? classMult.join(" ") : ""} @`
+    );
+    lines.push(`who_name ${sanitizeOlcString(race.whoName ?? "")}~`);
+    lines.push(
+      `skills ${skills.map((entry) => `${sanitizeOlcString(entry)}~`).join(" ")} @~`
+    );
+    lines.push(`stats ${stats.join(" ")} @`);
+    lines.push(`max_stats ${maxStats.join(" ")} @`);
+    lines.push(`size ${sanitizeOlcString(race.size ?? "medium")}~`);
+    lines.push(`start_loc ${race.startLoc ?? 0}`);
+    lines.push(
+      `class_start ${classStart.length ? classStart.join(" ") : ""} @`
+    );
     lines.push("#END");
     lines.push("");
   });
@@ -1243,6 +1777,96 @@ export class LocalFileRepository implements WorldRepository {
       outputFormat === "json"
         ? serializeClassJson(data)
         : serializeClassOlc(data);
+    await writeTextFile(path, payload);
+    return path;
+  }
+
+  async loadRacesData(
+    dataDir: string,
+    fileName?: string,
+    defaultFormat?: "json" | "olc"
+  ): Promise<RaceDataSource> {
+    const candidates: Array<{ path: string; format: "json" | "olc" }> = [];
+    if (fileName) {
+      const lower = fileName.toLowerCase();
+      if (lower.endsWith(".json")) {
+        candidates.push({
+          path: isAbsolutePath(fileName) ? fileName : await join(dataDir, fileName),
+          format: "json"
+        });
+      } else if (lower.endsWith(".olc")) {
+        candidates.push({
+          path: isAbsolutePath(fileName) ? fileName : await join(dataDir, fileName),
+          format: "olc"
+        });
+      } else if (defaultFormat) {
+        candidates.push({
+          path: isAbsolutePath(fileName)
+            ? `${fileName}.${defaultFormat}`
+            : await join(dataDir, `${fileName}.${defaultFormat}`),
+          format: defaultFormat
+        });
+      } else {
+        candidates.push({
+          path: isAbsolutePath(fileName)
+            ? `${fileName}.json`
+            : await join(dataDir, `${fileName}.json`),
+          format: "json"
+        });
+        candidates.push({
+          path: isAbsolutePath(fileName)
+            ? `${fileName}.olc`
+            : await join(dataDir, `${fileName}.olc`),
+          format: "olc"
+        });
+      }
+    }
+    if (!candidates.length) {
+      candidates.push({
+        path: await join(dataDir, "races.json"),
+        format: "json"
+      });
+      candidates.push({
+        path: await join(dataDir, "races.olc"),
+        format: "olc"
+      });
+    }
+    for (const candidate of candidates) {
+      const raw = await tryReadText(candidate.path);
+      if (!raw) {
+        continue;
+      }
+      return {
+        path: candidate.path,
+        format: candidate.format,
+        data:
+          candidate.format === "json"
+            ? parseRaceJson(raw)
+            : parseRaceOlc(raw)
+      };
+    }
+
+    throw new Error("Missing races data file.");
+  }
+
+  async saveRacesData(
+    dataDir: string,
+    data: RaceDataFile,
+    format: "json" | "olc",
+    fileName?: string,
+    classNames?: string[]
+  ): Promise<string> {
+    const resolvedName = fileName ?? (format === "json" ? "races.json" : "races.olc");
+    const lower = resolvedName.toLowerCase();
+    const outputFormat =
+      lower.endsWith(".json") ? "json" : lower.endsWith(".olc") ? "olc" : format;
+    const path = isAbsolutePath(resolvedName)
+      ? resolvedName
+      : await join(dataDir, resolvedName);
+    const payload =
+      outputFormat === "json"
+        ? serializeRaceJson(data)
+        : serializeRaceOlc(data, classNames);
     await writeTextFile(path, payload);
     return path;
   }
