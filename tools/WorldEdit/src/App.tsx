@@ -46,6 +46,8 @@ import { GroupForm } from "./components/GroupForm";
 import { CommandForm } from "./components/CommandForm";
 import { SocialForm } from "./components/SocialForm";
 import { TutorialForm } from "./components/TutorialForm";
+import { RecipeForm } from "./components/RecipeForm";
+import { GatherSpawnForm } from "./components/GatherSpawnForm";
 import { LootForm } from "./components/LootForm";
 import { TableView } from "./components/TableView";
 import { ClassTableView } from "./components/ClassTableView";
@@ -86,6 +88,8 @@ import type {
   ProjectConfig,
   RaceDataFile,
   RaceDefinition,
+  RecipeDefinition,
+  GatherSpawnDefinition,
   SocialDataFile,
   SocialDefinition,
   TutorialDataFile,
@@ -150,7 +154,9 @@ import {
   weaponClassEnum,
   weaponClasses,
   weaponFlagEnum,
-  weaponFlags
+  weaponFlags,
+  workstationTypes,
+  discoveryTypes
 } from "./schemas/enums";
 
 const tabs = [
@@ -194,6 +200,9 @@ const entityOrder = [
   "Shops",
   "Quests",
   "Factions",
+  "Loot",
+  "Recipes",
+  "Gather Spawns",
   "Helps"
 ] as const;
 
@@ -479,6 +488,22 @@ type LootRow = {
   details: string;
 };
 
+type RecipeRow = {
+  vnum: number;
+  name: string;
+  skill: string;
+  inputs: string;
+  output: string;
+};
+
+type GatherSpawnRow = {
+  index: number;
+  vnum: number;
+  sector: string;
+  quantity: number;
+  respawnTimer: number;
+};
+
 type ShopRow = {
   keeper: number;
   buyTypes: string;
@@ -585,6 +610,7 @@ const areaFormSchema = z.object({
   vnumRangeEnd: z.number().int(),
   builders: z.string().optional(),
   credits: z.string().optional(),
+  lootTable: z.string().optional(),
   security: optionalIntSchema,
   sector: optionalSectorSchema,
   lowLevel: optionalIntSchema,
@@ -661,6 +687,7 @@ const mobileFormSchema = z.object({
   factionVnum: optionalIntSchema,
   damageNoun: z.string().optional(),
   offensiveSpell: z.string().optional(),
+  lootTable: z.string().optional(),
   hitDice: diceFormSchema,
   manaDice: diceFormSchema,
   damageDice: diceFormSchema
@@ -1094,6 +1121,33 @@ const lootFormSchema = z.object({
   ops: z.array(lootOpFormSchema).optional()
 });
 
+const recipeInputFormSchema = z.object({
+  vnum: optionalIntSchema,
+  quantity: optionalIntSchema
+});
+
+const recipeFormSchema = z.object({
+  vnum: z.number().int(),
+  name: z.string().optional(),
+  skill: z.string().optional(),
+  minSkill: optionalIntSchema,
+  minSkillPct: optionalIntSchema,
+  minLevel: optionalIntSchema,
+  stationType: z.array(z.enum(workstationTypes)).optional(),
+  stationVnum: optionalIntSchema,
+  discovery: optionalEnumSchema(z.enum(discoveryTypes)),
+  inputs: z.array(recipeInputFormSchema).optional(),
+  outputVnum: optionalIntSchema,
+  outputQuantity: optionalIntSchema
+});
+
+const gatherSpawnFormSchema = z.object({
+  spawnSector: optionalSectorSchema,
+  vnum: optionalIntSchema,
+  quantity: optionalIntSchema,
+  respawnTimer: optionalIntSchema
+});
+
 type RoomFormValues = z.infer<typeof roomFormSchema>;
 type AreaFormValues = z.infer<typeof areaFormSchema>;
 type MobileFormValues = z.infer<typeof mobileFormSchema>;
@@ -1110,6 +1164,8 @@ type CommandFormValues = z.infer<typeof commandFormSchema>;
 type SocialFormValues = z.infer<typeof socialFormSchema>;
 type TutorialFormValues = z.infer<typeof tutorialFormSchema>;
 type LootFormValues = z.infer<typeof lootFormSchema>;
+type RecipeFormValues = z.infer<typeof recipeFormSchema>;
+type GatherSpawnFormValues = z.infer<typeof gatherSpawnFormSchema>;
 
 const entityKindLabels: Record<EntityKey, string> = {
   Area: "Area",
@@ -1120,6 +1176,9 @@ const entityKindLabels: Record<EntityKey, string> = {
   Shops: "Shop",
   Quests: "Quest",
   Factions: "Faction",
+  Loot: "Loot",
+  Recipes: "Recipe",
+  "Gather Spawns": "Gather Spawn",
   Helps: "Help"
 };
 
@@ -1132,6 +1191,9 @@ const entityDataKeys: Record<EntityKey, string> = {
   Shops: "shops",
   Quests: "quests",
   Factions: "factions",
+  Loot: "loot",
+  Recipes: "recipes",
+  "Gather Spawns": "gatherSpawns",
   Helps: "helps"
 };
 
@@ -1419,6 +1481,16 @@ function getEntityList(areaData: AreaJson | null, key: EntityKey): unknown[] {
   if (key === "Area") {
     const areadata = (areaData as Record<string, unknown>).areadata;
     return areadata && typeof areadata === "object" ? [areadata] : [];
+  }
+  if (key === "Loot") {
+    const loot = (areaData as Record<string, unknown>).loot;
+    if (!loot || typeof loot !== "object") {
+      return [];
+    }
+    const record = loot as Record<string, unknown>;
+    const groups = Array.isArray(record.groups) ? record.groups : [];
+    const tables = Array.isArray(record.tables) ? record.tables : [];
+    return [...groups, ...tables];
   }
   const list = (areaData as Record<string, unknown>)[entityDataKeys[key]];
   return Array.isArray(list) ? list : [];
@@ -2094,7 +2166,12 @@ function buildVnumOptions(
 function buildSelectionSummary(
   selectedEntity: EntityKey,
   areaData: AreaJson | null,
-  selectedVnums: Partial<Record<EntityKey, number | null>>
+  selectedVnums: Partial<Record<EntityKey, number | null>>,
+  lootContext?: {
+    data: LootDataFile | null;
+    kind: "group" | "table" | null;
+    index: number | null;
+  }
 ) {
   const list = getEntityList(areaData, selectedEntity);
   const count = list.length;
@@ -2119,6 +2196,9 @@ function buildSelectionSummary(
   let selectionLabel = emptyLabel;
   let flags: string[] = [];
   let exits = "n/a";
+  const lootData = lootContext?.data ?? null;
+  const lootKind = lootContext?.kind ?? null;
+  const lootIndex = lootContext?.index ?? null;
 
   switch (selectedEntity) {
     case "Area": {
@@ -2202,6 +2282,42 @@ function buildSelectionSummary(
           ? `${vnum} - ${getFirstString(first.name, "Faction")}`
           : count
             ? "Faction entry"
+            : emptyLabel;
+      break;
+    }
+    case "Loot": {
+      if (!lootData || lootKind === null || lootIndex === null) {
+        selectionLabel = count ? "Loot entry" : emptyLabel;
+        break;
+      }
+      if (lootKind === "group") {
+        const group = lootData.groups[lootIndex];
+        selectionLabel = group
+          ? `Group: ${getFirstString(group.name, "(unnamed)")}`
+          : emptyLabel;
+        break;
+      }
+      const table = lootData.tables[lootIndex];
+      selectionLabel = table
+        ? `Table: ${getFirstString(table.name, "(unnamed)")}`
+        : emptyLabel;
+      break;
+    }
+    case "Recipes": {
+      selectionLabel =
+        vnum !== null
+          ? `${vnum} - ${getFirstString(first.name, "Recipe")}`
+          : count
+            ? "Recipe entry"
+            : emptyLabel;
+      break;
+    }
+    case "Gather Spawns": {
+      selectionLabel =
+        vnum !== null
+          ? `${vnum} - ${getFirstString(first.spawnSector, "spawn")}`
+          : count
+            ? "Gather spawn entry"
             : emptyLabel;
       break;
     }
@@ -4003,6 +4119,72 @@ function buildLootRows(lootData: LootDataFile | null): LootRow[] {
   return rows;
 }
 
+function extractAreaLootData(areaData: AreaJson | null): LootDataFile | null {
+  if (!areaData) {
+    return null;
+  }
+  const loot = (areaData as Record<string, unknown>).loot;
+  if (!loot || typeof loot !== "object") {
+    return null;
+  }
+  const record = loot as Record<string, unknown>;
+  const groups = Array.isArray(record.groups)
+    ? (record.groups as LootGroup[])
+    : [];
+  const tables = Array.isArray(record.tables)
+    ? (record.tables as LootTable[])
+    : [];
+  return {
+    formatVersion: 1,
+    groups,
+    tables
+  };
+}
+
+function buildRecipeRows(areaData: AreaJson | null): RecipeRow[] {
+  const recipes = getEntityList(areaData, "Recipes");
+  return recipes
+    .filter((entry): entry is Record<string, unknown> =>
+      Boolean(entry && typeof entry === "object")
+    )
+    .map((record) => {
+      const vnum = parseVnum(record.vnum) ?? 0;
+      const inputs = Array.isArray(record.inputs) ? record.inputs : [];
+      const outputVnum = parseVnum(record.outputVnum);
+      const outputQty = parseVnum(record.outputQuantity) ?? 1;
+      return {
+        vnum,
+        name: getFirstString(record.name, "(unnamed recipe)"),
+        skill: getFirstString(record.skill, "—"),
+        inputs: `${inputs.length} input${inputs.length === 1 ? "" : "s"}`,
+        output:
+          outputVnum !== null
+            ? `${outputVnum}${outputQty > 1 ? ` x${outputQty}` : ""}`
+            : "—"
+      };
+    });
+}
+
+function buildGatherSpawnRows(areaData: AreaJson | null): GatherSpawnRow[] {
+  const spawns = getEntityList(areaData, "Gather Spawns");
+  return spawns
+    .filter((entry): entry is Record<string, unknown> =>
+      Boolean(entry && typeof entry === "object")
+    )
+    .map((record, index) => {
+      const vnum = parseVnum(record.vnum) ?? 0;
+      const sector =
+        typeof record.spawnSector === "string" ? record.spawnSector : "—";
+      return {
+        index,
+        vnum,
+        sector,
+        quantity: parseVnum(record.quantity) ?? 0,
+        respawnTimer: parseVnum(record.respawnTimer) ?? 0
+      };
+    });
+}
+
 function titlesToText(titles: string[][] | undefined, column: 0 | 1): string {
   const lines: string[] = [];
   for (let i = 0; i < classTitleCount; i += 1) {
@@ -4105,6 +4287,18 @@ export default function App({ repository }: AppProps) {
   const [selectedFactionVnum, setSelectedFactionVnum] = useState<number | null>(
     null
   );
+  const [selectedAreaLootKind, setSelectedAreaLootKind] = useState<
+    "group" | "table" | null
+  >(null);
+  const [selectedAreaLootIndex, setSelectedAreaLootIndex] = useState<
+    number | null
+  >(null);
+  const [selectedRecipeVnum, setSelectedRecipeVnum] = useState<number | null>(
+    null
+  );
+  const [selectedGatherVnum, setSelectedGatherVnum] = useState<number | null>(
+    null
+  );
   const [areaPath, setAreaPath] = useState<string | null>(null);
   const [areaData, setAreaData] = useState<AreaJson | null>(null);
   const [classData, setClassData] = useState<ClassDataFile | null>(null);
@@ -4200,6 +4394,9 @@ export default function App({ repository }: AppProps) {
   const shopGridApi = useRef<GridApi | null>(null);
   const questGridApi = useRef<GridApi | null>(null);
   const factionGridApi = useRef<GridApi | null>(null);
+  const areaLootGridApi = useRef<GridApi | null>(null);
+  const recipeGridApi = useRef<GridApi | null>(null);
+  const gatherGridApi = useRef<GridApi | null>(null);
   const classGridApi = useRef<GridApi | null>(null);
   const raceGridApi = useRef<GridApi | null>(null);
   const skillGridApi = useRef<GridApi | null>(null);
@@ -4493,6 +4690,55 @@ export default function App({ repository }: AppProps) {
     handleSubmit: handleFactionSubmitForm,
     formState: factionFormState
   } = factionForm;
+  const recipeForm = useForm<RecipeFormValues>({
+    resolver: zodResolver(recipeFormSchema),
+    defaultValues: {
+      vnum: 0,
+      name: "",
+      skill: "",
+      minSkill: undefined,
+      minSkillPct: undefined,
+      minLevel: undefined,
+      stationType: [],
+      stationVnum: undefined,
+      discovery: undefined,
+      inputs: [],
+      outputVnum: undefined,
+      outputQuantity: undefined
+    }
+  });
+  const {
+    register: registerRecipe,
+    handleSubmit: handleRecipeSubmitForm,
+    formState: recipeFormState,
+    reset: resetRecipeForm,
+    control: recipeFormControl
+  } = recipeForm;
+  const {
+    fields: recipeInputFields,
+    append: appendRecipeInput,
+    remove: removeRecipeInput,
+    move: moveRecipeInput
+  } = useFieldArray({
+    control: recipeFormControl,
+    name: "inputs"
+  });
+  const gatherSpawnForm = useForm<GatherSpawnFormValues>({
+    resolver: zodResolver(gatherSpawnFormSchema),
+    defaultValues: {
+      spawnSector: undefined,
+      vnum: undefined,
+      quantity: undefined,
+      respawnTimer: undefined
+    }
+  });
+  const {
+    register: registerGatherSpawn,
+    handleSubmit: handleGatherSpawnSubmitForm,
+    formState: gatherSpawnFormState,
+    reset: resetGatherSpawnForm,
+    control: gatherSpawnFormControl
+  } = gatherSpawnForm;
   const classFormDefaults = useMemo<ClassFormValues>(
     () => ({
       name: "",
@@ -4718,6 +4964,35 @@ export default function App({ repository }: AppProps) {
     }),
     []
   );
+  const areaLootForm = useForm<LootFormValues>({
+    resolver: zodResolver(lootFormSchema),
+    defaultValues: lootFormDefaults
+  });
+  const {
+    register: registerAreaLoot,
+    handleSubmit: handleAreaLootSubmitForm,
+    formState: areaLootFormState,
+    reset: resetAreaLootForm,
+    control: areaLootFormControl
+  } = areaLootForm;
+  const {
+    fields: areaLootEntryFields,
+    append: appendAreaLootEntry,
+    remove: removeAreaLootEntry,
+    move: moveAreaLootEntry
+  } = useFieldArray({
+    control: areaLootFormControl,
+    name: "entries"
+  });
+  const {
+    fields: areaLootOpFields,
+    append: appendAreaLootOp,
+    remove: removeAreaLootOp,
+    move: moveAreaLootOp
+  } = useFieldArray({
+    control: areaLootFormControl,
+    name: "ops"
+  });
   const lootForm = useForm<LootFormValues>({
     resolver: zodResolver(lootFormSchema),
     defaultValues: lootFormDefaults
@@ -5358,6 +5633,22 @@ export default function App({ repository }: AppProps) {
     if (selectedFactionVnum !== nextFaction) {
       setSelectedFactionVnum(nextFaction);
     }
+    const nextRecipe = getDefaultSelection(
+      areaData,
+      "Recipes",
+      selectedRecipeVnum
+    );
+    if (selectedRecipeVnum !== nextRecipe) {
+      setSelectedRecipeVnum(nextRecipe);
+    }
+    const nextGather = getDefaultSelection(
+      areaData,
+      "Gather Spawns",
+      selectedGatherVnum
+    );
+    if (selectedGatherVnum !== nextGather) {
+      setSelectedGatherVnum(nextGather);
+    }
   }, [
     areaData,
     selectedRoomVnum,
@@ -5366,8 +5657,43 @@ export default function App({ repository }: AppProps) {
     selectedResetIndex,
     selectedShopKeeper,
     selectedQuestVnum,
-    selectedFactionVnum
+    selectedFactionVnum,
+    selectedRecipeVnum,
+    selectedGatherVnum
   ]);
+
+  const areaLootData = useMemo(
+    () => extractAreaLootData(areaData),
+    [areaData]
+  );
+
+  useEffect(() => {
+    const groupCount = areaLootData?.groups.length ?? 0;
+    const tableCount = areaLootData?.tables.length ?? 0;
+    if (!areaLootData || (groupCount === 0 && tableCount === 0)) {
+      if (selectedAreaLootKind !== null || selectedAreaLootIndex !== null) {
+        setSelectedAreaLootKind(null);
+        setSelectedAreaLootIndex(null);
+      }
+      return;
+    }
+    if (selectedAreaLootKind === "group") {
+      if (selectedAreaLootIndex === null || selectedAreaLootIndex >= groupCount) {
+        setSelectedAreaLootKind(groupCount ? "group" : "table");
+        setSelectedAreaLootIndex(0);
+      }
+      return;
+    }
+    if (selectedAreaLootKind === "table") {
+      if (selectedAreaLootIndex === null || selectedAreaLootIndex >= tableCount) {
+        setSelectedAreaLootKind(groupCount ? "group" : "table");
+        setSelectedAreaLootIndex(0);
+      }
+      return;
+    }
+    setSelectedAreaLootKind(groupCount ? "group" : "table");
+    setSelectedAreaLootIndex(0);
+  }, [areaLootData, selectedAreaLootKind, selectedAreaLootIndex]);
 
   useEffect(() => {
     setSelectedRoomVnum(null);
@@ -5377,6 +5703,10 @@ export default function App({ repository }: AppProps) {
     setSelectedShopKeeper(null);
     setSelectedQuestVnum(null);
     setSelectedFactionVnum(null);
+    setSelectedRecipeVnum(null);
+    setSelectedGatherVnum(null);
+    setSelectedAreaLootKind(null);
+    setSelectedAreaLootIndex(null);
   }, [areaData]);
 
   useEffect(() => {
@@ -5880,6 +6210,66 @@ export default function App({ repository }: AppProps) {
 
   useEffect(() => {
     if (
+      !areaLootData ||
+      selectedAreaLootKind === null ||
+      selectedAreaLootIndex === null
+    ) {
+      resetAreaLootForm(lootFormDefaults);
+      return;
+    }
+    if (selectedAreaLootKind === "group") {
+      const group = areaLootData.groups[selectedAreaLootIndex];
+      if (!group) {
+        resetAreaLootForm(lootFormDefaults);
+        return;
+      }
+      resetAreaLootForm({
+        kind: "group",
+        name: group.name ?? "",
+        rolls: group.rolls ?? 1,
+        entries: (group.entries ?? []).map((entry) => ({
+          type: entry.type === "cp" ? "cp" : "item",
+          vnum: entry.vnum ?? 0,
+          minQty: entry.minQty ?? 1,
+          maxQty: entry.maxQty ?? 1,
+          weight: entry.weight ?? 100
+        })),
+        parent: "",
+        ops: []
+      });
+      return;
+    }
+    const table = areaLootData.tables[selectedAreaLootIndex];
+    if (!table) {
+      resetAreaLootForm(lootFormDefaults);
+      return;
+    }
+    resetAreaLootForm({
+      kind: "table",
+      name: table.name ?? "",
+      parent: table.parent ?? "",
+      rolls: 1,
+      entries: [],
+      ops: (table.ops ?? []).map((op) => ({
+        op: op.op,
+        group: op.group ?? "",
+        vnum: op.vnum ?? 0,
+        chance: op.chance ?? 100,
+        minQty: op.minQty ?? 1,
+        maxQty: op.maxQty ?? 1,
+        multiplier: op.multiplier ?? 100
+      }))
+    });
+  }, [
+    areaLootData,
+    selectedAreaLootKind,
+    selectedAreaLootIndex,
+    lootFormDefaults,
+    resetAreaLootForm
+  ]);
+
+  useEffect(() => {
+    if (
       !lootData ||
       selectedLootKind === null ||
       selectedLootIndex === null
@@ -5947,7 +6337,14 @@ export default function App({ repository }: AppProps) {
         Resets: selectedResetIndex,
         Shops: selectedShopKeeper,
         Quests: selectedQuestVnum,
-        Factions: selectedFactionVnum
+        Factions: selectedFactionVnum,
+        Recipes: selectedRecipeVnum,
+        "Gather Spawns": selectedGatherVnum
+      },
+      {
+        data: areaLootData,
+        kind: selectedAreaLootKind,
+        index: selectedAreaLootIndex
       }),
     [
       areaData,
@@ -5958,7 +6355,12 @@ export default function App({ repository }: AppProps) {
       selectedResetIndex,
       selectedShopKeeper,
       selectedQuestVnum,
-      selectedFactionVnum
+      selectedFactionVnum,
+      selectedRecipeVnum,
+      selectedGatherVnum,
+      areaLootData,
+      selectedAreaLootKind,
+      selectedAreaLootIndex
     ]
   );
   const selectedEntityVnum = useMemo(() => {
@@ -5971,8 +6373,21 @@ export default function App({ repository }: AppProps) {
     if (selectedEntity === "Objects") {
       return selectedObjectVnum;
     }
+    if (selectedEntity === "Recipes") {
+      return selectedRecipeVnum;
+    }
+    if (selectedEntity === "Gather Spawns") {
+      return selectedGatherVnum;
+    }
     return null;
-  }, [selectedEntity, selectedRoomVnum, selectedMobileVnum, selectedObjectVnum]);
+  }, [
+    selectedEntity,
+    selectedRoomVnum,
+    selectedMobileVnum,
+    selectedObjectVnum,
+    selectedRecipeVnum,
+    selectedGatherVnum
+  ]);
   const validationConfig = useMemo(() => loadValidationConfig(), []);
   const pluginValidationRules = useMemo(() => loadPluginRules(), []);
   const exitValidation = useMemo(
@@ -6142,6 +6557,15 @@ export default function App({ repository }: AppProps) {
   const tutorialRows = useMemo(
     () => buildTutorialRows(tutorialData),
     [tutorialData]
+  );
+  const areaLootRows = useMemo(
+    () => buildLootRows(areaLootData),
+    [areaLootData]
+  );
+  const recipeRows = useMemo(() => buildRecipeRows(areaData), [areaData]);
+  const gatherSpawnRows = useMemo(
+    () => buildGatherSpawnRows(areaData),
+    [areaData]
   );
   const lootRows = useMemo(() => buildLootRows(lootData), [lootData]);
   const roomRows = useMemo(() => buildRoomRows(areaData), [areaData]);
@@ -6714,6 +7138,21 @@ export default function App({ repository }: AppProps) {
     }
     return findByVnum(getEntityList(areaData, "Factions"), selectedFactionVnum);
   }, [areaData, selectedFactionVnum]);
+  const selectedRecipeRecord = useMemo(() => {
+    if (!areaData || selectedRecipeVnum === null) {
+      return null;
+    }
+    return findByVnum(getEntityList(areaData, "Recipes"), selectedRecipeVnum);
+  }, [areaData, selectedRecipeVnum]);
+  const selectedGatherRecord = useMemo(() => {
+    if (!areaData || selectedGatherVnum === null) {
+      return null;
+    }
+    return findByVnum(
+      getEntityList(areaData, "Gather Spawns"),
+      selectedGatherVnum
+    );
+  }, [areaData, selectedGatherVnum]);
   const selectedLootRecord = useMemo(() => {
     if (!lootData || selectedLootKind === null || selectedLootIndex === null) {
       return null;
@@ -6959,6 +7398,8 @@ export default function App({ repository }: AppProps) {
       vnumRangeEnd,
       builders: typeof areadata.builders === "string" ? areadata.builders : "",
       credits: typeof areadata.credits === "string" ? areadata.credits : "",
+      lootTable:
+        typeof areadata.lootTable === "string" ? areadata.lootTable : "",
       security: parseVnum(areadata.security) ?? undefined,
       sector: typeof areadata.sector === "string" ? areadata.sector : undefined,
       lowLevel: parseVnum(areadata.lowLevel) ?? undefined,
@@ -7063,6 +7504,8 @@ export default function App({ repository }: AppProps) {
         typeof record?.offensiveSpell === "string"
           ? record.offensiveSpell
           : "",
+      lootTable:
+        typeof record?.lootTable === "string" ? record.lootTable : "",
       hitDice: resolveDice(record?.hitDice),
       manaDice: resolveDice(record?.manaDice),
       damageDice: resolveDice(record?.damageDice)
@@ -7361,6 +7804,50 @@ export default function App({ repository }: AppProps) {
       opposingCsv: formatNumberList(record.opposing)
     };
   }, [selectedFactionRecord]);
+  const recipeFormDefaults = useMemo<RecipeFormValues>(() => {
+    const record = selectedRecipeRecord ?? {};
+    const vnum = selectedRecipeVnum ?? parseVnum(record.vnum) ?? 0;
+    const stationType = Array.isArray(record.stationType)
+      ? record.stationType.filter((value): value is string => typeof value === "string")
+      : [];
+    const inputs = Array.isArray(record.inputs) ? record.inputs : [];
+    return {
+      vnum,
+      name: getFirstString(record.name, ""),
+      skill: getFirstString(record.skill, ""),
+      minSkill: parseVnum(record.minSkill) ?? undefined,
+      minSkillPct: parseVnum(record.minSkillPct) ?? undefined,
+      minLevel: parseVnum(record.minLevel) ?? undefined,
+      stationType,
+      stationVnum: parseVnum(record.stationVnum) ?? undefined,
+      discovery:
+        typeof record.discovery === "string" ? record.discovery : undefined,
+      inputs: inputs
+        .filter(
+          (input): input is Record<string, unknown> =>
+            Boolean(input && typeof input === "object")
+        )
+        .map((input) => ({
+          vnum: parseVnum(input.vnum) ?? 0,
+          quantity: parseVnum(input.quantity) ?? 1
+        })),
+      outputVnum: parseVnum(record.outputVnum) ?? undefined,
+      outputQuantity: parseVnum(record.outputQuantity) ?? undefined
+    };
+  }, [selectedRecipeRecord, selectedRecipeVnum]);
+  const gatherSpawnFormDefaults = useMemo<GatherSpawnFormValues>(() => {
+    const record = selectedGatherRecord ?? {};
+    const vnum = selectedGatherVnum ?? parseVnum(record.vnum) ?? undefined;
+    return {
+      spawnSector:
+        typeof record.spawnSector === "string"
+          ? record.spawnSector
+          : undefined,
+      vnum,
+      quantity: parseVnum(record.quantity) ?? undefined,
+      respawnTimer: parseVnum(record.respawnTimer) ?? undefined
+    };
+  }, [selectedGatherRecord, selectedGatherVnum]);
   const activeResetCommand = (watchedResetCommand ??
     resetFormDefaults.commandName ??
     "").trim();
@@ -7376,6 +7863,27 @@ export default function App({ repository }: AppProps) {
     () => buildVnumOptions(areaData, "Objects"),
     [areaData]
   );
+  const lootTableOptions = useMemo(() => {
+    if (!areaData) {
+      return [];
+    }
+    const loot = (areaData as Record<string, unknown>).loot;
+    if (!loot || typeof loot !== "object") {
+      return [];
+    }
+    const tables = Array.isArray((loot as Record<string, unknown>).tables)
+      ? ((loot as Record<string, unknown>).tables as unknown[])
+      : [];
+    return tables
+      .map((table) => {
+        if (!table || typeof table !== "object") {
+          return "";
+        }
+        const name = (table as Record<string, unknown>).name;
+        return typeof name === "string" ? name.trim() : "";
+      })
+      .filter((name) => name.length);
+  }, [areaData]);
   const activeObjectBlock = useMemo(() => {
     const key = (
       watchedObjectItemType ??
@@ -7540,6 +8048,26 @@ export default function App({ repository }: AppProps) {
     ],
     []
   );
+  const recipeColumns = useMemo<ColDef<RecipeRow>[]>(
+    () => [
+      { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
+      { headerName: "Name", field: "name", flex: 2, minWidth: 200 },
+      { headerName: "Skill", field: "skill", width: 160 },
+      { headerName: "Inputs", field: "inputs", width: 130 },
+      { headerName: "Output", field: "output", width: 140 }
+    ],
+    []
+  );
+  const gatherSpawnColumns = useMemo<ColDef<GatherSpawnRow>[]>(
+    () => [
+      { headerName: "#", field: "index", width: 80, sort: "asc" },
+      { headerName: "VNUM", field: "vnum", width: 120 },
+      { headerName: "Sector", field: "sector", width: 140 },
+      { headerName: "Qty", field: "quantity", width: 110 },
+      { headerName: "Respawn", field: "respawnTimer", width: 120 }
+    ],
+    []
+  );
   const roomDefaultColDef = useMemo<ColDef>(
     () => ({
       sortable: true,
@@ -7558,6 +8086,8 @@ export default function App({ repository }: AppProps) {
   const socialDefaultColDef = roomDefaultColDef;
   const tutorialDefaultColDef = roomDefaultColDef;
   const lootDefaultColDef = roomDefaultColDef;
+  const recipeDefaultColDef = roomDefaultColDef;
+  const gatherSpawnDefaultColDef = roomDefaultColDef;
 
   useEffect(() => {
     areaForm.reset(areaFormDefaults);
@@ -7590,6 +8120,14 @@ export default function App({ repository }: AppProps) {
   useEffect(() => {
     factionForm.reset(factionFormDefaults);
   }, [factionForm, factionFormDefaults]);
+
+  useEffect(() => {
+    recipeForm.reset(recipeFormDefaults);
+  }, [recipeForm, recipeFormDefaults]);
+
+  useEffect(() => {
+    gatherSpawnForm.reset(gatherSpawnFormDefaults);
+  }, [gatherSpawnForm, gatherSpawnFormDefaults]);
 
   useEffect(() => {
     if (activeTab !== "Table" || selectedEntity !== "Rooms") {
@@ -7639,6 +8177,37 @@ export default function App({ repository }: AppProps) {
     }
     syncGridSelection(factionGridApi.current, selectedFactionVnum);
   }, [activeTab, selectedEntity, selectedFactionVnum, factionRows]);
+
+  useEffect(() => {
+    if (activeTab !== "Table" || selectedEntity !== "Loot") {
+      return;
+    }
+    const rowId =
+      selectedAreaLootKind && selectedAreaLootIndex !== null
+        ? `${selectedAreaLootKind}:${selectedAreaLootIndex}`
+        : null;
+    syncGridSelection(areaLootGridApi.current, rowId);
+  }, [
+    activeTab,
+    selectedEntity,
+    selectedAreaLootKind,
+    selectedAreaLootIndex,
+    areaLootRows
+  ]);
+
+  useEffect(() => {
+    if (activeTab !== "Table" || selectedEntity !== "Recipes") {
+      return;
+    }
+    syncGridSelection(recipeGridApi.current, selectedRecipeVnum);
+  }, [activeTab, selectedEntity, selectedRecipeVnum, recipeRows]);
+
+  useEffect(() => {
+    if (activeTab !== "Table" || selectedEntity !== "Gather Spawns") {
+      return;
+    }
+    syncGridSelection(gatherGridApi.current, selectedGatherVnum);
+  }, [activeTab, selectedEntity, selectedGatherVnum, gatherSpawnRows]);
 
   useEffect(() => {
     if (
@@ -7856,6 +8425,7 @@ export default function App({ repository }: AppProps) {
         vnumRange: [data.vnumRangeStart, data.vnumRangeEnd],
         builders: normalizeOptionalText(data.builders),
         credits: normalizeOptionalText(data.credits),
+        lootTable: cleanOptionalString(data.lootTable),
         security: data.security ?? undefined,
         sector: data.sector ?? undefined,
         lowLevel: data.lowLevel ?? undefined,
@@ -7977,6 +8547,7 @@ export default function App({ repository }: AppProps) {
           factionVnum: data.factionVnum ?? undefined,
           damageNoun: normalizeOptionalText(data.damageNoun),
           offensiveSpell: normalizeOptionalText(data.offensiveSpell),
+          lootTable: cleanOptionalString(data.lootTable),
           hitDice,
           manaDice,
           damageDice
@@ -8423,6 +8994,213 @@ export default function App({ repository }: AppProps) {
       };
     });
     setStatusMessage(`Updated faction ${data.vnum} (unsaved)`);
+  };
+
+  const handleAreaLootSubmit = (data: LootFormValues) => {
+    if (
+      !areaData ||
+      selectedAreaLootKind === null ||
+      selectedAreaLootIndex === null
+    ) {
+      return;
+    }
+    const toInt = (value: number | undefined, fallback: number) => {
+      if (typeof value !== "number" || !Number.isFinite(value)) {
+        return fallback;
+      }
+      return Math.trunc(value);
+    };
+    const toOptionalInt = (value: number | undefined) => {
+      if (typeof value !== "number" || !Number.isFinite(value)) {
+        return undefined;
+      }
+      return Math.trunc(value);
+    };
+    const name = data.name.trim() || "unnamed";
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const record = current as Record<string, unknown>;
+      const loot =
+        record.loot && typeof record.loot === "object"
+          ? (record.loot as Record<string, unknown>)
+          : {};
+      const groups = Array.isArray(loot.groups)
+        ? [...(loot.groups as LootGroup[])]
+        : [];
+      const tables = Array.isArray(loot.tables)
+        ? [...(loot.tables as LootTable[])]
+        : [];
+      if (selectedAreaLootKind === "group") {
+        const entries = (data.entries ?? []).map((entry) => {
+          const type = entry.type === "cp" ? "cp" : "item";
+          const nextEntry: LootEntry = {
+            type,
+            minQty: toInt(entry.minQty, 1),
+            maxQty: toInt(entry.maxQty, 1),
+            weight: toInt(entry.weight, 100)
+          };
+          if (type === "item") {
+            nextEntry.vnum = toInt(entry.vnum, 0);
+          }
+          return nextEntry;
+        });
+        const nextRecord: LootGroup = {
+          name,
+          rolls: toInt(data.rolls, 1),
+          entries
+        };
+        if (
+          selectedAreaLootIndex < 0 ||
+          selectedAreaLootIndex >= groups.length
+        ) {
+          return current;
+        }
+        groups[selectedAreaLootIndex] = nextRecord;
+        return { ...record, loot: { ...loot, groups, tables } };
+      }
+      const ops = (data.ops ?? []).map((op) => {
+        const nextOp: LootOp = { op: op.op };
+        const group = cleanOptionalString(op.group);
+        const vnum = toOptionalInt(op.vnum);
+        const chance = toOptionalInt(op.chance);
+        const minQty = toOptionalInt(op.minQty);
+        const maxQty = toOptionalInt(op.maxQty);
+        const multiplier = toOptionalInt(op.multiplier);
+        switch (op.op) {
+          case "use_group":
+            if (group) nextOp.group = group;
+            if (chance !== undefined) nextOp.chance = chance;
+            break;
+          case "add_item":
+            if (vnum !== undefined) nextOp.vnum = vnum;
+            if (chance !== undefined) nextOp.chance = chance;
+            if (minQty !== undefined) nextOp.minQty = minQty;
+            if (maxQty !== undefined) nextOp.maxQty = maxQty;
+            break;
+          case "add_cp":
+            if (chance !== undefined) nextOp.chance = chance;
+            if (minQty !== undefined) nextOp.minQty = minQty;
+            if (maxQty !== undefined) nextOp.maxQty = maxQty;
+            break;
+          case "mul_cp":
+          case "mul_all_chances":
+            if (multiplier !== undefined) nextOp.multiplier = multiplier;
+            break;
+          case "remove_item":
+            if (vnum !== undefined) nextOp.vnum = vnum;
+            break;
+          case "remove_group":
+            if (group) nextOp.group = group;
+            break;
+          default:
+            break;
+        }
+        return nextOp;
+      });
+      const nextRecord: LootTable = {
+        name,
+        parent: cleanOptionalString(data.parent),
+        ops
+      };
+      if (
+        selectedAreaLootIndex < 0 ||
+        selectedAreaLootIndex >= tables.length
+      ) {
+        return current;
+      }
+      tables[selectedAreaLootIndex] = nextRecord;
+      return { ...record, loot: { ...loot, groups, tables } };
+    });
+    setStatusMessage(
+      `Updated loot ${selectedAreaLootKind} ${name} (unsaved)`
+    );
+  };
+
+  const handleRecipeSubmit = (data: RecipeFormValues) => {
+    if (!areaData || selectedRecipeVnum === null) {
+      return;
+    }
+    const inputs = (data.inputs ?? [])
+      .map((input) => ({
+        vnum: input.vnum ?? 0,
+        quantity: input.quantity ?? 1
+      }))
+      .filter((input) => input.vnum > 0);
+    const nextRecord: RecipeDefinition = {
+      vnum: data.vnum,
+      name: cleanOptionalString(data.name),
+      skill: cleanOptionalString(data.skill),
+      minSkill: data.minSkill ?? undefined,
+      minSkillPct: data.minSkillPct ?? undefined,
+      minLevel: data.minLevel ?? undefined,
+      stationType:
+        data.stationType && data.stationType.length
+          ? data.stationType
+          : undefined,
+      stationVnum: data.stationVnum ?? undefined,
+      discovery: cleanOptionalString(data.discovery),
+      inputs: inputs.length ? inputs : undefined,
+      outputVnum: data.outputVnum ?? undefined,
+      outputQuantity: data.outputQuantity ?? undefined
+    };
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const recipes = getEntityList(current, "Recipes");
+      if (!recipes.length) {
+        return current;
+      }
+      const nextRecipes = recipes.map((recipe) => {
+        const record = recipe as Record<string, unknown>;
+        const vnum = parseVnum(record.vnum);
+        if (vnum !== selectedRecipeVnum) {
+          return record;
+        }
+        return nextRecord;
+      });
+      return {
+        ...(current as Record<string, unknown>),
+        recipes: nextRecipes
+      };
+    });
+    setStatusMessage(`Updated recipe ${data.vnum} (unsaved)`);
+  };
+
+  const handleGatherSpawnSubmit = (data: GatherSpawnFormValues) => {
+    if (!areaData || selectedGatherVnum === null) {
+      return;
+    }
+    const nextRecord: GatherSpawnDefinition = {
+      spawnSector: data.spawnSector ?? undefined,
+      vnum: data.vnum ?? 0,
+      quantity: data.quantity ?? undefined,
+      respawnTimer: data.respawnTimer ?? undefined
+    };
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const spawns = getEntityList(current, "Gather Spawns");
+      if (!spawns.length) {
+        return current;
+      }
+      const nextSpawns = spawns.map((spawn) => {
+        const record = spawn as Record<string, unknown>;
+        const vnum = parseVnum(record.vnum);
+        if (vnum !== selectedGatherVnum) {
+          return record;
+        }
+        return nextRecord;
+      });
+      return {
+        ...(current as Record<string, unknown>),
+        gatherSpawns: nextSpawns
+      };
+    });
+    setStatusMessage(`Updated gather spawn ${nextRecord.vnum} (unsaved)`);
   };
 
   const handleClassSubmit = (data: ClassFormValues) => {
@@ -9055,6 +9833,7 @@ export default function App({ repository }: AppProps) {
       appendChecklist={appendChecklist}
       removeChecklist={removeChecklist}
       moveChecklist={moveChecklist}
+      lootTableOptions={lootTableOptions}
     />
   );
   const roomFormNode = (
@@ -9093,6 +9872,7 @@ export default function App({ repository }: AppProps) {
       eventBindings={eventBindings}
       scriptValue={scriptValue}
       onEventBindingsChange={handleEventBindingsChange}
+      lootTableOptions={lootTableOptions}
     />
   );
   const objectFormNode = (
@@ -9162,6 +9942,54 @@ export default function App({ repository }: AppProps) {
       onSubmit={handleFactionSubmitForm(handleFactionSubmit)}
       register={registerFaction}
       formState={factionFormState}
+    />
+  );
+  const activeAreaLootKind =
+    selectedAreaLootKind ??
+    (areaLootData && areaLootData.groups.length === 0 ? "table" : "group");
+  const areaLootFormNode = (
+    <LootForm
+      onSubmit={handleAreaLootSubmitForm(handleAreaLootSubmit)}
+      register={registerAreaLoot}
+      control={areaLootFormControl}
+      formState={areaLootFormState}
+      kind={activeAreaLootKind}
+      entryFields={areaLootEntryFields}
+      opFields={areaLootOpFields}
+      appendEntry={appendAreaLootEntry}
+      removeEntry={removeAreaLootEntry}
+      moveEntry={moveAreaLootEntry}
+      appendOp={appendAreaLootOp}
+      removeOp={removeAreaLootOp}
+      moveOp={moveAreaLootOp}
+      entryTypeOptions={[...lootEntryTypeOptions]}
+      opTypeOptions={[...lootOpTypeOptions]}
+      vnumOptions={objectVnumOptions}
+    />
+  );
+  const recipeFormNode = (
+    <RecipeForm
+      onSubmit={handleRecipeSubmitForm(handleRecipeSubmit)}
+      register={registerRecipe}
+      control={recipeFormControl}
+      formState={recipeFormState}
+      inputFields={recipeInputFields}
+      appendInput={appendRecipeInput}
+      removeInput={removeRecipeInput}
+      moveInput={moveRecipeInput}
+      workstationTypeOptions={[...workstationTypes]}
+      discoveryOptions={[...discoveryTypes]}
+      objectVnumOptions={objectVnumOptions}
+    />
+  );
+  const gatherSpawnFormNode = (
+    <GatherSpawnForm
+      onSubmit={handleGatherSpawnSubmitForm(handleGatherSpawnSubmit)}
+      register={registerGatherSpawn}
+      control={gatherSpawnFormControl}
+      formState={gatherSpawnFormState}
+      sectors={[...sectors]}
+      objectVnumOptions={objectVnumOptions}
     />
   );
   const classFormNode = (
@@ -9274,6 +10102,9 @@ export default function App({ repository }: AppProps) {
       shopRows={shopRows}
       questRows={questRows}
       factionRows={factionRows}
+      lootRows={areaLootRows}
+      recipeRows={recipeRows}
+      gatherSpawnRows={gatherSpawnRows}
       roomColumns={roomColumns}
       mobileColumns={mobileColumns}
       objectColumns={objectColumns}
@@ -9281,6 +10112,9 @@ export default function App({ repository }: AppProps) {
       shopColumns={shopColumns}
       questColumns={questColumns}
       factionColumns={factionColumns}
+      lootColumns={lootColumns}
+      recipeColumns={recipeColumns}
+      gatherSpawnColumns={gatherSpawnColumns}
       roomDefaultColDef={roomDefaultColDef}
       mobileDefaultColDef={mobileDefaultColDef}
       objectDefaultColDef={objectDefaultColDef}
@@ -9288,6 +10122,9 @@ export default function App({ repository }: AppProps) {
       shopDefaultColDef={roomDefaultColDef}
       questDefaultColDef={roomDefaultColDef}
       factionDefaultColDef={roomDefaultColDef}
+      lootDefaultColDef={lootDefaultColDef}
+      recipeDefaultColDef={recipeDefaultColDef}
+      gatherSpawnDefaultColDef={gatherSpawnDefaultColDef}
       onSelectRoom={setSelectedRoomVnum}
       onSelectMobile={setSelectedMobileVnum}
       onSelectObject={setSelectedObjectVnum}
@@ -9295,6 +10132,12 @@ export default function App({ repository }: AppProps) {
       onSelectShop={setSelectedShopKeeper}
       onSelectQuest={setSelectedQuestVnum}
       onSelectFaction={setSelectedFactionVnum}
+      onSelectLoot={(kind, index) => {
+        setSelectedAreaLootKind(kind);
+        setSelectedAreaLootIndex(index);
+      }}
+      onSelectRecipe={setSelectedRecipeVnum}
+      onSelectGatherSpawn={setSelectedGatherVnum}
       roomGridApiRef={roomGridApi}
       mobileGridApiRef={mobileGridApi}
       objectGridApiRef={objectGridApi}
@@ -9302,6 +10145,9 @@ export default function App({ repository }: AppProps) {
       shopGridApiRef={shopGridApi}
       questGridApiRef={questGridApi}
       factionGridApiRef={factionGridApi}
+      lootGridApiRef={areaLootGridApi}
+      recipeGridApiRef={recipeGridApi}
+      gatherSpawnGridApiRef={gatherGridApi}
     />
   );
   const classTableViewNode = (
@@ -9621,6 +10467,9 @@ export default function App({ repository }: AppProps) {
                 socialCount={socialRows.length}
                 tutorialCount={tutorialRows.length}
                 lootCount={lootCount}
+                areaLootCount={areaLootRows.length}
+                recipeCount={recipeRows.length}
+                gatherSpawnCount={gatherSpawnRows.length}
                 roomCount={roomRows.length}
                 mobileCount={mobileRows.length}
                 objectCount={objectRows.length}
@@ -9645,6 +10494,9 @@ export default function App({ repository }: AppProps) {
                 socialForm={socialFormNode}
                 tutorialForm={tutorialFormNode}
                 lootForm={lootFormNode}
+                areaLootForm={areaLootFormNode}
+                recipeForm={recipeFormNode}
+                gatherSpawnForm={gatherSpawnFormNode}
                 tableView={tableViewNode}
                 classTableView={classTableViewNode}
                 raceTableView={raceTableViewNode}

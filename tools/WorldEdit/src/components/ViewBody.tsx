@@ -16,6 +16,9 @@ type ViewBodyProps = {
   socialCount: number;
   tutorialCount: number;
   lootCount: number;
+  areaLootCount: number;
+  recipeCount: number;
+  gatherSpawnCount: number;
   roomCount: number;
   mobileCount: number;
   objectCount: number;
@@ -40,6 +43,9 @@ type ViewBodyProps = {
   socialForm: ReactNode;
   tutorialForm: ReactNode;
   lootForm: ReactNode;
+  areaLootForm: ReactNode;
+  recipeForm: ReactNode;
+  gatherSpawnForm: ReactNode;
   tableView: ReactNode;
   classTableView: ReactNode;
   raceTableView: ReactNode;
@@ -69,6 +75,9 @@ export function ViewBody({
   socialCount,
   tutorialCount,
   lootCount,
+  areaLootCount,
+  recipeCount,
+  gatherSpawnCount,
   roomCount,
   mobileCount,
   objectCount,
@@ -93,6 +102,9 @@ export function ViewBody({
   socialForm,
   tutorialForm,
   lootForm,
+  areaLootForm,
+  recipeForm,
+  gatherSpawnForm,
   tableView,
   classTableView,
   raceTableView,
@@ -332,6 +344,39 @@ export function ViewBody({
     );
   }
 
+  if (activeTab === "Form" && selectedEntity === "Loot") {
+    return areaLootCount ? (
+      <>{areaLootForm}</>
+    ) : (
+      <div className="entity-table__empty">
+        <h3>No loot available</h3>
+        <p>Load an area JSON file to edit loot groups and tables.</p>
+      </div>
+    );
+  }
+
+  if (activeTab === "Form" && selectedEntity === "Recipes") {
+    return recipeCount ? (
+      <>{recipeForm}</>
+    ) : (
+      <div className="entity-table__empty">
+        <h3>No recipes available</h3>
+        <p>Load an area JSON file to edit recipes.</p>
+      </div>
+    );
+  }
+
+  if (activeTab === "Form" && selectedEntity === "Gather Spawns") {
+    return gatherSpawnCount ? (
+      <>{gatherSpawnForm}</>
+    ) : (
+      <div className="entity-table__empty">
+        <h3>No gather spawns available</h3>
+        <p>Load an area JSON file to edit gather spawns.</p>
+      </div>
+    );
+  }
+
   if (activeTab === "Map") {
     return mapHasRooms ? (
       <>{mapView}</>
@@ -358,7 +403,10 @@ export function ViewBody({
     selectedEntity === "Resets" ||
     selectedEntity === "Shops" ||
     selectedEntity === "Quests" ||
-    selectedEntity === "Factions";
+    selectedEntity === "Factions" ||
+    selectedEntity === "Loot" ||
+    selectedEntity === "Recipes" ||
+    selectedEntity === "Gather Spawns";
 
   if (activeTab === "Table" && isTableEntity) {
     return <>{tableView}</>;

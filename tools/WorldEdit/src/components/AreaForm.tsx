@@ -17,6 +17,7 @@ type AreaFormProps = {
   appendChecklist: (value: Record<string, unknown>) => void;
   removeChecklist: (index: number) => void;
   moveChecklist: (from: number, to: number) => void;
+  lootTableOptions: string[];
 };
 
 const checklistStatusOptions = ["todo", "inProgress", "done"] as const;
@@ -33,9 +34,11 @@ export function AreaForm({
   checklistFields,
   appendChecklist,
   removeChecklist,
-  moveChecklist
+  moveChecklist,
+  lootTableOptions
 }: AreaFormProps) {
   const errors = formState.errors as Record<string, any>;
+  const lootListId = "area-loot-table-options";
 
   return (
     <div className="form-view">
@@ -115,6 +118,25 @@ export function AreaForm({
               type="text"
               {...register("credits")}
             />
+          </div>
+          <div className="form-field form-field--wide">
+            <label className="form-label" htmlFor="area-loot-table">
+              Loot Table
+            </label>
+            <input
+              id="area-loot-table"
+              className="form-input"
+              type="text"
+              list={lootListId}
+              {...register("lootTable")}
+            />
+            <datalist id={lootListId}>
+              {lootTableOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </datalist>
           </div>
           <div className="form-field">
             <label className="form-label" htmlFor="area-security">

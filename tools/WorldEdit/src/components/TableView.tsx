@@ -11,6 +11,9 @@ type TableViewProps = {
   shopRows: Array<Record<string, unknown>>;
   questRows: Array<Record<string, unknown>>;
   factionRows: Array<Record<string, unknown>>;
+  lootRows: Array<Record<string, unknown>>;
+  recipeRows: Array<Record<string, unknown>>;
+  gatherSpawnRows: Array<Record<string, unknown>>;
   roomColumns: ColDef[];
   mobileColumns: ColDef[];
   objectColumns: ColDef[];
@@ -18,6 +21,9 @@ type TableViewProps = {
   shopColumns: ColDef[];
   questColumns: ColDef[];
   factionColumns: ColDef[];
+  lootColumns: ColDef[];
+  recipeColumns: ColDef[];
+  gatherSpawnColumns: ColDef[];
   roomDefaultColDef: ColDef;
   mobileDefaultColDef: ColDef;
   objectDefaultColDef: ColDef;
@@ -25,6 +31,9 @@ type TableViewProps = {
   shopDefaultColDef: ColDef;
   questDefaultColDef: ColDef;
   factionDefaultColDef: ColDef;
+  lootDefaultColDef: ColDef;
+  recipeDefaultColDef: ColDef;
+  gatherSpawnDefaultColDef: ColDef;
   onSelectRoom: (vnum: number | null) => void;
   onSelectMobile: (vnum: number | null) => void;
   onSelectObject: (vnum: number | null) => void;
@@ -32,6 +41,9 @@ type TableViewProps = {
   onSelectShop: (keeper: number | null) => void;
   onSelectQuest: (vnum: number | null) => void;
   onSelectFaction: (vnum: number | null) => void;
+  onSelectLoot: (kind: "group" | "table" | null, index: number | null) => void;
+  onSelectRecipe: (vnum: number | null) => void;
+  onSelectGatherSpawn: (vnum: number | null) => void;
   roomGridApiRef: MutableRefObject<GridApi | null>;
   mobileGridApiRef: MutableRefObject<GridApi | null>;
   objectGridApiRef: MutableRefObject<GridApi | null>;
@@ -39,6 +51,9 @@ type TableViewProps = {
   shopGridApiRef: MutableRefObject<GridApi | null>;
   questGridApiRef: MutableRefObject<GridApi | null>;
   factionGridApiRef: MutableRefObject<GridApi | null>;
+  lootGridApiRef: MutableRefObject<GridApi | null>;
+  recipeGridApiRef: MutableRefObject<GridApi | null>;
+  gatherSpawnGridApiRef: MutableRefObject<GridApi | null>;
 };
 
 export function TableView({
@@ -50,6 +65,9 @@ export function TableView({
   shopRows,
   questRows,
   factionRows,
+  lootRows,
+  recipeRows,
+  gatherSpawnRows,
   roomColumns,
   mobileColumns,
   objectColumns,
@@ -57,6 +75,9 @@ export function TableView({
   shopColumns,
   questColumns,
   factionColumns,
+  lootColumns,
+  recipeColumns,
+  gatherSpawnColumns,
   roomDefaultColDef,
   mobileDefaultColDef,
   objectDefaultColDef,
@@ -64,6 +85,9 @@ export function TableView({
   shopDefaultColDef,
   questDefaultColDef,
   factionDefaultColDef,
+  lootDefaultColDef,
+  recipeDefaultColDef,
+  gatherSpawnDefaultColDef,
   onSelectRoom,
   onSelectMobile,
   onSelectObject,
@@ -71,13 +95,19 @@ export function TableView({
   onSelectShop,
   onSelectQuest,
   onSelectFaction,
+  onSelectLoot,
+  onSelectRecipe,
+  onSelectGatherSpawn,
   roomGridApiRef,
   mobileGridApiRef,
   objectGridApiRef,
   resetGridApiRef,
   shopGridApiRef,
   questGridApiRef,
-  factionGridApiRef
+  factionGridApiRef,
+  lootGridApiRef,
+  recipeGridApiRef,
+  gatherSpawnGridApiRef
 }: TableViewProps) {
   return (
     <div className="entity-table">
@@ -260,6 +290,84 @@ export function TableView({
           <div className="entity-table__empty">
             <h3>Factions will appear here</h3>
             <p>Load an area JSON file to populate the faction table.</p>
+          </div>
+        )
+      ) : null}
+      {selectedEntity === "Loot" ? (
+        lootRows.length ? (
+          <div className="ag-theme-quartz worldedit-grid">
+            <AgGridReact
+              rowData={lootRows}
+              columnDefs={lootColumns}
+              defaultColDef={lootDefaultColDef}
+              animateRows
+              rowSelection="single"
+              getRowId={(params) => String(params.data.id)}
+              domLayout="autoHeight"
+              onRowClicked={(event) =>
+                onSelectLoot(event.data?.kind ?? null, event.data?.index ?? null)
+              }
+              onGridReady={(event) => {
+                lootGridApiRef.current = event.api;
+              }}
+            />
+          </div>
+        ) : (
+          <div className="entity-table__empty">
+            <h3>Loot entries will appear here</h3>
+            <p>Load an area JSON file to populate the loot table.</p>
+          </div>
+        )
+      ) : null}
+      {selectedEntity === "Recipes" ? (
+        recipeRows.length ? (
+          <div className="ag-theme-quartz worldedit-grid">
+            <AgGridReact
+              rowData={recipeRows}
+              columnDefs={recipeColumns}
+              defaultColDef={recipeDefaultColDef}
+              animateRows
+              rowSelection="single"
+              getRowId={(params) => String(params.data.vnum)}
+              domLayout="autoHeight"
+              onRowClicked={(event) =>
+                onSelectRecipe(event.data?.vnum ?? null)
+              }
+              onGridReady={(event) => {
+                recipeGridApiRef.current = event.api;
+              }}
+            />
+          </div>
+        ) : (
+          <div className="entity-table__empty">
+            <h3>Recipes will appear here</h3>
+            <p>Load an area JSON file to populate the recipe table.</p>
+          </div>
+        )
+      ) : null}
+      {selectedEntity === "Gather Spawns" ? (
+        gatherSpawnRows.length ? (
+          <div className="ag-theme-quartz worldedit-grid">
+            <AgGridReact
+              rowData={gatherSpawnRows}
+              columnDefs={gatherSpawnColumns}
+              defaultColDef={gatherSpawnDefaultColDef}
+              animateRows
+              rowSelection="single"
+              getRowId={(params) => String(params.data.vnum)}
+              domLayout="autoHeight"
+              onRowClicked={(event) =>
+                onSelectGatherSpawn(event.data?.vnum ?? null)
+              }
+              onGridReady={(event) => {
+                gatherSpawnGridApiRef.current = event.api;
+              }}
+            />
+          </div>
+        ) : (
+          <div className="entity-table__empty">
+            <h3>Gather spawns will appear here</h3>
+            <p>Load an area JSON file to populate the gather spawn table.</p>
           </div>
         )
       ) : null}
