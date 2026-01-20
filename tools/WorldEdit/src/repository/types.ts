@@ -182,6 +182,30 @@ export type SocialDataSource = {
   data: SocialDataFile;
 };
 
+export type TutorialStep = {
+  prompt: string;
+  match?: string;
+};
+
+export type TutorialDefinition = {
+  name: string;
+  blurb?: string;
+  finish?: string;
+  minLevel?: number;
+  steps?: TutorialStep[];
+};
+
+export type TutorialDataFile = {
+  formatVersion: number;
+  tutorials: TutorialDefinition[];
+};
+
+export type TutorialDataSource = {
+  path: string;
+  format: "json" | "olc";
+  data: TutorialDataFile;
+};
+
 export type ProjectDataFiles = {
   classes: string;
   races: string;

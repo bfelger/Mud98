@@ -14,6 +14,7 @@ type ViewBodyProps = {
   groupCount: number;
   commandCount: number;
   socialCount: number;
+  tutorialCount: number;
   roomCount: number;
   mobileCount: number;
   objectCount: number;
@@ -36,6 +37,7 @@ type ViewBodyProps = {
   groupForm: ReactNode;
   commandForm: ReactNode;
   socialForm: ReactNode;
+  tutorialForm: ReactNode;
   tableView: ReactNode;
   classTableView: ReactNode;
   raceTableView: ReactNode;
@@ -43,6 +45,7 @@ type ViewBodyProps = {
   groupTableView: ReactNode;
   commandTableView: ReactNode;
   socialTableView: ReactNode;
+  tutorialTableView: ReactNode;
   mapView: ReactNode;
   worldView: ReactNode;
   scriptView: ReactNode;
@@ -61,6 +64,7 @@ export function ViewBody({
   groupCount,
   commandCount,
   socialCount,
+  tutorialCount,
   roomCount,
   mobileCount,
   objectCount,
@@ -83,6 +87,7 @@ export function ViewBody({
   groupForm,
   commandForm,
   socialForm,
+  tutorialForm,
   tableView,
   classTableView,
   raceTableView,
@@ -90,6 +95,7 @@ export function ViewBody({
   groupTableView,
   commandTableView,
   socialTableView,
+  tutorialTableView,
   mapView,
   worldView,
   scriptView
@@ -185,6 +191,21 @@ export function ViewBody({
       }
       if (activeTab === "Table") {
         return <>{socialTableView}</>;
+      }
+    }
+    if (selectedGlobalEntity === "Tutorials") {
+      if (activeTab === "Form") {
+        return tutorialCount ? (
+          <>{tutorialForm}</>
+        ) : (
+          <div className="entity-table__empty">
+            <h3>No tutorials loaded</h3>
+            <p>Load the tutorials file from the data directory.</p>
+          </div>
+        );
+      }
+      if (activeTab === "Table") {
+        return <>{tutorialTableView}</>;
       }
     }
     return (

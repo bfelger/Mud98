@@ -11,6 +11,8 @@ import type {
   CommandDataSource,
   SocialDataFile,
   SocialDataSource,
+  TutorialDataFile,
+  TutorialDataSource,
   ProjectConfig,
   ProjectDataFiles,
   RaceDataFile,
@@ -111,6 +113,17 @@ export interface WorldRepository {
   saveSocialsData(
     dataDir: string,
     data: SocialDataFile,
+    format: "json" | "olc",
+    fileName?: string
+  ): Promise<string>;
+  loadTutorialsData(
+    dataDir: string,
+    fileName?: string,
+    defaultFormat?: "json" | "olc"
+  ): Promise<TutorialDataSource>;
+  saveTutorialsData(
+    dataDir: string,
+    data: TutorialDataFile,
     format: "json" | "olc",
     fileName?: string
   ): Promise<string>;

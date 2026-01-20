@@ -42,6 +42,10 @@ import type {
   SocialDataFile,
   SocialDataSource,
   SocialDefinition,
+  TutorialDataFile,
+  TutorialDataSource,
+  TutorialDefinition,
+  TutorialStep,
   SkillDataFile,
   SkillDataSource,
   SkillDefinition,
@@ -1626,6 +1630,218 @@ function serializeSocialOlc(data: SocialDataFile): string {
   return lines.join("\n");
 }
 
+function normalizeTutorialText(value: unknown): string | undefined {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+  const trimmed = value.trim();
+  return trimmed.length ? trimmed : undefined;
+}
+
+function normalizeTutorialStep(step: Partial<TutorialStep>): TutorialStep | null {
+  const prompt = normalizeTutorialText(step.prompt);
+  if (!prompt) {
+    return null;
+  }
+  const match = normalizeTutorialText(step.match);
+  return {
+    prompt,
+    match
+  };
+}
+
+function normalizeTutorialRecord(
+  record: Partial<TutorialDefinition>
+): TutorialDefinition {
+  const minLevel =
+    typeof record.minLevel === "number" && Number.isFinite(record.minLevel)
+      ? Math.trunc(record.minLevel)
+      : 0;
+  const steps = Array.isArray(record.steps)
+    ? record.steps
+        .map((step) => normalizeTutorialStep(step ?? {}))
+        .filter((step): step is TutorialStep => Boolean(step))
+    : [];
+  return {
+    name: record.name?.trim() || "unnamed",
+    blurb: normalizeTutorialText(record.blurb),
+    finish: normalizeTutorialText(record.finish),
+    minLevel,
+    steps
+  };
+}
+
+function parseTutorialJson(content: string): TutorialDataFile {
+  const parsed = JSON.parse(content) as Record<string, unknown>;
+  const formatVersion = Number(parsed.formatVersion);
+  const tutorialsRaw = parsed.tutorials;
+  const tutorials = Array.isArray(tutorialsRaw)
+    ? tutorialsRaw.map((tutorial) =>
+        normalizeTutorialRecord((tutorial ?? {}) as Partial<TutorialDefinition>)
+      )
+    : [];
+  return {
+    formatVersion: Number.isFinite(formatVersion) ? formatVersion : 1,
+    tutorials
+  };
+}
+
+function parseTutorialOlc(content: string): TutorialDataFile {
+  const scanner = new OlcScanner(content);
+  const tutorials: TutorialDefinition[] = [];
+  let current: TutorialDefinition | null = null;
+
+  while (!scanner.eof()) {
+    const word = scanner.readWord();
+    if (!word) {
+      break;
+    }
+    const upper = word.toUpperCase();
+    if (upper === "#TUTORIAL") {
+      if (current) {
+        tutorials.push(current);
+      }
+      const record: Partial<TutorialDefinition> = {};
+      let stepCount: number | null = null;
+      while (!scanner.eof()) {
+        const field = scanner.readWord();
+        if (!field) {
+          break;
+        }
+        const fieldUpper = field.toUpperCase();
+        if (fieldUpper === "#ENDTUTORIAL") {
+          break;
+        }
+        switch (field.toLowerCase()) {
+          case "name":
+            record.name = scanner.readString();
+            break;
+          case "blurb":
+            record.blurb = scanner.readString();
+            break;
+          case "finish":
+            record.finish = scanner.readString();
+            break;
+          case "min_level":
+            record.minLevel = scanner.readNumber();
+            break;
+          case "step_count":
+            stepCount = scanner.readNumber();
+            break;
+          default:
+            break;
+        }
+      }
+      current = normalizeTutorialRecord(record);
+      if (stepCount !== null) {
+        current.steps = [];
+      }
+      continue;
+    }
+    if (upper === "#STEP") {
+      const record: Partial<TutorialStep> = {};
+      while (!scanner.eof()) {
+        const field = scanner.readWord();
+        if (!field) {
+          break;
+        }
+        const fieldUpper = field.toUpperCase();
+        if (fieldUpper === "#ENDSTEP") {
+          break;
+        }
+        switch (field.toLowerCase()) {
+          case "prompt":
+            record.prompt = scanner.readString();
+            break;
+          case "match":
+            record.match = scanner.readString();
+            break;
+          default:
+            break;
+        }
+      }
+      if (current) {
+        const step = normalizeTutorialStep(record);
+        if (step) {
+          current.steps = [...(current.steps ?? []), step];
+        }
+      }
+      continue;
+    }
+    if (upper === "#END") {
+      break;
+    }
+  }
+
+  if (current) {
+    tutorials.push(current);
+  }
+
+  return { formatVersion: 1, tutorials };
+}
+
+function serializeTutorialJson(data: TutorialDataFile): string {
+  const root: Record<string, unknown> = {
+    formatVersion: 1,
+    tutorials: data.tutorials.map((tutorial) => {
+      const record = normalizeTutorialRecord(tutorial);
+      const obj: Record<string, unknown> = {
+        name: record.name
+      };
+      if (record.blurb) {
+        obj.blurb = record.blurb;
+      }
+      if (record.finish) {
+        obj.finish = record.finish;
+      }
+      if (record.minLevel && record.minLevel !== 0) {
+        obj.minLevel = record.minLevel;
+      }
+      if (record.steps && record.steps.length) {
+        obj.steps = record.steps.map((step) => {
+          const stepObj: Record<string, unknown> = {
+            prompt: step.prompt
+          };
+          if (step.match) {
+            stepObj.match = step.match;
+          }
+          return stepObj;
+        });
+      }
+      return obj;
+    })
+  };
+  return JSON.stringify(root, null, 2);
+}
+
+function serializeTutorialOlc(data: TutorialDataFile): string {
+  const tutorials = data.tutorials.map((tutorial) =>
+    normalizeTutorialRecord(tutorial)
+  );
+  const lines: string[] = [];
+  lines.push(String(tutorials.length));
+  lines.push("");
+  tutorials.forEach((tutorial) => {
+    const steps = tutorial.steps ?? [];
+    lines.push("#TUTORIAL");
+    lines.push(`name ${sanitizeOlcString(tutorial.name)}~`);
+    lines.push(`blurb ${sanitizeOlcString(tutorial.blurb ?? "")}~`);
+    lines.push(`finish ${sanitizeOlcString(tutorial.finish ?? "")}~`);
+    lines.push(`min_level ${tutorial.minLevel ?? 0}`);
+    lines.push(`step_count ${steps.length}`);
+    lines.push("#ENDTUTORIAL");
+    lines.push("");
+    steps.forEach((step) => {
+      lines.push("#STEP");
+      lines.push(`prompt ${sanitizeOlcString(step.prompt)}~`);
+      lines.push(`match ${sanitizeOlcString(step.match ?? "")}~`);
+      lines.push("#ENDSTEP");
+      lines.push("");
+    });
+  });
+  return lines.join("\n");
+}
+
 function parseRaceJson(content: string): RaceDataFile {
   const parsed = JSON.parse(content) as Record<string, unknown>;
   const formatVersion = Number(parsed.formatVersion);
@@ -2964,6 +3180,96 @@ export class LocalFileRepository implements WorldRepository {
       outputFormat === "json"
         ? serializeSocialJson(data)
         : serializeSocialOlc(data);
+    await writeTextFile(path, payload);
+    return path;
+  }
+
+  async loadTutorialsData(
+    dataDir: string,
+    fileName?: string,
+    defaultFormat?: "json" | "olc"
+  ): Promise<TutorialDataSource> {
+    const candidates: Array<{ path: string; format: "json" | "olc" }> = [];
+    if (fileName) {
+      const lower = fileName.toLowerCase();
+      if (lower.endsWith(".json")) {
+        candidates.push({
+          path: isAbsolutePath(fileName) ? fileName : await join(dataDir, fileName),
+          format: "json"
+        });
+      } else if (lower.endsWith(".olc")) {
+        candidates.push({
+          path: isAbsolutePath(fileName) ? fileName : await join(dataDir, fileName),
+          format: "olc"
+        });
+      } else if (defaultFormat) {
+        candidates.push({
+          path: isAbsolutePath(fileName)
+            ? `${fileName}.${defaultFormat}`
+            : await join(dataDir, `${fileName}.${defaultFormat}`),
+          format: defaultFormat
+        });
+      } else {
+        candidates.push({
+          path: isAbsolutePath(fileName)
+            ? `${fileName}.json`
+            : await join(dataDir, `${fileName}.json`),
+          format: "json"
+        });
+        candidates.push({
+          path: isAbsolutePath(fileName)
+            ? `${fileName}.olc`
+            : await join(dataDir, `${fileName}.olc`),
+          format: "olc"
+        });
+      }
+    }
+    if (!candidates.length) {
+      candidates.push({
+        path: await join(dataDir, "tutorials.json"),
+        format: "json"
+      });
+      candidates.push({
+        path: await join(dataDir, "tutorials.olc"),
+        format: "olc"
+      });
+    }
+    for (const candidate of candidates) {
+      const raw = await tryReadText(candidate.path);
+      if (!raw) {
+        continue;
+      }
+      return {
+        path: candidate.path,
+        format: candidate.format,
+        data:
+          candidate.format === "json"
+            ? parseTutorialJson(raw)
+            : parseTutorialOlc(raw)
+      };
+    }
+
+    throw new Error("Missing tutorials data file.");
+  }
+
+  async saveTutorialsData(
+    dataDir: string,
+    data: TutorialDataFile,
+    format: "json" | "olc",
+    fileName?: string
+  ): Promise<string> {
+    const resolvedName =
+      fileName ?? (format === "json" ? "tutorials.json" : "tutorials.olc");
+    const lower = resolvedName.toLowerCase();
+    const outputFormat =
+      lower.endsWith(".json") ? "json" : lower.endsWith(".olc") ? "olc" : format;
+    const path = isAbsolutePath(resolvedName)
+      ? resolvedName
+      : await join(dataDir, resolvedName);
+    const payload =
+      outputFormat === "json"
+        ? serializeTutorialJson(data)
+        : serializeTutorialOlc(data);
     await writeTextFile(path, payload);
     return path;
   }

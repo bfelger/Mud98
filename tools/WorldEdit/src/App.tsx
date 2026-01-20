@@ -45,6 +45,7 @@ import { SkillForm } from "./components/SkillForm";
 import { GroupForm } from "./components/GroupForm";
 import { CommandForm } from "./components/CommandForm";
 import { SocialForm } from "./components/SocialForm";
+import { TutorialForm } from "./components/TutorialForm";
 import { TableView } from "./components/TableView";
 import { ClassTableView } from "./components/ClassTableView";
 import { RaceTableView } from "./components/RaceTableView";
@@ -52,6 +53,7 @@ import { SkillTableView } from "./components/SkillTableView";
 import { GroupTableView } from "./components/GroupTableView";
 import { CommandTableView } from "./components/CommandTableView";
 import { SocialTableView } from "./components/SocialTableView";
+import { TutorialTableView } from "./components/TutorialTableView";
 import { InspectorPanel } from "./components/InspectorPanel";
 import { EntityTree } from "./components/EntityTree";
 import { Topbar } from "./components/Topbar";
@@ -79,6 +81,8 @@ import type {
   RaceDefinition,
   SocialDataFile,
   SocialDefinition,
+  TutorialDataFile,
+  TutorialDefinition,
   SkillDataFile,
   SkillDefinition,
   ReferenceData,
@@ -440,6 +444,13 @@ type SocialRow = {
   noTarget: string;
   target: string;
   self: string;
+};
+
+type TutorialRow = {
+  index: number;
+  name: string;
+  minLevel: number;
+  steps: number;
 };
 
 type ShopRow = {
@@ -1017,6 +1028,19 @@ const socialFormSchema = z.object({
   othersAuto: z.string().optional()
 });
 
+const tutorialFormSchema = z.object({
+  name: z.string().min(1),
+  blurb: z.string().optional(),
+  finish: z.string().optional(),
+  minLevel: z.number().int(),
+  steps: z.array(
+    z.object({
+      prompt: z.string().optional(),
+      match: z.string().optional()
+    })
+  )
+});
+
 type RoomFormValues = z.infer<typeof roomFormSchema>;
 type AreaFormValues = z.infer<typeof areaFormSchema>;
 type MobileFormValues = z.infer<typeof mobileFormSchema>;
@@ -1031,6 +1055,7 @@ type SkillFormValues = z.infer<typeof skillFormSchema>;
 type GroupFormValues = z.infer<typeof groupFormSchema>;
 type CommandFormValues = z.infer<typeof commandFormSchema>;
 type SocialFormValues = z.infer<typeof socialFormSchema>;
+type TutorialFormValues = z.infer<typeof tutorialFormSchema>;
 
 const entityKindLabels: Record<EntityKey, string> = {
   Area: "Area",
@@ -3874,6 +3899,20 @@ function buildSocialRows(socialData: SocialDataFile | null): SocialRow[] {
   });
 }
 
+function buildTutorialRows(
+  tutorialData: TutorialDataFile | null
+): TutorialRow[] {
+  if (!tutorialData) {
+    return [];
+  }
+  return tutorialData.tutorials.map((tutorial, index) => ({
+    index,
+    name: tutorial.name ?? "(unnamed)",
+    minLevel: tutorial.minLevel ?? 0,
+    steps: tutorial.steps?.length ?? 0
+  }));
+}
+
 function titlesToText(titles: string[][] | undefined, column: 0 | 1): string {
   const lines: string[] = [];
   for (let i = 0; i < classTitleCount; i += 1) {
@@ -3947,6 +3986,9 @@ export default function App({ repository }: AppProps) {
   const [selectedSocialIndex, setSelectedSocialIndex] = useState<number | null>(
     null
   );
+  const [selectedTutorialIndex, setSelectedTutorialIndex] = useState<
+    number | null
+  >(null);
   const [selectedRoomVnum, setSelectedRoomVnum] = useState<number | null>(null);
   const [selectedMobileVnum, setSelectedMobileVnum] = useState<number | null>(
     null
@@ -4002,6 +4044,12 @@ export default function App({ repository }: AppProps) {
     "json" | "olc" | null
   >(null);
   const [socialDataDir, setSocialDataDir] = useState<string | null>(null);
+  const [tutorialData, setTutorialData] = useState<TutorialDataFile | null>(null);
+  const [tutorialDataPath, setTutorialDataPath] = useState<string | null>(null);
+  const [tutorialDataFormat, setTutorialDataFormat] = useState<
+    "json" | "olc" | null
+  >(null);
+  const [tutorialDataDir, setTutorialDataDir] = useState<string | null>(null);
   const [projectConfig, setProjectConfig] = useState<ProjectConfig | null>(null);
   const [editorMeta, setEditorMeta] = useState<EditorMeta | null>(null);
   const [editorMetaPath, setEditorMetaPath] = useState<string | null>(null);
@@ -4053,6 +4101,7 @@ export default function App({ repository }: AppProps) {
   const groupGridApi = useRef<GridApi | null>(null);
   const commandGridApi = useRef<GridApi | null>(null);
   const socialGridApi = useRef<GridApi | null>(null);
+  const tutorialGridApi = useRef<GridApi | null>(null);
   const areaForm = useForm<AreaFormValues>({
     resolver: zodResolver(areaFormSchema),
     defaultValues: {
@@ -4518,6 +4567,36 @@ export default function App({ repository }: AppProps) {
     formState: socialFormState,
     reset: resetSocialForm
   } = socialForm;
+  const tutorialFormDefaults = useMemo<TutorialFormValues>(
+    () => ({
+      name: "",
+      blurb: "",
+      finish: "",
+      minLevel: 0,
+      steps: []
+    }),
+    []
+  );
+  const tutorialForm = useForm<TutorialFormValues>({
+    resolver: zodResolver(tutorialFormSchema),
+    defaultValues: tutorialFormDefaults
+  });
+  const {
+    register: registerTutorial,
+    handleSubmit: handleTutorialSubmitForm,
+    formState: tutorialFormState,
+    reset: resetTutorialForm,
+    control: tutorialFormControl
+  } = tutorialForm;
+  const {
+    fields: tutorialStepFields,
+    append: appendTutorialStep,
+    remove: removeTutorialStep,
+    move: moveTutorialStep
+  } = useFieldArray({
+    control: tutorialFormControl,
+    name: "steps"
+  });
   const watchedResetCommand = useWatch({
     control: resetForm.control,
     name: "commandName"
@@ -4943,6 +5022,76 @@ export default function App({ repository }: AppProps) {
     socialDataFormat
   ]);
 
+  const handleLoadTutorialsData = useCallback(
+    async (overrideDir?: string) => {
+      const targetDir =
+        typeof overrideDir === "string" ? overrideDir : dataDirectory;
+      if (!targetDir) {
+        setErrorMessage("No data directory set for tutorials.");
+        return;
+      }
+      const tutorialsFile = projectConfig?.dataFiles.tutorials;
+      const defaultFormat = projectConfig?.defaultFormat;
+      setErrorMessage(null);
+      setIsBusy(true);
+      try {
+        const source = await repository.loadTutorialsData(
+          targetDir,
+          tutorialsFile,
+          defaultFormat
+        );
+        setTutorialData(source.data);
+        setTutorialDataPath(source.path);
+        setTutorialDataFormat(source.format);
+        setTutorialDataDir(targetDir);
+        setStatusMessage(`Loaded tutorials (${source.format})`);
+      } catch (error) {
+        setErrorMessage(`Failed to load tutorials. ${String(error)}`);
+      } finally {
+        setIsBusy(false);
+      }
+    },
+    [dataDirectory, projectConfig, repository]
+  );
+
+  const handleSaveTutorialsData = useCallback(async () => {
+    if (!tutorialData) {
+      setErrorMessage("No tutorials loaded to save.");
+      return;
+    }
+    if (!dataDirectory) {
+      setErrorMessage("No data directory set for tutorials.");
+      return;
+    }
+    setErrorMessage(null);
+    setIsBusy(true);
+    try {
+      const format =
+        tutorialDataFormat ?? projectConfig?.defaultFormat ?? "json";
+      const tutorialsFile = projectConfig?.dataFiles.tutorials;
+      const path = await repository.saveTutorialsData(
+        dataDirectory,
+        tutorialData,
+        format,
+        tutorialsFile
+      );
+      setTutorialDataPath(path);
+      setTutorialDataFormat(format);
+      setTutorialDataDir(dataDirectory);
+      setStatusMessage(`Saved tutorials (${format})`);
+    } catch (error) {
+      setErrorMessage(`Failed to save tutorials. ${String(error)}`);
+    } finally {
+      setIsBusy(false);
+    }
+  }, [
+    dataDirectory,
+    projectConfig,
+    repository,
+    tutorialData,
+    tutorialDataFormat
+  ]);
+
   useEffect(() => {
     const nextRoom = getDefaultSelection(areaData, "Rooms", selectedRoomVnum);
     if (selectedRoomVnum !== nextRoom) {
@@ -5148,6 +5297,26 @@ export default function App({ repository }: AppProps) {
   ]);
 
   useEffect(() => {
+    if (editorMode !== "Global" || selectedGlobalEntity !== "Tutorials") {
+      return;
+    }
+    if (!dataDirectory) {
+      return;
+    }
+    if (tutorialData && tutorialDataDir === dataDirectory) {
+      return;
+    }
+    void handleLoadTutorialsData(dataDirectory);
+  }, [
+    editorMode,
+    selectedGlobalEntity,
+    dataDirectory,
+    tutorialData,
+    tutorialDataDir,
+    handleLoadTutorialsData
+  ]);
+
+  useEffect(() => {
     if (!classData || classData.classes.length === 0) {
       if (selectedClassIndex !== null) {
         setSelectedClassIndex(null);
@@ -5236,6 +5405,21 @@ export default function App({ repository }: AppProps) {
       setSelectedSocialIndex(0);
     }
   }, [socialData, selectedSocialIndex]);
+
+  useEffect(() => {
+    if (!tutorialData || tutorialData.tutorials.length === 0) {
+      if (selectedTutorialIndex !== null) {
+        setSelectedTutorialIndex(null);
+      }
+      return;
+    }
+    if (
+      selectedTutorialIndex === null ||
+      selectedTutorialIndex >= tutorialData.tutorials.length
+    ) {
+      setSelectedTutorialIndex(0);
+    }
+  }, [tutorialData, selectedTutorialIndex]);
 
   useEffect(() => {
     if (!classData || selectedClassIndex === null) {
@@ -5408,6 +5592,29 @@ export default function App({ repository }: AppProps) {
     selectedSocialIndex,
     socialFormDefaults,
     resetSocialForm
+  ]);
+
+  useEffect(() => {
+    if (!tutorialData || selectedTutorialIndex === null) {
+      resetTutorialForm(tutorialFormDefaults);
+      return;
+    }
+    const tutorial = tutorialData.tutorials[selectedTutorialIndex];
+    resetTutorialForm({
+      name: tutorial.name ?? "",
+      blurb: normalizeLineEndingsForDisplay(tutorial.blurb),
+      finish: normalizeLineEndingsForDisplay(tutorial.finish),
+      minLevel: tutorial.minLevel ?? 0,
+      steps: (tutorial.steps ?? []).map((step) => ({
+        prompt: normalizeLineEndingsForDisplay(step.prompt),
+        match: step.match ?? ""
+      }))
+    });
+  }, [
+    tutorialData,
+    selectedTutorialIndex,
+    tutorialFormDefaults,
+    resetTutorialForm
   ]);
 
   const selection = useMemo(
@@ -5606,6 +5813,10 @@ export default function App({ repository }: AppProps) {
   const socialRows = useMemo(
     () => buildSocialRows(socialData),
     [socialData]
+  );
+  const tutorialRows = useMemo(
+    () => buildTutorialRows(tutorialData),
+    [tutorialData]
   );
   const roomRows = useMemo(() => buildRoomRows(areaData), [areaData]);
   const mobileRows = useMemo(() => buildMobileRows(areaData), [areaData]);
@@ -6907,6 +7118,15 @@ export default function App({ repository }: AppProps) {
     ],
     []
   );
+  const tutorialColumns = useMemo<ColDef<TutorialRow>[]>(
+    () => [
+      { headerName: "#", field: "index", width: 80, sort: "asc" },
+      { headerName: "Name", field: "name", flex: 2, minWidth: 220 },
+      { headerName: "Min Level", field: "minLevel", width: 120 },
+      { headerName: "Steps", field: "steps", width: 110 }
+    ],
+    []
+  );
   const roomColumns = useMemo<ColDef<RoomRow>[]>(
     () => [
       { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
@@ -6993,6 +7213,7 @@ export default function App({ repository }: AppProps) {
   const groupDefaultColDef = roomDefaultColDef;
   const commandDefaultColDef = roomDefaultColDef;
   const socialDefaultColDef = roomDefaultColDef;
+  const tutorialDefaultColDef = roomDefaultColDef;
 
   useEffect(() => {
     areaForm.reset(areaFormDefaults);
@@ -7175,6 +7396,23 @@ export default function App({ repository }: AppProps) {
     activeTab,
     selectedSocialIndex,
     socialRows
+  ]);
+
+  useEffect(() => {
+    if (
+      editorMode !== "Global" ||
+      selectedGlobalEntity !== "Tutorials" ||
+      activeTab !== "Table"
+    ) {
+      return;
+    }
+    syncGridSelection(tutorialGridApi.current, selectedTutorialIndex);
+  }, [
+    editorMode,
+    selectedGlobalEntity,
+    activeTab,
+    selectedTutorialIndex,
+    tutorialRows
   ]);
 
   useEffect(() => {
@@ -8026,6 +8264,48 @@ export default function App({ repository }: AppProps) {
     setStatusMessage(`Updated social ${data.name} (unsaved)`);
   };
 
+  const handleTutorialSubmit = (data: TutorialFormValues) => {
+    if (!tutorialData || selectedTutorialIndex === null) {
+      return;
+    }
+    const steps = (data.steps ?? [])
+      .map((step) => {
+        const prompt = normalizeOptionalMudText(step.prompt);
+        if (!prompt) {
+          return null;
+        }
+        const match = cleanOptionalString(step.match);
+        return {
+          prompt,
+          match
+        };
+      })
+      .filter(
+        (
+          step
+        ): step is {
+          prompt: string;
+          match?: string;
+        } => Boolean(step)
+      );
+    const nextRecord: TutorialDefinition = {
+      name: data.name,
+      blurb: normalizeOptionalMudText(data.blurb),
+      finish: normalizeOptionalMudText(data.finish),
+      minLevel: data.minLevel ?? 0,
+      steps
+    };
+    setTutorialData((current) => {
+      if (!current) {
+        return current;
+      }
+      const nextTutorials = [...current.tutorials];
+      nextTutorials[selectedTutorialIndex] = nextRecord;
+      return { ...current, tutorials: nextTutorials };
+    });
+    setStatusMessage(`Updated tutorial ${data.name} (unsaved)`);
+  };
+
   const warnLegacyAreaFiles = useCallback(
     async (areaDir: string | null) => {
       if (!areaDir) {
@@ -8465,6 +8745,17 @@ export default function App({ repository }: AppProps) {
       formState={socialFormState}
     />
   );
+  const tutorialFormNode = (
+    <TutorialForm
+      onSubmit={handleTutorialSubmitForm(handleTutorialSubmit)}
+      register={registerTutorial}
+      formState={tutorialFormState}
+      stepFields={tutorialStepFields}
+      appendStep={appendTutorialStep}
+      removeStep={removeTutorialStep}
+      moveStep={moveTutorialStep}
+    />
+  );
   const tableViewNode = (
     <TableView
       selectedEntity={selectedEntity}
@@ -8559,6 +8850,15 @@ export default function App({ repository }: AppProps) {
       gridApiRef={socialGridApi}
     />
   );
+  const tutorialTableViewNode = (
+    <TutorialTableView
+      rows={tutorialRows}
+      columns={tutorialColumns}
+      defaultColDef={tutorialDefaultColDef}
+      onSelectTutorial={setSelectedTutorialIndex}
+      gridApiRef={tutorialGridApi}
+    />
+  );
   const mapViewNode = (
     <MapView
       mapNodes={mapNodes}
@@ -8637,7 +8937,11 @@ export default function App({ repository }: AppProps) {
                 ? socialDataPath
                   ? fileNameFromPath(socialDataPath)
                   : "not loaded"
-                : "not loaded";
+                : selectedGlobalEntity === "Tutorials"
+                  ? tutorialDataPath
+                    ? fileNameFromPath(tutorialDataPath)
+                    : "not loaded"
+                  : "not loaded";
   const viewTitle =
     editorMode === "Area" ? selectedEntity : selectedGlobalEntity;
   const viewMeta =
@@ -8659,7 +8963,8 @@ export default function App({ repository }: AppProps) {
     selectedGlobalEntity === "Skills" ||
     selectedGlobalEntity === "Groups" ||
     selectedGlobalEntity === "Commands" ||
-    selectedGlobalEntity === "Socials";
+    selectedGlobalEntity === "Socials" ||
+    selectedGlobalEntity === "Tutorials";
   const showGlobalActions = editorMode === "Global" && supportsGlobalData;
   const globalLoadHandler =
     selectedGlobalEntity === "Races"
@@ -8672,7 +8977,9 @@ export default function App({ repository }: AppProps) {
             ? handleLoadCommandsData
             : selectedGlobalEntity === "Socials"
               ? handleLoadSocialsData
-              : handleLoadClassesData;
+              : selectedGlobalEntity === "Tutorials"
+                ? handleLoadTutorialsData
+                : handleLoadClassesData;
   const globalSaveHandler =
     selectedGlobalEntity === "Races"
       ? handleSaveRacesData
@@ -8684,7 +8991,9 @@ export default function App({ repository }: AppProps) {
             ? handleSaveCommandsData
             : selectedGlobalEntity === "Socials"
               ? handleSaveSocialsData
-              : handleSaveClassesData;
+              : selectedGlobalEntity === "Tutorials"
+                ? handleSaveTutorialsData
+                : handleSaveClassesData;
   const globalSaveDisabled =
     selectedGlobalEntity === "Classes"
       ? !classData
@@ -8698,7 +9007,9 @@ export default function App({ repository }: AppProps) {
               ? !commandData
               : selectedGlobalEntity === "Socials"
                 ? !socialData
-                : true;
+                : selectedGlobalEntity === "Tutorials"
+                  ? !tutorialData
+                  : true;
   const visibleTabs =
     editorMode === "Area"
       ? tabs
@@ -8777,6 +9088,7 @@ export default function App({ repository }: AppProps) {
                 groupCount={groupRows.length}
                 commandCount={commandRows.length}
                 socialCount={socialRows.length}
+                tutorialCount={tutorialRows.length}
                 roomCount={roomRows.length}
                 mobileCount={mobileRows.length}
                 objectCount={objectRows.length}
@@ -8799,6 +9111,7 @@ export default function App({ repository }: AppProps) {
                 groupForm={groupFormNode}
                 commandForm={commandFormNode}
                 socialForm={socialFormNode}
+                tutorialForm={tutorialFormNode}
                 tableView={tableViewNode}
                 classTableView={classTableViewNode}
                 raceTableView={raceTableViewNode}
@@ -8806,6 +9119,7 @@ export default function App({ repository }: AppProps) {
                 groupTableView={groupTableViewNode}
                 commandTableView={commandTableViewNode}
                 socialTableView={socialTableViewNode}
+                tutorialTableView={tutorialTableViewNode}
                 mapView={mapViewNode}
                 worldView={worldViewNode}
                 scriptView={scriptViewNode}
