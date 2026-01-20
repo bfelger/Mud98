@@ -43,11 +43,13 @@ import { ClassForm } from "./components/ClassForm";
 import { RaceForm } from "./components/RaceForm";
 import { SkillForm } from "./components/SkillForm";
 import { GroupForm } from "./components/GroupForm";
+import { CommandForm } from "./components/CommandForm";
 import { TableView } from "./components/TableView";
 import { ClassTableView } from "./components/ClassTableView";
 import { RaceTableView } from "./components/RaceTableView";
 import { SkillTableView } from "./components/SkillTableView";
 import { GroupTableView } from "./components/GroupTableView";
+import { CommandTableView } from "./components/CommandTableView";
 import { InspectorPanel } from "./components/InspectorPanel";
 import { EntityTree } from "./components/EntityTree";
 import { Topbar } from "./components/Topbar";
@@ -64,6 +66,8 @@ import type {
   AreaJson,
   ClassDataFile,
   ClassDefinition,
+  CommandDataFile,
+  CommandDefinition,
   EditorLayout,
   EditorMeta,
   GroupDataFile,
@@ -104,6 +108,8 @@ import {
   formFlags,
   partFlags,
   skillTargets,
+  logFlags,
+  showFlags,
   extraFlagEnum,
   extraFlags,
   furnitureFlagEnum,
@@ -411,6 +417,17 @@ type GroupRow = {
   name: string;
   ratingSummary: string;
   skills: number;
+};
+
+type CommandRow = {
+  index: number;
+  name: string;
+  function: string;
+  position: string;
+  level: number;
+  log: string;
+  category: string;
+  loxFunction: string;
 };
 
 type ShopRow = {
@@ -967,6 +984,16 @@ const groupFormSchema = z.object({
   skills: z.array(z.string()).length(groupSkillCount)
 });
 
+const commandFormSchema = z.object({
+  name: z.string().min(1),
+  function: z.string().optional(),
+  position: z.string().optional(),
+  level: z.number().int(),
+  log: z.string().optional(),
+  category: z.string().optional(),
+  loxFunction: z.string().optional()
+});
+
 type RoomFormValues = z.infer<typeof roomFormSchema>;
 type AreaFormValues = z.infer<typeof areaFormSchema>;
 type MobileFormValues = z.infer<typeof mobileFormSchema>;
@@ -979,6 +1006,7 @@ type ClassFormValues = z.infer<typeof classFormSchema>;
 type RaceFormValues = z.infer<typeof raceFormSchema>;
 type SkillFormValues = z.infer<typeof skillFormSchema>;
 type GroupFormValues = z.infer<typeof groupFormSchema>;
+type CommandFormValues = z.infer<typeof commandFormSchema>;
 
 const entityKindLabels: Record<EntityKey, string> = {
   Area: "Area",
@@ -3775,6 +3803,22 @@ function buildGroupRows(groupData: GroupDataFile | null): GroupRow[] {
   }));
 }
 
+function buildCommandRows(commandData: CommandDataFile | null): CommandRow[] {
+  if (!commandData) {
+    return [];
+  }
+  return commandData.commands.map((command, index) => ({
+    index,
+    name: command.name ?? "(unnamed)",
+    function: command.function ?? "do_nothing",
+    position: command.position ?? "dead",
+    level: command.level ?? 0,
+    log: command.log ?? "log_normal",
+    category: command.category ?? "undef",
+    loxFunction: command.loxFunction ?? ""
+  }));
+}
+
 function titlesToText(titles: string[][] | undefined, column: 0 | 1): string {
   const lines: string[] = [];
   for (let i = 0; i < classTitleCount; i += 1) {
@@ -3842,6 +3886,9 @@ export default function App({ repository }: AppProps) {
   const [selectedGroupIndex, setSelectedGroupIndex] = useState<number | null>(
     null
   );
+  const [selectedCommandIndex, setSelectedCommandIndex] = useState<number | null>(
+    null
+  );
   const [selectedRoomVnum, setSelectedRoomVnum] = useState<number | null>(null);
   const [selectedMobileVnum, setSelectedMobileVnum] = useState<number | null>(
     null
@@ -3885,6 +3932,12 @@ export default function App({ repository }: AppProps) {
     "json" | "olc" | null
   >(null);
   const [groupDataDir, setGroupDataDir] = useState<string | null>(null);
+  const [commandData, setCommandData] = useState<CommandDataFile | null>(null);
+  const [commandDataPath, setCommandDataPath] = useState<string | null>(null);
+  const [commandDataFormat, setCommandDataFormat] = useState<
+    "json" | "olc" | null
+  >(null);
+  const [commandDataDir, setCommandDataDir] = useState<string | null>(null);
   const [projectConfig, setProjectConfig] = useState<ProjectConfig | null>(null);
   const [editorMeta, setEditorMeta] = useState<EditorMeta | null>(null);
   const [editorMetaPath, setEditorMetaPath] = useState<string | null>(null);
@@ -3934,6 +3987,7 @@ export default function App({ repository }: AppProps) {
   const raceGridApi = useRef<GridApi | null>(null);
   const skillGridApi = useRef<GridApi | null>(null);
   const groupGridApi = useRef<GridApi | null>(null);
+  const commandGridApi = useRef<GridApi | null>(null);
   const areaForm = useForm<AreaFormValues>({
     resolver: zodResolver(areaFormSchema),
     defaultValues: {
@@ -4354,6 +4408,28 @@ export default function App({ repository }: AppProps) {
     formState: groupFormState,
     reset: resetGroupForm
   } = groupForm;
+  const commandFormDefaults = useMemo<CommandFormValues>(
+    () => ({
+      name: "",
+      function: "",
+      position: "",
+      level: 0,
+      log: "",
+      category: "",
+      loxFunction: ""
+    }),
+    []
+  );
+  const commandForm = useForm<CommandFormValues>({
+    resolver: zodResolver(commandFormSchema),
+    defaultValues: commandFormDefaults
+  });
+  const {
+    register: registerCommand,
+    handleSubmit: handleCommandSubmitForm,
+    formState: commandFormState,
+    reset: resetCommandForm
+  } = commandForm;
   const watchedResetCommand = useWatch({
     control: resetForm.control,
     name: "commandName"
@@ -4640,6 +4716,76 @@ export default function App({ repository }: AppProps) {
     repository
   ]);
 
+  const handleLoadCommandsData = useCallback(
+    async (overrideDir?: string) => {
+      const targetDir =
+        typeof overrideDir === "string" ? overrideDir : dataDirectory;
+      if (!targetDir) {
+        setErrorMessage("No data directory set for commands.");
+        return;
+      }
+      const commandsFile = projectConfig?.dataFiles.commands;
+      const defaultFormat = projectConfig?.defaultFormat;
+      setErrorMessage(null);
+      setIsBusy(true);
+      try {
+        const source = await repository.loadCommandsData(
+          targetDir,
+          commandsFile,
+          defaultFormat
+        );
+        setCommandData(source.data);
+        setCommandDataPath(source.path);
+        setCommandDataFormat(source.format);
+        setCommandDataDir(targetDir);
+        setStatusMessage(`Loaded commands (${source.format})`);
+      } catch (error) {
+        setErrorMessage(`Failed to load commands. ${String(error)}`);
+      } finally {
+        setIsBusy(false);
+      }
+    },
+    [dataDirectory, projectConfig, repository]
+  );
+
+  const handleSaveCommandsData = useCallback(async () => {
+    if (!commandData) {
+      setErrorMessage("No commands loaded to save.");
+      return;
+    }
+    if (!dataDirectory) {
+      setErrorMessage("No data directory set for commands.");
+      return;
+    }
+    setErrorMessage(null);
+    setIsBusy(true);
+    try {
+      const format =
+        commandDataFormat ?? projectConfig?.defaultFormat ?? "json";
+      const commandsFile = projectConfig?.dataFiles.commands;
+      const path = await repository.saveCommandsData(
+        dataDirectory,
+        commandData,
+        format,
+        commandsFile
+      );
+      setCommandDataPath(path);
+      setCommandDataFormat(format);
+      setCommandDataDir(dataDirectory);
+      setStatusMessage(`Saved commands (${format})`);
+    } catch (error) {
+      setErrorMessage(`Failed to save commands. ${String(error)}`);
+    } finally {
+      setIsBusy(false);
+    }
+  }, [
+    commandData,
+    commandDataFormat,
+    dataDirectory,
+    projectConfig,
+    repository
+  ]);
+
   useEffect(() => {
     const nextRoom = getDefaultSelection(areaData, "Rooms", selectedRoomVnum);
     if (selectedRoomVnum !== nextRoom) {
@@ -4805,6 +4951,26 @@ export default function App({ repository }: AppProps) {
   ]);
 
   useEffect(() => {
+    if (editorMode !== "Global" || selectedGlobalEntity !== "Commands") {
+      return;
+    }
+    if (!dataDirectory) {
+      return;
+    }
+    if (commandData && commandDataDir === dataDirectory) {
+      return;
+    }
+    void handleLoadCommandsData(dataDirectory);
+  }, [
+    editorMode,
+    selectedGlobalEntity,
+    dataDirectory,
+    commandData,
+    commandDataDir,
+    handleLoadCommandsData
+  ]);
+
+  useEffect(() => {
     if (!classData || classData.classes.length === 0) {
       if (selectedClassIndex !== null) {
         setSelectedClassIndex(null);
@@ -4863,6 +5029,21 @@ export default function App({ repository }: AppProps) {
       setSelectedGroupIndex(0);
     }
   }, [groupData, selectedGroupIndex]);
+
+  useEffect(() => {
+    if (!commandData || commandData.commands.length === 0) {
+      if (selectedCommandIndex !== null) {
+        setSelectedCommandIndex(null);
+      }
+      return;
+    }
+    if (
+      selectedCommandIndex === null ||
+      selectedCommandIndex >= commandData.commands.length
+    ) {
+      setSelectedCommandIndex(0);
+    }
+  }, [commandData, selectedCommandIndex]);
 
   useEffect(() => {
     if (!classData || selectedClassIndex === null) {
@@ -4990,6 +5171,28 @@ export default function App({ repository }: AppProps) {
     groupFormDefaults,
     referenceData,
     resetGroupForm
+  ]);
+
+  useEffect(() => {
+    if (!commandData || selectedCommandIndex === null) {
+      resetCommandForm(commandFormDefaults);
+      return;
+    }
+    const command = commandData.commands[selectedCommandIndex];
+    resetCommandForm({
+      name: command.name ?? "",
+      function: command.function ?? "",
+      position: command.position ?? "",
+      level: command.level ?? 0,
+      log: command.log ?? "",
+      category: command.category ?? "",
+      loxFunction: command.loxFunction ?? ""
+    });
+  }, [
+    commandData,
+    selectedCommandIndex,
+    commandFormDefaults,
+    resetCommandForm
   ]);
 
   const selection = useMemo(
@@ -5181,6 +5384,10 @@ export default function App({ repository }: AppProps) {
   const raceRows = useMemo(() => buildRaceRows(raceData), [raceData]);
   const skillRows = useMemo(() => buildSkillRows(skillData), [skillData]);
   const groupRows = useMemo(() => buildGroupRows(groupData), [groupData]);
+  const commandRows = useMemo(
+    () => buildCommandRows(commandData),
+    [commandData]
+  );
   const roomRows = useMemo(() => buildRoomRows(areaData), [areaData]);
   const mobileRows = useMemo(() => buildMobileRows(areaData), [areaData]);
   const objectRows = useMemo(() => buildObjectRows(areaData), [areaData]);
@@ -6458,6 +6665,19 @@ export default function App({ repository }: AppProps) {
     ],
     []
   );
+  const commandColumns = useMemo<ColDef<CommandRow>[]>(
+    () => [
+      { headerName: "#", field: "index", width: 80, sort: "asc" },
+      { headerName: "Name", field: "name", flex: 1, minWidth: 180 },
+      { headerName: "Function", field: "function", flex: 1, minWidth: 180 },
+      { headerName: "Position", field: "position", width: 140 },
+      { headerName: "Level", field: "level", width: 110 },
+      { headerName: "Log", field: "log", width: 130 },
+      { headerName: "Category", field: "category", width: 140 },
+      { headerName: "Lox", field: "loxFunction", flex: 1, minWidth: 160 }
+    ],
+    []
+  );
   const roomColumns = useMemo<ColDef<RoomRow>[]>(
     () => [
       { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
@@ -6542,6 +6762,7 @@ export default function App({ repository }: AppProps) {
   const raceDefaultColDef = roomDefaultColDef;
   const skillDefaultColDef = roomDefaultColDef;
   const groupDefaultColDef = roomDefaultColDef;
+  const commandDefaultColDef = roomDefaultColDef;
 
   useEffect(() => {
     areaForm.reset(areaFormDefaults);
@@ -6690,6 +6911,23 @@ export default function App({ repository }: AppProps) {
     activeTab,
     selectedGroupIndex,
     groupRows
+  ]);
+
+  useEffect(() => {
+    if (
+      editorMode !== "Global" ||
+      selectedGlobalEntity !== "Commands" ||
+      activeTab !== "Table"
+    ) {
+      return;
+    }
+    syncGridSelection(commandGridApi.current, selectedCommandIndex);
+  }, [
+    editorMode,
+    selectedGlobalEntity,
+    activeTab,
+    selectedCommandIndex,
+    commandRows
   ]);
 
   useEffect(() => {
@@ -7492,6 +7730,30 @@ export default function App({ repository }: AppProps) {
     setStatusMessage(`Updated group ${data.name} (unsaved)`);
   };
 
+  const handleCommandSubmit = (data: CommandFormValues) => {
+    if (!commandData || selectedCommandIndex === null) {
+      return;
+    }
+    const nextRecord: CommandDefinition = {
+      name: data.name,
+      function: cleanOptionalString(data.function),
+      position: cleanOptionalString(data.position),
+      level: data.level,
+      log: cleanOptionalString(data.log),
+      category: cleanOptionalString(data.category),
+      loxFunction: cleanOptionalString(data.loxFunction)
+    };
+    setCommandData((current) => {
+      if (!current) {
+        return current;
+      }
+      const nextCommands = [...current.commands];
+      nextCommands[selectedCommandIndex] = nextRecord;
+      return { ...current, commands: nextCommands };
+    });
+    setStatusMessage(`Updated command ${data.name} (unsaved)`);
+  };
+
   const warnLegacyAreaFiles = useCallback(
     async (areaDir: string | null) => {
       if (!areaDir) {
@@ -7914,6 +8176,16 @@ export default function App({ repository }: AppProps) {
       skillCount={groupSkillCount}
     />
   );
+  const commandFormNode = (
+    <CommandForm
+      onSubmit={handleCommandSubmitForm(handleCommandSubmit)}
+      register={registerCommand}
+      formState={commandFormState}
+      positionOptions={[...positions]}
+      logOptions={[...logFlags]}
+      categoryOptions={[...showFlags]}
+    />
+  );
   const tableViewNode = (
     <TableView
       selectedEntity={selectedEntity}
@@ -7990,6 +8262,15 @@ export default function App({ repository }: AppProps) {
       gridApiRef={groupGridApi}
     />
   );
+  const commandTableViewNode = (
+    <CommandTableView
+      rows={commandRows}
+      columns={commandColumns}
+      defaultColDef={commandDefaultColDef}
+      onSelectCommand={setSelectedCommandIndex}
+      gridApiRef={commandGridApi}
+    />
+  );
   const mapViewNode = (
     <MapView
       mapNodes={mapNodes}
@@ -8056,9 +8337,13 @@ export default function App({ repository }: AppProps) {
           ? skillDataPath
             ? fileNameFromPath(skillDataPath)
             : "not loaded"
-          : selectedGlobalEntity === "Groups"
-            ? groupDataPath
-              ? fileNameFromPath(groupDataPath)
+        : selectedGlobalEntity === "Groups"
+          ? groupDataPath
+            ? fileNameFromPath(groupDataPath)
+            : "not loaded"
+          : selectedGlobalEntity === "Commands"
+            ? commandDataPath
+              ? fileNameFromPath(commandDataPath)
               : "not loaded"
             : "not loaded";
   const viewTitle =
@@ -8080,7 +8365,8 @@ export default function App({ repository }: AppProps) {
     selectedGlobalEntity === "Classes" ||
     selectedGlobalEntity === "Races" ||
     selectedGlobalEntity === "Skills" ||
-    selectedGlobalEntity === "Groups";
+    selectedGlobalEntity === "Groups" ||
+    selectedGlobalEntity === "Commands";
   const showGlobalActions = editorMode === "Global" && supportsGlobalData;
   const globalLoadHandler =
     selectedGlobalEntity === "Races"
@@ -8089,7 +8375,9 @@ export default function App({ repository }: AppProps) {
         ? handleLoadSkillsData
         : selectedGlobalEntity === "Groups"
           ? handleLoadGroupsData
-        : handleLoadClassesData;
+          : selectedGlobalEntity === "Commands"
+            ? handleLoadCommandsData
+          : handleLoadClassesData;
   const globalSaveHandler =
     selectedGlobalEntity === "Races"
       ? handleSaveRacesData
@@ -8097,7 +8385,9 @@ export default function App({ repository }: AppProps) {
         ? handleSaveSkillsData
         : selectedGlobalEntity === "Groups"
           ? handleSaveGroupsData
-        : handleSaveClassesData;
+          : selectedGlobalEntity === "Commands"
+            ? handleSaveCommandsData
+          : handleSaveClassesData;
   const globalSaveDisabled =
     selectedGlobalEntity === "Classes"
       ? !classData
@@ -8107,7 +8397,9 @@ export default function App({ repository }: AppProps) {
           ? !skillData
           : selectedGlobalEntity === "Groups"
             ? !groupData
-          : true;
+            : selectedGlobalEntity === "Commands"
+              ? !commandData
+            : true;
   const visibleTabs =
     editorMode === "Area"
       ? tabs
@@ -8184,6 +8476,7 @@ export default function App({ repository }: AppProps) {
                 raceCount={raceRows.length}
                 skillCount={skillRows.length}
                 groupCount={groupRows.length}
+                commandCount={commandRows.length}
                 roomCount={roomRows.length}
                 mobileCount={mobileRows.length}
                 objectCount={objectRows.length}
@@ -8204,11 +8497,13 @@ export default function App({ repository }: AppProps) {
                 raceForm={raceFormNode}
                 skillForm={skillFormNode}
                 groupForm={groupFormNode}
+                commandForm={commandFormNode}
                 tableView={tableViewNode}
                 classTableView={classTableViewNode}
                 raceTableView={raceTableViewNode}
                 skillTableView={skillTableViewNode}
                 groupTableView={groupTableViewNode}
+                commandTableView={commandTableViewNode}
                 mapView={mapViewNode}
                 worldView={worldViewNode}
                 scriptView={scriptViewNode}

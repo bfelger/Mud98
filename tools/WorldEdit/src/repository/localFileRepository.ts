@@ -26,6 +26,9 @@ import type {
   ClassDataFile,
   ClassDataSource,
   ClassDefinition,
+  CommandDataFile,
+  CommandDataSource,
+  CommandDefinition,
   EditorMeta,
   GroupDataFile,
   GroupDataSource,
@@ -86,6 +89,10 @@ const PART_FLAG_BITS = partFlags.filter((flag) => !flag.endsWith("Default"));
 const DEFAULT_SKILL_LEVEL = 53;
 const DEFAULT_SKILL_RATING = 0;
 const GROUP_SKILL_COUNT = 15;
+const DEFAULT_COMMAND_FUNCTION = "do_nothing";
+const DEFAULT_COMMAND_POSITION = "dead";
+const DEFAULT_COMMAND_LOG = "log_normal";
+const DEFAULT_COMMAND_CATEGORY = "undef";
 
 async function defaultDialogPath(
   fallbackPath?: string | null
@@ -1315,6 +1322,152 @@ function serializeGroupOlc(
   return lines.join("\n");
 }
 
+function normalizeCommandRecord(
+  record: Partial<CommandDefinition>
+): CommandDefinition {
+  return {
+    name: record.name?.trim() || "unnamed",
+    function: record.function?.trim() || DEFAULT_COMMAND_FUNCTION,
+    position: record.position?.trim() || DEFAULT_COMMAND_POSITION,
+    level:
+      typeof record.level === "number" && Number.isFinite(record.level)
+        ? Math.trunc(record.level)
+        : 0,
+    log: record.log?.trim() || DEFAULT_COMMAND_LOG,
+    category: record.category?.trim() || DEFAULT_COMMAND_CATEGORY,
+    loxFunction: record.loxFunction?.trim()
+  };
+}
+
+function parseCommandJson(content: string): CommandDataFile {
+  const parsed = JSON.parse(content) as Record<string, unknown>;
+  const formatVersion = Number(parsed.formatVersion);
+  const commandsRaw = parsed.commands;
+  const commands = Array.isArray(commandsRaw)
+    ? commandsRaw.map((command) =>
+        normalizeCommandRecord((command ?? {}) as Partial<CommandDefinition>)
+      )
+    : [];
+  return {
+    formatVersion: Number.isFinite(formatVersion) ? formatVersion : 1,
+    commands
+  };
+}
+
+function parseCommandOlc(content: string): CommandDataFile {
+  const scanner = new OlcScanner(content);
+  const commands: CommandDefinition[] = [];
+
+  while (!scanner.eof()) {
+    const word = scanner.readWord();
+    if (!word) {
+      break;
+    }
+    const upper = word.toUpperCase();
+    if (upper !== "#COMMAND") {
+      if (upper === "#END") {
+        break;
+      }
+      continue;
+    }
+    const record: Partial<CommandDefinition> = {};
+    while (!scanner.eof()) {
+      const field = scanner.readWord();
+      if (!field) {
+        break;
+      }
+      const fieldUpper = field.toUpperCase();
+      if (fieldUpper === "#END") {
+        break;
+      }
+      switch (field.toLowerCase()) {
+        case "name":
+          record.name = scanner.readString();
+          break;
+        case "do_fun":
+          record.function = scanner.readString();
+          break;
+        case "position":
+          record.position = scanner.readString();
+          break;
+        case "level":
+          record.level = scanner.readNumber();
+          break;
+        case "log":
+          record.log = scanner.readString();
+          break;
+        case "show":
+          record.category = scanner.readString();
+          break;
+        case "lox_fun": {
+          const value = scanner.readString();
+          record.loxFunction = value.trim().length ? value.trim() : undefined;
+          break;
+        }
+        default:
+          break;
+      }
+    }
+    commands.push(normalizeCommandRecord(record));
+  }
+
+  return { formatVersion: 1, commands };
+}
+
+function serializeCommandJson(data: CommandDataFile): string {
+  const root: Record<string, unknown> = {
+    formatVersion: 1,
+    commands: data.commands.map((command) => {
+      const record = normalizeCommandRecord(command);
+      const obj: Record<string, unknown> = {
+        name: record.name
+      };
+      if (record.function && record.function !== DEFAULT_COMMAND_FUNCTION) {
+        obj.function = record.function;
+      }
+      if (record.position && record.position !== DEFAULT_COMMAND_POSITION) {
+        obj.position = record.position;
+      }
+      if (record.level) {
+        obj.level = record.level;
+      }
+      if (record.log && record.log !== DEFAULT_COMMAND_LOG) {
+        obj.log = record.log;
+      }
+      if (record.category && record.category !== DEFAULT_COMMAND_CATEGORY) {
+        obj.category = record.category;
+      }
+      if (record.loxFunction) {
+        obj.loxFunction = record.loxFunction;
+      }
+      return obj;
+    })
+  };
+  return JSON.stringify(root, null, 2);
+}
+
+function serializeCommandOlc(data: CommandDataFile): string {
+  const commands = data.commands.map((command) => normalizeCommandRecord(command));
+  const lines: string[] = [];
+  lines.push(String(commands.length));
+  lines.push("");
+  commands.forEach((command) => {
+    lines.push("#COMMAND");
+    lines.push(`name ${sanitizeOlcString(command.name)}~`);
+    lines.push(`do_fun ${sanitizeOlcString(command.function ?? DEFAULT_COMMAND_FUNCTION)}~`);
+    lines.push(
+      `position ${sanitizeOlcString(command.position ?? DEFAULT_COMMAND_POSITION)}~`
+    );
+    lines.push(`level ${command.level ?? 0}`);
+    lines.push(`log ${sanitizeOlcString(command.log ?? DEFAULT_COMMAND_LOG)}~`);
+    lines.push(`show ${sanitizeOlcString(command.category ?? DEFAULT_COMMAND_CATEGORY)}~`);
+    lines.push(`lox_fun ${sanitizeOlcString(command.loxFunction ?? "")}~`);
+    lines.push("#END");
+    lines.push("");
+  });
+  return lines.join("\n");
+}
+
 function parseRaceJson(content: string): RaceDataFile {
   const parsed = JSON.parse(content) as Record<string, unknown>;
   const formatVersion = Number(parsed.formatVersion);
@@ -2473,6 +2626,96 @@ export class LocalFileRepository implements WorldRepository {
       outputFormat === "json"
         ? serializeGroupJson(data, classNames)
         : serializeGroupOlc(data, classNames);
+    await writeTextFile(path, payload);
+    return path;
+  }
+
+  async loadCommandsData(
+    dataDir: string,
+    fileName?: string,
+    defaultFormat?: "json" | "olc"
+  ): Promise<CommandDataSource> {
+    const candidates: Array<{ path: string; format: "json" | "olc" }> = [];
+    if (fileName) {
+      const lower = fileName.toLowerCase();
+      if (lower.endsWith(".json")) {
+        candidates.push({
+          path: isAbsolutePath(fileName) ? fileName : await join(dataDir, fileName),
+          format: "json"
+        });
+      } else if (lower.endsWith(".olc")) {
+        candidates.push({
+          path: isAbsolutePath(fileName) ? fileName : await join(dataDir, fileName),
+          format: "olc"
+        });
+      } else if (defaultFormat) {
+        candidates.push({
+          path: isAbsolutePath(fileName)
+            ? `${fileName}.${defaultFormat}`
+            : await join(dataDir, `${fileName}.${defaultFormat}`),
+          format: defaultFormat
+        });
+      } else {
+        candidates.push({
+          path: isAbsolutePath(fileName)
+            ? `${fileName}.json`
+            : await join(dataDir, `${fileName}.json`),
+          format: "json"
+        });
+        candidates.push({
+          path: isAbsolutePath(fileName)
+            ? `${fileName}.olc`
+            : await join(dataDir, `${fileName}.olc`),
+          format: "olc"
+        });
+      }
+    }
+    if (!candidates.length) {
+      candidates.push({
+        path: await join(dataDir, "commands.json"),
+        format: "json"
+      });
+      candidates.push({
+        path: await join(dataDir, "commands.olc"),
+        format: "olc"
+      });
+    }
+    for (const candidate of candidates) {
+      const raw = await tryReadText(candidate.path);
+      if (!raw) {
+        continue;
+      }
+      return {
+        path: candidate.path,
+        format: candidate.format,
+        data:
+          candidate.format === "json"
+            ? parseCommandJson(raw)
+            : parseCommandOlc(raw)
+      };
+    }
+
+    throw new Error("Missing commands data file.");
+  }
+
+  async saveCommandsData(
+    dataDir: string,
+    data: CommandDataFile,
+    format: "json" | "olc",
+    fileName?: string
+  ): Promise<string> {
+    const resolvedName =
+      fileName ?? (format === "json" ? "commands.json" : "commands.olc");
+    const lower = resolvedName.toLowerCase();
+    const outputFormat =
+      lower.endsWith(".json") ? "json" : lower.endsWith(".olc") ? "olc" : format;
+    const path = isAbsolutePath(resolvedName)
+      ? resolvedName
+      : await join(dataDir, resolvedName);
+    const payload =
+      outputFormat === "json"
+        ? serializeCommandJson(data)
+        : serializeCommandOlc(data);
     await writeTextFile(path, payload);
     return path;
   }

@@ -139,6 +139,27 @@ export type GroupDataSource = {
   data: GroupDataFile;
 };
 
+export type CommandDefinition = {
+  name: string;
+  function?: string;
+  position?: string;
+  level?: number;
+  log?: string;
+  category?: string;
+  loxFunction?: string;
+};
+
+export type CommandDataFile = {
+  formatVersion: number;
+  commands: CommandDefinition[];
+};
+
+export type CommandDataSource = {
+  path: string;
+  format: "json" | "olc";
+  data: CommandDataFile;
+};
+
 export type ProjectDataFiles = {
   classes: string;
   races: string;

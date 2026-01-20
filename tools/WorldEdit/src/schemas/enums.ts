@@ -493,6 +493,25 @@ export const applyLocations = [
   "spellaffect"
 ] as const;
 
+export const logFlags = ["log_normal", "log_always", "log_never"] as const;
+
+export const showFlags = [
+  "none",
+  "undef",
+  "communication",
+  "combat",
+  "specials",
+  "group",
+  "objects",
+  "information",
+  "otros",
+  "movimiento",
+  "configuration",
+  "languages",
+  "player",
+  "olc"
+] as const;
+
 export const eventTriggers = [
   "act",
   "attacked",
@@ -546,3 +565,5 @@ export const partFlagEnum = z.enum(partFlags);
 export const applyLocationEnum = z.enum(applyLocations);
 export const skillTargetEnum = z.enum(skillTargets);
 export const eventTriggerEnum = z.enum(eventTriggers);
+export const logFlagEnum = z.enum(logFlags);
+export const showFlagEnum = z.enum(showFlags);

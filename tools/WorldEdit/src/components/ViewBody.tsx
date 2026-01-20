@@ -12,6 +12,7 @@ type ViewBodyProps = {
   raceCount: number;
   skillCount: number;
   groupCount: number;
+  commandCount: number;
   roomCount: number;
   mobileCount: number;
   objectCount: number;
@@ -32,11 +33,13 @@ type ViewBodyProps = {
   raceForm: ReactNode;
   skillForm: ReactNode;
   groupForm: ReactNode;
+  commandForm: ReactNode;
   tableView: ReactNode;
   classTableView: ReactNode;
   raceTableView: ReactNode;
   skillTableView: ReactNode;
   groupTableView: ReactNode;
+  commandTableView: ReactNode;
   mapView: ReactNode;
   worldView: ReactNode;
   scriptView: ReactNode;
@@ -53,6 +56,7 @@ export function ViewBody({
   raceCount,
   skillCount,
   groupCount,
+  commandCount,
   roomCount,
   mobileCount,
   objectCount,
@@ -73,11 +77,13 @@ export function ViewBody({
   raceForm,
   skillForm,
   groupForm,
+  commandForm,
   tableView,
   classTableView,
   raceTableView,
   skillTableView,
   groupTableView,
+  commandTableView,
   mapView,
   worldView,
   scriptView
@@ -143,6 +149,21 @@ export function ViewBody({
       }
       if (activeTab === "Table") {
         return <>{groupTableView}</>;
+      }
+    }
+    if (selectedGlobalEntity === "Commands") {
+      if (activeTab === "Form") {
+        return commandCount ? (
+          <>{commandForm}</>
+        ) : (
+          <div className="entity-table__empty">
+            <h3>No commands loaded</h3>
+            <p>Load the commands file from the data directory.</p>
+          </div>
+        );
+      }
+      if (activeTab === "Table") {
+        return <>{commandTableView}</>;
       }
     }
     return (

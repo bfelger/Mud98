@@ -7,6 +7,8 @@ import type {
   EditorMeta,
   GroupDataFile,
   GroupDataSource,
+  CommandDataFile,
+  CommandDataSource,
   ProjectConfig,
   ProjectDataFiles,
   RaceDataFile,
@@ -87,6 +89,17 @@ export interface WorldRepository {
     format: "json" | "olc",
     fileName?: string,
     classNames?: string[]
+  ): Promise<string>;
+  loadCommandsData(
+    dataDir: string,
+    fileName?: string,
+    defaultFormat?: "json" | "olc"
+  ): Promise<CommandDataSource>;
+  saveCommandsData(
+    dataDir: string,
+    data: CommandDataFile,
+    format: "json" | "olc",
+    fileName?: string
   ): Promise<string>;
   listLegacyAreaFiles(areaDir: string): Promise<string[]>;
 }
