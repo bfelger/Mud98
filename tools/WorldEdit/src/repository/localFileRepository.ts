@@ -17,6 +17,8 @@ import type {
   ClassDataSource,
   ClassDefinition,
   EditorMeta,
+  ProjectConfig,
+  ProjectDataFiles,
   ReferenceData
 } from "./types";
 import type { WorldRepository } from "./worldRepository";
@@ -24,6 +26,10 @@ import type { WorldRepository } from "./worldRepository";
 const jsonFilter = {
   name: "Mud98 Area JSON",
   extensions: ["json"]
+};
+const cfgFilter = {
+  name: "Mud98 Config",
+  extensions: ["cfg"]
 };
 
 const LEGACY_AREA_IGNORE = new Set(["help.are", "group.are", "music.txt", "olc.hlp", "rom.are"]);
@@ -124,6 +130,93 @@ function parseOlcNames(content: string): string[] {
   }
 
   return names;
+}
+
+function isAbsolutePath(value: string): boolean {
+  if (!value) {
+    return false;
+  }
+  if (value.startsWith("/") || value.startsWith("\\")) {
+    return true;
+  }
+  return /^[A-Za-z]:[\\/]/.test(value);
+}
+
+function stripInlineComment(line: string): string {
+  let inQuote = false;
+  let quoteChar = "";
+  for (let i = 0; i < line.length; i += 1) {
+    const char = line[i];
+    if ((char === '"' || char === "'") && line[i - 1] !== "\\") {
+      if (!inQuote) {
+        inQuote = true;
+        quoteChar = char;
+      } else if (char === quoteChar) {
+        inQuote = false;
+        quoteChar = "";
+      }
+    }
+    if (char === "#" && !inQuote) {
+      return line.slice(0, i);
+    }
+  }
+  return line;
+}
+
+function parseConfig(content: string): Record<string, string> {
+  const entries: Record<string, string> = {};
+  for (const rawLine of content.split(/\r?\n/)) {
+    const cleaned = stripInlineComment(rawLine).trim();
+    if (!cleaned) {
+      continue;
+    }
+    const idx = cleaned.indexOf("=");
+    if (idx === -1) {
+      continue;
+    }
+    const key = cleaned.slice(0, idx).trim().toLowerCase();
+    let value = cleaned.slice(idx + 1).trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+    const normalized = value.trim();
+    if (key && normalized.length) {
+      entries[key] = normalized;
+    }
+  }
+  return entries;
+}
+
+function normalizeFormat(value: string | undefined): "json" | "olc" {
+  if (!value) {
+    return "olc";
+  }
+  const normalized = value.trim().toLowerCase();
+  return normalized === "json" ? "json" : "olc";
+}
+
+function buildDataFiles(
+  config: Record<string, string>,
+  format: "json" | "olc"
+): ProjectDataFiles {
+  const extension = format === "json" ? "json" : "olc";
+  const file = (key: string, base: string) =>
+    config[key] ?? `${base}.${extension}`;
+  return {
+    classes: file("classes_file", "classes"),
+    races: file("races_file", "races"),
+    skills: file("skills_file", "skills"),
+    groups: file("groups_file", "groups"),
+    commands: file("commands_file", "commands"),
+    socials: file("socials_file", "socials"),
+    tutorials: file("tutorials_file", "tutorials"),
+    themes: file("themes_file", "themes"),
+    loot: file("loot_file", "loot"),
+    lox: file("lox_file", "lox")
+  };
 }
 
 class OlcScanner {
@@ -657,8 +750,33 @@ async function loadOlcNames(path: string): Promise<string[] | null> {
 async function loadReferenceList(
   dataDir: string,
   baseName: string,
-  jsonKey: string
+  jsonKey: string,
+  fileName?: string
 ): Promise<string[]> {
+  if (fileName) {
+    const path = isAbsolutePath(fileName) ? fileName : await join(dataDir, fileName);
+    if (fileName.toLowerCase().endsWith(".json")) {
+      const jsonList = await loadJsonNames(path, jsonKey);
+      if (jsonList) {
+        return jsonList;
+      }
+    } else if (fileName.toLowerCase().endsWith(".olc")) {
+      const olcList = await loadOlcNames(path);
+      if (olcList) {
+        return olcList;
+      }
+    } else {
+      const jsonList = await loadJsonNames(`${path}.json`, jsonKey);
+      if (jsonList) {
+        return jsonList;
+      }
+      const olcList = await loadOlcNames(`${path}.olc`);
+      if (olcList) {
+        return olcList;
+      }
+    }
+  }
+
   const jsonPath = await join(dataDir, `${baseName}.json`);
   const jsonList = await loadJsonNames(jsonPath, jsonKey);
   if (jsonList) {
@@ -681,6 +799,18 @@ export class LocalFileRepository implements WorldRepository {
       multiple: false,
       directory: true,
       defaultPath: resolvedDefault ?? undefined
+    });
+
+    return typeof selection === "string" ? selection : null;
+  }
+
+  async pickConfigFile(defaultPath?: string | null): Promise<string | null> {
+    const resolvedDefault = await defaultDialogPath(defaultPath);
+    const selection = await open({
+      multiple: false,
+      directory: false,
+      defaultPath: resolvedDefault ?? undefined,
+      filters: [cfgFilter]
     });
 
     return typeof selection === "string" ? selection : null;
@@ -710,6 +840,32 @@ export class LocalFileRepository implements WorldRepository {
 
   editorMetaPathForArea(areaPath: string): string {
     return editorMetaPathForArea(areaPath);
+  }
+
+  async loadProjectConfig(path: string): Promise<ProjectConfig> {
+    const raw = await readTextFile(path);
+    const data = parseConfig(raw);
+    const rootDir = await dirname(path);
+    const format = normalizeFormat(data.default_format);
+    const dataFiles = buildDataFiles(data, format);
+    const areaDirValue = data.area_dir ?? "area";
+    const dataDirValue = data.data_dir ?? "data";
+    const areaList = data.area_list ?? "area.lst";
+    const areaDir = isAbsolutePath(areaDirValue)
+      ? areaDirValue
+      : await join(rootDir, areaDirValue);
+    const dataDir = isAbsolutePath(dataDirValue)
+      ? dataDirValue
+      : await join(rootDir, dataDirValue);
+    return {
+      path,
+      rootDir,
+      areaDir,
+      areaList,
+      dataDir,
+      defaultFormat: format,
+      dataFiles
+    };
   }
 
   async resolveDataDirectory(
@@ -754,8 +910,14 @@ export class LocalFileRepository implements WorldRepository {
     await writeTextFile(path, payload);
   }
 
-  async loadAreaIndex(areaDir: string): Promise<AreaIndexEntry[]> {
-    const listPath = await join(areaDir, "area.lst");
+  async loadAreaIndex(
+    areaDir: string,
+    areaListFile?: string
+  ): Promise<AreaIndexEntry[]> {
+    const listName = areaListFile ?? "area.lst";
+    const listPath = isAbsolutePath(listName)
+      ? listName
+      : await join(areaDir, listName);
     const rawList = await tryReadText(listPath);
     if (!rawList) {
       return [];
@@ -937,14 +1099,52 @@ export class LocalFileRepository implements WorldRepository {
     await writeTextFile(path, payload);
   }
 
-  async loadReferenceData(dataDir: string): Promise<ReferenceData> {
-    const classes = await loadReferenceList(dataDir, "classes", "classes");
-    const races = await loadReferenceList(dataDir, "races", "races");
-    const skills = await loadReferenceList(dataDir, "skills", "skills");
-    const groups = await loadReferenceList(dataDir, "groups", "groups");
-    const commands = await loadReferenceList(dataDir, "commands", "commands");
-    const socials = await loadReferenceList(dataDir, "socials", "socials");
-    const tutorials = await loadReferenceList(dataDir, "tutorials", "tutorials");
+  async loadReferenceData(
+    dataDir: string,
+    dataFiles?: Partial<ProjectDataFiles>
+  ): Promise<ReferenceData> {
+    const classes = await loadReferenceList(
+      dataDir,
+      "classes",
+      "classes",
+      dataFiles?.classes
+    );
+    const races = await loadReferenceList(
+      dataDir,
+      "races",
+      "races",
+      dataFiles?.races
+    );
+    const skills = await loadReferenceList(
+      dataDir,
+      "skills",
+      "skills",
+      dataFiles?.skills
+    );
+    const groups = await loadReferenceList(
+      dataDir,
+      "groups",
+      "groups",
+      dataFiles?.groups
+    );
+    const commands = await loadReferenceList(
+      dataDir,
+      "commands",
+      "commands",
+      dataFiles?.commands
+    );
+    const socials = await loadReferenceList(
+      dataDir,
+      "socials",
+      "socials",
+      dataFiles?.socials
+    );
+    const tutorials = await loadReferenceList(
+      dataDir,
+      "tutorials",
+      "tutorials",
+      dataFiles?.tutorials
+    );
 
     return {
       classes,
@@ -958,24 +1158,68 @@ export class LocalFileRepository implements WorldRepository {
     };
   }
 
-  async loadClassesData(dataDir: string): Promise<ClassDataSource> {
-    const jsonPath = await join(dataDir, "classes.json");
-    const jsonRaw = await tryReadText(jsonPath);
-    if (jsonRaw) {
-      return {
-        path: jsonPath,
-        format: "json",
-        data: parseClassJson(jsonRaw)
-      };
+  async loadClassesData(
+    dataDir: string,
+    fileName?: string,
+    defaultFormat?: "json" | "olc"
+  ): Promise<ClassDataSource> {
+    const candidates: Array<{ path: string; format: "json" | "olc" }> = [];
+    if (fileName) {
+      const lower = fileName.toLowerCase();
+      if (lower.endsWith(".json")) {
+        candidates.push({
+          path: isAbsolutePath(fileName) ? fileName : await join(dataDir, fileName),
+          format: "json"
+        });
+      } else if (lower.endsWith(".olc")) {
+        candidates.push({
+          path: isAbsolutePath(fileName) ? fileName : await join(dataDir, fileName),
+          format: "olc"
+        });
+      } else if (defaultFormat) {
+        candidates.push({
+          path: isAbsolutePath(fileName)
+            ? `${fileName}.${defaultFormat}`
+            : await join(dataDir, `${fileName}.${defaultFormat}`),
+          format: defaultFormat
+        });
+      } else {
+        candidates.push({
+          path: isAbsolutePath(fileName)
+            ? `${fileName}.json`
+            : await join(dataDir, `${fileName}.json`),
+          format: "json"
+        });
+        candidates.push({
+          path: isAbsolutePath(fileName)
+            ? `${fileName}.olc`
+            : await join(dataDir, `${fileName}.olc`),
+          format: "olc"
+        });
+      }
     }
-
-    const olcPath = await join(dataDir, "classes.olc");
-    const olcRaw = await tryReadText(olcPath);
-    if (olcRaw) {
+    if (!candidates.length) {
+      candidates.push({
+        path: await join(dataDir, "classes.json"),
+        format: "json"
+      });
+      candidates.push({
+        path: await join(dataDir, "classes.olc"),
+        format: "olc"
+      });
+    }
+    for (const candidate of candidates) {
+      const raw = await tryReadText(candidate.path);
+      if (!raw) {
+        continue;
+      }
       return {
-        path: olcPath,
-        format: "olc",
-        data: parseClassOlc(olcRaw)
+        path: candidate.path,
+        format: candidate.format,
+        data:
+          candidate.format === "json"
+            ? parseClassJson(raw)
+            : parseClassOlc(raw)
       };
     }
 
@@ -985,12 +1229,20 @@ export class LocalFileRepository implements WorldRepository {
   async saveClassesData(
     dataDir: string,
     data: ClassDataFile,
-    format: "json" | "olc"
+    format: "json" | "olc",
+    fileName?: string
   ): Promise<string> {
-    const fileName = format === "json" ? "classes.json" : "classes.olc";
-    const path = await join(dataDir, fileName);
+    const resolvedName = fileName ?? (format === "json" ? "classes.json" : "classes.olc");
+    const lower = resolvedName.toLowerCase();
+    const outputFormat =
+      lower.endsWith(".json") ? "json" : lower.endsWith(".olc") ? "olc" : format;
+    const path = isAbsolutePath(resolvedName)
+      ? resolvedName
+      : await join(dataDir, resolvedName);
     const payload =
-      format === "json" ? serializeClassJson(data) : serializeClassOlc(data);
+      outputFormat === "json"
+        ? serializeClassJson(data)
+        : serializeClassOlc(data);
     await writeTextFile(path, payload);
     return path;
   }

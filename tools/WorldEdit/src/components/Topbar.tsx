@@ -9,6 +9,7 @@ type TopbarProps = {
   globalEntityLabel: string;
   globalLoadDisabled: boolean;
   globalSaveDisabled: boolean;
+  onOpenProject: () => void;
   onOpenArea: () => void;
   onSetAreaDirectory: () => void;
   onLoadReferenceData: () => void;
@@ -30,6 +31,7 @@ export function Topbar({
   globalEntityLabel,
   globalLoadDisabled,
   globalSaveDisabled,
+  onOpenProject,
   onOpenArea,
   onSetAreaDirectory,
   onLoadReferenceData,
@@ -59,6 +61,14 @@ export function Topbar({
         <span className="status-pill">Area: {areaName}</span>
       </div>
       <div className="topbar__actions">
+        <button
+          className="action-button"
+          type="button"
+          onClick={onOpenProject}
+          disabled={isBusy}
+        >
+          Open Config
+        </button>
         <button
           className="action-button"
           type="button"

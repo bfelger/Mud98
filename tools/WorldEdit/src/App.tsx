@@ -60,6 +60,7 @@ import type {
   ClassDefinition,
   EditorLayout,
   EditorMeta,
+  ProjectConfig,
   ReferenceData,
   RoomLayoutEntry
 } from "./repository/types";
@@ -3634,6 +3635,7 @@ export default function App({ repository }: AppProps) {
     "json" | "olc" | null
   >(null);
   const [classDataDir, setClassDataDir] = useState<string | null>(null);
+  const [projectConfig, setProjectConfig] = useState<ProjectConfig | null>(null);
   const [editorMeta, setEditorMeta] = useState<EditorMeta | null>(null);
   const [editorMetaPath, setEditorMetaPath] = useState<string | null>(null);
   const [referenceData, setReferenceData] = useState<ReferenceData | null>(null);
@@ -4008,10 +4010,16 @@ export default function App({ repository }: AppProps) {
         setErrorMessage("No data directory set for classes.");
         return;
       }
+      const classesFile = projectConfig?.dataFiles.classes;
+      const defaultFormat = projectConfig?.defaultFormat;
       setErrorMessage(null);
       setIsBusy(true);
       try {
-        const source = await repository.loadClassesData(targetDir);
+        const source = await repository.loadClassesData(
+          targetDir,
+          classesFile,
+          defaultFormat
+        );
         setClassData(source.data);
         setClassDataPath(source.path);
         setClassDataFormat(source.format);
@@ -4023,7 +4031,7 @@ export default function App({ repository }: AppProps) {
         setIsBusy(false);
       }
     },
-    [dataDirectory, repository]
+    [dataDirectory, projectConfig, repository]
   );
   const handleSaveClassesData = useCallback(async () => {
     if (!classData) {
@@ -4037,11 +4045,13 @@ export default function App({ repository }: AppProps) {
     setErrorMessage(null);
     setIsBusy(true);
     try {
-      const format = classDataFormat ?? "json";
+      const format = classDataFormat ?? projectConfig?.defaultFormat ?? "json";
+      const classesFile = projectConfig?.dataFiles.classes;
       const path = await repository.saveClassesData(
         dataDirectory,
         classData,
-        format
+        format,
+        classesFile
       );
       setClassDataPath(path);
       setClassDataFormat(format);
@@ -4052,7 +4062,7 @@ export default function App({ repository }: AppProps) {
     } finally {
       setIsBusy(false);
     }
-  }, [classData, classDataFormat, dataDirectory, repository]);
+  }, [classData, classDataFormat, dataDirectory, projectConfig, repository]);
 
   useEffect(() => {
     const nextRoom = getDefaultSelection(areaData, "Rooms", selectedRoomVnum);
@@ -4856,7 +4866,10 @@ export default function App({ repository }: AppProps) {
         return;
       }
       try {
-        const entries = await repository.loadAreaIndex(baseDir);
+        const entries = await repository.loadAreaIndex(
+          baseDir,
+          projectConfig?.areaList
+        );
         if (!cancelled) {
           setAreaIndex(entries);
         }
@@ -4870,7 +4883,7 @@ export default function App({ repository }: AppProps) {
     return () => {
       cancelled = true;
     };
-  }, [areaDirectory, areaPath, repository]);
+  }, [areaDirectory, areaPath, projectConfig, repository]);
   useEffect(() => {
     let cancelled = false;
     const loadLinks = async () => {
@@ -6523,6 +6536,39 @@ export default function App({ repository }: AppProps) {
     [repository]
   );
 
+  const handleOpenProject = async () => {
+    setErrorMessage(null);
+    setIsBusy(true);
+    try {
+      const cfgPath = await repository.pickConfigFile(
+        areaDirectory ?? dataDirectory
+      );
+      if (!cfgPath) {
+        return;
+      }
+      const config = await repository.loadProjectConfig(cfgPath);
+      setProjectConfig(config);
+      if (config.areaDir) {
+        setAreaDirectory(config.areaDir);
+        localStorage.setItem("worldedit.areaDir", config.areaDir);
+        await warnLegacyAreaFiles(config.areaDir);
+      }
+      if (config.dataDir) {
+        setDataDirectory(config.dataDir);
+        const refs = await repository.loadReferenceData(
+          config.dataDir,
+          config.dataFiles
+        );
+        setReferenceData(refs);
+      }
+      setStatusMessage(`Loaded project ${fileNameFromPath(cfgPath)}`);
+    } catch (error) {
+      setErrorMessage(`Failed to load config. ${String(error)}`);
+    } finally {
+      setIsBusy(false);
+    }
+  };
+
   useEffect(() => {
     if (!areaDirectory) {
       return;
@@ -6560,12 +6606,14 @@ export default function App({ repository }: AppProps) {
           : `Loaded ${fileNameFromPath(path)}`
       );
       try {
-        const resolvedDataDir = await repository.resolveDataDirectory(
-          path,
-          areaDirectory
-        );
+        const resolvedDataDir =
+          projectConfig?.dataDir ??
+          (await repository.resolveDataDirectory(path, areaDirectory));
         if (resolvedDataDir) {
-          const refs = await repository.loadReferenceData(resolvedDataDir);
+          const refs = await repository.loadReferenceData(
+            resolvedDataDir,
+            projectConfig?.dataFiles
+          );
           setReferenceData(refs);
           setDataDirectory(resolvedDataDir);
           setStatusMessage(
@@ -6690,15 +6738,17 @@ export default function App({ repository }: AppProps) {
     setErrorMessage(null);
     setIsBusy(true);
     try {
-      const resolvedDataDir = await repository.resolveDataDirectory(
-        areaPath,
-        areaDirectory
-      );
+      const resolvedDataDir =
+        projectConfig?.dataDir ??
+        (await repository.resolveDataDirectory(areaPath, areaDirectory));
       if (!resolvedDataDir) {
         setErrorMessage("Unable to resolve data directory.");
         return;
       }
-      const refs = await repository.loadReferenceData(resolvedDataDir);
+      const refs = await repository.loadReferenceData(
+        resolvedDataDir,
+        projectConfig?.dataFiles
+      );
       setReferenceData(refs);
       setDataDirectory(resolvedDataDir);
       setStatusMessage(`Loaded reference data from ${resolvedDataDir}`);
@@ -6994,6 +7044,7 @@ export default function App({ repository }: AppProps) {
         globalEntityLabel={selectedGlobalEntity}
         globalLoadDisabled={!dataDirectory}
         globalSaveDisabled={!classData}
+        onOpenProject={handleOpenProject}
         onOpenArea={handleOpenArea}
         onSetAreaDirectory={handleSetAreaDirectory}
         onLoadReferenceData={handleLoadReferenceData}
@@ -7084,6 +7135,7 @@ export default function App({ repository }: AppProps) {
         editorMetaPath={editorMetaPath}
         areaDirectory={areaDirectory}
         dataDirectory={dataDirectory}
+        projectPath={projectConfig?.path ?? null}
         selectedEntity={statusSelection}
         referenceSummary={referenceSummary}
       />

@@ -53,6 +53,29 @@ export type ClassDataSource = {
   data: ClassDataFile;
 };
 
+export type ProjectDataFiles = {
+  classes: string;
+  races: string;
+  skills: string;
+  groups: string;
+  commands: string;
+  socials: string;
+  tutorials: string;
+  themes: string;
+  loot: string;
+  lox: string;
+};
+
+export type ProjectConfig = {
+  path: string;
+  rootDir: string;
+  areaDir: string | null;
+  areaList: string;
+  dataDir: string | null;
+  defaultFormat: "json" | "olc";
+  dataFiles: ProjectDataFiles;
+};
+
 export type RoomLayoutEntry = {
   x: number;
   y: number;

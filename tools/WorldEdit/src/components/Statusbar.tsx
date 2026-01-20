@@ -5,6 +5,7 @@ type StatusbarProps = {
   editorMetaPath: string | null;
   areaDirectory: string | null;
   dataDirectory: string | null;
+  projectPath: string | null;
   selectedEntity: string;
   referenceSummary: string;
 };
@@ -16,12 +17,14 @@ export function Statusbar({
   editorMetaPath,
   areaDirectory,
   dataDirectory,
+  projectPath,
   selectedEntity,
   referenceSummary
 }: StatusbarProps) {
   return (
     <footer className="statusbar">
       <span>Status: {errorMessage ?? statusMessage}</span>
+      <span>Config: {projectPath ?? "Not set"}</span>
       <span>Area file: {areaPath ?? "Not loaded"}</span>
       <span>Meta file: {editorMetaPath ?? "Not loaded"}</span>
       <span>Area dir: {areaDirectory ?? "Not set"}</span>
