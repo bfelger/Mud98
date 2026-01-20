@@ -2,6 +2,8 @@ import type {
   AreaGraphLink,
   AreaIndexEntry,
   AreaJson,
+  ClassDataFile,
+  ClassDataSource,
   EditorMeta,
   ReferenceData
 } from "./types";
@@ -26,5 +28,11 @@ export interface WorldRepository {
   loadEditorMeta(path: string): Promise<EditorMeta | null>;
   saveEditorMeta(path: string, meta: EditorMeta): Promise<void>;
   loadReferenceData(dataDir: string): Promise<ReferenceData>;
+  loadClassesData(dataDir: string): Promise<ClassDataSource>;
+  saveClassesData(
+    dataDir: string,
+    data: ClassDataFile,
+    format: "json" | "olc"
+  ): Promise<string>;
   listLegacyAreaFiles(areaDir: string): Promise<string[]>;
 }

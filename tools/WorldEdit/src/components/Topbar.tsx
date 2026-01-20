@@ -5,12 +5,18 @@ type TopbarProps = {
   isBusy: boolean;
   hasArea: boolean;
   hasAreaPath: boolean;
+  showGlobalActions: boolean;
+  globalEntityLabel: string;
+  globalLoadDisabled: boolean;
+  globalSaveDisabled: boolean;
   onOpenArea: () => void;
   onSetAreaDirectory: () => void;
   onLoadReferenceData: () => void;
+  onLoadGlobalData: () => void;
   onSaveArea: () => void;
   onSaveEditorMeta: () => void;
   onSaveAreaAs: () => void;
+  onSaveGlobalData: () => void;
 };
 
 export function Topbar({
@@ -20,12 +26,18 @@ export function Topbar({
   isBusy,
   hasArea,
   hasAreaPath,
+  showGlobalActions,
+  globalEntityLabel,
+  globalLoadDisabled,
+  globalSaveDisabled,
   onOpenArea,
   onSetAreaDirectory,
   onLoadReferenceData,
+  onLoadGlobalData,
   onSaveArea,
   onSaveEditorMeta,
-  onSaveAreaAs
+  onSaveAreaAs,
+  onSaveGlobalData
 }: TopbarProps) {
   return (
     <header className="topbar">
@@ -71,6 +83,26 @@ export function Topbar({
         >
           Load Ref Data
         </button>
+        {showGlobalActions ? (
+          <>
+            <button
+              className="action-button"
+              type="button"
+              onClick={onLoadGlobalData}
+              disabled={globalLoadDisabled || isBusy}
+            >
+              Load {globalEntityLabel}
+            </button>
+            <button
+              className="action-button"
+              type="button"
+              onClick={onSaveGlobalData}
+              disabled={globalSaveDisabled || isBusy}
+            >
+              Save {globalEntityLabel}
+            </button>
+          </>
+        ) : null}
         <button
           className="action-button action-button--primary"
           type="button"

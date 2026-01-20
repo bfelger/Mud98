@@ -23,6 +23,36 @@ export type ReferenceData = {
   sourceDir: string;
 };
 
+export type ClassDefinition = {
+  name: string;
+  whoName?: string;
+  baseGroup?: string;
+  defaultGroup?: string;
+  weaponVnum?: number;
+  armorProf?: string;
+  guilds?: number[];
+  primeStat?: string;
+  skillCap?: number;
+  thac0_00?: number;
+  thac0_32?: number;
+  hpMin?: number;
+  hpMax?: number;
+  manaUser?: boolean;
+  startLoc?: number;
+  titles?: string[][];
+};
+
+export type ClassDataFile = {
+  formatVersion: number;
+  classes: ClassDefinition[];
+};
+
+export type ClassDataSource = {
+  path: string;
+  format: "json" | "olc";
+  data: ClassDataFile;
+};
+
 export type RoomLayoutEntry = {
   x: number;
   y: number;

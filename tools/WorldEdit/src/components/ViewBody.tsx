@@ -8,6 +8,7 @@ type ViewBodyProps = {
   selectedGlobalEntity: string;
   tabs: Array<{ id: string; title: string; description: string }>;
   hasAreaData: boolean;
+  classCount: number;
   roomCount: number;
   mobileCount: number;
   objectCount: number;
@@ -24,7 +25,9 @@ type ViewBodyProps = {
   shopForm: ReactNode;
   questForm: ReactNode;
   factionForm: ReactNode;
+  classForm: ReactNode;
   tableView: ReactNode;
+  classTableView: ReactNode;
   mapView: ReactNode;
   worldView: ReactNode;
   scriptView: ReactNode;
@@ -37,6 +40,7 @@ export function ViewBody({
   selectedGlobalEntity,
   tabs,
   hasAreaData,
+  classCount,
   roomCount,
   mobileCount,
   objectCount,
@@ -53,7 +57,9 @@ export function ViewBody({
   shopForm,
   questForm,
   factionForm,
+  classForm,
   tableView,
+  classTableView,
   mapView,
   worldView,
   scriptView
@@ -61,6 +67,21 @@ export function ViewBody({
   if (editorMode === "Global") {
     const isSupportedTab = activeTab === "Table" || activeTab === "Form";
     const label = selectedGlobalEntity || "Global data";
+    if (selectedGlobalEntity === "Classes") {
+      if (activeTab === "Form") {
+        return classCount ? (
+          <>{classForm}</>
+        ) : (
+          <div className="entity-table__empty">
+            <h3>No classes loaded</h3>
+            <p>Load the classes file from the data directory.</p>
+          </div>
+        );
+      }
+      if (activeTab === "Table") {
+        return <>{classTableView}</>;
+      }
+    }
     return (
       <div className="entity-table__empty">
         <h3>

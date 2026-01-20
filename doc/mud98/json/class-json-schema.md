@@ -12,6 +12,7 @@ Class object
 - `baseGroup`: string (optional, defaults to compiled base in `class_table` or `NULL` if not defined).
 - `defaultGroup`: string (optional, same default behavior as `baseGroup`).
 - `weaponVnum`: int (optional, defaults to `0` if unspecified).
+- `armorProf`: armor proficiency (`old_style`, `cloth`, `light`, `medium`, `heavy`). Optional; omitted means old-style armor handling.
 - `guilds`: array of exactly `MAX_GUILD` VNUMs; missing entries default to `0`. Shorter arrays are padded with zero during load.
 - `primeStat`: stat name (`str`, `int`, `wis`, `dex`, `con`). Optional; omitting leaves the compiled default prime stat.
 - `skillCap`: int (optional, defaults to compiled value or `0`).

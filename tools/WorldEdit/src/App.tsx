@@ -39,7 +39,9 @@ import { ResetForm } from "./components/ResetForm";
 import { ShopForm } from "./components/ShopForm";
 import { QuestForm } from "./components/QuestForm";
 import { FactionForm } from "./components/FactionForm";
+import { ClassForm } from "./components/ClassForm";
 import { TableView } from "./components/TableView";
+import { ClassTableView } from "./components/ClassTableView";
 import { InspectorPanel } from "./components/InspectorPanel";
 import { EntityTree } from "./components/EntityTree";
 import { Topbar } from "./components/Topbar";
@@ -54,6 +56,8 @@ import type {
   AreaGraphLink,
   AreaIndexEntry,
   AreaJson,
+  ClassDataFile,
+  ClassDefinition,
   EditorLayout,
   EditorMeta,
   ReferenceData,
@@ -159,6 +163,11 @@ const globalEntityOrder = [
   "Socials",
   "Tutorials"
 ] as const;
+
+const primeStatOptions = ["str", "int", "wis", "dex", "con"] as const;
+const armorProfOptions = ["old_style", "cloth", "light", "medium", "heavy"] as const;
+const classTitleCount = 61;
+const classGuildCount = 2;
 
 const itemTypeOptions = [
   "none",
@@ -339,6 +348,16 @@ type ResetRow = {
   entityVnum: string;
   roomVnum: string;
   details: string;
+};
+
+type ClassRow = {
+  index: number;
+  name: string;
+  whoName: string;
+  primeStat: string;
+  armorProf: string;
+  weaponVnum: number;
+  startLoc: number;
 };
 
 type ShopRow = {
@@ -818,6 +837,26 @@ const factionFormSchema = z.object({
   opposingCsv: z.string().optional()
 });
 
+const classFormSchema = z.object({
+  name: z.string().min(1),
+  whoName: z.string().optional(),
+  baseGroup: z.string().optional(),
+  defaultGroup: z.string().optional(),
+  weaponVnum: z.number().int(),
+  armorProf: z.string().optional(),
+  guilds: z.array(z.number().int()).length(classGuildCount),
+  primeStat: z.string().optional(),
+  skillCap: z.number().int(),
+  thac0_00: z.number().int(),
+  thac0_32: z.number().int(),
+  hpMin: z.number().int(),
+  hpMax: z.number().int(),
+  manaUser: z.boolean(),
+  startLoc: z.number().int(),
+  titlesMale: z.string().optional(),
+  titlesFemale: z.string().optional()
+});
+
 type RoomFormValues = z.infer<typeof roomFormSchema>;
 type AreaFormValues = z.infer<typeof areaFormSchema>;
 type MobileFormValues = z.infer<typeof mobileFormSchema>;
@@ -826,6 +865,7 @@ type ResetFormValues = z.infer<typeof resetFormSchema>;
 type ShopFormValues = z.infer<typeof shopFormSchema>;
 type QuestFormValues = z.infer<typeof questFormSchema>;
 type FactionFormValues = z.infer<typeof factionFormSchema>;
+type ClassFormValues = z.infer<typeof classFormSchema>;
 
 const entityKindLabels: Record<EntityKey, string> = {
   Area: "Area",
@@ -3496,6 +3536,55 @@ function buildFactionRows(areaData: AreaJson | null): FactionRow[] {
   });
 }
 
+function buildClassRows(classData: ClassDataFile | null): ClassRow[] {
+  if (!classData) {
+    return [];
+  }
+  return classData.classes.map((cls, index) => ({
+    index,
+    name: cls.name ?? "(unnamed)",
+    whoName: cls.whoName ?? "",
+    primeStat: cls.primeStat ?? "default",
+    armorProf: cls.armorProf ?? "default",
+    weaponVnum: cls.weaponVnum ?? 0,
+    startLoc: cls.startLoc ?? 0
+  }));
+}
+
+function titlesToText(titles: string[][] | undefined, column: 0 | 1): string {
+  const lines: string[] = [];
+  for (let i = 0; i < classTitleCount; i += 1) {
+    const value = titles?.[i]?.[column] ?? "";
+    lines.push(value);
+  }
+  return lines.join("\n");
+}
+
+function normalizeTitleLines(value: string | undefined): string[] {
+  if (!value) {
+    return [];
+  }
+  return value.split(/\r?\n/).map((line) => line.trim());
+}
+
+function buildTitlePairs(maleText: string, femaleText: string): string[][] {
+  const maleLines = normalizeTitleLines(maleText);
+  const femaleLines = normalizeTitleLines(femaleText);
+  const pairs: string[][] = [];
+  for (let i = 0; i < classTitleCount; i += 1) {
+    pairs.push([maleLines[i] ?? "", femaleLines[i] ?? ""]);
+  }
+  return pairs;
+}
+
+function cleanOptionalString(value: string | undefined): string | undefined {
+  if (!value) {
+    return undefined;
+  }
+  const trimmed = value.trim();
+  return trimmed.length ? trimmed : undefined;
+}
+
 function syncGridSelection(api: GridApi | null, vnum: number | null) {
   if (!api) {
     return;
@@ -3517,6 +3606,9 @@ export default function App({ repository }: AppProps) {
     useState<EntityKey>("Rooms");
   const [selectedGlobalEntity, setSelectedGlobalEntity] =
     useState<GlobalEntityKey>("Classes");
+  const [selectedClassIndex, setSelectedClassIndex] = useState<number | null>(
+    null
+  );
   const [selectedRoomVnum, setSelectedRoomVnum] = useState<number | null>(null);
   const [selectedMobileVnum, setSelectedMobileVnum] = useState<number | null>(
     null
@@ -3536,6 +3628,12 @@ export default function App({ repository }: AppProps) {
   );
   const [areaPath, setAreaPath] = useState<string | null>(null);
   const [areaData, setAreaData] = useState<AreaJson | null>(null);
+  const [classData, setClassData] = useState<ClassDataFile | null>(null);
+  const [classDataPath, setClassDataPath] = useState<string | null>(null);
+  const [classDataFormat, setClassDataFormat] = useState<
+    "json" | "olc" | null
+  >(null);
+  const [classDataDir, setClassDataDir] = useState<string | null>(null);
   const [editorMeta, setEditorMeta] = useState<EditorMeta | null>(null);
   const [editorMetaPath, setEditorMetaPath] = useState<string | null>(null);
   const [referenceData, setReferenceData] = useState<ReferenceData | null>(null);
@@ -3580,6 +3678,7 @@ export default function App({ repository }: AppProps) {
   const shopGridApi = useRef<GridApi | null>(null);
   const questGridApi = useRef<GridApi | null>(null);
   const factionGridApi = useRef<GridApi | null>(null);
+  const classGridApi = useRef<GridApi | null>(null);
   const areaForm = useForm<AreaFormValues>({
     resolver: zodResolver(areaFormSchema),
     defaultValues: {
@@ -3861,6 +3960,38 @@ export default function App({ repository }: AppProps) {
     handleSubmit: handleFactionSubmitForm,
     formState: factionFormState
   } = factionForm;
+  const classFormDefaults = useMemo<ClassFormValues>(
+    () => ({
+      name: "",
+      whoName: "",
+      baseGroup: "",
+      defaultGroup: "",
+      weaponVnum: 0,
+      armorProf: "",
+      guilds: new Array(classGuildCount).fill(0),
+      primeStat: "",
+      skillCap: 0,
+      thac0_00: 0,
+      thac0_32: 0,
+      hpMin: 0,
+      hpMax: 0,
+      manaUser: false,
+      startLoc: 0,
+      titlesMale: "",
+      titlesFemale: ""
+    }),
+    []
+  );
+  const classForm = useForm<ClassFormValues>({
+    resolver: zodResolver(classFormSchema),
+    defaultValues: classFormDefaults
+  });
+  const {
+    register: registerClass,
+    handleSubmit: handleClassSubmitForm,
+    formState: classFormState,
+    reset: resetClassForm
+  } = classForm;
   const watchedResetCommand = useWatch({
     control: resetForm.control,
     name: "commandName"
@@ -3869,6 +4000,59 @@ export default function App({ repository }: AppProps) {
     control: objectForm.control,
     name: "itemType"
   });
+  const handleLoadClassesData = useCallback(
+    async (overrideDir?: string) => {
+      const targetDir =
+        typeof overrideDir === "string" ? overrideDir : dataDirectory;
+      if (!targetDir) {
+        setErrorMessage("No data directory set for classes.");
+        return;
+      }
+      setErrorMessage(null);
+      setIsBusy(true);
+      try {
+        const source = await repository.loadClassesData(targetDir);
+        setClassData(source.data);
+        setClassDataPath(source.path);
+        setClassDataFormat(source.format);
+        setClassDataDir(targetDir);
+        setStatusMessage(`Loaded classes (${source.format})`);
+      } catch (error) {
+        setErrorMessage(`Failed to load classes. ${String(error)}`);
+      } finally {
+        setIsBusy(false);
+      }
+    },
+    [dataDirectory, repository]
+  );
+  const handleSaveClassesData = useCallback(async () => {
+    if (!classData) {
+      setErrorMessage("No classes loaded to save.");
+      return;
+    }
+    if (!dataDirectory) {
+      setErrorMessage("No data directory set for classes.");
+      return;
+    }
+    setErrorMessage(null);
+    setIsBusy(true);
+    try {
+      const format = classDataFormat ?? "json";
+      const path = await repository.saveClassesData(
+        dataDirectory,
+        classData,
+        format
+      );
+      setClassDataPath(path);
+      setClassDataFormat(format);
+      setClassDataDir(dataDirectory);
+      setStatusMessage(`Saved classes (${format})`);
+    } catch (error) {
+      setErrorMessage(`Failed to save classes. ${String(error)}`);
+    } finally {
+      setIsBusy(false);
+    }
+  }, [classData, classDataFormat, dataDirectory, repository]);
 
   useEffect(() => {
     const nextRoom = getDefaultSelection(areaData, "Rooms", selectedRoomVnum);
@@ -3953,6 +4137,70 @@ export default function App({ repository }: AppProps) {
       setActiveTab("Table");
     }
   }, [editorMode, activeTab]);
+
+  useEffect(() => {
+    if (editorMode !== "Global" || selectedGlobalEntity !== "Classes") {
+      return;
+    }
+    if (!dataDirectory) {
+      return;
+    }
+    if (classData && classDataDir === dataDirectory) {
+      return;
+    }
+    void handleLoadClassesData(dataDirectory);
+  }, [
+    editorMode,
+    selectedGlobalEntity,
+    dataDirectory,
+    classData,
+    classDataDir,
+    handleLoadClassesData
+  ]);
+
+  useEffect(() => {
+    if (!classData || classData.classes.length === 0) {
+      if (selectedClassIndex !== null) {
+        setSelectedClassIndex(null);
+      }
+      return;
+    }
+    if (
+      selectedClassIndex === null ||
+      selectedClassIndex >= classData.classes.length
+    ) {
+      setSelectedClassIndex(0);
+    }
+  }, [classData, selectedClassIndex]);
+
+  useEffect(() => {
+    if (!classData || selectedClassIndex === null) {
+      resetClassForm(classFormDefaults);
+      return;
+    }
+    const cls = classData.classes[selectedClassIndex];
+    resetClassForm({
+      name: cls.name ?? "",
+      whoName: cls.whoName ?? "",
+      baseGroup: cls.baseGroup ?? "",
+      defaultGroup: cls.defaultGroup ?? "",
+      weaponVnum: cls.weaponVnum ?? 0,
+      armorProf: cls.armorProf ?? "",
+      guilds: Array.from({ length: classGuildCount }).map(
+        (_, index) => cls.guilds?.[index] ?? 0
+      ),
+      primeStat: cls.primeStat ?? "",
+      skillCap: cls.skillCap ?? 0,
+      thac0_00: cls.thac0_00 ?? 0,
+      thac0_32: cls.thac0_32 ?? 0,
+      hpMin: cls.hpMin ?? 0,
+      hpMax: cls.hpMax ?? 0,
+      manaUser: cls.manaUser ?? false,
+      startLoc: cls.startLoc ?? 0,
+      titlesMale: titlesToText(cls.titles, 0),
+      titlesFemale: titlesToText(cls.titles, 1)
+    });
+  }, [classData, classFormDefaults, resetClassForm, selectedClassIndex]);
 
   const selection = useMemo(
     () =>
@@ -4139,6 +4387,7 @@ export default function App({ repository }: AppProps) {
       count: counts[key] ?? 0
     }));
   }, [referenceData]);
+  const classRows = useMemo(() => buildClassRows(classData), [classData]);
   const roomRows = useMemo(() => buildRoomRows(areaData), [areaData]);
   const mobileRows = useMemo(() => buildMobileRows(areaData), [areaData]);
   const objectRows = useMemo(() => buildObjectRows(areaData), [areaData]);
@@ -5369,6 +5618,18 @@ export default function App({ repository }: AppProps) {
       .toLowerCase();
     return itemTypeBlockMap[key] ?? null;
   }, [objectFormDefaults.itemType, watchedObjectItemType]);
+  const classColumns = useMemo<ColDef<ClassRow>[]>(
+    () => [
+      { headerName: "#", field: "index", width: 80, sort: "asc" },
+      { headerName: "Name", field: "name", flex: 2, minWidth: 200 },
+      { headerName: "Who", field: "whoName", width: 110 },
+      { headerName: "Prime", field: "primeStat", width: 100 },
+      { headerName: "Armor", field: "armorProf", width: 120 },
+      { headerName: "Weapon", field: "weaponVnum", width: 120 },
+      { headerName: "Start", field: "startLoc", width: 110 }
+    ],
+    []
+  );
   const roomColumns = useMemo<ColDef<RoomRow>[]>(
     () => [
       { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
@@ -5449,6 +5710,7 @@ export default function App({ repository }: AppProps) {
   );
   const mobileDefaultColDef = roomDefaultColDef;
   const objectDefaultColDef = roomDefaultColDef;
+  const classDefaultColDef = roomDefaultColDef;
 
   useEffect(() => {
     areaForm.reset(areaFormDefaults);
@@ -5530,6 +5792,23 @@ export default function App({ repository }: AppProps) {
     }
     syncGridSelection(factionGridApi.current, selectedFactionVnum);
   }, [activeTab, selectedEntity, selectedFactionVnum, factionRows]);
+
+  useEffect(() => {
+    if (
+      editorMode !== "Global" ||
+      selectedGlobalEntity !== "Classes" ||
+      activeTab !== "Table"
+    ) {
+      return;
+    }
+    syncGridSelection(classGridApi.current, selectedClassIndex);
+  }, [
+    editorMode,
+    selectedGlobalEntity,
+    activeTab,
+    selectedClassIndex,
+    classRows
+  ]);
 
   useEffect(() => {
     if (activeTab === "Map" && selectedEntity !== "Rooms") {
@@ -6175,6 +6454,43 @@ export default function App({ repository }: AppProps) {
     setStatusMessage(`Updated faction ${data.vnum} (unsaved)`);
   };
 
+  const handleClassSubmit = (data: ClassFormValues) => {
+    if (!classData || selectedClassIndex === null) {
+      return;
+    }
+    const guilds = Array.from({ length: classGuildCount }).map(
+      (_, index) => data.guilds?.[index] ?? 0
+    );
+    const titles = buildTitlePairs(data.titlesMale ?? "", data.titlesFemale ?? "");
+    const nextRecord: ClassDefinition = {
+      name: data.name,
+      whoName: cleanOptionalString(data.whoName),
+      baseGroup: cleanOptionalString(data.baseGroup),
+      defaultGroup: cleanOptionalString(data.defaultGroup),
+      weaponVnum: data.weaponVnum,
+      armorProf: cleanOptionalString(data.armorProf),
+      guilds,
+      primeStat: cleanOptionalString(data.primeStat),
+      skillCap: data.skillCap,
+      thac0_00: data.thac0_00,
+      thac0_32: data.thac0_32,
+      hpMin: data.hpMin,
+      hpMax: data.hpMax,
+      manaUser: data.manaUser,
+      startLoc: data.startLoc,
+      titles
+    };
+    setClassData((current) => {
+      if (!current) {
+        return current;
+      }
+      const nextClasses = [...current.classes];
+      nextClasses[selectedClassIndex] = nextRecord;
+      return { ...current, classes: nextClasses };
+    });
+    setStatusMessage(`Updated class ${data.name} (unsaved)`);
+  };
+
   const warnLegacyAreaFiles = useCallback(
     async (areaDir: string | null) => {
       if (!areaDir) {
@@ -6511,6 +6827,16 @@ export default function App({ repository }: AppProps) {
       formState={factionFormState}
     />
   );
+  const classFormNode = (
+    <ClassForm
+      onSubmit={handleClassSubmitForm(handleClassSubmit)}
+      register={registerClass}
+      formState={classFormState}
+      primeStatOptions={[...primeStatOptions]}
+      armorProfOptions={[...armorProfOptions]}
+      titleCount={classTitleCount}
+    />
+  );
   const tableViewNode = (
     <TableView
       selectedEntity={selectedEntity}
@@ -6549,6 +6875,15 @@ export default function App({ repository }: AppProps) {
       shopGridApiRef={shopGridApi}
       questGridApiRef={questGridApi}
       factionGridApiRef={factionGridApi}
+    />
+  );
+  const classTableViewNode = (
+    <ClassTableView
+      rows={classRows}
+      columns={classColumns}
+      defaultColDef={classDefaultColDef}
+      onSelectClass={setSelectedClassIndex}
+      gridApiRef={classGridApi}
     />
   );
   const mapViewNode = (
@@ -6604,6 +6939,12 @@ export default function App({ repository }: AppProps) {
   const referenceSummary = referenceData
     ? `classes ${referenceData.classes.length}, races ${referenceData.races.length}, skills ${referenceData.skills.length}, groups ${referenceData.groups.length}, commands ${referenceData.commands.length}, socials ${referenceData.socials.length}, tutorials ${referenceData.tutorials.length}`
     : "not loaded";
+  const dataFileLabel =
+    selectedGlobalEntity === "Classes"
+      ? classDataPath
+        ? fileNameFromPath(classDataPath)
+        : "not loaded"
+      : "not loaded";
   const viewTitle =
     editorMode === "Area" ? selectedEntity : selectedGlobalEntity;
   const viewMeta =
@@ -6615,9 +6956,12 @@ export default function App({ repository }: AppProps) {
         ]
       : [
           `Data dir ${dataDirectory ?? "not set"}`,
+          `Data file ${dataFileLabel}`,
           `Reference ${referenceSummary}`,
           `Active view ${activeTab}`
         ];
+  const showGlobalActions =
+    editorMode === "Global" && selectedGlobalEntity === "Classes";
   const visibleTabs =
     editorMode === "Area"
       ? tabs
@@ -6646,12 +6990,18 @@ export default function App({ repository }: AppProps) {
         isBusy={isBusy}
         hasArea={Boolean(areaData)}
         hasAreaPath={Boolean(areaPath)}
+        showGlobalActions={showGlobalActions}
+        globalEntityLabel={selectedGlobalEntity}
+        globalLoadDisabled={!dataDirectory}
+        globalSaveDisabled={!classData}
         onOpenArea={handleOpenArea}
         onSetAreaDirectory={handleSetAreaDirectory}
         onLoadReferenceData={handleLoadReferenceData}
+        onLoadGlobalData={handleLoadClassesData}
         onSaveArea={handleSaveArea}
         onSaveEditorMeta={handleSaveEditorMeta}
         onSaveAreaAs={handleSaveAreaAs}
+        onSaveGlobalData={handleSaveClassesData}
       />
 
       <section className="workspace">
@@ -6683,6 +7033,7 @@ export default function App({ repository }: AppProps) {
                 selectedGlobalEntity={selectedGlobalEntity}
                 tabs={visibleTabs}
                 hasAreaData={Boolean(areaData)}
+                classCount={classRows.length}
                 roomCount={roomRows.length}
                 mobileCount={mobileRows.length}
                 objectCount={objectRows.length}
@@ -6699,7 +7050,9 @@ export default function App({ repository }: AppProps) {
                 shopForm={shopFormNode}
                 questForm={questFormNode}
                 factionForm={factionFormNode}
+                classForm={classFormNode}
                 tableView={tableViewNode}
+                classTableView={classTableViewNode}
                 mapView={mapViewNode}
                 worldView={worldViewNode}
                 scriptView={scriptViewNode}
