@@ -122,6 +122,23 @@ export type SkillDataSource = {
   data: SkillDataFile;
 };
 
+export type GroupDefinition = {
+  name: string;
+  ratings?: Record<string, number> | number[];
+  skills?: string[];
+};
+
+export type GroupDataFile = {
+  formatVersion: number;
+  groups: GroupDefinition[];
+};
+
+export type GroupDataSource = {
+  path: string;
+  format: "json" | "olc";
+  data: GroupDataFile;
+};
+
 export type ProjectDataFiles = {
   classes: string;
   races: string;

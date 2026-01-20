@@ -42,10 +42,12 @@ import { FactionForm } from "./components/FactionForm";
 import { ClassForm } from "./components/ClassForm";
 import { RaceForm } from "./components/RaceForm";
 import { SkillForm } from "./components/SkillForm";
+import { GroupForm } from "./components/GroupForm";
 import { TableView } from "./components/TableView";
 import { ClassTableView } from "./components/ClassTableView";
 import { RaceTableView } from "./components/RaceTableView";
 import { SkillTableView } from "./components/SkillTableView";
+import { GroupTableView } from "./components/GroupTableView";
 import { InspectorPanel } from "./components/InspectorPanel";
 import { EntityTree } from "./components/EntityTree";
 import { Topbar } from "./components/Topbar";
@@ -64,6 +66,8 @@ import type {
   ClassDefinition,
   EditorLayout,
   EditorMeta,
+  GroupDataFile,
+  GroupDefinition,
   ProjectConfig,
   RaceDataFile,
   RaceDefinition,
@@ -190,6 +194,7 @@ const raceSkillCount = 5;
 const raceStatKeys = ["str", "int", "wis", "dex", "con"] as const;
 const defaultSkillLevel = 53;
 const defaultSkillRating = 0;
+const groupSkillCount = 15;
 
 const itemTypeOptions = [
   "none",
@@ -399,6 +404,13 @@ type SkillRow = {
   minPosition: string;
   spell: string;
   slot: number;
+};
+
+type GroupRow = {
+  index: number;
+  name: string;
+  ratingSummary: string;
+  skills: number;
 };
 
 type ShopRow = {
@@ -949,6 +961,12 @@ const skillFormSchema = z.object({
   msgObj: z.string().optional()
 });
 
+const groupFormSchema = z.object({
+  name: z.string().min(1),
+  ratings: z.record(z.number().int()),
+  skills: z.array(z.string()).length(groupSkillCount)
+});
+
 type RoomFormValues = z.infer<typeof roomFormSchema>;
 type AreaFormValues = z.infer<typeof areaFormSchema>;
 type MobileFormValues = z.infer<typeof mobileFormSchema>;
@@ -960,6 +978,7 @@ type FactionFormValues = z.infer<typeof factionFormSchema>;
 type ClassFormValues = z.infer<typeof classFormSchema>;
 type RaceFormValues = z.infer<typeof raceFormSchema>;
 type SkillFormValues = z.infer<typeof skillFormSchema>;
+type GroupFormValues = z.infer<typeof groupFormSchema>;
 
 const entityKindLabels: Record<EntityKey, string> = {
   Area: "Area",
@@ -3733,6 +3752,29 @@ function buildSkillRows(skillData: SkillDataFile | null): SkillRow[] {
   }));
 }
 
+function normalizeGroupSkills(value: string[] | undefined): string[] {
+  return Array.from({ length: groupSkillCount }).map((_, index) => {
+    const entry = value?.[index];
+    return typeof entry === "string" ? entry : "";
+  });
+}
+
+function buildGroupRows(groupData: GroupDataFile | null): GroupRow[] {
+  if (!groupData) {
+    return [];
+  }
+  return groupData.groups.map((group, index) => ({
+    index,
+    name: group.name ?? "(unnamed)",
+    ratingSummary: Array.isArray(group.ratings)
+      ? `${group.ratings.length} ratings`
+      : group.ratings
+        ? `${Object.keys(group.ratings).length} ratings`
+        : "default",
+    skills: group.skills?.length ?? 0
+  }));
+}
+
 function titlesToText(titles: string[][] | undefined, column: 0 | 1): string {
   const lines: string[] = [];
   for (let i = 0; i < classTitleCount; i += 1) {
@@ -3797,6 +3839,9 @@ export default function App({ repository }: AppProps) {
   const [selectedSkillIndex, setSelectedSkillIndex] = useState<number | null>(
     null
   );
+  const [selectedGroupIndex, setSelectedGroupIndex] = useState<number | null>(
+    null
+  );
   const [selectedRoomVnum, setSelectedRoomVnum] = useState<number | null>(null);
   const [selectedMobileVnum, setSelectedMobileVnum] = useState<number | null>(
     null
@@ -3834,6 +3879,12 @@ export default function App({ repository }: AppProps) {
     "json" | "olc" | null
   >(null);
   const [skillDataDir, setSkillDataDir] = useState<string | null>(null);
+  const [groupData, setGroupData] = useState<GroupDataFile | null>(null);
+  const [groupDataPath, setGroupDataPath] = useState<string | null>(null);
+  const [groupDataFormat, setGroupDataFormat] = useState<
+    "json" | "olc" | null
+  >(null);
+  const [groupDataDir, setGroupDataDir] = useState<string | null>(null);
   const [projectConfig, setProjectConfig] = useState<ProjectConfig | null>(null);
   const [editorMeta, setEditorMeta] = useState<EditorMeta | null>(null);
   const [editorMetaPath, setEditorMetaPath] = useState<string | null>(null);
@@ -3882,6 +3933,7 @@ export default function App({ repository }: AppProps) {
   const classGridApi = useRef<GridApi | null>(null);
   const raceGridApi = useRef<GridApi | null>(null);
   const skillGridApi = useRef<GridApi | null>(null);
+  const groupGridApi = useRef<GridApi | null>(null);
   const areaForm = useForm<AreaFormValues>({
     resolver: zodResolver(areaFormSchema),
     defaultValues: {
@@ -4280,6 +4332,28 @@ export default function App({ repository }: AppProps) {
     formState: skillFormState,
     reset: resetSkillForm
   } = skillForm;
+  const groupClassNames = referenceData?.classes ?? [];
+  const groupSkillOptions = referenceData?.skills ?? [];
+  const groupFormDefaults = useMemo<GroupFormValues>(
+    () => ({
+      name: "",
+      ratings: Object.fromEntries(
+        groupClassNames.map((name) => [name, defaultSkillRating])
+      ),
+      skills: new Array(groupSkillCount).fill("")
+    }),
+    [groupClassNames]
+  );
+  const groupForm = useForm<GroupFormValues>({
+    resolver: zodResolver(groupFormSchema),
+    defaultValues: groupFormDefaults
+  });
+  const {
+    register: registerGroup,
+    handleSubmit: handleGroupSubmitForm,
+    formState: groupFormState,
+    reset: resetGroupForm
+  } = groupForm;
   const watchedResetCommand = useWatch({
     control: resetForm.control,
     name: "commandName"
@@ -4494,6 +4568,78 @@ export default function App({ repository }: AppProps) {
     skillDataFormat
   ]);
 
+  const handleLoadGroupsData = useCallback(
+    async (overrideDir?: string) => {
+      const targetDir =
+        typeof overrideDir === "string" ? overrideDir : dataDirectory;
+      if (!targetDir) {
+        setErrorMessage("No data directory set for groups.");
+        return;
+      }
+      const groupsFile = projectConfig?.dataFiles.groups;
+      const defaultFormat = projectConfig?.defaultFormat;
+      setErrorMessage(null);
+      setIsBusy(true);
+      try {
+        const source = await repository.loadGroupsData(
+          targetDir,
+          groupsFile,
+          defaultFormat
+        );
+        setGroupData(source.data);
+        setGroupDataPath(source.path);
+        setGroupDataFormat(source.format);
+        setGroupDataDir(targetDir);
+        setStatusMessage(`Loaded groups (${source.format})`);
+      } catch (error) {
+        setErrorMessage(`Failed to load groups. ${String(error)}`);
+      } finally {
+        setIsBusy(false);
+      }
+    },
+    [dataDirectory, projectConfig, repository]
+  );
+
+  const handleSaveGroupsData = useCallback(async () => {
+    if (!groupData) {
+      setErrorMessage("No groups loaded to save.");
+      return;
+    }
+    if (!dataDirectory) {
+      setErrorMessage("No data directory set for groups.");
+      return;
+    }
+    setErrorMessage(null);
+    setIsBusy(true);
+    try {
+      const format = groupDataFormat ?? projectConfig?.defaultFormat ?? "json";
+      const groupsFile = projectConfig?.dataFiles.groups;
+      const classNames = referenceData?.classes ?? [];
+      const path = await repository.saveGroupsData(
+        dataDirectory,
+        groupData,
+        format,
+        groupsFile,
+        classNames
+      );
+      setGroupDataPath(path);
+      setGroupDataFormat(format);
+      setGroupDataDir(dataDirectory);
+      setStatusMessage(`Saved groups (${format})`);
+    } catch (error) {
+      setErrorMessage(`Failed to save groups. ${String(error)}`);
+    } finally {
+      setIsBusy(false);
+    }
+  }, [
+    dataDirectory,
+    groupData,
+    groupDataFormat,
+    projectConfig,
+    referenceData,
+    repository
+  ]);
+
   useEffect(() => {
     const nextRoom = getDefaultSelection(areaData, "Rooms", selectedRoomVnum);
     if (selectedRoomVnum !== nextRoom) {
@@ -4639,6 +4785,26 @@ export default function App({ repository }: AppProps) {
   ]);
 
   useEffect(() => {
+    if (editorMode !== "Global" || selectedGlobalEntity !== "Groups") {
+      return;
+    }
+    if (!dataDirectory) {
+      return;
+    }
+    if (groupData && groupDataDir === dataDirectory) {
+      return;
+    }
+    void handleLoadGroupsData(dataDirectory);
+  }, [
+    editorMode,
+    selectedGlobalEntity,
+    dataDirectory,
+    groupData,
+    groupDataDir,
+    handleLoadGroupsData
+  ]);
+
+  useEffect(() => {
     if (!classData || classData.classes.length === 0) {
       if (selectedClassIndex !== null) {
         setSelectedClassIndex(null);
@@ -4682,6 +4848,21 @@ export default function App({ repository }: AppProps) {
       setSelectedSkillIndex(0);
     }
   }, [skillData, selectedSkillIndex]);
+
+  useEffect(() => {
+    if (!groupData || groupData.groups.length === 0) {
+      if (selectedGroupIndex !== null) {
+        setSelectedGroupIndex(null);
+      }
+      return;
+    }
+    if (
+      selectedGroupIndex === null ||
+      selectedGroupIndex >= groupData.groups.length
+    ) {
+      setSelectedGroupIndex(0);
+    }
+  }, [groupData, selectedGroupIndex]);
 
   useEffect(() => {
     if (!classData || selectedClassIndex === null) {
@@ -4785,6 +4966,30 @@ export default function App({ repository }: AppProps) {
     skillFormDefaults,
     referenceData,
     resetSkillForm
+  ]);
+
+  useEffect(() => {
+    if (!groupData || selectedGroupIndex === null) {
+      resetGroupForm(groupFormDefaults);
+      return;
+    }
+    const group = groupData.groups[selectedGroupIndex];
+    const classNames = referenceData?.classes ?? [];
+    resetGroupForm({
+      name: group.name ?? "",
+      ratings: normalizeRaceClassMap(
+        group.ratings as Record<string, number> | number[] | undefined,
+        classNames,
+        defaultSkillRating
+      ),
+      skills: normalizeGroupSkills(group.skills)
+    });
+  }, [
+    groupData,
+    selectedGroupIndex,
+    groupFormDefaults,
+    referenceData,
+    resetGroupForm
   ]);
 
   const selection = useMemo(
@@ -4975,6 +5180,7 @@ export default function App({ repository }: AppProps) {
   const classRows = useMemo(() => buildClassRows(classData), [classData]);
   const raceRows = useMemo(() => buildRaceRows(raceData), [raceData]);
   const skillRows = useMemo(() => buildSkillRows(skillData), [skillData]);
+  const groupRows = useMemo(() => buildGroupRows(groupData), [groupData]);
   const roomRows = useMemo(() => buildRoomRows(areaData), [areaData]);
   const mobileRows = useMemo(() => buildMobileRows(areaData), [areaData]);
   const objectRows = useMemo(() => buildObjectRows(areaData), [areaData]);
@@ -6243,6 +6449,15 @@ export default function App({ repository }: AppProps) {
     ],
     []
   );
+  const groupColumns = useMemo<ColDef<GroupRow>[]>(
+    () => [
+      { headerName: "#", field: "index", width: 80, sort: "asc" },
+      { headerName: "Name", field: "name", flex: 2, minWidth: 220 },
+      { headerName: "Ratings", field: "ratingSummary", width: 140 },
+      { headerName: "Skills", field: "skills", width: 110 }
+    ],
+    []
+  );
   const roomColumns = useMemo<ColDef<RoomRow>[]>(
     () => [
       { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
@@ -6326,6 +6541,7 @@ export default function App({ repository }: AppProps) {
   const classDefaultColDef = roomDefaultColDef;
   const raceDefaultColDef = roomDefaultColDef;
   const skillDefaultColDef = roomDefaultColDef;
+  const groupDefaultColDef = roomDefaultColDef;
 
   useEffect(() => {
     areaForm.reset(areaFormDefaults);
@@ -6457,6 +6673,23 @@ export default function App({ repository }: AppProps) {
     activeTab,
     selectedSkillIndex,
     skillRows
+  ]);
+
+  useEffect(() => {
+    if (
+      editorMode !== "Global" ||
+      selectedGlobalEntity !== "Groups" ||
+      activeTab !== "Table"
+    ) {
+      return;
+    }
+    syncGridSelection(groupGridApi.current, selectedGroupIndex);
+  }, [
+    editorMode,
+    selectedGlobalEntity,
+    activeTab,
+    selectedGroupIndex,
+    groupRows
   ]);
 
   useEffect(() => {
@@ -7228,6 +7461,37 @@ export default function App({ repository }: AppProps) {
     setStatusMessage(`Updated skill ${data.name} (unsaved)`);
   };
 
+  const handleGroupSubmit = (data: GroupFormValues) => {
+    if (!groupData || selectedGroupIndex === null) {
+      return;
+    }
+    const classNames = referenceData?.classes ?? [];
+    const ratings: Record<string, number> = {};
+    classNames.forEach((name) => {
+      const rating = Number(data.ratings?.[name] ?? defaultSkillRating);
+      ratings[name] = Number.isFinite(rating)
+        ? Math.trunc(rating)
+        : defaultSkillRating;
+    });
+    const skills = (data.skills ?? [])
+      .map((entry) => entry.trim())
+      .filter((entry) => entry.length);
+    const nextRecord: GroupDefinition = {
+      name: data.name,
+      ratings: classNames.length ? ratings : undefined,
+      skills
+    };
+    setGroupData((current) => {
+      if (!current) {
+        return current;
+      }
+      const nextGroups = [...current.groups];
+      nextGroups[selectedGroupIndex] = nextRecord;
+      return { ...current, groups: nextGroups };
+    });
+    setStatusMessage(`Updated group ${data.name} (unsaved)`);
+  };
+
   const warnLegacyAreaFiles = useCallback(
     async (areaDir: string | null) => {
       if (!areaDir) {
@@ -7640,6 +7904,16 @@ export default function App({ repository }: AppProps) {
       positionOptions={[...positions]}
     />
   );
+  const groupFormNode = (
+    <GroupForm
+      onSubmit={handleGroupSubmitForm(handleGroupSubmit)}
+      register={registerGroup}
+      formState={groupFormState}
+      classNames={groupClassNames}
+      skillOptions={groupSkillOptions}
+      skillCount={groupSkillCount}
+    />
+  );
   const tableViewNode = (
     <TableView
       selectedEntity={selectedEntity}
@@ -7705,6 +7979,15 @@ export default function App({ repository }: AppProps) {
       defaultColDef={skillDefaultColDef}
       onSelectSkill={setSelectedSkillIndex}
       gridApiRef={skillGridApi}
+    />
+  );
+  const groupTableViewNode = (
+    <GroupTableView
+      rows={groupRows}
+      columns={groupColumns}
+      defaultColDef={groupDefaultColDef}
+      onSelectGroup={setSelectedGroupIndex}
+      gridApiRef={groupGridApi}
     />
   );
   const mapViewNode = (
@@ -7773,7 +8056,11 @@ export default function App({ repository }: AppProps) {
           ? skillDataPath
             ? fileNameFromPath(skillDataPath)
             : "not loaded"
-          : "not loaded";
+          : selectedGlobalEntity === "Groups"
+            ? groupDataPath
+              ? fileNameFromPath(groupDataPath)
+              : "not loaded"
+            : "not loaded";
   const viewTitle =
     editorMode === "Area" ? selectedEntity : selectedGlobalEntity;
   const viewMeta =
@@ -7792,19 +8079,24 @@ export default function App({ repository }: AppProps) {
   const supportsGlobalData =
     selectedGlobalEntity === "Classes" ||
     selectedGlobalEntity === "Races" ||
-    selectedGlobalEntity === "Skills";
+    selectedGlobalEntity === "Skills" ||
+    selectedGlobalEntity === "Groups";
   const showGlobalActions = editorMode === "Global" && supportsGlobalData;
   const globalLoadHandler =
     selectedGlobalEntity === "Races"
       ? handleLoadRacesData
       : selectedGlobalEntity === "Skills"
         ? handleLoadSkillsData
+        : selectedGlobalEntity === "Groups"
+          ? handleLoadGroupsData
         : handleLoadClassesData;
   const globalSaveHandler =
     selectedGlobalEntity === "Races"
       ? handleSaveRacesData
       : selectedGlobalEntity === "Skills"
         ? handleSaveSkillsData
+        : selectedGlobalEntity === "Groups"
+          ? handleSaveGroupsData
         : handleSaveClassesData;
   const globalSaveDisabled =
     selectedGlobalEntity === "Classes"
@@ -7813,6 +8105,8 @@ export default function App({ repository }: AppProps) {
         ? !raceData
         : selectedGlobalEntity === "Skills"
           ? !skillData
+          : selectedGlobalEntity === "Groups"
+            ? !groupData
           : true;
   const visibleTabs =
     editorMode === "Area"
@@ -7889,6 +8183,7 @@ export default function App({ repository }: AppProps) {
                 classCount={classRows.length}
                 raceCount={raceRows.length}
                 skillCount={skillRows.length}
+                groupCount={groupRows.length}
                 roomCount={roomRows.length}
                 mobileCount={mobileRows.length}
                 objectCount={objectRows.length}
@@ -7908,10 +8203,12 @@ export default function App({ repository }: AppProps) {
                 classForm={classFormNode}
                 raceForm={raceFormNode}
                 skillForm={skillFormNode}
+                groupForm={groupFormNode}
                 tableView={tableViewNode}
                 classTableView={classTableViewNode}
                 raceTableView={raceTableViewNode}
                 skillTableView={skillTableViewNode}
+                groupTableView={groupTableViewNode}
                 mapView={mapViewNode}
                 worldView={worldViewNode}
                 scriptView={scriptViewNode}

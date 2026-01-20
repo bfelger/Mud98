@@ -11,6 +11,7 @@ type ViewBodyProps = {
   classCount: number;
   raceCount: number;
   skillCount: number;
+  groupCount: number;
   roomCount: number;
   mobileCount: number;
   objectCount: number;
@@ -30,10 +31,12 @@ type ViewBodyProps = {
   classForm: ReactNode;
   raceForm: ReactNode;
   skillForm: ReactNode;
+  groupForm: ReactNode;
   tableView: ReactNode;
   classTableView: ReactNode;
   raceTableView: ReactNode;
   skillTableView: ReactNode;
+  groupTableView: ReactNode;
   mapView: ReactNode;
   worldView: ReactNode;
   scriptView: ReactNode;
@@ -49,6 +52,7 @@ export function ViewBody({
   classCount,
   raceCount,
   skillCount,
+  groupCount,
   roomCount,
   mobileCount,
   objectCount,
@@ -68,10 +72,12 @@ export function ViewBody({
   classForm,
   raceForm,
   skillForm,
+  groupForm,
   tableView,
   classTableView,
   raceTableView,
   skillTableView,
+  groupTableView,
   mapView,
   worldView,
   scriptView
@@ -122,6 +128,21 @@ export function ViewBody({
       }
       if (activeTab === "Table") {
         return <>{skillTableView}</>;
+      }
+    }
+    if (selectedGlobalEntity === "Groups") {
+      if (activeTab === "Form") {
+        return groupCount ? (
+          <>{groupForm}</>
+        ) : (
+          <div className="entity-table__empty">
+            <h3>No groups loaded</h3>
+            <p>Load the groups file from the data directory.</p>
+          </div>
+        );
+      }
+      if (activeTab === "Table") {
+        return <>{groupTableView}</>;
       }
     }
     return (

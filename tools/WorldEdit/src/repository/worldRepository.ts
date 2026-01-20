@@ -5,6 +5,8 @@ import type {
   ClassDataFile,
   ClassDataSource,
   EditorMeta,
+  GroupDataFile,
+  GroupDataSource,
   ProjectConfig,
   ProjectDataFiles,
   RaceDataFile,
@@ -70,6 +72,18 @@ export interface WorldRepository {
   saveSkillsData(
     dataDir: string,
     data: SkillDataFile,
+    format: "json" | "olc",
+    fileName?: string,
+    classNames?: string[]
+  ): Promise<string>;
+  loadGroupsData(
+    dataDir: string,
+    fileName?: string,
+    defaultFormat?: "json" | "olc"
+  ): Promise<GroupDataSource>;
+  saveGroupsData(
+    dataDir: string,
+    data: GroupDataFile,
     format: "json" | "olc",
     fileName?: string,
     classNames?: string[]

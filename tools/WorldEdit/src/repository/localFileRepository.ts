@@ -27,6 +27,9 @@ import type {
   ClassDataSource,
   ClassDefinition,
   EditorMeta,
+  GroupDataFile,
+  GroupDataSource,
+  GroupDefinition,
   ProjectConfig,
   ProjectDataFiles,
   RaceDataFile,
@@ -82,6 +85,7 @@ const FORM_FLAG_BITS = formFlags.filter((flag) => !flag.endsWith("Default"));
 const PART_FLAG_BITS = partFlags.filter((flag) => !flag.endsWith("Default"));
 const DEFAULT_SKILL_LEVEL = 53;
 const DEFAULT_SKILL_RATING = 0;
+const GROUP_SKILL_COUNT = 15;
 
 async function defaultDialogPath(
   fallbackPath?: string | null
@@ -1167,6 +1171,150 @@ function serializeSkillOlc(
   return lines.join("\n");
 }
 
+function normalizeGroupRecord(record: Partial<GroupDefinition>): GroupDefinition {
+  return {
+    name: record.name?.trim() || "unnamed",
+    ratings: normalizeSkillClassMap(record.ratings),
+    skills: Array.isArray(record.skills)
+      ? record.skills
+          .map((entry) => (typeof entry === "string" ? entry.trim() : ""))
+          .filter((entry) => entry.length)
+          .slice(0, GROUP_SKILL_COUNT)
+      : undefined
+  };
+}
+
+function parseGroupJson(content: string): GroupDataFile {
+  const parsed = JSON.parse(content) as Record<string, unknown>;
+  const formatVersion = Number(parsed.formatVersion);
+  const groupsRaw = parsed.groups;
+  const groups = Array.isArray(groupsRaw)
+    ? groupsRaw.map((group) =>
+        normalizeGroupRecord((group ?? {}) as Partial<GroupDefinition>)
+      )
+    : [];
+  return {
+    formatVersion: Number.isFinite(formatVersion) ? formatVersion : 1,
+    groups
+  };
+}
+
+function parseGroupOlc(content: string): GroupDataFile {
+  const scanner = new OlcScanner(content);
+  const groups: GroupDefinition[] = [];
+
+  while (!scanner.eof()) {
+    const word = scanner.readWord();
+    if (!word) {
+      break;
+    }
+    const upper = word.toUpperCase();
+    if (upper !== "#GROUP") {
+      if (upper === "#END") {
+        break;
+      }
+      continue;
+    }
+    const record: Partial<GroupDefinition> = {};
+    while (!scanner.eof()) {
+      const field = scanner.readWord();
+      if (!field) {
+        break;
+      }
+      const fieldUpper = field.toUpperCase();
+      if (fieldUpper === "#END") {
+        break;
+      }
+      switch (field.toLowerCase()) {
+        case "name":
+          record.name = scanner.readString();
+          break;
+        case "rating":
+          record.ratings = readOlcNumberList(scanner);
+          break;
+        case "skills": {
+          const skills: string[] = [];
+          while (!scanner.eof()) {
+            const value = scanner.readString();
+            if (value === "@") {
+              break;
+            }
+            if (value.trim().length) {
+              skills.push(value.trim());
+            }
+          }
+          record.skills = skills;
+          break;
+        }
+        default:
+          break;
+      }
+    }
+    groups.push(normalizeGroupRecord(record));
+  }
+
+  return { formatVersion: 1, groups };
+}
+
+function serializeGroupJson(
+  data: GroupDataFile,
+  classNames?: string[]
+): string {
+  const root: Record<string, unknown> = {
+    formatVersion: 1,
+    groups: data.groups.map((group) => {
+      const record = normalizeGroupRecord(group);
+      const obj: Record<string, unknown> = {
+        name: record.name
+      };
+      if (record.ratings && Object.keys(record.ratings).length) {
+        if (Array.isArray(record.ratings) && classNames?.length) {
+          obj.ratings = Object.fromEntries(
+            classNames.map((name, index) => [
+              name,
+              record.ratings?.[index] ?? DEFAULT_SKILL_RATING
+            ])
+          );
+        } else {
+          obj.ratings = record.ratings;
+        }
+      }
+      if (record.skills?.length) {
+        obj.skills = record.skills;
+      }
+      return obj;
+    })
+  };
+  return JSON.stringify(root, null, 2);
+}
+
+function serializeGroupOlc(
+  data: GroupDataFile,
+  classNames?: string[]
+): string {
+  const groups = data.groups.map((group) => normalizeGroupRecord(group));
+  const lines: string[] = [];
+  lines.push(String(groups.length));
+  lines.push("");
+  groups.forEach((group) => {
+    const ratings = buildClassNumberList(
+      group.ratings as Record<string, number> | number[] | undefined,
+      classNames,
+      DEFAULT_SKILL_RATING
+    );
+    const skills = (group.skills ?? []).slice(0, GROUP_SKILL_COUNT);
+    lines.push("#GROUP");
+    lines.push(`name ${sanitizeOlcString(group.name)}~`);
+    lines.push(`rating ${ratings.join(" ")} @`);
+    lines.push(
+      `skills ${skills.map((entry) => `${sanitizeOlcString(entry)}~`).join(" ")} @~`
+    );
+    lines.push("#END");
+    lines.push("");
+  });
+  return lines.join("\n");
+}
+
 function parseRaceJson(content: string): RaceDataFile {
   const parsed = JSON.parse(content) as Record<string, unknown>;
   const formatVersion = Number(parsed.formatVersion);
@@ -2235,6 +2383,96 @@ export class LocalFileRepository implements WorldRepository {
       outputFormat === "json"
         ? serializeSkillJson(data, classNames)
         : serializeSkillOlc(data, classNames);
+    await writeTextFile(path, payload);
+    return path;
+  }
+
+  async loadGroupsData(
+    dataDir: string,
+    fileName?: string,
+    defaultFormat?: "json" | "olc"
+  ): Promise<GroupDataSource> {
+    const candidates: Array<{ path: string; format: "json" | "olc" }> = [];
+    if (fileName) {
+      const lower = fileName.toLowerCase();
+      if (lower.endsWith(".json")) {
+        candidates.push({
+          path: isAbsolutePath(fileName) ? fileName : await join(dataDir, fileName),
+          format: "json"
+        });
+      } else if (lower.endsWith(".olc")) {
+        candidates.push({
+          path: isAbsolutePath(fileName) ? fileName : await join(dataDir, fileName),
+          format: "olc"
+        });
+      } else if (defaultFormat) {
+        candidates.push({
+          path: isAbsolutePath(fileName)
+            ? `${fileName}.${defaultFormat}`
+            : await join(dataDir, `${fileName}.${defaultFormat}`),
+          format: defaultFormat
+        });
+      } else {
+        candidates.push({
+          path: isAbsolutePath(fileName)
+            ? `${fileName}.json`
+            : await join(dataDir, `${fileName}.json`),
+          format: "json"
+        });
+        candidates.push({
+          path: isAbsolutePath(fileName)
+            ? `${fileName}.olc`
+            : await join(dataDir, `${fileName}.olc`),
+          format: "olc"
+        });
+      }
+    }
+    if (!candidates.length) {
+      candidates.push({
+        path: await join(dataDir, "groups.json"),
+        format: "json"
+      });
+      candidates.push({
+        path: await join(dataDir, "groups.olc"),
+        format: "olc"
+      });
+    }
+    for (const candidate of candidates) {
+      const raw = await tryReadText(candidate.path);
+      if (!raw) {
+        continue;
+      }
+      return {
+        path: candidate.path,
+        format: candidate.format,
+        data:
+          candidate.format === "json"
+            ? parseGroupJson(raw)
+            : parseGroupOlc(raw)
+      };
+    }
+
+    throw new Error("Missing groups data file.");
+  }
+
+  async saveGroupsData(
+    dataDir: string,
+    data: GroupDataFile,
+    format: "json" | "olc",
+    fileName?: string,
+    classNames?: string[]
+  ): Promise<string> {
+    const resolvedName = fileName ?? (format === "json" ? "groups.json" : "groups.olc");
+    const lower = resolvedName.toLowerCase();
+    const outputFormat =
+      lower.endsWith(".json") ? "json" : lower.endsWith(".olc") ? "olc" : format;
+    const path = isAbsolutePath(resolvedName)
+      ? resolvedName
+      : await join(dataDir, resolvedName);
+    const payload =
+      outputFormat === "json"
+        ? serializeGroupJson(data, classNames)
+        : serializeGroupOlc(data, classNames);
     await writeTextFile(path, payload);
     return path;
   }
