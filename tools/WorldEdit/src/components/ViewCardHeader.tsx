@@ -1,23 +1,16 @@
 type ViewCardHeaderProps = {
   title: string;
-  vnumRange: string;
-  lastSave: string;
-  activeTab: string;
+  meta: string[];
 };
 
-export function ViewCardHeader({
-  title,
-  vnumRange,
-  lastSave,
-  activeTab
-}: ViewCardHeaderProps) {
+export function ViewCardHeader({ title, meta }: ViewCardHeaderProps) {
   return (
     <div className="view-card__header">
       <h2>{title}</h2>
       <div className="view-card__meta">
-        <span>VNUM range {vnumRange}</span>
-        <span>Last save {lastSave}</span>
-        <span>Active view {activeTab}</span>
+        {meta.map((item, index) => (
+          <span key={`${item}-${index}`}>{item}</span>
+        ))}
       </div>
     </div>
   );

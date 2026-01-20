@@ -195,6 +195,46 @@ body::before {
   font-size: 1.1rem;
 }
 
+.tree-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tree-mode__label {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+}
+
+.tree-mode__buttons {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid rgba(117, 88, 58, 0.2);
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.tree-mode__button {
+  flex: 1;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.tree-mode__button--active {
+  background: rgba(47, 108, 106, 0.2);
+  color: var(--accent-strong);
+}
+
 .ghost-button {
   padding: 6px 14px;
   border-radius: 999px;

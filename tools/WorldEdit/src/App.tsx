@@ -150,6 +150,16 @@ const entityOrder = [
   "Helps"
 ] as const;
 
+const globalEntityOrder = [
+  "Classes",
+  "Races",
+  "Skills",
+  "Groups",
+  "Commands",
+  "Socials",
+  "Tutorials"
+] as const;
+
 const itemTypeOptions = [
   "none",
   "light",
@@ -298,6 +308,8 @@ const edgeDirectionPriority: Record<Position, "horizontal" | "vertical"> = {
 
 type TabId = (typeof tabs)[number]["id"];
 type EntityKey = (typeof entityOrder)[number];
+type GlobalEntityKey = (typeof globalEntityOrder)[number];
+type EditorMode = "Area" | "Global";
 type RoomRow = {
   vnum: number;
   name: string;
@@ -3500,8 +3512,11 @@ function syncGridSelection(api: GridApi | null, vnum: number | null) {
 
 export default function App({ repository }: AppProps) {
   const [activeTab, setActiveTab] = useState<TabId>(tabs[0].id);
+  const [editorMode, setEditorMode] = useState<EditorMode>("Area");
   const [selectedEntity, setSelectedEntity] =
     useState<EntityKey>("Rooms");
+  const [selectedGlobalEntity, setSelectedGlobalEntity] =
+    useState<GlobalEntityKey>("Classes");
   const [selectedRoomVnum, setSelectedRoomVnum] = useState<number | null>(null);
   const [selectedMobileVnum, setSelectedMobileVnum] = useState<number | null>(
     null
@@ -3929,6 +3944,16 @@ export default function App({ repository }: AppProps) {
     setSelectedFactionVnum(null);
   }, [areaData]);
 
+  useEffect(() => {
+    if (
+      editorMode === "Global" &&
+      activeTab !== "Table" &&
+      activeTab !== "Form"
+    ) {
+      setActiveTab("Table");
+    }
+  }, [editorMode, activeTab]);
+
   const selection = useMemo(
     () =>
       buildSelectionSummary(selectedEntity, areaData, {
@@ -4099,6 +4124,21 @@ export default function App({ repository }: AppProps) {
       })),
     [areaData]
   );
+  const globalItems = useMemo(() => {
+    const counts: Record<GlobalEntityKey, number> = {
+      Classes: referenceData?.classes.length ?? 0,
+      Races: referenceData?.races.length ?? 0,
+      Skills: referenceData?.skills.length ?? 0,
+      Groups: referenceData?.groups.length ?? 0,
+      Commands: referenceData?.commands.length ?? 0,
+      Socials: referenceData?.socials.length ?? 0,
+      Tutorials: referenceData?.tutorials.length ?? 0
+    };
+    return globalEntityOrder.map((key) => ({
+      key,
+      count: counts[key] ?? 0
+    }));
+  }, [referenceData]);
   const roomRows = useMemo(() => buildRoomRows(areaData), [areaData]);
   const mobileRows = useMemo(() => buildMobileRows(areaData), [areaData]);
   const objectRows = useMemo(() => buildObjectRows(areaData), [areaData]);
@@ -6561,6 +6601,41 @@ export default function App({ repository }: AppProps) {
       onApply={handleApplyScript}
     />
   );
+  const referenceSummary = referenceData
+    ? `classes ${referenceData.classes.length}, races ${referenceData.races.length}, skills ${referenceData.skills.length}, groups ${referenceData.groups.length}, commands ${referenceData.commands.length}, socials ${referenceData.socials.length}, tutorials ${referenceData.tutorials.length}`
+    : "not loaded";
+  const viewTitle =
+    editorMode === "Area" ? selectedEntity : selectedGlobalEntity;
+  const viewMeta =
+    editorMode === "Area"
+      ? [
+          `VNUM range ${selection.vnumRange}`,
+          `Last save ${selection.lastSave}`,
+          `Active view ${activeTab}`
+        ]
+      : [
+          `Data dir ${dataDirectory ?? "not set"}`,
+          `Reference ${referenceSummary}`,
+          `Active view ${activeTab}`
+        ];
+  const visibleTabs =
+    editorMode === "Area"
+      ? tabs
+      : tabs.filter((tab) => tab.id === "Table" || tab.id === "Form");
+  const treeItems = editorMode === "Area" ? entityItems : globalItems;
+  const treeSelection =
+    editorMode === "Area" ? selectedEntity : selectedGlobalEntity;
+  const statusSelection =
+    editorMode === "Area"
+      ? selectedEntity
+      : `Global · ${selectedGlobalEntity}`;
+  const handleTreeSelect = (entity: string) => {
+    if (editorMode === "Area") {
+      setSelectedEntity(entity as EntityKey);
+    } else {
+      setSelectedGlobalEntity(entity as GlobalEntityKey);
+    }
+  };
 
   return (
     <div className="app-shell">
@@ -6581,30 +6656,32 @@ export default function App({ repository }: AppProps) {
 
       <section className="workspace">
         <EntityTree
-          items={entityItems}
-          selectedEntity={selectedEntity}
-          onSelectEntity={setSelectedEntity}
+          mode={editorMode}
+          onModeChange={setEditorMode}
+          items={treeItems}
+          selectedEntity={treeSelection}
+          onSelectEntity={handleTreeSelect}
         />
 
         <main className="center">
           <ViewTabs
-            tabs={tabs}
+            tabs={visibleTabs}
             activeTab={activeTab}
             onSelectTab={setActiveTab}
           />
 
           <div className="view-card">
             <ViewCardHeader
-              title={selectedEntity}
-              vnumRange={selection.vnumRange}
-              lastSave={selection.lastSave}
-              activeTab={activeTab}
+              title={viewTitle}
+              meta={viewMeta}
             />
             <div className="view-card__body">
               <ViewBody
                 activeTab={activeTab}
+                editorMode={editorMode}
                 selectedEntity={selectedEntity}
-                tabs={tabs}
+                selectedGlobalEntity={selectedGlobalEntity}
+                tabs={visibleTabs}
                 hasAreaData={Boolean(areaData)}
                 roomCount={roomRows.length}
                 mobileCount={mobileRows.length}
@@ -6654,12 +6731,8 @@ export default function App({ repository }: AppProps) {
         editorMetaPath={editorMetaPath}
         areaDirectory={areaDirectory}
         dataDirectory={dataDirectory}
-        selectedEntity={selectedEntity}
-        referenceSummary={
-          referenceData
-            ? `classes ${referenceData.classes.length}, races ${referenceData.races.length}, skills ${referenceData.skills.length}, commands ${referenceData.commands.length}`
-            : "not loaded"
-        }
+        selectedEntity={statusSelection}
+        referenceSummary={referenceSummary}
       />
     </div>
   );

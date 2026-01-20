@@ -4,12 +4,16 @@ type EntityTreeItem = {
 };
 
 type EntityTreeProps = {
+  mode: "Area" | "Global";
+  onModeChange: (mode: "Area" | "Global") => void;
   items: EntityTreeItem[];
   selectedEntity: string;
   onSelectEntity: (entity: string) => void;
 };
 
 export function EntityTree({
+  mode,
+  onModeChange,
   items,
   selectedEntity,
   onSelectEntity
@@ -22,9 +26,36 @@ export function EntityTree({
           New
         </button>
       </div>
+      <div className="tree-mode">
+        <div className="tree-mode__label">Mode</div>
+        <div className="tree-mode__buttons" role="group" aria-label="Editor mode">
+          <button
+            className={`tree-mode__button${
+              mode === "Area" ? " tree-mode__button--active" : ""
+            }`}
+            type="button"
+            aria-pressed={mode === "Area"}
+            onClick={() => onModeChange("Area")}
+          >
+            Area
+          </button>
+          <button
+            className={`tree-mode__button${
+              mode === "Global" ? " tree-mode__button--active" : ""
+            }`}
+            type="button"
+            aria-pressed={mode === "Global"}
+            onClick={() => onModeChange("Global")}
+          >
+            Global
+          </button>
+        </div>
+      </div>
       <div className="tree">
         <div className="tree-group">
-          <div className="tree-group__label">Area</div>
+          <div className="tree-group__label">
+            {mode === "Area" ? "Area" : "Global Data"}
+          </div>
           <ul className="tree-list">
             {items.map((child) => (
               <li key={child.key}>

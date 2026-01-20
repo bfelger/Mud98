@@ -16,7 +16,10 @@ export type ReferenceData = {
   classes: string[];
   races: string[];
   skills: string[];
+  groups: string[];
   commands: string[];
+  socials: string[];
+  tutorials: string[];
   sourceDir: string;
 };
 

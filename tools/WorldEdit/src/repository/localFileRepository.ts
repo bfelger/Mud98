@@ -538,13 +538,19 @@ export class LocalFileRepository implements WorldRepository {
     const classes = await loadReferenceList(dataDir, "classes", "classes");
     const races = await loadReferenceList(dataDir, "races", "races");
     const skills = await loadReferenceList(dataDir, "skills", "skills");
+    const groups = await loadReferenceList(dataDir, "groups", "groups");
     const commands = await loadReferenceList(dataDir, "commands", "commands");
+    const socials = await loadReferenceList(dataDir, "socials", "socials");
+    const tutorials = await loadReferenceList(dataDir, "tutorials", "tutorials");
 
     return {
       classes,
       races,
       skills,
+      groups,
       commands,
+      socials,
+      tutorials,
       sourceDir: dataDir
     };
   }

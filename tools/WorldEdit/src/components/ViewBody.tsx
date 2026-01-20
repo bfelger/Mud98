@@ -3,7 +3,9 @@ import { PlaceholderGrid } from "./PlaceholderGrid";
 
 type ViewBodyProps = {
   activeTab: string;
+  editorMode: "Area" | "Global";
   selectedEntity: string;
+  selectedGlobalEntity: string;
   tabs: Array<{ id: string; title: string; description: string }>;
   hasAreaData: boolean;
   roomCount: number;
@@ -30,7 +32,9 @@ type ViewBodyProps = {
 
 export function ViewBody({
   activeTab,
+  editorMode,
   selectedEntity,
+  selectedGlobalEntity,
   tabs,
   hasAreaData,
   roomCount,
@@ -54,6 +58,24 @@ export function ViewBody({
   worldView,
   scriptView
 }: ViewBodyProps) {
+  if (editorMode === "Global") {
+    const isSupportedTab = activeTab === "Table" || activeTab === "Form";
+    const label = selectedGlobalEntity || "Global data";
+    return (
+      <div className="entity-table__empty">
+        <h3>
+          {isSupportedTab
+            ? `${label} editor coming soon`
+            : `${label} not available in ${activeTab} view`}
+        </h3>
+        <p>
+          {isSupportedTab
+            ? "Global data editors will live here once Issue F4 lands."
+            : "Switch to the Form or Table tab to prepare global data editors."}
+        </p>
+      </div>
+    );
+  }
   if (activeTab === "Form" && selectedEntity === "Area") {
     return hasAreaData ? (
       <>{areaForm}</>
