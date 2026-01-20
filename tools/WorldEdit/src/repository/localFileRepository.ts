@@ -33,6 +33,12 @@ import type {
   GroupDataFile,
   GroupDataSource,
   GroupDefinition,
+  LootDataFile,
+  LootDataSource,
+  LootEntry,
+  LootGroup,
+  LootOp,
+  LootTable,
   ProjectConfig,
   ProjectDataFiles,
   RaceDataFile,
@@ -1842,6 +1848,462 @@ function serializeTutorialOlc(data: TutorialDataFile): string {
   return lines.join("\n");
 }
 
+function normalizeLootEntryType(value: unknown): "item" | "cp" {
+  return value === "cp" ? "cp" : "item";
+}
+
+function normalizeLootEntry(entry: Partial<LootEntry>): LootEntry {
+  const type = normalizeLootEntryType(entry.type);
+  const vnum =
+    typeof entry.vnum === "number" && Number.isFinite(entry.vnum)
+      ? Math.trunc(entry.vnum)
+      : undefined;
+  const minQty =
+    typeof entry.minQty === "number" && Number.isFinite(entry.minQty)
+      ? Math.trunc(entry.minQty)
+      : 1;
+  const maxQty =
+    typeof entry.maxQty === "number" && Number.isFinite(entry.maxQty)
+      ? Math.trunc(entry.maxQty)
+      : 1;
+  const weight =
+    typeof entry.weight === "number" && Number.isFinite(entry.weight)
+      ? Math.trunc(entry.weight)
+      : 100;
+  return {
+    type,
+    vnum: type === "item" ? vnum ?? 0 : undefined,
+    minQty,
+    maxQty,
+    weight
+  };
+}
+
+function normalizeLootGroup(entry: Partial<LootGroup>): LootGroup {
+  const name = typeof entry.name === "string" ? entry.name.trim() : "";
+  const rolls =
+    typeof entry.rolls === "number" && Number.isFinite(entry.rolls)
+      ? Math.trunc(entry.rolls)
+      : 1;
+  const entries = Array.isArray(entry.entries)
+    ? entry.entries.map((lootEntry) => normalizeLootEntry(lootEntry))
+    : [];
+  return {
+    name: name || "unnamed",
+    rolls,
+    entries
+  };
+}
+
+function normalizeLootOp(entry: Partial<LootOp>): LootOp | null {
+  const opValue = typeof entry.op === "string" ? entry.op.trim() : "";
+  const op = [
+    "use_group",
+    "add_item",
+    "add_cp",
+    "mul_cp",
+    "mul_all_chances",
+    "remove_item",
+    "remove_group"
+  ].includes(opValue)
+    ? (opValue as LootOp["op"])
+    : null;
+  if (!op) {
+    return null;
+  }
+  const group = typeof entry.group === "string" ? entry.group.trim() : undefined;
+  const vnum =
+    typeof entry.vnum === "number" && Number.isFinite(entry.vnum)
+      ? Math.trunc(entry.vnum)
+      : undefined;
+  const chance =
+    typeof entry.chance === "number" && Number.isFinite(entry.chance)
+      ? Math.trunc(entry.chance)
+      : 100;
+  const minQty =
+    typeof entry.minQty === "number" && Number.isFinite(entry.minQty)
+      ? Math.trunc(entry.minQty)
+      : 1;
+  const maxQty =
+    typeof entry.maxQty === "number" && Number.isFinite(entry.maxQty)
+      ? Math.trunc(entry.maxQty)
+      : 1;
+  const multiplier =
+    typeof entry.multiplier === "number" && Number.isFinite(entry.multiplier)
+      ? Math.trunc(entry.multiplier)
+      : 100;
+  return {
+    op,
+    group,
+    vnum,
+    chance,
+    minQty,
+    maxQty,
+    multiplier
+  };
+}
+
+function normalizeLootTable(entry: Partial<LootTable>): LootTable {
+  const name = typeof entry.name === "string" ? entry.name.trim() : "";
+  const parent = typeof entry.parent === "string" ? entry.parent.trim() : undefined;
+  const ops = Array.isArray(entry.ops)
+    ? entry.ops
+        .map((op) => normalizeLootOp(op))
+        .filter((op): op is LootOp => Boolean(op))
+    : [];
+  return {
+    name: name || "unnamed",
+    parent,
+    ops
+  };
+}
+
+function parseLootJson(content: string): LootDataFile {
+  const parsed = JSON.parse(content) as Record<string, unknown>;
+  const formatVersion =
+    typeof parsed.formatVersion === "number" ? parsed.formatVersion : 1;
+  const groupsRaw = Array.isArray(parsed.groups) ? parsed.groups : [];
+  const tablesRaw = Array.isArray(parsed.tables) ? parsed.tables : [];
+  const groups = groupsRaw
+    .map((group) => {
+      if (!group || typeof group !== "object") {
+        return null;
+      }
+      return normalizeLootGroup(group as Partial<LootGroup>);
+    })
+    .filter((group): group is LootGroup => Boolean(group));
+  const tables = tablesRaw
+    .map((table) => {
+      if (!table || typeof table !== "object") {
+        return null;
+      }
+      return normalizeLootTable(table as Partial<LootTable>);
+    })
+    .filter((table): table is LootTable => Boolean(table));
+  return { formatVersion, groups, tables };
+}
+
+function parseLootOlcLineInt(value: string | undefined, fallback: number): number {
+  if (!value) {
+    return fallback;
+  }
+  const parsed = Number.parseInt(value, 10);
+  return Number.isNaN(parsed) ? fallback : parsed;
+}
+
+function parseLootOlcWeight(tokens: string[], fallback: number): number {
+  const weightIndex = tokens.findIndex(
+    (token) => token.toLowerCase() === "weight"
+  );
+  if (weightIndex >= 0) {
+    return parseLootOlcLineInt(tokens[weightIndex + 1], fallback);
+  }
+  return parseLootOlcLineInt(tokens[tokens.length - 1], fallback);
+}
+
+function parseLootOlc(content: string): LootDataFile {
+  const groups: LootGroup[] = [];
+  const tables: LootTable[] = [];
+  let currentGroup: LootGroup | null = null;
+  let currentTable: LootTable | null = null;
+
+  for (const rawLine of content.split(/\r?\n/)) {
+    const trimmed = rawLine.trim();
+    if (!trimmed) {
+      continue;
+    }
+    if (trimmed.startsWith("#")) {
+      if (trimmed.toUpperCase().startsWith("#ENDLOOT")) {
+        break;
+      }
+      continue;
+    }
+    const tokens = trimmed.split(/\s+/);
+    const keyword = tokens[0]?.toLowerCase();
+    if (!keyword) {
+      continue;
+    }
+    if (keyword === "group") {
+      const name = tokens[1] ?? "unnamed";
+      const rolls = parseLootOlcLineInt(tokens[2], 1);
+      currentGroup = normalizeLootGroup({ name, rolls, entries: [] });
+      groups.push(currentGroup);
+      currentTable = null;
+      continue;
+    }
+    if (keyword === "table") {
+      const name = tokens[1] ?? "unnamed";
+      let parent: string | undefined;
+      if (tokens[2] === ":" || tokens[2]?.toLowerCase() === "parent") {
+        parent = tokens[3];
+      }
+      currentTable = normalizeLootTable({ name, parent, ops: [] });
+      tables.push(currentTable);
+      currentGroup = null;
+      continue;
+    }
+
+    if (currentGroup && (keyword === "item" || keyword === "cp")) {
+      const minQty = parseLootOlcLineInt(tokens[2], 1);
+      const maxQty = parseLootOlcLineInt(tokens[3], 1);
+      const weight = parseLootOlcWeight(tokens, 100);
+      if (keyword === "item") {
+        const vnum = parseLootOlcLineInt(tokens[1], 0);
+        currentGroup.entries?.push(
+          normalizeLootEntry({
+            type: "item",
+            vnum,
+            minQty,
+            maxQty,
+            weight
+          })
+        );
+      } else {
+        currentGroup.entries?.push(
+          normalizeLootEntry({
+            type: "cp",
+            minQty: parseLootOlcLineInt(tokens[1], 1),
+            maxQty: parseLootOlcLineInt(tokens[2], 1),
+            weight
+          })
+        );
+      }
+      continue;
+    }
+
+    if (!currentTable) {
+      continue;
+    }
+
+    switch (keyword) {
+      case "use_group": {
+        const group = tokens[1] ?? "";
+        const chance = parseLootOlcLineInt(tokens[2], 100);
+        const op = normalizeLootOp({ op: "use_group", group, chance });
+        if (op) {
+          currentTable.ops?.push(op);
+        }
+        break;
+      }
+      case "add_item": {
+        const vnum = parseLootOlcLineInt(tokens[1], 0);
+        const chance = parseLootOlcLineInt(tokens[2], 100);
+        const minQty = parseLootOlcLineInt(tokens[3], 1);
+        const maxQty = parseLootOlcLineInt(tokens[4], 1);
+        const op = normalizeLootOp({
+          op: "add_item",
+          vnum,
+          chance,
+          minQty,
+          maxQty
+        });
+        if (op) {
+          currentTable.ops?.push(op);
+        }
+        break;
+      }
+      case "add_cp": {
+        const chance = parseLootOlcLineInt(tokens[1], 100);
+        const minQty = parseLootOlcLineInt(tokens[2], 1);
+        const maxQty = parseLootOlcLineInt(tokens[3], 1);
+        const op = normalizeLootOp({
+          op: "add_cp",
+          chance,
+          minQty,
+          maxQty
+        });
+        if (op) {
+          currentTable.ops?.push(op);
+        }
+        break;
+      }
+      case "mul_cp": {
+        const multiplier = parseLootOlcLineInt(tokens[1], 100);
+        const op = normalizeLootOp({ op: "mul_cp", multiplier });
+        if (op) {
+          currentTable.ops?.push(op);
+        }
+        break;
+      }
+      case "mul_all":
+      case "mul_all_chances": {
+        const multiplier = parseLootOlcLineInt(tokens[1], 100);
+        const op = normalizeLootOp({ op: "mul_all_chances", multiplier });
+        if (op) {
+          currentTable.ops?.push(op);
+        }
+        break;
+      }
+      case "remove_item": {
+        const vnum = parseLootOlcLineInt(tokens[1], 0);
+        const op = normalizeLootOp({ op: "remove_item", vnum });
+        if (op) {
+          currentTable.ops?.push(op);
+        }
+        break;
+      }
+      case "remove_group": {
+        const group = tokens[1] ?? "";
+        const op = normalizeLootOp({ op: "remove_group", group });
+        if (op) {
+          currentTable.ops?.push(op);
+        }
+        break;
+      }
+      default:
+        break;
+    }
+  }
+
+  return { formatVersion: 1, groups, tables };
+}
+
+function serializeLootJson(data: LootDataFile): string {
+  const groups = data.groups.map((group) => normalizeLootGroup(group));
+  const tables = data.tables.map((table) => normalizeLootTable(table));
+  const root: Record<string, unknown> = {
+    formatVersion: 1,
+    groups: groups.map((group) => ({
+      name: group.name,
+      rolls: group.rolls ?? 1,
+      entries: (group.entries ?? []).map((entry) => {
+        const normalized = normalizeLootEntry(entry);
+        const obj: Record<string, unknown> = {
+          type: normalized.type,
+          minQty: normalized.minQty ?? 1,
+          maxQty: normalized.maxQty ?? 1,
+          weight: normalized.weight ?? 100
+        };
+        if (normalized.type === "item") {
+          obj.vnum = normalized.vnum ?? 0;
+        }
+        return obj;
+      })
+    })),
+    tables: tables.map((table) => ({
+      name: table.name,
+      parent: table.parent ?? undefined,
+      ops: (table.ops ?? []).map((op) => {
+        const normalized = normalizeLootOp(op) ?? op;
+        const obj: Record<string, unknown> = {
+          op: normalized.op
+        };
+        switch (normalized.op) {
+          case "use_group":
+            obj.group = normalized.group ?? "";
+            obj.chance = normalized.chance ?? 100;
+            break;
+          case "add_item":
+            obj.vnum = normalized.vnum ?? 0;
+            obj.chance = normalized.chance ?? 100;
+            obj.minQty = normalized.minQty ?? 1;
+            obj.maxQty = normalized.maxQty ?? 1;
+            break;
+          case "add_cp":
+            obj.chance = normalized.chance ?? 100;
+            obj.minQty = normalized.minQty ?? 1;
+            obj.maxQty = normalized.maxQty ?? 1;
+            break;
+          case "mul_cp":
+          case "mul_all_chances":
+            obj.multiplier = normalized.multiplier ?? 100;
+            break;
+          case "remove_item":
+            obj.vnum = normalized.vnum ?? 0;
+            break;
+          case "remove_group":
+            obj.group = normalized.group ?? "";
+            break;
+          default:
+            break;
+        }
+        return obj;
+      })
+    }))
+  };
+  return JSON.stringify(root, null, 2);
+}
+
+function serializeLootOlc(data: LootDataFile): string {
+  const groups = data.groups.map((group) => normalizeLootGroup(group));
+  const tables = data.tables.map((table) => normalizeLootTable(table));
+  const lines: string[] = [];
+
+  lines.push("#LOOT");
+  groups.forEach((group) => {
+    lines.push(`group ${group.name} ${group.rolls ?? 1}`);
+    (group.entries ?? []).forEach((entry) => {
+      const normalized = normalizeLootEntry(entry);
+      if (normalized.type === "item") {
+        lines.push(
+          `  item ${normalized.vnum ?? 0} ${normalized.minQty ?? 1} ${
+            normalized.maxQty ?? 1
+          } weight ${normalized.weight ?? 100}`
+        );
+      } else {
+        lines.push(
+          `  cp ${normalized.minQty ?? 1} ${normalized.maxQty ?? 1} weight ${
+            normalized.weight ?? 100
+          }`
+        );
+      }
+    });
+    lines.push("");
+  });
+
+  tables.forEach((table) => {
+    if (table.parent) {
+      lines.push(`table ${table.name} : ${table.parent}`);
+    } else {
+      lines.push(`table ${table.name}`);
+    }
+    (table.ops ?? []).forEach((op) => {
+      const normalized = normalizeLootOp(op) ?? op;
+      switch (normalized.op) {
+        case "use_group":
+          lines.push(
+            `  use_group ${normalized.group ?? ""} ${normalized.chance ?? 100}`
+          );
+          break;
+        case "add_item":
+          lines.push(
+            `  add_item ${normalized.vnum ?? 0} ${normalized.chance ?? 100} ${
+              normalized.minQty ?? 1
+            } ${normalized.maxQty ?? 1}`
+          );
+          break;
+        case "add_cp":
+          lines.push(
+            `  add_cp ${normalized.chance ?? 100} ${normalized.minQty ?? 1} ${
+              normalized.maxQty ?? 1
+            }`
+          );
+          break;
+        case "mul_cp":
+          lines.push(`  mul_cp ${normalized.multiplier ?? 100}`);
+          break;
+        case "mul_all_chances":
+          lines.push(`  mul_all_chances ${normalized.multiplier ?? 100}`);
+          break;
+        case "remove_item":
+          lines.push(`  remove_item ${normalized.vnum ?? 0}`);
+          break;
+        case "remove_group":
+          lines.push(`  remove_group ${normalized.group ?? ""}`);
+          break;
+        default:
+          break;
+      }
+    });
+    lines.push("");
+  });
+
+  lines.push("#ENDLOOT");
+  lines.push("");
+
+  return lines.join("\n");
+}
+
 function parseRaceJson(content: string): RaceDataFile {
   const parsed = JSON.parse(content) as Record<string, unknown>;
   const formatVersion = Number(parsed.formatVersion);
@@ -3270,6 +3732,89 @@ export class LocalFileRepository implements WorldRepository {
       outputFormat === "json"
         ? serializeTutorialJson(data)
         : serializeTutorialOlc(data);
+    await writeTextFile(path, payload);
+    return path;
+  }
+
+  async loadLootData(
+    dataDir: string,
+    fileName?: string,
+    defaultFormat?: "json" | "olc"
+  ): Promise<LootDataSource> {
+    const candidates: Array<{ path: string; format: "json" | "olc" }> = [];
+    if (fileName) {
+      const lower = fileName.toLowerCase();
+      if (lower.endsWith(".json")) {
+        candidates.push({
+          path: isAbsolutePath(fileName) ? fileName : await join(dataDir, fileName),
+          format: "json"
+        });
+      } else if (lower.endsWith(".olc")) {
+        candidates.push({
+          path: isAbsolutePath(fileName) ? fileName : await join(dataDir, fileName),
+          format: "olc"
+        });
+      } else if (defaultFormat) {
+        candidates.push({
+          path: isAbsolutePath(fileName)
+            ? `${fileName}.${defaultFormat}`
+            : await join(dataDir, `${fileName}.${defaultFormat}`),
+          format: defaultFormat
+        });
+      } else {
+        candidates.push({
+          path: isAbsolutePath(fileName)
+            ? `${fileName}.json`
+            : await join(dataDir, `${fileName}.json`),
+          format: "json"
+        });
+        candidates.push({
+          path: isAbsolutePath(fileName)
+            ? `${fileName}.olc`
+            : await join(dataDir, `${fileName}.olc`),
+          format: "olc"
+        });
+      }
+    }
+    if (!candidates.length) {
+      candidates.push({
+        path: await join(dataDir, "loot.json"),
+        format: "json"
+      });
+      candidates.push({
+        path: await join(dataDir, "loot.olc"),
+        format: "olc"
+      });
+    }
+    for (const candidate of candidates) {
+      const raw = await tryReadText(candidate.path);
+      if (!raw) {
+        continue;
+      }
+      return {
+        path: candidate.path,
+        format: candidate.format,
+        data: candidate.format === "json" ? parseLootJson(raw) : parseLootOlc(raw)
+      };
+    }
+
+    throw new Error("Missing loot data file.");
+  }
+
+  async saveLootData(
+    dataDir: string,
+    data: LootDataFile,
+    format: "json" | "olc",
+    fileName?: string
+  ): Promise<string> {
+    const resolvedName = fileName ?? (format === "json" ? "loot.json" : "loot.olc");
+    const lower = resolvedName.toLowerCase();
+    const outputFormat =
+      lower.endsWith(".json") ? "json" : lower.endsWith(".olc") ? "olc" : format;
+    const path = isAbsolutePath(resolvedName)
+      ? resolvedName
+      : await join(dataDir, resolvedName);
+    const payload = outputFormat === "json" ? serializeLootJson(data) : serializeLootOlc(data);
     await writeTextFile(path, payload);
     return path;
   }

@@ -101,7 +101,8 @@ export const areadataSchema = z
     highLevel: z.number().int().optional(),
     reset: z.number().int().optional(),
     alwaysReset: z.boolean().optional(),
-    instType: z.literal("multi").optional()
+    instType: z.literal("multi").optional(),
+    lootTable: stringSchema.optional()
   })
   .passthrough();
 

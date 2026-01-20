@@ -9,6 +9,8 @@ import type {
   GroupDataSource,
   CommandDataFile,
   CommandDataSource,
+  LootDataFile,
+  LootDataSource,
   SocialDataFile,
   SocialDataSource,
   TutorialDataFile,
@@ -124,6 +126,17 @@ export interface WorldRepository {
   saveTutorialsData(
     dataDir: string,
     data: TutorialDataFile,
+    format: "json" | "olc",
+    fileName?: string
+  ): Promise<string>;
+  loadLootData(
+    dataDir: string,
+    fileName?: string,
+    defaultFormat?: "json" | "olc"
+  ): Promise<LootDataSource>;
+  saveLootData(
+    dataDir: string,
+    data: LootDataFile,
     format: "json" | "olc",
     fileName?: string
   ): Promise<string>;

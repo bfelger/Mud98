@@ -206,6 +206,82 @@ export type TutorialDataSource = {
   data: TutorialDataFile;
 };
 
+export type LootEntry = {
+  type: "item" | "cp";
+  vnum?: number;
+  minQty?: number;
+  maxQty?: number;
+  weight?: number;
+};
+
+export type LootGroup = {
+  name: string;
+  rolls?: number;
+  entries?: LootEntry[];
+};
+
+export type LootOp = {
+  op:
+    | "use_group"
+    | "add_item"
+    | "add_cp"
+    | "mul_cp"
+    | "mul_all_chances"
+    | "remove_item"
+    | "remove_group";
+  group?: string;
+  vnum?: number;
+  chance?: number;
+  minQty?: number;
+  maxQty?: number;
+  multiplier?: number;
+};
+
+export type LootTable = {
+  name: string;
+  parent?: string;
+  ops?: LootOp[];
+};
+
+export type LootDataFile = {
+  formatVersion: number;
+  groups: LootGroup[];
+  tables: LootTable[];
+};
+
+export type LootDataSource = {
+  path: string;
+  format: "json" | "olc";
+  data: LootDataFile;
+};
+
+export type RecipeInput = {
+  vnum: number;
+  quantity: number;
+};
+
+export type RecipeDefinition = {
+  vnum: number;
+  name?: string;
+  skill?: string;
+  minSkill?: number;
+  minSkillPct?: number;
+  minLevel?: number;
+  stationType?: string[];
+  stationVnum?: number;
+  discovery?: string;
+  inputs?: RecipeInput[];
+  outputVnum?: number;
+  outputQuantity?: number;
+};
+
+export type GatherSpawnDefinition = {
+  spawnSector?: string;
+  vnum: number;
+  quantity?: number;
+  respawnTimer?: number;
+};
+
 export type ProjectDataFiles = {
   classes: string;
   races: string;

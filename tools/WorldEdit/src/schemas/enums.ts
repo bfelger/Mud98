@@ -224,6 +224,38 @@ export const liquids = [
   "cordial"
 ] as const;
 
+export const workstationTypes = [
+  "forge",
+  "smelter",
+  "tannery",
+  "loom",
+  "alchemy",
+  "cooking",
+  "enchant",
+  "woodwork",
+  "jeweler"
+] as const;
+
+export const discoveryTypes = [
+  "known",
+  "trainer",
+  "scroll",
+  "discovery",
+  "quest"
+] as const;
+
+export const lootEntryTypes = ["item", "cp"] as const;
+
+export const lootOpTypes = [
+  "use_group",
+  "add_item",
+  "add_cp",
+  "mul_cp",
+  "mul_all_chances",
+  "remove_item",
+  "remove_group"
+] as const;
+
 export const positions = [
   "dead",
   "mortally wounded",
@@ -567,3 +599,7 @@ export const skillTargetEnum = z.enum(skillTargets);
 export const eventTriggerEnum = z.enum(eventTriggers);
 export const logFlagEnum = z.enum(logFlags);
 export const showFlagEnum = z.enum(showFlags);
+export const workstationTypeEnum = z.enum(workstationTypes);
+export const discoveryTypeEnum = z.enum(discoveryTypes);
+export const lootEntryTypeEnum = z.enum(lootEntryTypes);
+export const lootOpTypeEnum = z.enum(lootOpTypes);
