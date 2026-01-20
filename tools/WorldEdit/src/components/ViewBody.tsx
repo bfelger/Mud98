@@ -15,6 +15,7 @@ type ViewBodyProps = {
   commandCount: number;
   socialCount: number;
   tutorialCount: number;
+  lootCount: number;
   roomCount: number;
   mobileCount: number;
   objectCount: number;
@@ -38,6 +39,7 @@ type ViewBodyProps = {
   commandForm: ReactNode;
   socialForm: ReactNode;
   tutorialForm: ReactNode;
+  lootForm: ReactNode;
   tableView: ReactNode;
   classTableView: ReactNode;
   raceTableView: ReactNode;
@@ -46,6 +48,7 @@ type ViewBodyProps = {
   commandTableView: ReactNode;
   socialTableView: ReactNode;
   tutorialTableView: ReactNode;
+  lootTableView: ReactNode;
   mapView: ReactNode;
   worldView: ReactNode;
   scriptView: ReactNode;
@@ -65,6 +68,7 @@ export function ViewBody({
   commandCount,
   socialCount,
   tutorialCount,
+  lootCount,
   roomCount,
   mobileCount,
   objectCount,
@@ -88,6 +92,7 @@ export function ViewBody({
   commandForm,
   socialForm,
   tutorialForm,
+  lootForm,
   tableView,
   classTableView,
   raceTableView,
@@ -96,6 +101,7 @@ export function ViewBody({
   commandTableView,
   socialTableView,
   tutorialTableView,
+  lootTableView,
   mapView,
   worldView,
   scriptView
@@ -206,6 +212,21 @@ export function ViewBody({
       }
       if (activeTab === "Table") {
         return <>{tutorialTableView}</>;
+      }
+    }
+    if (selectedGlobalEntity === "Loot") {
+      if (activeTab === "Form") {
+        return lootCount ? (
+          <>{lootForm}</>
+        ) : (
+          <div className="entity-table__empty">
+            <h3>No loot loaded</h3>
+            <p>Load the loot file from the data directory.</p>
+          </div>
+        );
+      }
+      if (activeTab === "Table") {
+        return <>{lootTableView}</>;
       }
     }
     return (

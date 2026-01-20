@@ -46,6 +46,7 @@ import { GroupForm } from "./components/GroupForm";
 import { CommandForm } from "./components/CommandForm";
 import { SocialForm } from "./components/SocialForm";
 import { TutorialForm } from "./components/TutorialForm";
+import { LootForm } from "./components/LootForm";
 import { TableView } from "./components/TableView";
 import { ClassTableView } from "./components/ClassTableView";
 import { RaceTableView } from "./components/RaceTableView";
@@ -54,6 +55,7 @@ import { GroupTableView } from "./components/GroupTableView";
 import { CommandTableView } from "./components/CommandTableView";
 import { SocialTableView } from "./components/SocialTableView";
 import { TutorialTableView } from "./components/TutorialTableView";
+import { LootTableView } from "./components/LootTableView";
 import { InspectorPanel } from "./components/InspectorPanel";
 import { EntityTree } from "./components/EntityTree";
 import { Topbar } from "./components/Topbar";
@@ -76,6 +78,11 @@ import type {
   EditorMeta,
   GroupDataFile,
   GroupDefinition,
+  LootDataFile,
+  LootEntry,
+  LootGroup,
+  LootOp,
+  LootTable,
   ProjectConfig,
   RaceDataFile,
   RaceDefinition,
@@ -197,7 +204,8 @@ const globalEntityOrder = [
   "Groups",
   "Commands",
   "Socials",
-  "Tutorials"
+  "Tutorials",
+  "Loot"
 ] as const;
 
 const primeStatOptions = ["str", "int", "wis", "dex", "con"] as const;
@@ -209,6 +217,16 @@ const raceStatKeys = ["str", "int", "wis", "dex", "con"] as const;
 const defaultSkillLevel = 53;
 const defaultSkillRating = 0;
 const groupSkillCount = 15;
+const lootEntryTypeOptions = ["item", "cp"] as const;
+const lootOpTypeOptions = [
+  "use_group",
+  "add_item",
+  "add_cp",
+  "mul_cp",
+  "mul_all_chances",
+  "remove_item",
+  "remove_group"
+] as const;
 
 const itemTypeOptions = [
   "none",
@@ -451,6 +469,14 @@ type TutorialRow = {
   name: string;
   minLevel: number;
   steps: number;
+};
+
+type LootRow = {
+  id: string;
+  kind: "group" | "table";
+  index: number;
+  name: string;
+  details: string;
 };
 
 type ShopRow = {
@@ -1041,6 +1067,33 @@ const tutorialFormSchema = z.object({
   )
 });
 
+const lootEntryFormSchema = z.object({
+  type: z.enum(lootEntryTypeOptions),
+  vnum: optionalIntSchema,
+  minQty: z.number().int().min(0).optional(),
+  maxQty: z.number().int().min(0).optional(),
+  weight: z.number().int().min(0).optional()
+});
+
+const lootOpFormSchema = z.object({
+  op: z.enum(lootOpTypeOptions),
+  group: z.string().optional(),
+  vnum: optionalIntSchema,
+  chance: z.number().int().min(0).optional(),
+  minQty: z.number().int().min(0).optional(),
+  maxQty: z.number().int().min(0).optional(),
+  multiplier: z.number().int().min(0).optional()
+});
+
+const lootFormSchema = z.object({
+  kind: z.enum(["group", "table"]),
+  name: z.string().min(1),
+  rolls: z.number().int().min(0).optional(),
+  entries: z.array(lootEntryFormSchema).optional(),
+  parent: z.string().optional(),
+  ops: z.array(lootOpFormSchema).optional()
+});
+
 type RoomFormValues = z.infer<typeof roomFormSchema>;
 type AreaFormValues = z.infer<typeof areaFormSchema>;
 type MobileFormValues = z.infer<typeof mobileFormSchema>;
@@ -1056,6 +1109,7 @@ type GroupFormValues = z.infer<typeof groupFormSchema>;
 type CommandFormValues = z.infer<typeof commandFormSchema>;
 type SocialFormValues = z.infer<typeof socialFormSchema>;
 type TutorialFormValues = z.infer<typeof tutorialFormSchema>;
+type LootFormValues = z.infer<typeof lootFormSchema>;
 
 const entityKindLabels: Record<EntityKey, string> = {
   Area: "Area",
@@ -3920,6 +3974,35 @@ function buildTutorialRows(
   }));
 }
 
+function buildLootRows(lootData: LootDataFile | null): LootRow[] {
+  if (!lootData) {
+    return [];
+  }
+  const rows: LootRow[] = [];
+  lootData.groups.forEach((group, index) => {
+    rows.push({
+      id: `group:${index}`,
+      kind: "group",
+      index,
+      name: group.name ?? "(unnamed group)",
+      details: `rolls ${group.rolls ?? 1} · entries ${
+        group.entries?.length ?? 0
+      }`
+    });
+  });
+  lootData.tables.forEach((table, index) => {
+    const parent = table.parent ? `parent ${table.parent}` : "no parent";
+    rows.push({
+      id: `table:${index}`,
+      kind: "table",
+      index,
+      name: table.name ?? "(unnamed table)",
+      details: `${parent} · ops ${table.ops?.length ?? 0}`
+    });
+  });
+  return rows;
+}
+
 function titlesToText(titles: string[][] | undefined, column: 0 | 1): string {
   const lines: string[] = [];
   for (let i = 0; i < classTitleCount; i += 1) {
@@ -3954,15 +4037,18 @@ function cleanOptionalString(value: string | undefined): string | undefined {
   return trimmed.length ? trimmed : undefined;
 }
 
-function syncGridSelection(api: GridApi | null, vnum: number | null) {
+function syncGridSelection(
+  api: GridApi | null,
+  rowId: number | string | null
+) {
   if (!api) {
     return;
   }
   api.deselectAll();
-  if (vnum === null) {
+  if (rowId === null) {
     return;
   }
-  const node = api.getRowNode(String(vnum));
+  const node = api.getRowNode(String(rowId));
   if (node) {
     node.setSelected(true);
   }
@@ -3996,6 +4082,12 @@ export default function App({ repository }: AppProps) {
   const [selectedTutorialIndex, setSelectedTutorialIndex] = useState<
     number | null
   >(null);
+  const [selectedLootKind, setSelectedLootKind] = useState<
+    "group" | "table" | null
+  >(null);
+  const [selectedLootIndex, setSelectedLootIndex] = useState<number | null>(
+    null
+  );
   const [selectedRoomVnum, setSelectedRoomVnum] = useState<number | null>(null);
   const [selectedMobileVnum, setSelectedMobileVnum] = useState<number | null>(
     null
@@ -4057,6 +4149,12 @@ export default function App({ repository }: AppProps) {
     "json" | "olc" | null
   >(null);
   const [tutorialDataDir, setTutorialDataDir] = useState<string | null>(null);
+  const [lootData, setLootData] = useState<LootDataFile | null>(null);
+  const [lootDataPath, setLootDataPath] = useState<string | null>(null);
+  const [lootDataFormat, setLootDataFormat] = useState<
+    "json" | "olc" | null
+  >(null);
+  const [lootDataDir, setLootDataDir] = useState<string | null>(null);
   const [projectConfig, setProjectConfig] = useState<ProjectConfig | null>(null);
   const [editorMeta, setEditorMeta] = useState<EditorMeta | null>(null);
   const [editorMetaPath, setEditorMetaPath] = useState<string | null>(null);
@@ -4109,6 +4207,7 @@ export default function App({ repository }: AppProps) {
   const commandGridApi = useRef<GridApi | null>(null);
   const socialGridApi = useRef<GridApi | null>(null);
   const tutorialGridApi = useRef<GridApi | null>(null);
+  const lootGridApi = useRef<GridApi | null>(null);
   const areaForm = useForm<AreaFormValues>({
     resolver: zodResolver(areaFormSchema),
     defaultValues: {
@@ -4608,6 +4707,46 @@ export default function App({ repository }: AppProps) {
     control: tutorialFormControl,
     name: "steps"
   });
+  const lootFormDefaults = useMemo<LootFormValues>(
+    () => ({
+      kind: "group",
+      name: "",
+      rolls: 1,
+      entries: [],
+      parent: "",
+      ops: []
+    }),
+    []
+  );
+  const lootForm = useForm<LootFormValues>({
+    resolver: zodResolver(lootFormSchema),
+    defaultValues: lootFormDefaults
+  });
+  const {
+    register: registerLoot,
+    handleSubmit: handleLootSubmitForm,
+    formState: lootFormState,
+    reset: resetLootForm,
+    control: lootFormControl
+  } = lootForm;
+  const {
+    fields: lootEntryFields,
+    append: appendLootEntry,
+    remove: removeLootEntry,
+    move: moveLootEntry
+  } = useFieldArray({
+    control: lootFormControl,
+    name: "entries"
+  });
+  const {
+    fields: lootOpFields,
+    append: appendLootOp,
+    remove: removeLootOp,
+    move: moveLootOp
+  } = useFieldArray({
+    control: lootFormControl,
+    name: "ops"
+  });
   const watchedResetCommand = useWatch({
     control: resetForm.control,
     name: "commandName"
@@ -5103,6 +5242,69 @@ export default function App({ repository }: AppProps) {
     tutorialDataFormat
   ]);
 
+  const handleLoadLootData = useCallback(
+    async (overrideDir?: string) => {
+      const targetDir =
+        typeof overrideDir === "string" ? overrideDir : dataDirectory;
+      if (!targetDir) {
+        setErrorMessage("No data directory set for loot.");
+        return;
+      }
+      const lootFile = projectConfig?.dataFiles.loot;
+      const defaultFormat = projectConfig?.defaultFormat;
+      setErrorMessage(null);
+      setIsBusy(true);
+      try {
+        const source = await repository.loadLootData(
+          targetDir,
+          lootFile,
+          defaultFormat
+        );
+        setLootData(source.data);
+        setLootDataPath(source.path);
+        setLootDataFormat(source.format);
+        setLootDataDir(targetDir);
+        setStatusMessage(`Loaded loot (${source.format})`);
+      } catch (error) {
+        setErrorMessage(`Failed to load loot. ${String(error)}`);
+      } finally {
+        setIsBusy(false);
+      }
+    },
+    [dataDirectory, projectConfig, repository]
+  );
+
+  const handleSaveLootData = useCallback(async () => {
+    if (!lootData) {
+      setErrorMessage("No loot loaded to save.");
+      return;
+    }
+    if (!dataDirectory) {
+      setErrorMessage("No data directory set for loot.");
+      return;
+    }
+    setErrorMessage(null);
+    setIsBusy(true);
+    try {
+      const format = lootDataFormat ?? projectConfig?.defaultFormat ?? "json";
+      const lootFile = projectConfig?.dataFiles.loot;
+      const path = await repository.saveLootData(
+        dataDirectory,
+        lootData,
+        format,
+        lootFile
+      );
+      setLootDataPath(path);
+      setLootDataFormat(format);
+      setLootDataDir(dataDirectory);
+      setStatusMessage(`Saved loot (${format})`);
+    } catch (error) {
+      setErrorMessage(`Failed to save loot. ${String(error)}`);
+    } finally {
+      setIsBusy(false);
+    }
+  }, [dataDirectory, lootData, lootDataFormat, projectConfig, repository]);
+
   useEffect(() => {
     const nextRoom = getDefaultSelection(areaData, "Rooms", selectedRoomVnum);
     if (selectedRoomVnum !== nextRoom) {
@@ -5328,6 +5530,26 @@ export default function App({ repository }: AppProps) {
   ]);
 
   useEffect(() => {
+    if (editorMode !== "Global" || selectedGlobalEntity !== "Loot") {
+      return;
+    }
+    if (!dataDirectory) {
+      return;
+    }
+    if (lootData && lootDataDir === dataDirectory) {
+      return;
+    }
+    void handleLoadLootData(dataDirectory);
+  }, [
+    editorMode,
+    selectedGlobalEntity,
+    dataDirectory,
+    lootData,
+    lootDataDir,
+    handleLoadLootData
+  ]);
+
+  useEffect(() => {
     if (!classData || classData.classes.length === 0) {
       if (selectedClassIndex !== null) {
         setSelectedClassIndex(null);
@@ -5431,6 +5653,34 @@ export default function App({ repository }: AppProps) {
       setSelectedTutorialIndex(0);
     }
   }, [tutorialData, selectedTutorialIndex]);
+
+  useEffect(() => {
+    const groupCount = lootData?.groups.length ?? 0;
+    const tableCount = lootData?.tables.length ?? 0;
+    if (!lootData || (groupCount === 0 && tableCount === 0)) {
+      if (selectedLootKind !== null || selectedLootIndex !== null) {
+        setSelectedLootKind(null);
+        setSelectedLootIndex(null);
+      }
+      return;
+    }
+    if (selectedLootKind === "group") {
+      if (selectedLootIndex === null || selectedLootIndex >= groupCount) {
+        setSelectedLootKind(groupCount ? "group" : "table");
+        setSelectedLootIndex(0);
+      }
+      return;
+    }
+    if (selectedLootKind === "table") {
+      if (selectedLootIndex === null || selectedLootIndex >= tableCount) {
+        setSelectedLootKind(groupCount ? "group" : "table");
+        setSelectedLootIndex(0);
+      }
+      return;
+    }
+    setSelectedLootKind(groupCount ? "group" : "table");
+    setSelectedLootIndex(0);
+  }, [lootData, selectedLootKind, selectedLootIndex]);
 
   useEffect(() => {
     if (!classData || selectedClassIndex === null) {
@@ -5628,6 +5878,66 @@ export default function App({ repository }: AppProps) {
     resetTutorialForm
   ]);
 
+  useEffect(() => {
+    if (
+      !lootData ||
+      selectedLootKind === null ||
+      selectedLootIndex === null
+    ) {
+      resetLootForm(lootFormDefaults);
+      return;
+    }
+    if (selectedLootKind === "group") {
+      const group = lootData.groups[selectedLootIndex];
+      if (!group) {
+        resetLootForm(lootFormDefaults);
+        return;
+      }
+      resetLootForm({
+        kind: "group",
+        name: group.name ?? "",
+        rolls: group.rolls ?? 1,
+        entries: (group.entries ?? []).map((entry) => ({
+          type: entry.type === "cp" ? "cp" : "item",
+          vnum: entry.vnum ?? 0,
+          minQty: entry.minQty ?? 1,
+          maxQty: entry.maxQty ?? 1,
+          weight: entry.weight ?? 100
+        })),
+        parent: "",
+        ops: []
+      });
+      return;
+    }
+    const table = lootData.tables[selectedLootIndex];
+    if (!table) {
+      resetLootForm(lootFormDefaults);
+      return;
+    }
+    resetLootForm({
+      kind: "table",
+      name: table.name ?? "",
+      parent: table.parent ?? "",
+      rolls: 1,
+      entries: [],
+      ops: (table.ops ?? []).map((op) => ({
+        op: op.op,
+        group: op.group ?? "",
+        vnum: op.vnum ?? 0,
+        chance: op.chance ?? 100,
+        minQty: op.minQty ?? 1,
+        maxQty: op.maxQty ?? 1,
+        multiplier: op.multiplier ?? 100
+      }))
+    });
+  }, [
+    lootData,
+    selectedLootKind,
+    selectedLootIndex,
+    lootFormDefaults,
+    resetLootForm
+  ]);
+
   const selection = useMemo(
     () =>
       buildSelectionSummary(selectedEntity, areaData, {
@@ -5798,6 +6108,9 @@ export default function App({ repository }: AppProps) {
       })),
     [areaData]
   );
+  const lootCount = lootData
+    ? lootData.groups.length + lootData.tables.length
+    : 0;
   const globalItems = useMemo(() => {
     const counts: Record<GlobalEntityKey, number> = {
       Classes: referenceData?.classes.length ?? 0,
@@ -5806,13 +6119,14 @@ export default function App({ repository }: AppProps) {
       Groups: referenceData?.groups.length ?? 0,
       Commands: referenceData?.commands.length ?? 0,
       Socials: referenceData?.socials.length ?? 0,
-      Tutorials: referenceData?.tutorials.length ?? 0
+      Tutorials: referenceData?.tutorials.length ?? 0,
+      Loot: lootCount
     };
     return globalEntityOrder.map((key) => ({
       key,
       count: counts[key] ?? 0
     }));
-  }, [referenceData]);
+  }, [lootCount, referenceData]);
   const classRows = useMemo(() => buildClassRows(classData), [classData]);
   const raceRows = useMemo(() => buildRaceRows(raceData), [raceData]);
   const skillRows = useMemo(() => buildSkillRows(skillData), [skillData]);
@@ -5829,6 +6143,7 @@ export default function App({ repository }: AppProps) {
     () => buildTutorialRows(tutorialData),
     [tutorialData]
   );
+  const lootRows = useMemo(() => buildLootRows(lootData), [lootData]);
   const roomRows = useMemo(() => buildRoomRows(areaData), [areaData]);
   const mobileRows = useMemo(() => buildMobileRows(areaData), [areaData]);
   const objectRows = useMemo(() => buildObjectRows(areaData), [areaData]);
@@ -6399,6 +6714,15 @@ export default function App({ repository }: AppProps) {
     }
     return findByVnum(getEntityList(areaData, "Factions"), selectedFactionVnum);
   }, [areaData, selectedFactionVnum]);
+  const selectedLootRecord = useMemo(() => {
+    if (!lootData || selectedLootKind === null || selectedLootIndex === null) {
+      return null;
+    }
+    if (selectedLootKind === "group") {
+      return lootData.groups[selectedLootIndex] ?? null;
+    }
+    return lootData.tables[selectedLootIndex] ?? null;
+  }, [lootData, selectedLootKind, selectedLootIndex]);
   const scriptContext = useMemo(() => {
     if (selectedEntity === "Rooms") {
       return {
@@ -7138,6 +7462,14 @@ export default function App({ repository }: AppProps) {
     ],
     []
   );
+  const lootColumns = useMemo<ColDef<LootRow>[]>(
+    () => [
+      { headerName: "Type", field: "kind", width: 110, sort: "asc" },
+      { headerName: "Name", field: "name", flex: 2, minWidth: 220 },
+      { headerName: "Details", field: "details", flex: 2, minWidth: 240 }
+    ],
+    []
+  );
   const roomColumns = useMemo<ColDef<RoomRow>[]>(
     () => [
       { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
@@ -7225,6 +7557,7 @@ export default function App({ repository }: AppProps) {
   const commandDefaultColDef = roomDefaultColDef;
   const socialDefaultColDef = roomDefaultColDef;
   const tutorialDefaultColDef = roomDefaultColDef;
+  const lootDefaultColDef = roomDefaultColDef;
 
   useEffect(() => {
     areaForm.reset(areaFormDefaults);
@@ -7424,6 +7757,28 @@ export default function App({ repository }: AppProps) {
     activeTab,
     selectedTutorialIndex,
     tutorialRows
+  ]);
+
+  useEffect(() => {
+    if (
+      editorMode !== "Global" ||
+      selectedGlobalEntity !== "Loot" ||
+      activeTab !== "Table"
+    ) {
+      return;
+    }
+    const rowId =
+      selectedLootKind && selectedLootIndex !== null
+        ? `${selectedLootKind}:${selectedLootIndex}`
+        : null;
+    syncGridSelection(lootGridApi.current, rowId);
+  }, [
+    editorMode,
+    selectedGlobalEntity,
+    activeTab,
+    selectedLootKind,
+    selectedLootIndex,
+    lootRows
   ]);
 
   useEffect(() => {
@@ -8317,6 +8672,120 @@ export default function App({ repository }: AppProps) {
     setStatusMessage(`Updated tutorial ${data.name} (unsaved)`);
   };
 
+  const handleLootSubmit = (data: LootFormValues) => {
+    if (!lootData || selectedLootKind === null || selectedLootIndex === null) {
+      return;
+    }
+    const toInt = (value: number | undefined, fallback: number) => {
+      if (typeof value !== "number" || !Number.isFinite(value)) {
+        return fallback;
+      }
+      return Math.trunc(value);
+    };
+    const toOptionalInt = (value: number | undefined) => {
+      if (typeof value !== "number" || !Number.isFinite(value)) {
+        return undefined;
+      }
+      return Math.trunc(value);
+    };
+    const name = data.name.trim() || "unnamed";
+    if (selectedLootKind === "group") {
+      const entries = (data.entries ?? []).map((entry) => {
+        const type = entry.type === "cp" ? "cp" : "item";
+        const nextEntry: LootEntry = {
+          type,
+          minQty: toInt(entry.minQty, 1),
+          maxQty: toInt(entry.maxQty, 1),
+          weight: toInt(entry.weight, 100)
+        };
+        if (type === "item") {
+          nextEntry.vnum = toInt(entry.vnum, 0);
+        }
+        return nextEntry;
+      });
+      const nextRecord: LootGroup = {
+        name,
+        rolls: toInt(data.rolls, 1),
+        entries
+      };
+      setLootData((current) => {
+        if (!current) {
+          return current;
+        }
+        const nextGroups = [...current.groups];
+        if (
+          selectedLootIndex < 0 ||
+          selectedLootIndex >= nextGroups.length
+        ) {
+          return current;
+        }
+        nextGroups[selectedLootIndex] = nextRecord;
+        return { ...current, groups: nextGroups };
+      });
+      setStatusMessage(`Updated loot group ${name} (unsaved)`);
+      return;
+    }
+    const ops = (data.ops ?? []).map((op) => {
+      const nextOp: LootOp = { op: op.op };
+      const group = cleanOptionalString(op.group);
+      const vnum = toOptionalInt(op.vnum);
+      const chance = toOptionalInt(op.chance);
+      const minQty = toOptionalInt(op.minQty);
+      const maxQty = toOptionalInt(op.maxQty);
+      const multiplier = toOptionalInt(op.multiplier);
+      switch (op.op) {
+        case "use_group":
+          if (group) nextOp.group = group;
+          if (chance !== undefined) nextOp.chance = chance;
+          break;
+        case "add_item":
+          if (vnum !== undefined) nextOp.vnum = vnum;
+          if (chance !== undefined) nextOp.chance = chance;
+          if (minQty !== undefined) nextOp.minQty = minQty;
+          if (maxQty !== undefined) nextOp.maxQty = maxQty;
+          break;
+        case "add_cp":
+          if (chance !== undefined) nextOp.chance = chance;
+          if (minQty !== undefined) nextOp.minQty = minQty;
+          if (maxQty !== undefined) nextOp.maxQty = maxQty;
+          break;
+        case "mul_cp":
+        case "mul_all_chances":
+          if (multiplier !== undefined) nextOp.multiplier = multiplier;
+          break;
+        case "remove_item":
+          if (vnum !== undefined) nextOp.vnum = vnum;
+          break;
+        case "remove_group":
+          if (group) nextOp.group = group;
+          break;
+        default:
+          break;
+      }
+      return nextOp;
+    });
+    const nextRecord: LootTable = {
+      name,
+      parent: cleanOptionalString(data.parent),
+      ops
+    };
+    setLootData((current) => {
+      if (!current) {
+        return current;
+      }
+      const nextTables = [...current.tables];
+      if (
+        selectedLootIndex < 0 ||
+        selectedLootIndex >= nextTables.length
+      ) {
+        return current;
+      }
+      nextTables[selectedLootIndex] = nextRecord;
+      return { ...current, tables: nextTables };
+    });
+    setStatusMessage(`Updated loot table ${name} (unsaved)`);
+  };
+
   const warnLegacyAreaFiles = useCallback(
     async (areaDir: string | null) => {
       if (!areaDir) {
@@ -8772,6 +9241,29 @@ export default function App({ repository }: AppProps) {
       moveStep={moveTutorialStep}
     />
   );
+  const activeLootKind =
+    selectedLootKind ??
+    (lootData && lootData.groups.length === 0 ? "table" : "group");
+  const lootFormNode = (
+    <LootForm
+      onSubmit={handleLootSubmitForm(handleLootSubmit)}
+      register={registerLoot}
+      control={lootFormControl}
+      formState={lootFormState}
+      kind={activeLootKind}
+      entryFields={lootEntryFields}
+      opFields={lootOpFields}
+      appendEntry={appendLootEntry}
+      removeEntry={removeLootEntry}
+      moveEntry={moveLootEntry}
+      appendOp={appendLootOp}
+      removeOp={removeLootOp}
+      moveOp={moveLootOp}
+      entryTypeOptions={[...lootEntryTypeOptions]}
+      opTypeOptions={[...lootOpTypeOptions]}
+      vnumOptions={objectVnumOptions}
+    />
+  );
   const tableViewNode = (
     <TableView
       selectedEntity={selectedEntity}
@@ -8875,6 +9367,18 @@ export default function App({ repository }: AppProps) {
       gridApiRef={tutorialGridApi}
     />
   );
+  const lootTableViewNode = (
+    <LootTableView
+      rows={lootRows}
+      columns={lootColumns}
+      defaultColDef={lootDefaultColDef}
+      onSelectLoot={(kind, index) => {
+        setSelectedLootKind(kind);
+        setSelectedLootIndex(index);
+      }}
+      gridApiRef={lootGridApi}
+    />
+  );
   const mapViewNode = (
     <MapView
       mapNodes={mapNodes}
@@ -8957,7 +9461,11 @@ export default function App({ repository }: AppProps) {
                   ? tutorialDataPath
                     ? fileNameFromPath(tutorialDataPath)
                     : "not loaded"
-                  : "not loaded";
+                  : selectedGlobalEntity === "Loot"
+                    ? lootDataPath
+                      ? fileNameFromPath(lootDataPath)
+                      : "not loaded"
+                    : "not loaded";
   const viewTitle =
     editorMode === "Area" ? selectedEntity : selectedGlobalEntity;
   const viewMeta =
@@ -8980,7 +9488,8 @@ export default function App({ repository }: AppProps) {
     selectedGlobalEntity === "Groups" ||
     selectedGlobalEntity === "Commands" ||
     selectedGlobalEntity === "Socials" ||
-    selectedGlobalEntity === "Tutorials";
+    selectedGlobalEntity === "Tutorials" ||
+    selectedGlobalEntity === "Loot";
   const showGlobalActions = editorMode === "Global" && supportsGlobalData;
   const globalLoadHandler =
     selectedGlobalEntity === "Races"
@@ -8995,7 +9504,9 @@ export default function App({ repository }: AppProps) {
               ? handleLoadSocialsData
               : selectedGlobalEntity === "Tutorials"
                 ? handleLoadTutorialsData
-                : handleLoadClassesData;
+                : selectedGlobalEntity === "Loot"
+                  ? handleLoadLootData
+                  : handleLoadClassesData;
   const globalSaveHandler =
     selectedGlobalEntity === "Races"
       ? handleSaveRacesData
@@ -9009,7 +9520,9 @@ export default function App({ repository }: AppProps) {
               ? handleSaveSocialsData
               : selectedGlobalEntity === "Tutorials"
                 ? handleSaveTutorialsData
-                : handleSaveClassesData;
+                : selectedGlobalEntity === "Loot"
+                  ? handleSaveLootData
+                  : handleSaveClassesData;
   const globalSaveDisabled =
     selectedGlobalEntity === "Classes"
       ? !classData
@@ -9025,7 +9538,9 @@ export default function App({ repository }: AppProps) {
                 ? !socialData
                 : selectedGlobalEntity === "Tutorials"
                   ? !tutorialData
-                  : true;
+                  : selectedGlobalEntity === "Loot"
+                    ? !lootData
+                    : true;
   const visibleTabs =
     editorMode === "Area"
       ? tabs
@@ -9105,6 +9620,7 @@ export default function App({ repository }: AppProps) {
                 commandCount={commandRows.length}
                 socialCount={socialRows.length}
                 tutorialCount={tutorialRows.length}
+                lootCount={lootCount}
                 roomCount={roomRows.length}
                 mobileCount={mobileRows.length}
                 objectCount={objectRows.length}
@@ -9128,6 +9644,7 @@ export default function App({ repository }: AppProps) {
                 commandForm={commandFormNode}
                 socialForm={socialFormNode}
                 tutorialForm={tutorialFormNode}
+                lootForm={lootFormNode}
                 tableView={tableViewNode}
                 classTableView={classTableViewNode}
                 raceTableView={raceTableViewNode}
@@ -9136,6 +9653,7 @@ export default function App({ repository }: AppProps) {
                 commandTableView={commandTableViewNode}
                 socialTableView={socialTableViewNode}
                 tutorialTableView={tutorialTableViewNode}
+                lootTableView={lootTableViewNode}
                 mapView={mapViewNode}
                 worldView={worldViewNode}
                 scriptView={scriptViewNode}

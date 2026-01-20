@@ -22,6 +22,7 @@ type VnumPickerProps<TFieldValues extends FieldValues> = {
   control: Control<TFieldValues>;
   options: VnumOption[];
   error?: string;
+  entityLabel?: string;
 };
 
 export function VnumPicker<TFieldValues extends FieldValues>({
@@ -31,7 +32,8 @@ export function VnumPicker<TFieldValues extends FieldValues>({
   register,
   control,
   options,
-  error
+  error,
+  entityLabel
 }: VnumPickerProps<TFieldValues>) {
   const listId = `${id}-options`;
   const optionMap = useMemo(() => {
@@ -54,10 +56,14 @@ export function VnumPicker<TFieldValues extends FieldValues>({
   const resolvedOption = Number.isFinite(parsedVnum)
     ? optionMap.get(parsedVnum)
     : undefined;
+  const fallbackText =
+    Number.isFinite(parsedVnum) && entityLabel
+      ? `${entityLabel} · #${parsedVnum}`
+      : null;
   const helperText =
     resolvedOption?.entityType && resolvedOption?.name
       ? `${resolvedOption.entityType} · ${resolvedOption.name}`
-      : resolvedOption?.label ?? null;
+      : resolvedOption?.label ?? fallbackText;
   return (
     <div className="form-field">
       <label className="form-label" htmlFor={id}>
