@@ -39,6 +39,9 @@ import type {
   RaceDataSource,
   RaceDefinition,
   RaceStats,
+  SocialDataFile,
+  SocialDataSource,
+  SocialDefinition,
   SkillDataFile,
   SkillDataSource,
   SkillDefinition,
@@ -1468,6 +1471,161 @@ function serializeCommandOlc(data: CommandDataFile): string {
   return lines.join("\n");
 }
 
+function normalizeSocialText(value: unknown): string | undefined {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+  const trimmed = value.trim();
+  return trimmed.length ? trimmed : undefined;
+}
+
+function normalizeSocialRecord(
+  record: Partial<SocialDefinition>
+): SocialDefinition {
+  return {
+    name: record.name?.trim() || "unnamed",
+    charNoArg: normalizeSocialText(record.charNoArg),
+    othersNoArg: normalizeSocialText(record.othersNoArg),
+    charFound: normalizeSocialText(record.charFound),
+    othersFound: normalizeSocialText(record.othersFound),
+    victFound: normalizeSocialText(record.victFound),
+    charAuto: normalizeSocialText(record.charAuto),
+    othersAuto: normalizeSocialText(record.othersAuto)
+  };
+}
+
+function parseSocialJson(content: string): SocialDataFile {
+  const parsed = JSON.parse(content) as Record<string, unknown>;
+  const formatVersion = Number(parsed.formatVersion);
+  const socialsRaw = parsed.socials;
+  const socials = Array.isArray(socialsRaw)
+    ? socialsRaw.map((social) =>
+        normalizeSocialRecord((social ?? {}) as Partial<SocialDefinition>)
+      )
+    : [];
+  return {
+    formatVersion: Number.isFinite(formatVersion) ? formatVersion : 1,
+    socials
+  };
+}
+
+function parseSocialOlc(content: string): SocialDataFile {
+  const scanner = new OlcScanner(content);
+  const socials: SocialDefinition[] = [];
+
+  while (!scanner.eof()) {
+    const word = scanner.readWord();
+    if (!word) {
+      break;
+    }
+    const upper = word.toUpperCase();
+    if (upper !== "#SOCIAL") {
+      if (upper === "#END") {
+        break;
+      }
+      continue;
+    }
+    const record: Partial<SocialDefinition> = {};
+    while (!scanner.eof()) {
+      const field = scanner.readWord();
+      if (!field) {
+        break;
+      }
+      const fieldUpper = field.toUpperCase();
+      if (fieldUpper === "#END") {
+        break;
+      }
+      switch (field.toLowerCase()) {
+        case "name":
+          record.name = scanner.readString();
+          break;
+        case "char_no_arg":
+          record.charNoArg = scanner.readString();
+          break;
+        case "others_no_arg":
+          record.othersNoArg = scanner.readString();
+          break;
+        case "char_found":
+          record.charFound = scanner.readString();
+          break;
+        case "others_found":
+          record.othersFound = scanner.readString();
+          break;
+        case "vict_found":
+          record.victFound = scanner.readString();
+          break;
+        case "char_auto":
+          record.charAuto = scanner.readString();
+          break;
+        case "others_auto":
+          record.othersAuto = scanner.readString();
+          break;
+        default:
+          break;
+      }
+    }
+    socials.push(normalizeSocialRecord(record));
+  }
+
+  return { formatVersion: 1, socials };
+}
+
+function serializeSocialJson(data: SocialDataFile): string {
+  const root: Record<string, unknown> = {
+    formatVersion: 1,
+    socials: data.socials.map((social) => {
+      const record = normalizeSocialRecord(social);
+      const obj: Record<string, unknown> = {
+        name: record.name
+      };
+      if (record.charNoArg) {
+        obj.charNoArg = record.charNoArg;
+      }
+      if (record.othersNoArg) {
+        obj.othersNoArg = record.othersNoArg;
+      }
+      if (record.charFound) {
+        obj.charFound = record.charFound;
+      }
+      if (record.othersFound) {
+        obj.othersFound = record.othersFound;
+      }
+      if (record.victFound) {
+        obj.victFound = record.victFound;
+      }
+      if (record.charAuto) {
+        obj.charAuto = record.charAuto;
+      }
+      if (record.othersAuto) {
+        obj.othersAuto = record.othersAuto;
+      }
+      return obj;
+    })
+  };
+  return JSON.stringify(root, null, 2);
+}
+
+function serializeSocialOlc(data: SocialDataFile): string {
+  const socials = data.socials.map((social) => normalizeSocialRecord(social));
+  const lines: string[] = [];
+  lines.push(String(socials.length));
+  lines.push("");
+  socials.forEach((social) => {
+    lines.push("#SOCIAL");
+    lines.push(`name ${sanitizeOlcString(social.name)}~`);
+    lines.push(`char_no_arg ${sanitizeOlcString(social.charNoArg ?? "")}~`);
+    lines.push(`others_no_arg ${sanitizeOlcString(social.othersNoArg ?? "")}~`);
+    lines.push(`char_found ${sanitizeOlcString(social.charFound ?? "")}~`);
+    lines.push(`others_found ${sanitizeOlcString(social.othersFound ?? "")}~`);
+    lines.push(`vict_found ${sanitizeOlcString(social.victFound ?? "")}~`);
+    lines.push(`char_auto ${sanitizeOlcString(social.charAuto ?? "")}~`);
+    lines.push(`others_auto ${sanitizeOlcString(social.othersAuto ?? "")}~`);
+    lines.push("#END");
+    lines.push("");
+  });
+  return lines.join("\n");
+}
+
 function parseRaceJson(content: string): RaceDataFile {
   const parsed = JSON.parse(content) as Record<string, unknown>;
   const formatVersion = Number(parsed.formatVersion);
@@ -2716,6 +2874,96 @@ export class LocalFileRepository implements WorldRepository {
       outputFormat === "json"
         ? serializeCommandJson(data)
         : serializeCommandOlc(data);
+    await writeTextFile(path, payload);
+    return path;
+  }
+
+  async loadSocialsData(
+    dataDir: string,
+    fileName?: string,
+    defaultFormat?: "json" | "olc"
+  ): Promise<SocialDataSource> {
+    const candidates: Array<{ path: string; format: "json" | "olc" }> = [];
+    if (fileName) {
+      const lower = fileName.toLowerCase();
+      if (lower.endsWith(".json")) {
+        candidates.push({
+          path: isAbsolutePath(fileName) ? fileName : await join(dataDir, fileName),
+          format: "json"
+        });
+      } else if (lower.endsWith(".olc")) {
+        candidates.push({
+          path: isAbsolutePath(fileName) ? fileName : await join(dataDir, fileName),
+          format: "olc"
+        });
+      } else if (defaultFormat) {
+        candidates.push({
+          path: isAbsolutePath(fileName)
+            ? `${fileName}.${defaultFormat}`
+            : await join(dataDir, `${fileName}.${defaultFormat}`),
+          format: defaultFormat
+        });
+      } else {
+        candidates.push({
+          path: isAbsolutePath(fileName)
+            ? `${fileName}.json`
+            : await join(dataDir, `${fileName}.json`),
+          format: "json"
+        });
+        candidates.push({
+          path: isAbsolutePath(fileName)
+            ? `${fileName}.olc`
+            : await join(dataDir, `${fileName}.olc`),
+          format: "olc"
+        });
+      }
+    }
+    if (!candidates.length) {
+      candidates.push({
+        path: await join(dataDir, "socials.json"),
+        format: "json"
+      });
+      candidates.push({
+        path: await join(dataDir, "socials.olc"),
+        format: "olc"
+      });
+    }
+    for (const candidate of candidates) {
+      const raw = await tryReadText(candidate.path);
+      if (!raw) {
+        continue;
+      }
+      return {
+        path: candidate.path,
+        format: candidate.format,
+        data:
+          candidate.format === "json"
+            ? parseSocialJson(raw)
+            : parseSocialOlc(raw)
+      };
+    }
+
+    throw new Error("Missing socials data file.");
+  }
+
+  async saveSocialsData(
+    dataDir: string,
+    data: SocialDataFile,
+    format: "json" | "olc",
+    fileName?: string
+  ): Promise<string> {
+    const resolvedName =
+      fileName ?? (format === "json" ? "socials.json" : "socials.olc");
+    const lower = resolvedName.toLowerCase();
+    const outputFormat =
+      lower.endsWith(".json") ? "json" : lower.endsWith(".olc") ? "olc" : format;
+    const path = isAbsolutePath(resolvedName)
+      ? resolvedName
+      : await join(dataDir, resolvedName);
+    const payload =
+      outputFormat === "json"
+        ? serializeSocialJson(data)
+        : serializeSocialOlc(data);
     await writeTextFile(path, payload);
     return path;
   }

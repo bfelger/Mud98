@@ -160,6 +160,28 @@ export type CommandDataSource = {
   data: CommandDataFile;
 };
 
+export type SocialDefinition = {
+  name: string;
+  charNoArg?: string;
+  othersNoArg?: string;
+  charFound?: string;
+  othersFound?: string;
+  victFound?: string;
+  charAuto?: string;
+  othersAuto?: string;
+};
+
+export type SocialDataFile = {
+  formatVersion: number;
+  socials: SocialDefinition[];
+};
+
+export type SocialDataSource = {
+  path: string;
+  format: "json" | "olc";
+  data: SocialDataFile;
+};
+
 export type ProjectDataFiles = {
   classes: string;
   races: string;

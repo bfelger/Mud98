@@ -9,6 +9,8 @@ import type {
   GroupDataSource,
   CommandDataFile,
   CommandDataSource,
+  SocialDataFile,
+  SocialDataSource,
   ProjectConfig,
   ProjectDataFiles,
   RaceDataFile,
@@ -98,6 +100,17 @@ export interface WorldRepository {
   saveCommandsData(
     dataDir: string,
     data: CommandDataFile,
+    format: "json" | "olc",
+    fileName?: string
+  ): Promise<string>;
+  loadSocialsData(
+    dataDir: string,
+    fileName?: string,
+    defaultFormat?: "json" | "olc"
+  ): Promise<SocialDataSource>;
+  saveSocialsData(
+    dataDir: string,
+    data: SocialDataFile,
     format: "json" | "olc",
     fileName?: string
   ): Promise<string>;

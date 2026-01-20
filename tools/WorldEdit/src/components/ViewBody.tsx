@@ -13,6 +13,7 @@ type ViewBodyProps = {
   skillCount: number;
   groupCount: number;
   commandCount: number;
+  socialCount: number;
   roomCount: number;
   mobileCount: number;
   objectCount: number;
@@ -34,12 +35,14 @@ type ViewBodyProps = {
   skillForm: ReactNode;
   groupForm: ReactNode;
   commandForm: ReactNode;
+  socialForm: ReactNode;
   tableView: ReactNode;
   classTableView: ReactNode;
   raceTableView: ReactNode;
   skillTableView: ReactNode;
   groupTableView: ReactNode;
   commandTableView: ReactNode;
+  socialTableView: ReactNode;
   mapView: ReactNode;
   worldView: ReactNode;
   scriptView: ReactNode;
@@ -57,6 +60,7 @@ export function ViewBody({
   skillCount,
   groupCount,
   commandCount,
+  socialCount,
   roomCount,
   mobileCount,
   objectCount,
@@ -78,12 +82,14 @@ export function ViewBody({
   skillForm,
   groupForm,
   commandForm,
+  socialForm,
   tableView,
   classTableView,
   raceTableView,
   skillTableView,
   groupTableView,
   commandTableView,
+  socialTableView,
   mapView,
   worldView,
   scriptView
@@ -164,6 +170,21 @@ export function ViewBody({
       }
       if (activeTab === "Table") {
         return <>{commandTableView}</>;
+      }
+    }
+    if (selectedGlobalEntity === "Socials") {
+      if (activeTab === "Form") {
+        return socialCount ? (
+          <>{socialForm}</>
+        ) : (
+          <div className="entity-table__empty">
+            <h3>No socials loaded</h3>
+            <p>Load the socials file from the data directory.</p>
+          </div>
+        );
+      }
+      if (activeTab === "Table") {
+        return <>{socialTableView}</>;
       }
     }
     return (

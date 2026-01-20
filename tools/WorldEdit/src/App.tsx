@@ -44,12 +44,14 @@ import { RaceForm } from "./components/RaceForm";
 import { SkillForm } from "./components/SkillForm";
 import { GroupForm } from "./components/GroupForm";
 import { CommandForm } from "./components/CommandForm";
+import { SocialForm } from "./components/SocialForm";
 import { TableView } from "./components/TableView";
 import { ClassTableView } from "./components/ClassTableView";
 import { RaceTableView } from "./components/RaceTableView";
 import { SkillTableView } from "./components/SkillTableView";
 import { GroupTableView } from "./components/GroupTableView";
 import { CommandTableView } from "./components/CommandTableView";
+import { SocialTableView } from "./components/SocialTableView";
 import { InspectorPanel } from "./components/InspectorPanel";
 import { EntityTree } from "./components/EntityTree";
 import { Topbar } from "./components/Topbar";
@@ -75,6 +77,8 @@ import type {
   ProjectConfig,
   RaceDataFile,
   RaceDefinition,
+  SocialDataFile,
+  SocialDefinition,
   SkillDataFile,
   SkillDefinition,
   ReferenceData,
@@ -428,6 +432,14 @@ type CommandRow = {
   log: string;
   category: string;
   loxFunction: string;
+};
+
+type SocialRow = {
+  index: number;
+  name: string;
+  noTarget: string;
+  target: string;
+  self: string;
 };
 
 type ShopRow = {
@@ -994,6 +1006,17 @@ const commandFormSchema = z.object({
   loxFunction: z.string().optional()
 });
 
+const socialFormSchema = z.object({
+  name: z.string().min(1),
+  charNoArg: z.string().optional(),
+  othersNoArg: z.string().optional(),
+  charFound: z.string().optional(),
+  othersFound: z.string().optional(),
+  victFound: z.string().optional(),
+  charAuto: z.string().optional(),
+  othersAuto: z.string().optional()
+});
+
 type RoomFormValues = z.infer<typeof roomFormSchema>;
 type AreaFormValues = z.infer<typeof areaFormSchema>;
 type MobileFormValues = z.infer<typeof mobileFormSchema>;
@@ -1007,6 +1030,7 @@ type RaceFormValues = z.infer<typeof raceFormSchema>;
 type SkillFormValues = z.infer<typeof skillFormSchema>;
 type GroupFormValues = z.infer<typeof groupFormSchema>;
 type CommandFormValues = z.infer<typeof commandFormSchema>;
+type SocialFormValues = z.infer<typeof socialFormSchema>;
 
 const entityKindLabels: Record<EntityKey, string> = {
   Area: "Area",
@@ -3819,6 +3843,37 @@ function buildCommandRows(commandData: CommandDataFile | null): CommandRow[] {
   }));
 }
 
+function buildSocialRows(socialData: SocialDataFile | null): SocialRow[] {
+  if (!socialData) {
+    return [];
+  }
+  return socialData.socials.map((social, index) => {
+    const noTargetCount = [
+      social.charNoArg,
+      social.othersNoArg
+    ].filter((value) => typeof value === "string" && value.trim().length)
+      .length;
+    const targetCount = [
+      social.charFound,
+      social.othersFound,
+      social.victFound
+    ].filter((value) => typeof value === "string" && value.trim().length)
+      .length;
+    const selfCount = [
+      social.charAuto,
+      social.othersAuto
+    ].filter((value) => typeof value === "string" && value.trim().length)
+      .length;
+    return {
+      index,
+      name: social.name ?? "(unnamed)",
+      noTarget: `${noTargetCount}/2`,
+      target: `${targetCount}/3`,
+      self: `${selfCount}/2`
+    };
+  });
+}
+
 function titlesToText(titles: string[][] | undefined, column: 0 | 1): string {
   const lines: string[] = [];
   for (let i = 0; i < classTitleCount; i += 1) {
@@ -3889,6 +3944,9 @@ export default function App({ repository }: AppProps) {
   const [selectedCommandIndex, setSelectedCommandIndex] = useState<number | null>(
     null
   );
+  const [selectedSocialIndex, setSelectedSocialIndex] = useState<number | null>(
+    null
+  );
   const [selectedRoomVnum, setSelectedRoomVnum] = useState<number | null>(null);
   const [selectedMobileVnum, setSelectedMobileVnum] = useState<number | null>(
     null
@@ -3938,6 +3996,12 @@ export default function App({ repository }: AppProps) {
     "json" | "olc" | null
   >(null);
   const [commandDataDir, setCommandDataDir] = useState<string | null>(null);
+  const [socialData, setSocialData] = useState<SocialDataFile | null>(null);
+  const [socialDataPath, setSocialDataPath] = useState<string | null>(null);
+  const [socialDataFormat, setSocialDataFormat] = useState<
+    "json" | "olc" | null
+  >(null);
+  const [socialDataDir, setSocialDataDir] = useState<string | null>(null);
   const [projectConfig, setProjectConfig] = useState<ProjectConfig | null>(null);
   const [editorMeta, setEditorMeta] = useState<EditorMeta | null>(null);
   const [editorMetaPath, setEditorMetaPath] = useState<string | null>(null);
@@ -3988,6 +4052,7 @@ export default function App({ repository }: AppProps) {
   const skillGridApi = useRef<GridApi | null>(null);
   const groupGridApi = useRef<GridApi | null>(null);
   const commandGridApi = useRef<GridApi | null>(null);
+  const socialGridApi = useRef<GridApi | null>(null);
   const areaForm = useForm<AreaFormValues>({
     resolver: zodResolver(areaFormSchema),
     defaultValues: {
@@ -4430,6 +4495,29 @@ export default function App({ repository }: AppProps) {
     formState: commandFormState,
     reset: resetCommandForm
   } = commandForm;
+  const socialFormDefaults = useMemo<SocialFormValues>(
+    () => ({
+      name: "",
+      charNoArg: "",
+      othersNoArg: "",
+      charFound: "",
+      othersFound: "",
+      victFound: "",
+      charAuto: "",
+      othersAuto: ""
+    }),
+    []
+  );
+  const socialForm = useForm<SocialFormValues>({
+    resolver: zodResolver(socialFormSchema),
+    defaultValues: socialFormDefaults
+  });
+  const {
+    register: registerSocial,
+    handleSubmit: handleSocialSubmitForm,
+    formState: socialFormState,
+    reset: resetSocialForm
+  } = socialForm;
   const watchedResetCommand = useWatch({
     control: resetForm.control,
     name: "commandName"
@@ -4786,6 +4874,75 @@ export default function App({ repository }: AppProps) {
     repository
   ]);
 
+  const handleLoadSocialsData = useCallback(
+    async (overrideDir?: string) => {
+      const targetDir =
+        typeof overrideDir === "string" ? overrideDir : dataDirectory;
+      if (!targetDir) {
+        setErrorMessage("No data directory set for socials.");
+        return;
+      }
+      const socialsFile = projectConfig?.dataFiles.socials;
+      const defaultFormat = projectConfig?.defaultFormat;
+      setErrorMessage(null);
+      setIsBusy(true);
+      try {
+        const source = await repository.loadSocialsData(
+          targetDir,
+          socialsFile,
+          defaultFormat
+        );
+        setSocialData(source.data);
+        setSocialDataPath(source.path);
+        setSocialDataFormat(source.format);
+        setSocialDataDir(targetDir);
+        setStatusMessage(`Loaded socials (${source.format})`);
+      } catch (error) {
+        setErrorMessage(`Failed to load socials. ${String(error)}`);
+      } finally {
+        setIsBusy(false);
+      }
+    },
+    [dataDirectory, projectConfig, repository]
+  );
+
+  const handleSaveSocialsData = useCallback(async () => {
+    if (!socialData) {
+      setErrorMessage("No socials loaded to save.");
+      return;
+    }
+    if (!dataDirectory) {
+      setErrorMessage("No data directory set for socials.");
+      return;
+    }
+    setErrorMessage(null);
+    setIsBusy(true);
+    try {
+      const format = socialDataFormat ?? projectConfig?.defaultFormat ?? "json";
+      const socialsFile = projectConfig?.dataFiles.socials;
+      const path = await repository.saveSocialsData(
+        dataDirectory,
+        socialData,
+        format,
+        socialsFile
+      );
+      setSocialDataPath(path);
+      setSocialDataFormat(format);
+      setSocialDataDir(dataDirectory);
+      setStatusMessage(`Saved socials (${format})`);
+    } catch (error) {
+      setErrorMessage(`Failed to save socials. ${String(error)}`);
+    } finally {
+      setIsBusy(false);
+    }
+  }, [
+    dataDirectory,
+    projectConfig,
+    repository,
+    socialData,
+    socialDataFormat
+  ]);
+
   useEffect(() => {
     const nextRoom = getDefaultSelection(areaData, "Rooms", selectedRoomVnum);
     if (selectedRoomVnum !== nextRoom) {
@@ -4971,6 +5128,26 @@ export default function App({ repository }: AppProps) {
   ]);
 
   useEffect(() => {
+    if (editorMode !== "Global" || selectedGlobalEntity !== "Socials") {
+      return;
+    }
+    if (!dataDirectory) {
+      return;
+    }
+    if (socialData && socialDataDir === dataDirectory) {
+      return;
+    }
+    void handleLoadSocialsData(dataDirectory);
+  }, [
+    editorMode,
+    selectedGlobalEntity,
+    dataDirectory,
+    socialData,
+    socialDataDir,
+    handleLoadSocialsData
+  ]);
+
+  useEffect(() => {
     if (!classData || classData.classes.length === 0) {
       if (selectedClassIndex !== null) {
         setSelectedClassIndex(null);
@@ -5044,6 +5221,21 @@ export default function App({ repository }: AppProps) {
       setSelectedCommandIndex(0);
     }
   }, [commandData, selectedCommandIndex]);
+
+  useEffect(() => {
+    if (!socialData || socialData.socials.length === 0) {
+      if (selectedSocialIndex !== null) {
+        setSelectedSocialIndex(null);
+      }
+      return;
+    }
+    if (
+      selectedSocialIndex === null ||
+      selectedSocialIndex >= socialData.socials.length
+    ) {
+      setSelectedSocialIndex(0);
+    }
+  }, [socialData, selectedSocialIndex]);
 
   useEffect(() => {
     if (!classData || selectedClassIndex === null) {
@@ -5193,6 +5385,29 @@ export default function App({ repository }: AppProps) {
     selectedCommandIndex,
     commandFormDefaults,
     resetCommandForm
+  ]);
+
+  useEffect(() => {
+    if (!socialData || selectedSocialIndex === null) {
+      resetSocialForm(socialFormDefaults);
+      return;
+    }
+    const social = socialData.socials[selectedSocialIndex];
+    resetSocialForm({
+      name: social.name ?? "",
+      charNoArg: normalizeLineEndingsForDisplay(social.charNoArg),
+      othersNoArg: normalizeLineEndingsForDisplay(social.othersNoArg),
+      charFound: normalizeLineEndingsForDisplay(social.charFound),
+      othersFound: normalizeLineEndingsForDisplay(social.othersFound),
+      victFound: normalizeLineEndingsForDisplay(social.victFound),
+      charAuto: normalizeLineEndingsForDisplay(social.charAuto),
+      othersAuto: normalizeLineEndingsForDisplay(social.othersAuto)
+    });
+  }, [
+    socialData,
+    selectedSocialIndex,
+    socialFormDefaults,
+    resetSocialForm
   ]);
 
   const selection = useMemo(
@@ -5387,6 +5602,10 @@ export default function App({ repository }: AppProps) {
   const commandRows = useMemo(
     () => buildCommandRows(commandData),
     [commandData]
+  );
+  const socialRows = useMemo(
+    () => buildSocialRows(socialData),
+    [socialData]
   );
   const roomRows = useMemo(() => buildRoomRows(areaData), [areaData]);
   const mobileRows = useMemo(() => buildMobileRows(areaData), [areaData]);
@@ -6678,6 +6897,16 @@ export default function App({ repository }: AppProps) {
     ],
     []
   );
+  const socialColumns = useMemo<ColDef<SocialRow>[]>(
+    () => [
+      { headerName: "#", field: "index", width: 80, sort: "asc" },
+      { headerName: "Name", field: "name", flex: 2, minWidth: 220 },
+      { headerName: "No Target", field: "noTarget", width: 120 },
+      { headerName: "Targeted", field: "target", width: 120 },
+      { headerName: "Self", field: "self", width: 100 }
+    ],
+    []
+  );
   const roomColumns = useMemo<ColDef<RoomRow>[]>(
     () => [
       { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
@@ -6763,6 +6992,7 @@ export default function App({ repository }: AppProps) {
   const skillDefaultColDef = roomDefaultColDef;
   const groupDefaultColDef = roomDefaultColDef;
   const commandDefaultColDef = roomDefaultColDef;
+  const socialDefaultColDef = roomDefaultColDef;
 
   useEffect(() => {
     areaForm.reset(areaFormDefaults);
@@ -6928,6 +7158,23 @@ export default function App({ repository }: AppProps) {
     activeTab,
     selectedCommandIndex,
     commandRows
+  ]);
+
+  useEffect(() => {
+    if (
+      editorMode !== "Global" ||
+      selectedGlobalEntity !== "Socials" ||
+      activeTab !== "Table"
+    ) {
+      return;
+    }
+    syncGridSelection(socialGridApi.current, selectedSocialIndex);
+  }, [
+    editorMode,
+    selectedGlobalEntity,
+    activeTab,
+    selectedSocialIndex,
+    socialRows
   ]);
 
   useEffect(() => {
@@ -7754,6 +8001,31 @@ export default function App({ repository }: AppProps) {
     setStatusMessage(`Updated command ${data.name} (unsaved)`);
   };
 
+  const handleSocialSubmit = (data: SocialFormValues) => {
+    if (!socialData || selectedSocialIndex === null) {
+      return;
+    }
+    const nextRecord: SocialDefinition = {
+      name: data.name,
+      charNoArg: normalizeOptionalMudText(data.charNoArg),
+      othersNoArg: normalizeOptionalMudText(data.othersNoArg),
+      charFound: normalizeOptionalMudText(data.charFound),
+      othersFound: normalizeOptionalMudText(data.othersFound),
+      victFound: normalizeOptionalMudText(data.victFound),
+      charAuto: normalizeOptionalMudText(data.charAuto),
+      othersAuto: normalizeOptionalMudText(data.othersAuto)
+    };
+    setSocialData((current) => {
+      if (!current) {
+        return current;
+      }
+      const nextSocials = [...current.socials];
+      nextSocials[selectedSocialIndex] = nextRecord;
+      return { ...current, socials: nextSocials };
+    });
+    setStatusMessage(`Updated social ${data.name} (unsaved)`);
+  };
+
   const warnLegacyAreaFiles = useCallback(
     async (areaDir: string | null) => {
       if (!areaDir) {
@@ -8186,6 +8458,13 @@ export default function App({ repository }: AppProps) {
       categoryOptions={[...showFlags]}
     />
   );
+  const socialFormNode = (
+    <SocialForm
+      onSubmit={handleSocialSubmitForm(handleSocialSubmit)}
+      register={registerSocial}
+      formState={socialFormState}
+    />
+  );
   const tableViewNode = (
     <TableView
       selectedEntity={selectedEntity}
@@ -8271,6 +8550,15 @@ export default function App({ repository }: AppProps) {
       gridApiRef={commandGridApi}
     />
   );
+  const socialTableViewNode = (
+    <SocialTableView
+      rows={socialRows}
+      columns={socialColumns}
+      defaultColDef={socialDefaultColDef}
+      onSelectSocial={setSelectedSocialIndex}
+      gridApiRef={socialGridApi}
+    />
+  );
   const mapViewNode = (
     <MapView
       mapNodes={mapNodes}
@@ -8337,15 +8625,19 @@ export default function App({ repository }: AppProps) {
           ? skillDataPath
             ? fileNameFromPath(skillDataPath)
             : "not loaded"
-        : selectedGlobalEntity === "Groups"
-          ? groupDataPath
-            ? fileNameFromPath(groupDataPath)
-            : "not loaded"
-          : selectedGlobalEntity === "Commands"
-            ? commandDataPath
-              ? fileNameFromPath(commandDataPath)
+          : selectedGlobalEntity === "Groups"
+            ? groupDataPath
+              ? fileNameFromPath(groupDataPath)
               : "not loaded"
-            : "not loaded";
+            : selectedGlobalEntity === "Commands"
+              ? commandDataPath
+                ? fileNameFromPath(commandDataPath)
+                : "not loaded"
+              : selectedGlobalEntity === "Socials"
+                ? socialDataPath
+                  ? fileNameFromPath(socialDataPath)
+                  : "not loaded"
+                : "not loaded";
   const viewTitle =
     editorMode === "Area" ? selectedEntity : selectedGlobalEntity;
   const viewMeta =
@@ -8366,7 +8658,8 @@ export default function App({ repository }: AppProps) {
     selectedGlobalEntity === "Races" ||
     selectedGlobalEntity === "Skills" ||
     selectedGlobalEntity === "Groups" ||
-    selectedGlobalEntity === "Commands";
+    selectedGlobalEntity === "Commands" ||
+    selectedGlobalEntity === "Socials";
   const showGlobalActions = editorMode === "Global" && supportsGlobalData;
   const globalLoadHandler =
     selectedGlobalEntity === "Races"
@@ -8377,7 +8670,9 @@ export default function App({ repository }: AppProps) {
           ? handleLoadGroupsData
           : selectedGlobalEntity === "Commands"
             ? handleLoadCommandsData
-          : handleLoadClassesData;
+            : selectedGlobalEntity === "Socials"
+              ? handleLoadSocialsData
+              : handleLoadClassesData;
   const globalSaveHandler =
     selectedGlobalEntity === "Races"
       ? handleSaveRacesData
@@ -8387,7 +8682,9 @@ export default function App({ repository }: AppProps) {
           ? handleSaveGroupsData
           : selectedGlobalEntity === "Commands"
             ? handleSaveCommandsData
-          : handleSaveClassesData;
+            : selectedGlobalEntity === "Socials"
+              ? handleSaveSocialsData
+              : handleSaveClassesData;
   const globalSaveDisabled =
     selectedGlobalEntity === "Classes"
       ? !classData
@@ -8399,7 +8696,9 @@ export default function App({ repository }: AppProps) {
             ? !groupData
             : selectedGlobalEntity === "Commands"
               ? !commandData
-            : true;
+              : selectedGlobalEntity === "Socials"
+                ? !socialData
+                : true;
   const visibleTabs =
     editorMode === "Area"
       ? tabs
@@ -8477,6 +8776,7 @@ export default function App({ repository }: AppProps) {
                 skillCount={skillRows.length}
                 groupCount={groupRows.length}
                 commandCount={commandRows.length}
+                socialCount={socialRows.length}
                 roomCount={roomRows.length}
                 mobileCount={mobileRows.length}
                 objectCount={objectRows.length}
@@ -8498,12 +8798,14 @@ export default function App({ repository }: AppProps) {
                 skillForm={skillFormNode}
                 groupForm={groupFormNode}
                 commandForm={commandFormNode}
+                socialForm={socialFormNode}
                 tableView={tableViewNode}
                 classTableView={classTableViewNode}
                 raceTableView={raceTableViewNode}
                 skillTableView={skillTableViewNode}
                 groupTableView={groupTableViewNode}
                 commandTableView={commandTableViewNode}
+                socialTableView={socialTableViewNode}
                 mapView={mapViewNode}
                 worldView={worldViewNode}
                 scriptView={scriptViewNode}
