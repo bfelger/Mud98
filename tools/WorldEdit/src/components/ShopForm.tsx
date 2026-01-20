@@ -1,10 +1,11 @@
 import type { FormEventHandler } from "react";
-import type { FieldPath, UseFormRegister } from "react-hook-form";
+import type { Control, FieldPath, UseFormRegister } from "react-hook-form";
 import { VnumPicker, type VnumOption } from "./VnumPicker";
 
 type ShopFormProps = {
   onSubmit: FormEventHandler<HTMLFormElement>;
   register: UseFormRegister<any>;
+  control: Control<any>;
   formState: {
     isDirty: boolean;
     errors: Record<string, { message?: string } | undefined>;
@@ -15,6 +16,7 @@ type ShopFormProps = {
 export function ShopForm({
   onSubmit,
   register,
+  control,
   formState,
   mobileVnumOptions
 }: ShopFormProps) {
@@ -29,6 +31,7 @@ export function ShopForm({
             label="Keeper VNUM"
             name={"keeper" as FieldPath<any>}
             register={register}
+            control={control}
             options={mobileVnumOptions}
             error={errors.keeper?.message}
           />

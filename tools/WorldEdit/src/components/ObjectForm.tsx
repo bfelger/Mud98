@@ -1,5 +1,5 @@
 import type { FormEventHandler } from "react";
-import type { FieldPath, UseFormRegister } from "react-hook-form";
+import type { Control, FieldPath, UseFormRegister } from "react-hook-form";
 import { EventBindingsView } from "./EventBindingsView";
 import { VnumPicker, type VnumOption } from "./VnumPicker";
 import type { EventBinding, EventEntityKey } from "../data/eventTypes";
@@ -7,6 +7,7 @@ import type { EventBinding, EventEntityKey } from "../data/eventTypes";
 type ObjectFormProps = {
   onSubmit: FormEventHandler<HTMLFormElement>;
   register: UseFormRegister<any>;
+  control: Control<any>;
   formState: {
     isDirty: boolean;
     errors: Record<string, { message?: string } | undefined>;
@@ -35,6 +36,7 @@ type ObjectFormProps = {
 export function ObjectForm({
   onSubmit,
   register,
+  control,
   formState,
   itemTypeOptions,
   wearFlags,
@@ -403,6 +405,7 @@ export function ObjectForm({
                       "container.keyVnum" as FieldPath<any>
                     }
                     register={register}
+                    control={control}
                     options={objectVnumOptions}
                     error={
                       errors.container?.keyVnum
@@ -783,6 +786,7 @@ export function ObjectForm({
                       "portal.toVnum" as FieldPath<any>
                     }
                     register={register}
+                    control={control}
                     options={roomVnumOptions}
                     error={
                       errors.portal?.toVnum?.message

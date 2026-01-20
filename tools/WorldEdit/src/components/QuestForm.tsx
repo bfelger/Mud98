@@ -1,10 +1,11 @@
 import type { FormEventHandler } from "react";
-import type { FieldPath, UseFormRegister } from "react-hook-form";
+import type { Control, FieldPath, UseFormRegister } from "react-hook-form";
 import { VnumPicker, type VnumOption } from "./VnumPicker";
 
 type QuestFormProps = {
   onSubmit: FormEventHandler<HTMLFormElement>;
   register: UseFormRegister<any>;
+  control: Control<any>;
   formState: {
     isDirty: boolean;
     errors: Record<string, { message?: string } | undefined>;
@@ -16,6 +17,7 @@ type QuestFormProps = {
 export function QuestForm({
   onSubmit,
   register,
+  control,
   formState,
   questTypeOptions,
   objectVnumOptions
@@ -228,6 +230,7 @@ export function QuestForm({
                     label={`Item ${index + 1}`}
                     name={`rewardObjs.${index}` as FieldPath<any>}
                     register={register}
+                    control={control}
                     options={objectVnumOptions}
                     error={errors.rewardObjs?.[index]?.message}
                   />

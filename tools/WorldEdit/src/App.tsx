@@ -2008,6 +2008,8 @@ function buildVnumOptions(
   }
   const list = getEntityList(areaData, entity);
   const options: VnumOption[] = [];
+  const entityLabel =
+    entity === "Rooms" ? "Room" : entity === "Mobiles" ? "Mobile" : "Object";
   for (const entry of list) {
     if (!entry || typeof entry !== "object") {
       continue;
@@ -2017,15 +2019,20 @@ function buildVnumOptions(
     if (vnum === null) {
       continue;
     }
-    let label = "VNUM";
+    let name = "VNUM";
     if (entity === "Rooms") {
-      label = getFirstString(record.name, "(unnamed room)");
+      name = getFirstString(record.name, "(unnamed room)");
     } else if (entity === "Mobiles") {
-      label = getFirstString(record.shortDescr, "(unnamed mobile)");
+      name = getFirstString(record.shortDescr, "(unnamed mobile)");
     } else {
-      label = getFirstString(record.shortDescr, "(unnamed object)");
+      name = getFirstString(record.shortDescr, "(unnamed object)");
     }
-    options.push({ vnum, label: `${vnum} - ${label}` });
+    options.push({
+      vnum,
+      label: `${entityLabel} · ${name}`,
+      entityType: entityLabel,
+      name
+    });
   }
   return options;
 }
@@ -4299,7 +4306,8 @@ export default function App({ repository }: AppProps) {
   const {
     register: registerObject,
     handleSubmit: handleObjectSubmitForm,
-    formState: objectFormState
+    formState: objectFormState,
+    control: objectFormControl
   } = objectForm;
   const resetForm = useForm<ResetFormValues>({
     resolver: zodResolver(resetFormSchema),
@@ -4323,7 +4331,8 @@ export default function App({ repository }: AppProps) {
   const {
     register: registerReset,
     handleSubmit: handleResetSubmitForm,
-    formState: resetFormState
+    formState: resetFormState,
+    control: resetFormControl
   } = resetForm;
   const shopForm = useForm<ShopFormValues>({
     resolver: zodResolver(shopFormSchema),
@@ -4339,7 +4348,8 @@ export default function App({ repository }: AppProps) {
   const {
     register: registerShop,
     handleSubmit: handleShopSubmitForm,
-    formState: shopFormState
+    formState: shopFormState,
+    control: shopFormControl
   } = shopForm;
   const questForm = useForm<QuestFormValues>({
     resolver: zodResolver(questFormSchema),
@@ -4366,7 +4376,8 @@ export default function App({ repository }: AppProps) {
   const {
     register: registerQuest,
     handleSubmit: handleQuestSubmitForm,
-    formState: questFormState
+    formState: questFormState,
+    control: questFormControl
   } = questForm;
   const factionForm = useForm<FactionFormValues>({
     resolver: zodResolver(factionFormSchema),
@@ -8581,6 +8592,7 @@ export default function App({ repository }: AppProps) {
     <RoomForm
       onSubmit={handleRoomSubmitForm(handleRoomSubmit)}
       register={registerRoom}
+      control={roomFormControl}
       formState={roomFormState}
       exitFields={exitFields}
       appendExit={appendExit}
@@ -8618,6 +8630,7 @@ export default function App({ repository }: AppProps) {
     <ObjectForm
       onSubmit={handleObjectSubmitForm(handleObjectSubmit)}
       register={registerObject}
+      control={objectFormControl}
       formState={objectFormState}
       itemTypeOptions={itemTypeOptions}
       wearFlags={wearFlags}
@@ -8644,6 +8657,7 @@ export default function App({ repository }: AppProps) {
     <ResetForm
       onSubmit={handleResetSubmitForm(handleResetSubmit)}
       register={registerReset}
+      control={resetFormControl}
       formState={resetFormState}
       activeResetCommand={activeResetCommand}
       resetCommandOptions={resetCommandOptions}
@@ -8659,6 +8673,7 @@ export default function App({ repository }: AppProps) {
     <ShopForm
       onSubmit={handleShopSubmitForm(handleShopSubmit)}
       register={registerShop}
+      control={shopFormControl}
       formState={shopFormState}
       mobileVnumOptions={mobileVnumOptions}
     />
@@ -8667,6 +8682,7 @@ export default function App({ repository }: AppProps) {
     <QuestForm
       onSubmit={handleQuestSubmitForm(handleQuestSubmit)}
       register={registerQuest}
+      control={questFormControl}
       formState={questFormState}
       questTypeOptions={[...questTypeOptions]}
       objectVnumOptions={objectVnumOptions}

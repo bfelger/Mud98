@@ -1,12 +1,17 @@
+import { useMemo } from "react";
 import type {
+  Control,
   FieldPath,
   FieldValues,
   UseFormRegister
 } from "react-hook-form";
+import { useWatch } from "react-hook-form";
 
 export type VnumOption = {
   vnum: number;
   label: string;
+  entityType?: string;
+  name?: string;
 };
 
 type VnumPickerProps<TFieldValues extends FieldValues> = {
@@ -14,6 +19,7 @@ type VnumPickerProps<TFieldValues extends FieldValues> = {
   label: string;
   name: FieldPath<TFieldValues>;
   register: UseFormRegister<TFieldValues>;
+  control: Control<TFieldValues>;
   options: VnumOption[];
   error?: string;
 };
@@ -23,10 +29,35 @@ export function VnumPicker<TFieldValues extends FieldValues>({
   label,
   name,
   register,
+  control,
   options,
   error
 }: VnumPickerProps<TFieldValues>) {
   const listId = `${id}-options`;
+  const optionMap = useMemo(() => {
+    const map = new Map<number, VnumOption>();
+    options.forEach((option) => {
+      map.set(option.vnum, option);
+    });
+    return map;
+  }, [options]);
+  const watchedValue = useWatch({
+    control,
+    name
+  });
+  const parsedVnum =
+    typeof watchedValue === "number"
+      ? watchedValue
+      : typeof watchedValue === "string"
+        ? Number.parseInt(watchedValue, 10)
+        : Number.NaN;
+  const resolvedOption = Number.isFinite(parsedVnum)
+    ? optionMap.get(parsedVnum)
+    : undefined;
+  const helperText =
+    resolvedOption?.entityType && resolvedOption?.name
+      ? `${resolvedOption.entityType} · ${resolvedOption.name}`
+      : resolvedOption?.label ?? null;
   return (
     <div className="form-field">
       <label className="form-label" htmlFor={id}>
@@ -42,11 +73,20 @@ export function VnumPicker<TFieldValues extends FieldValues>({
       />
       <datalist id={listId}>
         {options.map((option) => (
-          <option key={option.vnum} value={String(option.vnum)}>
+          <option
+            key={option.vnum}
+            value={String(option.vnum)}
+            label={option.label}
+          >
             {option.label}
           </option>
         ))}
       </datalist>
+      {helperText ? (
+        <div className="form-hint" title={helperText}>
+          {helperText}
+        </div>
+      ) : null}
       {error ? <span className="form-error">{error}</span> : null}
     </div>
   );

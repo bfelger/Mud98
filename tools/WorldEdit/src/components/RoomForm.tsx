@@ -1,5 +1,5 @@
 import type { FormEventHandler } from "react";
-import type { FieldPath, UseFormRegister } from "react-hook-form";
+import type { Control, FieldPath, UseFormRegister } from "react-hook-form";
 import { EventBindingsView } from "./EventBindingsView";
 import { VnumPicker, type VnumOption } from "./VnumPicker";
 import type { EventBinding, EventEntityKey } from "../data/eventTypes";
@@ -7,6 +7,7 @@ import type { EventBinding, EventEntityKey } from "../data/eventTypes";
 type RoomFormProps = {
   onSubmit: FormEventHandler<HTMLFormElement>;
   register: UseFormRegister<any>;
+  control: Control<any>;
   formState: {
     isDirty: boolean;
     errors: Record<string, { message?: string } | undefined>;
@@ -30,6 +31,7 @@ type RoomFormProps = {
 export function RoomForm({
   onSubmit,
   register,
+  control,
   formState,
   exitFields,
   appendExit,
@@ -192,6 +194,7 @@ export function RoomForm({
                     label="To VNUM"
                     name={`exits.${index}.toVnum` as FieldPath<any>}
                     register={register}
+                    control={control}
                     options={roomVnumOptions}
                     error={errors.exits?.[index]?.toVnum?.message}
                   />
@@ -200,6 +203,7 @@ export function RoomForm({
                     label="Key VNUM"
                     name={`exits.${index}.key` as FieldPath<any>}
                     register={register}
+                    control={control}
                     options={objectVnumOptions}
                   />
                   <div className="form-field">
