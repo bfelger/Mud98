@@ -311,8 +311,15 @@ export type RoomLayoutEntry = {
   locked?: boolean;
 };
 
+export type AreaLayoutEntry = {
+  x: number;
+  y: number;
+  locked?: boolean;
+};
+
 export type EditorLayout = {
   rooms?: Record<string, RoomLayoutEntry>;
+  areas?: Record<string, AreaLayoutEntry>;
 };
 
 export type AreaIndexEntry = {

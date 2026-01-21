@@ -76,6 +76,7 @@ import type {
   ClassDefinition,
   CommandDataFile,
   CommandDefinition,
+  AreaLayoutEntry,
   EditorLayout,
   EditorMeta,
   GroupDataFile,
@@ -106,9 +107,17 @@ import type {
   ValidationRule,
   ValidationSeverity
 } from "./validation/types";
-import { buildValidationIssues, loadValidationConfig } from "./validation/registry";
+import {
+  buildValidationIssues,
+  loadValidationConfig
+} from "./validation/registry";
 import { loadPluginRules } from "./validation/plugins";
-import ELK from "elkjs/lib/elk.bundled.js";
+import {
+  layoutAreaGraphNodes,
+  layoutRoomNodes,
+  areaNodeSize,
+  roomNodeSize
+} from "./map/graphLayout";
 import {
   containerFlagEnum,
   containerFlags,
@@ -307,25 +316,6 @@ const resetCommandLabels: Record<ResetCommand, string> = {
   randomizeExits: "Randomize Exits"
 };
 
-const elk = new ELK();
-const roomNodeSize = {
-  width: 180,
-  height: 180
-};
-const areaNodeSize = {
-  width: 200,
-  height: 120
-};
-const roomPortDefinitions = [
-  { id: "north-in", side: "NORTH" },
-  { id: "north-out", side: "NORTH" },
-  { id: "east-in", side: "EAST" },
-  { id: "east-out", side: "EAST" },
-  { id: "south-in", side: "SOUTH" },
-  { id: "south-out", side: "SOUTH" },
-  { id: "west-in", side: "WEST" },
-  { id: "west-out", side: "WEST" }
-] as const;
 const directionHandleMap: Record<string, { source: string; target: string }> = {
   north: { source: "north-out", target: "south-in" },
   east: { source: "east-out", target: "west-in" },
@@ -341,18 +331,6 @@ const areaDirectionHandleMap: Record<string, { source: string; target: string }>
     up: { source: "north-out", target: "south-in" },
     down: { source: "south-out", target: "north-in" }
   };
-const directionOffsets: Record<string, { x: number; y: number }> = {
-  north: { x: 0, y: -1 },
-  east: { x: 1, y: 0 },
-  south: { x: 0, y: 1 },
-  west: { x: -1, y: 0 }
-};
-const oppositeDirections: Record<string, string> = {
-  north: "south",
-  east: "west",
-  south: "north",
-  west: "east"
-};
 const externalSourceHandles: Record<string, string> = {
   up: "north-out",
   down: "south-out"
@@ -538,6 +516,7 @@ type ExternalExit = {
 };
 
 type RoomLayoutMap = Record<string, RoomLayoutEntry>;
+type AreaLayoutMap = Record<string, AreaLayoutEntry>;
 
 type AreaGraphEntry = {
   id: string;
@@ -550,6 +529,8 @@ type AreaGraphNodeData = {
   range: string;
   isCurrent?: boolean;
   isMatch?: boolean;
+  locked?: boolean;
+  dirty?: boolean;
 };
 
 type ExitValidationResult = {
@@ -1209,7 +1190,8 @@ function buildEditorMeta(
   existing: EditorMeta | null,
   activeTab: string,
   selectedEntity: string,
-  roomLayout: RoomLayoutMap
+  roomLayout: RoomLayoutMap,
+  areaLayout: AreaLayoutMap
 ): EditorMeta {
   const now = new Date().toISOString();
   const base: EditorMeta = existing ?? {
@@ -1221,7 +1203,8 @@ function buildEditorMeta(
   };
   const nextLayout: EditorLayout = {
     ...(base.layout ?? {}),
-    rooms: roomLayout
+    rooms: roomLayout,
+    areas: areaLayout
   };
 
   return {
@@ -1937,15 +1920,28 @@ function RoomEdge({
   selected,
   markerEnd,
   interactionWidth
-}: EdgeProps<{ dirKey?: string; exitFlags?: string[]; invalid?: boolean }>) {
+}: EdgeProps<{
+  dirKey?: string;
+  exitFlags?: string[];
+  invalid?: boolean;
+  nodeType?: string;
+  nodeSize?: { width: number; height: number };
+}>) {
   const nodeInternals = useStore((state) => state.nodeInternals);
+  const nodeType =
+    data?.nodeType && typeof data.nodeType === "string"
+      ? data.nodeType
+      : "room";
+  const fallbackSize =
+    data?.nodeSize ??
+    (nodeType === "area" ? areaNodeSize : roomNodeSize);
   const obstacles = useMemo(() => {
     const entries = Array.from(nodeInternals.values());
     return entries
-      .filter((node) => node.type === "room")
+      .filter((node) => node.type === nodeType)
       .map((node) => {
-        const width = node.width ?? roomNodeSize.width;
-        const height = node.height ?? roomNodeSize.height;
+        const width = node.width ?? fallbackSize.width;
+        const height = node.height ?? fallbackSize.height;
         const position = node.positionAbsolute ?? node.position;
         return {
           id: node.id,
@@ -1955,7 +1951,7 @@ function RoomEdge({
           bottom: position.y + height
         };
       });
-  }, [nodeInternals]);
+  }, [nodeInternals, nodeType, fallbackSize]);
   const filteredObstacles = useMemo(
     () =>
       obstacles.filter(
@@ -2123,7 +2119,12 @@ function ExternalStubEdge({
   );
 }
 
-const roomEdgeTypes = { room: RoomEdge, vertical: VerticalEdge, external: ExternalStubEdge };
+const roomEdgeTypes = {
+  room: RoomEdge,
+  vertical: VerticalEdge,
+  external: ExternalStubEdge
+};
+const areaEdgeTypes = { area: RoomEdge };
 
 function buildVnumOptions(
   areaData: AreaJson | null,
@@ -3005,6 +3006,40 @@ function extractRoomLayout(layout: EditorLayout | null | undefined): RoomLayoutM
   return entries;
 }
 
+function extractAreaLayout(layout: EditorLayout | null | undefined): AreaLayoutMap {
+  const areas =
+    layout && typeof layout === "object" && "areas" in layout
+      ? layout.areas
+      : undefined;
+  if (!areas || typeof areas !== "object") {
+    return {};
+  }
+  const entries: AreaLayoutMap = {};
+  Object.entries(areas).forEach(([key, value]) => {
+    if (!value || typeof value !== "object") {
+      return;
+    }
+    const record = value as Record<string, unknown>;
+    const x = record.x;
+    const y = record.y;
+    if (typeof x !== "number" || typeof y !== "number") {
+      return;
+    }
+    if (!Number.isFinite(x) || !Number.isFinite(y)) {
+      return;
+    }
+    if (!record.locked) {
+      return;
+    }
+    entries[key] = {
+      x,
+      y,
+      locked: true
+    };
+  });
+  return entries;
+}
+
 function applyRoomLayoutOverrides(
   nodes: Node<RoomNodeData>[],
   layout: RoomLayoutMap
@@ -3034,20 +3069,31 @@ function applyRoomLayoutOverrides(
   });
 }
 
-function getEdgeDirKey(edge: Edge): string | null {
-  if (
-    typeof edge.data === "object" &&
-    edge.data &&
-    "dirKey" in edge.data &&
-    typeof (edge.data as { dirKey?: unknown }).dirKey === "string"
-  ) {
-    return String((edge.data as { dirKey?: string }).dirKey);
-  }
-  if (typeof edge.label === "string") {
-    const labelKey = edge.label.trim().toLowerCase();
-    return labelKey.length ? labelKey : null;
-  }
-  return null;
+function applyAreaLayoutOverrides(
+  nodes: Node<AreaGraphNodeData>[],
+  layout: AreaLayoutMap,
+  dirtyNodes: Set<string>
+): Node<AreaGraphNodeData>[] {
+  return nodes.map((node) => {
+    const override = layout[node.id];
+    const isLocked = override?.locked === true;
+    const isDirty = dirtyNodes.has(node.id);
+    return {
+      ...node,
+      position: isLocked
+        ? {
+            x: override.x,
+            y: override.y
+          }
+        : node.position,
+      draggable: !isLocked,
+      data: {
+        ...node.data,
+        locked: isLocked,
+        dirty: isDirty
+      }
+    };
+  });
 }
 
 function getDominantExitDirection(
@@ -3070,411 +3116,6 @@ function getDominantExitDirection(
     }
   });
   return best;
-}
-
-function findOpenGridCoord(
-  start: { x: number; y: number },
-  occupied: Map<string, string>
-): { x: number; y: number } {
-  const keyFor = (pos: { x: number; y: number }) => `${pos.x},${pos.y}`;
-  if (!occupied.has(keyFor(start))) {
-    return start;
-  }
-  for (let radius = 1; radius <= 12; radius += 1) {
-    for (let dx = -radius; dx <= radius; dx += 1) {
-      for (let dy = -radius; dy <= radius; dy += 1) {
-        if (Math.abs(dx) !== radius && Math.abs(dy) !== radius) {
-          continue;
-        }
-        const candidate = { x: start.x + dx, y: start.y + dy };
-        if (!occupied.has(keyFor(candidate))) {
-          return candidate;
-        }
-      }
-    }
-  }
-  return start;
-}
-
-function getAreaGridDirection(dirKey: string | null): string | null {
-  if (!dirKey) {
-    return null;
-  }
-  if (dirKey in directionOffsets) {
-    return dirKey;
-  }
-  if (dirKey === "up") {
-    return "north";
-  }
-  if (dirKey === "down") {
-    return "south";
-  }
-  return null;
-}
-
-function layoutAreaGraphNodesGrid(
-  nodes: Node<AreaGraphNodeData>[],
-  edges: Edge[]
-): Node<AreaGraphNodeData>[] {
-  if (!nodes.length) {
-    return [];
-  }
-  const nodeIds = new Set(nodes.map((node) => node.id));
-  const adjacency = new Map<string, Array<{ id: string; dir: string }>>();
-  const addAdjacency = (from: string, to: string, dir: string) => {
-    if (!adjacency.has(from)) {
-      adjacency.set(from, []);
-    }
-    adjacency.get(from)?.push({ id: to, dir });
-  };
-  edges.forEach((edge) => {
-    const dirKey = getAreaGridDirection(getEdgeDirKey(edge));
-    if (!dirKey || !(dirKey in directionOffsets)) {
-      return;
-    }
-    if (!nodeIds.has(edge.source) || !nodeIds.has(edge.target)) {
-      return;
-    }
-    addAdjacency(edge.source, edge.target, dirKey);
-    const opposite = oppositeDirections[dirKey];
-    if (opposite) {
-      addAdjacency(edge.target, edge.source, opposite);
-    }
-  });
-  const sortedNodeIds = [...nodeIds].sort((a, b) => a.localeCompare(b));
-  const positions = new Map<string, { x: number; y: number }>();
-  const visited = new Set<string>();
-  const components: Array<{
-    nodes: Map<string, { x: number; y: number }>;
-    width: number;
-    height: number;
-  }> = [];
-
-  sortedNodeIds.forEach((startId) => {
-    if (visited.has(startId)) {
-      return;
-    }
-    const queue: string[] = [startId];
-    const componentPositions = new Map<string, { x: number; y: number }>();
-    const occupied = new Map<string, string>();
-    const startPos = { x: 0, y: 0 };
-    componentPositions.set(startId, startPos);
-    occupied.set(`${startPos.x},${startPos.y}`, startId);
-    visited.add(startId);
-
-    while (queue.length) {
-      const current = queue.shift();
-      if (!current) {
-        break;
-      }
-      const currentPos = componentPositions.get(current);
-      if (!currentPos) {
-        continue;
-      }
-      const neighbors = adjacency.get(current) ?? [];
-      neighbors.forEach((neighbor) => {
-        if (componentPositions.has(neighbor.id)) {
-          return;
-        }
-        const offset = directionOffsets[neighbor.dir];
-        if (!offset) {
-          return;
-        }
-        let nextPos = {
-          x: currentPos.x + offset.x,
-          y: currentPos.y + offset.y
-        };
-        if (occupied.has(`${nextPos.x},${nextPos.y}`)) {
-          nextPos = findOpenGridCoord(nextPos, occupied);
-        }
-        componentPositions.set(neighbor.id, nextPos);
-        occupied.set(`${nextPos.x},${nextPos.y}`, neighbor.id);
-        queue.push(neighbor.id);
-        visited.add(neighbor.id);
-      });
-    }
-
-    let minX = 0;
-    let maxX = 0;
-    let minY = 0;
-    let maxY = 0;
-    componentPositions.forEach((pos) => {
-      minX = Math.min(minX, pos.x);
-      maxX = Math.max(maxX, pos.x);
-      minY = Math.min(minY, pos.y);
-      maxY = Math.max(maxY, pos.y);
-    });
-    const normalized = new Map<string, { x: number; y: number }>();
-    componentPositions.forEach((pos, nodeId) => {
-      normalized.set(nodeId, { x: pos.x - minX, y: pos.y - minY });
-    });
-    components.push({
-      nodes: normalized,
-      width: maxX - minX + 1,
-      height: maxY - minY + 1
-    });
-  });
-
-  const componentGap = 2;
-  const columns = Math.max(1, Math.ceil(Math.sqrt(components.length)));
-  const rowCount = Math.ceil(components.length / columns);
-  const columnWidths = new Array(columns).fill(0);
-  const rowHeights = new Array(rowCount).fill(0);
-
-  components.forEach((component, index) => {
-    const column = index % columns;
-    const row = Math.floor(index / columns);
-    columnWidths[column] = Math.max(columnWidths[column], component.width);
-    rowHeights[row] = Math.max(rowHeights[row], component.height);
-  });
-
-  const columnOffsets: number[] = [];
-  let columnCursor = 0;
-  columnWidths.forEach((width, index) => {
-    columnOffsets[index] = columnCursor;
-    columnCursor += width + componentGap;
-  });
-  const rowOffsets: number[] = [];
-  let rowCursor = 0;
-  rowHeights.forEach((height, index) => {
-    rowOffsets[index] = rowCursor;
-    rowCursor += height + componentGap;
-  });
-
-  const gridSpacingX = areaNodeSize.width + 140;
-  const gridSpacingY = areaNodeSize.height + 120;
-
-  components.forEach((component, index) => {
-    const column = index % columns;
-    const row = Math.floor(index / columns);
-    const offsetX = columnOffsets[column] ?? 0;
-    const offsetY = rowOffsets[row] ?? 0;
-    component.nodes.forEach((pos, nodeId) => {
-      positions.set(nodeId, {
-        x: (pos.x + offsetX) * gridSpacingX,
-        y: (pos.y + offsetY) * gridSpacingY
-      });
-    });
-  });
-
-  return nodes.map((node) => {
-    const position = positions.get(node.id);
-    if (!position) {
-      return node;
-    }
-    return {
-      ...node,
-      position
-    };
-  });
-}
-
-function layoutRoomNodesGrid(
-  nodes: Node<RoomNodeData>[],
-  edges: Edge[]
-): Node<RoomNodeData>[] {
-  if (!nodes.length) {
-    return [];
-  }
-  const nodeIds = new Set(nodes.map((node) => node.id));
-  const adjacency = new Map<string, Array<{ id: string; dir: string }>>();
-  const addAdjacency = (from: string, to: string, dir: string) => {
-    if (!adjacency.has(from)) {
-      adjacency.set(from, []);
-    }
-    adjacency.get(from)?.push({ id: to, dir });
-  };
-  edges.forEach((edge) => {
-    const dirKey = getEdgeDirKey(edge);
-    if (!dirKey || !(dirKey in directionOffsets)) {
-      return;
-    }
-    if (!nodeIds.has(edge.source) || !nodeIds.has(edge.target)) {
-      return;
-    }
-    addAdjacency(edge.source, edge.target, dirKey);
-    const opposite = oppositeDirections[dirKey];
-    if (opposite) {
-      addAdjacency(edge.target, edge.source, opposite);
-    }
-  });
-  const sortedNodeIds = [...nodeIds].sort((a, b) => {
-    const aNum = Number.parseInt(a, 10);
-    const bNum = Number.parseInt(b, 10);
-    if (Number.isNaN(aNum) || Number.isNaN(bNum)) {
-      return a.localeCompare(b);
-    }
-    return aNum - bNum;
-  });
-  const positions = new Map<string, { x: number; y: number }>();
-  const gridSpacingX = roomNodeSize.width + 110;
-  const gridSpacingY = roomNodeSize.height + 110;
-  const componentGap = 2;
-  let componentOffsetX = 0;
-
-  sortedNodeIds.forEach((startId) => {
-    if (positions.has(startId)) {
-      return;
-    }
-    const queue: string[] = [startId];
-    const componentPositions = new Map<string, { x: number; y: number }>();
-    const occupied = new Map<string, string>();
-    const startPos = { x: 0, y: 0 };
-    componentPositions.set(startId, startPos);
-    occupied.set(`${startPos.x},${startPos.y}`, startId);
-
-    while (queue.length) {
-      const current = queue.shift();
-      if (!current) {
-        break;
-      }
-      const currentPos = componentPositions.get(current);
-      if (!currentPos) {
-        continue;
-      }
-      const neighbors = adjacency.get(current) ?? [];
-      neighbors.forEach((neighbor) => {
-        if (componentPositions.has(neighbor.id)) {
-          return;
-        }
-        const offset = directionOffsets[neighbor.dir];
-        if (!offset) {
-          return;
-        }
-        let nextPos = {
-          x: currentPos.x + offset.x,
-          y: currentPos.y + offset.y
-        };
-        if (occupied.has(`${nextPos.x},${nextPos.y}`)) {
-          nextPos = findOpenGridCoord(nextPos, occupied);
-        }
-        componentPositions.set(neighbor.id, nextPos);
-        occupied.set(`${nextPos.x},${nextPos.y}`, neighbor.id);
-        queue.push(neighbor.id);
-      });
-    }
-
-    let minX = 0;
-    let maxX = 0;
-    let minY = 0;
-    let maxY = 0;
-    componentPositions.forEach((pos) => {
-      minX = Math.min(minX, pos.x);
-      maxX = Math.max(maxX, pos.x);
-      minY = Math.min(minY, pos.y);
-      maxY = Math.max(maxY, pos.y);
-    });
-    const shiftX = componentOffsetX - minX;
-    const shiftY = -minY;
-    componentPositions.forEach((pos, nodeId) => {
-      positions.set(nodeId, {
-        x: pos.x + shiftX,
-        y: pos.y + shiftY
-      });
-    });
-    componentOffsetX += maxX - minX + 1 + componentGap;
-  });
-
-  return nodes.map((node) => {
-    const gridPos = positions.get(node.id);
-    if (!gridPos) {
-      return node;
-    }
-    return {
-      ...node,
-      data: {
-        ...node.data,
-        grid: gridPos
-      },
-      position: {
-        x: gridPos.x * gridSpacingX,
-        y: gridPos.y * gridSpacingY
-      }
-    };
-  });
-}
-
-async function layoutRoomNodes(
-  nodes: Node<RoomNodeData>[],
-  edges: Edge[],
-  preferCardinalLayout: boolean
-): Promise<Node<RoomNodeData>[]> {
-  if (!nodes.length) {
-    return [];
-  }
-  if (preferCardinalLayout) {
-    return layoutRoomNodesGrid(nodes, edges);
-  }
-  const layoutEdges = edges.filter(
-    (edge) => edge.sourceHandle && edge.targetHandle
-  );
-  const layoutOptions: Record<string, string> = {
-    "elk.algorithm": "layered",
-    "elk.direction": "RIGHT",
-    "elk.spacing.nodeNode": "80",
-    "elk.layered.spacing.nodeNodeBetweenLayers": "140",
-    "elk.spacing.componentComponent": "120",
-    "elk.portConstraints": "FIXED_SIDE"
-  };
-  const graph = {
-    id: "root",
-    layoutOptions,
-    children: nodes.map((node) => ({
-      id: node.id,
-      width: roomNodeSize.width,
-      height: roomNodeSize.height,
-      ports: roomPortDefinitions.map((port) => ({
-        id: `${node.id}.${port.id}`,
-        layoutOptions: {
-          "elk.port.side": port.side
-        }
-      }))
-    })),
-    edges: layoutEdges.map((edge) => {
-      const dirKey = getEdgeDirKey(edge);
-      const directionPriority = dirKey === "east" ? "2" : "0";
-      return {
-        id: edge.id,
-        sources: [
-          edge.sourceHandle
-            ? `${edge.source}.${edge.sourceHandle}`
-            : edge.source
-        ],
-        targets: [
-          edge.targetHandle
-            ? `${edge.target}.${edge.targetHandle}`
-            : edge.target
-        ],
-        layoutOptions: {
-          "elk.layered.priority.direction": directionPriority
-        }
-      };
-    })
-  };
-  const layout = await elk.layout(graph);
-  const positions = new Map<string, { x: number; y: number }>();
-  layout.children?.forEach((child) => {
-    if (child.id && typeof child.x === "number" && typeof child.y === "number") {
-      positions.set(child.id, { x: child.x, y: child.y });
-    }
-  });
-  return nodes.map((node) => {
-    const position = positions.get(node.id);
-    if (!position) {
-      return node;
-    }
-    return {
-      ...node,
-      position
-    };
-  });
-}
-
-async function layoutAreaGraphNodes(
-  nodes: Node<AreaGraphNodeData>[],
-  edges: Edge[]
-): Promise<Node<AreaGraphNodeData>[]> {
-  return layoutAreaGraphNodesGrid(nodes, edges);
 }
 
 function buildRoomEdges(
@@ -4362,7 +4003,11 @@ export default function App({ repository }: AppProps) {
   );
   const [layoutNodes, setLayoutNodes] = useState<Node<RoomNodeData>[]>([]);
   const [roomLayout, setRoomLayout] = useState<RoomLayoutMap>({});
+  const [areaLayout, setAreaLayout] = useState<AreaLayoutMap>({});
   const [dirtyRoomNodes, setDirtyRoomNodes] = useState<Set<string>>(
+    () => new Set()
+  );
+  const [dirtyAreaNodes, setDirtyAreaNodes] = useState<Set<string>>(
     () => new Set()
   );
   const [diagnosticFilter, setDiagnosticFilter] = useState<
@@ -6709,15 +6354,20 @@ export default function App({ repository }: AppProps) {
       }
       const dirKey = getDominantExitDirection(link.directionCounts);
       const handles = dirKey ? areaDirectionHandleMap[dirKey] : null;
+      const edgeData = {
+        nodeType: "area",
+        ...(dirKey ? { dirKey } : {})
+      };
       edges.push({
         id: `area-link-${link.fromFile}-${link.toFile}`,
         source: link.fromFile,
         target: link.toFile,
         label: link.count === 1 ? "1 exit" : `${link.count} exits`,
         animated: false,
+        type: "area",
         sourceHandle: handles?.source,
         targetHandle: handles?.target,
-        data: dirKey ? { dirKey } : undefined
+        data: edgeData
       });
     }
 
@@ -6760,15 +6410,20 @@ export default function App({ repository }: AppProps) {
       }
       const dirKey = getDominantExitDirection(directions.get(targetId));
       const handles = dirKey ? areaDirectionHandleMap[dirKey] : null;
+      const edgeData = {
+        nodeType: "area",
+        ...(dirKey ? { dirKey } : {})
+      };
       edges.push({
         id: `area-link-${currentId}-${targetId}`,
         source: currentId,
         target: targetId,
         label: count === 1 ? "1 exit" : `${count} exits`,
         animated: false,
+        type: "area",
         sourceHandle: handles?.source,
         targetHandle: handles?.target,
-        data: dirKey ? { dirKey } : undefined
+        data: edgeData
       });
     }
     return edges;
@@ -6779,34 +6434,6 @@ export default function App({ repository }: AppProps) {
     areaIndex,
     externalExits
   ]);
-  useEffect(() => {
-    let cancelled = false;
-    const runLayout = async () => {
-      if (!areaGraphNodes.length) {
-        if (!cancelled) {
-          setAreaGraphLayoutNodes([]);
-        }
-        return;
-      }
-      try {
-        const nextNodes = await layoutAreaGraphNodes(
-          areaGraphNodes,
-          areaGraphEdges
-        );
-        if (!cancelled) {
-          setAreaGraphLayoutNodes(nextNodes);
-        }
-      } catch {
-        if (!cancelled) {
-          setAreaGraphLayoutNodes(areaGraphNodes);
-        }
-      }
-    };
-    runLayout();
-    return () => {
-      cancelled = true;
-    };
-  }, [areaGraphNodes, areaGraphEdges]);
   const handleMapNavigate = useCallback(
     (vnum: number) => {
       setSelectedRoomVnum(vnum);
@@ -6865,6 +6492,24 @@ export default function App({ repository }: AppProps) {
   const selectedRoomLocked = Boolean(selectedRoomNode?.data.locked);
   const dirtyRoomCount = dirtyRoomNodes.size;
   const hasRoomLayout = Object.keys(roomLayout).length > 0;
+  const worldMapNodes = useMemo(
+    () =>
+      applyAreaLayoutOverrides(
+        areaGraphLayoutNodes.length ? areaGraphLayoutNodes : areaGraphNodes,
+        areaLayout,
+        dirtyAreaNodes
+      ),
+    [areaGraphLayoutNodes, areaGraphNodes, areaLayout, dirtyAreaNodes]
+  );
+  const selectedAreaNode = useMemo(
+    () => worldMapNodes.find((node) => node.selected) ?? null,
+    [worldMapNodes]
+  );
+  const selectedAreaLocked = Boolean(
+    selectedAreaNode && areaLayout[selectedAreaNode.id]?.locked
+  );
+  const dirtyAreaCount = dirtyAreaNodes.size;
+  const hasAreaLayout = Object.keys(areaLayout).length > 0;
   const handleLockSelectedRoom = useCallback(() => {
     if (!selectedRoomNode) {
       return;
@@ -6915,6 +6560,108 @@ export default function App({ repository }: AppProps) {
       return next;
     });
   }, [selectedRoomNode, roomNodesWithLayout]);
+  const runAreaGraphLayout = useCallback(
+    async (cancelRef?: { current: boolean }) => {
+      if (!areaGraphNodes.length) {
+        if (!cancelRef?.current) {
+          setAreaGraphLayoutNodes([]);
+        }
+        return;
+      }
+      try {
+        const nextNodes = await layoutAreaGraphNodes(
+          areaGraphNodes,
+          areaGraphEdges
+        );
+        if (!cancelRef?.current) {
+          setAreaGraphLayoutNodes(nextNodes);
+          setDirtyAreaNodes(new Set());
+        }
+      } catch {
+        if (!cancelRef?.current) {
+          setAreaGraphLayoutNodes(areaGraphNodes);
+          setDirtyAreaNodes(new Set());
+        }
+      }
+    },
+    [areaGraphNodes, areaGraphEdges]
+  );
+  const handleLockSelectedArea = useCallback(() => {
+    if (!selectedAreaNode) {
+      return;
+    }
+    setAreaLayout((current) => ({
+      ...current,
+      [selectedAreaNode.id]: {
+        x: selectedAreaNode.position.x,
+        y: selectedAreaNode.position.y,
+        locked: true
+      }
+    }));
+    setDirtyAreaNodes((current) => {
+      if (!current.has(selectedAreaNode.id)) {
+        return current;
+      }
+      const next = new Set(current);
+      next.delete(selectedAreaNode.id);
+      return next;
+    });
+  }, [selectedAreaNode]);
+  const handleUnlockSelectedArea = useCallback(() => {
+    if (!selectedAreaNode) {
+      return;
+    }
+    setAreaGraphLayoutNodes((current) => {
+      const source = current.length ? current : areaGraphNodes;
+      return source.map((node) =>
+        node.id === selectedAreaNode.id
+          ? { ...node, position: selectedAreaNode.position }
+          : node
+      );
+    });
+    setAreaLayout((current) => {
+      if (!current[selectedAreaNode.id]) {
+        return current;
+      }
+      const next = { ...current };
+      delete next[selectedAreaNode.id];
+      return next;
+    });
+    setDirtyAreaNodes((current) => {
+      if (current.has(selectedAreaNode.id)) {
+        return current;
+      }
+      const next = new Set(current);
+      next.add(selectedAreaNode.id);
+      return next;
+    });
+  }, [selectedAreaNode, areaGraphNodes]);
+  const handleLockDirtyAreas = useCallback(() => {
+    if (!dirtyAreaNodes.size) {
+      return;
+    }
+    setAreaLayout((current) => {
+      const next = { ...current };
+      dirtyAreaNodes.forEach((id) => {
+        const node = worldMapNodes.find((entry) => entry.id === id);
+        if (!node) {
+          return;
+        }
+        next[id] = {
+          x: node.position.x,
+          y: node.position.y,
+          locked: true
+        };
+      });
+      return next;
+    });
+    setDirtyAreaNodes(new Set());
+  }, [dirtyAreaNodes, worldMapNodes]);
+  const handleClearAreaLayout = useCallback(() => {
+    setAreaLayout({});
+    setDirtyAreaNodes(new Set());
+    void runAreaGraphLayout();
+  }, [runAreaGraphLayout]);
   const handleClearRoomLayout = useCallback(() => {
     setRoomLayout({});
     setLayoutNodes([]);
@@ -6969,6 +6716,57 @@ export default function App({ repository }: AppProps) {
     },
     [roomNodesWithLayout]
   );
+  const handleAreaGraphNodesChange = useCallback(
+    (changes: NodeChange[]) => {
+      setAreaGraphLayoutNodes((current) => {
+        const source = current.length ? current : areaGraphNodes;
+        return applyNodeChanges(changes, source);
+      });
+      const movedIds = changes
+        .filter((change) => change.type === "position")
+        .map((change) => change.id);
+      if (movedIds.length) {
+        setDirtyAreaNodes((current) => {
+          let changed = false;
+          const next = new Set(current);
+          movedIds.forEach((id) => {
+            if (!next.has(id)) {
+              next.add(id);
+              changed = true;
+            }
+          });
+          return changed ? next : current;
+        });
+      }
+    },
+    [areaGraphNodes]
+  );
+  const handleAreaGraphNodeDragStop = useCallback(
+    (_: unknown, node: Node<AreaGraphNodeData>) => {
+      setAreaGraphLayoutNodes((current) => {
+        const source = current.length ? current : areaGraphNodes;
+        return source.map((entry) =>
+          entry.id === node.id ? { ...entry, position: node.position } : entry
+        );
+      });
+      setDirtyAreaNodes((current) => {
+        if (current.has(node.id)) {
+          return current;
+        }
+        const next = new Set(current);
+        next.add(node.id);
+        return next;
+      });
+    },
+    [areaGraphNodes]
+  );
+  useEffect(() => {
+    const cancelRef = { current: false };
+    runAreaGraphLayout(cancelRef);
+    return () => {
+      cancelRef.current = true;
+    };
+  }, [runAreaGraphLayout]);
   const runRoomLayout = useCallback(
     async (cancelRef?: { current: boolean }) => {
       if (activeTab !== "Map") {
@@ -9659,7 +9457,9 @@ export default function App({ repository }: AppProps) {
       }
       setEditorMeta(loadedMeta);
       setRoomLayout(extractRoomLayout(loadedMeta?.layout));
+      setAreaLayout(extractAreaLayout(loadedMeta?.layout));
       setDirtyRoomNodes(new Set());
+      setDirtyAreaNodes(new Set());
       setStatusMessage(
         loadedMeta
           ? `Loaded ${fileNameFromPath(path)} + editor meta`
@@ -9704,7 +9504,8 @@ export default function App({ repository }: AppProps) {
       editorMeta,
       activeTab,
       selectedEntity,
-      roomLayout
+      roomLayout,
+      areaLayout
     );
     await repository.saveEditorMeta(metaPath, nextMeta);
     setEditorMeta(nextMeta);
@@ -10255,14 +10056,25 @@ export default function App({ repository }: AppProps) {
   );
   const worldViewNode = (
     <AreaGraphView
-      nodes={areaGraphLayoutNodes.length ? areaGraphLayoutNodes : areaGraphNodes}
+      nodes={worldMapNodes}
       edges={areaGraphEdges}
+      edgeTypes={areaEdgeTypes}
+      nodesDraggable={true}
+      dirtyCount={dirtyAreaCount}
+      selectedNodeLocked={selectedAreaLocked}
+      hasLayout={hasAreaLayout}
       filterValue={areaGraphFilter}
       vnumQuery={areaGraphVnumQuery}
       matchLabel={areaGraphMatchLabel}
       onFilterChange={setAreaGraphFilter}
       onVnumQueryChange={setAreaGraphVnumQuery}
       onNodeClick={() => null}
+      onNodesChange={handleAreaGraphNodesChange}
+      onNodeDragStop={handleAreaGraphNodeDragStop}
+      onLockSelected={handleLockSelectedArea}
+      onUnlockSelected={handleUnlockSelectedArea}
+      onLockDirty={handleLockDirtyAreas}
+      onClearLayout={handleClearAreaLayout}
     />
   );
   const scriptViewNode = (
