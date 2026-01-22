@@ -49,6 +49,7 @@ import { TutorialForm } from "./components/TutorialForm";
 import { RecipeForm } from "./components/RecipeForm";
 import { GatherSpawnForm } from "./components/GatherSpawnForm";
 import { LootForm } from "./components/LootForm";
+import { GlobalFormActions } from "./components/GlobalFormActions";
 import { TableView } from "./components/TableView";
 import { ClassTableView } from "./components/ClassTableView";
 import { RaceTableView } from "./components/RaceTableView";
@@ -10090,40 +10091,121 @@ export default function App({ repository }: AppProps) {
   const referenceSummary = referenceData
     ? `classes ${referenceData.classes.length}, races ${referenceData.races.length}, skills ${referenceData.skills.length}, groups ${referenceData.groups.length}, commands ${referenceData.commands.length}, socials ${referenceData.socials.length}, tutorials ${referenceData.tutorials.length}`
     : "not loaded";
-  const dataFileLabel =
-    selectedGlobalEntity === "Classes"
-      ? classDataPath
-        ? fileNameFromPath(classDataPath)
-        : "not loaded"
-      : selectedGlobalEntity === "Races"
-        ? raceDataPath
-          ? fileNameFromPath(raceDataPath)
-          : "not loaded"
-        : selectedGlobalEntity === "Skills"
-          ? skillDataPath
-            ? fileNameFromPath(skillDataPath)
-            : "not loaded"
-          : selectedGlobalEntity === "Groups"
-            ? groupDataPath
-              ? fileNameFromPath(groupDataPath)
-              : "not loaded"
-            : selectedGlobalEntity === "Commands"
-              ? commandDataPath
-                ? fileNameFromPath(commandDataPath)
-                : "not loaded"
-              : selectedGlobalEntity === "Socials"
-                ? socialDataPath
-                  ? fileNameFromPath(socialDataPath)
-                  : "not loaded"
-                : selectedGlobalEntity === "Tutorials"
-                  ? tutorialDataPath
-                    ? fileNameFromPath(tutorialDataPath)
-                    : "not loaded"
-                  : selectedGlobalEntity === "Loot"
-                    ? lootDataPath
-                      ? fileNameFromPath(lootDataPath)
-                      : "not loaded"
-                    : "not loaded";
+  const classFileLabel = classDataPath
+    ? fileNameFromPath(classDataPath)
+    : "not loaded";
+  const raceFileLabel = raceDataPath
+    ? fileNameFromPath(raceDataPath)
+    : "not loaded";
+  const skillFileLabel = skillDataPath
+    ? fileNameFromPath(skillDataPath)
+    : "not loaded";
+  const groupFileLabel = groupDataPath
+    ? fileNameFromPath(groupDataPath)
+    : "not loaded";
+  const commandFileLabel = commandDataPath
+    ? fileNameFromPath(commandDataPath)
+    : "not loaded";
+  const socialFileLabel = socialDataPath
+    ? fileNameFromPath(socialDataPath)
+    : "not loaded";
+  const tutorialFileLabel = tutorialDataPath
+    ? fileNameFromPath(tutorialDataPath)
+    : "not loaded";
+  const lootFileLabel = lootDataPath
+    ? fileNameFromPath(lootDataPath)
+    : "not loaded";
+  const globalFileLabels: Record<GlobalEntityKey, string> = {
+    Classes: classFileLabel,
+    Races: raceFileLabel,
+    Skills: skillFileLabel,
+    Groups: groupFileLabel,
+    Commands: commandFileLabel,
+    Socials: socialFileLabel,
+    Tutorials: tutorialFileLabel,
+    Loot: lootFileLabel
+  };
+  const dataFileLabel = globalFileLabels[selectedGlobalEntity] ?? "not loaded";
+  const classActionsNode = (
+    <GlobalFormActions
+      label="Classes"
+      dataFileLabel={classFileLabel}
+      loadDisabled={!dataDirectory || isBusy}
+      saveDisabled={!classData || isBusy}
+      onLoad={handleLoadClassesData}
+      onSave={handleSaveClassesData}
+    />
+  );
+  const raceActionsNode = (
+    <GlobalFormActions
+      label="Races"
+      dataFileLabel={raceFileLabel}
+      loadDisabled={!dataDirectory || isBusy}
+      saveDisabled={!raceData || isBusy}
+      onLoad={handleLoadRacesData}
+      onSave={handleSaveRacesData}
+    />
+  );
+  const skillActionsNode = (
+    <GlobalFormActions
+      label="Skills"
+      dataFileLabel={skillFileLabel}
+      loadDisabled={!dataDirectory || isBusy}
+      saveDisabled={!skillData || isBusy}
+      onLoad={handleLoadSkillsData}
+      onSave={handleSaveSkillsData}
+    />
+  );
+  const groupActionsNode = (
+    <GlobalFormActions
+      label="Groups"
+      dataFileLabel={groupFileLabel}
+      loadDisabled={!dataDirectory || isBusy}
+      saveDisabled={!groupData || isBusy}
+      onLoad={handleLoadGroupsData}
+      onSave={handleSaveGroupsData}
+    />
+  );
+  const commandActionsNode = (
+    <GlobalFormActions
+      label="Commands"
+      dataFileLabel={commandFileLabel}
+      loadDisabled={!dataDirectory || isBusy}
+      saveDisabled={!commandData || isBusy}
+      onLoad={handleLoadCommandsData}
+      onSave={handleSaveCommandsData}
+    />
+  );
+  const socialActionsNode = (
+    <GlobalFormActions
+      label="Socials"
+      dataFileLabel={socialFileLabel}
+      loadDisabled={!dataDirectory || isBusy}
+      saveDisabled={!socialData || isBusy}
+      onLoad={handleLoadSocialsData}
+      onSave={handleSaveSocialsData}
+    />
+  );
+  const tutorialActionsNode = (
+    <GlobalFormActions
+      label="Tutorials"
+      dataFileLabel={tutorialFileLabel}
+      loadDisabled={!dataDirectory || isBusy}
+      saveDisabled={!tutorialData || isBusy}
+      onLoad={handleLoadTutorialsData}
+      onSave={handleSaveTutorialsData}
+    />
+  );
+  const lootActionsNode = (
+    <GlobalFormActions
+      label="Loot"
+      dataFileLabel={lootFileLabel}
+      loadDisabled={!dataDirectory || isBusy}
+      saveDisabled={!lootData || isBusy}
+      onLoad={handleLoadLootData}
+      onSave={handleSaveLootData}
+    />
+  );
   const viewTitle =
     editorMode === "Area" ? selectedEntity : selectedGlobalEntity;
   const viewMeta =
@@ -10139,66 +10221,6 @@ export default function App({ repository }: AppProps) {
           `Reference ${referenceSummary}`,
           `Active view ${activeTab}`
         ];
-  const supportsGlobalData =
-    selectedGlobalEntity === "Classes" ||
-    selectedGlobalEntity === "Races" ||
-    selectedGlobalEntity === "Skills" ||
-    selectedGlobalEntity === "Groups" ||
-    selectedGlobalEntity === "Commands" ||
-    selectedGlobalEntity === "Socials" ||
-    selectedGlobalEntity === "Tutorials" ||
-    selectedGlobalEntity === "Loot";
-  const showGlobalActions = editorMode === "Global" && supportsGlobalData;
-  const globalLoadHandler =
-    selectedGlobalEntity === "Races"
-      ? handleLoadRacesData
-      : selectedGlobalEntity === "Skills"
-        ? handleLoadSkillsData
-        : selectedGlobalEntity === "Groups"
-          ? handleLoadGroupsData
-          : selectedGlobalEntity === "Commands"
-            ? handleLoadCommandsData
-            : selectedGlobalEntity === "Socials"
-              ? handleLoadSocialsData
-              : selectedGlobalEntity === "Tutorials"
-                ? handleLoadTutorialsData
-                : selectedGlobalEntity === "Loot"
-                  ? handleLoadLootData
-                  : handleLoadClassesData;
-  const globalSaveHandler =
-    selectedGlobalEntity === "Races"
-      ? handleSaveRacesData
-      : selectedGlobalEntity === "Skills"
-        ? handleSaveSkillsData
-        : selectedGlobalEntity === "Groups"
-          ? handleSaveGroupsData
-          : selectedGlobalEntity === "Commands"
-            ? handleSaveCommandsData
-            : selectedGlobalEntity === "Socials"
-              ? handleSaveSocialsData
-              : selectedGlobalEntity === "Tutorials"
-                ? handleSaveTutorialsData
-                : selectedGlobalEntity === "Loot"
-                  ? handleSaveLootData
-                  : handleSaveClassesData;
-  const globalSaveDisabled =
-    selectedGlobalEntity === "Classes"
-      ? !classData
-      : selectedGlobalEntity === "Races"
-        ? !raceData
-        : selectedGlobalEntity === "Skills"
-          ? !skillData
-          : selectedGlobalEntity === "Groups"
-            ? !groupData
-            : selectedGlobalEntity === "Commands"
-              ? !commandData
-              : selectedGlobalEntity === "Socials"
-                ? !socialData
-                : selectedGlobalEntity === "Tutorials"
-                  ? !tutorialData
-                  : selectedGlobalEntity === "Loot"
-                    ? !lootData
-                    : true;
   const visibleTabs =
     editorMode === "Area"
       ? tabs
@@ -10227,19 +10249,13 @@ export default function App({ repository }: AppProps) {
         isBusy={isBusy}
         hasArea={Boolean(areaData)}
         hasAreaPath={Boolean(areaPath)}
-        showGlobalActions={showGlobalActions}
-        globalEntityLabel={selectedGlobalEntity}
-        globalLoadDisabled={!dataDirectory}
-        globalSaveDisabled={globalSaveDisabled}
         onOpenProject={handleOpenProject}
         onOpenArea={handleOpenArea}
         onSetAreaDirectory={handleSetAreaDirectory}
         onLoadReferenceData={handleLoadReferenceData}
-        onLoadGlobalData={globalLoadHandler}
         onSaveArea={handleSaveArea}
         onSaveEditorMeta={handleSaveEditorMeta}
         onSaveAreaAs={handleSaveAreaAs}
-        onSaveGlobalData={globalSaveHandler}
       />
 
       <section className="workspace">
@@ -10279,6 +10295,14 @@ export default function App({ repository }: AppProps) {
                 socialCount={socialRows.length}
                 tutorialCount={tutorialRows.length}
                 lootCount={lootCount}
+                classActions={classActionsNode}
+                raceActions={raceActionsNode}
+                skillActions={skillActionsNode}
+                groupActions={groupActionsNode}
+                commandActions={commandActionsNode}
+                socialActions={socialActionsNode}
+                tutorialActions={tutorialActionsNode}
+                lootActions={lootActionsNode}
                 areaLootCount={areaLootRows.length}
                 recipeCount={recipeRows.length}
                 gatherSpawnCount={gatherSpawnRows.length}

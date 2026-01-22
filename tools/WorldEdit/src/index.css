@@ -531,6 +531,43 @@ body::before {
   gap: 16px;
 }
 
+.form-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(117, 88, 58, 0.2);
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 10px 20px rgba(55, 40, 20, 0.08);
+}
+
+.form-toolbar__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-toolbar__title {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.form-toolbar__subtitle {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.form-toolbar__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));

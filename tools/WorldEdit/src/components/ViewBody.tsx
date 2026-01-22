@@ -16,6 +16,14 @@ type ViewBodyProps = {
   socialCount: number;
   tutorialCount: number;
   lootCount: number;
+  classActions: ReactNode;
+  raceActions: ReactNode;
+  skillActions: ReactNode;
+  groupActions: ReactNode;
+  commandActions: ReactNode;
+  socialActions: ReactNode;
+  tutorialActions: ReactNode;
+  lootActions: ReactNode;
   areaLootCount: number;
   recipeCount: number;
   gatherSpawnCount: number;
@@ -75,6 +83,14 @@ export function ViewBody({
   socialCount,
   tutorialCount,
   lootCount,
+  classActions,
+  raceActions,
+  skillActions,
+  groupActions,
+  commandActions,
+  socialActions,
+  tutorialActions,
+  lootActions,
   areaLootCount,
   recipeCount,
   gatherSpawnCount,
@@ -124,12 +140,18 @@ export function ViewBody({
     if (selectedGlobalEntity === "Classes") {
       if (activeTab === "Form") {
         return classCount ? (
-          <>{classForm}</>
+          <>
+            {classActions}
+            {classForm}
+          </>
         ) : (
-          <div className="entity-table__empty">
-            <h3>No classes loaded</h3>
-            <p>Load the classes file from the data directory.</p>
-          </div>
+          <>
+            {classActions}
+            <div className="entity-table__empty">
+              <h3>No classes loaded</h3>
+              <p>Load the classes file from the data directory.</p>
+            </div>
+          </>
         );
       }
       if (activeTab === "Table") {
@@ -139,12 +161,18 @@ export function ViewBody({
     if (selectedGlobalEntity === "Races") {
       if (activeTab === "Form") {
         return raceCount ? (
-          <>{raceForm}</>
+          <>
+            {raceActions}
+            {raceForm}
+          </>
         ) : (
-          <div className="entity-table__empty">
-            <h3>No races loaded</h3>
-            <p>Load the races file from the data directory.</p>
-          </div>
+          <>
+            {raceActions}
+            <div className="entity-table__empty">
+              <h3>No races loaded</h3>
+              <p>Load the races file from the data directory.</p>
+            </div>
+          </>
         );
       }
       if (activeTab === "Table") {
@@ -154,12 +182,18 @@ export function ViewBody({
     if (selectedGlobalEntity === "Skills") {
       if (activeTab === "Form") {
         return skillCount ? (
-          <>{skillForm}</>
+          <>
+            {skillActions}
+            {skillForm}
+          </>
         ) : (
-          <div className="entity-table__empty">
-            <h3>No skills loaded</h3>
-            <p>Load the skills file from the data directory.</p>
-          </div>
+          <>
+            {skillActions}
+            <div className="entity-table__empty">
+              <h3>No skills loaded</h3>
+              <p>Load the skills file from the data directory.</p>
+            </div>
+          </>
         );
       }
       if (activeTab === "Table") {
@@ -169,12 +203,18 @@ export function ViewBody({
     if (selectedGlobalEntity === "Groups") {
       if (activeTab === "Form") {
         return groupCount ? (
-          <>{groupForm}</>
+          <>
+            {groupActions}
+            {groupForm}
+          </>
         ) : (
-          <div className="entity-table__empty">
-            <h3>No groups loaded</h3>
-            <p>Load the groups file from the data directory.</p>
-          </div>
+          <>
+            {groupActions}
+            <div className="entity-table__empty">
+              <h3>No groups loaded</h3>
+              <p>Load the groups file from the data directory.</p>
+            </div>
+          </>
         );
       }
       if (activeTab === "Table") {
@@ -184,12 +224,18 @@ export function ViewBody({
     if (selectedGlobalEntity === "Commands") {
       if (activeTab === "Form") {
         return commandCount ? (
-          <>{commandForm}</>
+          <>
+            {commandActions}
+            {commandForm}
+          </>
         ) : (
-          <div className="entity-table__empty">
-            <h3>No commands loaded</h3>
-            <p>Load the commands file from the data directory.</p>
-          </div>
+          <>
+            {commandActions}
+            <div className="entity-table__empty">
+              <h3>No commands loaded</h3>
+              <p>Load the commands file from the data directory.</p>
+            </div>
+          </>
         );
       }
       if (activeTab === "Table") {
@@ -199,12 +245,18 @@ export function ViewBody({
     if (selectedGlobalEntity === "Socials") {
       if (activeTab === "Form") {
         return socialCount ? (
-          <>{socialForm}</>
+          <>
+            {socialActions}
+            {socialForm}
+          </>
         ) : (
-          <div className="entity-table__empty">
-            <h3>No socials loaded</h3>
-            <p>Load the socials file from the data directory.</p>
-          </div>
+          <>
+            {socialActions}
+            <div className="entity-table__empty">
+              <h3>No socials loaded</h3>
+              <p>Load the socials file from the data directory.</p>
+            </div>
+          </>
         );
       }
       if (activeTab === "Table") {
@@ -214,12 +266,18 @@ export function ViewBody({
     if (selectedGlobalEntity === "Tutorials") {
       if (activeTab === "Form") {
         return tutorialCount ? (
-          <>{tutorialForm}</>
+          <>
+            {tutorialActions}
+            {tutorialForm}
+          </>
         ) : (
-          <div className="entity-table__empty">
-            <h3>No tutorials loaded</h3>
-            <p>Load the tutorials file from the data directory.</p>
-          </div>
+          <>
+            {tutorialActions}
+            <div className="entity-table__empty">
+              <h3>No tutorials loaded</h3>
+              <p>Load the tutorials file from the data directory.</p>
+            </div>
+          </>
         );
       }
       if (activeTab === "Table") {
@@ -229,12 +287,18 @@ export function ViewBody({
     if (selectedGlobalEntity === "Loot") {
       if (activeTab === "Form") {
         return lootCount ? (
-          <>{lootForm}</>
+          <>
+            {lootActions}
+            {lootForm}
+          </>
         ) : (
-          <div className="entity-table__empty">
-            <h3>No loot loaded</h3>
-            <p>Load the loot file from the data directory.</p>
-          </div>
+          <>
+            {lootActions}
+            <div className="entity-table__empty">
+              <h3>No loot loaded</h3>
+              <p>Load the loot file from the data directory.</p>
+            </div>
+          </>
         );
       }
       if (activeTab === "Table") {
