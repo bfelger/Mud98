@@ -11,8 +11,8 @@ export const roomNodeSize = {
 };
 
 export const areaNodeSize = {
-  width: 200,
-  height: 120
+  width: 180,
+  height: 180
 };
 
 export const roomPortDefinitions = [
@@ -125,17 +125,22 @@ export function layoutAreaGraphNodesGrid<T>(
       addAdjacency(edge.target, edge.source, opposite);
     }
   });
-  const sortedNodeIds = [...nodeIds].sort((a, b) => a.localeCompare(b));
+  const sortedNodeIds = [...nodeIds].sort((a, b) => {
+    const aNum = Number.parseInt(a, 10);
+    const bNum = Number.parseInt(b, 10);
+    if (Number.isNaN(aNum) || Number.isNaN(bNum)) {
+      return a.localeCompare(b);
+    }
+    return aNum - bNum;
+  });
   const positions = new Map<string, GridPosition>();
-  const visited = new Set<string>();
-  const components: Array<{
-    nodes: Map<string, GridPosition>;
-    width: number;
-    height: number;
-  }> = [];
+  const gridSpacingX = areaNodeSize.width + 110;
+  const gridSpacingY = areaNodeSize.height + 110;
+  const componentGap = 2;
+  let componentOffsetX = 0;
 
   sortedNodeIds.forEach((startId) => {
-    if (visited.has(startId)) {
+    if (positions.has(startId)) {
       return;
     }
     const queue: string[] = [startId];
@@ -144,7 +149,6 @@ export function layoutAreaGraphNodesGrid<T>(
     const startPos = { x: 0, y: 0 };
     componentPositions.set(startId, startPos);
     occupied.set(`${startPos.x},${startPos.y}`, startId);
-    visited.add(startId);
 
     while (queue.length) {
       const current = queue.shift();
@@ -174,7 +178,6 @@ export function layoutAreaGraphNodesGrid<T>(
         componentPositions.set(neighbor.id, nextPos);
         occupied.set(`${nextPos.x},${nextPos.y}`, neighbor.id);
         queue.push(neighbor.id);
-        visited.add(neighbor.id);
       });
     }
 
@@ -188,57 +191,15 @@ export function layoutAreaGraphNodesGrid<T>(
       minY = Math.min(minY, pos.y);
       maxY = Math.max(maxY, pos.y);
     });
-    const normalized = new Map<string, GridPosition>();
+    const shiftX = componentOffsetX - minX;
+    const shiftY = -minY;
     componentPositions.forEach((pos, nodeId) => {
-      normalized.set(nodeId, { x: pos.x - minX, y: pos.y - minY });
-    });
-    components.push({
-      nodes: normalized,
-      width: maxX - minX + 1,
-      height: maxY - minY + 1
-    });
-  });
-
-  const componentGap = 2;
-  const columns = Math.max(1, Math.ceil(Math.sqrt(components.length)));
-  const rowCount = Math.ceil(components.length / columns);
-  const columnWidths = new Array(columns).fill(0);
-  const rowHeights = new Array(rowCount).fill(0);
-
-  components.forEach((component, index) => {
-    const column = index % columns;
-    const row = Math.floor(index / columns);
-    columnWidths[column] = Math.max(columnWidths[column], component.width);
-    rowHeights[row] = Math.max(rowHeights[row], component.height);
-  });
-
-  const columnOffsets: number[] = [];
-  let columnCursor = 0;
-  columnWidths.forEach((width, index) => {
-    columnOffsets[index] = columnCursor;
-    columnCursor += width + componentGap;
-  });
-  const rowOffsets: number[] = [];
-  let rowCursor = 0;
-  rowHeights.forEach((height, index) => {
-    rowOffsets[index] = rowCursor;
-    rowCursor += height + componentGap;
-  });
-
-  const gridSpacingX = areaNodeSize.width + 140;
-  const gridSpacingY = areaNodeSize.height + 120;
-
-  components.forEach((component, index) => {
-    const column = index % columns;
-    const row = Math.floor(index / columns);
-    const offsetX = columnOffsets[column] ?? 0;
-    const offsetY = rowOffsets[row] ?? 0;
-    component.nodes.forEach((pos, nodeId) => {
       positions.set(nodeId, {
-        x: (pos.x + offsetX) * gridSpacingX,
-        y: (pos.y + offsetY) * gridSpacingY
+        x: pos.x + shiftX,
+        y: pos.y + shiftY
       });
     });
+    componentOffsetX += maxX - minX + 1 + componentGap;
   });
 
   return nodes.map((node) => {
@@ -248,7 +209,10 @@ export function layoutAreaGraphNodesGrid<T>(
     }
     return {
       ...node,
-      position
+      position: {
+        x: position.x * gridSpacingX,
+        y: position.y * gridSpacingY
+      }
     };
   });
 }

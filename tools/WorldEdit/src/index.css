@@ -963,8 +963,8 @@ body::before {
 }
 
 .area-node {
-  width: 200px;
-  min-height: 120px;
+  width: 180px;
+  height: 180px;
   padding: 14px;
   box-sizing: border-box;
   border-radius: 14px;
@@ -974,17 +974,21 @@ body::before {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  justify-content: center;
+  text-align: center;
 }
 
 .area-node__title {
   font-weight: 600;
   color: var(--ink);
   line-height: 1.2;
+  word-break: break-word;
 }
 
 .area-node__range {
   font-size: 0.8rem;
   color: var(--accent-strong);
+  word-break: break-word;
 }
 
 .area-node__handle {
