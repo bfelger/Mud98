@@ -4019,6 +4019,14 @@ export default function App({ repository }: AppProps) {
     const stored = localStorage.getItem("worldedit.preferCardinalLayout");
     return stored ? stored === "true" : true;
   });
+  const [preferAreaCardinalLayout, setPreferAreaCardinalLayout] = useState(
+    () => {
+      const stored = localStorage.getItem(
+        "worldedit.preferAreaCardinalLayout"
+      );
+      return stored ? stored === "true" : true;
+    }
+  );
   const [showVerticalEdges, setShowVerticalEdges] = useState(() => {
     const stored = localStorage.getItem("worldedit.showVerticalEdges");
     return stored ? stored === "true" : false;
@@ -6468,6 +6476,9 @@ export default function App({ repository }: AppProps) {
     },
     [autoLayoutEnabled]
   );
+  const handleTogglePreferAreaGrid = useCallback((nextValue: boolean) => {
+    setPreferAreaCardinalLayout(nextValue);
+  }, []);
   const roomNodesWithHandlers = useMemo(
     () =>
       roomNodesWithLayout.map((node) => ({
@@ -6572,7 +6583,8 @@ export default function App({ repository }: AppProps) {
       try {
         const nextNodes = await layoutAreaGraphNodes(
           areaGraphNodes,
-          areaGraphEdges
+          areaGraphEdges,
+          preferAreaCardinalLayout
         );
         if (!cancelRef?.current) {
           setAreaGraphLayoutNodes(nextNodes);
@@ -6585,7 +6597,7 @@ export default function App({ repository }: AppProps) {
         }
       }
     },
-    [areaGraphNodes, areaGraphEdges]
+    [areaGraphNodes, areaGraphEdges, preferAreaCardinalLayout]
   );
   const handleLockSelectedArea = useCallback(() => {
     if (!selectedAreaNode) {
@@ -6661,6 +6673,9 @@ export default function App({ repository }: AppProps) {
   const handleClearAreaLayout = useCallback(() => {
     setAreaLayout({});
     setDirtyAreaNodes(new Set());
+    void runAreaGraphLayout();
+  }, [runAreaGraphLayout]);
+  const handleRelayoutArea = useCallback(() => {
     void runAreaGraphLayout();
   }, [runAreaGraphLayout]);
   const handleClearRoomLayout = useCallback(() => {
@@ -6814,6 +6829,13 @@ export default function App({ repository }: AppProps) {
       String(preferCardinalLayout)
     );
   }, [preferCardinalLayout]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "worldedit.preferAreaCardinalLayout",
+      String(preferAreaCardinalLayout)
+    );
+  }, [preferAreaCardinalLayout]);
 
   useEffect(() => {
     localStorage.setItem(
@@ -10064,6 +10086,7 @@ export default function App({ repository }: AppProps) {
       dirtyCount={dirtyAreaCount}
       selectedNodeLocked={selectedAreaLocked}
       hasLayout={hasAreaLayout}
+      preferCardinalLayout={preferAreaCardinalLayout}
       filterValue={areaGraphFilter}
       vnumQuery={areaGraphVnumQuery}
       matchLabel={areaGraphMatchLabel}
@@ -10072,6 +10095,8 @@ export default function App({ repository }: AppProps) {
       onNodeClick={() => null}
       onNodesChange={handleAreaGraphNodesChange}
       onNodeDragStop={handleAreaGraphNodeDragStop}
+      onTogglePreferGrid={handleTogglePreferAreaGrid}
+      onRelayout={handleRelayoutArea}
       onLockSelected={handleLockSelectedArea}
       onUnlockSelected={handleUnlockSelectedArea}
       onLockDirty={handleLockDirtyAreas}

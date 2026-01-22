@@ -26,6 +26,8 @@ export const roomPortDefinitions = [
   { id: "west-out", side: "WEST" }
 ] as const;
 
+export const areaPortDefinitions = roomPortDefinitions;
+
 const directionOffsets: Record<string, GridPosition> = {
   north: { x: 0, y: -1 },
   east: { x: 1, y: 0 },
@@ -359,9 +361,11 @@ export async function layoutRoomNodes<T extends { grid?: GridPosition }>(
   const layoutOptions: Record<string, string> = {
     "elk.algorithm": "layered",
     "elk.direction": "RIGHT",
-    "elk.spacing.nodeNode": "80",
-    "elk.layered.spacing.nodeNodeBetweenLayers": "140",
-    "elk.spacing.componentComponent": "120",
+    "elk.spacing.nodeNode": "120",
+    "elk.layered.spacing.nodeNodeBetweenLayers": "180",
+    "elk.spacing.componentComponent": "160",
+    "elk.spacing.edgeNode": "40",
+    "elk.spacing.edgeEdge": "20",
     "elk.portConstraints": "FIXED_SIDE"
   };
   const graph = {
@@ -420,7 +424,79 @@ export async function layoutRoomNodes<T extends { grid?: GridPosition }>(
 
 export async function layoutAreaGraphNodes<T>(
   nodes: Node<T>[],
-  edges: Edge[]
+  edges: Edge[],
+  preferCardinalLayout = true
 ): Promise<Node<T>[]> {
-  return layoutAreaGraphNodesGrid(nodes, edges);
+  if (!nodes.length) {
+    return [];
+  }
+  if (preferCardinalLayout) {
+    return layoutAreaGraphNodesGrid(nodes, edges);
+  }
+  const layoutEdges = edges.filter(
+    (edge) => edge.sourceHandle && edge.targetHandle
+  );
+  if (!layoutEdges.length) {
+    return layoutAreaGraphNodesGrid(nodes, edges);
+  }
+  const layoutOptions: Record<string, string> = {
+    "elk.algorithm": "layered",
+    "elk.direction": "RIGHT",
+    "elk.spacing.nodeNode": "80",
+    "elk.layered.spacing.nodeNodeBetweenLayers": "140",
+    "elk.spacing.componentComponent": "120",
+    "elk.portConstraints": "FIXED_SIDE"
+  };
+  const graph = {
+    id: "root",
+    layoutOptions,
+    children: nodes.map((node) => ({
+      id: node.id,
+      width: areaNodeSize.width,
+      height: areaNodeSize.height,
+      ports: areaPortDefinitions.map((port) => ({
+        id: `${node.id}.${port.id}`,
+        layoutOptions: {
+          "elk.port.side": port.side
+        }
+      }))
+    })),
+    edges: layoutEdges.map((edge) => {
+      const dirKey = getEdgeDirKey(edge);
+      const directionPriority = dirKey === "east" ? "2" : "0";
+      return {
+        id: edge.id,
+        sources: [
+          edge.sourceHandle
+            ? `${edge.source}.${edge.sourceHandle}`
+            : edge.source
+        ],
+        targets: [
+          edge.targetHandle
+            ? `${edge.target}.${edge.targetHandle}`
+            : edge.target
+        ],
+        layoutOptions: {
+          "elk.layered.priority.direction": directionPriority
+        }
+      };
+    })
+  };
+  const layout = await elk.layout(graph);
+  const positions = new Map<string, GridPosition>();
+  layout.children?.forEach((child) => {
+    if (child.id && typeof child.x === "number" && typeof child.y === "number") {
+      positions.set(child.id, { x: child.x, y: child.y });
+    }
+  });
+  return nodes.map((node) => {
+    const position = positions.get(node.id);
+    if (!position) {
+      return node;
+    }
+    return {
+      ...node,
+      position
+    };
+  });
 }

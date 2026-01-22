@@ -32,6 +32,7 @@ type AreaGraphViewProps = {
   dirtyCount?: number;
   selectedNodeLocked?: boolean;
   hasLayout?: boolean;
+  preferCardinalLayout?: boolean;
   filterValue: string;
   vnumQuery: string;
   matchLabel: string | null;
@@ -40,6 +41,8 @@ type AreaGraphViewProps = {
   onNodeClick: (node: Node<AreaGraphNodeData>) => void;
   onNodesChange?: (changes: NodeChange[]) => void;
   onNodeDragStop?: (event: unknown, node: Node<AreaGraphNodeData>) => void;
+  onTogglePreferGrid?: (value: boolean) => void;
+  onRelayout?: () => void;
   onLockSelected?: () => void;
   onUnlockSelected?: () => void;
   onLockDirty?: () => void;
@@ -123,6 +126,7 @@ export function AreaGraphView({
   dirtyCount = 0,
   selectedNodeLocked = false,
   hasLayout = false,
+  preferCardinalLayout,
   filterValue,
   vnumQuery,
   matchLabel,
@@ -131,6 +135,8 @@ export function AreaGraphView({
   onNodeClick,
   onNodesChange,
   onNodeDragStop,
+  onTogglePreferGrid,
+  onRelayout,
   onLockSelected,
   onUnlockSelected,
   onLockDirty,
@@ -178,6 +184,16 @@ export function AreaGraphView({
               placeholder="Search"
             />
           </label>
+          {typeof preferCardinalLayout === "boolean" && onTogglePreferGrid ? (
+            <label className="map-toggle">
+              <input
+                type="checkbox"
+                checked={preferCardinalLayout}
+                onChange={(event) => onTogglePreferGrid(event.target.checked)}
+              />
+              <span>Prefer Grid</span>
+            </label>
+          ) : null}
           {vnumQuery ? (
             <span className="map-pill">
               {matchLabel ? `Found: ${matchLabel}` : "No match"}
@@ -187,6 +203,14 @@ export function AreaGraphView({
             <span className="map-pill">{dirtyCount} dirty</span>
           ) : null}
           <div className="map-actions">
+            <button
+              className="ghost-button"
+              type="button"
+              onClick={onRelayout}
+              disabled={!nodeCount}
+            >
+              Relayout
+            </button>
             <button
               className="ghost-button"
               type="button"
