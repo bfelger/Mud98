@@ -9332,6 +9332,69 @@ export default function App({ repository }: AppProps) {
     setStatusMessage(`Deleted ${deletedName} (unsaved)`);
   }, [commandData, selectedCommandIndex, setStatusMessage]);
 
+  const handleCreateSocial = useCallback(() => {
+    if (!socialData) {
+      setStatusMessage("Load socials before creating socials.");
+      return;
+    }
+    const nextIndex = socialData.socials.length;
+    const newSocial: SocialDefinition = {
+      name: `newsocial${nextIndex + 1}`,
+      charNoArg: "",
+      othersNoArg: "",
+      charFound: "",
+      othersFound: "",
+      victFound: "",
+      charAuto: "",
+      othersAuto: ""
+    };
+    setSocialData((current) => {
+      if (!current) {
+        return current;
+      }
+      return {
+        ...current,
+        socials: [...current.socials, newSocial]
+      };
+    });
+    setSelectedGlobalEntity("Socials");
+    setSelectedSocialIndex(nextIndex);
+    setActiveTab("Form");
+    setStatusMessage(`Created social ${newSocial.name} (unsaved)`);
+  }, [
+    socialData,
+    setStatusMessage,
+    setSelectedGlobalEntity,
+    setSelectedSocialIndex,
+    setActiveTab
+  ]);
+
+  const handleDeleteSocial = useCallback(() => {
+    if (!socialData) {
+      setStatusMessage("Load socials before deleting socials.");
+      return;
+    }
+    if (selectedSocialIndex === null) {
+      setStatusMessage("Select a social to delete.");
+      return;
+    }
+    const deletedName = socialData.socials[selectedSocialIndex]?.name ?? "social";
+    setSocialData((current) => {
+      if (!current) {
+        return current;
+      }
+      const nextSocials = current.socials.filter(
+        (_, index) => index !== selectedSocialIndex
+      );
+      return {
+        ...current,
+        socials: nextSocials
+      };
+    });
+    setSelectedSocialIndex(null);
+    setStatusMessage(`Deleted ${deletedName} (unsaved)`);
+  }, [socialData, selectedSocialIndex, setStatusMessage]);
+
   const handleCreateReset = useCallback(() => {
     if (!areaData) {
       setStatusMessage("Load an area before creating resets.");
@@ -11547,11 +11610,31 @@ export default function App({ repository }: AppProps) {
       gridApiRef={commandGridApi}
     />
   );
+  const socialTableToolbar = useMemo(
+    () => ({
+      title: "Socials",
+      count: socialRows.length,
+      newLabel: "New Social",
+      deleteLabel: "Delete Social",
+      canCreate: Boolean(socialData),
+      canDelete: selectedSocialIndex !== null,
+      onCreate: handleCreateSocial,
+      onDelete: handleDeleteSocial
+    }),
+    [
+      socialRows.length,
+      socialData,
+      selectedSocialIndex,
+      handleCreateSocial,
+      handleDeleteSocial
+    ]
+  );
   const socialTableViewNode = (
     <SocialTableView
       rows={socialRows}
       columns={socialColumns}
       defaultColDef={socialDefaultColDef}
+      toolbar={socialTableToolbar}
       onSelectSocial={setSelectedSocialIndex}
       gridApiRef={socialGridApi}
     />
