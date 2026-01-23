@@ -8552,6 +8552,83 @@ export default function App({ repository }: AppProps) {
     setStatusMessage(`Deleted shop ${selectedShopKeeper} (unsaved)`);
   }, [areaData, selectedShopKeeper, setStatusMessage]);
 
+  const handleCreateQuest = useCallback(() => {
+    if (!areaData) {
+      setStatusMessage("Load an area before creating quests.");
+      return;
+    }
+    const nextVnum = getNextEntityVnum(areaData, "Quests");
+    if (nextVnum === null) {
+      setStatusMessage("No available quest VNUMs in the area range.");
+      return;
+    }
+    const newQuest: Record<string, unknown> = {
+      vnum: nextVnum,
+      name: "New Quest",
+      entry: "",
+      type: "",
+      xp: 0,
+      level: 1,
+      rewardObjs: [0, 0, 0],
+      rewardCounts: [0, 0, 0]
+    };
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const quests = Array.isArray((current as Record<string, unknown>).quests)
+        ? [...((current as Record<string, unknown>).quests as unknown[])]
+        : [];
+      quests.push(newQuest);
+      return {
+        ...current,
+        quests
+      };
+    });
+    setSelectedEntity("Quests");
+    setSelectedQuestVnum(nextVnum);
+    setActiveTab("Form");
+    setStatusMessage(`Created quest ${nextVnum} (unsaved)`);
+  }, [
+    areaData,
+    setStatusMessage,
+    setSelectedEntity,
+    setSelectedQuestVnum,
+    setActiveTab
+  ]);
+
+  const handleDeleteQuest = useCallback(() => {
+    if (!areaData) {
+      setStatusMessage("Load an area before deleting quests.");
+      return;
+    }
+    if (selectedQuestVnum === null) {
+      setStatusMessage("Select a quest to delete.");
+      return;
+    }
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const quests = Array.isArray((current as Record<string, unknown>).quests)
+        ? ((current as Record<string, unknown>).quests as unknown[])
+        : [];
+      const nextQuests = quests.filter((quest) => {
+        if (!quest || typeof quest !== "object") {
+          return true;
+        }
+        const vnum = parseVnum((quest as Record<string, unknown>).vnum);
+        return vnum !== selectedQuestVnum;
+      });
+      return {
+        ...current,
+        quests: nextQuests
+      };
+    });
+    setSelectedQuestVnum(null);
+    setStatusMessage(`Deleted quest ${selectedQuestVnum} (unsaved)`);
+  }, [areaData, selectedQuestVnum, setStatusMessage]);
+
   const handleCreateReset = useCallback(() => {
     if (!areaData) {
       setStatusMessage("Load an area before creating resets.");
@@ -10450,6 +10527,18 @@ export default function App({ repository }: AppProps) {
         onDelete: handleDeleteShop
       };
     }
+    if (selectedEntity === "Quests") {
+      return {
+        title: "Quests",
+        count: questRows.length,
+        newLabel: "New Quest",
+        deleteLabel: "Delete Quest",
+        canCreate: Boolean(areaData),
+        canDelete: selectedQuestVnum !== null,
+        onCreate: handleCreateQuest,
+        onDelete: handleDeleteQuest
+      };
+    }
     return null;
   }, [
     selectedEntity,
@@ -10458,11 +10547,13 @@ export default function App({ repository }: AppProps) {
     objectRows.length,
     resetRows.length,
     shopRows.length,
+    questRows.length,
     selectedRoomVnum,
     selectedMobileVnum,
     selectedObjectVnum,
     selectedResetIndex,
     selectedShopKeeper,
+    selectedQuestVnum,
     canCreateRoom,
     areaData,
     handleCreateRoom,
@@ -10474,7 +10565,9 @@ export default function App({ repository }: AppProps) {
     handleCreateReset,
     handleDeleteReset,
     handleCreateShop,
-    handleDeleteShop
+    handleDeleteShop,
+    handleCreateQuest,
+    handleDeleteQuest
   ]);
   const tableViewNode = (
     <TableView
