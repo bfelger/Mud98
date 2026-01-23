@@ -8805,6 +8805,83 @@ export default function App({ repository }: AppProps) {
     setStatusMessage
   ]);
 
+  const handleCreateRecipe = useCallback(() => {
+    if (!areaData) {
+      setStatusMessage("Load an area before creating recipes.");
+      return;
+    }
+    const nextVnum = getNextEntityVnum(areaData, "Recipes");
+    if (nextVnum === null) {
+      setStatusMessage("No available recipe VNUMs in the area range.");
+      return;
+    }
+    const newRecipe: Record<string, unknown> = {
+      vnum: nextVnum,
+      name: "New Recipe",
+      skill: "",
+      minSkill: 0,
+      minLevel: 1,
+      stationType: [],
+      inputs: [],
+      outputs: []
+    };
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const recipes = Array.isArray((current as Record<string, unknown>).recipes)
+        ? [...((current as Record<string, unknown>).recipes as unknown[])]
+        : [];
+      recipes.push(newRecipe);
+      return {
+        ...current,
+        recipes
+      };
+    });
+    setSelectedEntity("Recipes");
+    setSelectedRecipeVnum(nextVnum);
+    setActiveTab("Form");
+    setStatusMessage(`Created recipe ${nextVnum} (unsaved)`);
+  }, [
+    areaData,
+    setStatusMessage,
+    setSelectedEntity,
+    setSelectedRecipeVnum,
+    setActiveTab
+  ]);
+
+  const handleDeleteRecipe = useCallback(() => {
+    if (!areaData) {
+      setStatusMessage("Load an area before deleting recipes.");
+      return;
+    }
+    if (selectedRecipeVnum === null) {
+      setStatusMessage("Select a recipe to delete.");
+      return;
+    }
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const recipes = Array.isArray((current as Record<string, unknown>).recipes)
+        ? ((current as Record<string, unknown>).recipes as unknown[])
+        : [];
+      const nextRecipes = recipes.filter((recipe) => {
+        if (!recipe || typeof recipe !== "object") {
+          return true;
+        }
+        const vnum = parseVnum((recipe as Record<string, unknown>).vnum);
+        return vnum !== selectedRecipeVnum;
+      });
+      return {
+        ...current,
+        recipes: nextRecipes
+      };
+    });
+    setSelectedRecipeVnum(null);
+    setStatusMessage(`Deleted recipe ${selectedRecipeVnum} (unsaved)`);
+  }, [areaData, selectedRecipeVnum, setStatusMessage]);
+
   const handleCreateReset = useCallback(() => {
     if (!areaData) {
       setStatusMessage("Load an area before creating resets.");
@@ -10745,6 +10822,18 @@ export default function App({ repository }: AppProps) {
         onDelete: handleDeleteAreaLoot
       };
     }
+    if (selectedEntity === "Recipes") {
+      return {
+        title: "Recipes",
+        count: recipeRows.length,
+        newLabel: "New Recipe",
+        deleteLabel: "Delete Recipe",
+        canCreate: Boolean(areaData),
+        canDelete: selectedRecipeVnum !== null,
+        onCreate: handleCreateRecipe,
+        onDelete: handleDeleteRecipe
+      };
+    }
     return null;
   }, [
     selectedEntity,
@@ -10756,6 +10845,7 @@ export default function App({ repository }: AppProps) {
     questRows.length,
     factionRows.length,
     areaLootRows.length,
+    recipeRows.length,
     selectedRoomVnum,
     selectedMobileVnum,
     selectedObjectVnum,
@@ -10765,6 +10855,7 @@ export default function App({ repository }: AppProps) {
     selectedFactionVnum,
     selectedAreaLootKind,
     selectedAreaLootIndex,
+    selectedRecipeVnum,
     canCreateRoom,
     areaData,
     handleCreateRoom,
@@ -10782,7 +10873,9 @@ export default function App({ repository }: AppProps) {
     handleCreateFaction,
     handleDeleteFaction,
     handleCreateAreaLoot,
-    handleDeleteAreaLoot
+    handleDeleteAreaLoot,
+    handleCreateRecipe,
+    handleDeleteRecipe
   ]);
   const tableViewNode = (
     <TableView
