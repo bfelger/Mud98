@@ -1529,14 +1529,14 @@ function getAreaVnumBounds(
   return null;
 }
 
-function getNextRoomVnum(areaData: AreaJson): number | null {
-  const rooms = getEntityList(areaData, "Rooms");
+function getNextEntityVnum(areaData: AreaJson, entity: EntityKey): number | null {
+  const entries = getEntityList(areaData, entity);
   const used = new Set<number>();
-  rooms.forEach((room) => {
-    if (!room || typeof room !== "object") {
+  entries.forEach((entry) => {
+    if (!entry || typeof entry !== "object") {
       return;
     }
-    const vnum = parseVnum((room as Record<string, unknown>).vnum);
+    const vnum = parseVnum((entry as Record<string, unknown>).vnum);
     if (vnum !== null) {
       used.add(vnum);
     }
@@ -1544,14 +1544,6 @@ function getNextRoomVnum(areaData: AreaJson): number | null {
   const bounds = getAreaVnumBounds(areaData);
   if (bounds) {
     const { min, max } = bounds;
-    if (!used.size) {
-      return min;
-    }
-    const maxUsed = Math.max(...used);
-    const preferred = maxUsed < min ? min : maxUsed + 1;
-    if (preferred >= min && preferred <= max && !used.has(preferred)) {
-      return preferred;
-    }
     for (let candidate = min; candidate <= max; candidate += 1) {
       if (!used.has(candidate)) {
         return candidate;
@@ -8240,7 +8232,7 @@ export default function App({ repository }: AppProps) {
       setStatusMessage("Load an area before creating rooms.");
       return;
     }
-    const nextVnum = getNextRoomVnum(areaData);
+    const nextVnum = getNextEntityVnum(areaData, "Rooms");
     if (nextVnum === null) {
       setStatusMessage("No available room VNUMs in the area range.");
       return;
@@ -8280,6 +8272,86 @@ export default function App({ repository }: AppProps) {
     setActiveTab("Form");
     setStatusMessage(`Created room ${nextVnum} (unsaved)`);
   }, [areaData, setStatusMessage, setSelectedEntity, setSelectedRoomVnum, setActiveTab]);
+
+  const handleCreateMobile = useCallback(() => {
+    if (!areaData) {
+      setStatusMessage("Load an area before creating mobiles.");
+      return;
+    }
+    const nextVnum = getNextEntityVnum(areaData, "Mobiles");
+    if (nextVnum === null) {
+      setStatusMessage("No available mobile VNUMs in the area range.");
+      return;
+    }
+    const defaultRace =
+      referenceData?.races?.[0] ? referenceData.races[0] : "human";
+    const newMobile: Record<string, unknown> = {
+      vnum: nextVnum,
+      name: "new mobile",
+      shortDescr: "a new mobile",
+      longDescr: "A new mobile is here.\n\r",
+      description: "It looks unfinished.\n\r",
+      race: defaultRace,
+      level: 1,
+      alignment: 0
+    };
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const mobiles = Array.isArray((current as Record<string, unknown>).mobiles)
+        ? [...((current as Record<string, unknown>).mobiles as unknown[])]
+        : [];
+      mobiles.push(newMobile);
+      return {
+        ...current,
+        mobiles
+      };
+    });
+    setSelectedEntity("Mobiles");
+    setSelectedMobileVnum(nextVnum);
+    setActiveTab("Form");
+    setStatusMessage(`Created mobile ${nextVnum} (unsaved)`);
+  }, [
+    areaData,
+    referenceData,
+    setStatusMessage,
+    setSelectedEntity,
+    setSelectedMobileVnum,
+    setActiveTab
+  ]);
+
+  const handleDeleteMobile = useCallback(() => {
+    if (!areaData) {
+      setStatusMessage("Load an area before deleting mobiles.");
+      return;
+    }
+    if (selectedMobileVnum === null) {
+      setStatusMessage("Select a mobile to delete.");
+      return;
+    }
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const mobiles = Array.isArray((current as Record<string, unknown>).mobiles)
+        ? ((current as Record<string, unknown>).mobiles as unknown[])
+        : [];
+      const nextMobiles = mobiles.filter((mob) => {
+        if (!mob || typeof mob !== "object") {
+          return true;
+        }
+        const vnum = parseVnum((mob as Record<string, unknown>).vnum);
+        return vnum !== selectedMobileVnum;
+      });
+      return {
+        ...current,
+        mobiles: nextMobiles
+      };
+    });
+    setSelectedMobileVnum(null);
+    setStatusMessage(`Deleted mobile ${selectedMobileVnum} (unsaved)`);
+  }, [areaData, selectedMobileVnum, setStatusMessage]);
 
   const handleDeleteRoom = useCallback(() => {
     if (!areaData) {
@@ -10062,14 +10134,31 @@ export default function App({ repository }: AppProps) {
         onDelete: handleDeleteRoom
       };
     }
+    if (selectedEntity === "Mobiles") {
+      return {
+        title: "Mobiles",
+        count: mobileRows.length,
+        newLabel: "New Mobile",
+        deleteLabel: "Delete Mobile",
+        canCreate: Boolean(areaData),
+        canDelete: selectedMobileVnum !== null,
+        onCreate: handleCreateMobile,
+        onDelete: handleDeleteMobile
+      };
+    }
     return null;
   }, [
     selectedEntity,
     roomRows.length,
+    mobileRows.length,
     selectedRoomVnum,
+    selectedMobileVnum,
     canCreateRoom,
+    areaData,
     handleCreateRoom,
-    handleDeleteRoom
+    handleDeleteRoom,
+    handleCreateMobile,
+    handleDeleteMobile
   ]);
   const tableViewNode = (
     <TableView
