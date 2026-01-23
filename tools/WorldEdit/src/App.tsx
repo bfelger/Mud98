@@ -8707,6 +8707,104 @@ export default function App({ repository }: AppProps) {
     setStatusMessage(`Deleted faction ${selectedFactionVnum} (unsaved)`);
   }, [areaData, selectedFactionVnum, setStatusMessage]);
 
+  const handleCreateAreaLoot = useCallback((kind: "group" | "table") => {
+    if (!areaData) {
+      setStatusMessage("Load an area before creating loot.");
+      return;
+    }
+    const currentLoot = extractAreaLootData(areaData);
+    const nextGroups = currentLoot ? [...currentLoot.groups] : [];
+    const nextTables = currentLoot ? [...currentLoot.tables] : [];
+    let nextIndex = 0;
+    if (kind === "group") {
+      nextGroups.push({
+        name: "New Loot Group",
+        rolls: 1,
+        entries: [],
+        ops: []
+      });
+      nextIndex = nextGroups.length - 1;
+    } else {
+      nextTables.push({
+        name: "New Loot Table",
+        parent: "",
+        ops: []
+      });
+      nextIndex = nextTables.length - 1;
+    }
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      return {
+        ...(current as Record<string, unknown>),
+        loot: {
+          groups: nextGroups,
+          tables: nextTables
+        }
+      };
+    });
+    setSelectedEntity("Loot");
+    setSelectedAreaLootKind(kind);
+    setSelectedAreaLootIndex(nextIndex);
+    setActiveTab("Form");
+    setStatusMessage(
+      `Created loot ${kind} ${nextIndex} (unsaved)`
+    );
+  }, [
+    areaData,
+    setStatusMessage,
+    setSelectedEntity,
+    setSelectedAreaLootKind,
+    setSelectedAreaLootIndex,
+    setActiveTab
+  ]);
+
+  const handleDeleteAreaLoot = useCallback(() => {
+    if (!areaData) {
+      setStatusMessage("Load an area before deleting loot.");
+      return;
+    }
+    if (selectedAreaLootKind === null || selectedAreaLootIndex === null) {
+      setStatusMessage("Select a loot entry to delete.");
+      return;
+    }
+    const currentLoot = extractAreaLootData(areaData);
+    if (!currentLoot) {
+      setStatusMessage("No loot data loaded.");
+      return;
+    }
+    const nextGroups = [...currentLoot.groups];
+    const nextTables = [...currentLoot.tables];
+    if (selectedAreaLootKind === "group") {
+      nextGroups.splice(selectedAreaLootIndex, 1);
+    } else {
+      nextTables.splice(selectedAreaLootIndex, 1);
+    }
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      return {
+        ...(current as Record<string, unknown>),
+        loot: {
+          groups: nextGroups,
+          tables: nextTables
+        }
+      };
+    });
+    setSelectedAreaLootKind(null);
+    setSelectedAreaLootIndex(null);
+    setStatusMessage(
+      `Deleted loot ${selectedAreaLootKind} ${selectedAreaLootIndex} (unsaved)`
+    );
+  }, [
+    areaData,
+    selectedAreaLootKind,
+    selectedAreaLootIndex,
+    setStatusMessage
+  ]);
+
   const handleCreateReset = useCallback(() => {
     if (!areaData) {
       setStatusMessage("Load an area before creating resets.");
@@ -10629,6 +10727,24 @@ export default function App({ repository }: AppProps) {
         onDelete: handleDeleteFaction
       };
     }
+    if (selectedEntity === "Loot") {
+      const hasSelection =
+        selectedAreaLootKind !== null && selectedAreaLootIndex !== null;
+      const kindLabel =
+        selectedAreaLootKind === "table" ? "Table" : "Group";
+      return {
+        title: "Loot",
+        count: areaLootRows.length,
+        newLabel: "New Group",
+        newLabelSecondary: "New Table",
+        deleteLabel: `Delete ${kindLabel}`,
+        canCreate: Boolean(areaData),
+        canDelete: hasSelection,
+        onCreate: () => handleCreateAreaLoot("group"),
+        onCreateSecondary: () => handleCreateAreaLoot("table"),
+        onDelete: handleDeleteAreaLoot
+      };
+    }
     return null;
   }, [
     selectedEntity,
@@ -10639,6 +10755,7 @@ export default function App({ repository }: AppProps) {
     shopRows.length,
     questRows.length,
     factionRows.length,
+    areaLootRows.length,
     selectedRoomVnum,
     selectedMobileVnum,
     selectedObjectVnum,
@@ -10646,6 +10763,8 @@ export default function App({ repository }: AppProps) {
     selectedShopKeeper,
     selectedQuestVnum,
     selectedFactionVnum,
+    selectedAreaLootKind,
+    selectedAreaLootIndex,
     canCreateRoom,
     areaData,
     handleCreateRoom,
@@ -10661,7 +10780,9 @@ export default function App({ repository }: AppProps) {
     handleCreateQuest,
     handleDeleteQuest,
     handleCreateFaction,
-    handleDeleteFaction
+    handleDeleteFaction,
+    handleCreateAreaLoot,
+    handleDeleteAreaLoot
   ]);
   const tableViewNode = (
     <TableView
