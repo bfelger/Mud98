@@ -9129,6 +9129,83 @@ export default function App({ repository }: AppProps) {
     setStatusMessage(`Deleted ${deletedName} (unsaved)`);
   }, [raceData, selectedRaceIndex, setStatusMessage]);
 
+  const handleCreateSkill = useCallback(() => {
+    if (!skillData) {
+      setStatusMessage("Load skills before creating skills.");
+      return;
+    }
+    const nextIndex = skillData.skills.length;
+    const classNames = referenceData?.classes ?? [];
+    const levels = Object.fromEntries(
+      classNames.map((name) => [name, defaultSkillLevel])
+    );
+    const ratings = Object.fromEntries(
+      classNames.map((name) => [name, defaultSkillRating])
+    );
+    const newSkill: SkillDefinition = {
+      name: `New Skill ${nextIndex + 1}`,
+      levels,
+      ratings,
+      spell: "",
+      loxSpell: "",
+      target: "",
+      minPosition: "",
+      gsn: "",
+      slot: 0,
+      minMana: 0,
+      beats: 0,
+      nounDamage: "",
+      msgOff: "",
+      msgObj: ""
+    };
+    setSkillData((current) => {
+      if (!current) {
+        return current;
+      }
+      return {
+        ...current,
+        skills: [...current.skills, newSkill]
+      };
+    });
+    setSelectedGlobalEntity("Skills");
+    setSelectedSkillIndex(nextIndex);
+    setActiveTab("Form");
+    setStatusMessage(`Created skill ${newSkill.name} (unsaved)`);
+  }, [
+    skillData,
+    referenceData,
+    setStatusMessage,
+    setSelectedGlobalEntity,
+    setSelectedSkillIndex,
+    setActiveTab
+  ]);
+
+  const handleDeleteSkill = useCallback(() => {
+    if (!skillData) {
+      setStatusMessage("Load skills before deleting skills.");
+      return;
+    }
+    if (selectedSkillIndex === null) {
+      setStatusMessage("Select a skill to delete.");
+      return;
+    }
+    const deletedName = skillData.skills[selectedSkillIndex]?.name ?? "skill";
+    setSkillData((current) => {
+      if (!current) {
+        return current;
+      }
+      const nextSkills = current.skills.filter(
+        (_, index) => index !== selectedSkillIndex
+      );
+      return {
+        ...current,
+        skills: nextSkills
+      };
+    });
+    setSelectedSkillIndex(null);
+    setStatusMessage(`Deleted ${deletedName} (unsaved)`);
+  }, [skillData, selectedSkillIndex, setStatusMessage]);
+
   const handleCreateReset = useCallback(() => {
     if (!areaData) {
       setStatusMessage("Load an area before creating resets.");
@@ -11257,11 +11334,31 @@ export default function App({ repository }: AppProps) {
       gridApiRef={raceGridApi}
     />
   );
+  const skillTableToolbar = useMemo(
+    () => ({
+      title: "Skills",
+      count: skillRows.length,
+      newLabel: "New Skill",
+      deleteLabel: "Delete Skill",
+      canCreate: Boolean(skillData),
+      canDelete: selectedSkillIndex !== null,
+      onCreate: handleCreateSkill,
+      onDelete: handleDeleteSkill
+    }),
+    [
+      skillRows.length,
+      skillData,
+      selectedSkillIndex,
+      handleCreateSkill,
+      handleDeleteSkill
+    ]
+  );
   const skillTableViewNode = (
     <SkillTableView
       rows={skillRows}
       columns={skillColumns}
       defaultColDef={skillDefaultColDef}
+      toolbar={skillTableToolbar}
       onSelectSkill={setSelectedSkillIndex}
       gridApiRef={skillGridApi}
     />
