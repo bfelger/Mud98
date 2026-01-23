@@ -8882,6 +8882,87 @@ export default function App({ repository }: AppProps) {
     setStatusMessage(`Deleted recipe ${selectedRecipeVnum} (unsaved)`);
   }, [areaData, selectedRecipeVnum, setStatusMessage]);
 
+  const handleCreateGatherSpawn = useCallback(() => {
+    if (!areaData) {
+      setStatusMessage("Load an area before creating gather spawns.");
+      return;
+    }
+    const nextVnum = getNextEntityVnum(areaData, "Gather Spawns");
+    if (nextVnum === null) {
+      setStatusMessage("No available gather spawn VNUMs in the area range.");
+      return;
+    }
+    const newSpawn: Record<string, unknown> = {
+      vnum: nextVnum,
+      name: "New Gather Spawn",
+      skill: "",
+      roomVnum: getFirstEntityVnum(areaData, "Rooms") ?? 0,
+      successTable: "",
+      failureTable: "",
+      minSkill: 0,
+      minLevel: 1
+    };
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const spawns = Array.isArray(
+        (current as Record<string, unknown>).gatherSpawns
+      )
+        ? [...((current as Record<string, unknown>).gatherSpawns as unknown[])]
+        : [];
+      spawns.push(newSpawn);
+      return {
+        ...current,
+        gatherSpawns: spawns
+      };
+    });
+    setSelectedEntity("Gather Spawns");
+    setSelectedGatherVnum(nextVnum);
+    setActiveTab("Form");
+    setStatusMessage(`Created gather spawn ${nextVnum} (unsaved)`);
+  }, [
+    areaData,
+    setStatusMessage,
+    setSelectedEntity,
+    setSelectedGatherVnum,
+    setActiveTab
+  ]);
+
+  const handleDeleteGatherSpawn = useCallback(() => {
+    if (!areaData) {
+      setStatusMessage("Load an area before deleting gather spawns.");
+      return;
+    }
+    if (selectedGatherVnum === null) {
+      setStatusMessage("Select a gather spawn to delete.");
+      return;
+    }
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const spawns = Array.isArray(
+        (current as Record<string, unknown>).gatherSpawns
+      )
+        ? ((current as Record<string, unknown>).gatherSpawns as unknown[])
+        : [];
+      const nextSpawns = spawns.filter((spawn) => {
+        if (!spawn || typeof spawn !== "object") {
+          return true;
+        }
+        const vnum = parseVnum((spawn as Record<string, unknown>).vnum);
+        return vnum !== selectedGatherVnum;
+      });
+      return {
+        ...current,
+        gatherSpawns: nextSpawns
+      };
+    });
+    setSelectedGatherVnum(null);
+    setStatusMessage(`Deleted gather spawn ${selectedGatherVnum} (unsaved)`);
+  }, [areaData, selectedGatherVnum, setStatusMessage]);
+
   const handleCreateReset = useCallback(() => {
     if (!areaData) {
       setStatusMessage("Load an area before creating resets.");
@@ -10834,6 +10915,18 @@ export default function App({ repository }: AppProps) {
         onDelete: handleDeleteRecipe
       };
     }
+    if (selectedEntity === "Gather Spawns") {
+      return {
+        title: "Gather Spawns",
+        count: gatherSpawnRows.length,
+        newLabel: "New Gather Spawn",
+        deleteLabel: "Delete Gather Spawn",
+        canCreate: Boolean(areaData),
+        canDelete: selectedGatherVnum !== null,
+        onCreate: handleCreateGatherSpawn,
+        onDelete: handleDeleteGatherSpawn
+      };
+    }
     return null;
   }, [
     selectedEntity,
@@ -10846,6 +10939,7 @@ export default function App({ repository }: AppProps) {
     factionRows.length,
     areaLootRows.length,
     recipeRows.length,
+    gatherSpawnRows.length,
     selectedRoomVnum,
     selectedMobileVnum,
     selectedObjectVnum,
@@ -10856,6 +10950,7 @@ export default function App({ repository }: AppProps) {
     selectedAreaLootKind,
     selectedAreaLootIndex,
     selectedRecipeVnum,
+    selectedGatherVnum,
     canCreateRoom,
     areaData,
     handleCreateRoom,
@@ -10875,7 +10970,9 @@ export default function App({ repository }: AppProps) {
     handleCreateAreaLoot,
     handleDeleteAreaLoot,
     handleCreateRecipe,
-    handleDeleteRecipe
+    handleDeleteRecipe,
+    handleCreateGatherSpawn,
+    handleDeleteGatherSpawn
   ]);
   const tableViewNode = (
     <TableView
