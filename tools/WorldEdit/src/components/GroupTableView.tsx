@@ -1,11 +1,16 @@
 import type { MutableRefObject } from "react";
 import type { ColDef, GridApi } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
+import {
+  EntityTableToolbar,
+  type EntityTableToolbarConfig
+} from "./EntityTableToolbar";
 
 type GroupTableViewProps = {
   rows: Array<Record<string, unknown>>;
   columns: ColDef[];
   defaultColDef: ColDef;
+  toolbar?: EntityTableToolbarConfig | null;
   onSelectGroup: (index: number | null) => void;
   gridApiRef: MutableRefObject<GridApi | null>;
 };
@@ -14,11 +19,13 @@ export function GroupTableView({
   rows,
   columns,
   defaultColDef,
+  toolbar,
   onSelectGroup,
   gridApiRef
 }: GroupTableViewProps) {
   return (
     <div className="entity-table">
+      {toolbar ? <EntityTableToolbar {...toolbar} /> : null}
       {rows.length ? (
         <div className="ag-theme-quartz worldedit-grid">
           <AgGridReact

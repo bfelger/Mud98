@@ -9206,6 +9206,69 @@ export default function App({ repository }: AppProps) {
     setStatusMessage(`Deleted ${deletedName} (unsaved)`);
   }, [skillData, selectedSkillIndex, setStatusMessage]);
 
+  const handleCreateGroup = useCallback(() => {
+    if (!groupData) {
+      setStatusMessage("Load groups before creating groups.");
+      return;
+    }
+    const nextIndex = groupData.groups.length;
+    const classNames = referenceData?.classes ?? [];
+    const ratings = Object.fromEntries(
+      classNames.map((name) => [name, defaultSkillRating])
+    );
+    const newGroup: GroupDefinition = {
+      name: `New Group ${nextIndex + 1}`,
+      ratings,
+      skills: new Array(groupSkillCount).fill("")
+    };
+    setGroupData((current) => {
+      if (!current) {
+        return current;
+      }
+      return {
+        ...current,
+        groups: [...current.groups, newGroup]
+      };
+    });
+    setSelectedGlobalEntity("Groups");
+    setSelectedGroupIndex(nextIndex);
+    setActiveTab("Form");
+    setStatusMessage(`Created group ${newGroup.name} (unsaved)`);
+  }, [
+    groupData,
+    referenceData,
+    setStatusMessage,
+    setSelectedGlobalEntity,
+    setSelectedGroupIndex,
+    setActiveTab
+  ]);
+
+  const handleDeleteGroup = useCallback(() => {
+    if (!groupData) {
+      setStatusMessage("Load groups before deleting groups.");
+      return;
+    }
+    if (selectedGroupIndex === null) {
+      setStatusMessage("Select a group to delete.");
+      return;
+    }
+    const deletedName = groupData.groups[selectedGroupIndex]?.name ?? "group";
+    setGroupData((current) => {
+      if (!current) {
+        return current;
+      }
+      const nextGroups = current.groups.filter(
+        (_, index) => index !== selectedGroupIndex
+      );
+      return {
+        ...current,
+        groups: nextGroups
+      };
+    });
+    setSelectedGroupIndex(null);
+    setStatusMessage(`Deleted ${deletedName} (unsaved)`);
+  }, [groupData, selectedGroupIndex, setStatusMessage]);
+
   const handleCreateReset = useCallback(() => {
     if (!areaData) {
       setStatusMessage("Load an area before creating resets.");
@@ -11363,11 +11426,31 @@ export default function App({ repository }: AppProps) {
       gridApiRef={skillGridApi}
     />
   );
+  const groupTableToolbar = useMemo(
+    () => ({
+      title: "Groups",
+      count: groupRows.length,
+      newLabel: "New Group",
+      deleteLabel: "Delete Group",
+      canCreate: Boolean(groupData),
+      canDelete: selectedGroupIndex !== null,
+      onCreate: handleCreateGroup,
+      onDelete: handleDeleteGroup
+    }),
+    [
+      groupRows.length,
+      groupData,
+      selectedGroupIndex,
+      handleCreateGroup,
+      handleDeleteGroup
+    ]
+  );
   const groupTableViewNode = (
     <GroupTableView
       rows={groupRows}
       columns={groupColumns}
       defaultColDef={groupDefaultColDef}
+      toolbar={groupTableToolbar}
       onSelectGroup={setSelectedGroupIndex}
       gridApiRef={groupGridApi}
     />
