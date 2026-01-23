@@ -9269,6 +9269,69 @@ export default function App({ repository }: AppProps) {
     setStatusMessage(`Deleted ${deletedName} (unsaved)`);
   }, [groupData, selectedGroupIndex, setStatusMessage]);
 
+  const handleCreateCommand = useCallback(() => {
+    if (!commandData) {
+      setStatusMessage("Load commands before creating commands.");
+      return;
+    }
+    const nextIndex = commandData.commands.length;
+    const newCommand: CommandDefinition = {
+      name: `newcommand${nextIndex + 1}`,
+      function: "",
+      position: "",
+      level: 0,
+      log: "",
+      category: "",
+      loxFunction: ""
+    };
+    setCommandData((current) => {
+      if (!current) {
+        return current;
+      }
+      return {
+        ...current,
+        commands: [...current.commands, newCommand]
+      };
+    });
+    setSelectedGlobalEntity("Commands");
+    setSelectedCommandIndex(nextIndex);
+    setActiveTab("Form");
+    setStatusMessage(`Created command ${newCommand.name} (unsaved)`);
+  }, [
+    commandData,
+    setStatusMessage,
+    setSelectedGlobalEntity,
+    setSelectedCommandIndex,
+    setActiveTab
+  ]);
+
+  const handleDeleteCommand = useCallback(() => {
+    if (!commandData) {
+      setStatusMessage("Load commands before deleting commands.");
+      return;
+    }
+    if (selectedCommandIndex === null) {
+      setStatusMessage("Select a command to delete.");
+      return;
+    }
+    const deletedName =
+      commandData.commands[selectedCommandIndex]?.name ?? "command";
+    setCommandData((current) => {
+      if (!current) {
+        return current;
+      }
+      const nextCommands = current.commands.filter(
+        (_, index) => index !== selectedCommandIndex
+      );
+      return {
+        ...current,
+        commands: nextCommands
+      };
+    });
+    setSelectedCommandIndex(null);
+    setStatusMessage(`Deleted ${deletedName} (unsaved)`);
+  }, [commandData, selectedCommandIndex, setStatusMessage]);
+
   const handleCreateReset = useCallback(() => {
     if (!areaData) {
       setStatusMessage("Load an area before creating resets.");
@@ -11455,11 +11518,31 @@ export default function App({ repository }: AppProps) {
       gridApiRef={groupGridApi}
     />
   );
+  const commandTableToolbar = useMemo(
+    () => ({
+      title: "Commands",
+      count: commandRows.length,
+      newLabel: "New Command",
+      deleteLabel: "Delete Command",
+      canCreate: Boolean(commandData),
+      canDelete: selectedCommandIndex !== null,
+      onCreate: handleCreateCommand,
+      onDelete: handleDeleteCommand
+    }),
+    [
+      commandRows.length,
+      commandData,
+      selectedCommandIndex,
+      handleCreateCommand,
+      handleDeleteCommand
+    ]
+  );
   const commandTableViewNode = (
     <CommandTableView
       rows={commandRows}
       columns={commandColumns}
       defaultColDef={commandDefaultColDef}
+      toolbar={commandTableToolbar}
       onSelectCommand={setSelectedCommandIndex}
       gridApiRef={commandGridApi}
     />
