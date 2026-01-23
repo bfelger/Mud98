@@ -8963,6 +8963,78 @@ export default function App({ repository }: AppProps) {
     setStatusMessage(`Deleted gather spawn ${selectedGatherVnum} (unsaved)`);
   }, [areaData, selectedGatherVnum, setStatusMessage]);
 
+  const handleCreateClass = useCallback(() => {
+    if (!classData) {
+      setStatusMessage("Load classes before creating classes.");
+      return;
+    }
+    const nextIndex = classData.classes.length;
+    const newRecord: ClassDefinition = {
+      name: `New Class ${nextIndex + 1}`,
+      whoName: "",
+      baseGroup: "",
+      defaultGroup: "",
+      weaponVnum: 0,
+      armorProf: "",
+      guilds: new Array(classGuildCount).fill(0),
+      primeStat: "",
+      skillCap: 0,
+      thac0_00: 0,
+      thac0_32: 0,
+      hpMin: 0,
+      hpMax: 0,
+      manaUser: false,
+      startLoc: 0,
+      titles: []
+    };
+    setClassData((current) => {
+      if (!current) {
+        return current;
+      }
+      return {
+        ...current,
+        classes: [...current.classes, newRecord]
+      };
+    });
+    setSelectedGlobalEntity("Classes");
+    setSelectedClassIndex(nextIndex);
+    setActiveTab("Form");
+    setStatusMessage(`Created class ${newRecord.name} (unsaved)`);
+  }, [
+    classData,
+    setStatusMessage,
+    setSelectedGlobalEntity,
+    setSelectedClassIndex,
+    setActiveTab
+  ]);
+
+  const handleDeleteClass = useCallback(() => {
+    if (!classData) {
+      setStatusMessage("Load classes before deleting classes.");
+      return;
+    }
+    if (selectedClassIndex === null) {
+      setStatusMessage("Select a class to delete.");
+      return;
+    }
+    const deletedName =
+      classData.classes[selectedClassIndex]?.name ?? "class";
+    setClassData((current) => {
+      if (!current) {
+        return current;
+      }
+      const nextClasses = current.classes.filter(
+        (_, index) => index !== selectedClassIndex
+      );
+      return {
+        ...current,
+        classes: nextClasses
+      };
+    });
+    setSelectedClassIndex(null);
+    setStatusMessage(`Deleted ${deletedName} (unsaved)`);
+  }, [classData, selectedClassIndex, setStatusMessage]);
+
   const handleCreateReset = useCallback(() => {
     if (!areaData) {
       setStatusMessage("Load an area before creating resets.");
@@ -11033,11 +11105,31 @@ export default function App({ repository }: AppProps) {
       gatherSpawnGridApiRef={gatherGridApi}
     />
   );
+  const classTableToolbar = useMemo(
+    () => ({
+      title: "Classes",
+      count: classRows.length,
+      newLabel: "New Class",
+      deleteLabel: "Delete Class",
+      canCreate: Boolean(classData),
+      canDelete: selectedClassIndex !== null,
+      onCreate: handleCreateClass,
+      onDelete: handleDeleteClass
+    }),
+    [
+      classRows.length,
+      classData,
+      selectedClassIndex,
+      handleCreateClass,
+      handleDeleteClass
+    ]
+  );
   const classTableViewNode = (
     <ClassTableView
       rows={classRows}
       columns={classColumns}
       defaultColDef={classDefaultColDef}
+      toolbar={classTableToolbar}
       onSelectClass={setSelectedClassIndex}
       gridApiRef={classGridApi}
     />
