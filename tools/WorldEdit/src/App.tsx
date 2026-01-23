@@ -8629,6 +8629,84 @@ export default function App({ repository }: AppProps) {
     setStatusMessage(`Deleted quest ${selectedQuestVnum} (unsaved)`);
   }, [areaData, selectedQuestVnum, setStatusMessage]);
 
+  const handleCreateFaction = useCallback(() => {
+    if (!areaData) {
+      setStatusMessage("Load an area before creating factions.");
+      return;
+    }
+    const nextVnum = getNextEntityVnum(areaData, "Factions");
+    if (nextVnum === null) {
+      setStatusMessage("No available faction VNUMs in the area range.");
+      return;
+    }
+    const newFaction: Record<string, unknown> = {
+      vnum: nextVnum,
+      name: "New Faction",
+      defaultStanding: 0,
+      allies: [],
+      opposing: []
+    };
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const factions = Array.isArray(
+        (current as Record<string, unknown>).factions
+      )
+        ? [...((current as Record<string, unknown>).factions as unknown[])]
+        : [];
+      factions.push(newFaction);
+      return {
+        ...current,
+        factions
+      };
+    });
+    setSelectedEntity("Factions");
+    setSelectedFactionVnum(nextVnum);
+    setActiveTab("Form");
+    setStatusMessage(`Created faction ${nextVnum} (unsaved)`);
+  }, [
+    areaData,
+    setStatusMessage,
+    setSelectedEntity,
+    setSelectedFactionVnum,
+    setActiveTab
+  ]);
+
+  const handleDeleteFaction = useCallback(() => {
+    if (!areaData) {
+      setStatusMessage("Load an area before deleting factions.");
+      return;
+    }
+    if (selectedFactionVnum === null) {
+      setStatusMessage("Select a faction to delete.");
+      return;
+    }
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const factions = Array.isArray(
+        (current as Record<string, unknown>).factions
+      )
+        ? ((current as Record<string, unknown>).factions as unknown[])
+        : [];
+      const nextFactions = factions.filter((faction) => {
+        if (!faction || typeof faction !== "object") {
+          return true;
+        }
+        const vnum = parseVnum((faction as Record<string, unknown>).vnum);
+        return vnum !== selectedFactionVnum;
+      });
+      return {
+        ...current,
+        factions: nextFactions
+      };
+    });
+    setSelectedFactionVnum(null);
+    setStatusMessage(`Deleted faction ${selectedFactionVnum} (unsaved)`);
+  }, [areaData, selectedFactionVnum, setStatusMessage]);
+
   const handleCreateReset = useCallback(() => {
     if (!areaData) {
       setStatusMessage("Load an area before creating resets.");
@@ -10539,6 +10617,18 @@ export default function App({ repository }: AppProps) {
         onDelete: handleDeleteQuest
       };
     }
+    if (selectedEntity === "Factions") {
+      return {
+        title: "Factions",
+        count: factionRows.length,
+        newLabel: "New Faction",
+        deleteLabel: "Delete Faction",
+        canCreate: Boolean(areaData),
+        canDelete: selectedFactionVnum !== null,
+        onCreate: handleCreateFaction,
+        onDelete: handleDeleteFaction
+      };
+    }
     return null;
   }, [
     selectedEntity,
@@ -10548,12 +10638,14 @@ export default function App({ repository }: AppProps) {
     resetRows.length,
     shopRows.length,
     questRows.length,
+    factionRows.length,
     selectedRoomVnum,
     selectedMobileVnum,
     selectedObjectVnum,
     selectedResetIndex,
     selectedShopKeeper,
     selectedQuestVnum,
+    selectedFactionVnum,
     canCreateRoom,
     areaData,
     handleCreateRoom,
@@ -10567,7 +10659,9 @@ export default function App({ repository }: AppProps) {
     handleCreateShop,
     handleDeleteShop,
     handleCreateQuest,
-    handleDeleteQuest
+    handleDeleteQuest,
+    handleCreateFaction,
+    handleDeleteFaction
   ]);
   const tableViewNode = (
     <TableView
