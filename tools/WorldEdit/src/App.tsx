@@ -9035,6 +9035,100 @@ export default function App({ repository }: AppProps) {
     setStatusMessage(`Deleted ${deletedName} (unsaved)`);
   }, [classData, selectedClassIndex, setStatusMessage]);
 
+  const handleCreateRace = useCallback(() => {
+    if (!raceData) {
+      setStatusMessage("Load races before creating races.");
+      return;
+    }
+    const nextIndex = raceData.races.length;
+    const classNames = referenceData?.classes ?? [];
+    const classMult = Object.fromEntries(
+      classNames.map((name) => [name, 100])
+    );
+    const classStart = Object.fromEntries(
+      classNames.map((name) => [name, 0])
+    );
+    const newRace: RaceDefinition = {
+      name: `New Race ${nextIndex + 1}`,
+      whoName: "",
+      pc: false,
+      points: 0,
+      size: "",
+      startLoc: 0,
+      stats: {
+        str: 0,
+        int: 0,
+        wis: 0,
+        dex: 0,
+        con: 0
+      },
+      maxStats: {
+        str: 0,
+        int: 0,
+        wis: 0,
+        dex: 0,
+        con: 0
+      },
+      actFlags: [],
+      affectFlags: [],
+      offFlags: [],
+      immFlags: [],
+      resFlags: [],
+      vulnFlags: [],
+      formFlags: [],
+      partFlags: [],
+      classMult,
+      classStart,
+      skills: new Array(raceSkillCount).fill("")
+    };
+    setRaceData((current) => {
+      if (!current) {
+        return current;
+      }
+      return {
+        ...current,
+        races: [...current.races, newRace]
+      };
+    });
+    setSelectedGlobalEntity("Races");
+    setSelectedRaceIndex(nextIndex);
+    setActiveTab("Form");
+    setStatusMessage(`Created race ${newRace.name} (unsaved)`);
+  }, [
+    raceData,
+    referenceData,
+    setStatusMessage,
+    setSelectedGlobalEntity,
+    setSelectedRaceIndex,
+    setActiveTab
+  ]);
+
+  const handleDeleteRace = useCallback(() => {
+    if (!raceData) {
+      setStatusMessage("Load races before deleting races.");
+      return;
+    }
+    if (selectedRaceIndex === null) {
+      setStatusMessage("Select a race to delete.");
+      return;
+    }
+    const deletedName = raceData.races[selectedRaceIndex]?.name ?? "race";
+    setRaceData((current) => {
+      if (!current) {
+        return current;
+      }
+      const nextRaces = current.races.filter(
+        (_, index) => index !== selectedRaceIndex
+      );
+      return {
+        ...current,
+        races: nextRaces
+      };
+    });
+    setSelectedRaceIndex(null);
+    setStatusMessage(`Deleted ${deletedName} (unsaved)`);
+  }, [raceData, selectedRaceIndex, setStatusMessage]);
+
   const handleCreateReset = useCallback(() => {
     if (!areaData) {
       setStatusMessage("Load an area before creating resets.");
@@ -11134,11 +11228,31 @@ export default function App({ repository }: AppProps) {
       gridApiRef={classGridApi}
     />
   );
+  const raceTableToolbar = useMemo(
+    () => ({
+      title: "Races",
+      count: raceRows.length,
+      newLabel: "New Race",
+      deleteLabel: "Delete Race",
+      canCreate: Boolean(raceData),
+      canDelete: selectedRaceIndex !== null,
+      onCreate: handleCreateRace,
+      onDelete: handleDeleteRace
+    }),
+    [
+      raceRows.length,
+      raceData,
+      selectedRaceIndex,
+      handleCreateRace,
+      handleDeleteRace
+    ]
+  );
   const raceTableViewNode = (
     <RaceTableView
       rows={raceRows}
       columns={raceColumns}
       defaultColDef={raceDefaultColDef}
+      toolbar={raceTableToolbar}
       onSelectRace={setSelectedRaceIndex}
       gridApiRef={raceGridApi}
     />
