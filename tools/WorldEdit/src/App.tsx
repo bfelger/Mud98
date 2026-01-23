@@ -8353,6 +8353,86 @@ export default function App({ repository }: AppProps) {
     setStatusMessage(`Deleted mobile ${selectedMobileVnum} (unsaved)`);
   }, [areaData, selectedMobileVnum, setStatusMessage]);
 
+  const handleCreateObject = useCallback(() => {
+    if (!areaData) {
+      setStatusMessage("Load an area before creating objects.");
+      return;
+    }
+    const nextVnum = getNextEntityVnum(areaData, "Objects");
+    if (nextVnum === null) {
+      setStatusMessage("No available object VNUMs in the area range.");
+      return;
+    }
+    const newObject: Record<string, unknown> = {
+      vnum: nextVnum,
+      name: "new object",
+      shortDescr: "a new object",
+      description: "An unfinished object sits here.\n\r",
+      material: "wood",
+      itemType: "trash",
+      level: 1,
+      weight: 1,
+      cost: 0,
+      extraFlags: [],
+      wearFlags: []
+    };
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const objects = Array.isArray((current as Record<string, unknown>).objects)
+        ? [...((current as Record<string, unknown>).objects as unknown[])]
+        : [];
+      objects.push(newObject);
+      return {
+        ...current,
+        objects
+      };
+    });
+    setSelectedEntity("Objects");
+    setSelectedObjectVnum(nextVnum);
+    setActiveTab("Form");
+    setStatusMessage(`Created object ${nextVnum} (unsaved)`);
+  }, [
+    areaData,
+    setStatusMessage,
+    setSelectedEntity,
+    setSelectedObjectVnum,
+    setActiveTab
+  ]);
+
+  const handleDeleteObject = useCallback(() => {
+    if (!areaData) {
+      setStatusMessage("Load an area before deleting objects.");
+      return;
+    }
+    if (selectedObjectVnum === null) {
+      setStatusMessage("Select an object to delete.");
+      return;
+    }
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const objects = Array.isArray((current as Record<string, unknown>).objects)
+        ? ((current as Record<string, unknown>).objects as unknown[])
+        : [];
+      const nextObjects = objects.filter((obj) => {
+        if (!obj || typeof obj !== "object") {
+          return true;
+        }
+        const vnum = parseVnum((obj as Record<string, unknown>).vnum);
+        return vnum !== selectedObjectVnum;
+      });
+      return {
+        ...current,
+        objects: nextObjects
+      };
+    });
+    setSelectedObjectVnum(null);
+    setStatusMessage(`Deleted object ${selectedObjectVnum} (unsaved)`);
+  }, [areaData, selectedObjectVnum, setStatusMessage]);
+
   const handleDeleteRoom = useCallback(() => {
     if (!areaData) {
       setStatusMessage("Load an area before deleting rooms.");
@@ -10146,19 +10226,35 @@ export default function App({ repository }: AppProps) {
         onDelete: handleDeleteMobile
       };
     }
+    if (selectedEntity === "Objects") {
+      return {
+        title: "Objects",
+        count: objectRows.length,
+        newLabel: "New Object",
+        deleteLabel: "Delete Object",
+        canCreate: Boolean(areaData),
+        canDelete: selectedObjectVnum !== null,
+        onCreate: handleCreateObject,
+        onDelete: handleDeleteObject
+      };
+    }
     return null;
   }, [
     selectedEntity,
     roomRows.length,
     mobileRows.length,
+    objectRows.length,
     selectedRoomVnum,
     selectedMobileVnum,
+    selectedObjectVnum,
     canCreateRoom,
     areaData,
     handleCreateRoom,
     handleDeleteRoom,
     handleCreateMobile,
-    handleDeleteMobile
+    handleDeleteMobile,
+    handleCreateObject,
+    handleDeleteObject
   ]);
   const tableViewNode = (
     <TableView
