@@ -1557,6 +1557,20 @@ function getNextEntityVnum(areaData: AreaJson, entity: EntityKey): number | null
   return Math.max(...used) + 1;
 }
 
+function getFirstEntityVnum(areaData: AreaJson, entity: EntityKey): number | null {
+  const entries = getEntityList(areaData, entity);
+  for (const entry of entries) {
+    if (!entry || typeof entry !== "object") {
+      continue;
+    }
+    const vnum = parseVnum((entry as Record<string, unknown>).vnum);
+    if (vnum !== null) {
+      return vnum;
+    }
+  }
+  return null;
+}
+
 function getFirstString(value: unknown, fallback: string): string {
   return typeof value === "string" && value.trim().length ? value : fallback;
 }
@@ -8433,6 +8447,75 @@ export default function App({ repository }: AppProps) {
     setStatusMessage(`Deleted object ${selectedObjectVnum} (unsaved)`);
   }, [areaData, selectedObjectVnum, setStatusMessage]);
 
+  const handleCreateReset = useCallback(() => {
+    if (!areaData) {
+      setStatusMessage("Load an area before creating resets.");
+      return;
+    }
+    const roomVnum = getFirstEntityVnum(areaData, "Rooms") ?? 0;
+    const mobVnum = getFirstEntityVnum(areaData, "Mobiles") ?? 0;
+    const resets = getEntityList(areaData, "Resets");
+    const nextIndex = resets.length;
+    const newReset: Record<string, unknown> = {
+      commandName: "loadMob",
+      mobVnum,
+      roomVnum,
+      maxInArea: 1,
+      maxInRoom: 1
+    };
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const nextResets = Array.isArray(
+        (current as Record<string, unknown>).resets
+      )
+        ? [...((current as Record<string, unknown>).resets as unknown[])]
+        : [];
+      nextResets.push(newReset);
+      return {
+        ...current,
+        resets: nextResets
+      };
+    });
+    setSelectedEntity("Resets");
+    setSelectedResetIndex(nextIndex);
+    setActiveTab("Form");
+    setStatusMessage(`Created reset #${nextIndex} (unsaved)`);
+  }, [
+    areaData,
+    setStatusMessage,
+    setSelectedEntity,
+    setSelectedResetIndex,
+    setActiveTab
+  ]);
+
+  const handleDeleteReset = useCallback(() => {
+    if (!areaData) {
+      setStatusMessage("Load an area before deleting resets.");
+      return;
+    }
+    if (selectedResetIndex === null) {
+      setStatusMessage("Select a reset to delete.");
+      return;
+    }
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const resets = Array.isArray((current as Record<string, unknown>).resets)
+        ? ((current as Record<string, unknown>).resets as unknown[])
+        : [];
+      const nextResets = resets.filter((_, index) => index !== selectedResetIndex);
+      return {
+        ...current,
+        resets: nextResets
+      };
+    });
+    setSelectedResetIndex(null);
+    setStatusMessage(`Deleted reset #${selectedResetIndex} (unsaved)`);
+  }, [areaData, selectedResetIndex, setStatusMessage]);
+
   const handleDeleteRoom = useCallback(() => {
     if (!areaData) {
       setStatusMessage("Load an area before deleting rooms.");
@@ -10238,15 +10321,29 @@ export default function App({ repository }: AppProps) {
         onDelete: handleDeleteObject
       };
     }
+    if (selectedEntity === "Resets") {
+      return {
+        title: "Resets",
+        count: resetRows.length,
+        newLabel: "New Reset",
+        deleteLabel: "Delete Reset",
+        canCreate: Boolean(areaData),
+        canDelete: selectedResetIndex !== null,
+        onCreate: handleCreateReset,
+        onDelete: handleDeleteReset
+      };
+    }
     return null;
   }, [
     selectedEntity,
     roomRows.length,
     mobileRows.length,
     objectRows.length,
+    resetRows.length,
     selectedRoomVnum,
     selectedMobileVnum,
     selectedObjectVnum,
+    selectedResetIndex,
     canCreateRoom,
     areaData,
     handleCreateRoom,
@@ -10254,7 +10351,9 @@ export default function App({ repository }: AppProps) {
     handleCreateMobile,
     handleDeleteMobile,
     handleCreateObject,
-    handleDeleteObject
+    handleDeleteObject,
+    handleCreateReset,
+    handleDeleteReset
   ]);
   const tableViewNode = (
     <TableView
