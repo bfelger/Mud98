@@ -9456,6 +9456,86 @@ export default function App({ repository }: AppProps) {
     setStatusMessage(`Deleted ${deletedName} (unsaved)`);
   }, [tutorialData, selectedTutorialIndex, setStatusMessage]);
 
+  const handleCreateLoot = useCallback((kind: "group" | "table") => {
+    if (!lootData) {
+      setStatusMessage("Load loot before creating loot entries.");
+      return;
+    }
+    const nextGroups = [...lootData.groups];
+    const nextTables = [...lootData.tables];
+    let nextIndex = 0;
+    if (kind === "group") {
+      nextGroups.push({
+        name: "New Loot Group",
+        rolls: 1,
+        entries: []
+      });
+      nextIndex = nextGroups.length - 1;
+    } else {
+      nextTables.push({
+        name: "New Loot Table",
+        parent: "",
+        ops: []
+      });
+      nextIndex = nextTables.length - 1;
+    }
+    setLootData((current) => {
+      if (!current) {
+        return current;
+      }
+      return {
+        ...current,
+        groups: nextGroups,
+        tables: nextTables
+      };
+    });
+    setSelectedGlobalEntity("Loot");
+    setSelectedLootKind(kind);
+    setSelectedLootIndex(nextIndex);
+    setActiveTab("Form");
+    setStatusMessage(`Created loot ${kind} ${nextIndex} (unsaved)`);
+  }, [
+    lootData,
+    setStatusMessage,
+    setSelectedGlobalEntity,
+    setSelectedLootKind,
+    setSelectedLootIndex,
+    setActiveTab
+  ]);
+
+  const handleDeleteLoot = useCallback(() => {
+    if (!lootData) {
+      setStatusMessage("Load loot before deleting loot entries.");
+      return;
+    }
+    if (selectedLootKind === null || selectedLootIndex === null) {
+      setStatusMessage("Select a loot entry to delete.");
+      return;
+    }
+    const nextGroups = [...lootData.groups];
+    const nextTables = [...lootData.tables];
+    if (selectedLootKind === "group") {
+      nextGroups.splice(selectedLootIndex, 1);
+    } else {
+      nextTables.splice(selectedLootIndex, 1);
+    }
+    setLootData((current) => {
+      if (!current) {
+        return current;
+      }
+      return {
+        ...current,
+        groups: nextGroups,
+        tables: nextTables
+      };
+    });
+    setSelectedLootKind(null);
+    setSelectedLootIndex(null);
+    setStatusMessage(
+      `Deleted loot ${selectedLootKind} ${selectedLootIndex} (unsaved)`
+    );
+  }, [lootData, selectedLootKind, selectedLootIndex, setStatusMessage]);
+
   const handleCreateReset = useCallback(() => {
     if (!areaData) {
       setStatusMessage("Load an area before creating resets.");
@@ -11729,11 +11809,36 @@ export default function App({ repository }: AppProps) {
       gridApiRef={tutorialGridApi}
     />
   );
+  const lootTableToolbar = useMemo(() => {
+    const hasSelection =
+      selectedLootKind !== null && selectedLootIndex !== null;
+    const kindLabel = selectedLootKind === "table" ? "Table" : "Group";
+    return {
+      title: "Loot",
+      count: lootRows.length,
+      newLabel: "New Group",
+      newLabelSecondary: "New Table",
+      deleteLabel: `Delete ${kindLabel}`,
+      canCreate: Boolean(lootData),
+      canDelete: hasSelection,
+      onCreate: () => handleCreateLoot("group"),
+      onCreateSecondary: () => handleCreateLoot("table"),
+      onDelete: handleDeleteLoot
+    };
+  }, [
+    lootRows.length,
+    lootData,
+    selectedLootKind,
+    selectedLootIndex,
+    handleCreateLoot,
+    handleDeleteLoot
+  ]);
   const lootTableViewNode = (
     <LootTableView
       rows={lootRows}
       columns={lootColumns}
       defaultColDef={lootDefaultColDef}
+      toolbar={lootTableToolbar}
       onSelectLoot={(kind, index) => {
         setSelectedLootKind(kind);
         setSelectedLootIndex(index);
