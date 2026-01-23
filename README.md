@@ -257,7 +257,7 @@ Use the `-d` argument to specify the folder containing `mud98.cfg` if you don't 
     - [ ] Fish
 - [ ] Professions
   - [ ] Resource gathering
-    - [ ] Mining
+    - [x] Mining
     - [ ] Herbalism
     - [ ] Fishing
   - [ ] Crafting
@@ -269,6 +269,8 @@ Use the `-d` argument to specify the folder containing `mud98.cfg` if you don't 
     - [ ] Tailoring
 - [ ] Randomized areas (dungeons, overland, etc.)
   - [ ] Navigation skills for randomized areas
+- [x] WorldEdit off-line GUI editor
+  - [ ] Web-enabled WorldEdit
 - [ ] Integrated webserver with embedded MUD-client
 - [ ] Player-run clans/guilds
 - [ ] Player/Clan housing

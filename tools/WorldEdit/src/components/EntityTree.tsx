@@ -22,9 +22,6 @@ export function EntityTree({
     <aside className="sidebar">
       <div className="panel-header">
         <h2>Entity Tree</h2>
-        <button className="ghost-button" type="button">
-          New
-        </button>
       </div>
       <div className="tree-mode">
         <div className="tree-mode__label">Mode</div>

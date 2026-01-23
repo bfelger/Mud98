@@ -34,6 +34,10 @@ type TableViewProps = {
   lootDefaultColDef: ColDef;
   recipeDefaultColDef: ColDef;
   gatherSpawnDefaultColDef: ColDef;
+  selectedRoomVnum: number | null;
+  canCreateRoom: boolean;
+  onCreateRoom: () => void;
+  onDeleteRoom: () => void;
   onSelectRoom: (vnum: number | null) => void;
   onSelectMobile: (vnum: number | null) => void;
   onSelectObject: (vnum: number | null) => void;
@@ -88,6 +92,10 @@ export function TableView({
   lootDefaultColDef,
   recipeDefaultColDef,
   gatherSpawnDefaultColDef,
+  selectedRoomVnum,
+  canCreateRoom,
+  onCreateRoom,
+  onDeleteRoom,
   onSelectRoom,
   onSelectMobile,
   onSelectObject,
@@ -112,30 +120,58 @@ export function TableView({
   return (
     <div className="entity-table">
       {selectedEntity === "Rooms" ? (
-        roomRows.length ? (
-          <div className="ag-theme-quartz worldedit-grid">
-            <AgGridReact
-              rowData={roomRows}
-              columnDefs={roomColumns}
-              defaultColDef={roomDefaultColDef}
-              animateRows
-              rowSelection="single"
-              getRowId={(params) => String(params.data.vnum)}
-              domLayout="autoHeight"
-              onRowClicked={(event) =>
-                onSelectRoom(event.data?.vnum ?? null)
-              }
-              onGridReady={(event) => {
-                roomGridApiRef.current = event.api;
-              }}
-            />
+        <>
+          <div className="entity-table__toolbar">
+            <div className="entity-table__toolbar-meta">
+              <span className="entity-table__toolbar-title">Rooms</span>
+              <span className="entity-table__toolbar-count">
+                {roomRows.length} total
+              </span>
+            </div>
+            <div className="entity-table__toolbar-actions">
+              <button
+                className="ghost-button"
+                type="button"
+                onClick={onCreateRoom}
+                disabled={!canCreateRoom}
+              >
+                New Room
+              </button>
+              <button
+                className="ghost-button ghost-button--danger"
+                type="button"
+                onClick={onDeleteRoom}
+                disabled={selectedRoomVnum === null}
+              >
+                Delete Room
+              </button>
+            </div>
           </div>
-        ) : (
-          <div className="entity-table__empty">
-            <h3>Rooms will appear here</h3>
-            <p>Load an area JSON file to populate the room table.</p>
-          </div>
-        )
+          {roomRows.length ? (
+            <div className="ag-theme-quartz worldedit-grid">
+              <AgGridReact
+                rowData={roomRows}
+                columnDefs={roomColumns}
+                defaultColDef={roomDefaultColDef}
+                animateRows
+                rowSelection="single"
+                getRowId={(params) => String(params.data.vnum)}
+                domLayout="autoHeight"
+                onRowClicked={(event) =>
+                  onSelectRoom(event.data?.vnum ?? null)
+                }
+                onGridReady={(event) => {
+                  roomGridApiRef.current = event.api;
+                }}
+              />
+            </div>
+          ) : (
+            <div className="entity-table__empty">
+              <h3>Rooms will appear here</h3>
+              <p>Load an area JSON file to populate the room table.</p>
+            </div>
+          )}
+        </>
       ) : null}
       {selectedEntity === "Mobiles" ? (
         mobileRows.length ? (

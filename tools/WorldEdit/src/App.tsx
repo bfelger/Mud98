@@ -1529,6 +1529,42 @@ function getAreaVnumBounds(
   return null;
 }
 
+function getNextRoomVnum(areaData: AreaJson): number | null {
+  const rooms = getEntityList(areaData, "Rooms");
+  const used = new Set<number>();
+  rooms.forEach((room) => {
+    if (!room || typeof room !== "object") {
+      return;
+    }
+    const vnum = parseVnum((room as Record<string, unknown>).vnum);
+    if (vnum !== null) {
+      used.add(vnum);
+    }
+  });
+  const bounds = getAreaVnumBounds(areaData);
+  if (bounds) {
+    const { min, max } = bounds;
+    if (!used.size) {
+      return min;
+    }
+    const maxUsed = Math.max(...used);
+    const preferred = maxUsed < min ? min : maxUsed + 1;
+    if (preferred >= min && preferred <= max && !used.has(preferred)) {
+      return preferred;
+    }
+    for (let candidate = min; candidate <= max; candidate += 1) {
+      if (!used.has(candidate)) {
+        return candidate;
+      }
+    }
+    return null;
+  }
+  if (!used.size) {
+    return 1;
+  }
+  return Math.max(...used) + 1;
+}
+
 function getFirstString(value: unknown, fallback: string): string {
   return typeof value === "string" && value.trim().length ? value : fallback;
 }
@@ -5361,7 +5397,7 @@ export default function App({ repository }: AppProps) {
     setSelectedGatherVnum(null);
     setSelectedAreaLootKind(null);
     setSelectedAreaLootIndex(null);
-  }, [areaData]);
+  }, [areaPath]);
 
   useEffect(() => {
     if (
@@ -8199,6 +8235,102 @@ export default function App({ repository }: AppProps) {
     };
   }, [layoutNonce, runRoomLayout]);
 
+  const handleCreateRoom = useCallback(() => {
+    if (!areaData) {
+      setStatusMessage("Load an area before creating rooms.");
+      return;
+    }
+    const nextVnum = getNextRoomVnum(areaData);
+    if (nextVnum === null) {
+      setStatusMessage("No available room VNUMs in the area range.");
+      return;
+    }
+    const areadata = (areaData as Record<string, unknown>).areadata;
+    const areaSector =
+      areadata && typeof areadata === "object"
+        ? (areadata as Record<string, unknown>).sector
+        : null;
+    const sectorType =
+      typeof areaSector === "string" && areaSector.trim().length
+        ? areaSector
+        : "inside";
+    const newRoom: Record<string, unknown> = {
+      vnum: nextVnum,
+      name: "New Room",
+      description: "An unfinished room.\n\r",
+      sectorType,
+      roomFlags: [],
+      exits: []
+    };
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const rooms = Array.isArray((current as Record<string, unknown>).rooms)
+        ? [...((current as Record<string, unknown>).rooms as unknown[])]
+        : [];
+      rooms.push(newRoom);
+      return {
+        ...current,
+        rooms
+      };
+    });
+    setSelectedEntity("Rooms");
+    setSelectedRoomVnum(nextVnum);
+    setActiveTab("Form");
+    setStatusMessage(`Created room ${nextVnum} (unsaved)`);
+  }, [areaData, setStatusMessage, setSelectedEntity, setSelectedRoomVnum, setActiveTab]);
+
+  const handleDeleteRoom = useCallback(() => {
+    if (!areaData) {
+      setStatusMessage("Load an area before deleting rooms.");
+      return;
+    }
+    if (selectedRoomVnum === null) {
+      setStatusMessage("Select a room to delete.");
+      return;
+    }
+    const roomId = String(selectedRoomVnum);
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const rooms = Array.isArray((current as Record<string, unknown>).rooms)
+        ? ((current as Record<string, unknown>).rooms as unknown[])
+        : [];
+      const nextRooms = rooms.filter((room) => {
+        if (!room || typeof room !== "object") {
+          return true;
+        }
+        const vnum = parseVnum((room as Record<string, unknown>).vnum);
+        return vnum !== selectedRoomVnum;
+      });
+      return {
+        ...current,
+        rooms: nextRooms
+      };
+    });
+    setRoomLayout((current) => {
+      if (!current[roomId]) {
+        return current;
+      }
+      const next = { ...current };
+      delete next[roomId];
+      return next;
+    });
+    setLayoutNodes((current) => current.filter((node) => node.id !== roomId));
+    setDirtyRoomNodes((current) => {
+      if (!current.has(roomId)) {
+        return current;
+      }
+      const next = new Set(current);
+      next.delete(roomId);
+      return next;
+    });
+    setSelectedRoomVnum(null);
+    setStatusMessage(`Deleted room ${selectedRoomVnum} (unsaved)`);
+  }, [areaData, selectedRoomVnum, setStatusMessage]);
+
   const handleAreaSubmit = (data: AreaFormValues) => {
     if (!areaData) {
       return;
@@ -9916,6 +10048,7 @@ export default function App({ repository }: AppProps) {
       vnumOptions={objectVnumOptions}
     />
   );
+  const canCreateRoom = Boolean(areaData);
   const tableViewNode = (
     <TableView
       selectedEntity={selectedEntity}
@@ -9949,6 +10082,10 @@ export default function App({ repository }: AppProps) {
       lootDefaultColDef={lootDefaultColDef}
       recipeDefaultColDef={recipeDefaultColDef}
       gatherSpawnDefaultColDef={gatherSpawnDefaultColDef}
+      selectedRoomVnum={selectedRoomVnum}
+      canCreateRoom={canCreateRoom}
+      onCreateRoom={handleCreateRoom}
+      onDeleteRoom={handleDeleteRoom}
       onSelectRoom={setSelectedRoomVnum}
       onSelectMobile={setSelectedMobileVnum}
       onSelectObject={setSelectedObjectVnum}
