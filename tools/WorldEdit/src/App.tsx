@@ -10049,6 +10049,28 @@ export default function App({ repository }: AppProps) {
     />
   );
   const canCreateRoom = Boolean(areaData);
+  const tableToolbar = useMemo(() => {
+    if (selectedEntity === "Rooms") {
+      return {
+        title: "Rooms",
+        count: roomRows.length,
+        newLabel: "New Room",
+        deleteLabel: "Delete Room",
+        canCreate: canCreateRoom,
+        canDelete: selectedRoomVnum !== null,
+        onCreate: handleCreateRoom,
+        onDelete: handleDeleteRoom
+      };
+    }
+    return null;
+  }, [
+    selectedEntity,
+    roomRows.length,
+    selectedRoomVnum,
+    canCreateRoom,
+    handleCreateRoom,
+    handleDeleteRoom
+  ]);
   const tableViewNode = (
     <TableView
       selectedEntity={selectedEntity}
@@ -10082,10 +10104,7 @@ export default function App({ repository }: AppProps) {
       lootDefaultColDef={lootDefaultColDef}
       recipeDefaultColDef={recipeDefaultColDef}
       gatherSpawnDefaultColDef={gatherSpawnDefaultColDef}
-      selectedRoomVnum={selectedRoomVnum}
-      canCreateRoom={canCreateRoom}
-      onCreateRoom={handleCreateRoom}
-      onDeleteRoom={handleDeleteRoom}
+      toolbar={tableToolbar}
       onSelectRoom={setSelectedRoomVnum}
       onSelectMobile={setSelectedMobileVnum}
       onSelectObject={setSelectedObjectVnum}
