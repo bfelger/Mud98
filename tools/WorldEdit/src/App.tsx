@@ -8447,6 +8447,111 @@ export default function App({ repository }: AppProps) {
     setStatusMessage(`Deleted object ${selectedObjectVnum} (unsaved)`);
   }, [areaData, selectedObjectVnum, setStatusMessage]);
 
+  const handleCreateShop = useCallback(() => {
+    if (!areaData) {
+      setStatusMessage("Load an area before creating shops.");
+      return;
+    }
+    const mobiles = getEntityList(areaData, "Mobiles");
+    const shops = getEntityList(areaData, "Shops");
+    const usedKeepers = new Set<number>();
+    shops.forEach((shop) => {
+      if (!shop || typeof shop !== "object") {
+        return;
+      }
+      const keeper = parseVnum((shop as Record<string, unknown>).keeper);
+      if (keeper !== null) {
+        usedKeepers.add(keeper);
+      }
+    });
+    let keeper: number | null = null;
+    for (const mob of mobiles) {
+      if (!mob || typeof mob !== "object") {
+        continue;
+      }
+      const vnum = parseVnum((mob as Record<string, unknown>).vnum);
+      if (vnum !== null && !usedKeepers.has(vnum)) {
+        keeper = vnum;
+        break;
+      }
+    }
+    if (keeper === null && mobiles.length) {
+      const fallback = mobiles.find((mob) => mob && typeof mob === "object");
+      keeper = fallback
+        ? parseVnum((fallback as Record<string, unknown>).vnum)
+        : null;
+    }
+    if (keeper === null) {
+      keeper = 0;
+    }
+    const newShop: Record<string, unknown> = {
+      keeper,
+      buyTypes: [0, 0, 0, 0, 0],
+      profitBuy: 100,
+      profitSell: 100,
+      openHour: 0,
+      closeHour: 23
+    };
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const nextShops = Array.isArray(
+        (current as Record<string, unknown>).shops
+      )
+        ? [...((current as Record<string, unknown>).shops as unknown[])]
+        : [];
+      nextShops.push(newShop);
+      return {
+        ...current,
+        shops: nextShops
+      };
+    });
+    setSelectedEntity("Shops");
+    setSelectedShopKeeper(keeper);
+    setActiveTab("Form");
+    setStatusMessage(`Created shop ${keeper} (unsaved)`);
+  }, [
+    areaData,
+    setStatusMessage,
+    setSelectedEntity,
+    setSelectedShopKeeper,
+    setActiveTab
+  ]);
+
+  const handleDeleteShop = useCallback(() => {
+    if (!areaData) {
+      setStatusMessage("Load an area before deleting shops.");
+      return;
+    }
+    if (selectedShopKeeper === null) {
+      setStatusMessage("Select a shop to delete.");
+      return;
+    }
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const shops = getEntityList(current, "Shops");
+      if (!shops.length) {
+        return current;
+      }
+      const nextShops = shops.filter((shop) => {
+        if (!shop || typeof shop !== "object") {
+          return true;
+        }
+        const keeper = parseVnum((shop as Record<string, unknown>).keeper);
+        return keeper !== selectedShopKeeper;
+      });
+      return {
+        ...(current as Record<string, unknown>),
+        shops: nextShops
+      };
+    });
+    setSelectedShopKeeper(null);
+    setStatusMessage(`Deleted shop ${selectedShopKeeper} (unsaved)`);
+  }, [areaData, selectedShopKeeper, setStatusMessage]);
+
   const handleCreateReset = useCallback(() => {
     if (!areaData) {
       setStatusMessage("Load an area before creating resets.");
@@ -10333,6 +10438,18 @@ export default function App({ repository }: AppProps) {
         onDelete: handleDeleteReset
       };
     }
+    if (selectedEntity === "Shops") {
+      return {
+        title: "Shops",
+        count: shopRows.length,
+        newLabel: "New Shop",
+        deleteLabel: "Delete Shop",
+        canCreate: Boolean(areaData),
+        canDelete: selectedShopKeeper !== null,
+        onCreate: handleCreateShop,
+        onDelete: handleDeleteShop
+      };
+    }
     return null;
   }, [
     selectedEntity,
@@ -10340,10 +10457,12 @@ export default function App({ repository }: AppProps) {
     mobileRows.length,
     objectRows.length,
     resetRows.length,
+    shopRows.length,
     selectedRoomVnum,
     selectedMobileVnum,
     selectedObjectVnum,
     selectedResetIndex,
+    selectedShopKeeper,
     canCreateRoom,
     areaData,
     handleCreateRoom,
@@ -10353,7 +10472,9 @@ export default function App({ repository }: AppProps) {
     handleCreateObject,
     handleDeleteObject,
     handleCreateReset,
-    handleDeleteReset
+    handleDeleteReset,
+    handleCreateShop,
+    handleDeleteShop
   ]);
   const tableViewNode = (
     <TableView
