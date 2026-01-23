@@ -9395,6 +9395,67 @@ export default function App({ repository }: AppProps) {
     setStatusMessage(`Deleted ${deletedName} (unsaved)`);
   }, [socialData, selectedSocialIndex, setStatusMessage]);
 
+  const handleCreateTutorial = useCallback(() => {
+    if (!tutorialData) {
+      setStatusMessage("Load tutorials before creating tutorials.");
+      return;
+    }
+    const nextIndex = tutorialData.tutorials.length;
+    const newTutorial: TutorialDefinition = {
+      name: `New Tutorial ${nextIndex + 1}`,
+      blurb: "",
+      finish: "",
+      minLevel: 0,
+      steps: []
+    };
+    setTutorialData((current) => {
+      if (!current) {
+        return current;
+      }
+      return {
+        ...current,
+        tutorials: [...current.tutorials, newTutorial]
+      };
+    });
+    setSelectedGlobalEntity("Tutorials");
+    setSelectedTutorialIndex(nextIndex);
+    setActiveTab("Form");
+    setStatusMessage(`Created tutorial ${newTutorial.name} (unsaved)`);
+  }, [
+    tutorialData,
+    setStatusMessage,
+    setSelectedGlobalEntity,
+    setSelectedTutorialIndex,
+    setActiveTab
+  ]);
+
+  const handleDeleteTutorial = useCallback(() => {
+    if (!tutorialData) {
+      setStatusMessage("Load tutorials before deleting tutorials.");
+      return;
+    }
+    if (selectedTutorialIndex === null) {
+      setStatusMessage("Select a tutorial to delete.");
+      return;
+    }
+    const deletedName =
+      tutorialData.tutorials[selectedTutorialIndex]?.name ?? "tutorial";
+    setTutorialData((current) => {
+      if (!current) {
+        return current;
+      }
+      const nextTutorials = current.tutorials.filter(
+        (_, index) => index !== selectedTutorialIndex
+      );
+      return {
+        ...current,
+        tutorials: nextTutorials
+      };
+    });
+    setSelectedTutorialIndex(null);
+    setStatusMessage(`Deleted ${deletedName} (unsaved)`);
+  }, [tutorialData, selectedTutorialIndex, setStatusMessage]);
+
   const handleCreateReset = useCallback(() => {
     if (!areaData) {
       setStatusMessage("Load an area before creating resets.");
@@ -11639,11 +11700,31 @@ export default function App({ repository }: AppProps) {
       gridApiRef={socialGridApi}
     />
   );
+  const tutorialTableToolbar = useMemo(
+    () => ({
+      title: "Tutorials",
+      count: tutorialRows.length,
+      newLabel: "New Tutorial",
+      deleteLabel: "Delete Tutorial",
+      canCreate: Boolean(tutorialData),
+      canDelete: selectedTutorialIndex !== null,
+      onCreate: handleCreateTutorial,
+      onDelete: handleDeleteTutorial
+    }),
+    [
+      tutorialRows.length,
+      tutorialData,
+      selectedTutorialIndex,
+      handleCreateTutorial,
+      handleDeleteTutorial
+    ]
+  );
   const tutorialTableViewNode = (
     <TutorialTableView
       rows={tutorialRows}
       columns={tutorialColumns}
       defaultColDef={tutorialDefaultColDef}
+      toolbar={tutorialTableToolbar}
       onSelectTutorial={setSelectedTutorialIndex}
       gridApiRef={tutorialGridApi}
     />
