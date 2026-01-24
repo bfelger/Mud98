@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { Edge, EdgeTypes, Node, NodeChange, NodeTypes } from "reactflow";
 import ReactFlow, { Background, Controls } from "reactflow";
 import { MapToolbar } from "./MapToolbar";
@@ -35,6 +36,8 @@ type MapViewProps = {
   onLockSelected: () => void;
   onUnlockSelected: () => void;
   onClearLayout: () => void;
+  contextMenu?: ReactNode;
+  onCloseContextMenu?: () => void;
 };
 
 export function MapView({
@@ -61,7 +64,9 @@ export function MapView({
   onToggleVerticalEdges,
   onLockSelected,
   onUnlockSelected,
-  onClearLayout
+  onClearLayout,
+  contextMenu,
+  onCloseContextMenu
 }: MapViewProps) {
   return (
     <div className="map-shell">
@@ -94,11 +99,19 @@ export function MapView({
           onNodesChange={onNodesChange}
           onNodeDragStop={onNodeDragStop}
           onNodeClick={(_, node) => onNodeClick(node)}
+          onPaneClick={onCloseContextMenu}
+          onPaneContextMenu={(event) => {
+            if (onCloseContextMenu) {
+              event.preventDefault();
+              onCloseContextMenu();
+            }
+          }}
           panOnScroll
         >
           <Background gap={24} size={1} />
           <Controls showInteractive={false} />
         </ReactFlow>
+        {contextMenu}
         <MapOverlay areaVnumRange={areaVnumRange} />
       </div>
       <MapExternalExitsPanel

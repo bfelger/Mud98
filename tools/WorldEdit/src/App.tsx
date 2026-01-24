@@ -332,6 +332,14 @@ const areaDirectionHandleMap: Record<string, { source: string; target: string }>
     up: { source: "north-out", target: "south-in" },
     down: { source: "south-out", target: "north-in" }
   };
+const oppositeDirectionMap: Record<string, string> = {
+  north: "south",
+  east: "west",
+  south: "north",
+  west: "east",
+  up: "down",
+  down: "up"
+};
 const externalSourceHandles: Record<string, string> = {
   up: "north-out",
   down: "south-out"
@@ -539,6 +547,12 @@ type ExitValidationResult = {
   invalidEdgeIds: Set<string>;
 };
 
+type RoomContextMenuState = {
+  vnum: number;
+  x: number;
+  y: number;
+};
+
 type RoomNodeData = {
   vnum: number;
   label: string;
@@ -548,6 +562,7 @@ type RoomNodeData = {
   upExitTargets?: number[];
   downExitTargets?: number[];
   onNavigate?: (vnum: number) => void;
+  onContextMenu?: (event: MouseEvent<HTMLDivElement>, vnum: number) => void;
   grid?: {
     x: number;
     y: number;
@@ -1575,6 +1590,20 @@ function getFirstString(value: unknown, fallback: string): string {
   return typeof value === "string" && value.trim().length ? value : fallback;
 }
 
+function normalizeDirectionKey(value: unknown): string {
+  return typeof value === "string" ? value.trim().toLowerCase() : "";
+}
+
+function hasExitDirection(exits: unknown[], dirKey: string): boolean {
+  return exits.some((exit) => {
+    if (!exit || typeof exit !== "object") {
+      return false;
+    }
+    const exitRecord = exit as Record<string, unknown>;
+    return normalizeDirectionKey(exitRecord.dir) === dirKey;
+  });
+}
+
 function RoomNode({ data, selected }: NodeProps<RoomNodeData>) {
   const upTargets = data.upExitTargets ?? [];
   const downTargets = data.downExitTargets ?? [];
@@ -1586,12 +1615,20 @@ function RoomNode({ data, selected }: NodeProps<RoomNodeData>) {
       }
       data.onNavigate?.(targets[0]);
     };
+  const handleContextMenu = (event: MouseEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    data.onContextMenu?.(event, data.vnum);
+  };
   const buildTitle = (label: string, targets: number[]) =>
     targets.length
       ? `${label} to ${targets.join(", ")}`
       : `${label} exit`;
   return (
-    <div className={`room-node${selected ? " room-node--selected" : ""}`}>
+    <div
+      className={`room-node${selected ? " room-node--selected" : ""}`}
+      onContextMenu={handleContextMenu}
+    >
       {data.dirty ? (
         <div className="room-node__dirty" title="Position moved but not locked">
           Dirty
@@ -3954,6 +3991,14 @@ export default function App({ repository }: AppProps) {
   const [selectedLootIndex, setSelectedLootIndex] = useState<number | null>(
     null
   );
+  const [roomContextMenu, setRoomContextMenu] =
+    useState<RoomContextMenuState | null>(null);
+  const [roomLinkPanel, setRoomLinkPanel] =
+    useState<RoomContextMenuState | null>(null);
+  const [roomLinkDirection, setRoomLinkDirection] = useState<string>(
+    directions[0]
+  );
+  const [roomLinkTarget, setRoomLinkTarget] = useState<string>("");
   const [selectedRoomVnum, setSelectedRoomVnum] = useState<number | null>(null);
   const [selectedMobileVnum, setSelectedMobileVnum] = useState<number | null>(
     null
@@ -4082,6 +4127,7 @@ export default function App({ repository }: AppProps) {
   >([]);
   const [layoutNonce, setLayoutNonce] = useState(0);
   const roomLayoutRef = useRef<RoomLayoutMap>({});
+  const roomNodesWithLayoutRef = useRef<Node<RoomNodeData>[]>([]);
   const legacyScanDirRef = useRef<string | null>(null);
   const roomGridApi = useRef<GridApi | null>(null);
   const mobileGridApi = useRef<GridApi | null>(null);
@@ -6485,15 +6531,31 @@ export default function App({ repository }: AppProps) {
     areaIndex,
     externalExits
   ]);
-  const handleMapNavigate = useCallback(
-    (vnum: number) => {
+  const closeRoomContextOverlays = useCallback(() => {
+    setRoomContextMenu(null);
+    setRoomLinkPanel(null);
+  }, []);
+
+  const handleRoomContextMenu = useCallback(
+    (event: MouseEvent<HTMLDivElement>, vnum: number) => {
+      setRoomContextMenu({ vnum, x: event.clientX, y: event.clientY });
+      setRoomLinkPanel(null);
       setSelectedRoomVnum(vnum);
       setSelectedEntity("Rooms");
     },
-    [setSelectedRoomVnum, setSelectedEntity]
+    [setSelectedEntity, setSelectedRoomVnum]
+  );
+  const handleMapNavigate = useCallback(
+    (vnum: number) => {
+      closeRoomContextOverlays();
+      setSelectedRoomVnum(vnum);
+      setSelectedEntity("Rooms");
+    },
+    [closeRoomContextOverlays, setSelectedRoomVnum, setSelectedEntity]
   );
   const handleMapNodeClick = useCallback(
     (node: Node<RoomNodeData>) => {
+      closeRoomContextOverlays();
       const vnum =
         typeof node.data?.vnum === "number"
           ? node.data.vnum
@@ -6503,7 +6565,7 @@ export default function App({ repository }: AppProps) {
         setSelectedEntity("Rooms");
       }
     },
-    [setSelectedRoomVnum, setSelectedEntity]
+    [closeRoomContextOverlays, setSelectedRoomVnum, setSelectedEntity]
   );
   const handleRelayout = useCallback(
     () => setLayoutNonce((value) => value + 1),
@@ -6528,10 +6590,16 @@ export default function App({ repository }: AppProps) {
         data: {
           ...node.data,
           onNavigate: handleMapNavigate,
+          onContextMenu: handleRoomContextMenu,
           dirty: dirtyRoomNodes.has(node.id)
         }
       })),
-    [roomNodesWithLayout, handleMapNavigate, dirtyRoomNodes]
+    [
+      roomNodesWithLayout,
+      handleMapNavigate,
+      handleRoomContextMenu,
+      dirtyRoomNodes
+    ]
   );
   const mapNodes = useMemo(
     () => applyRoomSelection(roomNodesWithHandlers, selectedRoomVnum),
@@ -6864,6 +6932,10 @@ export default function App({ repository }: AppProps) {
   useEffect(() => {
     roomLayoutRef.current = roomLayout;
   }, [roomLayout]);
+
+  useEffect(() => {
+    roomNodesWithLayoutRef.current = roomNodesWithLayout;
+  }, [roomNodesWithLayout]);
 
   useEffect(() => {
     localStorage.setItem(
@@ -7718,6 +7790,13 @@ export default function App({ repository }: AppProps) {
     () => buildVnumOptions(areaData, "Rooms"),
     [areaData]
   );
+  const roomVnumOptionMap = useMemo(() => {
+    const map = new Map<number, VnumOption>();
+    roomVnumOptions.forEach((option) => {
+      map.set(option.vnum, option);
+    });
+    return map;
+  }, [roomVnumOptions]);
   const mobileVnumOptions = useMemo(
     () => buildVnumOptions(areaData, "Mobiles"),
     [areaData]
@@ -9535,6 +9614,254 @@ export default function App({ repository }: AppProps) {
       `Deleted loot ${selectedLootKind} ${selectedLootIndex} (unsaved)`
     );
   }, [lootData, selectedLootKind, selectedLootIndex, setStatusMessage]);
+
+  const handleOpenRoomLinkPanel = useCallback(
+    (menu: RoomContextMenuState) => {
+      setRoomLinkPanel({
+        vnum: menu.vnum,
+        x: menu.x + 8,
+        y: menu.y + 8
+      });
+      setRoomLinkDirection(directions[0]);
+      setRoomLinkTarget("");
+      setRoomContextMenu(null);
+    },
+    []
+  );
+
+  const handleDigRoom = useCallback(
+    (fromVnum: number, direction: string) => {
+      if (!areaData) {
+        setStatusMessage("Load an area before digging rooms.");
+        return;
+      }
+      const dirKey = normalizeDirectionKey(direction);
+      const backDir = oppositeDirectionMap[dirKey];
+      if (!backDir) {
+        setStatusMessage(`Unknown direction: ${direction}`);
+        return;
+      }
+      const rooms = getEntityList(areaData, "Rooms");
+      const source = findByVnum(rooms, fromVnum);
+      if (!source) {
+        setStatusMessage(`Room ${fromVnum} not found.`);
+        return;
+      }
+      const sourceExits = Array.isArray(source.exits) ? source.exits : [];
+      if (hasExitDirection(sourceExits, dirKey)) {
+        setStatusMessage(
+          `Room ${fromVnum} already has a ${dirKey} exit.`
+        );
+        return;
+      }
+      const nextVnum = getNextEntityVnum(areaData, "Rooms");
+      if (nextVnum === null) {
+        setStatusMessage("No available room VNUMs in the area range.");
+        return;
+      }
+      const areadata = (areaData as Record<string, unknown>).areadata;
+      const areaSector =
+        areadata && typeof areadata === "object"
+          ? (areadata as Record<string, unknown>).sector
+          : null;
+      const sectorType =
+        typeof areaSector === "string" && areaSector.trim().length
+          ? areaSector
+          : "inside";
+      const newRoom: Record<string, unknown> = {
+        vnum: nextVnum,
+        name: "New Room",
+        description: "An unfinished room.\n\r",
+        sectorType,
+        roomFlags: [],
+        exits: [{ dir: backDir, toVnum: fromVnum }]
+      };
+      const nextSourceExits = [...sourceExits, { dir: dirKey, toVnum: nextVnum }];
+      setAreaData((current) => {
+        if (!current) {
+          return current;
+        }
+        const currentRooms = Array.isArray(
+          (current as Record<string, unknown>).rooms
+        )
+          ? [...((current as Record<string, unknown>).rooms as unknown[])]
+          : [];
+        const nextRooms = currentRooms.map((room) => {
+          if (!room || typeof room !== "object") {
+            return room;
+          }
+          const record = room as Record<string, unknown>;
+          const vnum = parseVnum(record.vnum);
+          if (vnum !== fromVnum) {
+            return record;
+          }
+          return {
+            ...record,
+            exits: nextSourceExits
+          };
+        });
+        nextRooms.push(newRoom);
+        return {
+          ...current,
+          rooms: nextRooms
+        };
+      });
+      if (!autoLayoutEnabled) {
+        const stepX = roomNodeSize.width + 110;
+        const stepY = roomNodeSize.height + 110;
+        const sourceNode =
+          roomNodesWithLayoutRef.current.find(
+            (node) => node.data.vnum === fromVnum
+          ) ?? null;
+        if (sourceNode) {
+          const offset =
+            dirKey === "north" || dirKey === "up"
+              ? { x: 0, y: -stepY }
+              : dirKey === "south" || dirKey === "down"
+                ? { x: 0, y: stepY }
+                : dirKey === "east"
+                  ? { x: stepX, y: 0 }
+                  : dirKey === "west"
+                    ? { x: -stepX, y: 0 }
+                    : { x: 0, y: 0 };
+          setLayoutNodes((current) => {
+            const sourceList =
+              current.length ? current : roomNodesWithLayoutRef.current;
+            return [
+              ...sourceList,
+              {
+                id: String(nextVnum),
+                type: "room",
+                position: {
+                  x: sourceNode.position.x + offset.x,
+                  y: sourceNode.position.y + offset.y
+                },
+                data: {
+                  vnum: nextVnum,
+                  label: "New Room",
+                  sector: sectorType,
+                  upExitTargets: dirKey === "down" ? [fromVnum] : [],
+                  downExitTargets: dirKey === "up" ? [fromVnum] : []
+                }
+              }
+            ];
+          });
+          setDirtyRoomNodes((current) => {
+            const next = new Set(current);
+            next.add(String(nextVnum));
+            return next;
+          });
+        }
+      }
+      setSelectedRoomVnum(nextVnum);
+      setSelectedEntity("Rooms");
+      setStatusMessage(`Dug ${dirKey} to room ${nextVnum} (unsaved)`);
+    },
+    [
+      areaData,
+      autoLayoutEnabled,
+      setSelectedEntity,
+      setSelectedRoomVnum,
+      setStatusMessage
+    ]
+  );
+
+  const handleLinkRooms = useCallback(() => {
+    if (!roomLinkPanel) {
+      return;
+    }
+    if (!areaData) {
+      setStatusMessage("Load an area before linking rooms.");
+      return;
+    }
+    const dirKey = normalizeDirectionKey(roomLinkDirection);
+    const backDir = oppositeDirectionMap[dirKey];
+    if (!backDir) {
+      setStatusMessage(`Unknown direction: ${roomLinkDirection}`);
+      return;
+    }
+    const targetVnum = Number.parseInt(roomLinkTarget, 10);
+    if (!Number.isFinite(targetVnum)) {
+      setStatusMessage("Enter a valid target room VNUM.");
+      return;
+    }
+    if (targetVnum === roomLinkPanel.vnum) {
+      setStatusMessage("Target room must be different from source.");
+      return;
+    }
+    const rooms = getEntityList(areaData, "Rooms");
+    const source = findByVnum(rooms, roomLinkPanel.vnum);
+    const target = findByVnum(rooms, targetVnum);
+    if (!source || !target) {
+      setStatusMessage("Both source and target rooms must exist.");
+      return;
+    }
+    const sourceExits = Array.isArray(source.exits) ? source.exits : [];
+    const targetExits = Array.isArray(target.exits) ? target.exits : [];
+    if (hasExitDirection(sourceExits, dirKey)) {
+      setStatusMessage(
+        `Room ${roomLinkPanel.vnum} already has a ${dirKey} exit.`
+      );
+      return;
+    }
+    if (hasExitDirection(targetExits, backDir)) {
+      setStatusMessage(
+        `Room ${targetVnum} already has a ${backDir} exit.`
+      );
+      return;
+    }
+    const nextSourceExits = [...sourceExits, { dir: dirKey, toVnum: targetVnum }];
+    const nextTargetExits = [...targetExits, { dir: backDir, toVnum: roomLinkPanel.vnum }];
+    setAreaData((current) => {
+      if (!current) {
+        return current;
+      }
+      const currentRooms = Array.isArray(
+        (current as Record<string, unknown>).rooms
+      )
+        ? [...((current as Record<string, unknown>).rooms as unknown[])]
+        : [];
+      const nextRooms = currentRooms.map((room) => {
+        if (!room || typeof room !== "object") {
+          return room;
+        }
+        const record = room as Record<string, unknown>;
+        const vnum = parseVnum(record.vnum);
+        if (vnum === roomLinkPanel.vnum) {
+          return {
+            ...record,
+            exits: nextSourceExits
+          };
+        }
+        if (vnum === targetVnum) {
+          return {
+            ...record,
+            exits: nextTargetExits
+          };
+        }
+        return record;
+      });
+      return {
+        ...current,
+        rooms: nextRooms
+      };
+    });
+    setSelectedRoomVnum(roomLinkPanel.vnum);
+    setSelectedEntity("Rooms");
+    setRoomLinkPanel(null);
+    setRoomLinkTarget("");
+    setStatusMessage(
+      `Linked room ${roomLinkPanel.vnum} ${dirKey} to ${targetVnum} (unsaved)`
+    );
+  }, [
+    roomLinkPanel,
+    areaData,
+    roomLinkDirection,
+    roomLinkTarget,
+    setSelectedEntity,
+    setSelectedRoomVnum,
+    setStatusMessage
+  ]);
 
   const handleCreateReset = useCallback(() => {
     if (!areaData) {
@@ -11846,6 +12173,141 @@ export default function App({ repository }: AppProps) {
       gridApiRef={lootGridApi}
     />
   );
+  const roomContextMenuNode = roomContextMenu ? (
+    <div
+      className="map-context-menu"
+      style={{ left: roomContextMenu.x, top: roomContextMenu.y }}
+      onClick={(event) => event.stopPropagation()}
+      onContextMenu={(event) => event.preventDefault()}
+    >
+      <div className="map-context-menu__title">
+        Room {roomContextMenu.vnum}
+        {(() => {
+          if (!areaData) {
+            return "";
+          }
+          const room = findByVnum(
+            getEntityList(areaData, "Rooms"),
+            roomContextMenu.vnum
+          );
+          const name = room ? getFirstString(room.name, "") : "";
+          return name ? ` · ${name}` : "";
+        })()}
+      </div>
+      <div className="map-context-menu__section">Dig</div>
+      <div className="map-context-menu__grid">
+        {directions.map((dir) => (
+          <button
+            key={dir}
+            className="map-context-menu__button"
+            type="button"
+            onClick={() => {
+              handleDigRoom(roomContextMenu.vnum, dir);
+              setRoomContextMenu(null);
+            }}
+          >
+            {externalDirectionLabels[dir] ?? dir}
+          </button>
+        ))}
+      </div>
+      <div className="map-context-menu__section">Link</div>
+      <button
+        className="map-context-menu__action"
+        type="button"
+        onClick={() => handleOpenRoomLinkPanel(roomContextMenu)}
+      >
+        Link...
+      </button>
+    </div>
+  ) : null;
+  const roomLinkPanelNode = roomLinkPanel ? (
+    <div
+      className="map-context-menu map-context-menu--panel"
+      style={{ left: roomLinkPanel.x, top: roomLinkPanel.y }}
+      onClick={(event) => event.stopPropagation()}
+      onContextMenu={(event) => event.preventDefault()}
+    >
+      <div className="map-context-menu__title">
+        Link from room {roomLinkPanel.vnum}
+      </div>
+      <div className="map-context-menu__field">
+        <label className="map-context-menu__label" htmlFor="room-link-direction">
+          Direction
+        </label>
+        <select
+          id="room-link-direction"
+          className="form-select"
+          value={roomLinkDirection}
+          onChange={(event) => setRoomLinkDirection(event.target.value)}
+        >
+          {directions.map((dir) => (
+            <option key={dir} value={dir}>
+              {dir}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="map-context-menu__field">
+        <label className="map-context-menu__label" htmlFor="room-link-target">
+          Target VNUM
+        </label>
+        <input
+          id="room-link-target"
+          className="form-input"
+          type="text"
+          inputMode="numeric"
+          list="room-link-target-options"
+          value={roomLinkTarget}
+          onChange={(event) => setRoomLinkTarget(event.target.value)}
+        />
+        <datalist id="room-link-target-options">
+          {roomVnumOptions.map((option) => (
+            <option
+              key={option.vnum}
+              value={String(option.vnum)}
+              label={option.label}
+            >
+              {option.label}
+            </option>
+          ))}
+        </datalist>
+        {(() => {
+          const parsed = Number.parseInt(roomLinkTarget, 10);
+          const option = Number.isFinite(parsed)
+            ? roomVnumOptionMap.get(parsed)
+            : undefined;
+          const hint =
+            option?.entityType && option?.name
+              ? `${option.entityType} · ${option.name}`
+              : option?.label ?? null;
+          return hint ? (
+            <div className="map-context-menu__hint" title={hint}>
+              {hint}
+            </div>
+          ) : null;
+        })()}
+      </div>
+      <div className="map-context-menu__actions">
+        <button
+          className="map-context-menu__action"
+          type="button"
+          onClick={handleLinkRooms}
+        >
+          Create Link
+        </button>
+        <button
+          className="map-context-menu__button"
+          type="button"
+          onClick={() => {
+            setRoomLinkPanel(null);
+            setRoomLinkTarget("");
+          }}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  ) : null;
   const mapViewNode = (
     <MapView
       mapNodes={mapNodes}
@@ -11872,6 +12334,15 @@ export default function App({ repository }: AppProps) {
       onLockSelected={handleLockSelectedRoom}
       onUnlockSelected={handleUnlockSelectedRoom}
       onClearLayout={handleClearRoomLayout}
+      contextMenu={
+        roomContextMenuNode || roomLinkPanelNode ? (
+          <>
+            {roomContextMenuNode}
+            {roomLinkPanelNode}
+          </>
+        ) : null
+      }
+      onCloseContextMenu={closeRoomContextOverlays}
     />
   );
   const worldViewNode = (

@@ -137,7 +137,10 @@
     {
       "vnum": 12001,
       "name": "Watcher's Platform",
-      "description": "This rough platform is suspended above Verdant Watch. It is tied to tree trunks on all corners, and is densely camouflaged. The rope ladder extends upward.\n",
+      "description": "This rough platform is suspended above Verdant Watch. It is tied to tree trunks on all corners, and is densely camouflaged. The rope ladder extends upward.\n\r",
+      "roomFlags": [
+        "no_recall"
+      ],
       "sectorType": "forest",
       "exits": [
         {
@@ -211,7 +214,10 @@
     {
       "vnum": 12004,
       "name": "Verdant Refuge",
-      "description": "Here in the tree canopy high above Verdant Watch, dense foliage conceals a cluster of buildings suspended upon thick branches. Their entrances in are each direction.\n",
+      "description": "Here in the tree canopy high above Verdant Watch, dense foliage conceals a cluster of buildings suspended upon thick branches. Their entrances in are each direction.\n\r",
+      "roomFlags": [
+        "no_recall"
+      ],
       "sectorType": "forest",
       "exits": [
         {
