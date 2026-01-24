@@ -1,6 +1,7 @@
 import type { ColDef } from "ag-grid-community";
 import type { AreaJson } from "../../repository/types";
 import { crudFail, crudOk, type CrudResult } from "../types";
+import { getFirstString, getNextVnumFromList, parseVnum } from "./utils";
 
 export type RoomRow = {
   vnum: number;
@@ -22,69 +23,6 @@ type RoomCrudDeleteResult = {
 };
 
 const fallbackSector = "inside";
-
-const parseVnum = (value: unknown): number | null => {
-  if (typeof value === "number") {
-    return value;
-  }
-  if (typeof value === "string" && value.trim().length) {
-    const parsed = Number(value);
-    return Number.isFinite(parsed) ? parsed : null;
-  }
-  return null;
-};
-
-const getFirstString = (value: unknown, fallback: string): string =>
-  typeof value === "string" && value.trim().length ? value : fallback;
-
-const getAreaVnumBounds = (
-  areaData: AreaJson
-): { min: number; max: number } | null => {
-  const areadata = (areaData as Record<string, unknown>).areadata;
-  if (!areadata || typeof areadata !== "object") {
-    return null;
-  }
-  const vnumRange = (areadata as Record<string, unknown>).vnumRange;
-  if (
-    Array.isArray(vnumRange) &&
-    vnumRange.length === 2 &&
-    typeof vnumRange[0] === "number" &&
-    typeof vnumRange[1] === "number"
-  ) {
-    return { min: vnumRange[0], max: vnumRange[1] };
-  }
-  return null;
-};
-
-const getNextRoomVnum = (areaData: AreaJson): number | null => {
-  const rooms = Array.isArray((areaData as Record<string, unknown>).rooms)
-    ? ((areaData as Record<string, unknown>).rooms as unknown[])
-    : [];
-  const used = new Set<number>();
-  rooms.forEach((room) => {
-    if (!room || typeof room !== "object") {
-      return;
-    }
-    const vnum = parseVnum((room as Record<string, unknown>).vnum);
-    if (vnum !== null) {
-      used.add(vnum);
-    }
-  });
-  const bounds = getAreaVnumBounds(areaData);
-  if (bounds) {
-    const { min, max } = bounds;
-    for (let candidate = min; candidate <= max; candidate += 1) {
-      if (!used.has(candidate)) {
-        return candidate;
-      }
-    }
-    return null;
-  }
-  if (!used.size) {
-    return 1;
-  }
-  return Math.max(...used) + 1;
-};
 
 export const buildRoomRows = (areaData: AreaJson | null): RoomRow[] => {
   if (!areaData) {
@@ -132,7 +70,10 @@ export const createRoom = (
   if (!areaData) {
     return crudFail("Load an area before creating rooms.");
   }
-  const nextVnum = getNextRoomVnum(areaData);
+  const rooms = Array.isArray((areaData as Record<string, unknown>).rooms)
+    ? ((areaData as Record<string, unknown>).rooms as unknown[])
+    : [];
+  const nextVnum = getNextVnumFromList(areaData, rooms);
   if (nextVnum === null) {
     return crudFail("No available room VNUMs in the area range.");
   }
@@ -153,13 +94,10 @@ export const createRoom = (
     roomFlags: [],
     exits: []
   };
-  const rooms = Array.isArray((areaData as Record<string, unknown>).rooms)
-    ? [...((areaData as Record<string, unknown>).rooms as unknown[])]
-    : [];
-  rooms.push(newRoom);
+  const nextRooms = [...rooms, newRoom];
   const nextAreaData = {
     ...(areaData as Record<string, unknown>),
-    rooms
+    rooms: nextRooms
   } as AreaJson;
   return crudOk({ areaData: nextAreaData, vnum: nextVnum });
 };
