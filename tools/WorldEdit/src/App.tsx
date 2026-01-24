@@ -67,6 +67,20 @@ import { ViewCardHeader } from "./components/ViewCardHeader";
 import { ViewTabs } from "./components/ViewTabs";
 import { MapView } from "./components/MapView";
 import { ViewBody } from "./components/ViewBody";
+import {
+  buildRoomRows,
+  createRoom,
+  deleteRoom,
+  roomColumns as roomColumnsDef,
+  type RoomRow
+} from "./crud/area/roomsCrud";
+import {
+  buildClassRows,
+  classColumns as classColumnsDef,
+  createClass,
+  deleteClass,
+  type ClassRow
+} from "./crud/global/classesCrud";
 import type { VnumOption } from "./components/VnumPicker";
 import type { EventBinding } from "./data/eventTypes";
 import type {
@@ -374,14 +388,6 @@ type TabId = (typeof tabs)[number]["id"];
 type EntityKey = (typeof entityOrder)[number];
 type GlobalEntityKey = (typeof globalEntityOrder)[number];
 type EditorMode = "Area" | "Global";
-type RoomRow = {
-  vnum: number;
-  name: string;
-  sector: string;
-  exits: number;
-  flags: string;
-};
-
 type MobileRow = {
   vnum: number;
   name: string;
@@ -403,16 +409,6 @@ type ResetRow = {
   entityVnum: string;
   roomVnum: string;
   details: string;
-};
-
-type ClassRow = {
-  index: number;
-  name: string;
-  whoName: string;
-  primeStat: string;
-  armorProf: string;
-  weaponVnum: number;
-  startLoc: number;
 };
 
 type RaceRow = {
@@ -3388,38 +3384,6 @@ function buildExternalExits(
   });
 }
 
-function buildRoomRows(areaData: AreaJson | null): RoomRow[] {
-  if (!areaData) {
-    return [];
-  }
-  const rooms = (areaData as { rooms?: unknown }).rooms;
-  if (!Array.isArray(rooms)) {
-    return [];
-  }
-  return rooms.map((room) => {
-    const data = room as Record<string, unknown>;
-    const vnum = parseVnum(data.vnum) ?? -1;
-    const name = typeof data.name === "string" ? data.name : "(unnamed room)";
-    const sectorType =
-      typeof data.sectorType === "string"
-        ? data.sectorType
-        : typeof data.sector === "string"
-          ? data.sector
-          : "inside";
-    const roomFlags = Array.isArray(data.roomFlags)
-      ? data.roomFlags.filter((flag) => typeof flag === "string")
-      : [];
-    const exits = Array.isArray(data.exits) ? data.exits.length : 0;
-    return {
-      vnum,
-      name,
-      sector: sectorType,
-      exits,
-      flags: roomFlags.length ? roomFlags.join(", ") : "—"
-    };
-  });
-}
-
 function buildMobileRows(areaData: AreaJson | null): MobileRow[] {
   if (!areaData) {
     return [];
@@ -3622,21 +3586,6 @@ function buildFactionRows(areaData: AreaJson | null): FactionRow[] {
       opposing
     };
   });
-}
-
-function buildClassRows(classData: ClassDataFile | null): ClassRow[] {
-  if (!classData) {
-    return [];
-  }
-  return classData.classes.map((cls, index) => ({
-    index,
-    name: cls.name ?? "(unnamed)",
-    whoName: cls.whoName ?? "",
-    primeStat: cls.primeStat ?? "default",
-    armorProf: cls.armorProf ?? "default",
-    weaponVnum: cls.weaponVnum ?? 0,
-    startLoc: cls.startLoc ?? 0
-  }));
 }
 
 function normalizeRaceStats(
@@ -7836,18 +7785,7 @@ export default function App({ repository }: AppProps) {
       .toLowerCase();
     return itemTypeBlockMap[key] ?? null;
   }, [objectFormDefaults.itemType, watchedObjectItemType]);
-  const classColumns = useMemo<ColDef<ClassRow>[]>(
-    () => [
-      { headerName: "#", field: "index", width: 80, sort: "asc" },
-      { headerName: "Name", field: "name", flex: 2, minWidth: 200 },
-      { headerName: "Who", field: "whoName", width: 110 },
-      { headerName: "Prime", field: "primeStat", width: 100 },
-      { headerName: "Armor", field: "armorProf", width: 120 },
-      { headerName: "Weapon", field: "weaponVnum", width: 120 },
-      { headerName: "Start", field: "startLoc", width: 110 }
-    ],
-    []
-  );
+  const classColumns = classColumnsDef;
   const raceColumns = useMemo<ColDef<RaceRow>[]>(
     () => [
       { headerName: "#", field: "index", width: 80, sort: "asc" },
@@ -7920,16 +7858,7 @@ export default function App({ repository }: AppProps) {
     ],
     []
   );
-  const roomColumns = useMemo<ColDef<RoomRow>[]>(
-    () => [
-      { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
-      { headerName: "Name", field: "name", flex: 2, minWidth: 200 },
-      { headerName: "Sector", field: "sector", flex: 1, minWidth: 140 },
-      { headerName: "Exits", field: "exits", width: 110 },
-      { headerName: "Room Flags", field: "flags", flex: 2, minWidth: 220 }
-    ],
-    []
-  );
+  const roomColumns = roomColumnsDef;
   const mobileColumns = useMemo<ColDef<MobileRow>[]>(
     () => [
       { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
@@ -8321,50 +8250,23 @@ export default function App({ repository }: AppProps) {
   }, [layoutNonce, runRoomLayout]);
 
   const handleCreateRoom = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before creating rooms.");
+    const result = createRoom(areaData);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    const nextVnum = getNextEntityVnum(areaData, "Rooms");
-    if (nextVnum === null) {
-      setStatusMessage("No available room VNUMs in the area range.");
-      return;
-    }
-    const areadata = (areaData as Record<string, unknown>).areadata;
-    const areaSector =
-      areadata && typeof areadata === "object"
-        ? (areadata as Record<string, unknown>).sector
-        : null;
-    const sectorType =
-      typeof areaSector === "string" && areaSector.trim().length
-        ? areaSector
-        : "inside";
-    const newRoom: Record<string, unknown> = {
-      vnum: nextVnum,
-      name: "New Room",
-      description: "An unfinished room.\n\r",
-      sectorType,
-      roomFlags: [],
-      exits: []
-    };
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const rooms = Array.isArray((current as Record<string, unknown>).rooms)
-        ? [...((current as Record<string, unknown>).rooms as unknown[])]
-        : [];
-      rooms.push(newRoom);
-      return {
-        ...current,
-        rooms
-      };
-    });
+    setAreaData(result.data.areaData);
     setSelectedEntity("Rooms");
-    setSelectedRoomVnum(nextVnum);
+    setSelectedRoomVnum(result.data.vnum);
     setActiveTab("Form");
-    setStatusMessage(`Created room ${nextVnum} (unsaved)`);
-  }, [areaData, setStatusMessage, setSelectedEntity, setSelectedRoomVnum, setActiveTab]);
+    setStatusMessage(`Created room ${result.data.vnum} (unsaved)`);
+  }, [
+    areaData,
+    setStatusMessage,
+    setSelectedEntity,
+    setSelectedRoomVnum,
+    setActiveTab
+  ]);
 
   const handleCreateMobile = useCallback(() => {
     if (!areaData) {
@@ -9043,42 +8945,16 @@ export default function App({ repository }: AppProps) {
   }, [areaData, selectedGatherVnum, setStatusMessage]);
 
   const handleCreateClass = useCallback(() => {
-    if (!classData) {
-      setStatusMessage("Load classes before creating classes.");
+    const result = createClass(classData);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    const nextIndex = classData.classes.length;
-    const newRecord: ClassDefinition = {
-      name: `New Class ${nextIndex + 1}`,
-      whoName: "",
-      baseGroup: "",
-      defaultGroup: "",
-      weaponVnum: 0,
-      armorProf: "",
-      guilds: new Array(classGuildCount).fill(0),
-      primeStat: "",
-      skillCap: 0,
-      thac0_00: 0,
-      thac0_32: 0,
-      hpMin: 0,
-      hpMax: 0,
-      manaUser: false,
-      startLoc: 0,
-      titles: []
-    };
-    setClassData((current) => {
-      if (!current) {
-        return current;
-      }
-      return {
-        ...current,
-        classes: [...current.classes, newRecord]
-      };
-    });
+    setClassData(result.data.classData);
     setSelectedGlobalEntity("Classes");
-    setSelectedClassIndex(nextIndex);
+    setSelectedClassIndex(result.data.index);
     setActiveTab("Form");
-    setStatusMessage(`Created class ${newRecord.name} (unsaved)`);
+    setStatusMessage(`Created class ${result.data.name} (unsaved)`);
   }, [
     classData,
     setStatusMessage,
@@ -9088,30 +8964,14 @@ export default function App({ repository }: AppProps) {
   ]);
 
   const handleDeleteClass = useCallback(() => {
-    if (!classData) {
-      setStatusMessage("Load classes before deleting classes.");
+    const result = deleteClass(classData, selectedClassIndex);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    if (selectedClassIndex === null) {
-      setStatusMessage("Select a class to delete.");
-      return;
-    }
-    const deletedName =
-      classData.classes[selectedClassIndex]?.name ?? "class";
-    setClassData((current) => {
-      if (!current) {
-        return current;
-      }
-      const nextClasses = current.classes.filter(
-        (_, index) => index !== selectedClassIndex
-      );
-      return {
-        ...current,
-        classes: nextClasses
-      };
-    });
+    setClassData(result.data.classData);
     setSelectedClassIndex(null);
-    setStatusMessage(`Deleted ${deletedName} (unsaved)`);
+    setStatusMessage(`Deleted ${result.data.deletedName} (unsaved)`);
   }, [classData, selectedClassIndex, setStatusMessage]);
 
   const handleCreateRace = useCallback(() => {
@@ -9933,34 +9793,13 @@ export default function App({ repository }: AppProps) {
   }, [areaData, selectedResetIndex, setStatusMessage]);
 
   const handleDeleteRoom = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before deleting rooms.");
+    const result = deleteRoom(areaData, selectedRoomVnum);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    if (selectedRoomVnum === null) {
-      setStatusMessage("Select a room to delete.");
-      return;
-    }
-    const roomId = String(selectedRoomVnum);
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const rooms = Array.isArray((current as Record<string, unknown>).rooms)
-        ? ((current as Record<string, unknown>).rooms as unknown[])
-        : [];
-      const nextRooms = rooms.filter((room) => {
-        if (!room || typeof room !== "object") {
-          return true;
-        }
-        const vnum = parseVnum((room as Record<string, unknown>).vnum);
-        return vnum !== selectedRoomVnum;
-      });
-      return {
-        ...current,
-        rooms: nextRooms
-      };
-    });
+    const { areaData: nextAreaData, roomId, deletedVnum } = result.data;
+    setAreaData(nextAreaData);
     setRoomLayout((current) => {
       if (!current[roomId]) {
         return current;
@@ -9979,7 +9818,7 @@ export default function App({ repository }: AppProps) {
       return next;
     });
     setSelectedRoomVnum(null);
-    setStatusMessage(`Deleted room ${selectedRoomVnum} (unsaved)`);
+    setStatusMessage(`Deleted room ${deletedVnum} (unsaved)`);
   }, [areaData, selectedRoomVnum, setStatusMessage]);
 
   const handleAreaSubmit = (data: AreaFormValues) => {
