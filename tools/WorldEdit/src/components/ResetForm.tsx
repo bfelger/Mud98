@@ -1,10 +1,11 @@
 import type { FormEventHandler } from "react";
-import type { FieldPath, UseFormRegister } from "react-hook-form";
+import type { Control, FieldPath, UseFormRegister } from "react-hook-form";
 import { VnumPicker, type VnumOption } from "./VnumPicker";
 
 type ResetFormProps = {
   onSubmit: FormEventHandler<HTMLFormElement>;
   register: UseFormRegister<any>;
+  control: Control<any>;
   formState: {
     isDirty: boolean;
     errors: Record<string, { message?: string } | undefined>;
@@ -22,6 +23,7 @@ type ResetFormProps = {
 export function ResetForm({
   onSubmit,
   register,
+  control,
   formState,
   activeResetCommand,
   resetCommandOptions,
@@ -117,6 +119,7 @@ export function ResetForm({
                     label="Mob VNUM"
                     name={"mobVnum" as FieldPath<any>}
                     register={register}
+                    control={control}
                     options={mobileVnumOptions}
                     error={errors.mobVnum?.message}
                   />
@@ -125,6 +128,7 @@ export function ResetForm({
                     label="Room VNUM"
                     name={"roomVnum" as FieldPath<any>}
                     register={register}
+                    control={control}
                     options={roomVnumOptions}
                     error={errors.roomVnum?.message}
                   />
@@ -162,6 +166,7 @@ export function ResetForm({
                     label="Object VNUM"
                     name={"objVnum" as FieldPath<any>}
                     register={register}
+                    control={control}
                     options={objectVnumOptions}
                     error={errors.objVnum?.message}
                   />
@@ -170,6 +175,7 @@ export function ResetForm({
                     label="Room VNUM"
                     name={"roomVnum" as FieldPath<any>}
                     register={register}
+                    control={control}
                     options={roomVnumOptions}
                     error={errors.roomVnum?.message}
                   />
@@ -187,6 +193,7 @@ export function ResetForm({
                     label="Object VNUM"
                     name={"objVnum" as FieldPath<any>}
                     register={register}
+                    control={control}
                     options={objectVnumOptions}
                     error={errors.objVnum?.message}
                   />
@@ -197,6 +204,7 @@ export function ResetForm({
                       "containerVnum" as FieldPath<any>
                     }
                     register={register}
+                    control={control}
                     options={objectVnumOptions}
                     error={
                       errors.containerVnum?.message
@@ -234,6 +242,7 @@ export function ResetForm({
                     label="Object VNUM"
                     name={"objVnum" as FieldPath<any>}
                     register={register}
+                    control={control}
                     options={objectVnumOptions}
                     error={errors.objVnum?.message}
                   />
@@ -251,6 +260,7 @@ export function ResetForm({
                     label="Object VNUM"
                     name={"objVnum" as FieldPath<any>}
                     register={register}
+                    control={control}
                     options={objectVnumOptions}
                     error={errors.objVnum?.message}
                   />
@@ -289,6 +299,7 @@ export function ResetForm({
                     label="Room VNUM"
                     name={"roomVnum" as FieldPath<any>}
                     register={register}
+                    control={control}
                     options={roomVnumOptions}
                     error={errors.roomVnum?.message}
                   />
@@ -342,6 +353,7 @@ export function ResetForm({
                     label="Room VNUM"
                     name={"roomVnum" as FieldPath<any>}
                     register={register}
+                    control={control}
                     options={roomVnumOptions}
                     error={errors.roomVnum?.message}
                   />

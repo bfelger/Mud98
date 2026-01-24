@@ -2121,8 +2121,7 @@ void do_where(Mobile* ch, char* argument)
             if (d->connected == CON_PLAYING && (victim = d->character) != NULL
                 && !IS_NPC(victim) && victim->in_room != NULL
                 && !IS_SET(victim->in_room->data->room_flags, ROOM_NOWHERE)
-                && (is_room_owner(ch, victim->in_room)
-                    || !room_is_private(victim->in_room))
+                && !room_is_private(victim->in_room)
                 && victim->in_room->area == ch->in_room->area
                 && can_see(ch, victim)) {
                 found = true;

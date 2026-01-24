@@ -1,23 +1,144 @@
 import type {
+  AreaGraphLink,
   AreaIndexEntry,
   AreaJson,
+  ClassDataFile,
+  ClassDataSource,
   EditorMeta,
+  GroupDataFile,
+  GroupDataSource,
+  CommandDataFile,
+  CommandDataSource,
+  LootDataFile,
+  LootDataSource,
+  SocialDataFile,
+  SocialDataSource,
+  TutorialDataFile,
+  TutorialDataSource,
+  ProjectConfig,
+  ProjectDataFiles,
+  RaceDataFile,
+  RaceDataSource,
+  SkillDataFile,
+  SkillDataSource,
   ReferenceData
 } from "./types";
 
 export interface WorldRepository {
   pickAreaDirectory(defaultPath?: string | null): Promise<string | null>;
+  pickConfigFile(defaultPath?: string | null): Promise<string | null>;
   pickAreaFile(defaultPath?: string | null): Promise<string | null>;
   pickSaveFile(defaultPath?: string | null): Promise<string | null>;
   editorMetaPathForArea(areaPath: string): string;
+  resolveAreaDirectory(areaPath: string): Promise<string | null>;
   resolveDataDirectory(
     areaPath: string | null,
     areaDirectory: string | null
   ): Promise<string | null>;
+  loadProjectConfig(path: string): Promise<ProjectConfig>;
   loadArea(path: string): Promise<AreaJson>;
   saveArea(path: string, area: AreaJson): Promise<void>;
-  loadAreaIndex(areaDir: string): Promise<AreaIndexEntry[]>;
+  loadAreaIndex(areaDir: string, areaListFile?: string): Promise<AreaIndexEntry[]>;
+  loadAreaGraphLinks(
+    areaDir: string,
+    areaIndex: AreaIndexEntry[]
+  ): Promise<AreaGraphLink[]>;
   loadEditorMeta(path: string): Promise<EditorMeta | null>;
   saveEditorMeta(path: string, meta: EditorMeta): Promise<void>;
-  loadReferenceData(dataDir: string): Promise<ReferenceData>;
+  loadReferenceData(
+    dataDir: string,
+    dataFiles?: Partial<ProjectDataFiles>
+  ): Promise<ReferenceData>;
+  loadClassesData(
+    dataDir: string,
+    fileName?: string,
+    defaultFormat?: "json" | "olc"
+  ): Promise<ClassDataSource>;
+  saveClassesData(
+    dataDir: string,
+    data: ClassDataFile,
+    format: "json" | "olc",
+    fileName?: string
+  ): Promise<string>;
+  loadRacesData(
+    dataDir: string,
+    fileName?: string,
+    defaultFormat?: "json" | "olc"
+  ): Promise<RaceDataSource>;
+  saveRacesData(
+    dataDir: string,
+    data: RaceDataFile,
+    format: "json" | "olc",
+    fileName?: string,
+    classNames?: string[]
+  ): Promise<string>;
+  loadSkillsData(
+    dataDir: string,
+    fileName?: string,
+    defaultFormat?: "json" | "olc"
+  ): Promise<SkillDataSource>;
+  saveSkillsData(
+    dataDir: string,
+    data: SkillDataFile,
+    format: "json" | "olc",
+    fileName?: string,
+    classNames?: string[]
+  ): Promise<string>;
+  loadGroupsData(
+    dataDir: string,
+    fileName?: string,
+    defaultFormat?: "json" | "olc"
+  ): Promise<GroupDataSource>;
+  saveGroupsData(
+    dataDir: string,
+    data: GroupDataFile,
+    format: "json" | "olc",
+    fileName?: string,
+    classNames?: string[]
+  ): Promise<string>;
+  loadCommandsData(
+    dataDir: string,
+    fileName?: string,
+    defaultFormat?: "json" | "olc"
+  ): Promise<CommandDataSource>;
+  saveCommandsData(
+    dataDir: string,
+    data: CommandDataFile,
+    format: "json" | "olc",
+    fileName?: string
+  ): Promise<string>;
+  loadSocialsData(
+    dataDir: string,
+    fileName?: string,
+    defaultFormat?: "json" | "olc"
+  ): Promise<SocialDataSource>;
+  saveSocialsData(
+    dataDir: string,
+    data: SocialDataFile,
+    format: "json" | "olc",
+    fileName?: string
+  ): Promise<string>;
+  loadTutorialsData(
+    dataDir: string,
+    fileName?: string,
+    defaultFormat?: "json" | "olc"
+  ): Promise<TutorialDataSource>;
+  saveTutorialsData(
+    dataDir: string,
+    data: TutorialDataFile,
+    format: "json" | "olc",
+    fileName?: string
+  ): Promise<string>;
+  loadLootData(
+    dataDir: string,
+    fileName?: string,
+    defaultFormat?: "json" | "olc"
+  ): Promise<LootDataSource>;
+  saveLootData(
+    dataDir: string,
+    data: LootDataFile,
+    format: "json" | "olc",
+    fileName?: string
+  ): Promise<string>;
+  listLegacyAreaFiles(areaDir: string): Promise<string[]>;
 }

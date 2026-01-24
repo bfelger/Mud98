@@ -56,10 +56,6 @@ const ORDER_MAP: OrderMap = {
     "roomFlags",
     "roomFlagsValue",
     "sectorType",
-    "manaRate",
-    "healRate",
-    "clan",
-    "owner",
     "suppressDaycycleMessages",
     "timePeriods",
     "exits",
@@ -191,6 +187,26 @@ const ORDER_MAP: OrderMap = {
     "rewardObjs",
     "rewardCounts"
   ],
+  loot: ["groups", "tables"],
+  groups: ["name", "rolls", "entries"],
+  entries: ["type", "vnum", "minQty", "maxQty", "weight"],
+  tables: ["name", "parent", "ops"],
+  ops: ["op", "group", "vnum", "chance", "minQty", "maxQty", "multiplier"],
+  recipes: [
+    "vnum",
+    "name",
+    "skill",
+    "minSkill",
+    "minSkillPct",
+    "minLevel",
+    "stationType",
+    "stationVnum",
+    "discovery",
+    "inputs",
+    "outputVnum",
+    "outputQuantity"
+  ],
+  inputs: ["vnum", "quantity"],
   gatherSpawns: ["spawnSector", "vnum", "quantity", "respawnTimer"]
 };
 

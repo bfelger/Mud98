@@ -1,5 +1,5 @@
 import type { FormEventHandler } from "react";
-import type { FieldPath, UseFormRegister } from "react-hook-form";
+import type { Control, FieldPath, UseFormRegister } from "react-hook-form";
 import { EventBindingsView } from "./EventBindingsView";
 import { VnumPicker, type VnumOption } from "./VnumPicker";
 import type { EventBinding, EventEntityKey } from "../data/eventTypes";
@@ -7,6 +7,7 @@ import type { EventBinding, EventEntityKey } from "../data/eventTypes";
 type RoomFormProps = {
   onSubmit: FormEventHandler<HTMLFormElement>;
   register: UseFormRegister<any>;
+  control: Control<any>;
   formState: {
     isDirty: boolean;
     errors: Record<string, { message?: string } | undefined>;
@@ -30,6 +31,7 @@ type RoomFormProps = {
 export function RoomForm({
   onSubmit,
   register,
+  control,
   formState,
   exitFields,
   appendExit,
@@ -94,50 +96,6 @@ export function RoomForm({
                 </option>
               ))}
             </select>
-          </div>
-          <div className="form-field">
-            <label className="form-label" htmlFor="room-mana">
-              Mana Rate
-            </label>
-            <input
-              id="room-mana"
-              className="form-input"
-              type="number"
-              {...register("manaRate")}
-            />
-          </div>
-          <div className="form-field">
-            <label className="form-label" htmlFor="room-heal">
-              Heal Rate
-            </label>
-            <input
-              id="room-heal"
-              className="form-input"
-              type="number"
-              {...register("healRate")}
-            />
-          </div>
-          <div className="form-field">
-            <label className="form-label" htmlFor="room-clan">
-              Clan
-            </label>
-            <input
-              id="room-clan"
-              className="form-input"
-              type="number"
-              {...register("clan")}
-            />
-          </div>
-          <div className="form-field form-field--wide">
-            <label className="form-label" htmlFor="room-owner">
-              Owner
-            </label>
-            <input
-              id="room-owner"
-              className="form-input"
-              type="text"
-              {...register("owner")}
-            />
           </div>
         </div>
         <div className="form-field form-field--full">
@@ -236,6 +194,7 @@ export function RoomForm({
                     label="To VNUM"
                     name={`exits.${index}.toVnum` as FieldPath<any>}
                     register={register}
+                    control={control}
                     options={roomVnumOptions}
                     error={errors.exits?.[index]?.toVnum?.message}
                   />
@@ -244,6 +203,7 @@ export function RoomForm({
                     label="Key VNUM"
                     name={`exits.${index}.key` as FieldPath<any>}
                     register={register}
+                    control={control}
                     options={objectVnumOptions}
                   />
                   <div className="form-field">

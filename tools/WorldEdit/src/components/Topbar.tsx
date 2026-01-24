@@ -5,6 +5,7 @@ type TopbarProps = {
   isBusy: boolean;
   hasArea: boolean;
   hasAreaPath: boolean;
+  onOpenProject: () => void;
   onOpenArea: () => void;
   onSetAreaDirectory: () => void;
   onLoadReferenceData: () => void;
@@ -20,6 +21,7 @@ export function Topbar({
   isBusy,
   hasArea,
   hasAreaPath,
+  onOpenProject,
   onOpenArea,
   onSetAreaDirectory,
   onLoadReferenceData,
@@ -47,6 +49,14 @@ export function Topbar({
         <span className="status-pill">Area: {areaName}</span>
       </div>
       <div className="topbar__actions">
+        <button
+          className="action-button"
+          type="button"
+          onClick={onOpenProject}
+          disabled={isBusy}
+        >
+          Open Config
+        </button>
         <button
           className="action-button"
           type="button"

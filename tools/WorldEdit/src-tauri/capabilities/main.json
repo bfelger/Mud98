@@ -5,18 +5,31 @@
   "permissions": [
     "core:default",
     "dialog:allow-open",
+    "dialog:allow-message",
     "dialog:allow-save",
     {
       "identifier": "fs:allow-exists",
-      "allow": [{ "path": "$HOME/**" }]
+      "allow": [{ "path": "$HOME/**" }, { "path": "$HOME/**/.worldedit/**" }]
     },
     {
       "identifier": "fs:allow-read-text-file",
-      "allow": [{ "path": "$HOME/**" }]
+      "allow": [{ "path": "$HOME/**" }, { "path": "$HOME/**/.worldedit/**" }]
+    },
+    {
+      "identifier": "fs:allow-read-dir",
+      "allow": [{ "path": "$HOME/**" }, { "path": "$HOME/**/.worldedit/**" }]
     },
     {
       "identifier": "fs:allow-write-text-file",
-      "allow": [{ "path": "$HOME/**" }]
+      "allow": [{ "path": "$HOME/**" }, { "path": "$HOME/**/.worldedit/**" }]
+    },
+    {
+      "identifier": "fs:allow-mkdir",
+      "allow": [
+        { "path": "$HOME/**" },
+        { "path": "$HOME/**/.worldedit" },
+        { "path": "$HOME/**/.worldedit/**" }
+      ]
     }
   ]
 }

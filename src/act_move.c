@@ -117,7 +117,7 @@ void move_char(Mobile* ch, int door, bool follow)
         return;
     }
 
-    if (!is_room_owner(ch, to_room) && room_is_private(to_room)) {
+    if (room_is_private(to_room)) {
         send_to_char("That room is private right now.\n\r", ch);
         return;
     }

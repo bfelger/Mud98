@@ -224,6 +224,38 @@ export const liquids = [
   "cordial"
 ] as const;
 
+export const workstationTypes = [
+  "forge",
+  "smelter",
+  "tannery",
+  "loom",
+  "alchemy",
+  "cooking",
+  "enchant",
+  "woodwork",
+  "jeweler"
+] as const;
+
+export const discoveryTypes = [
+  "known",
+  "trainer",
+  "scroll",
+  "discovery",
+  "quest"
+] as const;
+
+export const lootEntryTypes = ["item", "cp"] as const;
+
+export const lootOpTypes = [
+  "use_group",
+  "add_item",
+  "add_cp",
+  "mul_cp",
+  "mul_all_chances",
+  "remove_item",
+  "remove_group"
+] as const;
+
 export const positions = [
   "dead",
   "mortally wounded",
@@ -453,6 +485,16 @@ export const partFlags = [
   "animalDefault"
 ] as const;
 
+export const skillTargets = [
+  "tar_ignore",
+  "tar_char_offensive",
+  "tar_char_defensive",
+  "tar_char_self",
+  "tar_obj_inv",
+  "tar_obj_char_def",
+  "tar_obj_char_off"
+] as const;
+
 export const applyLocations = [
   "none",
   "strength",
@@ -481,6 +523,25 @@ export const applyLocations = [
   "savingbreath",
   "savingspell",
   "spellaffect"
+] as const;
+
+export const logFlags = ["log_normal", "log_always", "log_never"] as const;
+
+export const showFlags = [
+  "none",
+  "undef",
+  "communication",
+  "combat",
+  "specials",
+  "group",
+  "objects",
+  "information",
+  "other",
+  "movement",
+  "configuration",
+  "languages",
+  "player",
+  "olc"
 ] as const;
 
 export const eventTriggers = [
@@ -534,4 +595,11 @@ export const vulnFlagEnum = z.enum(vulnFlags);
 export const formFlagEnum = z.enum(formFlags);
 export const partFlagEnum = z.enum(partFlags);
 export const applyLocationEnum = z.enum(applyLocations);
+export const skillTargetEnum = z.enum(skillTargets);
 export const eventTriggerEnum = z.enum(eventTriggers);
+export const logFlagEnum = z.enum(logFlags);
+export const showFlagEnum = z.enum(showFlags);
+export const workstationTypeEnum = z.enum(workstationTypes);
+export const discoveryTypeEnum = z.enum(discoveryTypes);
+export const lootEntryTypeEnum = z.enum(lootEntryTypes);
+export const lootOpTypeEnum = z.enum(lootOpTypes);

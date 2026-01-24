@@ -19,6 +19,7 @@ type MobileFormProps = {
   eventBindings: EventBinding[];
   scriptValue: string;
   onEventBindingsChange: (events: EventBinding[]) => void;
+  lootTableOptions: string[];
 };
 
 export function MobileForm({
@@ -33,9 +34,11 @@ export function MobileForm({
   scriptEventEntity,
   eventBindings,
   scriptValue,
-  onEventBindingsChange
+  onEventBindingsChange,
+  lootTableOptions
 }: MobileFormProps) {
   const errors = formState.errors as Record<string, any>;
+  const lootListId = "mob-loot-table-options";
 
   return (
     <div className="form-view">
@@ -262,6 +265,25 @@ export function MobileForm({
               type="text"
               {...register("offensiveSpell")}
             />
+          </div>
+          <div className="form-field">
+            <label className="form-label" htmlFor="mob-loot-table">
+              Loot Table
+            </label>
+            <input
+              id="mob-loot-table"
+              className="form-input"
+              type="text"
+              list={lootListId}
+              {...register("lootTable")}
+            />
+            <datalist id={lootListId}>
+              {lootTableOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </datalist>
           </div>
         </div>
         <div className="form-field form-field--full">

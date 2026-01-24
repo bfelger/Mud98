@@ -214,8 +214,6 @@ int hit_gain(Mobile* ch)
             gain /= 2;
     }
 
-    gain = gain * ch->in_room->data->heal_rate / 100;
-
     if (ch->on != NULL && ch->on->item_type == ITEM_FURNITURE)
         gain = gain * ch->on->furniture.heal_rate / 100;
 
@@ -285,8 +283,6 @@ int mana_gain(Mobile* ch)
         if (ch->pcdata->condition[COND_THIRST] == 0) gain /= 2;
     }
 
-    gain = gain * ch->in_room->data->mana_rate / 100;
-
     if (ch->on != NULL && ch->on->item_type == ITEM_FURNITURE)
         gain = gain * ch->on->furniture.mana_rate / 100;
 
@@ -326,8 +322,6 @@ int move_gain(Mobile* ch)
         if (ch->pcdata->condition[COND_THIRST] == 0) 
             gain /= 2;
     }
-
-    gain = gain * ch->in_room->data->heal_rate / 100;
 
     if (ch->on != NULL && ch->on->item_type == ITEM_FURNITURE)
         gain = gain * ch->on->furniture.heal_rate / 100;

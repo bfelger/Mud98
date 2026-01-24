@@ -101,7 +101,8 @@ export const areadataSchema = z
     highLevel: z.number().int().optional(),
     reset: z.number().int().optional(),
     alwaysReset: z.boolean().optional(),
-    instType: z.literal("multi").optional()
+    instType: z.literal("multi").optional(),
+    lootTable: stringSchema.optional()
   })
   .passthrough();
 
@@ -112,10 +113,6 @@ export const roomSchema = z
     description: stringSchema,
     roomFlags: z.array(roomFlagEnum).optional(),
     sector: sectorEnum.optional(),
-    manaRate: z.number().int().optional(),
-    healRate: z.number().int().optional(),
-    clan: z.number().int().optional(),
-    owner: stringSchema.optional(),
     exits: z.array(exitSchema).optional(),
     extraDescs: z.array(extraDescSchema).optional(),
     loxScript: stringSchema.optional(),

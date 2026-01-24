@@ -767,21 +767,12 @@ void save_rooms(FILE* fp, AreaData* area)
                 }
             }
 
-            if (pRoomIndex->mana_rate != 100 || pRoomIndex->heal_rate != 100)
-                fprintf(fp, "M %d H %d\n", pRoomIndex->mana_rate,
-                    pRoomIndex->heal_rate);
-
-            if (pRoomIndex->clan > 0)
-                fprintf(fp, "C '%s'\n", clan_table[pRoomIndex->clan].name);
-
             save_events(fp, &pRoomIndex->header);
 
             if (pRoomIndex->header.script != NULL) {
                 fprintf(fp, "L\n%s~\n", fix_lox_script(pRoomIndex->header.script->chars));
             }
 
-            if (pRoomIndex->owner && str_cmp(pRoomIndex->owner, ""))
-                fprintf(fp, "O %s~\n", pRoomIndex->owner);
             if (pRoomIndex->suppress_daycycle_messages)
                 fprintf(fp, "W 1\n");
 

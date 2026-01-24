@@ -5,6 +5,7 @@ import {
   containerFlagEnum,
   damageTypeEnum,
   directionEnum,
+  discoveryTypeEnum,
   extraFlagEnum,
   formFlagEnum,
   furnitureFlagEnum,
@@ -15,6 +16,7 @@ import {
   portalFlagEnum,
   positionEnum,
   resFlagEnum,
+  sectorEnum,
   sexEnum,
   sizeEnum,
   vulnFlagEnum,
@@ -22,7 +24,10 @@ import {
   wearLocationEnum,
   weaponClassEnum,
   weaponFlagEnum,
-  exitFlagEnum
+  exitFlagEnum,
+  workstationTypeEnum,
+  lootEntryTypeEnum,
+  lootOpTypeEnum
 } from "./enums";
 import {
   acSchema,
@@ -72,6 +77,7 @@ const mobileSchema = z
     ac: acSchema.optional(),
     damageNoun: stringSchema.optional(),
     offensiveSpell: stringSchema.optional(),
+    lootTable: stringSchema.optional(),
     mprogFlags: z.array(stringSchema).optional(),
     loxScript: stringSchema.optional(),
     events: z.array(eventSchema).optional()
@@ -261,15 +267,22 @@ const mobprogSchema = z
 const questSchema = z
   .object({
     vnum: vnumSchema,
-    minLevel: z.number().int(),
-    maxLevel: z.number().int(),
-    race: stringSchema.optional(),
-    class: stringSchema.optional(),
-    time: z.number().int().optional(),
-    creator: stringSchema.optional(),
-    description: stringSchema.optional(),
-    objectives: z.array(z.unknown()).optional(),
-    rewards: z.array(z.unknown()).optional()
+    name: stringSchema.optional(),
+    entry: stringSchema.optional(),
+    type: stringSchema.optional(),
+    xp: z.number().int().optional(),
+    level: z.number().int().optional(),
+    end: vnumSchema.optional(),
+    target: vnumSchema.optional(),
+    upper: vnumSchema.optional(),
+    count: z.number().int().optional(),
+    rewardFaction: vnumSchema.optional(),
+    rewardReputation: z.number().int().optional(),
+    rewardGold: z.number().int().optional(),
+    rewardSilver: z.number().int().optional(),
+    rewardCopper: z.number().int().optional(),
+    rewardObjs: z.array(vnumSchema).optional(),
+    rewardCounts: z.array(z.number().int()).optional()
   })
   .passthrough();
 
@@ -291,6 +304,84 @@ const factionSchema = z
   })
   .passthrough();
 
+const lootEntrySchema = z
+  .object({
+    type: lootEntryTypeEnum,
+    vnum: vnumSchema.optional(),
+    minQty: z.number().int().optional(),
+    maxQty: z.number().int().optional(),
+    weight: z.number().int().optional()
+  })
+  .passthrough();
+
+const lootGroupSchema = z
+  .object({
+    name: stringSchema,
+    rolls: z.number().int().optional(),
+    entries: z.array(lootEntrySchema).optional()
+  })
+  .passthrough();
+
+const lootOpSchema = z
+  .object({
+    op: lootOpTypeEnum,
+    group: stringSchema.optional(),
+    vnum: vnumSchema.optional(),
+    chance: z.number().int().optional(),
+    minQty: z.number().int().optional(),
+    maxQty: z.number().int().optional(),
+    multiplier: z.number().int().optional()
+  })
+  .passthrough();
+
+const lootTableSchema = z
+  .object({
+    name: stringSchema,
+    parent: stringSchema.optional(),
+    ops: z.array(lootOpSchema).optional()
+  })
+  .passthrough();
+
+const lootSchema = z
+  .object({
+    groups: z.array(lootGroupSchema).optional(),
+    tables: z.array(lootTableSchema).optional()
+  })
+  .passthrough();
+
+const recipeInputSchema = z
+  .object({
+    vnum: vnumSchema,
+    quantity: z.number().int()
+  })
+  .passthrough();
+
+const recipeSchema = z
+  .object({
+    vnum: vnumSchema,
+    name: stringSchema.optional(),
+    skill: stringSchema.optional(),
+    minSkill: z.number().int().optional(),
+    minSkillPct: z.number().int().optional(),
+    minLevel: z.number().int().optional(),
+    stationType: z.array(workstationTypeEnum).optional(),
+    stationVnum: vnumSchema.optional(),
+    discovery: discoveryTypeEnum.optional(),
+    inputs: z.array(recipeInputSchema).optional(),
+    outputVnum: vnumSchema.optional(),
+    outputQuantity: z.number().int().optional()
+  })
+  .passthrough();
+
+const gatherSpawnSchema = z
+  .object({
+    spawnSector: sectorEnum.optional(),
+    vnum: vnumSchema,
+    quantity: z.number().int().optional(),
+    respawnTimer: z.number().int().optional()
+  })
+  .passthrough();
+
 export const areaSchema = z
   .object({
     formatVersion: z.literal(1).optional(),
@@ -305,6 +396,9 @@ export const areaSchema = z
     quests: z.array(questSchema).optional(),
     helps: z.array(helpSchema).optional(),
     factions: z.array(factionSchema).optional(),
+    loot: lootSchema.optional(),
+    recipes: z.array(recipeSchema).optional(),
+    gatherSpawns: z.array(gatherSpawnSchema).optional(),
     storyBeats: z.array(storyBeatSchema).optional(),
     checklist: z.array(checklistSchema).optional()
   })

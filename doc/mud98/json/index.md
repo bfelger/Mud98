@@ -6,6 +6,7 @@ and the corresponding Markdown file so tools and builders stay in sync. Use
 the links below to jump to the latest schema guides:
 
 - [Area JSON Schema](area-json-schema.md)
+- [Loot JSON Schema](loot-json-schema.md)
 - [Class JSON Schema](class-json-schema.md)
 - [Race JSON Schema](race-json-schema.md)
 - [Theme JSON Schema](theme-json-schema.md)

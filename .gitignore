@@ -58,4 +58,6 @@ venv/
 
 # WorldEdit
 **/area/*.editor.json
+**/area/.worldedit/
+**/area/.worldedit/*.editor.json
 **/area/*.lock.json
