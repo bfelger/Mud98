@@ -89,6 +89,13 @@ import {
   type ObjectRow
 } from "./crud/area/objectsCrud";
 import {
+  buildResetRows,
+  createReset,
+  deleteReset,
+  resetColumns as resetColumnsDef,
+  type ResetRow
+} from "./crud/area/resetsCrud";
+import {
   buildClassRows,
   classColumns as classColumnsDef,
   createClass,
@@ -402,14 +409,6 @@ type TabId = (typeof tabs)[number]["id"];
 type EntityKey = (typeof entityOrder)[number];
 type GlobalEntityKey = (typeof globalEntityOrder)[number];
 type EditorMode = "Area" | "Global";
-type ResetRow = {
-  index: number;
-  command: string;
-  entityVnum: string;
-  roomVnum: string;
-  details: string;
-};
-
 type RaceRow = {
   index: number;
   name: string;
@@ -3380,76 +3379,6 @@ function buildExternalExits(
       return a.fromVnum - b.fromVnum;
     }
     return a.direction.localeCompare(b.direction);
-  });
-}
-
-function buildResetRows(areaData: AreaJson | null): ResetRow[] {
-  if (!areaData) {
-    return [];
-  }
-  const resets = (areaData as { resets?: unknown }).resets;
-  if (!Array.isArray(resets)) {
-    return [];
-  }
-  return resets.map((reset, index) => {
-    const data = reset as Record<string, unknown>;
-    const command = getFirstString(data.commandName, getFirstString(data.command, "reset"));
-    const mobVnum = parseVnum(data.mobVnum);
-    const objVnum = parseVnum(data.objVnum);
-    const containerVnum = parseVnum(data.containerVnum);
-    const entityVnum =
-      mobVnum !== null
-        ? String(mobVnum)
-        : objVnum !== null
-          ? String(objVnum)
-          : containerVnum !== null
-            ? String(containerVnum)
-            : "—";
-    const roomVnum = parseVnum(data.roomVnum);
-    const toVnum = parseVnum(data.toVnum);
-    const roomLabel =
-      roomVnum !== null ? String(roomVnum) : toVnum !== null ? String(toVnum) : "—";
-    const count = parseVnum(data.count);
-    const maxInArea = parseVnum(data.maxInArea);
-    const maxInRoom = parseVnum(data.maxInRoom);
-    const maxInContainer = parseVnum(data.maxInContainer);
-    const wearLoc = getFirstString(data.wearLoc, "");
-    const direction = getFirstString(data.direction, "");
-    const state = parseVnum(data.state);
-    const exits = parseVnum(data.exits);
-    const detailsParts: string[] = [];
-    if (count !== null) {
-      detailsParts.push(`count ${count}`);
-    }
-    if (maxInArea !== null) {
-      detailsParts.push(`max area ${maxInArea}`);
-    }
-    if (maxInRoom !== null) {
-      detailsParts.push(`max room ${maxInRoom}`);
-    }
-    if (maxInContainer !== null) {
-      detailsParts.push(`max container ${maxInContainer}`);
-    }
-    if (wearLoc) {
-      detailsParts.push(`wear ${wearLoc}`);
-    }
-    if (direction) {
-      detailsParts.push(`dir ${direction}`);
-    }
-    if (state !== null) {
-      detailsParts.push(`state ${state}`);
-    }
-    if (exits !== null) {
-      detailsParts.push(`exits ${exits}`);
-    }
-    const details = detailsParts.length ? detailsParts.join(", ") : "—";
-    return {
-      index,
-      command,
-      entityVnum,
-      roomVnum: roomLabel,
-      details
-    };
   });
 }
 
@@ -7823,16 +7752,7 @@ export default function App({ repository }: AppProps) {
   const roomColumns = roomColumnsDef;
   const mobileColumns = mobileColumnsDef;
   const objectColumns = objectColumnsDef;
-  const resetColumns = useMemo<ColDef<ResetRow>[]>(
-    () => [
-      { headerName: "#", field: "index", width: 80, sort: "asc" },
-      { headerName: "Type", field: "command", flex: 1, minWidth: 160 },
-      { headerName: "Entity VNUM", field: "entityVnum", width: 140 },
-      { headerName: "Room VNUM", field: "roomVnum", width: 140 },
-      { headerName: "Details", field: "details", flex: 2, minWidth: 220 }
-    ],
-    []
-  );
+  const resetColumns = resetColumnsDef;
   const shopColumns = useMemo<ColDef<ShopRow>[]>(
     () => [
       { headerName: "Keeper", field: "keeper", width: 120, sort: "asc" },
@@ -9572,40 +9492,16 @@ export default function App({ repository }: AppProps) {
   ]);
 
   const handleCreateReset = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before creating resets.");
+    const result = createReset(areaData);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    const roomVnum = getFirstEntityVnum(areaData, "Rooms") ?? 0;
-    const mobVnum = getFirstEntityVnum(areaData, "Mobiles") ?? 0;
-    const resets = getEntityList(areaData, "Resets");
-    const nextIndex = resets.length;
-    const newReset: Record<string, unknown> = {
-      commandName: "loadMob",
-      mobVnum,
-      roomVnum,
-      maxInArea: 1,
-      maxInRoom: 1
-    };
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const nextResets = Array.isArray(
-        (current as Record<string, unknown>).resets
-      )
-        ? [...((current as Record<string, unknown>).resets as unknown[])]
-        : [];
-      nextResets.push(newReset);
-      return {
-        ...current,
-        resets: nextResets
-      };
-    });
+    setAreaData(result.data.areaData);
     setSelectedEntity("Resets");
-    setSelectedResetIndex(nextIndex);
+    setSelectedResetIndex(result.data.index);
     setActiveTab("Form");
-    setStatusMessage(`Created reset #${nextIndex} (unsaved)`);
+    setStatusMessage(`Created reset #${result.data.index} (unsaved)`);
   }, [
     areaData,
     setStatusMessage,
@@ -9615,29 +9511,14 @@ export default function App({ repository }: AppProps) {
   ]);
 
   const handleDeleteReset = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before deleting resets.");
+    const result = deleteReset(areaData, selectedResetIndex);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    if (selectedResetIndex === null) {
-      setStatusMessage("Select a reset to delete.");
-      return;
-    }
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const resets = Array.isArray((current as Record<string, unknown>).resets)
-        ? ((current as Record<string, unknown>).resets as unknown[])
-        : [];
-      const nextResets = resets.filter((_, index) => index !== selectedResetIndex);
-      return {
-        ...current,
-        resets: nextResets
-      };
-    });
+    setAreaData(result.data.areaData);
     setSelectedResetIndex(null);
-    setStatusMessage(`Deleted reset #${selectedResetIndex} (unsaved)`);
+    setStatusMessage(`Deleted reset #${result.data.deletedIndex} (unsaved)`);
   }, [areaData, selectedResetIndex, setStatusMessage]);
 
   const handleDeleteRoom = useCallback(() => {
