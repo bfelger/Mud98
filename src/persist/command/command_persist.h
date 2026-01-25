@@ -16,7 +16,7 @@ typedef struct command_persist_format_t {
     PersistResult (*save)(const PersistWriter* writer, const char* filename);
 } CommandPersistFormat;
 
-void load_command_table();
+void load_command_table(void);
 PersistResult command_persist_load(const char* filename);
 PersistResult command_persist_save(const char* filename);
 

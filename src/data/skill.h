@@ -57,10 +57,10 @@ typedef struct skill_group_t {
     char* skills[MAX_IN_GROUP];
 } SkillGroup;
 
-void load_skill_table();
-void load_skill_group_table();
-void save_skill_table();
-void save_skill_group_table();
+void load_skill_table(void);
+void load_skill_group_table(void);
+void save_skill_table(void);
+void save_skill_group_table(void);
 SKNUM skill_lookup(const char* name);
 SKNUM* gsn_lookup(char* argument);
 char* gsn_name(SKNUM* pgsn);

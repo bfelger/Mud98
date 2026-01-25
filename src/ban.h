@@ -29,7 +29,7 @@ struct ban_data_t {
 
 bool check_ban(char* site, int type);
 void free_ban(BanData* ban);
-void load_bans();
+void load_bans(void);
 BanData* new_ban(void);
 
 #endif // !MUD98__BAN_H

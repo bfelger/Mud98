@@ -141,7 +141,7 @@ void send_to_char_bw(const char* txt, Mobile* ch);
 void page_to_char_bw(const char* txt, Mobile* ch);
 
 #ifdef _MSC_VER
-void PrintLastWinSockError();
+void PrintLastWinSockError(void);
 #endif
 
 #endif // MUD98__COMM_H

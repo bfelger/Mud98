@@ -54,7 +54,7 @@ typedef struct room_exit_data_t {
 RoomExit* new_room_exit(RoomExitData* room_exit_data, Room* from);
 void free_room_exit(RoomExit* room_exit);
 
-RoomExitData* new_room_exit_data();
+RoomExitData* new_room_exit_data(void);
 void free_room_exit_data(RoomExitData* room_exit);
 
 #define ADD_EXIT_DESC(t, ed)                                                   \

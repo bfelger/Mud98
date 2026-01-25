@@ -146,7 +146,7 @@ void send_echo_off(Descriptor* d);
 /*
     mth.c
 */
-void init_mth();
+void init_mth(void);
 void init_mth_socket(Descriptor* d);
 void uninit_mth_socket(Descriptor* d);
 void arachnos_devel(char* fmt, ...);
@@ -167,7 +167,7 @@ void msdp_configure_arachnos(Descriptor* d, int index);
 void  write_msdp_to_descriptor(Descriptor* d, char* src, size_t length);
 int64_t msdp2json(unsigned char* src, size_t srclen, char* out);
 int64_t json2msdp(unsigned char* src, size_t srclen, char* out);
-void init_msdp_table();
+void init_msdp_table(void);
 
 size_t process_do_msdp(Descriptor* d, unsigned char* src, size_t srclen);
 

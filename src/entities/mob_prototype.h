@@ -72,7 +72,7 @@ typedef struct mob_prototype_t {
     for (GlobalMobProtoIter m##_iter = make_global_mob_proto_iter(); \
         (m = global_mob_proto_iter_next(&m##_iter)) != NULL; )
 
-MobPrototype* new_mob_prototype();
+MobPrototype* new_mob_prototype(void);
 void free_mob_prototype(MobPrototype* p_mob_proto);
 MobPrototype* get_mob_prototype(VNUM vnum);
 void load_mobiles(FILE* fp);

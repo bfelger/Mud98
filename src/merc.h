@@ -265,7 +265,7 @@ typedef void SpellFunc(SKNUM sn, LEVEL level, Mobile* ch, void* vo, SpellTarget 
 ////////////////////////////////////////////////////////////////////////////////
 
 // main.c
-int get_uptime();
+int get_uptime(void);
 
 extern bool merc_down;                      // Shutdown
 extern bool wizlock;                        // Game is wizlocked

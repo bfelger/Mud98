@@ -312,7 +312,7 @@ static_assert(sizeof(((Object*)0)->value) == sizeof(((Object*)0)->corpse),
 void clone_object(Object* parent, Object* clone);
 Object* create_object(ObjPrototype* obj_proto, LEVEL level);
 void free_object(Object* obj);
-Object* new_object();
+Object* new_object(void);
 
 extern List obj_free;
 extern List obj_list;

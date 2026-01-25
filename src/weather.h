@@ -34,8 +34,8 @@ typedef struct weather_info_t {
     Sun sunlight;
 } WeatherInfo;
 
-void init_weather_info();
-void update_weather_info();
+void init_weather_info(void);
+void update_weather_info(void);
 
 extern TimeInfo time_info;
 extern WeatherInfo weather_info;

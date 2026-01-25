@@ -37,8 +37,8 @@ typedef struct class_t {
     char* titles[MAX_LEVEL + 1][2];
 } Class;
 
-void load_class_table();
-void save_class_table();
+void load_class_table(void);
+void save_class_table(void);
 
 extern int class_count;
 extern Class* class_table;

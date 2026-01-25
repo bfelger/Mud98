@@ -115,7 +115,7 @@ void affect_to_mob(Mobile* ch, Affect* affect);
 void affect_to_obj(Object* obj, Affect* affect);
 void free_affect(Affect* af);
 bool is_affected(Mobile* ch, SKNUM sn);
-Affect* new_affect();
+Affect* new_affect(void);
 
 #define ADD_AFFECT(t, aff)                                                   \
     if (!t->affected) {                                                        \

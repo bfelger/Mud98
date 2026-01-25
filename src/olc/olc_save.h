@@ -17,7 +17,7 @@
 #include <tablesave.h>
 
 // Core save entry points.
-void save_area_list();
+void save_area_list(void);
 void save_area(AreaData* area);
 void save_other_helps(Mobile* ch);
 
@@ -41,6 +41,6 @@ void save_area_loot(FILE* fp, AreaData* area);
 // Helpers shared by persistence bridge.
 char* fix_string(const char* str);
 char* fix_lox_script(const char* str);
-bool area_changed();
+bool area_changed(void);
 
 #endif // !MUD98__OLC__OLC_SAVE_H

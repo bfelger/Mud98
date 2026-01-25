@@ -24,7 +24,7 @@ typedef struct shop_data_t {
     int16_t close_hour;                 // First closing hour
 } ShopData;
 
-ShopData* new_shop_data();
+ShopData* new_shop_data(void);
 void free_shop_data(ShopData* pShop);
 
 extern ShopData* shop_first;

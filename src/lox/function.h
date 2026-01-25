@@ -70,7 +70,7 @@ ObjNativeMethod* new_native_method(NativeMethod native);
 ObjNativeCmd* new_native_cmd(DoFunc* native);
 ObjClass* new_class(ObjString* name);
 ObjClosure* new_closure(ObjFunction* function);
-ObjFunction* new_function();
+ObjFunction* new_function(void);
 ObjInstance* new_instance(ObjClass* klass);
 ObjNative* new_native(NativeFn function);
 

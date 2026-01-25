@@ -36,7 +36,7 @@ typedef struct reset_t {
     int16_t arg4;
 } Reset;
 
-Reset* new_reset();
+Reset* new_reset(void);
 void free_reset(Reset* reset);
 
 void reset_area(Area* area);

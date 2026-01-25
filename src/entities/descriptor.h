@@ -67,7 +67,7 @@ typedef struct descriptor_t {
     bool valid;
 } Descriptor;
 
-Descriptor* new_descriptor();
+Descriptor* new_descriptor(void);
 void free_descriptor(Descriptor* descriptor);
 
 extern Descriptor* descriptor_list;

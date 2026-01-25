@@ -22,9 +22,9 @@ extern Value test_output_buffer;
 
 // Implicitly imported from lox/vm.c
 bool invoke(ObjString* name, int arg_count);
-void print_stack();
+void print_stack(void);
 
-void register_lox_tests();
-void register_lox_ext_tests();
+void register_lox_tests(void);
+void register_lox_ext_tests(void);
 
 #endif // !MUD98__TESTS__LOX_EXT_TESTS_H

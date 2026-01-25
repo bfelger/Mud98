@@ -30,8 +30,8 @@ void show_tutorial_step(Mobile* ch, Tutorial* t, int step);
 void advance_tutorial_step(Mobile* ch);
 Tutorial* get_tutorial(const char* name);
 
-void load_tutorials();
-void save_tutorials();
+void load_tutorials(void);
+void save_tutorials(void);
 
 extern Tutorial** tutorials;
 extern int tutorial_count;

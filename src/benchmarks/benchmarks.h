@@ -16,7 +16,7 @@ typedef struct {
     bool running;
 } Timer;
 
-typedef void (*BenchmarkFn)();
+typedef void (*BenchmarkFn)(void);
 
 typedef struct {
     const char* name;
@@ -28,11 +28,11 @@ void reset_timer(Timer* timer);
 void start_timer(Timer* timer);
 void stop_timer(Timer* timer);
 
-void benchmark_containers();
-void benchmark_formatting();
+void benchmark_containers(void);
+void benchmark_formatting(void);
 
 const BenchmarkEntry* benchmark_registry(size_t* count);
 bool run_benchmark_by_name(const char* name);
-void run_benchmarks();
+void run_benchmarks(void);
 
 #endif // !MUD98__TESTS__BENCHMARKS_H

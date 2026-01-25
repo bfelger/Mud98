@@ -28,7 +28,7 @@ typedef struct value_table_t {
     bool entries_from_heap;
 } Table;
 
-Table* new_table();
+Table* new_table(void);
 void init_table(Table* table);
 void free_table(Table* table);
 void table_use_heap_allocator(Table* table);

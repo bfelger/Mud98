@@ -80,8 +80,8 @@ typedef struct quest_log_t {
 } QuestLog;
 
 void load_quest(FILE* fp);
-Quest* new_quest();
-QuestLog* new_quest_log();
+Quest* new_quest(void);
+QuestLog* new_quest_log(void);
 void free_quest(Quest* quest);
 void free_quest_log(PlayerData* pc);
 Quest* get_quest(VNUM vnum);

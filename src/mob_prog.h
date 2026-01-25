@@ -34,10 +34,10 @@ typedef struct mob_prog_code_t {
     char* code;
 } MobProgCode;
 
-MobProg* new_mob_prog();
+MobProg* new_mob_prog(void);
 void free_mob_prog(MobProg* mob_prog);
 
-MobProgCode* new_mob_prog_code();
+MobProgCode* new_mob_prog_code(void);
 void free_mob_prog_code(MobProgCode* mob_prog_code);
 
 void program_flow(VNUM vnum, char* source, Mobile* mob, Mobile* ch, 

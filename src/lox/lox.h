@@ -46,12 +46,12 @@ void add_global(const char* name, Value val);
 InterpretResult call_function(const char* fn_name, int count, ...);
 InterpretResult invoke_closure(ObjClosure* closure, int count, ...);
 ObjClass* find_class(const char* class_name);
-void free_vm();
-void init_const_natives();
-void init_world_natives();
-void init_vm();
+void free_vm(void);
+void init_const_natives(void);
+void init_world_natives(void);
+void init_vm(void);
 InterpretResult interpret_code(const char* source);
-Value pop();
+Value pop(void);
 void push(Value value);
 void runtime_error(const char* format, ...);
 

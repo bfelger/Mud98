@@ -11,6 +11,6 @@
 void advance_level(Mobile* ch, bool hide);
 void gain_exp(Mobile* ch, int gain);
 void gain_condition(Mobile* ch, int iCond, int value);
-void update_handler();
+void update_handler(void);
 
 #endif // !MUD98__UPDATE_H

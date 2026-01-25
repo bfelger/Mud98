@@ -49,9 +49,9 @@ typedef struct race_t {
     bool pc_race;                   // can be chosen by pcs */
 } Race;
 
-void load_race_table();
-void save_race_table();
-void init_race_table_lox();
+void load_race_table(void);
+void save_race_table(void);
+void init_race_table_lox(void);
 
 extern int race_count;
 extern Race* race_table;

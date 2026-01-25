@@ -74,7 +74,7 @@ typedef struct obj_prototype_t {
 
 void free_object_prototype(ObjPrototype* pObj);
 ObjPrototype* get_object_prototype(VNUM vnum);
-ObjPrototype* new_object_prototype();
+ObjPrototype* new_object_prototype(void);
 void load_objects(FILE* fp);
 
 typedef struct {

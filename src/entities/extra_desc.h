@@ -18,7 +18,7 @@ typedef struct extra_desc_t {
     bool valid;
 } ExtraDesc;
 
-ExtraDesc* new_extra_desc();
+ExtraDesc* new_extra_desc(void);
 void free_extra_desc(ExtraDesc* ed);
 char* get_extra_desc(const char* name, ExtraDesc* ed);
 

@@ -32,17 +32,17 @@
 typedef struct combat_ops_t CombatOps;
 
 // Internal GC-tracked array of all mocks
-ValueArray* mocks();
+ValueArray* mocks(void);
 
 // Clean up all mocks (called after each test)
-void cleanup_mocks();
+void cleanup_mocks(void);
 
 // Create a GC-tracked Lox string
 Value mock_str(const char* str);
 
 // AREA MOCKING
 // Creates minimal area data/instances for testing
-AreaData* mock_area_data();
+AreaData* mock_area_data(void);
 Area* mock_area(AreaData* ad);
 
 // ROOM MOCKING
@@ -123,7 +123,7 @@ void mock_skill(Mobile* ch, SKNUM sn, int value);
 
 // DESCRIPTOR MOCKING
 // Creates network connection stub for player tests
-Descriptor* mock_descriptor();
+Descriptor* mock_descriptor(void);
 
 // FACTION SYSTEM MOCKING
 Faction* mock_faction(const char* name, VNUM vnum);
