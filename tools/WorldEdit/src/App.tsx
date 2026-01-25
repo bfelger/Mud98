@@ -96,6 +96,13 @@ import {
   type ResetRow
 } from "./crud/area/resetsCrud";
 import {
+  buildShopRows,
+  createShop,
+  deleteShop,
+  shopColumns as shopColumnsDef,
+  type ShopRow
+} from "./crud/area/shopsCrud";
+import {
   buildClassRows,
   classColumns as classColumnsDef,
   createClass,
@@ -483,14 +490,6 @@ type GatherSpawnRow = {
   sector: string;
   quantity: number;
   respawnTimer: number;
-};
-
-type ShopRow = {
-  keeper: number;
-  buyTypes: string;
-  profitBuy: number;
-  profitSell: number;
-  hours: string;
 };
 
 type QuestRow = {
@@ -3379,41 +3378,6 @@ function buildExternalExits(
       return a.fromVnum - b.fromVnum;
     }
     return a.direction.localeCompare(b.direction);
-  });
-}
-
-function buildShopRows(areaData: AreaJson | null): ShopRow[] {
-  if (!areaData) {
-    return [];
-  }
-  const shops = getEntityList(areaData, "Shops");
-  if (!shops.length) {
-    return [];
-  }
-  return shops.map((shop) => {
-    const record = shop as Record<string, unknown>;
-    const keeper = parseVnum(record.keeper) ?? -1;
-    const buyTypes = Array.isArray(record.buyTypes)
-      ? record.buyTypes
-          .map((value) => parseVnum(value))
-          .filter((value): value is number => value !== null)
-          .join(", ")
-      : "—";
-    const profitBuy = parseVnum(record.profitBuy) ?? 0;
-    const profitSell = parseVnum(record.profitSell) ?? 0;
-    const openHour = parseVnum(record.openHour);
-    const closeHour = parseVnum(record.closeHour);
-    const hours =
-      openHour !== null && closeHour !== null
-        ? `${openHour}-${closeHour}`
-        : "—";
-    return {
-      keeper,
-      buyTypes,
-      profitBuy,
-      profitSell,
-      hours
-    };
   });
 }
 
@@ -7753,16 +7717,7 @@ export default function App({ repository }: AppProps) {
   const mobileColumns = mobileColumnsDef;
   const objectColumns = objectColumnsDef;
   const resetColumns = resetColumnsDef;
-  const shopColumns = useMemo<ColDef<ShopRow>[]>(
-    () => [
-      { headerName: "Keeper", field: "keeper", width: 120, sort: "asc" },
-      { headerName: "Buy Types", field: "buyTypes", flex: 2, minWidth: 220 },
-      { headerName: "Profit Buy", field: "profitBuy", width: 120 },
-      { headerName: "Profit Sell", field: "profitSell", width: 120 },
-      { headerName: "Hours", field: "hours", width: 120 }
-    ],
-    []
-  );
+  const shopColumns = shopColumnsDef;
   const questColumns = useMemo<ColDef<QuestRow>[]>(
     () => [
       { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
@@ -8197,69 +8152,16 @@ export default function App({ repository }: AppProps) {
   }, [areaData, selectedObjectVnum, setStatusMessage]);
 
   const handleCreateShop = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before creating shops.");
+    const result = createShop(areaData);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    const mobiles = getEntityList(areaData, "Mobiles");
-    const shops = getEntityList(areaData, "Shops");
-    const usedKeepers = new Set<number>();
-    shops.forEach((shop) => {
-      if (!shop || typeof shop !== "object") {
-        return;
-      }
-      const keeper = parseVnum((shop as Record<string, unknown>).keeper);
-      if (keeper !== null) {
-        usedKeepers.add(keeper);
-      }
-    });
-    let keeper: number | null = null;
-    for (const mob of mobiles) {
-      if (!mob || typeof mob !== "object") {
-        continue;
-      }
-      const vnum = parseVnum((mob as Record<string, unknown>).vnum);
-      if (vnum !== null && !usedKeepers.has(vnum)) {
-        keeper = vnum;
-        break;
-      }
-    }
-    if (keeper === null && mobiles.length) {
-      const fallback = mobiles.find((mob) => mob && typeof mob === "object");
-      keeper = fallback
-        ? parseVnum((fallback as Record<string, unknown>).vnum)
-        : null;
-    }
-    if (keeper === null) {
-      keeper = 0;
-    }
-    const newShop: Record<string, unknown> = {
-      keeper,
-      buyTypes: [0, 0, 0, 0, 0],
-      profitBuy: 100,
-      profitSell: 100,
-      openHour: 0,
-      closeHour: 23
-    };
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const nextShops = Array.isArray(
-        (current as Record<string, unknown>).shops
-      )
-        ? [...((current as Record<string, unknown>).shops as unknown[])]
-        : [];
-      nextShops.push(newShop);
-      return {
-        ...current,
-        shops: nextShops
-      };
-    });
+    setAreaData(result.data.areaData);
     setSelectedEntity("Shops");
-    setSelectedShopKeeper(keeper);
+    setSelectedShopKeeper(result.data.keeper);
     setActiveTab("Form");
-    setStatusMessage(`Created shop ${keeper} (unsaved)`);
+    setStatusMessage(`Created shop ${result.data.keeper} (unsaved)`);
   }, [
     areaData,
     setStatusMessage,
@@ -8269,36 +8171,14 @@ export default function App({ repository }: AppProps) {
   ]);
 
   const handleDeleteShop = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before deleting shops.");
+    const result = deleteShop(areaData, selectedShopKeeper);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    if (selectedShopKeeper === null) {
-      setStatusMessage("Select a shop to delete.");
-      return;
-    }
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const shops = getEntityList(current, "Shops");
-      if (!shops.length) {
-        return current;
-      }
-      const nextShops = shops.filter((shop) => {
-        if (!shop || typeof shop !== "object") {
-          return true;
-        }
-        const keeper = parseVnum((shop as Record<string, unknown>).keeper);
-        return keeper !== selectedShopKeeper;
-      });
-      return {
-        ...(current as Record<string, unknown>),
-        shops: nextShops
-      };
-    });
+    setAreaData(result.data.areaData);
     setSelectedShopKeeper(null);
-    setStatusMessage(`Deleted shop ${selectedShopKeeper} (unsaved)`);
+    setStatusMessage(`Deleted shop ${result.data.deletedKeeper} (unsaved)`);
   }, [areaData, selectedShopKeeper, setStatusMessage]);
 
   const handleCreateQuest = useCallback(() => {
