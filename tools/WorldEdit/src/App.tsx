@@ -117,6 +117,13 @@ import {
   type QuestRow
 } from "./crud/area/questsCrud";
 import {
+  buildRecipeRows,
+  createRecipe,
+  deleteRecipe,
+  recipeColumns as recipeColumnsDef,
+  type RecipeRow
+} from "./crud/area/recipesCrud";
+import {
   buildClassRows,
   classColumns as classColumnsDef,
   createClass,
@@ -488,14 +495,6 @@ type LootRow = {
   index: number;
   name: string;
   details: string;
-};
-
-type RecipeRow = {
-  vnum: number;
-  name: string;
-  skill: string;
-  inputs: string;
-  output: string;
 };
 
 type GatherSpawnRow = {
@@ -3599,30 +3598,6 @@ function extractAreaLootData(areaData: AreaJson | null): LootDataFile | null {
     groups,
     tables
   };
-}
-
-function buildRecipeRows(areaData: AreaJson | null): RecipeRow[] {
-  const recipes = getEntityList(areaData, "Recipes");
-  return recipes
-    .filter((entry): entry is Record<string, unknown> =>
-      Boolean(entry && typeof entry === "object")
-    )
-    .map((record) => {
-      const vnum = parseVnum(record.vnum) ?? 0;
-      const inputs = Array.isArray(record.inputs) ? record.inputs : [];
-      const outputVnum = parseVnum(record.outputVnum);
-      const outputQty = parseVnum(record.outputQuantity) ?? 1;
-      return {
-        vnum,
-        name: getFirstString(record.name, "(unnamed recipe)"),
-        skill: getFirstString(record.skill, "—"),
-        inputs: `${inputs.length} input${inputs.length === 1 ? "" : "s"}`,
-        output:
-          outputVnum !== null
-            ? `${outputVnum}${outputQty > 1 ? ` x${outputQty}` : ""}`
-            : "—"
-      };
-    });
 }
 
 function buildGatherSpawnRows(areaData: AreaJson | null): GatherSpawnRow[] {
@@ -7655,16 +7630,7 @@ export default function App({ repository }: AppProps) {
   const shopColumns = shopColumnsDef;
   const questColumns = questColumnsDef;
   const factionColumns = factionColumnsDef;
-  const recipeColumns = useMemo<ColDef<RecipeRow>[]>(
-    () => [
-      { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
-      { headerName: "Name", field: "name", flex: 2, minWidth: 200 },
-      { headerName: "Skill", field: "skill", width: 160 },
-      { headerName: "Inputs", field: "inputs", width: 130 },
-      { headerName: "Output", field: "output", width: 140 }
-    ],
-    []
-  );
+  const recipeColumns = recipeColumnsDef;
   const gatherSpawnColumns = useMemo<ColDef<GatherSpawnRow>[]>(
     () => [
       { headerName: "#", field: "index", width: 80, sort: "asc" },
@@ -8256,42 +8222,16 @@ export default function App({ repository }: AppProps) {
   ]);
 
   const handleCreateRecipe = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before creating recipes.");
+    const result = createRecipe(areaData);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    const nextVnum = getNextEntityVnum(areaData, "Recipes");
-    if (nextVnum === null) {
-      setStatusMessage("No available recipe VNUMs in the area range.");
-      return;
-    }
-    const newRecipe: Record<string, unknown> = {
-      vnum: nextVnum,
-      name: "New Recipe",
-      skill: "",
-      minSkill: 0,
-      minLevel: 1,
-      stationType: [],
-      inputs: [],
-      outputs: []
-    };
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const recipes = Array.isArray((current as Record<string, unknown>).recipes)
-        ? [...((current as Record<string, unknown>).recipes as unknown[])]
-        : [];
-      recipes.push(newRecipe);
-      return {
-        ...current,
-        recipes
-      };
-    });
+    setAreaData(result.data.areaData);
     setSelectedEntity("Recipes");
-    setSelectedRecipeVnum(nextVnum);
+    setSelectedRecipeVnum(result.data.vnum);
     setActiveTab("Form");
-    setStatusMessage(`Created recipe ${nextVnum} (unsaved)`);
+    setStatusMessage(`Created recipe ${result.data.vnum} (unsaved)`);
   }, [
     areaData,
     setStatusMessage,
@@ -8301,35 +8241,14 @@ export default function App({ repository }: AppProps) {
   ]);
 
   const handleDeleteRecipe = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before deleting recipes.");
+    const result = deleteRecipe(areaData, selectedRecipeVnum);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    if (selectedRecipeVnum === null) {
-      setStatusMessage("Select a recipe to delete.");
-      return;
-    }
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const recipes = Array.isArray((current as Record<string, unknown>).recipes)
-        ? ((current as Record<string, unknown>).recipes as unknown[])
-        : [];
-      const nextRecipes = recipes.filter((recipe) => {
-        if (!recipe || typeof recipe !== "object") {
-          return true;
-        }
-        const vnum = parseVnum((recipe as Record<string, unknown>).vnum);
-        return vnum !== selectedRecipeVnum;
-      });
-      return {
-        ...current,
-        recipes: nextRecipes
-      };
-    });
+    setAreaData(result.data.areaData);
     setSelectedRecipeVnum(null);
-    setStatusMessage(`Deleted recipe ${selectedRecipeVnum} (unsaved)`);
+    setStatusMessage(`Deleted recipe ${result.data.deletedVnum} (unsaved)`);
   }, [areaData, selectedRecipeVnum, setStatusMessage]);
 
   const handleCreateGatherSpawn = useCallback(() => {
