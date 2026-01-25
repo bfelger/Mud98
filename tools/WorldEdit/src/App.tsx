@@ -124,6 +124,13 @@ import {
   type RecipeRow
 } from "./crud/area/recipesCrud";
 import {
+  buildGatherSpawnRows,
+  createGatherSpawn,
+  deleteGatherSpawn,
+  gatherSpawnColumns as gatherSpawnColumnsDef,
+  type GatherSpawnRow
+} from "./crud/area/gatherSpawnsCrud";
+import {
   buildClassRows,
   classColumns as classColumnsDef,
   createClass,
@@ -495,14 +502,6 @@ type LootRow = {
   index: number;
   name: string;
   details: string;
-};
-
-type GatherSpawnRow = {
-  index: number;
-  vnum: number;
-  sector: string;
-  quantity: number;
-  respawnTimer: number;
 };
 
 type ExternalExit = {
@@ -3598,26 +3597,6 @@ function extractAreaLootData(areaData: AreaJson | null): LootDataFile | null {
     groups,
     tables
   };
-}
-
-function buildGatherSpawnRows(areaData: AreaJson | null): GatherSpawnRow[] {
-  const spawns = getEntityList(areaData, "Gather Spawns");
-  return spawns
-    .filter((entry): entry is Record<string, unknown> =>
-      Boolean(entry && typeof entry === "object")
-    )
-    .map((record, index) => {
-      const vnum = parseVnum(record.vnum) ?? 0;
-      const sector =
-        typeof record.spawnSector === "string" ? record.spawnSector : "—";
-      return {
-        index,
-        vnum,
-        sector,
-        quantity: parseVnum(record.quantity) ?? 0,
-        respawnTimer: parseVnum(record.respawnTimer) ?? 0
-      };
-    });
 }
 
 function titlesToText(titles: string[][] | undefined, column: 0 | 1): string {
@@ -7631,16 +7610,7 @@ export default function App({ repository }: AppProps) {
   const questColumns = questColumnsDef;
   const factionColumns = factionColumnsDef;
   const recipeColumns = recipeColumnsDef;
-  const gatherSpawnColumns = useMemo<ColDef<GatherSpawnRow>[]>(
-    () => [
-      { headerName: "#", field: "index", width: 80, sort: "asc" },
-      { headerName: "VNUM", field: "vnum", width: 120 },
-      { headerName: "Sector", field: "sector", width: 140 },
-      { headerName: "Qty", field: "quantity", width: 110 },
-      { headerName: "Respawn", field: "respawnTimer", width: 120 }
-    ],
-    []
-  );
+  const gatherSpawnColumns = gatherSpawnColumnsDef;
   const roomDefaultColDef = useMemo<ColDef>(
     () => ({
       sortable: true,
@@ -8252,44 +8222,16 @@ export default function App({ repository }: AppProps) {
   }, [areaData, selectedRecipeVnum, setStatusMessage]);
 
   const handleCreateGatherSpawn = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before creating gather spawns.");
+    const result = createGatherSpawn(areaData);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    const nextVnum = getNextEntityVnum(areaData, "Gather Spawns");
-    if (nextVnum === null) {
-      setStatusMessage("No available gather spawn VNUMs in the area range.");
-      return;
-    }
-    const newSpawn: Record<string, unknown> = {
-      vnum: nextVnum,
-      name: "New Gather Spawn",
-      skill: "",
-      roomVnum: getFirstEntityVnum(areaData, "Rooms") ?? 0,
-      successTable: "",
-      failureTable: "",
-      minSkill: 0,
-      minLevel: 1
-    };
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const spawns = Array.isArray(
-        (current as Record<string, unknown>).gatherSpawns
-      )
-        ? [...((current as Record<string, unknown>).gatherSpawns as unknown[])]
-        : [];
-      spawns.push(newSpawn);
-      return {
-        ...current,
-        gatherSpawns: spawns
-      };
-    });
+    setAreaData(result.data.areaData);
     setSelectedEntity("Gather Spawns");
-    setSelectedGatherVnum(nextVnum);
+    setSelectedGatherVnum(result.data.vnum);
     setActiveTab("Form");
-    setStatusMessage(`Created gather spawn ${nextVnum} (unsaved)`);
+    setStatusMessage(`Created gather spawn ${result.data.vnum} (unsaved)`);
   }, [
     areaData,
     setStatusMessage,
@@ -8299,37 +8241,14 @@ export default function App({ repository }: AppProps) {
   ]);
 
   const handleDeleteGatherSpawn = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before deleting gather spawns.");
+    const result = deleteGatherSpawn(areaData, selectedGatherVnum);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    if (selectedGatherVnum === null) {
-      setStatusMessage("Select a gather spawn to delete.");
-      return;
-    }
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const spawns = Array.isArray(
-        (current as Record<string, unknown>).gatherSpawns
-      )
-        ? ((current as Record<string, unknown>).gatherSpawns as unknown[])
-        : [];
-      const nextSpawns = spawns.filter((spawn) => {
-        if (!spawn || typeof spawn !== "object") {
-          return true;
-        }
-        const vnum = parseVnum((spawn as Record<string, unknown>).vnum);
-        return vnum !== selectedGatherVnum;
-      });
-      return {
-        ...current,
-        gatherSpawns: nextSpawns
-      };
-    });
+    setAreaData(result.data.areaData);
     setSelectedGatherVnum(null);
-    setStatusMessage(`Deleted gather spawn ${selectedGatherVnum} (unsaved)`);
+    setStatusMessage(`Deleted gather spawn ${result.data.deletedVnum} (unsaved)`);
   }, [areaData, selectedGatherVnum, setStatusMessage]);
 
   const handleCreateClass = useCallback(() => {
