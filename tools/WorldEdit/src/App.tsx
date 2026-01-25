@@ -82,6 +82,13 @@ import {
   type MobileRow
 } from "./crud/area/mobilesCrud";
 import {
+  buildObjectRows,
+  createObject,
+  deleteObject,
+  objectColumns as objectColumnsDef,
+  type ObjectRow
+} from "./crud/area/objectsCrud";
+import {
   buildClassRows,
   classColumns as classColumnsDef,
   createClass,
@@ -395,13 +402,6 @@ type TabId = (typeof tabs)[number]["id"];
 type EntityKey = (typeof entityOrder)[number];
 type GlobalEntityKey = (typeof globalEntityOrder)[number];
 type EditorMode = "Area" | "Global";
-type ObjectRow = {
-  vnum: number;
-  name: string;
-  itemType: string;
-  level: number;
-};
-
 type ResetRow = {
   index: number;
   command: string;
@@ -3380,24 +3380,6 @@ function buildExternalExits(
       return a.fromVnum - b.fromVnum;
     }
     return a.direction.localeCompare(b.direction);
-  });
-}
-
-function buildObjectRows(areaData: AreaJson | null): ObjectRow[] {
-  if (!areaData) {
-    return [];
-  }
-  const objects = (areaData as { objects?: unknown }).objects;
-  if (!Array.isArray(objects)) {
-    return [];
-  }
-  return objects.map((obj) => {
-    const data = obj as Record<string, unknown>;
-    const vnum = parseVnum(data.vnum) ?? -1;
-    const name = getFirstString(data.shortDescr, "(unnamed object)");
-    const itemType = getFirstString(data.itemType, "unknown");
-    const level = parseVnum(data.level) ?? 0;
-    return { vnum, name, itemType, level };
   });
 }
 
@@ -7840,15 +7822,7 @@ export default function App({ repository }: AppProps) {
   );
   const roomColumns = roomColumnsDef;
   const mobileColumns = mobileColumnsDef;
-  const objectColumns = useMemo<ColDef<ObjectRow>[]>(
-    () => [
-      { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
-      { headerName: "Name", field: "name", flex: 2, minWidth: 200 },
-      { headerName: "Item Type", field: "itemType", flex: 1, minWidth: 160 },
-      { headerName: "Level", field: "level", width: 110 }
-    ],
-    []
-  );
+  const objectColumns = objectColumnsDef;
   const resetColumns = useMemo<ColDef<ResetRow>[]>(
     () => [
       { headerName: "#", field: "index", width: 80, sort: "asc" },
@@ -8273,45 +8247,16 @@ export default function App({ repository }: AppProps) {
   }, [areaData, selectedMobileVnum, setStatusMessage]);
 
   const handleCreateObject = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before creating objects.");
+    const result = createObject(areaData);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    const nextVnum = getNextEntityVnum(areaData, "Objects");
-    if (nextVnum === null) {
-      setStatusMessage("No available object VNUMs in the area range.");
-      return;
-    }
-    const newObject: Record<string, unknown> = {
-      vnum: nextVnum,
-      name: "new object",
-      shortDescr: "a new object",
-      description: "An unfinished object sits here.\n\r",
-      material: "wood",
-      itemType: "trash",
-      level: 1,
-      weight: 1,
-      cost: 0,
-      extraFlags: [],
-      wearFlags: []
-    };
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const objects = Array.isArray((current as Record<string, unknown>).objects)
-        ? [...((current as Record<string, unknown>).objects as unknown[])]
-        : [];
-      objects.push(newObject);
-      return {
-        ...current,
-        objects
-      };
-    });
+    setAreaData(result.data.areaData);
     setSelectedEntity("Objects");
-    setSelectedObjectVnum(nextVnum);
+    setSelectedObjectVnum(result.data.vnum);
     setActiveTab("Form");
-    setStatusMessage(`Created object ${nextVnum} (unsaved)`);
+    setStatusMessage(`Created object ${result.data.vnum} (unsaved)`);
   }, [
     areaData,
     setStatusMessage,
@@ -8321,35 +8266,14 @@ export default function App({ repository }: AppProps) {
   ]);
 
   const handleDeleteObject = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before deleting objects.");
+    const result = deleteObject(areaData, selectedObjectVnum);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    if (selectedObjectVnum === null) {
-      setStatusMessage("Select an object to delete.");
-      return;
-    }
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const objects = Array.isArray((current as Record<string, unknown>).objects)
-        ? ((current as Record<string, unknown>).objects as unknown[])
-        : [];
-      const nextObjects = objects.filter((obj) => {
-        if (!obj || typeof obj !== "object") {
-          return true;
-        }
-        const vnum = parseVnum((obj as Record<string, unknown>).vnum);
-        return vnum !== selectedObjectVnum;
-      });
-      return {
-        ...current,
-        objects: nextObjects
-      };
-    });
+    setAreaData(result.data.areaData);
     setSelectedObjectVnum(null);
-    setStatusMessage(`Deleted object ${selectedObjectVnum} (unsaved)`);
+    setStatusMessage(`Deleted object ${result.data.deletedVnum} (unsaved)`);
   }, [areaData, selectedObjectVnum, setStatusMessage]);
 
   const handleCreateShop = useCallback(() => {
