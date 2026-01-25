@@ -103,6 +103,13 @@ import {
   type ShopRow
 } from "./crud/area/shopsCrud";
 import {
+  buildFactionRows,
+  createFaction,
+  deleteFaction,
+  factionColumns as factionColumnsDef,
+  type FactionRow
+} from "./crud/area/factionsCrud";
+import {
   buildClassRows,
   classColumns as classColumnsDef,
   createClass,
@@ -499,14 +506,6 @@ type QuestRow = {
   level: number;
   target: string;
   rewards: string;
-};
-
-type FactionRow = {
-  vnum: number;
-  name: string;
-  defaultStanding: number;
-  allies: string;
-  opposing: string;
 };
 
 type ExternalExit = {
@@ -3410,35 +3409,6 @@ function buildQuestRows(areaData: AreaJson | null): QuestRow[] {
       level,
       target: targetLabel,
       rewards
-    };
-  });
-}
-
-function buildFactionRows(areaData: AreaJson | null): FactionRow[] {
-  if (!areaData) {
-    return [];
-  }
-  const factions = getEntityList(areaData, "Factions");
-  if (!factions.length) {
-    return [];
-  }
-  return factions.map((faction) => {
-    const record = faction as Record<string, unknown>;
-    const vnum = parseVnum(record.vnum) ?? -1;
-    const name = getFirstString(record.name, "(unnamed faction)");
-    const defaultStanding = parseVnum(record.defaultStanding) ?? 0;
-    const allies = Array.isArray(record.allies)
-      ? String(record.allies.length)
-      : "0";
-    const opposing = Array.isArray(record.opposing)
-      ? String(record.opposing.length)
-      : "0";
-    return {
-      vnum,
-      name,
-      defaultStanding,
-      allies,
-      opposing
     };
   });
 }
@@ -7729,16 +7699,7 @@ export default function App({ repository }: AppProps) {
     ],
     []
   );
-  const factionColumns = useMemo<ColDef<FactionRow>[]>(
-    () => [
-      { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
-      { headerName: "Name", field: "name", flex: 2, minWidth: 200 },
-      { headerName: "Default", field: "defaultStanding", width: 120 },
-      { headerName: "Allies", field: "allies", width: 110 },
-      { headerName: "Opposing", field: "opposing", width: 120 }
-    ],
-    []
-  );
+  const factionColumns = factionColumnsDef;
   const recipeColumns = useMemo<ColDef<RecipeRow>[]>(
     () => [
       { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
@@ -8259,41 +8220,16 @@ export default function App({ repository }: AppProps) {
   }, [areaData, selectedQuestVnum, setStatusMessage]);
 
   const handleCreateFaction = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before creating factions.");
+    const result = createFaction(areaData);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    const nextVnum = getNextEntityVnum(areaData, "Factions");
-    if (nextVnum === null) {
-      setStatusMessage("No available faction VNUMs in the area range.");
-      return;
-    }
-    const newFaction: Record<string, unknown> = {
-      vnum: nextVnum,
-      name: "New Faction",
-      defaultStanding: 0,
-      allies: [],
-      opposing: []
-    };
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const factions = Array.isArray(
-        (current as Record<string, unknown>).factions
-      )
-        ? [...((current as Record<string, unknown>).factions as unknown[])]
-        : [];
-      factions.push(newFaction);
-      return {
-        ...current,
-        factions
-      };
-    });
+    setAreaData(result.data.areaData);
     setSelectedEntity("Factions");
-    setSelectedFactionVnum(nextVnum);
+    setSelectedFactionVnum(result.data.vnum);
     setActiveTab("Form");
-    setStatusMessage(`Created faction ${nextVnum} (unsaved)`);
+    setStatusMessage(`Created faction ${result.data.vnum} (unsaved)`);
   }, [
     areaData,
     setStatusMessage,
@@ -8303,37 +8239,14 @@ export default function App({ repository }: AppProps) {
   ]);
 
   const handleDeleteFaction = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before deleting factions.");
+    const result = deleteFaction(areaData, selectedFactionVnum);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    if (selectedFactionVnum === null) {
-      setStatusMessage("Select a faction to delete.");
-      return;
-    }
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const factions = Array.isArray(
-        (current as Record<string, unknown>).factions
-      )
-        ? ((current as Record<string, unknown>).factions as unknown[])
-        : [];
-      const nextFactions = factions.filter((faction) => {
-        if (!faction || typeof faction !== "object") {
-          return true;
-        }
-        const vnum = parseVnum((faction as Record<string, unknown>).vnum);
-        return vnum !== selectedFactionVnum;
-      });
-      return {
-        ...current,
-        factions: nextFactions
-      };
-    });
+    setAreaData(result.data.areaData);
     setSelectedFactionVnum(null);
-    setStatusMessage(`Deleted faction ${selectedFactionVnum} (unsaved)`);
+    setStatusMessage(`Deleted faction ${result.data.deletedVnum} (unsaved)`);
   }, [areaData, selectedFactionVnum, setStatusMessage]);
 
   const handleCreateAreaLoot = useCallback((kind: "group" | "table") => {
