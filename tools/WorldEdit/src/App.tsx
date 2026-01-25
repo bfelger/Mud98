@@ -75,6 +75,13 @@ import {
   type RoomRow
 } from "./crud/area/roomsCrud";
 import {
+  buildMobileRows,
+  createMobile,
+  deleteMobile,
+  mobileColumns as mobileColumnsDef,
+  type MobileRow
+} from "./crud/area/mobilesCrud";
+import {
   buildClassRows,
   classColumns as classColumnsDef,
   createClass,
@@ -388,14 +395,6 @@ type TabId = (typeof tabs)[number]["id"];
 type EntityKey = (typeof entityOrder)[number];
 type GlobalEntityKey = (typeof globalEntityOrder)[number];
 type EditorMode = "Area" | "Global";
-type MobileRow = {
-  vnum: number;
-  name: string;
-  level: number;
-  race: string;
-  alignment: number;
-};
-
 type ObjectRow = {
   vnum: number;
   name: string;
@@ -3381,25 +3380,6 @@ function buildExternalExits(
       return a.fromVnum - b.fromVnum;
     }
     return a.direction.localeCompare(b.direction);
-  });
-}
-
-function buildMobileRows(areaData: AreaJson | null): MobileRow[] {
-  if (!areaData) {
-    return [];
-  }
-  const mobiles = (areaData as { mobiles?: unknown }).mobiles;
-  if (!Array.isArray(mobiles)) {
-    return [];
-  }
-  return mobiles.map((mob) => {
-    const data = mob as Record<string, unknown>;
-    const vnum = parseVnum(data.vnum) ?? -1;
-    const name = getFirstString(data.shortDescr, "(unnamed mobile)");
-    const level = parseVnum(data.level) ?? 0;
-    const race = getFirstString(data.race, "unknown");
-    const alignment = parseVnum(data.alignment) ?? 0;
-    return { vnum, name, level, race, alignment };
   });
 }
 
@@ -7859,16 +7839,7 @@ export default function App({ repository }: AppProps) {
     []
   );
   const roomColumns = roomColumnsDef;
-  const mobileColumns = useMemo<ColDef<MobileRow>[]>(
-    () => [
-      { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
-      { headerName: "Name", field: "name", flex: 2, minWidth: 200 },
-      { headerName: "Level", field: "level", width: 110 },
-      { headerName: "Race", field: "race", flex: 1, minWidth: 140 },
-      { headerName: "Alignment", field: "alignment", width: 130 }
-    ],
-    []
-  );
+  const mobileColumns = mobileColumnsDef;
   const objectColumns = useMemo<ColDef<ObjectRow>[]>(
     () => [
       { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
@@ -8269,44 +8240,18 @@ export default function App({ repository }: AppProps) {
   ]);
 
   const handleCreateMobile = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before creating mobiles.");
-      return;
-    }
-    const nextVnum = getNextEntityVnum(areaData, "Mobiles");
-    if (nextVnum === null) {
-      setStatusMessage("No available mobile VNUMs in the area range.");
-      return;
-    }
     const defaultRace =
       referenceData?.races?.[0] ? referenceData.races[0] : "human";
-    const newMobile: Record<string, unknown> = {
-      vnum: nextVnum,
-      name: "new mobile",
-      shortDescr: "a new mobile",
-      longDescr: "A new mobile is here.\n\r",
-      description: "It looks unfinished.\n\r",
-      race: defaultRace,
-      level: 1,
-      alignment: 0
-    };
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const mobiles = Array.isArray((current as Record<string, unknown>).mobiles)
-        ? [...((current as Record<string, unknown>).mobiles as unknown[])]
-        : [];
-      mobiles.push(newMobile);
-      return {
-        ...current,
-        mobiles
-      };
-    });
+    const result = createMobile(areaData, defaultRace);
+    if (!result.ok) {
+      setStatusMessage(result.message);
+      return;
+    }
+    setAreaData(result.data.areaData);
     setSelectedEntity("Mobiles");
-    setSelectedMobileVnum(nextVnum);
+    setSelectedMobileVnum(result.data.vnum);
     setActiveTab("Form");
-    setStatusMessage(`Created mobile ${nextVnum} (unsaved)`);
+    setStatusMessage(`Created mobile ${result.data.vnum} (unsaved)`);
   }, [
     areaData,
     referenceData,
@@ -8317,35 +8262,14 @@ export default function App({ repository }: AppProps) {
   ]);
 
   const handleDeleteMobile = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before deleting mobiles.");
+    const result = deleteMobile(areaData, selectedMobileVnum);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    if (selectedMobileVnum === null) {
-      setStatusMessage("Select a mobile to delete.");
-      return;
-    }
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const mobiles = Array.isArray((current as Record<string, unknown>).mobiles)
-        ? ((current as Record<string, unknown>).mobiles as unknown[])
-        : [];
-      const nextMobiles = mobiles.filter((mob) => {
-        if (!mob || typeof mob !== "object") {
-          return true;
-        }
-        const vnum = parseVnum((mob as Record<string, unknown>).vnum);
-        return vnum !== selectedMobileVnum;
-      });
-      return {
-        ...current,
-        mobiles: nextMobiles
-      };
-    });
+    setAreaData(result.data.areaData);
     setSelectedMobileVnum(null);
-    setStatusMessage(`Deleted mobile ${selectedMobileVnum} (unsaved)`);
+    setStatusMessage(`Deleted mobile ${result.data.deletedVnum} (unsaved)`);
   }, [areaData, selectedMobileVnum, setStatusMessage]);
 
   const handleCreateObject = useCallback(() => {
