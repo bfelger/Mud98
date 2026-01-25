@@ -214,7 +214,7 @@
     {
       "vnum": 12004,
       "name": "Verdant Refuge",
-      "description": "Here in the tree canopy high above Verdant Watch, dense foliage conceals a cluster of buildings suspended upon thick branches. Their entrances in are each direction.\n\r",
+      "description": "Here in the tree canopy high above Verdant Watch, dense foliage conceals a cluster of buildings suspended upon thick branches. The are connected by the wooden gangways upon which you now stand. Their entrances in are each direction.\n\r",
       "roomFlags": [
         "no_recall"
       ],
@@ -222,7 +222,28 @@
       "exits": [
         {
           "dir": "down",
-          "toVnum": 12001
+          "toVnum": 12001,
+          "description": "A knotted rope dangles through from one of the suspended gangways. It leads down into darkness."
+        },
+        {
+          "dir": "north",
+          "toVnum": 12006,
+          "description": "This large hut has an open portal, through which you can see a small gathering of weary refugees."
+        },
+        {
+          "dir": "east",
+          "toVnum": 12007,
+          "description": "Warmth and the flow of a forge emenates from the doorway to this hut. It also has a stone chimney, billowing smoke."
+        },
+        {
+          "dir": "south",
+          "toVnum": 12008,
+          "description": "The outside of this hut has metal hooks for hanging animal carcasses, but there is nothing on them at the moment."
+        },
+        {
+          "dir": "west",
+          "toVnum": 12019,
+          "description": "A unearthly light emenates from this small hut's open portal; strange, but also calming and welcoming."
         }
       ]
     },
@@ -837,6 +858,121 @@
         {
           "dir": "west",
           "toVnum": 12036
+        }
+      ]
+    },
+    {
+      "vnum": 12006,
+      "name": "The Aid Station",
+      "description": "This hut is filled with boxes and satchels, but a cursory glance reveals they are mostly empty. This is the commissary for Verdant Refuge, though it seems there is not much left to provide. There are no furnishings save a few overturned crates.\n\r  An open portal to the south leads back outside, while a portal to the north leads to another room in this hut.",
+      "roomFlags": [
+        "indoors",
+        "safe",
+        "no_recall"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 12004,
+          "description": "The open portal to the south leads out into Verdant Refuge."
+        },
+        {
+          "dir": "north",
+          "toVnum": 12037
+        }
+      ]
+    },
+    {
+      "vnum": 12007,
+      "name": "The Smithy",
+      "description": "This hut contains a makeshift smithy. A crude smelter made of small stones cemented together sits next to a similarly-fashioned forge. An anvil sits unattended.",
+      "roomFlags": [
+        "indoors",
+        "safe",
+        "no_recall"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 12004,
+          "description": "This portal leads back to the gangways of Verdant Refuge."
+        }
+      ]
+    },
+    {
+      "vnum": 12008,
+      "name": "The Butcher",
+      "description": "This hut has a large table for cleaning and cutting animal carcasses, but it appears clean. Numerous metal hooks hang from ceiling joists. They seem intended for hanging of said carcasses, but are currently barren.\n\r  There is another room to the south, through a portal of hide curtains.\n\r",
+      "roomFlags": [
+        "indoors",
+        "safe",
+        "no_recall"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 12004,
+          "description": "This portal opens up to the suspended gangways of Verdant Refuge."
+        },
+        {
+          "dir": "south",
+          "toVnum": 12009
+        }
+      ]
+    },
+    {
+      "vnum": 12009,
+      "name": "The Tannery",
+      "description": "This side of the hut is overpowered by the smell of sulphur, emenating from various jars and pots. The walls are lined with empty tanning racks.\n\r  To the north is a portal to the butcher, loosely sealed by long strips of hide.\n\r",
+      "roomFlags": [
+        "indoors",
+        "safe",
+        "no_recall"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 12008,
+          "description": "This portal to the butcher is covered by hide strips."
+        }
+      ]
+    },
+    {
+      "vnum": 12019,
+      "name": "The Chapel",
+      "description": "This hut is a makeship temple to Nature. Despite its cramped, sparsely furnished interior, it feels immediately comfortable and relaxing.",
+      "roomFlags": [
+        "indoors",
+        "safe",
+        "recall"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 12004,
+          "description": "This portal leads back out onto the suspended gangways of Verdant Refuge."
+        }
+      ]
+    },
+    {
+      "vnum": 12037,
+      "name": "The Clothier",
+      "description": "This room has an unused spinning wheel and a rack of empty spindles. A set of wicker shelves looks intended to hold bolts of cloth, but currently stands barren.\n\r  The only exit, to the south, leads back to refugee aid supply.\n\r",
+      "roomFlags": [
+        "indoors",
+        "safe"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 12006,
+          "description": "This portal lead back to the refugee aid supply office."
         }
       ]
     }

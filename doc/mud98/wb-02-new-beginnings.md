@@ -1,6 +1,6 @@
 # Worldcrafting from Scratch Pt. 2 &mdash; New Beginnings
 
-Previous: [Worldcrafting from Scratch Pt. 1 &mdash; Getting Started](wb-01-getting-started)
+Previous: [Worldcrafting from Scratch Pt. 1 &mdash; Getting Started](wb-01-getting-started.md)
 
 ### Table of Contents
 - [Worldcrafting from Scratch Pt. 2 — New Beginnings](#worldcrafting-from-scratch-pt-2--new-beginnings)
@@ -1706,6 +1706,6 @@ Your reputation with Tauremar increases (Friendly).
 
 With just those two quest types, we can do a lot of narrative world expansion. The task of completing this area, and of making other racial (or even class) starting areas is up to you.
 
-Next: [Worldcrafting from Scratch Pt. 3 &mdash; A Living World](wb-03-a-living-world)
+Next: [Worldcrafting from Scratch Pt. 3 &mdash; A Living World](wb-03-a-living-world.md)
 
-Home: [Documentation](index)
+Home: [Documentation](index.md)

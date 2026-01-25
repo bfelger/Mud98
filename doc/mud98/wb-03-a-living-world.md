@@ -1,6 +1,6 @@
 # Worldcrafting from Scratch Pt. 3 &mdash; A Living World
 
-Previous: [Worldcrafting from Scratch Pt. 2 &mdash; New Beginnings](wb-02-new-beginnings)
+Previous: [Worldcrafting from Scratch Pt. 2 &mdash; New Beginnings](wb-02-new-beginnings.md)
 
 ### Table of Contents
 
@@ -11,7 +11,7 @@ Previous: [Worldcrafting from Scratch Pt. 2 &mdash; New Beginnings](wb-02-new-be
 
 <br/>
 
-As of [part 1](wb-02-new-beginnings), you have everything you need to make a responsive, engaging world. But there is still a problem of _stasis_. It's a thing that only exists insofar as players interact with it, but is nothing apart from that interaction.
+As of [part 1](wb-02-new-beginnings.md), you have everything you need to make a responsive, engaging world. But there is still a problem of _stasis_. It's a thing that only exists insofar as players interact with it, but is nothing apart from that interaction.
 
 To fix that, we need to make the world dynamic and changing. Things _happen_, and those happenings have nothing to do with the players. They're walking into a world already in motion; a world that is _alive_.
 
