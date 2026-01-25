@@ -1,4 +1,5 @@
-import type { LootDataFile, LootGroup, LootTable } from "../../repository/types";
+import type { ColDef } from "ag-grid-community";
+import type { LootDataFile } from "../../repository/types";
 
 export type LootRow = {
   id: string;
@@ -7,6 +8,12 @@ export type LootRow = {
   name: string;
   details: string;
 };
+
+export const lootColumns: ColDef<LootRow>[] = [
+  { headerName: "Type", field: "kind", width: 110, sort: "asc" },
+  { headerName: "Name", field: "name", flex: 2, minWidth: 220 },
+  { headerName: "Details", field: "details", flex: 2, minWidth: 240 }
+];
 
 export const buildLootRows = (lootData: LootDataFile | null): LootRow[] => {
   if (!lootData) {

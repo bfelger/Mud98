@@ -68,81 +68,114 @@ import { ViewTabs } from "./components/ViewTabs";
 import { MapView } from "./components/MapView";
 import { ViewBody } from "./components/ViewBody";
 import {
+  defaultSkillLevel,
+  defaultSkillRating,
+  groupSkillCount,
+  raceSkillCount
+} from "./constants/globalDefaults";
+import {
   buildRoomRows,
   createRoom,
   deleteRoom,
-  roomColumns as roomColumnsDef,
-  type RoomRow
+  roomColumns as roomColumnsDef
 } from "./crud/area/roomsCrud";
 import {
   buildMobileRows,
   createMobile,
   deleteMobile,
-  mobileColumns as mobileColumnsDef,
-  type MobileRow
+  mobileColumns as mobileColumnsDef
 } from "./crud/area/mobilesCrud";
 import {
   buildObjectRows,
   createObject,
   deleteObject,
-  objectColumns as objectColumnsDef,
-  type ObjectRow
+  objectColumns as objectColumnsDef
 } from "./crud/area/objectsCrud";
 import {
   buildResetRows,
   createReset,
   deleteReset,
-  resetColumns as resetColumnsDef,
-  type ResetRow
+  resetColumns as resetColumnsDef
 } from "./crud/area/resetsCrud";
 import {
   buildShopRows,
   createShop,
   deleteShop,
-  shopColumns as shopColumnsDef,
-  type ShopRow
+  shopColumns as shopColumnsDef
 } from "./crud/area/shopsCrud";
 import {
   buildFactionRows,
   createFaction,
   deleteFaction,
-  factionColumns as factionColumnsDef,
-  type FactionRow
+  factionColumns as factionColumnsDef
 } from "./crud/area/factionsCrud";
 import {
   buildQuestRows,
   createQuest,
   deleteQuest,
-  questColumns as questColumnsDef,
-  type QuestRow
+  questColumns as questColumnsDef
 } from "./crud/area/questsCrud";
 import {
   buildRecipeRows,
   createRecipe,
   deleteRecipe,
-  recipeColumns as recipeColumnsDef,
-  type RecipeRow
+  recipeColumns as recipeColumnsDef
 } from "./crud/area/recipesCrud";
 import {
   buildGatherSpawnRows,
   createGatherSpawn,
   deleteGatherSpawn,
-  gatherSpawnColumns as gatherSpawnColumnsDef,
-  type GatherSpawnRow
+  gatherSpawnColumns as gatherSpawnColumnsDef
 } from "./crud/area/gatherSpawnsCrud";
 import {
   createAreaLoot,
   deleteAreaLoot,
   extractAreaLootData
 } from "./crud/area/areaLootCrud";
-import { buildLootRows, type LootRow } from "./crud/loot/lootRows";
+import { buildLootRows, lootColumns as lootColumnsDef } from "./crud/loot/lootRows";
 import {
   buildClassRows,
   classColumns as classColumnsDef,
   createClass,
-  deleteClass,
-  type ClassRow
+  deleteClass
 } from "./crud/global/classesCrud";
+import {
+  buildRaceRows,
+  createRace,
+  deleteRace,
+  raceColumns as raceColumnsDef
+} from "./crud/global/racesCrud";
+import {
+  buildSkillRows,
+  createSkill,
+  deleteSkill,
+  skillColumns as skillColumnsDef
+} from "./crud/global/skillsCrud";
+import {
+  buildGroupRows,
+  createGroup,
+  deleteGroup,
+  groupColumns as groupColumnsDef
+} from "./crud/global/groupsCrud";
+import {
+  buildCommandRows,
+  createCommand,
+  deleteCommand,
+  commandColumns as commandColumnsDef
+} from "./crud/global/commandsCrud";
+import {
+  buildSocialRows,
+  createSocial,
+  deleteSocial,
+  socialColumns as socialColumnsDef
+} from "./crud/global/socialsCrud";
+import {
+  buildTutorialRows,
+  createTutorial,
+  deleteTutorial,
+  tutorialColumns as tutorialColumnsDef
+} from "./crud/global/tutorialsCrud";
+import { createLoot, deleteLoot } from "./crud/global/lootCrud";
 import type { VnumOption } from "./components/VnumPicker";
 import type { EventBinding } from "./data/eventTypes";
 import type {
@@ -307,11 +340,7 @@ const primeStatOptions = ["str", "int", "wis", "dex", "con"] as const;
 const armorProfOptions = ["old_style", "cloth", "light", "medium", "heavy"] as const;
 const classTitleCount = 61;
 const classGuildCount = 2;
-const raceSkillCount = 5;
 const raceStatKeys = ["str", "int", "wis", "dex", "con"] as const;
-const defaultSkillLevel = 53;
-const defaultSkillRating = 0;
-const groupSkillCount = 15;
 const lootEntryTypeOptions = ["item", "cp"] as const;
 const lootOpTypeOptions = [
   "use_group",
@@ -450,57 +479,6 @@ type TabId = (typeof tabs)[number]["id"];
 type EntityKey = (typeof entityOrder)[number];
 type GlobalEntityKey = (typeof globalEntityOrder)[number];
 type EditorMode = "Area" | "Global";
-type RaceRow = {
-  index: number;
-  name: string;
-  whoName: string;
-  pc: string;
-  points: number;
-  size: string;
-  startLoc: number;
-};
-
-type SkillRow = {
-  index: number;
-  name: string;
-  target: string;
-  minPosition: string;
-  spell: string;
-  slot: number;
-};
-
-type GroupRow = {
-  index: number;
-  name: string;
-  ratingSummary: string;
-  skills: number;
-};
-
-type CommandRow = {
-  index: number;
-  name: string;
-  function: string;
-  position: string;
-  level: number;
-  log: string;
-  category: string;
-  loxFunction: string;
-};
-
-type SocialRow = {
-  index: number;
-  name: string;
-  noTarget: string;
-  target: string;
-  self: string;
-};
-
-type TutorialRow = {
-  index: number;
-  name: string;
-  minLevel: number;
-  steps: number;
-};
 
 type ExternalExit = {
   fromVnum: number;
@@ -3433,117 +3411,11 @@ function normalizeRaceSkills(value: string[] | undefined): string[] {
   });
 }
 
-function buildRaceRows(raceData: RaceDataFile | null): RaceRow[] {
-  if (!raceData) {
-    return [];
-  }
-  return raceData.races.map((race, index) => ({
-    index,
-    name: race.name ?? "(unnamed)",
-    whoName: race.whoName ?? "",
-    pc: race.pc ? "yes" : "no",
-    points: race.points ?? 0,
-    size: race.size ?? "medium",
-    startLoc: race.startLoc ?? 0
-  }));
-}
-
-function buildSkillRows(skillData: SkillDataFile | null): SkillRow[] {
-  if (!skillData) {
-    return [];
-  }
-  return skillData.skills.map((skill, index) => ({
-    index,
-    name: skill.name ?? "(unnamed)",
-    target: skill.target ?? "tar_ignore",
-    minPosition: skill.minPosition ?? "dead",
-    spell: skill.spell ?? "",
-    slot: skill.slot ?? 0
-  }));
-}
-
 function normalizeGroupSkills(value: string[] | undefined): string[] {
   return Array.from({ length: groupSkillCount }).map((_, index) => {
     const entry = value?.[index];
     return typeof entry === "string" ? entry : "";
   });
-}
-
-function buildGroupRows(groupData: GroupDataFile | null): GroupRow[] {
-  if (!groupData) {
-    return [];
-  }
-  return groupData.groups.map((group, index) => ({
-    index,
-    name: group.name ?? "(unnamed)",
-    ratingSummary: Array.isArray(group.ratings)
-      ? `${group.ratings.length} ratings`
-      : group.ratings
-        ? `${Object.keys(group.ratings).length} ratings`
-        : "default",
-    skills: group.skills?.length ?? 0
-  }));
-}
-
-function buildCommandRows(commandData: CommandDataFile | null): CommandRow[] {
-  if (!commandData) {
-    return [];
-  }
-  return commandData.commands.map((command, index) => ({
-    index,
-    name: command.name ?? "(unnamed)",
-    function: command.function ?? "do_nothing",
-    position: command.position ?? "dead",
-    level: command.level ?? 0,
-    log: command.log ?? "log_normal",
-    category: command.category ?? "undef",
-    loxFunction: command.loxFunction ?? ""
-  }));
-}
-
-function buildSocialRows(socialData: SocialDataFile | null): SocialRow[] {
-  if (!socialData) {
-    return [];
-  }
-  return socialData.socials.map((social, index) => {
-    const noTargetCount = [
-      social.charNoArg,
-      social.othersNoArg
-    ].filter((value) => typeof value === "string" && value.trim().length)
-      .length;
-    const targetCount = [
-      social.charFound,
-      social.othersFound,
-      social.victFound
-    ].filter((value) => typeof value === "string" && value.trim().length)
-      .length;
-    const selfCount = [
-      social.charAuto,
-      social.othersAuto
-    ].filter((value) => typeof value === "string" && value.trim().length)
-      .length;
-    return {
-      index,
-      name: social.name ?? "(unnamed)",
-      noTarget: `${noTargetCount}/2`,
-      target: `${targetCount}/3`,
-      self: `${selfCount}/2`
-    };
-  });
-}
-
-function buildTutorialRows(
-  tutorialData: TutorialDataFile | null
-): TutorialRow[] {
-  if (!tutorialData) {
-    return [];
-  }
-  return tutorialData.tutorials.map((tutorial, index) => ({
-    index,
-    name: tutorial.name ?? "(unnamed)",
-    minLevel: tutorial.minLevel ?? 0,
-    steps: tutorial.steps?.length ?? 0
-  }));
 }
 
 function titlesToText(titles: string[][] | undefined, column: 0 | 1): string {
@@ -7477,78 +7349,13 @@ export default function App({ repository }: AppProps) {
     return itemTypeBlockMap[key] ?? null;
   }, [objectFormDefaults.itemType, watchedObjectItemType]);
   const classColumns = classColumnsDef;
-  const raceColumns = useMemo<ColDef<RaceRow>[]>(
-    () => [
-      { headerName: "#", field: "index", width: 80, sort: "asc" },
-      { headerName: "Name", field: "name", flex: 2, minWidth: 200 },
-      { headerName: "Who", field: "whoName", width: 120 },
-      { headerName: "PC", field: "pc", width: 80 },
-      { headerName: "Points", field: "points", width: 110 },
-      { headerName: "Size", field: "size", width: 110 },
-      { headerName: "Start", field: "startLoc", width: 110 }
-    ],
-    []
-  );
-  const skillColumns = useMemo<ColDef<SkillRow>[]>(
-    () => [
-      { headerName: "#", field: "index", width: 80, sort: "asc" },
-      { headerName: "Name", field: "name", flex: 2, minWidth: 220 },
-      { headerName: "Target", field: "target", width: 150 },
-      { headerName: "Position", field: "minPosition", width: 140 },
-      { headerName: "Spell", field: "spell", flex: 1, minWidth: 160 },
-      { headerName: "Slot", field: "slot", width: 110 }
-    ],
-    []
-  );
-  const groupColumns = useMemo<ColDef<GroupRow>[]>(
-    () => [
-      { headerName: "#", field: "index", width: 80, sort: "asc" },
-      { headerName: "Name", field: "name", flex: 2, minWidth: 220 },
-      { headerName: "Ratings", field: "ratingSummary", width: 140 },
-      { headerName: "Skills", field: "skills", width: 110 }
-    ],
-    []
-  );
-  const commandColumns = useMemo<ColDef<CommandRow>[]>(
-    () => [
-      { headerName: "#", field: "index", width: 80, sort: "asc" },
-      { headerName: "Name", field: "name", flex: 1, minWidth: 180 },
-      { headerName: "Function", field: "function", flex: 1, minWidth: 180 },
-      { headerName: "Position", field: "position", width: 140 },
-      { headerName: "Level", field: "level", width: 110 },
-      { headerName: "Log", field: "log", width: 130 },
-      { headerName: "Category", field: "category", width: 140 },
-      { headerName: "Lox", field: "loxFunction", flex: 1, minWidth: 160 }
-    ],
-    []
-  );
-  const socialColumns = useMemo<ColDef<SocialRow>[]>(
-    () => [
-      { headerName: "#", field: "index", width: 80, sort: "asc" },
-      { headerName: "Name", field: "name", flex: 2, minWidth: 220 },
-      { headerName: "No Target", field: "noTarget", width: 120 },
-      { headerName: "Targeted", field: "target", width: 120 },
-      { headerName: "Self", field: "self", width: 100 }
-    ],
-    []
-  );
-  const tutorialColumns = useMemo<ColDef<TutorialRow>[]>(
-    () => [
-      { headerName: "#", field: "index", width: 80, sort: "asc" },
-      { headerName: "Name", field: "name", flex: 2, minWidth: 220 },
-      { headerName: "Min Level", field: "minLevel", width: 120 },
-      { headerName: "Steps", field: "steps", width: 110 }
-    ],
-    []
-  );
-  const lootColumns = useMemo<ColDef<LootRow>[]>(
-    () => [
-      { headerName: "Type", field: "kind", width: 110, sort: "asc" },
-      { headerName: "Name", field: "name", flex: 2, minWidth: 220 },
-      { headerName: "Details", field: "details", flex: 2, minWidth: 240 }
-    ],
-    []
-  );
+  const raceColumns = raceColumnsDef;
+  const skillColumns = skillColumnsDef;
+  const groupColumns = groupColumnsDef;
+  const commandColumns = commandColumnsDef;
+  const socialColumns = socialColumnsDef;
+  const tutorialColumns = tutorialColumnsDef;
+  const lootColumns = lootColumnsDef;
   const roomColumns = roomColumnsDef;
   const mobileColumns = mobileColumnsDef;
   const objectColumns = objectColumnsDef;
@@ -8177,64 +7984,16 @@ export default function App({ repository }: AppProps) {
   }, [classData, selectedClassIndex, setStatusMessage]);
 
   const handleCreateRace = useCallback(() => {
-    if (!raceData) {
-      setStatusMessage("Load races before creating races.");
+    const result = createRace(raceData, referenceData?.classes ?? []);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    const nextIndex = raceData.races.length;
-    const classNames = referenceData?.classes ?? [];
-    const classMult = Object.fromEntries(
-      classNames.map((name) => [name, 100])
-    );
-    const classStart = Object.fromEntries(
-      classNames.map((name) => [name, 0])
-    );
-    const newRace: RaceDefinition = {
-      name: `New Race ${nextIndex + 1}`,
-      whoName: "",
-      pc: false,
-      points: 0,
-      size: "",
-      startLoc: 0,
-      stats: {
-        str: 0,
-        int: 0,
-        wis: 0,
-        dex: 0,
-        con: 0
-      },
-      maxStats: {
-        str: 0,
-        int: 0,
-        wis: 0,
-        dex: 0,
-        con: 0
-      },
-      actFlags: [],
-      affectFlags: [],
-      offFlags: [],
-      immFlags: [],
-      resFlags: [],
-      vulnFlags: [],
-      formFlags: [],
-      partFlags: [],
-      classMult,
-      classStart,
-      skills: new Array(raceSkillCount).fill("")
-    };
-    setRaceData((current) => {
-      if (!current) {
-        return current;
-      }
-      return {
-        ...current,
-        races: [...current.races, newRace]
-      };
-    });
+    setRaceData(result.data.raceData);
     setSelectedGlobalEntity("Races");
-    setSelectedRaceIndex(nextIndex);
+    setSelectedRaceIndex(result.data.index);
     setActiveTab("Form");
-    setStatusMessage(`Created race ${newRace.name} (unsaved)`);
+    setStatusMessage(`Created race ${result.data.name} (unsaved)`);
   }, [
     raceData,
     referenceData,
@@ -8245,73 +8004,27 @@ export default function App({ repository }: AppProps) {
   ]);
 
   const handleDeleteRace = useCallback(() => {
-    if (!raceData) {
-      setStatusMessage("Load races before deleting races.");
+    const result = deleteRace(raceData, selectedRaceIndex);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    if (selectedRaceIndex === null) {
-      setStatusMessage("Select a race to delete.");
-      return;
-    }
-    const deletedName = raceData.races[selectedRaceIndex]?.name ?? "race";
-    setRaceData((current) => {
-      if (!current) {
-        return current;
-      }
-      const nextRaces = current.races.filter(
-        (_, index) => index !== selectedRaceIndex
-      );
-      return {
-        ...current,
-        races: nextRaces
-      };
-    });
+    setRaceData(result.data.raceData);
     setSelectedRaceIndex(null);
-    setStatusMessage(`Deleted ${deletedName} (unsaved)`);
+    setStatusMessage(`Deleted ${result.data.deletedName} (unsaved)`);
   }, [raceData, selectedRaceIndex, setStatusMessage]);
 
   const handleCreateSkill = useCallback(() => {
-    if (!skillData) {
-      setStatusMessage("Load skills before creating skills.");
+    const result = createSkill(skillData, referenceData?.classes ?? []);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    const nextIndex = skillData.skills.length;
-    const classNames = referenceData?.classes ?? [];
-    const levels = Object.fromEntries(
-      classNames.map((name) => [name, defaultSkillLevel])
-    );
-    const ratings = Object.fromEntries(
-      classNames.map((name) => [name, defaultSkillRating])
-    );
-    const newSkill: SkillDefinition = {
-      name: `New Skill ${nextIndex + 1}`,
-      levels,
-      ratings,
-      spell: "",
-      loxSpell: "",
-      target: "",
-      minPosition: "",
-      gsn: "",
-      slot: 0,
-      minMana: 0,
-      beats: 0,
-      nounDamage: "",
-      msgOff: "",
-      msgObj: ""
-    };
-    setSkillData((current) => {
-      if (!current) {
-        return current;
-      }
-      return {
-        ...current,
-        skills: [...current.skills, newSkill]
-      };
-    });
+    setSkillData(result.data.skillData);
     setSelectedGlobalEntity("Skills");
-    setSelectedSkillIndex(nextIndex);
+    setSelectedSkillIndex(result.data.index);
     setActiveTab("Form");
-    setStatusMessage(`Created skill ${newSkill.name} (unsaved)`);
+    setStatusMessage(`Created skill ${result.data.name} (unsaved)`);
   }, [
     skillData,
     referenceData,
@@ -8322,59 +8035,27 @@ export default function App({ repository }: AppProps) {
   ]);
 
   const handleDeleteSkill = useCallback(() => {
-    if (!skillData) {
-      setStatusMessage("Load skills before deleting skills.");
+    const result = deleteSkill(skillData, selectedSkillIndex);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    if (selectedSkillIndex === null) {
-      setStatusMessage("Select a skill to delete.");
-      return;
-    }
-    const deletedName = skillData.skills[selectedSkillIndex]?.name ?? "skill";
-    setSkillData((current) => {
-      if (!current) {
-        return current;
-      }
-      const nextSkills = current.skills.filter(
-        (_, index) => index !== selectedSkillIndex
-      );
-      return {
-        ...current,
-        skills: nextSkills
-      };
-    });
+    setSkillData(result.data.skillData);
     setSelectedSkillIndex(null);
-    setStatusMessage(`Deleted ${deletedName} (unsaved)`);
+    setStatusMessage(`Deleted ${result.data.deletedName} (unsaved)`);
   }, [skillData, selectedSkillIndex, setStatusMessage]);
 
   const handleCreateGroup = useCallback(() => {
-    if (!groupData) {
-      setStatusMessage("Load groups before creating groups.");
+    const result = createGroup(groupData, referenceData?.classes ?? []);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    const nextIndex = groupData.groups.length;
-    const classNames = referenceData?.classes ?? [];
-    const ratings = Object.fromEntries(
-      classNames.map((name) => [name, defaultSkillRating])
-    );
-    const newGroup: GroupDefinition = {
-      name: `New Group ${nextIndex + 1}`,
-      ratings,
-      skills: new Array(groupSkillCount).fill("")
-    };
-    setGroupData((current) => {
-      if (!current) {
-        return current;
-      }
-      return {
-        ...current,
-        groups: [...current.groups, newGroup]
-      };
-    });
+    setGroupData(result.data.groupData);
     setSelectedGlobalEntity("Groups");
-    setSelectedGroupIndex(nextIndex);
+    setSelectedGroupIndex(result.data.index);
     setActiveTab("Form");
-    setStatusMessage(`Created group ${newGroup.name} (unsaved)`);
+    setStatusMessage(`Created group ${result.data.name} (unsaved)`);
   }, [
     groupData,
     referenceData,
@@ -8385,59 +8066,27 @@ export default function App({ repository }: AppProps) {
   ]);
 
   const handleDeleteGroup = useCallback(() => {
-    if (!groupData) {
-      setStatusMessage("Load groups before deleting groups.");
+    const result = deleteGroup(groupData, selectedGroupIndex);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    if (selectedGroupIndex === null) {
-      setStatusMessage("Select a group to delete.");
-      return;
-    }
-    const deletedName = groupData.groups[selectedGroupIndex]?.name ?? "group";
-    setGroupData((current) => {
-      if (!current) {
-        return current;
-      }
-      const nextGroups = current.groups.filter(
-        (_, index) => index !== selectedGroupIndex
-      );
-      return {
-        ...current,
-        groups: nextGroups
-      };
-    });
+    setGroupData(result.data.groupData);
     setSelectedGroupIndex(null);
-    setStatusMessage(`Deleted ${deletedName} (unsaved)`);
+    setStatusMessage(`Deleted ${result.data.deletedName} (unsaved)`);
   }, [groupData, selectedGroupIndex, setStatusMessage]);
 
   const handleCreateCommand = useCallback(() => {
-    if (!commandData) {
-      setStatusMessage("Load commands before creating commands.");
+    const result = createCommand(commandData);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    const nextIndex = commandData.commands.length;
-    const newCommand: CommandDefinition = {
-      name: `newcommand${nextIndex + 1}`,
-      function: "",
-      position: "",
-      level: 0,
-      log: "",
-      category: "",
-      loxFunction: ""
-    };
-    setCommandData((current) => {
-      if (!current) {
-        return current;
-      }
-      return {
-        ...current,
-        commands: [...current.commands, newCommand]
-      };
-    });
+    setCommandData(result.data.commandData);
     setSelectedGlobalEntity("Commands");
-    setSelectedCommandIndex(nextIndex);
+    setSelectedCommandIndex(result.data.index);
     setActiveTab("Form");
-    setStatusMessage(`Created command ${newCommand.name} (unsaved)`);
+    setStatusMessage(`Created command ${result.data.name} (unsaved)`);
   }, [
     commandData,
     setStatusMessage,
@@ -8447,61 +8096,27 @@ export default function App({ repository }: AppProps) {
   ]);
 
   const handleDeleteCommand = useCallback(() => {
-    if (!commandData) {
-      setStatusMessage("Load commands before deleting commands.");
+    const result = deleteCommand(commandData, selectedCommandIndex);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    if (selectedCommandIndex === null) {
-      setStatusMessage("Select a command to delete.");
-      return;
-    }
-    const deletedName =
-      commandData.commands[selectedCommandIndex]?.name ?? "command";
-    setCommandData((current) => {
-      if (!current) {
-        return current;
-      }
-      const nextCommands = current.commands.filter(
-        (_, index) => index !== selectedCommandIndex
-      );
-      return {
-        ...current,
-        commands: nextCommands
-      };
-    });
+    setCommandData(result.data.commandData);
     setSelectedCommandIndex(null);
-    setStatusMessage(`Deleted ${deletedName} (unsaved)`);
+    setStatusMessage(`Deleted ${result.data.deletedName} (unsaved)`);
   }, [commandData, selectedCommandIndex, setStatusMessage]);
 
   const handleCreateSocial = useCallback(() => {
-    if (!socialData) {
-      setStatusMessage("Load socials before creating socials.");
+    const result = createSocial(socialData);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    const nextIndex = socialData.socials.length;
-    const newSocial: SocialDefinition = {
-      name: `newsocial${nextIndex + 1}`,
-      charNoArg: "",
-      othersNoArg: "",
-      charFound: "",
-      othersFound: "",
-      victFound: "",
-      charAuto: "",
-      othersAuto: ""
-    };
-    setSocialData((current) => {
-      if (!current) {
-        return current;
-      }
-      return {
-        ...current,
-        socials: [...current.socials, newSocial]
-      };
-    });
+    setSocialData(result.data.socialData);
     setSelectedGlobalEntity("Socials");
-    setSelectedSocialIndex(nextIndex);
+    setSelectedSocialIndex(result.data.index);
     setActiveTab("Form");
-    setStatusMessage(`Created social ${newSocial.name} (unsaved)`);
+    setStatusMessage(`Created social ${result.data.name} (unsaved)`);
   }, [
     socialData,
     setStatusMessage,
@@ -8511,57 +8126,27 @@ export default function App({ repository }: AppProps) {
   ]);
 
   const handleDeleteSocial = useCallback(() => {
-    if (!socialData) {
-      setStatusMessage("Load socials before deleting socials.");
+    const result = deleteSocial(socialData, selectedSocialIndex);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    if (selectedSocialIndex === null) {
-      setStatusMessage("Select a social to delete.");
-      return;
-    }
-    const deletedName = socialData.socials[selectedSocialIndex]?.name ?? "social";
-    setSocialData((current) => {
-      if (!current) {
-        return current;
-      }
-      const nextSocials = current.socials.filter(
-        (_, index) => index !== selectedSocialIndex
-      );
-      return {
-        ...current,
-        socials: nextSocials
-      };
-    });
+    setSocialData(result.data.socialData);
     setSelectedSocialIndex(null);
-    setStatusMessage(`Deleted ${deletedName} (unsaved)`);
+    setStatusMessage(`Deleted ${result.data.deletedName} (unsaved)`);
   }, [socialData, selectedSocialIndex, setStatusMessage]);
 
   const handleCreateTutorial = useCallback(() => {
-    if (!tutorialData) {
-      setStatusMessage("Load tutorials before creating tutorials.");
+    const result = createTutorial(tutorialData);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    const nextIndex = tutorialData.tutorials.length;
-    const newTutorial: TutorialDefinition = {
-      name: `New Tutorial ${nextIndex + 1}`,
-      blurb: "",
-      finish: "",
-      minLevel: 0,
-      steps: []
-    };
-    setTutorialData((current) => {
-      if (!current) {
-        return current;
-      }
-      return {
-        ...current,
-        tutorials: [...current.tutorials, newTutorial]
-      };
-    });
+    setTutorialData(result.data.tutorialData);
     setSelectedGlobalEntity("Tutorials");
-    setSelectedTutorialIndex(nextIndex);
+    setSelectedTutorialIndex(result.data.index);
     setActiveTab("Form");
-    setStatusMessage(`Created tutorial ${newTutorial.name} (unsaved)`);
+    setStatusMessage(`Created tutorial ${result.data.name} (unsaved)`);
   }, [
     tutorialData,
     setStatusMessage,
@@ -8571,70 +8156,30 @@ export default function App({ repository }: AppProps) {
   ]);
 
   const handleDeleteTutorial = useCallback(() => {
-    if (!tutorialData) {
-      setStatusMessage("Load tutorials before deleting tutorials.");
+    const result = deleteTutorial(tutorialData, selectedTutorialIndex);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    if (selectedTutorialIndex === null) {
-      setStatusMessage("Select a tutorial to delete.");
-      return;
-    }
-    const deletedName =
-      tutorialData.tutorials[selectedTutorialIndex]?.name ?? "tutorial";
-    setTutorialData((current) => {
-      if (!current) {
-        return current;
-      }
-      const nextTutorials = current.tutorials.filter(
-        (_, index) => index !== selectedTutorialIndex
-      );
-      return {
-        ...current,
-        tutorials: nextTutorials
-      };
-    });
+    setTutorialData(result.data.tutorialData);
     setSelectedTutorialIndex(null);
-    setStatusMessage(`Deleted ${deletedName} (unsaved)`);
+    setStatusMessage(`Deleted ${result.data.deletedName} (unsaved)`);
   }, [tutorialData, selectedTutorialIndex, setStatusMessage]);
 
   const handleCreateLoot = useCallback((kind: "group" | "table") => {
-    if (!lootData) {
-      setStatusMessage("Load loot before creating loot entries.");
+    const result = createLoot(lootData, kind);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    const nextGroups = [...lootData.groups];
-    const nextTables = [...lootData.tables];
-    let nextIndex = 0;
-    if (kind === "group") {
-      nextGroups.push({
-        name: "New Loot Group",
-        rolls: 1,
-        entries: []
-      });
-      nextIndex = nextGroups.length - 1;
-    } else {
-      nextTables.push({
-        name: "New Loot Table",
-        parent: "",
-        ops: []
-      });
-      nextIndex = nextTables.length - 1;
-    }
-    setLootData((current) => {
-      if (!current) {
-        return current;
-      }
-      return {
-        ...current,
-        groups: nextGroups,
-        tables: nextTables
-      };
-    });
+    setLootData(result.data.lootData);
     setSelectedGlobalEntity("Loot");
-    setSelectedLootKind(kind);
-    setSelectedLootIndex(nextIndex);
+    setSelectedLootKind(result.data.kind);
+    setSelectedLootIndex(result.data.index);
     setActiveTab("Form");
-    setStatusMessage(`Created loot ${kind} ${nextIndex} (unsaved)`);
+    setStatusMessage(
+      `Created loot ${result.data.kind} ${result.data.index} (unsaved)`
+    );
   }, [
     lootData,
     setStatusMessage,
@@ -8645,35 +8190,16 @@ export default function App({ repository }: AppProps) {
   ]);
 
   const handleDeleteLoot = useCallback(() => {
-    if (!lootData) {
-      setStatusMessage("Load loot before deleting loot entries.");
+    const result = deleteLoot(lootData, selectedLootKind, selectedLootIndex);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    if (selectedLootKind === null || selectedLootIndex === null) {
-      setStatusMessage("Select a loot entry to delete.");
-      return;
-    }
-    const nextGroups = [...lootData.groups];
-    const nextTables = [...lootData.tables];
-    if (selectedLootKind === "group") {
-      nextGroups.splice(selectedLootIndex, 1);
-    } else {
-      nextTables.splice(selectedLootIndex, 1);
-    }
-    setLootData((current) => {
-      if (!current) {
-        return current;
-      }
-      return {
-        ...current,
-        groups: nextGroups,
-        tables: nextTables
-      };
-    });
+    setLootData(result.data.lootData);
     setSelectedLootKind(null);
     setSelectedLootIndex(null);
     setStatusMessage(
-      `Deleted loot ${selectedLootKind} ${selectedLootIndex} (unsaved)`
+      `Deleted loot ${result.data.kind} ${result.data.index} (unsaved)`
     );
   }, [lootData, selectedLootKind, selectedLootIndex, setStatusMessage]);
 
