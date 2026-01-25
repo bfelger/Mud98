@@ -110,6 +110,13 @@ import {
   type FactionRow
 } from "./crud/area/factionsCrud";
 import {
+  buildQuestRows,
+  createQuest,
+  deleteQuest,
+  questColumns as questColumnsDef,
+  type QuestRow
+} from "./crud/area/questsCrud";
+import {
   buildClassRows,
   classColumns as classColumnsDef,
   createClass,
@@ -497,15 +504,6 @@ type GatherSpawnRow = {
   sector: string;
   quantity: number;
   respawnTimer: number;
-};
-
-type QuestRow = {
-  vnum: number;
-  name: string;
-  type: string;
-  level: number;
-  target: string;
-  rewards: string;
 };
 
 type ExternalExit = {
@@ -3377,39 +3375,6 @@ function buildExternalExits(
       return a.fromVnum - b.fromVnum;
     }
     return a.direction.localeCompare(b.direction);
-  });
-}
-
-function buildQuestRows(areaData: AreaJson | null): QuestRow[] {
-  if (!areaData) {
-    return [];
-  }
-  const quests = getEntityList(areaData, "Quests");
-  if (!quests.length) {
-    return [];
-  }
-  return quests.map((quest) => {
-    const record = quest as Record<string, unknown>;
-    const vnum = parseVnum(record.vnum) ?? -1;
-    const name = getFirstString(record.name, "(unnamed quest)");
-    const type = getFirstString(record.type, "—");
-    const level = parseVnum(record.level) ?? 0;
-    const target = parseVnum(record.target);
-    const end = parseVnum(record.end);
-    const targetLabel =
-      target !== null && end !== null ? `${target} -> ${end}` : "—";
-    const rewardGold = parseVnum(record.rewardGold) ?? 0;
-    const rewardSilver = parseVnum(record.rewardSilver) ?? 0;
-    const rewardCopper = parseVnum(record.rewardCopper) ?? 0;
-    const rewards = `G:${rewardGold} S:${rewardSilver} C:${rewardCopper}`;
-    return {
-      vnum,
-      name,
-      type,
-      level,
-      target: targetLabel,
-      rewards
-    };
   });
 }
 
@@ -7688,17 +7653,7 @@ export default function App({ repository }: AppProps) {
   const objectColumns = objectColumnsDef;
   const resetColumns = resetColumnsDef;
   const shopColumns = shopColumnsDef;
-  const questColumns = useMemo<ColDef<QuestRow>[]>(
-    () => [
-      { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
-      { headerName: "Name", field: "name", flex: 2, minWidth: 200 },
-      { headerName: "Type", field: "type", flex: 1, minWidth: 140 },
-      { headerName: "Level", field: "level", width: 110 },
-      { headerName: "Target", field: "target", flex: 1, minWidth: 160 },
-      { headerName: "Rewards", field: "rewards", flex: 1, minWidth: 160 }
-    ],
-    []
-  );
+  const questColumns = questColumnsDef;
   const factionColumns = factionColumnsDef;
   const recipeColumns = useMemo<ColDef<RecipeRow>[]>(
     () => [
@@ -8143,42 +8098,16 @@ export default function App({ repository }: AppProps) {
   }, [areaData, selectedShopKeeper, setStatusMessage]);
 
   const handleCreateQuest = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before creating quests.");
+    const result = createQuest(areaData);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    const nextVnum = getNextEntityVnum(areaData, "Quests");
-    if (nextVnum === null) {
-      setStatusMessage("No available quest VNUMs in the area range.");
-      return;
-    }
-    const newQuest: Record<string, unknown> = {
-      vnum: nextVnum,
-      name: "New Quest",
-      entry: "",
-      type: "",
-      xp: 0,
-      level: 1,
-      rewardObjs: [0, 0, 0],
-      rewardCounts: [0, 0, 0]
-    };
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const quests = Array.isArray((current as Record<string, unknown>).quests)
-        ? [...((current as Record<string, unknown>).quests as unknown[])]
-        : [];
-      quests.push(newQuest);
-      return {
-        ...current,
-        quests
-      };
-    });
+    setAreaData(result.data.areaData);
     setSelectedEntity("Quests");
-    setSelectedQuestVnum(nextVnum);
+    setSelectedQuestVnum(result.data.vnum);
     setActiveTab("Form");
-    setStatusMessage(`Created quest ${nextVnum} (unsaved)`);
+    setStatusMessage(`Created quest ${result.data.vnum} (unsaved)`);
   }, [
     areaData,
     setStatusMessage,
@@ -8188,35 +8117,14 @@ export default function App({ repository }: AppProps) {
   ]);
 
   const handleDeleteQuest = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before deleting quests.");
+    const result = deleteQuest(areaData, selectedQuestVnum);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    if (selectedQuestVnum === null) {
-      setStatusMessage("Select a quest to delete.");
-      return;
-    }
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const quests = Array.isArray((current as Record<string, unknown>).quests)
-        ? ((current as Record<string, unknown>).quests as unknown[])
-        : [];
-      const nextQuests = quests.filter((quest) => {
-        if (!quest || typeof quest !== "object") {
-          return true;
-        }
-        const vnum = parseVnum((quest as Record<string, unknown>).vnum);
-        return vnum !== selectedQuestVnum;
-      });
-      return {
-        ...current,
-        quests: nextQuests
-      };
-    });
+    setAreaData(result.data.areaData);
     setSelectedQuestVnum(null);
-    setStatusMessage(`Deleted quest ${selectedQuestVnum} (unsaved)`);
+    setStatusMessage(`Deleted quest ${result.data.deletedVnum} (unsaved)`);
   }, [areaData, selectedQuestVnum, setStatusMessage]);
 
   const handleCreateFaction = useCallback(() => {
