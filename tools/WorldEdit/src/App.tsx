@@ -194,6 +194,12 @@ import {
   type RoomLayoutMap,
   type RoomNodeData
 } from "./map/roomNodes";
+import {
+  applyAreaLayoutOverrides,
+  extractAreaLayout,
+  type AreaLayoutMap,
+  type AreaGraphNodeData
+} from "./map/areaNodes";
 import type { VnumOption } from "./components/VnumPicker";
 import type { EventBinding } from "./data/eventTypes";
 import type {
@@ -204,7 +210,6 @@ import type {
   ClassDefinition,
   CommandDataFile,
   CommandDefinition,
-  AreaLayoutEntry,
   EditorLayout,
   EditorMeta,
   GroupDataFile,
@@ -495,21 +500,10 @@ type ExternalExit = {
   areaName: string | null;
 };
 
-type AreaLayoutMap = Record<string, AreaLayoutEntry>;
-
 type AreaGraphEntry = {
   id: string;
   name: string;
   vnumRange: [number, number] | null;
-};
-
-type AreaGraphNodeData = {
-  label: string;
-  range: string;
-  isCurrent?: boolean;
-  isMatch?: boolean;
-  locked?: boolean;
-  dirty?: boolean;
 };
 
 type ExitValidationResult = {
@@ -2789,67 +2783,6 @@ function buildAreaDebugSummary(areaData: AreaJson | null): {
     })
     .filter((entry): entry is { key: string; count: number } => entry !== null);
   return { keys, arrayCounts };
-}
-
-function extractAreaLayout(layout: EditorLayout | null | undefined): AreaLayoutMap {
-  const areas =
-    layout && typeof layout === "object" && "areas" in layout
-      ? layout.areas
-      : undefined;
-  if (!areas || typeof areas !== "object") {
-    return {};
-  }
-  const entries: AreaLayoutMap = {};
-  Object.entries(areas).forEach(([key, value]) => {
-    if (!value || typeof value !== "object") {
-      return;
-    }
-    const record = value as Record<string, unknown>;
-    const x = record.x;
-    const y = record.y;
-    if (typeof x !== "number" || typeof y !== "number") {
-      return;
-    }
-    if (!Number.isFinite(x) || !Number.isFinite(y)) {
-      return;
-    }
-    if (!record.locked) {
-      return;
-    }
-    entries[key] = {
-      x,
-      y,
-      locked: true
-    };
-  });
-  return entries;
-}
-
-function applyAreaLayoutOverrides(
-  nodes: Node<AreaGraphNodeData>[],
-  layout: AreaLayoutMap,
-  dirtyNodes: Set<string>
-): Node<AreaGraphNodeData>[] {
-  return nodes.map((node) => {
-    const override = layout[node.id];
-    const isLocked = override?.locked === true;
-    const isDirty = dirtyNodes.has(node.id);
-    return {
-      ...node,
-      position: isLocked
-        ? {
-            x: override.x,
-            y: override.y
-          }
-        : node.position,
-      draggable: !isLocked,
-      data: {
-        ...node.data,
-        locked: isLocked,
-        dirty: isDirty
-      }
-    };
-  });
 }
 
 function getDominantExitDirection(
