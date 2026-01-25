@@ -131,6 +131,12 @@ import {
   type GatherSpawnRow
 } from "./crud/area/gatherSpawnsCrud";
 import {
+  createAreaLoot,
+  deleteAreaLoot,
+  extractAreaLootData
+} from "./crud/area/areaLootCrud";
+import { buildLootRows, type LootRow } from "./crud/loot/lootRows";
+import {
   buildClassRows,
   classColumns as classColumnsDef,
   createClass,
@@ -494,14 +500,6 @@ type TutorialRow = {
   name: string;
   minLevel: number;
   steps: number;
-};
-
-type LootRow = {
-  id: string;
-  kind: "group" | "table";
-  index: number;
-  name: string;
-  details: string;
 };
 
 type ExternalExit = {
@@ -3546,57 +3544,6 @@ function buildTutorialRows(
     minLevel: tutorial.minLevel ?? 0,
     steps: tutorial.steps?.length ?? 0
   }));
-}
-
-function buildLootRows(lootData: LootDataFile | null): LootRow[] {
-  if (!lootData) {
-    return [];
-  }
-  const rows: LootRow[] = [];
-  lootData.groups.forEach((group, index) => {
-    rows.push({
-      id: `group:${index}`,
-      kind: "group",
-      index,
-      name: group.name ?? "(unnamed group)",
-      details: `rolls ${group.rolls ?? 1} · entries ${
-        group.entries?.length ?? 0
-      }`
-    });
-  });
-  lootData.tables.forEach((table, index) => {
-    const parent = table.parent ? `parent ${table.parent}` : "no parent";
-    rows.push({
-      id: `table:${index}`,
-      kind: "table",
-      index,
-      name: table.name ?? "(unnamed table)",
-      details: `${parent} · ops ${table.ops?.length ?? 0}`
-    });
-  });
-  return rows;
-}
-
-function extractAreaLootData(areaData: AreaJson | null): LootDataFile | null {
-  if (!areaData) {
-    return null;
-  }
-  const loot = (areaData as Record<string, unknown>).loot;
-  if (!loot || typeof loot !== "object") {
-    return null;
-  }
-  const record = loot as Record<string, unknown>;
-  const groups = Array.isArray(record.groups)
-    ? (record.groups as LootGroup[])
-    : [];
-  const tables = Array.isArray(record.tables)
-    ? (record.tables as LootTable[])
-    : [];
-  return {
-    formatVersion: 1,
-    groups,
-    tables
-  };
 }
 
 function titlesToText(titles: string[][] | undefined, column: 0 | 1): string {
@@ -8094,48 +8041,18 @@ export default function App({ repository }: AppProps) {
   }, [areaData, selectedFactionVnum, setStatusMessage]);
 
   const handleCreateAreaLoot = useCallback((kind: "group" | "table") => {
-    if (!areaData) {
-      setStatusMessage("Load an area before creating loot.");
+    const result = createAreaLoot(areaData, kind);
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    const currentLoot = extractAreaLootData(areaData);
-    const nextGroups = currentLoot ? [...currentLoot.groups] : [];
-    const nextTables = currentLoot ? [...currentLoot.tables] : [];
-    let nextIndex = 0;
-    if (kind === "group") {
-      nextGroups.push({
-        name: "New Loot Group",
-        rolls: 1,
-        entries: [],
-        ops: []
-      });
-      nextIndex = nextGroups.length - 1;
-    } else {
-      nextTables.push({
-        name: "New Loot Table",
-        parent: "",
-        ops: []
-      });
-      nextIndex = nextTables.length - 1;
-    }
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      return {
-        ...(current as Record<string, unknown>),
-        loot: {
-          groups: nextGroups,
-          tables: nextTables
-        }
-      };
-    });
+    setAreaData(result.data.areaData);
     setSelectedEntity("Loot");
-    setSelectedAreaLootKind(kind);
-    setSelectedAreaLootIndex(nextIndex);
+    setSelectedAreaLootKind(result.data.kind);
+    setSelectedAreaLootIndex(result.data.index);
     setActiveTab("Form");
     setStatusMessage(
-      `Created loot ${kind} ${nextIndex} (unsaved)`
+      `Created loot ${result.data.kind} ${result.data.index} (unsaved)`
     );
   }, [
     areaData,
@@ -8147,42 +8064,20 @@ export default function App({ repository }: AppProps) {
   ]);
 
   const handleDeleteAreaLoot = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before deleting loot.");
+    const result = deleteAreaLoot(
+      areaData,
+      selectedAreaLootKind,
+      selectedAreaLootIndex
+    );
+    if (!result.ok) {
+      setStatusMessage(result.message);
       return;
     }
-    if (selectedAreaLootKind === null || selectedAreaLootIndex === null) {
-      setStatusMessage("Select a loot entry to delete.");
-      return;
-    }
-    const currentLoot = extractAreaLootData(areaData);
-    if (!currentLoot) {
-      setStatusMessage("No loot data loaded.");
-      return;
-    }
-    const nextGroups = [...currentLoot.groups];
-    const nextTables = [...currentLoot.tables];
-    if (selectedAreaLootKind === "group") {
-      nextGroups.splice(selectedAreaLootIndex, 1);
-    } else {
-      nextTables.splice(selectedAreaLootIndex, 1);
-    }
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      return {
-        ...(current as Record<string, unknown>),
-        loot: {
-          groups: nextGroups,
-          tables: nextTables
-        }
-      };
-    });
+    setAreaData(result.data.areaData);
     setSelectedAreaLootKind(null);
     setSelectedAreaLootIndex(null);
     setStatusMessage(
-      `Deleted loot ${selectedAreaLootKind} ${selectedAreaLootIndex} (unsaved)`
+      `Deleted loot ${result.data.kind} ${result.data.index} (unsaved)`
     );
   }, [
     areaData,
