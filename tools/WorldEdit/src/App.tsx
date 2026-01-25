@@ -186,6 +186,7 @@ import {
   normalizeRaceStats,
   titlesToText
 } from "./utils/globalNormalizers";
+import { digRoom, linkRooms } from "./map/roomOps";
 import type { VnumOption } from "./components/VnumPicker";
 import type { EventBinding } from "./data/eventTypes";
 import type {
@@ -445,14 +446,6 @@ const areaDirectionHandleMap: Record<string, { source: string; target: string }>
     up: { source: "north-out", target: "south-in" },
     down: { source: "south-out", target: "north-in" }
   };
-const oppositeDirectionMap: Record<string, string> = {
-  north: "south",
-  east: "west",
-  south: "north",
-  west: "east",
-  up: "down",
-  down: "up"
-};
 const externalSourceHandles: Record<string, string> = {
   up: "north-out",
   down: "south-out"
@@ -1560,20 +1553,6 @@ function getFirstEntityVnum(areaData: AreaJson, entity: EntityKey): number | nul
 
 function getFirstString(value: unknown, fallback: string): string {
   return typeof value === "string" && value.trim().length ? value : fallback;
-}
-
-function normalizeDirectionKey(value: unknown): string {
-  return typeof value === "string" ? value.trim().toLowerCase() : "";
-}
-
-function hasExitDirection(exits: unknown[], dirKey: string): boolean {
-  return exits.some((exit) => {
-    if (!exit || typeof exit !== "object") {
-      return false;
-    }
-    const exitRecord = exit as Record<string, unknown>;
-    return normalizeDirectionKey(exitRecord.dir) === dirKey;
-  });
 }
 
 function RoomNode({ data, selected }: NodeProps<RoomNodeData>) {
@@ -8135,138 +8114,58 @@ export default function App({ repository }: AppProps) {
 
   const handleDigRoom = useCallback(
     (fromVnum: number, direction: string) => {
-      if (!areaData) {
-        setStatusMessage("Load an area before digging rooms.");
-        return;
-      }
-      const dirKey = normalizeDirectionKey(direction);
-      const backDir = oppositeDirectionMap[dirKey];
-      if (!backDir) {
-        setStatusMessage(`Unknown direction: ${direction}`);
-        return;
-      }
-      const rooms = getEntityList(areaData, "Rooms");
-      const source = findByVnum(rooms, fromVnum);
-      if (!source) {
-        setStatusMessage(`Room ${fromVnum} not found.`);
-        return;
-      }
-      const sourceExits = Array.isArray(source.exits) ? source.exits : [];
-      if (hasExitDirection(sourceExits, dirKey)) {
-        setStatusMessage(
-          `Room ${fromVnum} already has a ${dirKey} exit.`
-        );
-        return;
-      }
-      const nextVnum = getNextEntityVnum(areaData, "Rooms");
-      if (nextVnum === null) {
-        setStatusMessage("No available room VNUMs in the area range.");
-        return;
-      }
-      const areadata = (areaData as Record<string, unknown>).areadata;
-      const areaSector =
-        areadata && typeof areadata === "object"
-          ? (areadata as Record<string, unknown>).sector
-          : null;
-      const sectorType =
-        typeof areaSector === "string" && areaSector.trim().length
-          ? areaSector
-          : "inside";
-      const newRoom: Record<string, unknown> = {
-        vnum: nextVnum,
-        name: "New Room",
-        description: "An unfinished room.\n\r",
-        sectorType,
-        roomFlags: [],
-        exits: [{ dir: backDir, toVnum: fromVnum }]
-      };
-      const nextSourceExits = [...sourceExits, { dir: dirKey, toVnum: nextVnum }];
-      setAreaData((current) => {
-        if (!current) {
-          return current;
-        }
-        const currentRooms = Array.isArray(
-          (current as Record<string, unknown>).rooms
-        )
-          ? [...((current as Record<string, unknown>).rooms as unknown[])]
-          : [];
-        const nextRooms = currentRooms.map((room) => {
-          if (!room || typeof room !== "object") {
-            return room;
-          }
-          const record = room as Record<string, unknown>;
-          const vnum = parseVnum(record.vnum);
-          if (vnum !== fromVnum) {
-            return record;
-          }
-          return {
-            ...record,
-            exits: nextSourceExits
-          };
-        });
-        nextRooms.push(newRoom);
-        return {
-          ...current,
-          rooms: nextRooms
-        };
+      const sourceNode =
+        roomNodesWithLayoutRef.current.find(
+          (node) => node.data.vnum === fromVnum
+        ) ?? null;
+      const result = digRoom({
+        areaData,
+        fromVnum,
+        direction,
+        autoLayoutEnabled,
+        roomNodeSize,
+        sourceNodePosition: sourceNode ? sourceNode.position : null,
+        parseVnum,
+        getEntityList,
+        findByVnum,
+        getNextEntityVnum
       });
-      if (!autoLayoutEnabled) {
-        const stepX = roomNodeSize.width + 110;
-        const stepY = roomNodeSize.height + 110;
-        const sourceNode =
-          roomNodesWithLayoutRef.current.find(
-            (node) => node.data.vnum === fromVnum
-          ) ?? null;
-        if (sourceNode) {
-          const offset =
-            dirKey === "north" || dirKey === "up"
-              ? { x: 0, y: -stepY }
-              : dirKey === "south" || dirKey === "down"
-                ? { x: 0, y: stepY }
-                : dirKey === "east"
-                  ? { x: stepX, y: 0 }
-                  : dirKey === "west"
-                    ? { x: -stepX, y: 0 }
-                    : { x: 0, y: 0 };
-          setLayoutNodes((current) => {
-            const sourceList =
-              current.length ? current : roomNodesWithLayoutRef.current;
-            return [
-              ...sourceList,
-              {
-                id: String(nextVnum),
-                type: "room",
-                position: {
-                  x: sourceNode.position.x + offset.x,
-                  y: sourceNode.position.y + offset.y
-                },
-                data: {
-                  vnum: nextVnum,
-                  label: "New Room",
-                  sector: sectorType,
-                  upExitTargets: dirKey === "down" ? [fromVnum] : [],
-                  downExitTargets: dirKey === "up" ? [fromVnum] : []
-                }
-              }
-            ];
-          });
-          setDirtyRoomNodes((current) => {
-            const next = new Set(current);
-            next.add(String(nextVnum));
-            return next;
-          });
-        }
+      if (!result.ok) {
+        setStatusMessage(result.message);
+        return;
       }
-      setSelectedRoomVnum(nextVnum);
+      setAreaData(result.areaData);
+      if (result.layoutNode) {
+        setLayoutNodes((current) => {
+          const sourceList =
+            current.length ? current : roomNodesWithLayoutRef.current;
+          return [...sourceList, result.layoutNode];
+        });
+        setDirtyRoomNodes((current) => {
+          const next = new Set(current);
+          next.add(result.layoutNode.id);
+          return next;
+        });
+      }
+      setSelectedRoomVnum(result.nextVnum);
       setSelectedEntity("Rooms");
-      setStatusMessage(`Dug ${dirKey} to room ${nextVnum} (unsaved)`);
+      setStatusMessage(result.message);
     },
     [
       areaData,
       autoLayoutEnabled,
+      roomNodeSize,
+      parseVnum,
+      getEntityList,
+      findByVnum,
+      getNextEntityVnum,
+      setAreaData,
+      setLayoutNodes,
+      setDirtyRoomNodes,
       setSelectedEntity,
       setSelectedRoomVnum,
-      setStatusMessage
+      setStatusMessage,
+      digRoom
     ]
   );
 
@@ -8274,97 +8173,40 @@ export default function App({ repository }: AppProps) {
     if (!roomLinkPanel) {
       return;
     }
-    if (!areaData) {
-      setStatusMessage("Load an area before linking rooms.");
-      return;
-    }
-    const dirKey = normalizeDirectionKey(roomLinkDirection);
-    const backDir = oppositeDirectionMap[dirKey];
-    if (!backDir) {
-      setStatusMessage(`Unknown direction: ${roomLinkDirection}`);
-      return;
-    }
-    const targetVnum = Number.parseInt(roomLinkTarget, 10);
-    if (!Number.isFinite(targetVnum)) {
-      setStatusMessage("Enter a valid target room VNUM.");
-      return;
-    }
-    if (targetVnum === roomLinkPanel.vnum) {
-      setStatusMessage("Target room must be different from source.");
-      return;
-    }
-    const rooms = getEntityList(areaData, "Rooms");
-    const source = findByVnum(rooms, roomLinkPanel.vnum);
-    const target = findByVnum(rooms, targetVnum);
-    if (!source || !target) {
-      setStatusMessage("Both source and target rooms must exist.");
-      return;
-    }
-    const sourceExits = Array.isArray(source.exits) ? source.exits : [];
-    const targetExits = Array.isArray(target.exits) ? target.exits : [];
-    if (hasExitDirection(sourceExits, dirKey)) {
-      setStatusMessage(
-        `Room ${roomLinkPanel.vnum} already has a ${dirKey} exit.`
-      );
-      return;
-    }
-    if (hasExitDirection(targetExits, backDir)) {
-      setStatusMessage(
-        `Room ${targetVnum} already has a ${backDir} exit.`
-      );
-      return;
-    }
-    const nextSourceExits = [...sourceExits, { dir: dirKey, toVnum: targetVnum }];
-    const nextTargetExits = [...targetExits, { dir: backDir, toVnum: roomLinkPanel.vnum }];
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const currentRooms = Array.isArray(
-        (current as Record<string, unknown>).rooms
-      )
-        ? [...((current as Record<string, unknown>).rooms as unknown[])]
-        : [];
-      const nextRooms = currentRooms.map((room) => {
-        if (!room || typeof room !== "object") {
-          return room;
-        }
-        const record = room as Record<string, unknown>;
-        const vnum = parseVnum(record.vnum);
-        if (vnum === roomLinkPanel.vnum) {
-          return {
-            ...record,
-            exits: nextSourceExits
-          };
-        }
-        if (vnum === targetVnum) {
-          return {
-            ...record,
-            exits: nextTargetExits
-          };
-        }
-        return record;
-      });
-      return {
-        ...current,
-        rooms: nextRooms
-      };
+    const result = linkRooms({
+      areaData,
+      fromVnum: roomLinkPanel.vnum,
+      direction: roomLinkDirection,
+      targetVnumInput: roomLinkTarget,
+      parseVnum,
+      getEntityList,
+      findByVnum
     });
+    if (!result.ok) {
+      setStatusMessage(result.message);
+      return;
+    }
+    setAreaData(result.areaData);
     setSelectedRoomVnum(roomLinkPanel.vnum);
     setSelectedEntity("Rooms");
     setRoomLinkPanel(null);
     setRoomLinkTarget("");
-    setStatusMessage(
-      `Linked room ${roomLinkPanel.vnum} ${dirKey} to ${targetVnum} (unsaved)`
-    );
+    setStatusMessage(result.message);
   }, [
     roomLinkPanel,
     areaData,
     roomLinkDirection,
     roomLinkTarget,
+    parseVnum,
+    getEntityList,
+    findByVnum,
+    setAreaData,
     setSelectedEntity,
     setSelectedRoomVnum,
-    setStatusMessage
+    setStatusMessage,
+    setRoomLinkPanel,
+    setRoomLinkTarget,
+    linkRooms
   ]);
 
   const handleCreateReset = useCallback(() => {
