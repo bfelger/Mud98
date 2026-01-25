@@ -11,13 +11,11 @@ import {
   applyNodeChanges,
   BaseEdge,
   EdgeLabelRenderer,
-  Handle,
   Position,
   type Edge,
   type NodeChange,
   type EdgeProps,
   type Node,
-  type NodeProps,
   useStore
 } from "reactflow";
 import { message } from "@tauri-apps/plugin-dialog";
@@ -187,6 +185,15 @@ import {
   titlesToText
 } from "./utils/globalNormalizers";
 import { digRoom, linkRooms } from "./map/roomOps";
+import {
+  applyRoomLayoutOverrides,
+  applyRoomSelection,
+  buildRoomNodes,
+  extractRoomLayout,
+  roomNodeTypes,
+  type RoomLayoutMap,
+  type RoomNodeData
+} from "./map/roomNodes";
 import type { VnumOption } from "./components/VnumPicker";
 import type { EventBinding } from "./data/eventTypes";
 import type {
@@ -218,8 +225,7 @@ import type {
   TutorialDefinition,
   SkillDataFile,
   SkillDefinition,
-  ReferenceData,
-  RoomLayoutEntry
+  ReferenceData
 } from "./repository/types";
 import type { WorldRepository } from "./repository/worldRepository";
 import type {
@@ -489,7 +495,6 @@ type ExternalExit = {
   areaName: string | null;
 };
 
-type RoomLayoutMap = Record<string, RoomLayoutEntry>;
 type AreaLayoutMap = Record<string, AreaLayoutEntry>;
 
 type AreaGraphEntry = {
@@ -516,22 +521,6 @@ type RoomContextMenuState = {
   vnum: number;
   x: number;
   y: number;
-};
-
-type RoomNodeData = {
-  vnum: number;
-  label: string;
-  sector: string;
-  dirty?: boolean;
-  locked?: boolean;
-  upExitTargets?: number[];
-  downExitTargets?: number[];
-  onNavigate?: (vnum: number) => void;
-  onContextMenu?: (event: MouseEvent<HTMLDivElement>, vnum: number) => void;
-  grid?: {
-    x: number;
-    y: number;
-  };
 };
 
 const optionalIntSchema = z.preprocess((value) => {
@@ -1554,123 +1543,6 @@ function getFirstEntityVnum(areaData: AreaJson, entity: EntityKey): number | nul
 function getFirstString(value: unknown, fallback: string): string {
   return typeof value === "string" && value.trim().length ? value : fallback;
 }
-
-function RoomNode({ data, selected }: NodeProps<RoomNodeData>) {
-  const upTargets = data.upExitTargets ?? [];
-  const downTargets = data.downExitTargets ?? [];
-  const handleNavigate =
-    (targets: number[]) => (event: MouseEvent<HTMLButtonElement>) => {
-      event.stopPropagation();
-      if (!targets.length) {
-        return;
-      }
-      data.onNavigate?.(targets[0]);
-    };
-  const handleContextMenu = (event: MouseEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-    data.onContextMenu?.(event, data.vnum);
-  };
-  const buildTitle = (label: string, targets: number[]) =>
-    targets.length
-      ? `${label} to ${targets.join(", ")}`
-      : `${label} exit`;
-  return (
-    <div
-      className={`room-node${selected ? " room-node--selected" : ""}`}
-      onContextMenu={handleContextMenu}
-    >
-      {data.dirty ? (
-        <div className="room-node__dirty" title="Position moved but not locked">
-          Dirty
-        </div>
-      ) : null}
-      <Handle
-        id="north-out"
-        type="source"
-        position={Position.Top}
-        className="room-node__handle"
-      />
-      <Handle
-        id="north-in"
-        type="target"
-        position={Position.Top}
-        className="room-node__handle"
-      />
-      <Handle
-        id="east-out"
-        type="source"
-        position={Position.Right}
-        className="room-node__handle"
-      />
-      <Handle
-        id="east-in"
-        type="target"
-        position={Position.Right}
-        className="room-node__handle"
-      />
-      <Handle
-        id="south-out"
-        type="source"
-        position={Position.Bottom}
-        className="room-node__handle"
-      />
-      <Handle
-        id="south-in"
-        type="target"
-        position={Position.Bottom}
-        className="room-node__handle"
-      />
-      <Handle
-        id="west-out"
-        type="source"
-        position={Position.Left}
-        className="room-node__handle"
-      />
-      <Handle
-        id="west-in"
-        type="target"
-        position={Position.Left}
-        className="room-node__handle"
-      />
-      {upTargets.length || downTargets.length ? (
-        <div className="room-node__exits">
-          {upTargets.length ? (
-            <button
-              className="room-node__exit-button room-node__exit-button--up"
-              type="button"
-              onClick={handleNavigate(upTargets)}
-              title={buildTitle("Up exit", upTargets)}
-            >
-              <span className="room-node__exit-icon">⬆</span>
-              {upTargets.length > 1 ? (
-                <span className="room-node__exit-count">{upTargets.length}</span>
-              ) : null}
-            </button>
-          ) : null}
-          {downTargets.length ? (
-            <button
-              className="room-node__exit-button room-node__exit-button--down"
-              type="button"
-              onClick={handleNavigate(downTargets)}
-              title={buildTitle("Down exit", downTargets)}
-            >
-              <span className="room-node__exit-icon">⬇</span>
-              {downTargets.length > 1 ? (
-                <span className="room-node__exit-count">{downTargets.length}</span>
-              ) : null}
-            </button>
-          ) : null}
-        </div>
-      ) : null}
-      <div className="room-node__vnum">{data.vnum}</div>
-      <div className="room-node__name">{data.label}</div>
-      <div className="room-node__sector">{data.sector}</div>
-    </div>
-  );
-}
-
-const roomNodeTypes = { room: RoomNode };
 
 type Point = { x: number; y: number };
 type NodeBounds = {
@@ -2919,124 +2791,6 @@ function buildAreaDebugSummary(areaData: AreaJson | null): {
   return { keys, arrayCounts };
 }
 
-function buildRoomNodes(areaData: AreaJson | null): Node<RoomNodeData>[] {
-  if (!areaData) {
-    return [];
-  }
-  const rooms = getEntityList(areaData, "Rooms");
-  if (!rooms.length) {
-    return [];
-  }
-  const roomVnums = new Set<number>();
-  rooms.forEach((room) => {
-    if (!room || typeof room !== "object") {
-      return;
-    }
-    const vnum = parseVnum((room as Record<string, unknown>).vnum);
-    if (vnum !== null) {
-      roomVnums.add(vnum);
-    }
-  });
-  const columns = 6;
-  const spacingX = 220;
-  const spacingY = 140;
-  return rooms.map((room, index) => {
-    const record = room as Record<string, unknown>;
-    const vnum = parseVnum(record.vnum);
-    const name = getFirstString(record.name, "(unnamed room)");
-    const sector =
-      typeof record.sectorType === "string"
-        ? record.sectorType
-        : typeof record.sector === "string"
-          ? record.sector
-          : "unknown";
-    const exits = Array.isArray(record.exits) ? record.exits : [];
-    const upExitTargets: number[] = [];
-    const downExitTargets: number[] = [];
-    exits.forEach((exit) => {
-      if (!exit || typeof exit !== "object") {
-        return;
-      }
-      const exitRecord = exit as Record<string, unknown>;
-      const dir = typeof exitRecord.dir === "string" ? exitRecord.dir : "";
-      const dirKey = dir.trim().toLowerCase();
-      if (dirKey !== "up" && dirKey !== "down") {
-        return;
-      }
-      const targetVnum = parseVnum(exitRecord.toVnum);
-      if (targetVnum === null || !roomVnums.has(targetVnum)) {
-        return;
-      }
-      if (dirKey === "up") {
-        upExitTargets.push(targetVnum);
-      } else {
-        downExitTargets.push(targetVnum);
-      }
-    });
-    const col = index % columns;
-    const row = Math.floor(index / columns);
-    return {
-      id: vnum !== null ? String(vnum) : `room-${index}`,
-      type: "room",
-      position: { x: col * spacingX, y: row * spacingY },
-      data: {
-        vnum: vnum ?? -1,
-        label: name,
-        sector,
-        upExitTargets,
-        downExitTargets
-      }
-    };
-  });
-}
-
-function applyRoomSelection(
-  nodes: Node<RoomNodeData>[],
-  selectedVnum: number | null
-): Node<RoomNodeData>[] {
-  if (selectedVnum === null) {
-    return nodes.map((node) => ({ ...node, selected: false }));
-  }
-  return nodes.map((node) => ({
-    ...node,
-    selected: node.data.vnum === selectedVnum
-  }));
-}
-
-function extractRoomLayout(layout: EditorLayout | null | undefined): RoomLayoutMap {
-  const rooms =
-    layout && typeof layout === "object" && "rooms" in layout
-      ? layout.rooms
-      : undefined;
-  if (!rooms || typeof rooms !== "object") {
-    return {};
-  }
-  const entries: RoomLayoutMap = {};
-  Object.entries(rooms).forEach(([key, value]) => {
-    if (!value || typeof value !== "object") {
-      return;
-    }
-    const record = value as Record<string, unknown>;
-    const x = record.x;
-    const y = record.y;
-    if (typeof x !== "number" || typeof y !== "number") {
-      return;
-    }
-    if (!Number.isFinite(x) || !Number.isFinite(y)) {
-      return;
-    }
-    if (!record.locked) {
-      return;
-    }
-    entries[key] = {
-      x,
-      y,
-      locked: true
-    };
-  });
-  return entries;
-}
-
 function extractAreaLayout(layout: EditorLayout | null | undefined): AreaLayoutMap {
   const areas =
     layout && typeof layout === "object" && "areas" in layout
@@ -3069,35 +2823,6 @@ function extractAreaLayout(layout: EditorLayout | null | undefined): AreaLayoutM
     };
   });
   return entries;
-}
-
-function applyRoomLayoutOverrides(
-  nodes: Node<RoomNodeData>[],
-  layout: RoomLayoutMap
-): Node<RoomNodeData>[] {
-  if (!Object.keys(layout).length) {
-    return nodes.map((node) => ({
-      ...node,
-      draggable: true,
-      data: {
-        ...node.data,
-        locked: false
-      }
-    }));
-  }
-  return nodes.map((node) => {
-    const override = layout[node.id];
-    const isLocked = override?.locked === true;
-    return {
-      ...node,
-      position: isLocked ? { x: override.x, y: override.y } : node.position,
-      draggable: !isLocked,
-      data: {
-        ...node.data,
-        locked: isLocked
-      }
-    };
-  });
 }
 
 function applyAreaLayoutOverrides(

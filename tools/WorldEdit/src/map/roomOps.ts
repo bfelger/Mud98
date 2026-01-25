@@ -22,10 +22,10 @@ type RoomOpsHelpers = {
   parseVnum: (value: unknown) => number | null;
   getEntityList: (areaData: AreaJson, key: string) => unknown[];
   findByVnum: (list: unknown[], vnum: number) => Record<string, unknown> | null;
-  getNextEntityVnum: (areaData: AreaJson, entity: string) => number | null;
 };
 
 type DigRoomParams = RoomOpsHelpers & {
+  getNextEntityVnum: (areaData: AreaJson, entity: string) => number | null;
   areaData: AreaJson | null;
   fromVnum: number;
   direction: string;
