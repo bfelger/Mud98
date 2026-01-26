@@ -18,8 +18,12 @@
 #include "entities/mobile.h"
 #include "entities/player_data.h"
 
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdint.h>
+#ifndef _MSC_VER
+#include <unistd.h>
+#endif
 
 void debug_telopts(Descriptor* d, unsigned char* src, size_t srclen);
 size_t process_do_eor(Descriptor* d, unsigned char* src, size_t srclen);
@@ -574,11 +578,7 @@ size_t process_sb_ttype_is(Descriptor* d, unsigned char* src, size_t srclen)
 			}
 			else
 			{
-#ifdef _MSC_VER
-				if (sscanf(val, "MTTS %lld", &d->mth->mtts) == 1)
-#else
-				if (sscanf(val, "MTTS %ld", &d->mth->mtts) == 1)
-#endif
+if (sscanf(val, "MTTS %" PRId64, &d->mth->mtts) == 1)
 				{
 					if (HAS_BIT(d->mth->mtts, MTTS_FLAG_256COLORS))
 					{

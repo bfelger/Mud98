@@ -59,7 +59,9 @@
 
 #include <ctype.h>
 #include <errno.h>
+#ifndef __APPLE__
 #include <malloc.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
