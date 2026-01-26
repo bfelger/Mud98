@@ -18,8 +18,8 @@ typedef struct social_t {
     char* others_auto;
 } Social;
 
-void load_social_table();
-void save_social_table();
+void load_social_table(void);
+void save_social_table(void);
 
 extern Social* social_table;
 extern int social_count;

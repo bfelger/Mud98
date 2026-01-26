@@ -25,7 +25,7 @@ typedef struct mob_memory_t {
     time_t when;
 } MobMemory;
 
-MobMemory* new_mob_memory();
+MobMemory* new_mob_memory(void);
 void free_mob_memory(MobMemory* mob_memory);
 
 extern int mob_memory_count;

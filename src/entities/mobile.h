@@ -228,11 +228,11 @@ static inline void mobile_set_money_from_copper(Mobile* ch, long amount)
                 content = content##_loop.node != NULL ? AS_OBJECT(content##_loop.node->value) : NULL) \
             if (content != NULL)
 
-Mobile* new_mobile();
+Mobile* new_mobile(void);
 void free_mobile(Mobile* ch);
 void clone_mobile(Mobile* parent, Mobile* clone);
 Mobile* create_mobile(MobPrototype* p_mob_proto);
-long get_mob_id();
+long get_mob_id(void);
 void clear_mob(Mobile* ch);
 
 extern List mob_list;

@@ -14,7 +14,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-typedef int (*TestFunc)();
+typedef int (*TestFunc)(void);
 
 typedef struct TestGroup TestGroup;
 
@@ -38,50 +38,50 @@ char* safe_arg(char* arg);
 void init_test_group(TestGroup* group, const char* name);
 
 // All featured test groups
-void register_lox_tests();
-void register_lox_ext_tests();
-void register_entity_tests();
-void register_area_instancing_tests();
-void register_container_tests();
-void register_act_tests();
-void register_act_comm_tests();
-void register_act_enter_tests();
-void register_act_obj_tests();
-void register_act_move_tests();
-void register_act_wiz_tests();
-void register_act_wiz2_tests();
-void register_act_wiz3_tests();
-void register_act_wiz4_tests();
-void register_act_wiz5_tests();
-void register_interp_tests();
-void register_fmt_tests();
-void register_theme_tests();
-void register_util_tests();
-void register_event_tests();
-void register_faction_tests();
-void register_money_tests();
-void register_quest_tests();
-void register_login_tests();
-void register_persist_tests();
-void register_player_persist_tests();
-void register_fight_tests();
-void register_damage_tests();
-void register_tohit_tests();
-void register_combat_state_tests();
-void register_skills_tests();
-void register_buffer_tests();
-void register_stringbuffer_tests();
-void register_mem_watchpoint_tests();
-void register_daycycle_tests();
-void register_multihit_tests();
-void register_loot_tests();
-void register_thief_tests();
-void register_magic_tests();
-void register_craft_tests();
-void register_olc_aedit_tests();
-void register_gather_spawn_tests();
+void register_lox_tests(void);
+void register_lox_ext_tests(void);
+void register_entity_tests(void);
+void register_area_instancing_tests(void);
+void register_container_tests(void);
+void register_act_tests(void);
+void register_act_comm_tests(void);
+void register_act_enter_tests(void);
+void register_act_obj_tests(void);
+void register_act_move_tests(void);
+void register_act_wiz_tests(void);
+void register_act_wiz2_tests(void);
+void register_act_wiz3_tests(void);
+void register_act_wiz4_tests(void);
+void register_act_wiz5_tests(void);
+void register_interp_tests(void);
+void register_fmt_tests(void);
+void register_theme_tests(void);
+void register_util_tests(void);
+void register_event_tests(void);
+void register_faction_tests(void);
+void register_money_tests(void);
+void register_quest_tests(void);
+void register_login_tests(void);
+void register_persist_tests(void);
+void register_player_persist_tests(void);
+void register_fight_tests(void);
+void register_damage_tests(void);
+void register_tohit_tests(void);
+void register_combat_state_tests(void);
+void register_skills_tests(void);
+void register_buffer_tests(void);
+void register_stringbuffer_tests(void);
+void register_mem_watchpoint_tests(void);
+void register_daycycle_tests(void);
+void register_multihit_tests(void);
+void register_loot_tests(void);
+void register_thief_tests(void);
+void register_magic_tests(void);
+void register_craft_tests(void);
+void register_olc_aedit_tests(void);
+void register_gather_spawn_tests(void);
 
-void run_unit_tests();
+void run_unit_tests(void);
 
 void test_fail(const char* expr, const char* file, int line);
 #define ASSERT(expr) ((expr) ? (void)0 : test_fail(#expr, __FILE__, __LINE__))

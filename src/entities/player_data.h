@@ -98,14 +98,14 @@ typedef struct player_data_t {
     bool valid;
 } PlayerData;
 
-PlayerData* new_player_data();
+PlayerData* new_player_data(void);
 void free_player_data(PlayerData* pcdata);
 
 extern PlayerData* player_data_list;
 extern PlayerData* player_data_free;
 
 extern void free_gen_data(CharGenData* gen);
-extern CharGenData* new_gen_data();
+extern CharGenData* new_gen_data(void);
 
 extern int player_data_count;
 extern int player_data_perm_count;

@@ -15,8 +15,8 @@ bool file_exists(const char* dir);
 FILE* open_append_file(const char* filename);
 FILE* open_read_file(const char* filename);
 FILE* open_write_file(const char* filename);
-void close_reserve_file();
-void open_reserve_file();
+void close_reserve_file(void);
+void open_reserve_file(void);
 
 #define OPEN_OR(open_expr, or_expr)                                            \
     if ((open_expr) == NULL) {                                                 \

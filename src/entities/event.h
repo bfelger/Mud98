@@ -32,11 +32,11 @@ typedef struct event_timer_t {
     int ticks;
 } EventTimer;
 
-Event* new_event();
+Event* new_event(void);
 void free_event(Event* event);
 void add_event(Entity* entity, Event* event);
 void add_event_timer(ObjClosure* closure, int ticks);
-void event_timer_tick();
+void event_timer_tick(void);
 void remove_event(Entity* entity, Event* event);
 void load_event(FILE* fp, Entity* owner);
 void save_events(FILE* fp, Entity* entity);

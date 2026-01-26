@@ -27,7 +27,7 @@ typedef struct {
     for (Node* val##_node = list->front; val##_node != NULL; val##_node = val##_node->next) \
         if ((val = AS_##type(val##_node->value)) != NULL)
 
-List* new_list();
+List* new_list(void);
 void init_list(List* list);
 void free_list(List* list);
 Node* list_push(List* list, Value value);

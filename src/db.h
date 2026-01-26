@@ -74,7 +74,7 @@ char* boot_intern_string(const char* str);
 char* str_dup(const char* str);
 char* str_append(char* str1, const char* str2);
 void free_string(const char* pstr);
-void print_memory();
+void print_memory(void);
 int interpolate(int level, int value_00, int value_32);
 void smash_tilde(char* str);
 bool str_cmp(const char* astr, const char* bstr);
@@ -153,7 +153,7 @@ extern int _filbuf(FILE*);
 //#define COUNT_SIZE_ALLOCS
 
 #ifdef COUNT_SIZE_ALLOCS
-void report_size_allocs(); 
+void report_size_allocs(void);
 extern size_t amt_perm_alloced;
 extern size_t amt_temp_alloced;
 extern size_t amt_temp_freed;

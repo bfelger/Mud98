@@ -20,7 +20,7 @@
 // 4. Simple API: create, append, appendf, clear, free
 //
 // Usage:
-//   StringBuffer* sb = sb_new();
+//   StringBuffer* sb = sb_new(void);
 //   sb_append(sb, "Hello ");
 //   sb_appendf(sb, "world %d", 42);
 //   printf("%s\n", sb_string(sb));  // or SB(sb) macro

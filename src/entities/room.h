@@ -148,7 +148,7 @@ Room* get_room_for_player(Mobile* ch, VNUM vnum);
 
 void free_room_data(RoomData* pRoom);
 RoomData* get_room_data(VNUM vnum);
-RoomData* new_room_data();
+RoomData* new_room_data(void);
 
 void load_rooms(FILE* fp);
 

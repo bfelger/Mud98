@@ -61,7 +61,7 @@ long get_pc_id(void);
 
 /* buffer procedures */
 
-Buffer* new_buf();
+Buffer* new_buf(void);
 Buffer* new_buf_size(int size);
 void free_buf(Buffer * buffer);
 bool addf_buf(Buffer* buffer, char* format, ...);
@@ -72,13 +72,13 @@ void clear_buf(Buffer * buffer);
 #define SET_BUF(b, s) clear_buf(b); add_buf(b, s)
 #define BUF(b) (b->string)
 
-SKNUM* new_learned();
+SKNUM* new_learned(void);
 void free_learned(SKNUM*);
 
 bool* new_boolarray(size_t);
 void free_boolarray(bool*);
 
-SkillHash* new_skill_hash();
+SkillHash* new_skill_hash(void);
 void free_skill_hash(SkillHash*);
 
 /* externs */

@@ -29,7 +29,7 @@ typedef struct note_data_t {
     bool valid;
 } NoteData;
 
-NoteData* new_note();
+NoteData* new_note(void);
 void free_note(NoteData* note);
 
 extern NoteData* note_list;

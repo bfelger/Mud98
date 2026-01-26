@@ -151,7 +151,7 @@ typedef struct damage_info_t {
 
 extern const DamageInfo damage_table[DAM_TYPE_COUNT];
 
-void init_damage_consts();
+void init_damage_consts(void);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Attacks

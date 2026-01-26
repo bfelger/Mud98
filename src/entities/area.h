@@ -128,7 +128,7 @@ typedef struct area_data_t {
 
 Area* new_area(AreaData* area_data);
 void free_area(Area* area);
-AreaData* new_area_data();
+AreaData* new_area_data(void);
 Area* create_area_instance(AreaData* area_data, bool create_exits);
 void create_instance_exits(Area* area);
 void save_area(AreaData* area);
