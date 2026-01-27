@@ -16,6 +16,14 @@ type MobileFormProps = {
   damageTypes: string[];
   mobActFlags: string[];
   attackFlags: string[];
+  formFlagsOptions: string[];
+  partFlagsOptions: string[];
+  overrideFormFlags: boolean;
+  overridePartFlags: boolean;
+  onEnableFormFlagsOverride: () => void;
+  onDisableFormFlagsOverride: () => void;
+  onEnablePartFlagsOverride: () => void;
+  onDisablePartFlagsOverride: () => void;
   raceOptions: string[];
   canEditScript: boolean;
   scriptEventEntity: EventEntityKey | null;
@@ -35,6 +43,14 @@ export function MobileForm({
   damageTypes,
   mobActFlags,
   attackFlags,
+  formFlagsOptions,
+  partFlagsOptions,
+  overrideFormFlags,
+  overridePartFlags,
+  onEnableFormFlagsOverride,
+  onDisableFormFlagsOverride,
+  onEnablePartFlagsOverride,
+  onDisablePartFlagsOverride,
   raceOptions,
   canEditScript,
   scriptEventEntity,
@@ -347,6 +363,102 @@ export function MobileForm({
               </label>
             ))}
           </div>
+        </div>
+        <div className="form-field form-field--full">
+          <div className="form-section-header">
+            <div>
+              <div className="form-label">Form Flags</div>
+              <div className="form-hint">
+                Only needed when overriding race defaults.
+              </div>
+            </div>
+            <div className="form-header-actions">
+              {overrideFormFlags ? (
+                <button
+                  className="ghost-button"
+                  type="button"
+                  onClick={onDisableFormFlagsOverride}
+                >
+                  Use Race Default
+                </button>
+              ) : (
+                <button
+                  className="ghost-button"
+                  type="button"
+                  onClick={onEnableFormFlagsOverride}
+                >
+                  Override Race
+                </button>
+              )}
+            </div>
+          </div>
+          {overrideFormFlags ? (
+            <div className="form-checkboxes">
+              {formFlagsOptions.map((flag) => (
+                <label key={flag} className="checkbox-pill">
+                  <input
+                    type="checkbox"
+                    value={flag}
+                    {...register("formFlags")}
+                  />
+                  <span>{flag}</span>
+                </label>
+              ))}
+            </div>
+          ) : (
+            <div className="placeholder-block">
+              <div className="placeholder-title">Using race defaults</div>
+              <p>Enable override to edit per-mobile form flags.</p>
+            </div>
+          )}
+        </div>
+        <div className="form-field form-field--full">
+          <div className="form-section-header">
+            <div>
+              <div className="form-label">Part Flags</div>
+              <div className="form-hint">
+                Only needed when overriding race defaults.
+              </div>
+            </div>
+            <div className="form-header-actions">
+              {overridePartFlags ? (
+                <button
+                  className="ghost-button"
+                  type="button"
+                  onClick={onDisablePartFlagsOverride}
+                >
+                  Use Race Default
+                </button>
+              ) : (
+                <button
+                  className="ghost-button"
+                  type="button"
+                  onClick={onEnablePartFlagsOverride}
+                >
+                  Override Race
+                </button>
+              )}
+            </div>
+          </div>
+          {overridePartFlags ? (
+            <div className="form-checkboxes">
+              {partFlagsOptions.map((flag) => (
+                <label key={flag} className="checkbox-pill">
+                  <input
+                    type="checkbox"
+                    value={flag}
+                    {...register("partFlags")}
+                  />
+                  <span>{flag}</span>
+                </label>
+              ))}
+            </div>
+          ) : (
+            <div className="placeholder-block">
+              <div className="placeholder-title">Using race defaults</div>
+              <p>Enable override to edit per-mobile part flags.</p>
+            </div>
+          )}
         </div>
         <div className="form-field form-field--full">
           <div className="form-section-header">

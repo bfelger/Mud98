@@ -51,7 +51,6 @@ export function Topbar({
           className="action-button"
           type="button"
           onClick={onOpenProject}
-          disabled={isBusy}
         >
           Open Config
         </button>
@@ -59,7 +58,6 @@ export function Topbar({
           className="action-button"
           type="button"
           onClick={onOpenArea}
-          disabled={isBusy}
         >
           Open Area
         </button>
@@ -67,7 +65,6 @@ export function Topbar({
           className="action-button"
           type="button"
           onClick={onSetAreaDirectory}
-          disabled={isBusy}
         >
           Set Area Dir
         </button>

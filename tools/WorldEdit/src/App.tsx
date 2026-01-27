@@ -225,8 +225,6 @@ import {
   immFlags,
   resFlags,
   vulnFlags,
-  formFlags,
-  partFlags,
   skillTargets,
   logFlags,
   showFlags,
@@ -235,12 +233,16 @@ import {
   extraFlags,
   furnitureFlagEnum,
   furnitureFlags,
+  formFlagEnum,
+  formFlags,
   liquidEnum,
   liquids,
   portalFlagEnum,
   portalFlags,
   positionEnum,
   positions,
+  partFlagEnum,
+  partFlags,
   offFlagEnum,
   roomFlagEnum,
   roomFlags as roomFlagOptions,
@@ -570,7 +572,9 @@ const mobileFormSchema = z.object({
   manaDice: diceFormSchema,
   damageDice: diceFormSchema,
   actFlags: z.array(actFlagEnum).optional(),
-  atkFlags: z.array(offFlagEnum).optional()
+  atkFlags: z.array(offFlagEnum).optional(),
+  formFlags: z.array(formFlagEnum).optional(),
+  partFlags: z.array(partFlagEnum).optional()
 });
 
 const weaponFormSchema = z
@@ -3044,8 +3048,12 @@ export default function App({ repository }: AppProps) {
   const {
     register: registerMobile,
     handleSubmit: handleMobileSubmitForm,
-    formState: mobileFormState
+    formState: mobileFormState,
+    setValue: setMobileFormValue,
+    getValues: getMobileFormValues
   } = mobileForm;
+  const [overrideMobileFormFlags, setOverrideMobileFormFlags] = useState(false);
+  const [overrideMobilePartFlags, setOverrideMobilePartFlags] = useState(false);
   const objectForm = useForm<ObjectFormValues>({
     resolver: zodResolver(objectFormSchema),
     defaultValues: {
@@ -5053,6 +5061,12 @@ export default function App({ repository }: AppProps) {
       atkFlags: Array.isArray(record?.atkFlags)
         ? record.atkFlags.filter((flag) => typeof flag === "string")
         : [],
+      formFlags: Array.isArray(record?.formFlags)
+        ? record.formFlags.filter((flag) => typeof flag === "string")
+        : [],
+      partFlags: Array.isArray(record?.partFlags)
+        ? record.partFlags.filter((flag) => typeof flag === "string")
+        : [],
       hitDice: resolveDice(record?.hitDice),
       manaDice: resolveDice(record?.manaDice),
       damageDice: resolveDice(record?.damageDice)
@@ -5551,6 +5565,12 @@ export default function App({ repository }: AppProps) {
   useEffect(() => {
     mobileForm.reset(mobileFormDefaults);
   }, [mobileForm, mobileFormDefaults]);
+
+  useEffect(() => {
+    const record = selectedMobileRecord;
+    setOverrideMobileFormFlags(Array.isArray(record?.formFlags));
+    setOverrideMobilePartFlags(Array.isArray(record?.partFlags));
+  }, [selectedMobileRecord]);
 
   useEffect(() => {
     objectForm.reset(objectFormDefaults);
@@ -6135,6 +6155,12 @@ export default function App({ repository }: AppProps) {
           lootTable: cleanOptionalString(data.lootTable),
           actFlags: data.actFlags?.length ? data.actFlags : undefined,
           atkFlags: data.atkFlags?.length ? data.atkFlags : undefined,
+          formFlags: overrideMobileFormFlags
+            ? data.formFlags ?? []
+            : undefined,
+          partFlags: overrideMobilePartFlags
+            ? data.partFlags ?? []
+            : undefined,
           hitDice,
           manaDice,
           damageDice
@@ -7252,6 +7278,30 @@ export default function App({ repository }: AppProps) {
       damageTypes={damageTypes}
       mobActFlags={[...actFlags]}
       attackFlags={[...offFlags]}
+      formFlagsOptions={[...formFlags]}
+      partFlagsOptions={[...partFlags]}
+      overrideFormFlags={overrideMobileFormFlags}
+      overridePartFlags={overrideMobilePartFlags}
+      onEnableFormFlagsOverride={() => {
+        setOverrideMobileFormFlags(true);
+        if (!getMobileFormValues("formFlags")?.length) {
+          setMobileFormValue("formFlags", []);
+        }
+      }}
+      onDisableFormFlagsOverride={() => {
+        setOverrideMobileFormFlags(false);
+        setMobileFormValue("formFlags", []);
+      }}
+      onEnablePartFlagsOverride={() => {
+        setOverrideMobilePartFlags(true);
+        if (!getMobileFormValues("partFlags")?.length) {
+          setMobileFormValue("partFlags", []);
+        }
+      }}
+      onDisablePartFlagsOverride={() => {
+        setOverrideMobilePartFlags(false);
+        setMobileFormValue("partFlags", []);
+      }}
       raceOptions={referenceData?.races ?? []}
       canEditScript={canEditScript}
       scriptEventEntity={scriptEventEntity}
