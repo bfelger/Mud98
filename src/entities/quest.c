@@ -780,7 +780,7 @@ static VNUM get_quest_vnum_from_arg(Value arg)
 Value can_quest_lox(Value receiver, int arg_count, Value* args)
 {
     if (arg_count != 1) {
-        runtime_error("can_quest() takes an integer argument.");
+        runtime_error("can_quest() takes an integer or string argument.");
         return FALSE_VAL;
     }
 
@@ -800,7 +800,7 @@ Value can_quest_lox(Value receiver, int arg_count, Value* args)
 Value has_quest_lox(Value receiver, int arg_count, Value* args)
 {
     if (arg_count != 1) {
-        runtime_error("has_quest() takes an integer argument.");
+        runtime_error("has_quest() takes an integer or string argument.");
         return FALSE_VAL;
     }
 
@@ -820,7 +820,7 @@ Value has_quest_lox(Value receiver, int arg_count, Value* args)
 Value grant_quest_lox(Value receiver, int arg_count, Value* args)
 {
     if (arg_count != 1) {
-        runtime_error("grant_quest() takes an integer argument.");
+        runtime_error("grant_quest() takes an integer or string argument.");
         return FALSE_VAL;
     }
 
@@ -846,7 +846,7 @@ Value grant_quest_lox(Value receiver, int arg_count, Value* args)
 Value can_finish_quest_lox(Value receiver, int arg_count, Value* args)
 {
     if (arg_count != 1) {
-        runtime_error("can_finish_quest() takes an integer argument.");
+        runtime_error("can_finish_quest() takes an integer or string argument.");
         return FALSE_VAL;
     }
 
@@ -866,7 +866,7 @@ Value can_finish_quest_lox(Value receiver, int arg_count, Value* args)
 Value finish_quest_lox(Value receiver, int arg_count, Value* args)
 {
     if (arg_count != 1) {
-        runtime_error("finish_quest() takes an integer argument.");
+        runtime_error("finish_quest() takes an integer or string argument.");
         return FALSE_VAL;
     }
 
