@@ -2044,6 +2044,7 @@ static PersistResult parse_quests(json_t* root, AreaData* area)
         VNUM_FIELD(quest) = (VNUM)json_int_or_default(q, "vnum", VNUM_FIELD(quest));
 
         ordered_table_set_vnum(&area->quests, VNUM_FIELD(quest), OBJ_VAL(quest));
+        table_set(&global_quests, NAME_FIELD(quest), OBJ_VAL(quest));
     }
 
     return (PersistResult){ PERSIST_OK, NULL, -1 };

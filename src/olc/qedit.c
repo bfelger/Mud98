@@ -9,8 +9,9 @@
 #include <entities/faction.h>
 #include <entities/obj_prototype.h>
 #include <entities/player_data.h>
-
 #include <entities/quest.h>
+
+#include <lox/table.h>
 
 #include <comm.h>
 #include <db.h>
@@ -66,6 +67,9 @@ void qedit(Mobile* ch, char* argument)
     }
 
     if (!str_cmp(argument, "done")) {
+        Quest* quest;
+        EDIT_QUEST(ch, quest);
+        table_set(&global_quests, NAME_FIELD(quest), OBJ_VAL(quest));
         edit_done(ch);
         return;
     }

@@ -24,6 +24,8 @@ int quest_perm_count = 0;
 
 List quest_free = { 0 };
 
+Table global_quests = { 0 };
+
 const struct flag_type quest_type_table[] = {
     { "visit_mob",      QUEST_VISIT_MOB,    true    },
     { "kill_mob",       QUEST_KILL_MOB,     true    },
@@ -418,6 +420,7 @@ void load_quest(FILE* fp)
     quest->area_data = LAST_AREA_DATA;
 
     ordered_table_set_vnum(&LAST_AREA_DATA->quests, VNUM_FIELD(quest), OBJ_VAL(quest));
+    table_set(&global_quests, NAME_FIELD(quest), OBJ_VAL(quest));
 
     return;
 }
@@ -752,9 +755,31 @@ void do_quest(Mobile* ch, char* argument)
 
 // LOX METHODS /////////////////////////////////////////////////////////////////
 
+static VNUM get_quest_vnum_from_arg(Value arg)
+{
+    VNUM vnum = -1;
+    if (IS_INT(arg)) {
+        vnum = AS_INT(arg);
+    }
+    else if (IS_STRING(arg)) {
+        Value val;
+        if (!table_get(&global_quests, AS_STRING(arg), &val) || !IS_QUEST(val)) {
+            runtime_error("get_quest_vnum_from_arg(): No quest found with name '%s'.", AS_CSTRING(arg));
+            return -1;
+        }
+        Quest* q = AS_QUEST(val);
+        vnum = VNUM_FIELD(q);
+    }
+    else {
+        runtime_error("get_quest_vnum_from_arg() argument must be an integer or string.");
+        return -1;
+    }
+    return vnum;
+}
+
 Value can_quest_lox(Value receiver, int arg_count, Value* args)
 {
-    if (arg_count != 1 || !IS_INT(args[0])) {
+    if (arg_count != 1) {
         runtime_error("can_quest() takes an integer argument.");
         return FALSE_VAL;
     }
@@ -762,7 +787,10 @@ Value can_quest_lox(Value receiver, int arg_count, Value* args)
     if (!IS_MOBILE(receiver))
         return FALSE_VAL;
 
-    int32_t vnum = AS_INT(args[0]);
+    VNUM vnum = get_quest_vnum_from_arg(args[0]);
+    if (vnum == -1) {
+        return FALSE_VAL;
+    }
 
     bool ret = can_quest(AS_MOBILE(receiver), vnum);
 
@@ -771,7 +799,7 @@ Value can_quest_lox(Value receiver, int arg_count, Value* args)
 
 Value has_quest_lox(Value receiver, int arg_count, Value* args)
 {
-    if (arg_count != 1 || !IS_INT(args[0])) {
+    if (arg_count != 1) {
         runtime_error("has_quest() takes an integer argument.");
         return FALSE_VAL;
     }
@@ -779,7 +807,10 @@ Value has_quest_lox(Value receiver, int arg_count, Value* args)
     if (!IS_MOBILE(receiver))
         return FALSE_VAL;
 
-    int32_t vnum = AS_INT(args[0]);
+    VNUM vnum = get_quest_vnum_from_arg(args[0]);
+    if (vnum == -1) {
+        return FALSE_VAL;
+    }
 
     bool ret = has_quest(AS_MOBILE(receiver), vnum);
 
@@ -788,7 +819,7 @@ Value has_quest_lox(Value receiver, int arg_count, Value* args)
 
 Value grant_quest_lox(Value receiver, int arg_count, Value* args)
 {
-    if (arg_count != 1 || !IS_INT(args[0])) {
+    if (arg_count != 1) {
         runtime_error("grant_quest() takes an integer argument.");
         return FALSE_VAL;
     }
@@ -796,7 +827,10 @@ Value grant_quest_lox(Value receiver, int arg_count, Value* args)
     if (!IS_MOBILE(receiver))
         return FALSE_VAL;
 
-    int32_t vnum = AS_INT(args[0]);
+    VNUM vnum = get_quest_vnum_from_arg(args[0]);
+    if (vnum == -1) {
+        return FALSE_VAL;
+    }
 
     Quest* q = get_quest(vnum);
     if (q == NULL) {
@@ -811,7 +845,7 @@ Value grant_quest_lox(Value receiver, int arg_count, Value* args)
 
 Value can_finish_quest_lox(Value receiver, int arg_count, Value* args)
 {
-    if (arg_count != 1 || !IS_INT(args[0])) {
+    if (arg_count != 1) {
         runtime_error("can_finish_quest() takes an integer argument.");
         return FALSE_VAL;
     }
@@ -819,7 +853,10 @@ Value can_finish_quest_lox(Value receiver, int arg_count, Value* args)
     if (!IS_MOBILE(receiver))
         return FALSE_VAL;
 
-    int32_t vnum = AS_INT(args[0]);
+    VNUM vnum = get_quest_vnum_from_arg(args[0]);
+    if (vnum == -1) {
+        return FALSE_VAL;
+    }
 
     bool ret = can_finish_quest(AS_MOBILE(receiver), vnum);
 
@@ -828,7 +865,7 @@ Value can_finish_quest_lox(Value receiver, int arg_count, Value* args)
 
 Value finish_quest_lox(Value receiver, int arg_count, Value* args)
 {
-    if (arg_count != 1 || !IS_INT(args[0])) {
+    if (arg_count != 1) {
         runtime_error("finish_quest() takes an integer argument.");
         return FALSE_VAL;
     }
@@ -836,7 +873,11 @@ Value finish_quest_lox(Value receiver, int arg_count, Value* args)
     if (!IS_MOBILE(receiver))
         return FALSE_VAL;
 
-    int32_t vnum = AS_INT(args[0]);
+    VNUM vnum = get_quest_vnum_from_arg(args[0]);
+    if (vnum == -1) {
+        return FALSE_VAL;
+    }
+
     Mobile* ch = AS_MOBILE(receiver);
 
     Quest* q = get_quest(vnum);

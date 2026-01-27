@@ -107,6 +107,8 @@ Value finish_quest_lox(Value receiver, int arg_count, Value* args);
 extern int quest_count;
 extern int quest_perm_count;
 
+extern Table global_quests;
+
 extern const struct flag_type quest_type_table[];
 
 #endif // !MUD98__ENTITIES__QUEST_H
