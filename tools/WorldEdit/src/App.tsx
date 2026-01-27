@@ -31,6 +31,7 @@ import { RoomForm } from "./components/RoomForm";
 import { MobileForm } from "./components/MobileForm";
 import { ObjectForm } from "./components/ObjectForm";
 import { ResetForm } from "./components/ResetForm";
+import { ResetEditorFields } from "./components/ResetEditorFields";
 import { ShopForm } from "./components/ShopForm";
 import { QuestForm } from "./components/QuestForm";
 import { FactionForm } from "./components/FactionForm";
@@ -1026,6 +1027,11 @@ type AreaFormValues = z.infer<typeof areaFormSchema>;
 type MobileFormValues = z.infer<typeof mobileFormSchema>;
 type ObjectFormValues = z.infer<typeof objectFormSchema>;
 type ResetFormValues = z.infer<typeof resetFormSchema>;
+type RoomResetItem = {
+  index: number;
+  command: string;
+  label: string;
+};
 type ShopFormValues = z.infer<typeof shopFormSchema>;
 type QuestFormValues = z.infer<typeof questFormSchema>;
 type FactionFormValues = z.infer<typeof factionFormSchema>;
@@ -1318,6 +1324,73 @@ function resolveResetCommand(record: Record<string, unknown> | null): string {
   }
   const mapped = resetCommandMap[command.toUpperCase()];
   return mapped ?? command;
+}
+
+function isResetForRoom(
+  record: Record<string, unknown>,
+  roomVnum: number
+): boolean {
+  const target = parseVnum(record.roomVnum);
+  return target !== null && target === roomVnum;
+}
+
+function formatVnumLabel(
+  vnum: number | null,
+  map: Map<number, VnumOption>
+): string {
+  if (vnum === null) {
+    return "?";
+  }
+  const option = map.get(vnum);
+  if (option?.label) {
+    return `${vnum} ${option.label}`;
+  }
+  return String(vnum);
+}
+
+function formatResetSummary(
+  record: Record<string, unknown>,
+  command: string,
+  roomMap: Map<number, VnumOption>,
+  mobMap: Map<number, VnumOption>,
+  objMap: Map<number, VnumOption>
+): string {
+  const roomVnum = parseVnum(record.roomVnum);
+  const mobVnum = parseVnum(record.mobVnum);
+  const objVnum = parseVnum(record.objVnum);
+  const direction =
+    typeof record.direction === "string" ? record.direction : null;
+  const state = parseVnum(record.state);
+  const exits = parseVnum(record.exits);
+  switch (command) {
+    case "loadMob":
+      return `Load ${formatVnumLabel(mobVnum, mobMap)} in ${formatVnumLabel(
+        roomVnum,
+        roomMap
+      )}`;
+    case "placeObj":
+      return `Place ${formatVnumLabel(objVnum, objMap)} in ${formatVnumLabel(
+        roomVnum,
+        roomMap
+      )}`;
+    case "setDoor":
+      return `Set door ${direction ?? "?"} (${formatVnumLabel(
+        roomVnum,
+        roomMap
+      )}) state ${state ?? "?"}`;
+    case "randomizeExits":
+      return `Randomize exits (${formatVnumLabel(roomVnum, roomMap)}: ${
+        exits ?? "?"
+      })`;
+    default:
+      if (roomVnum !== null) {
+        return `${command || "Reset"} in ${formatVnumLabel(
+          roomVnum,
+          roomMap
+        )}`;
+      }
+      return command || "Reset";
+  }
 }
 
 function getDefaultSelection(
@@ -5329,10 +5402,64 @@ export default function App({ repository }: AppProps) {
     () => buildVnumOptions(areaData, "Mobiles"),
     [areaData]
   );
+  const mobileVnumOptionMap = useMemo(() => {
+    const map = new Map<number, VnumOption>();
+    mobileVnumOptions.forEach((option) => {
+      map.set(option.vnum, option);
+    });
+    return map;
+  }, [mobileVnumOptions]);
   const objectVnumOptions = useMemo(
     () => buildVnumOptions(areaData, "Objects"),
     [areaData]
   );
+  const objectVnumOptionMap = useMemo(() => {
+    const map = new Map<number, VnumOption>();
+    objectVnumOptions.forEach((option) => {
+      map.set(option.vnum, option);
+    });
+    return map;
+  }, [objectVnumOptions]);
+  const roomResetItems = useMemo<RoomResetItem[]>(() => {
+    if (!areaData || selectedRoomVnum === null) {
+      return [];
+    }
+    const resets = getEntityList(areaData, "Resets");
+    const items: RoomResetItem[] = [];
+    resets.forEach((reset, index) => {
+      if (!reset || typeof reset !== "object") {
+        return;
+      }
+      const record = reset as Record<string, unknown>;
+      if (!isResetForRoom(record, selectedRoomVnum)) {
+        return;
+      }
+      const command = resolveResetCommand(record);
+      const label = formatResetSummary(
+        record,
+        command,
+        roomVnumOptionMap,
+        mobileVnumOptionMap,
+        objectVnumOptionMap
+      );
+      items.push({ index, command, label });
+    });
+    return items;
+  }, [
+    areaData,
+    selectedRoomVnum,
+    roomVnumOptionMap,
+    mobileVnumOptionMap,
+    objectVnumOptionMap
+  ]);
+  const selectedRoomResetIndex = useMemo(() => {
+    if (selectedResetIndex === null) {
+      return null;
+    }
+    return roomResetItems.some((item) => item.index === selectedResetIndex)
+      ? selectedResetIndex
+      : null;
+  }, [roomResetItems, selectedResetIndex]);
   const lootTableOptions = useMemo(() => {
     if (!areaData) {
       return [];
@@ -5675,6 +5802,13 @@ export default function App({ repository }: AppProps) {
       setRoomContextMenu(null);
     },
     []
+  );
+
+  const handleSelectRoomReset = useCallback(
+    (index: number) => {
+      setSelectedResetIndex(index);
+    },
+    [setSelectedResetIndex]
   );
 
   const handleDigRoom = useCallback(
@@ -6240,6 +6374,10 @@ export default function App({ repository }: AppProps) {
     });
     setStatusMessage(`Updated reset #${data.index} (unsaved)`);
   };
+
+  const handleApplyRoomReset = useCallback(() => {
+    void handleResetSubmitForm(handleResetSubmit)();
+  }, [handleResetSubmitForm, handleResetSubmit]);
 
   const handleShopSubmit = (data: ShopFormValues) => {
     if (!areaData || selectedShopKeeper === null) {
@@ -6967,6 +7105,46 @@ export default function App({ repository }: AppProps) {
       lootTableOptions={lootTableOptions}
     />
   );
+  const roomResetEditorNode =
+    selectedRoomResetIndex === null ? (
+      <div className="placeholder-block">
+        <div className="placeholder-title">Select a reset to edit</div>
+        <p>Choose a reset above to edit its details.</p>
+      </div>
+    ) : (
+      <div className="block-card">
+        <div className="block-card__header">
+          <span>Reset #{selectedRoomResetIndex + 1}</span>
+        </div>
+        <ResetEditorFields
+          idPrefix="room-reset"
+          register={resetForm.register}
+          control={resetFormControl}
+          errors={resetFormState.errors}
+          activeResetCommand={activeResetCommand}
+          resetCommandOptions={resetCommandOptions}
+          resetCommandLabels={resetCommandLabels}
+          directions={directions}
+          wearLocations={wearLocations}
+          roomVnumOptions={roomVnumOptions}
+          objectVnumOptions={objectVnumOptions}
+          mobileVnumOptions={mobileVnumOptions}
+        />
+        <div className="form-actions">
+          <button
+            className="action-button action-button--primary"
+            type="button"
+            onClick={handleApplyRoomReset}
+            disabled={!resetFormState.isDirty}
+          >
+            Apply Reset Changes
+          </button>
+          <span className="form-hint">
+            {resetFormState.isDirty ? "Unsaved changes" : "Up to date"}
+          </span>
+        </div>
+      </div>
+    );
   const roomFormNode = (
     <RoomForm
       onSubmit={handleRoomSubmitForm(handleRoomSubmit)}
@@ -6982,6 +7160,10 @@ export default function App({ repository }: AppProps) {
       exitFlags={exitFlags}
       roomVnumOptions={roomVnumOptions}
       objectVnumOptions={objectVnumOptions}
+      roomResets={roomResetItems}
+      selectedRoomResetIndex={selectedRoomResetIndex}
+      onSelectRoomReset={handleSelectRoomReset}
+      roomResetEditor={roomResetEditorNode}
       canEditScript={canEditScript}
       scriptEventEntity={scriptEventEntity}
       eventBindings={eventBindings}
