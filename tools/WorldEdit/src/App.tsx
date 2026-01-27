@@ -8,12 +8,10 @@ import {
 } from "react";
 import type { ColDef, GridApi } from "ag-grid-community";
 import {
-  applyNodeChanges,
   BaseEdge,
   EdgeLabelRenderer,
   Position,
   type Edge,
-  type NodeChange,
   type EdgeProps,
   type Node,
   useStore
@@ -75,107 +73,70 @@ import {
 } from "./constants/globalDefaults";
 import {
   buildRoomRows,
-  createRoom,
-  deleteRoom,
   roomColumns as roomColumnsDef
 } from "./crud/area/roomsCrud";
 import {
   buildMobileRows,
-  createMobile,
-  deleteMobile,
   mobileColumns as mobileColumnsDef
 } from "./crud/area/mobilesCrud";
 import {
   buildObjectRows,
-  createObject,
-  deleteObject,
   objectColumns as objectColumnsDef
 } from "./crud/area/objectsCrud";
 import {
   buildResetRows,
-  createReset,
-  deleteReset,
   resetColumns as resetColumnsDef
 } from "./crud/area/resetsCrud";
 import {
   buildShopRows,
-  createShop,
-  deleteShop,
   shopColumns as shopColumnsDef
 } from "./crud/area/shopsCrud";
 import {
   buildFactionRows,
-  createFaction,
-  deleteFaction,
   factionColumns as factionColumnsDef
 } from "./crud/area/factionsCrud";
 import {
   buildQuestRows,
-  createQuest,
-  deleteQuest,
   questColumns as questColumnsDef
 } from "./crud/area/questsCrud";
 import {
   buildRecipeRows,
-  createRecipe,
-  deleteRecipe,
   recipeColumns as recipeColumnsDef
 } from "./crud/area/recipesCrud";
 import {
   buildGatherSpawnRows,
-  createGatherSpawn,
-  deleteGatherSpawn,
   gatherSpawnColumns as gatherSpawnColumnsDef
 } from "./crud/area/gatherSpawnsCrud";
-import {
-  createAreaLoot,
-  deleteAreaLoot,
-  extractAreaLootData
-} from "./crud/area/areaLootCrud";
+import { extractAreaLootData } from "./crud/area/areaLootCrud";
 import { buildLootRows, lootColumns as lootColumnsDef } from "./crud/loot/lootRows";
 import {
   buildClassRows,
-  classColumns as classColumnsDef,
-  createClass,
-  deleteClass
+  classColumns as classColumnsDef
 } from "./crud/global/classesCrud";
 import {
   buildRaceRows,
-  createRace,
-  deleteRace,
   raceColumns as raceColumnsDef
 } from "./crud/global/racesCrud";
 import {
   buildSkillRows,
-  createSkill,
-  deleteSkill,
   skillColumns as skillColumnsDef
 } from "./crud/global/skillsCrud";
 import {
   buildGroupRows,
-  createGroup,
-  deleteGroup,
   groupColumns as groupColumnsDef
 } from "./crud/global/groupsCrud";
 import {
   buildCommandRows,
-  createCommand,
-  deleteCommand,
   commandColumns as commandColumnsDef
 } from "./crud/global/commandsCrud";
 import {
   buildSocialRows,
-  createSocial,
-  deleteSocial,
   socialColumns as socialColumnsDef
 } from "./crud/global/socialsCrud";
 import {
   buildTutorialRows,
-  createTutorial,
-  deleteTutorial,
   tutorialColumns as tutorialColumnsDef
 } from "./crud/global/tutorialsCrud";
-import { createLoot, deleteLoot } from "./crud/global/lootCrud";
 import {
   buildTitlePairs,
   normalizeGroupSkills,
@@ -186,38 +147,20 @@ import {
 } from "./utils/globalNormalizers";
 import { digRoom, linkRooms } from "./map/roomOps";
 import {
-  applyRoomLayoutOverrides,
-  applyRoomSelection,
-  buildRoomNodes,
   extractRoomLayout,
   roomNodeTypes,
   type RoomLayoutMap,
   type RoomNodeData
 } from "./map/roomNodes";
 import {
-  applyAreaLayoutOverrides,
   extractAreaLayout,
-  type AreaLayoutMap,
-  type AreaGraphNodeData
+  type AreaLayoutMap
 } from "./map/areaNodes";
 import {
   buildOrthogonalEdgePath,
   offsetPoint
 } from "./map/edgeRouting";
-import {
-  buildAreaGraphContext,
-  buildAreaGraphEdges,
-  buildAreaGraphFilteredEntries,
-  buildAreaGraphMatch,
-  buildAreaGraphMatchLabel,
-  buildAreaGraphNodes
-} from "./map/areaGraphBuilder";
-import {
-  buildExitTargetValidation,
-  buildExternalExits,
-  buildRoomEdges,
-  findAreaForVnum
-} from "./map/roomEdges";
+import { buildExitTargetValidation, findAreaForVnum } from "./map/roomEdges";
 import type { VnumOption } from "./components/VnumPicker";
 import type { EventBinding } from "./data/eventTypes";
 import type {
@@ -262,12 +205,11 @@ import {
   loadValidationConfig
 } from "./validation/registry";
 import { loadPluginRules } from "./validation/plugins";
-import {
-  layoutAreaGraphNodes,
-  layoutRoomNodes,
-  areaNodeSize,
-  roomNodeSize
-} from "./map/graphLayout";
+import { areaNodeSize, roomNodeSize } from "./map/graphLayout";
+import { useAreaGraphState } from "./hooks/useAreaGraphState";
+import { useRoomMapState, type RoomContextMenuState } from "./hooks/useRoomMapState";
+import { useAreaCrudHandlers } from "./hooks/useAreaCrudHandlers";
+import { useGlobalCrudHandlers } from "./hooks/useGlobalCrudHandlers";
 import {
   containerFlagEnum,
   containerFlags,
@@ -2508,15 +2450,6 @@ export default function App({ repository }: AppProps) {
   const [selectedLootIndex, setSelectedLootIndex] = useState<number | null>(
     null
   );
-  const [roomContextMenu, setRoomContextMenu] =
-    useState<RoomContextMenuState | null>(null);
-  const [roomLinkPanel, setRoomLinkPanel] =
-    useState<RoomContextMenuState | null>(null);
-  const [roomLinkDirection, setRoomLinkDirection] = useState<string>(
-    directions[0]
-  );
-  const [roomLinkTarget, setRoomLinkTarget] = useState<string>("");
-  const [selectedRoomVnum, setSelectedRoomVnum] = useState<number | null>(null);
   const [selectedMobileVnum, setSelectedMobileVnum] = useState<number | null>(
     null
   );
@@ -2606,45 +2539,11 @@ export default function App({ repository }: AppProps) {
   const [areaDirectory, setAreaDirectory] = useState<string | null>(() =>
     localStorage.getItem("worldedit.areaDir")
   );
-  const [layoutNodes, setLayoutNodes] = useState<Node<RoomNodeData>[]>([]);
-  const [roomLayout, setRoomLayout] = useState<RoomLayoutMap>({});
-  const [areaLayout, setAreaLayout] = useState<AreaLayoutMap>({});
-  const [dirtyRoomNodes, setDirtyRoomNodes] = useState<Set<string>>(
-    () => new Set()
-  );
-  const [dirtyAreaNodes, setDirtyAreaNodes] = useState<Set<string>>(
-    () => new Set()
-  );
   const [diagnosticFilter, setDiagnosticFilter] = useState<
     "All" | EntityKey
   >("All");
-  const [autoLayoutEnabled, setAutoLayoutEnabled] = useState(true);
-  const [preferCardinalLayout, setPreferCardinalLayout] = useState(() => {
-    const stored = localStorage.getItem("worldedit.preferCardinalLayout");
-    return stored ? stored === "true" : true;
-  });
-  const [preferAreaCardinalLayout, setPreferAreaCardinalLayout] = useState(
-    () => {
-      const stored = localStorage.getItem(
-        "worldedit.preferAreaCardinalLayout"
-      );
-      return stored ? stored === "true" : true;
-    }
-  );
-  const [showVerticalEdges, setShowVerticalEdges] = useState(() => {
-    const stored = localStorage.getItem("worldedit.showVerticalEdges");
-    return stored ? stored === "true" : false;
-  });
-  const [areaGraphFilter, setAreaGraphFilter] = useState("");
-  const [areaGraphVnumQuery, setAreaGraphVnumQuery] = useState("");
   const [areaIndex, setAreaIndex] = useState<AreaIndexEntry[]>([]);
   const [areaGraphLinks, setAreaGraphLinks] = useState<AreaGraphLink[]>([]);
-  const [areaGraphLayoutNodes, setAreaGraphLayoutNodes] = useState<
-    Node<AreaGraphNodeData>[]
-  >([]);
-  const [layoutNonce, setLayoutNonce] = useState(0);
-  const roomLayoutRef = useRef<RoomLayoutMap>({});
-  const roomNodesWithLayoutRef = useRef<Node<RoomNodeData>[]>([]);
   const legacyScanDirRef = useRef<string | null>(null);
   const roomGridApi = useRef<GridApi | null>(null);
   const mobileGridApi = useRef<GridApi | null>(null);
@@ -2664,6 +2563,205 @@ export default function App({ repository }: AppProps) {
   const socialGridApi = useRef<GridApi | null>(null);
   const tutorialGridApi = useRef<GridApi | null>(null);
   const lootGridApi = useRef<GridApi | null>(null);
+  const exitValidation = useMemo(
+    () => buildExitTargetValidation(areaData, areaIndex),
+    [areaData, areaIndex]
+  );
+  const {
+    selectedRoomVnum,
+    setSelectedRoomVnum,
+    roomContextMenu,
+    setRoomContextMenu,
+    roomLinkPanel,
+    setRoomLinkPanel,
+    roomLinkDirection,
+    setRoomLinkDirection,
+    roomLinkTarget,
+    setRoomLinkTarget,
+    mapNodes,
+    roomEdges,
+    externalExits,
+    selectedRoomNode,
+    selectedRoomLocked,
+    dirtyRoomCount,
+    hasRoomLayout,
+    roomLayout,
+    roomNodesWithLayoutRef,
+    applyLoadedRoomLayout,
+    autoLayoutEnabled,
+    setAutoLayoutEnabled,
+    preferCardinalLayout,
+    showVerticalEdges,
+    setShowVerticalEdges,
+    handleRelayout,
+    handleTogglePreferGrid,
+    handleMapNavigate,
+    handleMapNodeClick,
+    handleRoomContextMenu,
+    closeRoomContextOverlays,
+    handleClearRoomLayout,
+    handleLockSelectedRoom,
+    handleUnlockSelectedRoom,
+    handleNodesChange,
+    handleNodeDragStop,
+    appendLayoutNode,
+    removeLayoutNode: removeRoomLayout
+  } = useRoomMapState({
+    areaData,
+    areaIndex,
+    exitInvalidEdgeIds: exitValidation.invalidEdgeIds,
+    activeTab,
+    selectedEntity,
+    setSelectedEntity,
+    parseVnum
+  });
+  const {
+    areaGraphFilter,
+    setAreaGraphFilter,
+    areaGraphVnumQuery,
+    setAreaGraphVnumQuery,
+    areaGraphMatchLabel,
+    areaGraphEdges,
+    worldMapNodes,
+    selectedAreaNode,
+    selectedAreaLocked,
+    dirtyAreaCount,
+    hasAreaLayout,
+    areaLayout,
+    preferAreaCardinalLayout,
+    applyLoadedAreaLayout,
+    handleTogglePreferAreaGrid,
+    handleLockSelectedArea,
+    handleUnlockSelectedArea,
+    handleLockDirtyAreas,
+    handleClearAreaLayout,
+    handleRelayoutArea,
+    handleAreaGraphNodesChange,
+    handleAreaGraphNodeDragStop
+  } = useAreaGraphState({
+    areaIndex,
+    areaData,
+    areaPath,
+    areaGraphLinks,
+    externalExits,
+    areaDirectionHandleMap,
+    getAreaVnumBounds,
+    getFirstString,
+    fileNameFromPath,
+    parseVnum,
+    formatVnumRange,
+    getDominantExitDirection,
+    findAreaForVnum
+  });
+  const {
+    handleCreateRoom,
+    handleDeleteRoom,
+    handleCreateMobile,
+    handleDeleteMobile,
+    handleCreateObject,
+    handleDeleteObject,
+    handleCreateReset,
+    handleDeleteReset,
+    handleCreateShop,
+    handleDeleteShop,
+    handleCreateQuest,
+    handleDeleteQuest,
+    handleCreateFaction,
+    handleDeleteFaction,
+    handleCreateAreaLoot,
+    handleDeleteAreaLoot,
+    handleCreateRecipe,
+    handleDeleteRecipe,
+    handleCreateGatherSpawn,
+    handleDeleteGatherSpawn
+  } = useAreaCrudHandlers({
+    areaData,
+    referenceData,
+    selectedRoomVnum,
+    selectedMobileVnum,
+    selectedObjectVnum,
+    selectedResetIndex,
+    selectedShopKeeper,
+    selectedQuestVnum,
+    selectedFactionVnum,
+    selectedAreaLootKind,
+    selectedAreaLootIndex,
+    selectedRecipeVnum,
+    selectedGatherVnum,
+    setAreaData,
+    setSelectedEntity,
+    setSelectedRoomVnum,
+    setSelectedMobileVnum,
+    setSelectedObjectVnum,
+    setSelectedResetIndex,
+    setSelectedShopKeeper,
+    setSelectedQuestVnum,
+    setSelectedFactionVnum,
+    setSelectedAreaLootKind,
+    setSelectedAreaLootIndex,
+    setSelectedRecipeVnum,
+    setSelectedGatherVnum,
+    setActiveTab,
+    setStatusMessage,
+    removeRoomLayout
+  });
+  const {
+    handleCreateClass,
+    handleDeleteClass,
+    handleCreateRace,
+    handleDeleteRace,
+    handleCreateSkill,
+    handleDeleteSkill,
+    handleCreateGroup,
+    handleDeleteGroup,
+    handleCreateCommand,
+    handleDeleteCommand,
+    handleCreateSocial,
+    handleDeleteSocial,
+    handleCreateTutorial,
+    handleDeleteTutorial,
+    handleCreateLoot,
+    handleDeleteLoot
+  } = useGlobalCrudHandlers({
+    classData,
+    raceData,
+    skillData,
+    groupData,
+    commandData,
+    socialData,
+    tutorialData,
+    lootData,
+    referenceData,
+    selectedClassIndex,
+    selectedRaceIndex,
+    selectedSkillIndex,
+    selectedGroupIndex,
+    selectedCommandIndex,
+    selectedSocialIndex,
+    selectedTutorialIndex,
+    selectedLootKind,
+    selectedLootIndex,
+    setClassData,
+    setRaceData,
+    setSkillData,
+    setGroupData,
+    setCommandData,
+    setSocialData,
+    setTutorialData,
+    setLootData,
+    setSelectedGlobalEntity,
+    setSelectedClassIndex,
+    setSelectedRaceIndex,
+    setSelectedSkillIndex,
+    setSelectedGroupIndex,
+    setSelectedCommandIndex,
+    setSelectedSocialIndex,
+    setSelectedTutorialIndex,
+    setSelectedLootKind,
+    setSelectedLootIndex,
+    setActiveTab,
+    setStatusMessage
+  });
   const areaForm = useForm<AreaFormValues>({
     resolver: zodResolver(areaFormSchema),
     defaultValues: {
@@ -4649,10 +4747,6 @@ export default function App({ repository }: AppProps) {
   ]);
   const validationConfig = useMemo(() => loadValidationConfig(), []);
   const pluginValidationRules = useMemo(() => loadPluginRules(), []);
-  const exitValidation = useMemo(
-    () => buildExitTargetValidation(areaData, areaIndex),
-    [areaData, areaIndex]
-  );
   const coreValidationRules = useMemo<ValidationRule[]>(
     () => [
       {
@@ -4834,509 +4928,6 @@ export default function App({ repository }: AppProps) {
   const shopRows = useMemo(() => buildShopRows(areaData), [areaData]);
   const questRows = useMemo(() => buildQuestRows(areaData), [areaData]);
   const factionRows = useMemo(() => buildFactionRows(areaData), [areaData]);
-  const baseRoomNodes = useMemo(() => buildRoomNodes(areaData), [areaData]);
-  const layoutSourceNodes = useMemo(
-    () => (layoutNodes.length ? layoutNodes : baseRoomNodes),
-    [layoutNodes, baseRoomNodes]
-  );
-  const roomNodesWithLayout = useMemo(
-    () => applyRoomLayoutOverrides(layoutSourceNodes, roomLayout),
-    [layoutSourceNodes, roomLayout]
-  );
-  const roomEdges = useMemo(
-    () =>
-      buildRoomEdges(
-        areaData,
-        showVerticalEdges,
-        true,
-        exitValidation.invalidEdgeIds
-      ),
-    [areaData, showVerticalEdges, exitValidation.invalidEdgeIds]
-  );
-  const externalExits = useMemo(
-    () => buildExternalExits(areaData, areaIndex),
-    [areaData, areaIndex]
-  );
-  const areaGraphContext = useMemo(
-    () =>
-      buildAreaGraphContext({
-        areaIndex,
-        areaData,
-        areaPath,
-        getAreaVnumBounds,
-        getFirstString,
-        fileNameFromPath
-      }),
-    [areaIndex, areaData, areaPath]
-  );
-  const areaGraphFilteredEntries = useMemo(
-    () => buildAreaGraphFilteredEntries(areaGraphContext.entries, areaGraphFilter),
-    [areaGraphContext.entries, areaGraphFilter]
-  );
-  const areaGraphMatch = useMemo(
-    () => buildAreaGraphMatch(areaGraphContext.entries, areaGraphVnumQuery, parseVnum),
-    [areaGraphContext.entries, areaGraphVnumQuery]
-  );
-  const areaGraphMatchLabel = useMemo(
-    () => buildAreaGraphMatchLabel(areaGraphMatch, formatVnumRange),
-    [areaGraphMatch]
-  );
-  const areaGraphNodes = useMemo(
-    () =>
-      buildAreaGraphNodes({
-        areaGraphFilteredEntries,
-        areaGraphContext,
-        areaGraphMatch,
-        formatVnumRange
-      }),
-    [areaGraphFilteredEntries, areaGraphContext, areaGraphMatch]
-  );
-  const areaGraphEdges = useMemo(
-    () =>
-      buildAreaGraphEdges({
-        areaGraphContext,
-        areaGraphFilteredEntries,
-        areaGraphLinks,
-        areaIndex,
-        externalExits,
-        areaDirectionHandleMap,
-        getDominantExitDirection,
-        findAreaForVnum
-      }),
-    [
-      areaGraphContext,
-      areaGraphFilteredEntries,
-      areaGraphLinks,
-      areaIndex,
-      externalExits
-    ]
-  );
-  const closeRoomContextOverlays = useCallback(() => {
-    setRoomContextMenu(null);
-    setRoomLinkPanel(null);
-  }, []);
-
-  const handleRoomContextMenu = useCallback(
-    (event: MouseEvent<HTMLDivElement>, vnum: number) => {
-      setRoomContextMenu({ vnum, x: event.clientX, y: event.clientY });
-      setRoomLinkPanel(null);
-      setSelectedRoomVnum(vnum);
-      setSelectedEntity("Rooms");
-    },
-    [setSelectedEntity, setSelectedRoomVnum]
-  );
-  const handleMapNavigate = useCallback(
-    (vnum: number) => {
-      closeRoomContextOverlays();
-      setSelectedRoomVnum(vnum);
-      setSelectedEntity("Rooms");
-    },
-    [closeRoomContextOverlays, setSelectedRoomVnum, setSelectedEntity]
-  );
-  const handleMapNodeClick = useCallback(
-    (node: Node<RoomNodeData>) => {
-      closeRoomContextOverlays();
-      const vnum =
-        typeof node.data?.vnum === "number"
-          ? node.data.vnum
-          : parseVnum(node.id);
-      if (vnum !== null && vnum >= 0) {
-        setSelectedRoomVnum(vnum);
-        setSelectedEntity("Rooms");
-      }
-    },
-    [closeRoomContextOverlays, setSelectedRoomVnum, setSelectedEntity]
-  );
-  const handleRelayout = useCallback(
-    () => setLayoutNonce((value) => value + 1),
-    []
-  );
-  const handleTogglePreferGrid = useCallback(
-    (nextValue: boolean) => {
-      setPreferCardinalLayout(nextValue);
-      if (!autoLayoutEnabled) {
-        setLayoutNonce((value) => value + 1);
-      }
-    },
-    [autoLayoutEnabled]
-  );
-  const handleTogglePreferAreaGrid = useCallback((nextValue: boolean) => {
-    setPreferAreaCardinalLayout(nextValue);
-  }, []);
-  const roomNodesWithHandlers = useMemo(
-    () =>
-      roomNodesWithLayout.map((node) => ({
-        ...node,
-        data: {
-          ...node.data,
-          onNavigate: handleMapNavigate,
-          onContextMenu: handleRoomContextMenu,
-          dirty: dirtyRoomNodes.has(node.id)
-        }
-      })),
-    [
-      roomNodesWithLayout,
-      handleMapNavigate,
-      handleRoomContextMenu,
-      dirtyRoomNodes
-    ]
-  );
-  const mapNodes = useMemo(
-    () => applyRoomSelection(roomNodesWithHandlers, selectedRoomVnum),
-    [roomNodesWithHandlers, selectedRoomVnum]
-  );
-  const selectedRoomNode = useMemo(() => {
-    if (selectedRoomVnum === null) {
-      return null;
-    }
-    return mapNodes.find((node) => node.data.vnum === selectedRoomVnum) ?? null;
-  }, [mapNodes, selectedRoomVnum]);
-  const selectedRoomLocked = Boolean(selectedRoomNode?.data.locked);
-  const dirtyRoomCount = dirtyRoomNodes.size;
-  const hasRoomLayout = Object.keys(roomLayout).length > 0;
-  const worldMapNodes = useMemo(
-    () =>
-      applyAreaLayoutOverrides(
-        areaGraphLayoutNodes.length ? areaGraphLayoutNodes : areaGraphNodes,
-        areaLayout,
-        dirtyAreaNodes
-      ),
-    [areaGraphLayoutNodes, areaGraphNodes, areaLayout, dirtyAreaNodes]
-  );
-  const selectedAreaNode = useMemo(
-    () => worldMapNodes.find((node) => node.selected) ?? null,
-    [worldMapNodes]
-  );
-  const selectedAreaLocked = Boolean(
-    selectedAreaNode && areaLayout[selectedAreaNode.id]?.locked
-  );
-  const dirtyAreaCount = dirtyAreaNodes.size;
-  const hasAreaLayout = Object.keys(areaLayout).length > 0;
-  const handleLockSelectedRoom = useCallback(() => {
-    if (!selectedRoomNode) {
-      return;
-    }
-    setRoomLayout((current) => ({
-      ...current,
-      [selectedRoomNode.id]: {
-        x: selectedRoomNode.position.x,
-        y: selectedRoomNode.position.y,
-        locked: true
-      }
-    }));
-    setDirtyRoomNodes((current) => {
-      if (!current.has(selectedRoomNode.id)) {
-        return current;
-      }
-      const next = new Set(current);
-      next.delete(selectedRoomNode.id);
-      return next;
-    });
-  }, [selectedRoomNode]);
-  const handleUnlockSelectedRoom = useCallback(() => {
-    if (!selectedRoomNode) {
-      return;
-    }
-    setLayoutNodes((current) => {
-      const source = current.length ? current : roomNodesWithLayout;
-      return source.map((node) =>
-        node.id === selectedRoomNode.id
-          ? { ...node, position: selectedRoomNode.position }
-          : node
-      );
-    });
-    setRoomLayout((current) => {
-      if (!current[selectedRoomNode.id]) {
-        return current;
-      }
-      const next = { ...current };
-      delete next[selectedRoomNode.id];
-      return next;
-    });
-    setDirtyRoomNodes((current) => {
-      if (current.has(selectedRoomNode.id)) {
-        return current;
-      }
-      const next = new Set(current);
-      next.add(selectedRoomNode.id);
-      return next;
-    });
-  }, [selectedRoomNode, roomNodesWithLayout]);
-  const runAreaGraphLayout = useCallback(
-    async (cancelRef?: { current: boolean }) => {
-      if (!areaGraphNodes.length) {
-        if (!cancelRef?.current) {
-          setAreaGraphLayoutNodes([]);
-        }
-        return;
-      }
-      try {
-        const nextNodes = await layoutAreaGraphNodes(
-          areaGraphNodes,
-          areaGraphEdges,
-          preferAreaCardinalLayout
-        );
-        if (!cancelRef?.current) {
-          setAreaGraphLayoutNodes(nextNodes);
-          setDirtyAreaNodes(new Set());
-        }
-      } catch {
-        if (!cancelRef?.current) {
-          setAreaGraphLayoutNodes(areaGraphNodes);
-          setDirtyAreaNodes(new Set());
-        }
-      }
-    },
-    [areaGraphNodes, areaGraphEdges, preferAreaCardinalLayout]
-  );
-  const handleLockSelectedArea = useCallback(() => {
-    if (!selectedAreaNode) {
-      return;
-    }
-    setAreaLayout((current) => ({
-      ...current,
-      [selectedAreaNode.id]: {
-        x: selectedAreaNode.position.x,
-        y: selectedAreaNode.position.y,
-        locked: true
-      }
-    }));
-    setDirtyAreaNodes((current) => {
-      if (!current.has(selectedAreaNode.id)) {
-        return current;
-      }
-      const next = new Set(current);
-      next.delete(selectedAreaNode.id);
-      return next;
-    });
-  }, [selectedAreaNode]);
-  const handleUnlockSelectedArea = useCallback(() => {
-    if (!selectedAreaNode) {
-      return;
-    }
-    setAreaGraphLayoutNodes((current) => {
-      const source = current.length ? current : areaGraphNodes;
-      return source.map((node) =>
-        node.id === selectedAreaNode.id
-          ? { ...node, position: selectedAreaNode.position }
-          : node
-      );
-    });
-    setAreaLayout((current) => {
-      if (!current[selectedAreaNode.id]) {
-        return current;
-      }
-      const next = { ...current };
-      delete next[selectedAreaNode.id];
-      return next;
-    });
-    setDirtyAreaNodes((current) => {
-      if (current.has(selectedAreaNode.id)) {
-        return current;
-      }
-      const next = new Set(current);
-      next.add(selectedAreaNode.id);
-      return next;
-    });
-  }, [selectedAreaNode, areaGraphNodes]);
-  const handleLockDirtyAreas = useCallback(() => {
-    if (!dirtyAreaNodes.size) {
-      return;
-    }
-    setAreaLayout((current) => {
-      const next = { ...current };
-      dirtyAreaNodes.forEach((id) => {
-        const node = worldMapNodes.find((entry) => entry.id === id);
-        if (!node) {
-          return;
-        }
-        next[id] = {
-          x: node.position.x,
-          y: node.position.y,
-          locked: true
-        };
-      });
-      return next;
-    });
-    setDirtyAreaNodes(new Set());
-  }, [dirtyAreaNodes, worldMapNodes]);
-  const handleClearAreaLayout = useCallback(() => {
-    setAreaLayout({});
-    setDirtyAreaNodes(new Set());
-    void runAreaGraphLayout();
-  }, [runAreaGraphLayout]);
-  const handleRelayoutArea = useCallback(() => {
-    void runAreaGraphLayout();
-  }, [runAreaGraphLayout]);
-  const handleClearRoomLayout = useCallback(() => {
-    setRoomLayout({});
-    setLayoutNodes([]);
-    setDirtyRoomNodes(new Set());
-    if (autoLayoutEnabled) {
-      setLayoutNonce((value) => value + 1);
-    }
-  }, [autoLayoutEnabled]);
-  const handleNodesChange = useCallback(
-    (changes: NodeChange[]) => {
-      setLayoutNodes((current) => {
-        const source = current.length ? current : roomNodesWithLayout;
-        return applyNodeChanges(changes, source);
-      });
-      const movedIds = changes
-        .filter((change) => change.type === "position")
-        .map((change) => change.id);
-      if (movedIds.length) {
-        setDirtyRoomNodes((current) => {
-          let changed = false;
-          const next = new Set(current);
-          movedIds.forEach((id) => {
-            if (!next.has(id)) {
-              next.add(id);
-              changed = true;
-            }
-          });
-          return changed ? next : current;
-        });
-      }
-    },
-    [roomNodesWithLayout]
-  );
-  const handleNodeDragStop = useCallback(
-    (_: unknown, node: Node<RoomNodeData>) => {
-      setLayoutNodes((current) => {
-        const source = current.length ? current : roomNodesWithLayout;
-        return source.map((entry) =>
-          entry.id === node.id
-            ? { ...entry, position: node.position }
-            : entry
-        );
-      });
-      setDirtyRoomNodes((current) => {
-        if (current.has(node.id)) {
-          return current;
-        }
-        const next = new Set(current);
-        next.add(node.id);
-        return next;
-      });
-    },
-    [roomNodesWithLayout]
-  );
-  const handleAreaGraphNodesChange = useCallback(
-    (changes: NodeChange[]) => {
-      setAreaGraphLayoutNodes((current) => {
-        const source = current.length ? current : areaGraphNodes;
-        return applyNodeChanges(changes, source);
-      });
-      const movedIds = changes
-        .filter((change) => change.type === "position")
-        .map((change) => change.id);
-      if (movedIds.length) {
-        setDirtyAreaNodes((current) => {
-          let changed = false;
-          const next = new Set(current);
-          movedIds.forEach((id) => {
-            if (!next.has(id)) {
-              next.add(id);
-              changed = true;
-            }
-          });
-          return changed ? next : current;
-        });
-      }
-    },
-    [areaGraphNodes]
-  );
-  const handleAreaGraphNodeDragStop = useCallback(
-    (_: unknown, node: Node<AreaGraphNodeData>) => {
-      setAreaGraphLayoutNodes((current) => {
-        const source = current.length ? current : areaGraphNodes;
-        return source.map((entry) =>
-          entry.id === node.id ? { ...entry, position: node.position } : entry
-        );
-      });
-      setDirtyAreaNodes((current) => {
-        if (current.has(node.id)) {
-          return current;
-        }
-        const next = new Set(current);
-        next.add(node.id);
-        return next;
-      });
-    },
-    [areaGraphNodes]
-  );
-  useEffect(() => {
-    const cancelRef = { current: false };
-    runAreaGraphLayout(cancelRef);
-    return () => {
-      cancelRef.current = true;
-    };
-  }, [runAreaGraphLayout]);
-  const runRoomLayout = useCallback(
-    async (cancelRef?: { current: boolean }) => {
-      if (activeTab !== "Map") {
-        return;
-      }
-      if (!baseRoomNodes.length) {
-        if (!cancelRef?.current) {
-          setLayoutNodes([]);
-          setDirtyRoomNodes(new Set());
-        }
-        return;
-      }
-      try {
-        const nextNodes = await layoutRoomNodes(
-          baseRoomNodes,
-          roomEdges,
-          preferCardinalLayout
-        );
-        if (!cancelRef?.current) {
-          setLayoutNodes(
-            applyRoomLayoutOverrides(nextNodes, roomLayoutRef.current)
-          );
-          setDirtyRoomNodes(new Set());
-        }
-      } catch (error) {
-        if (!cancelRef?.current) {
-          setLayoutNodes(
-            applyRoomLayoutOverrides(baseRoomNodes, roomLayoutRef.current)
-          );
-          setDirtyRoomNodes(new Set());
-        }
-      }
-    },
-    [activeTab, baseRoomNodes, preferCardinalLayout, roomEdges]
-  );
-
-  useEffect(() => {
-    roomLayoutRef.current = roomLayout;
-  }, [roomLayout]);
-
-  useEffect(() => {
-    roomNodesWithLayoutRef.current = roomNodesWithLayout;
-  }, [roomNodesWithLayout]);
-
-  useEffect(() => {
-    localStorage.setItem(
-      "worldedit.preferCardinalLayout",
-      String(preferCardinalLayout)
-    );
-  }, [preferCardinalLayout]);
-
-  useEffect(() => {
-    localStorage.setItem(
-      "worldedit.preferAreaCardinalLayout",
-      String(preferAreaCardinalLayout)
-    );
-  }, [preferAreaCardinalLayout]);
-
-  useEffect(() => {
-    localStorage.setItem(
-      "worldedit.showVerticalEdges",
-      String(showVerticalEdges)
-    );
-  }, [showVerticalEdges]);
 
   useEffect(() => {
     let cancelled = false;
@@ -6515,562 +6106,6 @@ export default function App({ repository }: AppProps) {
     lootRows
   ]);
 
-  useEffect(() => {
-    if (activeTab === "Map" && selectedEntity !== "Rooms") {
-      setSelectedEntity("Rooms");
-    }
-  }, [activeTab, selectedEntity]);
-
-  useEffect(() => {
-    if (!autoLayoutEnabled) {
-      return;
-    }
-    const cancelRef = { current: false };
-    runRoomLayout(cancelRef);
-    return () => {
-      cancelRef.current = true;
-    };
-  }, [autoLayoutEnabled, runRoomLayout]);
-
-  useEffect(() => {
-    if (layoutNonce === 0) {
-      return;
-    }
-    const cancelRef = { current: false };
-    runRoomLayout(cancelRef);
-    return () => {
-      cancelRef.current = true;
-    };
-  }, [layoutNonce, runRoomLayout]);
-
-  const handleCreateRoom = useCallback(() => {
-    const result = createRoom(areaData);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setAreaData(result.data.areaData);
-    setSelectedEntity("Rooms");
-    setSelectedRoomVnum(result.data.vnum);
-    setActiveTab("Form");
-    setStatusMessage(`Created room ${result.data.vnum} (unsaved)`);
-  }, [
-    areaData,
-    setStatusMessage,
-    setSelectedEntity,
-    setSelectedRoomVnum,
-    setActiveTab
-  ]);
-
-  const handleCreateMobile = useCallback(() => {
-    const defaultRace =
-      referenceData?.races?.[0] ? referenceData.races[0] : "human";
-    const result = createMobile(areaData, defaultRace);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setAreaData(result.data.areaData);
-    setSelectedEntity("Mobiles");
-    setSelectedMobileVnum(result.data.vnum);
-    setActiveTab("Form");
-    setStatusMessage(`Created mobile ${result.data.vnum} (unsaved)`);
-  }, [
-    areaData,
-    referenceData,
-    setStatusMessage,
-    setSelectedEntity,
-    setSelectedMobileVnum,
-    setActiveTab
-  ]);
-
-  const handleDeleteMobile = useCallback(() => {
-    const result = deleteMobile(areaData, selectedMobileVnum);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setAreaData(result.data.areaData);
-    setSelectedMobileVnum(null);
-    setStatusMessage(`Deleted mobile ${result.data.deletedVnum} (unsaved)`);
-  }, [areaData, selectedMobileVnum, setStatusMessage]);
-
-  const handleCreateObject = useCallback(() => {
-    const result = createObject(areaData);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setAreaData(result.data.areaData);
-    setSelectedEntity("Objects");
-    setSelectedObjectVnum(result.data.vnum);
-    setActiveTab("Form");
-    setStatusMessage(`Created object ${result.data.vnum} (unsaved)`);
-  }, [
-    areaData,
-    setStatusMessage,
-    setSelectedEntity,
-    setSelectedObjectVnum,
-    setActiveTab
-  ]);
-
-  const handleDeleteObject = useCallback(() => {
-    const result = deleteObject(areaData, selectedObjectVnum);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setAreaData(result.data.areaData);
-    setSelectedObjectVnum(null);
-    setStatusMessage(`Deleted object ${result.data.deletedVnum} (unsaved)`);
-  }, [areaData, selectedObjectVnum, setStatusMessage]);
-
-  const handleCreateShop = useCallback(() => {
-    const result = createShop(areaData);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setAreaData(result.data.areaData);
-    setSelectedEntity("Shops");
-    setSelectedShopKeeper(result.data.keeper);
-    setActiveTab("Form");
-    setStatusMessage(`Created shop ${result.data.keeper} (unsaved)`);
-  }, [
-    areaData,
-    setStatusMessage,
-    setSelectedEntity,
-    setSelectedShopKeeper,
-    setActiveTab
-  ]);
-
-  const handleDeleteShop = useCallback(() => {
-    const result = deleteShop(areaData, selectedShopKeeper);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setAreaData(result.data.areaData);
-    setSelectedShopKeeper(null);
-    setStatusMessage(`Deleted shop ${result.data.deletedKeeper} (unsaved)`);
-  }, [areaData, selectedShopKeeper, setStatusMessage]);
-
-  const handleCreateQuest = useCallback(() => {
-    const result = createQuest(areaData);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setAreaData(result.data.areaData);
-    setSelectedEntity("Quests");
-    setSelectedQuestVnum(result.data.vnum);
-    setActiveTab("Form");
-    setStatusMessage(`Created quest ${result.data.vnum} (unsaved)`);
-  }, [
-    areaData,
-    setStatusMessage,
-    setSelectedEntity,
-    setSelectedQuestVnum,
-    setActiveTab
-  ]);
-
-  const handleDeleteQuest = useCallback(() => {
-    const result = deleteQuest(areaData, selectedQuestVnum);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setAreaData(result.data.areaData);
-    setSelectedQuestVnum(null);
-    setStatusMessage(`Deleted quest ${result.data.deletedVnum} (unsaved)`);
-  }, [areaData, selectedQuestVnum, setStatusMessage]);
-
-  const handleCreateFaction = useCallback(() => {
-    const result = createFaction(areaData);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setAreaData(result.data.areaData);
-    setSelectedEntity("Factions");
-    setSelectedFactionVnum(result.data.vnum);
-    setActiveTab("Form");
-    setStatusMessage(`Created faction ${result.data.vnum} (unsaved)`);
-  }, [
-    areaData,
-    setStatusMessage,
-    setSelectedEntity,
-    setSelectedFactionVnum,
-    setActiveTab
-  ]);
-
-  const handleDeleteFaction = useCallback(() => {
-    const result = deleteFaction(areaData, selectedFactionVnum);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setAreaData(result.data.areaData);
-    setSelectedFactionVnum(null);
-    setStatusMessage(`Deleted faction ${result.data.deletedVnum} (unsaved)`);
-  }, [areaData, selectedFactionVnum, setStatusMessage]);
-
-  const handleCreateAreaLoot = useCallback((kind: "group" | "table") => {
-    const result = createAreaLoot(areaData, kind);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setAreaData(result.data.areaData);
-    setSelectedEntity("Loot");
-    setSelectedAreaLootKind(result.data.kind);
-    setSelectedAreaLootIndex(result.data.index);
-    setActiveTab("Form");
-    setStatusMessage(
-      `Created loot ${result.data.kind} ${result.data.index} (unsaved)`
-    );
-  }, [
-    areaData,
-    setStatusMessage,
-    setSelectedEntity,
-    setSelectedAreaLootKind,
-    setSelectedAreaLootIndex,
-    setActiveTab
-  ]);
-
-  const handleDeleteAreaLoot = useCallback(() => {
-    const result = deleteAreaLoot(
-      areaData,
-      selectedAreaLootKind,
-      selectedAreaLootIndex
-    );
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setAreaData(result.data.areaData);
-    setSelectedAreaLootKind(null);
-    setSelectedAreaLootIndex(null);
-    setStatusMessage(
-      `Deleted loot ${result.data.kind} ${result.data.index} (unsaved)`
-    );
-  }, [
-    areaData,
-    selectedAreaLootKind,
-    selectedAreaLootIndex,
-    setStatusMessage
-  ]);
-
-  const handleCreateRecipe = useCallback(() => {
-    const result = createRecipe(areaData);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setAreaData(result.data.areaData);
-    setSelectedEntity("Recipes");
-    setSelectedRecipeVnum(result.data.vnum);
-    setActiveTab("Form");
-    setStatusMessage(`Created recipe ${result.data.vnum} (unsaved)`);
-  }, [
-    areaData,
-    setStatusMessage,
-    setSelectedEntity,
-    setSelectedRecipeVnum,
-    setActiveTab
-  ]);
-
-  const handleDeleteRecipe = useCallback(() => {
-    const result = deleteRecipe(areaData, selectedRecipeVnum);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setAreaData(result.data.areaData);
-    setSelectedRecipeVnum(null);
-    setStatusMessage(`Deleted recipe ${result.data.deletedVnum} (unsaved)`);
-  }, [areaData, selectedRecipeVnum, setStatusMessage]);
-
-  const handleCreateGatherSpawn = useCallback(() => {
-    const result = createGatherSpawn(areaData);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setAreaData(result.data.areaData);
-    setSelectedEntity("Gather Spawns");
-    setSelectedGatherVnum(result.data.vnum);
-    setActiveTab("Form");
-    setStatusMessage(`Created gather spawn ${result.data.vnum} (unsaved)`);
-  }, [
-    areaData,
-    setStatusMessage,
-    setSelectedEntity,
-    setSelectedGatherVnum,
-    setActiveTab
-  ]);
-
-  const handleDeleteGatherSpawn = useCallback(() => {
-    const result = deleteGatherSpawn(areaData, selectedGatherVnum);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setAreaData(result.data.areaData);
-    setSelectedGatherVnum(null);
-    setStatusMessage(`Deleted gather spawn ${result.data.deletedVnum} (unsaved)`);
-  }, [areaData, selectedGatherVnum, setStatusMessage]);
-
-  const handleCreateClass = useCallback(() => {
-    const result = createClass(classData);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setClassData(result.data.classData);
-    setSelectedGlobalEntity("Classes");
-    setSelectedClassIndex(result.data.index);
-    setActiveTab("Form");
-    setStatusMessage(`Created class ${result.data.name} (unsaved)`);
-  }, [
-    classData,
-    setStatusMessage,
-    setSelectedGlobalEntity,
-    setSelectedClassIndex,
-    setActiveTab
-  ]);
-
-  const handleDeleteClass = useCallback(() => {
-    const result = deleteClass(classData, selectedClassIndex);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setClassData(result.data.classData);
-    setSelectedClassIndex(null);
-    setStatusMessage(`Deleted ${result.data.deletedName} (unsaved)`);
-  }, [classData, selectedClassIndex, setStatusMessage]);
-
-  const handleCreateRace = useCallback(() => {
-    const result = createRace(raceData, referenceData?.classes ?? []);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setRaceData(result.data.raceData);
-    setSelectedGlobalEntity("Races");
-    setSelectedRaceIndex(result.data.index);
-    setActiveTab("Form");
-    setStatusMessage(`Created race ${result.data.name} (unsaved)`);
-  }, [
-    raceData,
-    referenceData,
-    setStatusMessage,
-    setSelectedGlobalEntity,
-    setSelectedRaceIndex,
-    setActiveTab
-  ]);
-
-  const handleDeleteRace = useCallback(() => {
-    const result = deleteRace(raceData, selectedRaceIndex);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setRaceData(result.data.raceData);
-    setSelectedRaceIndex(null);
-    setStatusMessage(`Deleted ${result.data.deletedName} (unsaved)`);
-  }, [raceData, selectedRaceIndex, setStatusMessage]);
-
-  const handleCreateSkill = useCallback(() => {
-    const result = createSkill(skillData, referenceData?.classes ?? []);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setSkillData(result.data.skillData);
-    setSelectedGlobalEntity("Skills");
-    setSelectedSkillIndex(result.data.index);
-    setActiveTab("Form");
-    setStatusMessage(`Created skill ${result.data.name} (unsaved)`);
-  }, [
-    skillData,
-    referenceData,
-    setStatusMessage,
-    setSelectedGlobalEntity,
-    setSelectedSkillIndex,
-    setActiveTab
-  ]);
-
-  const handleDeleteSkill = useCallback(() => {
-    const result = deleteSkill(skillData, selectedSkillIndex);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setSkillData(result.data.skillData);
-    setSelectedSkillIndex(null);
-    setStatusMessage(`Deleted ${result.data.deletedName} (unsaved)`);
-  }, [skillData, selectedSkillIndex, setStatusMessage]);
-
-  const handleCreateGroup = useCallback(() => {
-    const result = createGroup(groupData, referenceData?.classes ?? []);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setGroupData(result.data.groupData);
-    setSelectedGlobalEntity("Groups");
-    setSelectedGroupIndex(result.data.index);
-    setActiveTab("Form");
-    setStatusMessage(`Created group ${result.data.name} (unsaved)`);
-  }, [
-    groupData,
-    referenceData,
-    setStatusMessage,
-    setSelectedGlobalEntity,
-    setSelectedGroupIndex,
-    setActiveTab
-  ]);
-
-  const handleDeleteGroup = useCallback(() => {
-    const result = deleteGroup(groupData, selectedGroupIndex);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setGroupData(result.data.groupData);
-    setSelectedGroupIndex(null);
-    setStatusMessage(`Deleted ${result.data.deletedName} (unsaved)`);
-  }, [groupData, selectedGroupIndex, setStatusMessage]);
-
-  const handleCreateCommand = useCallback(() => {
-    const result = createCommand(commandData);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setCommandData(result.data.commandData);
-    setSelectedGlobalEntity("Commands");
-    setSelectedCommandIndex(result.data.index);
-    setActiveTab("Form");
-    setStatusMessage(`Created command ${result.data.name} (unsaved)`);
-  }, [
-    commandData,
-    setStatusMessage,
-    setSelectedGlobalEntity,
-    setSelectedCommandIndex,
-    setActiveTab
-  ]);
-
-  const handleDeleteCommand = useCallback(() => {
-    const result = deleteCommand(commandData, selectedCommandIndex);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setCommandData(result.data.commandData);
-    setSelectedCommandIndex(null);
-    setStatusMessage(`Deleted ${result.data.deletedName} (unsaved)`);
-  }, [commandData, selectedCommandIndex, setStatusMessage]);
-
-  const handleCreateSocial = useCallback(() => {
-    const result = createSocial(socialData);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setSocialData(result.data.socialData);
-    setSelectedGlobalEntity("Socials");
-    setSelectedSocialIndex(result.data.index);
-    setActiveTab("Form");
-    setStatusMessage(`Created social ${result.data.name} (unsaved)`);
-  }, [
-    socialData,
-    setStatusMessage,
-    setSelectedGlobalEntity,
-    setSelectedSocialIndex,
-    setActiveTab
-  ]);
-
-  const handleDeleteSocial = useCallback(() => {
-    const result = deleteSocial(socialData, selectedSocialIndex);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setSocialData(result.data.socialData);
-    setSelectedSocialIndex(null);
-    setStatusMessage(`Deleted ${result.data.deletedName} (unsaved)`);
-  }, [socialData, selectedSocialIndex, setStatusMessage]);
-
-  const handleCreateTutorial = useCallback(() => {
-    const result = createTutorial(tutorialData);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setTutorialData(result.data.tutorialData);
-    setSelectedGlobalEntity("Tutorials");
-    setSelectedTutorialIndex(result.data.index);
-    setActiveTab("Form");
-    setStatusMessage(`Created tutorial ${result.data.name} (unsaved)`);
-  }, [
-    tutorialData,
-    setStatusMessage,
-    setSelectedGlobalEntity,
-    setSelectedTutorialIndex,
-    setActiveTab
-  ]);
-
-  const handleDeleteTutorial = useCallback(() => {
-    const result = deleteTutorial(tutorialData, selectedTutorialIndex);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setTutorialData(result.data.tutorialData);
-    setSelectedTutorialIndex(null);
-    setStatusMessage(`Deleted ${result.data.deletedName} (unsaved)`);
-  }, [tutorialData, selectedTutorialIndex, setStatusMessage]);
-
-  const handleCreateLoot = useCallback((kind: "group" | "table") => {
-    const result = createLoot(lootData, kind);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setLootData(result.data.lootData);
-    setSelectedGlobalEntity("Loot");
-    setSelectedLootKind(result.data.kind);
-    setSelectedLootIndex(result.data.index);
-    setActiveTab("Form");
-    setStatusMessage(
-      `Created loot ${result.data.kind} ${result.data.index} (unsaved)`
-    );
-  }, [
-    lootData,
-    setStatusMessage,
-    setSelectedGlobalEntity,
-    setSelectedLootKind,
-    setSelectedLootIndex,
-    setActiveTab
-  ]);
-
-  const handleDeleteLoot = useCallback(() => {
-    const result = deleteLoot(lootData, selectedLootKind, selectedLootIndex);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setLootData(result.data.lootData);
-    setSelectedLootKind(null);
-    setSelectedLootIndex(null);
-    setStatusMessage(
-      `Deleted loot ${result.data.kind} ${result.data.index} (unsaved)`
-    );
-  }, [lootData, selectedLootKind, selectedLootIndex, setStatusMessage]);
-
   const handleOpenRoomLinkPanel = useCallback(
     (menu: RoomContextMenuState) => {
       setRoomLinkPanel({
@@ -7109,16 +6144,7 @@ export default function App({ repository }: AppProps) {
       }
       setAreaData(result.areaData);
       if (result.layoutNode) {
-        setLayoutNodes((current) => {
-          const sourceList =
-            current.length ? current : roomNodesWithLayoutRef.current;
-          return [...sourceList, result.layoutNode];
-        });
-        setDirtyRoomNodes((current) => {
-          const next = new Set(current);
-          next.add(result.layoutNode.id);
-          return next;
-        });
+        appendLayoutNode(result.layoutNode);
       }
       setSelectedRoomVnum(result.nextVnum);
       setSelectedEntity("Rooms");
@@ -7133,8 +6159,7 @@ export default function App({ repository }: AppProps) {
       findByVnum,
       getNextEntityVnum,
       setAreaData,
-      setLayoutNodes,
-      setDirtyRoomNodes,
+      appendLayoutNode,
       setSelectedEntity,
       setSelectedRoomVnum,
       setStatusMessage,
@@ -7181,65 +6206,6 @@ export default function App({ repository }: AppProps) {
     setRoomLinkTarget,
     linkRooms
   ]);
-
-  const handleCreateReset = useCallback(() => {
-    const result = createReset(areaData);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setAreaData(result.data.areaData);
-    setSelectedEntity("Resets");
-    setSelectedResetIndex(result.data.index);
-    setActiveTab("Form");
-    setStatusMessage(`Created reset #${result.data.index} (unsaved)`);
-  }, [
-    areaData,
-    setStatusMessage,
-    setSelectedEntity,
-    setSelectedResetIndex,
-    setActiveTab
-  ]);
-
-  const handleDeleteReset = useCallback(() => {
-    const result = deleteReset(areaData, selectedResetIndex);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    setAreaData(result.data.areaData);
-    setSelectedResetIndex(null);
-    setStatusMessage(`Deleted reset #${result.data.deletedIndex} (unsaved)`);
-  }, [areaData, selectedResetIndex, setStatusMessage]);
-
-  const handleDeleteRoom = useCallback(() => {
-    const result = deleteRoom(areaData, selectedRoomVnum);
-    if (!result.ok) {
-      setStatusMessage(result.message);
-      return;
-    }
-    const { areaData: nextAreaData, roomId, deletedVnum } = result.data;
-    setAreaData(nextAreaData);
-    setRoomLayout((current) => {
-      if (!current[roomId]) {
-        return current;
-      }
-      const next = { ...current };
-      delete next[roomId];
-      return next;
-    });
-    setLayoutNodes((current) => current.filter((node) => node.id !== roomId));
-    setDirtyRoomNodes((current) => {
-      if (!current.has(roomId)) {
-        return current;
-      }
-      const next = new Set(current);
-      next.delete(roomId);
-      return next;
-    });
-    setSelectedRoomVnum(null);
-    setStatusMessage(`Deleted room ${deletedVnum} (unsaved)`);
-  }, [areaData, selectedRoomVnum, setStatusMessage]);
 
   const handleAreaSubmit = (data: AreaFormValues) => {
     if (!areaData) {
@@ -8521,10 +7487,8 @@ export default function App({ repository }: AppProps) {
         setErrorMessage(`Failed to load editor meta. ${String(error)}`);
       }
       setEditorMeta(loadedMeta);
-      setRoomLayout(extractRoomLayout(loadedMeta?.layout));
-      setAreaLayout(extractAreaLayout(loadedMeta?.layout));
-      setDirtyRoomNodes(new Set());
-      setDirtyAreaNodes(new Set());
+      applyLoadedRoomLayout(extractRoomLayout(loadedMeta?.layout));
+      applyLoadedAreaLayout(extractAreaLayout(loadedMeta?.layout));
       setStatusMessage(
         loadedMeta
           ? `Loaded ${fileNameFromPath(path)} + editor meta`
