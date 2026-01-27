@@ -61,7 +61,7 @@
 
 #include <data/class.h>
 #include <data/events.h>
-#include <data/quest.h>
+#include <entities/quest.h>
 #include <data/race.h>
 
 #include <stdio.h>
@@ -277,7 +277,7 @@ static bool rom_apply_damage(Mobile* ch, Mobile* victim, int dam,
                 if (qs->quest->type == QUEST_KILL_MOB && qs->progress < qs->amount) {
                     ++qs->progress;
                     printf_to_char(ch, COLOR_INFO "Quest Progress: " COLOR_CLEAR "%s " COLOR_DECOR_1 "(" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 "/" COLOR_ALT_TEXT_1 "%d" COLOR_DECOR_1 ")" COLOR_EOL,
-                        qs->quest->name, qs->progress, qs->amount);
+                        NAME_STR(qs->quest), qs->progress, qs->amount);
                 }
             }
         }

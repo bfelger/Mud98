@@ -35,7 +35,7 @@
 #include <data/skill.h>
 #include <data/spell.h>
 #include <data/social.h>
-#include <data/quest.h>
+#include <entities/quest.h>
 #include <data/tutorial.h>
 
 #include <craft/recipe.h>

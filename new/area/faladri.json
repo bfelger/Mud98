@@ -102,7 +102,7 @@
       "name": "The Awakening",
       "description": "You stand next to the great old trunk of Cuivealda. The light is dim, as the dense, high canopy that forms Tauremar covers the sky. There is little ground cover, and the forest floor is a desolate place of perpetual twilight.\n\r",
       "roomFlags": [
-        "no_recall"
+        "recall"
       ],
       "sectorType": "forest",
       "timePeriods": [
@@ -126,7 +126,7 @@
           "toVnum": 12002
         }
       ],
-      "loxScript": "// This function gets called the first time a character logs in as an elf, \n\r// after character creation.\n\ron_login(vch) {\n\r    // Only newly-created characters\n\r    if (vch.level > 1 or vch.race != Race.Elf)\n\r        return;\n\r        \n\r    vch.send(\n\r        \"^*You step off the end of an old rope ladder at the base of \"\n\r        \"Cuivealda, the Tree of Awakening. Your years in the nurturing \"\n\r        \"hands of the Tetyayath have come to an end.^/^/\"\n\r        \"Now you must go out into the world and find your destiny...^/^x\")\n\r\n\r    if (vch.can_quest(12000)) {\n\r        delay(1, () -> {\n\r            vch.send(\"^jYou have instructions to meet your old mentor in a \"\n\r                \"clearing just to the east. There you will continue your \"\n\r                \"training. Type '^*EXITS^j' to see what lies in that \"\n\r                \"direction. Type '^*EAST^j' to go there.^x\")\n\r            vch.grant_quest(12000)\n\r            vch.send(\"^jType '^*QUEST^j' to view your quest log.^x\")\n\r        })\n\r    }\n\r}\n\r",
+      "loxScript": "// This function gets called the first time a character logs in as an elf, \n\r// after character creation.\n\ron_login(vch) {\n\r    // Only newly-created characters\n\r    if (vch.level > 1 or vch.race != Race.Elf)\n\r        return;\n\r    vch.set_recall(12000)\n\r    vch.send(\n\r        \"^*You step off the end of an old rope ladder at the base of \"\n\r        \"Cuivealda, the Tree of Awakening. Your years in the nurturing \"\n\r        \"hands of the Tetyayath have come to an end.^/^/\"\n\r        \"Now you must go out into the world and find your destiny...^/^x\")\n\r\n\r    if (vch.can_quest(12000)) {\n\r        delay(1, () -> {\n\r            vch.send(\"^jYou have instructions to meet your old mentor in a \"\n\r                \"clearing just to the east. There you will continue your \"\n\r                \"training. Type '^*EXITS^j' to see what lies in that \"\n\r                \"direction. Type '^*EAST^j' to go there.^x\")\n\r            vch.grant_quest(12000)\n\r            vch.send(\"^jType '^*QUEST^j' to view your quest log.^x\")\n\r        })\n\r    }\n\r}\n\r",
       "events": [
         {
           "trigger": "login",
@@ -138,9 +138,6 @@
       "vnum": 12001,
       "name": "Watcher's Platform",
       "description": "This rough platform is suspended above Verdant Watch. It is tied to tree trunks on all corners, and is densely camouflaged. The rope ladder extends upward.\n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
       "sectorType": "forest",
       "exits": [
         {
@@ -157,9 +154,6 @@
       "vnum": 12002,
       "name": "A Dark Path Through the Woods",
       "description": "  This path through the forest is just out of sight of Cuivealda to the west.  The trees are densely packed on all sides except on the path, which continues east.  \n\r  There is a hand-written note posted to a tree.\n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
       "sectorType": "forest",
       "exits": [
         {
@@ -189,9 +183,6 @@
       "vnum": 12003,
       "name": "A Dark Path Through the Woods",
       "description": "  The path through the dark woods continues.  The way west leads back to Cuivealda, while the path continuing east leads to sunlight.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
       "sectorType": "forest",
       "exits": [
         {
@@ -215,9 +206,6 @@
       "vnum": 12004,
       "name": "Verdant Refuge",
       "description": "Here in the tree canopy high above Verdant Watch, dense foliage conceals a cluster of buildings suspended upon thick branches. The are connected by the wooden gangways upon which you now stand. Their entrances in are each direction.\n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
       "sectorType": "forest",
       "exits": [
         {
@@ -252,8 +240,7 @@
       "name": "The Training Ground",
       "description": "  Dappled sunlight breaks through the canopy in this clearing.  A patch of grass grows, green and vibrant, in the center.  Dark pathways through the trees go out in all directions.  \n\r",
       "roomFlags": [
-        "safe",
-        "no_recall"
+        "safe"
       ],
       "sectorType": "forest",
       "exits": [
@@ -274,10 +261,7 @@
     {
       "vnum": 12010,
       "name": "The Poisoned Woods",
-      "description": "  There is only a glimmer of light from the clearing to the south. Otherwise, the forest floor is almost completely obscured by the high canopy of trees.  You can see signs of some sort of blight that is infecting plant\n\rand animal alike.  Tree trunks are turning ashen white, and there are carcasses of hairless creatures strewn about.\n\r  The sickened forest extends in all directions.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "  There is only a glimmer of light from the clearing to the south. Otherwise, the forest floor is almost completely obscured by the high canopy of trees.  You can see signs of some sort of blight that is infecting plant and animal alike.  Tree trunks are turning ashen white, and there are carcasses of hairless creatures strewn about.\n\r  The sickened forest extends in all directions.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -302,9 +286,6 @@
       "vnum": 12011,
       "name": "The Poisoned Woods",
       "description": "The woods grow more dark and impenetrable in this direction.  Signs of the blight are much clearer here than to the east.  It's hard to believe that the very trees that hold Tauremar aloft are rotting like this.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
       "sectorType": "forest",
       "exits": [
         {
@@ -321,9 +302,6 @@
       "vnum": 12012,
       "name": "The Poisoned Woods",
       "description": "The woods grow even darker here.  You can hear the strange, agonizing cries of blighted forest creatures all around you.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
       "sectorType": "forest",
       "exits": [
         {
@@ -343,10 +321,7 @@
     {
       "vnum": 12013,
       "name": "The Poisoned Woods",
-      "description": "This is the farthest end of the poisoned forest.  The trees grow too\n\rdensely to proceed in any other direction by east or south.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "This is the farthest end of the poisoned forest.  The trees grow too densely to proceed in any other direction by east or south.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -362,10 +337,7 @@
     {
       "vnum": 12014,
       "name": "The Poisoned Woods",
-      "description": "The horrible blight has turned these tree trunks completely white.  The\n\rnormal twilight of the Faladrin Forest has turned even darker, as if they\n\rsickness of the forest is making it worse, somehow.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "The horrible blight has turned these tree trunks completely white.  The normal twilight of the Faladrin Forest has turned even darker, as if they sickness of the forest is making it worse, somehow.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -385,10 +357,7 @@
     {
       "vnum": 12015,
       "name": "The Poisoned Woods",
-      "description": "This is as far back as the navigable portion this area of the Faladrin\n\rForest goes.  Beyond, the trees are too dense to proceed.  This area has\n\rmore sickened trees, many covered in what appear to be... blisters?  Fleshy\n\rpustules that grow and then seem to burst with effluent.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "This is as far back as the navigable portion this area of the Faladrin Forest goes.  Beyond, the trees are too dense to proceed.  This area has more sickened trees, many covered in what appear to be... blisters?  Fleshy pustules that grow and then seem to burst with effluent.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -404,10 +373,7 @@
     {
       "vnum": 12016,
       "name": "The Poisoned Woods",
-      "description": "The ground and tree trunks here are covered in strange black mushrooms. \n\rIt seems ill-advised to come in contact with them.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "The ground and tree trunks here are covered in strange black mushrooms. It seems ill-advised to come in contact with them.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -427,10 +393,7 @@
     {
       "vnum": 12017,
       "name": "The Poisoned Woods",
-      "description": "The blighted trees here are covered in some sort of sticky ichor.  The\n\rarea has a distinctly unpleasant odor.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "The blighted trees here are covered in some sort of sticky ichor.  The area has a distinctly unpleasant odor.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -446,10 +409,7 @@
     {
       "vnum": 12018,
       "name": "The Poisoned Woods",
-      "description": "The poison infecting the forest has twisted the trees here.  Branches\n\rseem limp and soft, and yet still hold themselves up somehow.  When you turn\n\ryour head, you can see them start to undulate as they pass beyond your\n\rsight.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "The poison infecting the forest has twisted the trees here.  Branches seem limp and soft, and yet still hold themselves up somehow.  When you turn your head, you can see them start to undulate as they pass beyond your sight.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -473,10 +433,7 @@
     {
       "vnum": 12020,
       "name": "Threshold of Needles",
-      "description": "The rope causeway leading from Cuivealda narrows into a strip of woven needles.\n\rSplinters hang in the air like pollen and sting your lungs with the bite of resin.\n\rFrom the east you hear a hornbeat smothered beneath a wall of strained silence.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "The rope causeway leading from Cuivealda narrows into a strip of woven needles. Splinters hang in the air like pollen and sting your lungs with the bite of resin. From the east you hear a hornbeat smothered beneath a wall of strained silence.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -499,10 +456,9 @@
     {
       "vnum": 12021,
       "name": "Verdant Watch",
-      "description": "A lattice of branches rises here into a rough platform where scouts nest between the trunks.\n\rStrips of woven bark hang like banners, their sigils muted by ash drifting through the air.\n\rEvery creak of rope or armor is quickly smothered by the oppressive quiet of the diseased woods.  \n\r",
+      "description": "A lattice of branches rises here into a rough platform where scouts nest between the trunks. Strips of woven bark hang like banners, their sigils muted by ash drifting through the air. Every creak of rope or armor is quickly smothered by the oppressive quiet of the diseased woods.  \n\r",
       "roomFlags": [
-        "safe",
-        "no_recall"
+        "safe"
       ],
       "sectorType": "forest",
       "exits": [
@@ -531,10 +487,7 @@
     {
       "vnum": 12022,
       "name": "Splintered Causeway",
-      "description": "The narrow path twists between half-dead trunks that cling to one another for support.\n\rResinous ropes snap beneath your boots and reform moments later, as though the forest refuses to choose a shape.\n\rSickly green steam seeps from cracks in the bark and drifts toward the south.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "The narrow path twists between half-dead trunks that cling to one another for support. Resinous ropes snap beneath your boots and reform moments later, as though the forest refuses to choose a shape. Sickly green steam seeps from cracks in the bark and drifts toward the south.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -554,10 +507,7 @@
     {
       "vnum": 12023,
       "name": "Sagging Canopy",
-      "description": "Here the canopy droops low enough to brush your shoulders, each leaf slick with a humming sheen of blight.\n\rVines crackle underfoot like old bone, and currents of cold air leak up from the south.\n\rEvery breath tastes faintly of copper and smoke.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "Here the canopy droops low enough to brush your shoulders, each leaf slick with a humming sheen of blight. Vines crackle underfoot like old bone, and currents of cold air leak up from the south. Every breath tastes faintly of copper and smoke.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -577,10 +527,7 @@
     {
       "vnum": 12024,
       "name": "Ember-Scorched Hollow",
-      "description": "The trunks around this hollow are charred black, yet no ember ever truly dies; heat shivers in the air without flame.\n\rA dozen shattered idols of the Tetyayath litter the ground, their stone hearts sluiced in tar.\n\rThe hollow opens east toward a deeper glow and up toward a silent watch ledge.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "The trunks around this hollow are charred black, yet no ember ever truly dies; heat shivers in the air without flame. A dozen shattered idols of the Tetyayath litter the ground, their stone hearts sluiced in tar. The hollow opens east toward a deeper glow and up toward a silent watch ledge.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -600,10 +547,7 @@
     {
       "vnum": 12025,
       "name": "Resin Chasm",
-      "description": "The forest floor opens into a sink where rivers of molten sap cascade and harden in jagged sheets.\n\rBones of beasts and elves alike are trapped within the amber, mouths frozen mid-warning.\n\rThe chasm continues east beneath a line of weeping trees and south into a choking mire.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "The forest floor opens into a sink where rivers of molten sap cascade and harden in jagged sheets. Bones of beasts and elves alike are trapped within the amber, mouths frozen mid-warning. The chasm continues east beneath a line of weeping trees and south into a choking mire.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -623,10 +567,7 @@
     {
       "vnum": 12026,
       "name": "Weeping Copse",
-      "description": "A tight stand of trees sobs thick strings of black resin that stitch the air like harp strings.\n\rEach impact against the earth produces a dull, painful thrum that lingers in your teeth.\n\rThe path east descends into a carved reliquary pulsing with distant chants.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "A tight stand of trees sobs thick strings of black resin that stitch the air like harp strings. Each impact against the earth produces a dull, painful thrum that lingers in your teeth. The path east descends into a carved reliquary pulsing with distant chants.",
       "sectorType": "forest",
       "exits": [
         {
@@ -646,10 +587,9 @@
     {
       "vnum": 12027,
       "name": "Watcher's Ledge",
-      "description": "This elevated platform connects several guardian trees and offers a sweeping look over the blighted approaches.\n\rLanterns of pale fungus glow softly, illuminating maps carved into the bark beneath your hands.\n\rThe ledge drops south to the Verdant Watch and down into the scorched hollow below.  \n\r",
+      "description": "This elevated platform connects several guardian trees and offers a sweeping look over the blighted approaches. Lanterns of pale fungus glow softly, illuminating maps carved into the bark beneath your hands. The ledge drops south to the Verdant Watch and down into the scorched hollow below.  \n\r",
       "roomFlags": [
-        "safe",
-        "no_recall"
+        "safe"
       ],
       "sectorType": "forest",
       "exits": [
@@ -666,10 +606,7 @@
     {
       "vnum": 12028,
       "name": "Shadowed Mustering",
-      "description": "Low platforms jut from the trunks here, chewed by claws and acid as though armies have paced in frustration.\n\rTattered cords and discarded charms hint at scouts who broke and ran before finishing their watch.\n\rThe muttering of unseen creatures rises from the east like fevers.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "Low platforms jut from the trunks here, chewed by claws and acid as though armies have paced in frustration. Tattered cords and discarded charms hint at scouts who broke and ran before finishing their watch. The muttering of unseen creatures rises from the east like fevers.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -685,10 +622,7 @@
     {
       "vnum": 12029,
       "name": "Needle Spiral",
-      "description": "A spiral ramp of braided pine needles descends here, anchored by spears of amber jutting from the soil.\n\rEach step puffs a haze of spores that drift toward the east, hungry for warm lungs.\n\rThe ramp connects west to the staging ground and east to a yawning fungal den.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "A spiral ramp of braided pine needles descends here, anchored by spears of amber jutting from the soil. Each step puffs a haze of spores that drift toward the east, hungry for warm lungs. The ramp connects west to the staging ground and east to a yawning fungal den.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -708,10 +642,7 @@
     {
       "vnum": 12030,
       "name": "Mycelial Den",
-      "description": "Thick curtains of fungus narrow this den into a maze of damp chambers.\n\rEach curtain shivers even when no wind touches it, responding instead to distant heartbeats.\n\rThreads of pallid light drift east into a mire of bile and rot.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "Thick curtains of fungus narrow this den into a maze of damp chambers. Each curtain shivers even when no wind touches it, responding instead to distant heartbeats. Threads of pallid light drift east into a mire of bile and rot.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -731,10 +662,7 @@
     {
       "vnum": 12031,
       "name": "Suffocating Mire",
-      "description": "This mire clings to your boots with every step, exhaling bubbles of venomous vapor.\n\rSlender reeds have been cut into whistles that now wheeze endlessly in the fetid air.\n\rYou can climb north back toward the resin chasm or west into the mycelial den.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "This mire clings to your boots with every step, exhaling bubbles of venomous vapor. Slender reeds have been cut into whistles that now wheeze endlessly in the fetid air. You can climb north back toward the resin chasm or west into the mycelial den.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -750,10 +678,7 @@
     {
       "vnum": 12032,
       "name": "Hollow Reliquary",
-      "description": "Roots arch overhead to form a half-circle reliquary carved with the Creeds, now gouged and repainted in tar.\n\rThe air hums with layered chanting that bleeds from the east, each voice twisted with pain.\n\rStagnant pools reflect you as a stranger with bark for skin.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "Roots arch overhead to form a half-circle reliquary carved with the Creeds, now gouged and repainted in tar. The air hums with layered chanting that bleeds from the east, each voice twisted with pain. Stagnant pools reflect you as a stranger with bark for skin.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -769,10 +694,7 @@
     {
       "vnum": 12033,
       "name": "Bilefall Hollow",
-      "description": "A waterfall of bile pours from the canopy here, evaporating before it ever touches the ground.\n\rThe hiss it produces masks the shuffle of creatures lurking just beyond sight.\n\rOnly the path north through the crying copse remains safe to traverse.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "A waterfall of bile pours from the canopy here, evaporating before it ever touches the ground. The hiss it produces masks the shuffle of creatures lurking just beyond sight. Only the path north through the crying copse remains safe to traverse.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -784,10 +706,7 @@
     {
       "vnum": 12034,
       "name": "Vorenthas' Rotunda",
-      "description": "A circular chamber has been carved wholesale from the heartwood, polished until it mirrors the sky.\n\rChains of bone and iron dangle from the ceiling, each hooked into the veins of the tree.\n\rA lone dais of blackened roots waits for the exile who dares to crown himself judge of the forest.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "A circular chamber has been carved wholesale from the heartwood, polished until it mirrors the sky. Chains of bone and iron dangle from the ceiling, each hooked into the veins of the tree. A lone dais of blackened roots waits for the exile who dares to crown himself judge of the forest.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -803,10 +722,7 @@
     {
       "vnum": 12035,
       "name": "Fractured Lifeline",
-      "description": "Frayed lifelines of braided silk snap back and forth across this gap, severed during Vorenthas' ritual.\n\rThe forest around you groans, struggling to knit the wound faster than the blight can widen it.\n\rEastward, sunlight breaks through, hinting at the border and whoever might answer your plea.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "Frayed lifelines of braided silk snap back and forth across this gap, severed during Vorenthas' ritual. The forest around you groans, struggling to knit the wound faster than the blight can widen it. Eastward, sunlight breaks through, hinting at the border and whoever might answer your plea.",
       "sectorType": "forest",
       "exits": [
         {
@@ -822,10 +738,9 @@
     {
       "vnum": 12036,
       "name": "Edge of Faladrin",
-      "description": "The canopy finally parts, revealing distant human watchfires flickering beyond the low hills of Valewyn.\n\rA narrow bridge of woven bark reaches east, unfinished yet thrumming with stored power.\n\rEnvoy Calendor keeps vigil here, ready to guide messengers through the breach.  \n\r",
+      "description": "The canopy finally parts, revealing distant human watchfires flickering beyond the low hills of Valewyn. A narrow bridge of woven bark reaches east, unfinished yet thrumming with stored power. Envoy Calendor keeps vigil here, ready to guide messengers through the breach.  \n\r",
       "roomFlags": [
-        "safe",
-        "no_recall"
+        "safe"
       ],
       "sectorType": "forest",
       "exits": [
@@ -849,10 +764,7 @@
     {
       "vnum": 12099,
       "name": "Road to Valewyn",
-      "description": "The path ahead dips toward misty foothills where the banners of Valewyn wait to receive Tauremar's plea.\n\rFor now the bridge ends here, its final span unfinished until the treaty is sealed.\n\rYou can still look west and see the glow of Faladrin clinging stubbornly to life.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "The path ahead dips toward misty foothills where the banners of Valewyn wait to receive Tauremar's plea. For now the bridge ends here, its final span unfinished until the treaty is sealed. You can still look west and see the glow of Faladrin clinging stubbornly to life.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -867,8 +779,7 @@
       "description": "This hut is filled with boxes and satchels, but a cursory glance reveals they are mostly empty. This is the commissary for Verdant Refuge, though it seems there is not much left to provide. There are no furnishings save a few overturned crates.\n\r  An open portal to the south leads back outside, while a portal to the north leads to another room in this hut.",
       "roomFlags": [
         "indoors",
-        "safe",
-        "no_recall"
+        "safe"
       ],
       "sectorType": "inside",
       "exits": [
@@ -889,8 +800,7 @@
       "description": "This hut contains a makeshift smithy. A crude smelter made of small stones cemented together sits next to a similarly-fashioned forge. An anvil sits unattended.",
       "roomFlags": [
         "indoors",
-        "safe",
-        "no_recall"
+        "safe"
       ],
       "sectorType": "inside",
       "exits": [
@@ -907,8 +817,7 @@
       "description": "This hut has a large table for cleaning and cutting animal carcasses, but it appears clean. Numerous metal hooks hang from ceiling joists. They seem intended for hanging of said carcasses, but are currently barren.\n\r  There is another room to the south, through a portal of hide curtains.\n\r",
       "roomFlags": [
         "indoors",
-        "safe",
-        "no_recall"
+        "safe"
       ],
       "sectorType": "inside",
       "exits": [
@@ -929,8 +838,7 @@
       "description": "This side of the hut is overpowered by the smell of sulphur, emenating from various jars and pots. The walls are lined with empty tanning racks.\n\r  To the north is a portal to the butcher, loosely sealed by long strips of hide.\n\r",
       "roomFlags": [
         "indoors",
-        "safe",
-        "no_recall"
+        "safe"
       ],
       "sectorType": "inside",
       "exits": [

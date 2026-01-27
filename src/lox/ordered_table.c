@@ -8,14 +8,14 @@
 
 #include <string.h>
 
-static int find_index(const OrderedTable* ordered, int32_t key, bool* found)
+static int find_index(const OrderedTable* ordered, VNUM key, bool* found)
 {
     int lo = 0;
     int hi = ordered->ordered_count - 1;
 
     while (lo <= hi) {
         int mid = lo + (hi - lo) / 2;
-        int32_t mid_key = ordered->ordered[mid].key;
+        VNUM mid_key = ordered->ordered[mid].key;
         if (mid_key == key) {
             *found = true;
             return mid;
@@ -70,18 +70,18 @@ void ordered_table_free(OrderedTable* ordered)
     ordered->ordered_count = 0;
 }
 
-bool ordered_table_get_vnum(OrderedTable* ordered, int32_t key, Value* value)
+bool ordered_table_get_vnum(OrderedTable* ordered, VNUM key, Value* value)
 {
     return table_get_vnum(&ordered->table, key, value);
 }
 
-bool ordered_table_contains_vnum(OrderedTable* ordered, int32_t key)
+bool ordered_table_contains_vnum(OrderedTable* ordered, VNUM key)
 {
     Value dummy;
     return ordered_table_get_vnum(ordered, key, &dummy);
 }
 
-bool ordered_table_set_vnum(OrderedTable* ordered, int32_t key, Value value)
+bool ordered_table_set_vnum(OrderedTable* ordered, VNUM key, Value value)
 {
     bool found;
     int index = find_index(ordered, key, &found);
@@ -110,7 +110,7 @@ bool ordered_table_set_vnum(OrderedTable* ordered, int32_t key, Value value)
     return inserted;
 }
 
-bool ordered_table_delete_vnum(OrderedTable* ordered, int32_t key)
+bool ordered_table_delete_vnum(OrderedTable* ordered, VNUM key)
 {
     bool found;
     int index = find_index(ordered, key, &found);
@@ -143,7 +143,7 @@ OrderedTableIter ordered_table_iter(const OrderedTable* ordered)
     return iter;
 }
 
-bool ordered_table_iter_next(OrderedTableIter* iter, int32_t* key, Value* value)
+bool ordered_table_iter_next(OrderedTableIter* iter, VNUM* key, Value* value)
 {
     if (iter->table == NULL)
         return false;

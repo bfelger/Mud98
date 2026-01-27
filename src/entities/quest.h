@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////////////
-// data/quest.h
+// entities/quest.h
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef MUD98__DATA__QUEST_H
-#define MUD98__DATA__QUEST_H
+#ifndef MUD98__ENTITIES__QUEST_H
+#define MUD98__ENTITIES__QUEST_H
 
 typedef struct quest_t Quest;
 typedef struct quest_status_t QuestStatus;
@@ -15,6 +15,7 @@ typedef struct quest_log_t QuestLog;
 #include <tables.h>
 
 #include <entities/area.h>
+#include <entities/entity.h>
 #include <entities/player_data.h>
 
 #include <lox/value.h>
@@ -28,11 +29,10 @@ typedef enum quest_type_t {
 #define QUEST_MAX_REWARD_ITEMS 3
 
 typedef struct quest_t {
+    Entity header;
     Quest* next;
     AreaData* area_data;
-    char* name;
     char* entry;
-    VNUM vnum;
     VNUM end;
     VNUM target;
     VNUM target_upper;
@@ -109,4 +109,4 @@ extern int quest_perm_count;
 
 extern const struct flag_type quest_type_table[];
 
-#endif // !MUD98__DATA__QUEST_H
+#endif // !MUD98__ENTITIES__QUEST_H

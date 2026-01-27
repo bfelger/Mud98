@@ -314,7 +314,7 @@ char* olc_ed_vnum(Mobile* ch)
         break;
     case ED_QUEST:
         pQuest = (Quest*)pEdit;
-        sprintf(buf, "%d", pQuest ? pQuest->vnum : 0);
+        sprintf(buf, "%d", pQuest ? VNUM_FIELD(pQuest) : 0);
         break;
     case ED_RACE:
         pRace = (Race*)pEdit;

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// data/quest.c
+// entities/quest.c
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "quest.h"
@@ -21,7 +21,8 @@
 
 int quest_count = 0;
 int quest_perm_count = 0;
-Quest* quest_free = NULL;
+
+List quest_free = { 0 };
 
 const struct flag_type quest_type_table[] = {
     { "visit_mob",      QUEST_VISIT_MOB,    true    },
@@ -38,36 +39,36 @@ Quest tmp_quest;
 #define U(x)    (uintptr_t)(x)
 
 const SaveTableEntry quest_save_table[] = {
-    { "name",	        FIELD_STRING,           U(&tmp_quest.name),	        0,		            0   },
-    { "vnum",	        FIELD_VNUM,             U(&tmp_quest.vnum),	        0,		            0   },
-    { "entry",	        FIELD_STRING,           U(&tmp_quest.entry),	    0,		            0   },
-    { "type",		    FIELD_INT16_FLAGSTRING,	U(&tmp_quest.type),	        U(quest_type_table),0   },
-    { "xp",             FIELD_INT16,            U(&tmp_quest.xp),           0,                  0   },
-    { "level",          FIELD_INT16,            U(&tmp_quest.level),        0,                  0   },
-    { "end",            FIELD_VNUM,             U(&tmp_quest.end),          0,                  0   },
-    { "target",         FIELD_VNUM,             U(&tmp_quest.target),       0,                  0   },
-    { "upper",          FIELD_VNUM,             U(&tmp_quest.target_upper), 0,                  0   },
-    { "count",          FIELD_INT16,            U(&tmp_quest.amount),       0,                  0   },
-    { "reward_faction", FIELD_VNUM,             U(&tmp_quest.reward_faction_vnum), 0,           0   },
-    { "reward_reputation", FIELD_INT16,         U(&tmp_quest.reward_reputation),  0,           0   },
-    { "reward_gold",    FIELD_INT16,            U(&tmp_quest.reward_gold),  0,                  0   },
-    { "reward_silver",  FIELD_INT16,            U(&tmp_quest.reward_silver),0,                  0   },
-    { "reward_copper",  FIELD_INT16,            U(&tmp_quest.reward_copper),0,                  0   },
-    { "reward_objs",    FIELD_VNUM_ARRAY,       U(&tmp_quest.reward_obj_vnum),   U(QUEST_MAX_REWARD_ITEMS), 0 },
-    { "reward_counts",  FIELD_INT16_ARRAY,      U(&tmp_quest.reward_obj_count), U(QUEST_MAX_REWARD_ITEMS), 0 },
-    { NULL,		        0,				        0,			                0,		            0   }
+    { "name",       FIELD_LOX_STRING,   U(&tmp_quest.header.name),      0,                          0   },
+    { "vnum",       FIELD_VNUM,         U(&tmp_quest.header.vnum),      0,                          0   },
+    { "entry",      FIELD_STRING,       U(&tmp_quest.entry),            0,                          0   },
+    { "type",       FIELD_INT16_FLAGSTRING, U(&tmp_quest.type),         U(quest_type_table),        0   },
+    { "xp",         FIELD_INT16,        U(&tmp_quest.xp),               0,                          0   },
+    { "level",      FIELD_INT16,        U(&tmp_quest.level),            0,                          0   },
+    { "end",        FIELD_VNUM,         U(&tmp_quest.end),              0,                          0   },
+    { "target",     FIELD_VNUM,         U(&tmp_quest.target),           0,                          0   },
+    { "upper",      FIELD_VNUM,         U(&tmp_quest.target_upper),     0,                          0   },
+    { "count",      FIELD_INT16,        U(&tmp_quest.amount),           0,                          0   },
+    { "reward_faction", FIELD_VNUM,     U(&tmp_quest.reward_faction_vnum),  0,                      0   },
+    { "reward_reputation", FIELD_INT16, U(&tmp_quest.reward_reputation),    0,                      0   },
+    { "reward_gold",    FIELD_INT16,    U(&tmp_quest.reward_gold),      0,                          0   },
+    { "reward_silver",  FIELD_INT16,    U(&tmp_quest.reward_silver),    0,                          0   },
+    { "reward_copper",  FIELD_INT16,    U(&tmp_quest.reward_copper),    0,                          0   },
+    { "reward_objs",    FIELD_VNUM_ARRAY,   U(&tmp_quest.reward_obj_vnum),  U(QUEST_MAX_REWARD_ITEMS), 0},
+    { "reward_counts",  FIELD_INT16_ARRAY,  U(&tmp_quest.reward_obj_count), U(QUEST_MAX_REWARD_ITEMS), 0},
+    { NULL,             0,                      0,                              0,                  0   }
 };
 
 Quest* new_quest()
 {
-    LIST_ALLOC_PERM(quest, Quest);
+    ENTITY_ALLOC_PERM(quest, Quest);
 
     if (!quest) {
         fprintf(stderr, "new_quest: malloc failed\n");
         exit(1);
     }
 
-    quest->name = &str_empty[0];
+    init_header(&quest->header, OBJ_QUEST);
     quest->entry = &str_empty[0];
 
     return quest;
@@ -75,10 +76,14 @@ Quest* new_quest()
 
 void free_quest(Quest* quest)
 {
-    free_string(quest->name);
     free_string(quest->entry);
+    
+    AreaData* area_data = quest->area_data;
+    if (area_data) {
+        ordered_table_delete_vnum(&area_data->quests, VNUM_FIELD(quest));
+    }
 
-    LIST_FREE(quest);
+    list_push(&quest_free, OBJ_VAL(quest));
 }
 
 QuestLog* new_quest_log()
@@ -128,15 +133,18 @@ void free_quest_log(PlayerData* pc)
 
 Quest* get_quest(VNUM vnum)
 {
-    AreaData* area = get_vnum_area(vnum);
-    Quest* quest = NULL;
-    
-    if (!area)
+    Value val;
+
+    AreaData* area_data = get_vnum_area(vnum);
+    if (area_data == NULL)
         return NULL;
 
-    ORDERED_GET(Quest, quest, area->quests, vnum, vnum);
+    ordered_table_get_vnum(&area_data->quests, vnum, &val);
+    
+    if (IS_NIL(val) || !IS_QUEST(val))
+        return NULL;
 
-    return quest;
+    return AS_QUEST(val);
 }
 
 QuestTarget* get_quest_targ_mob(Mobile* ch, VNUM target_vnum)
@@ -230,19 +238,19 @@ static void remove_quest_target(Mobile* ch, Quest* quest)
     case QUEST_VISIT_MOB:
     case QUEST_KILL_MOB:
         UNORDERED_REMOVE_ALL(QuestTarget, qt, ch->pcdata->quest_log->target_mobs, quest_vnum, 
-            quest->vnum);
+            VNUM_FIELD(quest));
         if (qt)
             free_mem(qt, sizeof(QuestTarget));
         break;
     case QUEST_GET_OBJ:
         UNORDERED_REMOVE_ALL(QuestTarget, qt, ch->pcdata->quest_log->target_objs, quest_vnum, 
-            quest->vnum);
+            VNUM_FIELD(quest));
         if (qt)
             free_mem(qt, sizeof(QuestTarget));
         break;
     }
 
-    UNORDERED_REMOVE(QuestTarget, qt, ch->pcdata->quest_log->target_ends, quest_vnum, quest->vnum);
+    UNORDERED_REMOVE(QuestTarget, qt, ch->pcdata->quest_log->target_ends, quest_vnum, VNUM_FIELD(quest));
     if (qt)
         free_mem(qt, sizeof(QuestTarget));
 }
@@ -253,7 +261,7 @@ void finish_quest(Mobile* ch, Quest* quest, QuestStatus* status)
         return;
 
     status->state = QSTAT_COMPLETE;
-    printf_to_char(ch, "\n\r" COLOR_INFO "You have completed the quest, \"" COLOR_ALT_TEXT_1 "%s" COLOR_INFO "\"." COLOR_EOL, quest->name);
+    printf_to_char(ch, "\n\r" COLOR_INFO "You have completed the quest, \"" COLOR_ALT_TEXT_1 "%s" COLOR_INFO "\"." COLOR_EOL, NAME_STR(quest));
         
     remove_quest_target(ch, quest);
 
@@ -300,7 +308,7 @@ void finish_quest(Mobile* ch, Quest* quest, QuestStatus* status)
             faction_adjust(ch, faction, quest->reward_reputation);
         else
             bugf("finish_quest: missing faction %" PRVNUM " for quest %" PRVNUM,
-                quest->reward_faction_vnum, quest->vnum);
+                quest->reward_faction_vnum, VNUM_FIELD(quest));
     }
 
     for (int i = 0; i < QUEST_MAX_REWARD_ITEMS; ++i) {
@@ -312,7 +320,7 @@ void finish_quest(Mobile* ch, Quest* quest, QuestStatus* status)
         ObjPrototype* proto = get_object_prototype(vnum);
         if (proto == NULL) {
             bugf("finish_quest: missing reward object %" PRVNUM " for quest %" PRVNUM,
-                vnum, quest->vnum);
+                vnum, VNUM_FIELD(quest));
             continue;
         }
 
@@ -337,7 +345,7 @@ static void add_target(QuestLog* qlog, Quest* quest, VNUM target_vnum)
 {
     ALLOC(QuestTarget, qt);
     *qt = x_qt;
-    qt->quest_vnum = quest->vnum;
+    qt->quest_vnum = VNUM_FIELD(quest);
     qt->type = quest->type;
     qt->target_vnum = target_vnum;
 
@@ -357,7 +365,7 @@ void add_quest_to_log(QuestLog* quest_log, Quest* quest, QuestState quest_state,
 
     ALLOC(QuestStatus, qs);
     *qs = x_qs;
-    qs->vnum = quest->vnum;
+    qs->vnum = VNUM_FIELD(quest);
     qs->quest = quest;
     qs->amount = quest->amount;
     qs->progress = progress;
@@ -367,7 +375,7 @@ void add_quest_to_log(QuestLog* quest_log, Quest* quest, QuestState quest_state,
     if (quest_state != QSTAT_COMPLETE) {
         ALLOC(QuestTarget, qe);
         *qe = x_qt;
-        qe->quest_vnum = quest->vnum;
+        qe->quest_vnum = VNUM_FIELD(quest);
         qe->type = quest->type;
         qe->target_vnum = quest->end;
         ORDERED_INSERT(QuestTarget, qe, quest_log->target_ends, target_vnum);
@@ -390,7 +398,7 @@ void grant_quest(Mobile* ch, Quest* quest)
 
     save_char_obj(ch);
 
-    printf_to_char(ch, "\n\r" COLOR_INFO "You have started the quest, " COLOR_ALT_TEXT_1 "\"%s" COLOR_INFO "\"." COLOR_EOL, quest->name);
+    printf_to_char(ch, "\n\r" COLOR_INFO "You have started the quest, " COLOR_ALT_TEXT_1 "\"%s" COLOR_INFO "\"." COLOR_EOL, NAME_STR(quest));
 }
 
 void load_quest(FILE* fp)
@@ -409,7 +417,7 @@ void load_quest(FILE* fp)
     load_struct(fp, U(&tmp_quest), quest_save_table, U(quest));
     quest->area_data = LAST_AREA_DATA;
 
-    ORDERED_INSERT(Quest, quest, LAST_AREA_DATA->quests, vnum);
+    ordered_table_set_vnum(&LAST_AREA_DATA->quests, VNUM_FIELD(quest), OBJ_VAL(quest));
 
     return;
 }
@@ -418,7 +426,11 @@ void save_quests(FILE* fp, AreaData* area_data)
 {
     Quest* q;
 
-    FOR_EACH(q, area_data->quests) {
+    OrderedTableIter it = ordered_table_iter(&area_data->quests);
+    Value val;
+    while(ordered_table_iter_next(&it, NULL, &val)) {
+        q = AS_QUEST(val);
+
         fprintf(fp, "#QUEST\n");
         save_struct(fp, U(&tmp_quest), quest_save_table, U(q));
         fprintf(fp, "#END\n\n");
@@ -547,7 +559,7 @@ void do_quest(Mobile* ch, char* argument)
                 return;
             }
             printf_to_char(ch, COLOR_DECOR_1 "[" COLOR_ALT_TEXT_2 "#%d" COLOR_DECOR_1 "] " COLOR_TITLE "%s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "Level %d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "(%s)" COLOR_EOL,
-                     q->vnum, q->name, q->level, NAME_STR(q->area_data));
+                     VNUM_FIELD(q), NAME_STR(q), q->level, NAME_STR(q->area_data));
             printf_to_char(ch, COLOR_ALT_TEXT_2 "%s" COLOR_EOL, q->entry);
         }
         else if (is_tester && !str_prefix(arg1, "grant")) {
@@ -652,10 +664,10 @@ void do_quest(Mobile* ch, char* argument)
                 if (is_tester)
                     addf_buf(complete, 
                         "%d. " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_2 "#%d" COLOR_DECOR_1 "]  " COLOR_TITLE "%s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "Level %d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "(%s)" COLOR_EOL,
-                        i, q->vnum, q->name, q->level, NAME_STR(q->area_data));
+                        i, VNUM_FIELD(q), NAME_STR(q), q->level, NAME_STR(q->area_data));
                 else
                     addf_buf(complete, "%d. " COLOR_TITLE "%s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "Level %d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "(%s)" COLOR_EOL,
-                        i, q->name, q->level, NAME_STR(q->area_data));
+                        i, NAME_STR(q), q->level, NAME_STR(q->area_data));
             }
         }
 
@@ -676,10 +688,10 @@ void do_quest(Mobile* ch, char* argument)
                 ++i;
                 if (is_tester)
                     addf_buf(local, "%d. " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_2 "#%d" COLOR_DECOR_1 "] " COLOR_TITLE "%s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "Level %d" COLOR_DECOR_1 "] ",
-                        i, q->vnum, q->name, q->level);
+                        i, VNUM_FIELD(q), NAME_STR(q), q->level);
                 else
                     addf_buf(local, "%d. " COLOR_TITLE "%s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "Level %d" COLOR_DECOR_1 "] ",
-                        i, q->name, q->level);
+                        i, NAME_STR(q), q->level);
 
 
                 if (qs->amount > 0) {
@@ -707,10 +719,10 @@ void do_quest(Mobile* ch, char* argument)
                 ++i;
                 if (is_tester)
                     addf_buf(world, "%d. " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_2 "#%d" COLOR_DECOR_1 "] " COLOR_TITLE "%s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "Level %d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "(%s)" COLOR_CLEAR ,
-                        i, q->vnum, q->name, q->level, NAME_STR(q->area_data));
+                        i, VNUM_FIELD(q), NAME_STR(q), q->level, NAME_STR(q->area_data));
                 else
                     addf_buf(world, "%d. " COLOR_TITLE "%s " COLOR_DECOR_1 "[" COLOR_ALT_TEXT_1 "Level %d" COLOR_DECOR_1 "] " COLOR_ALT_TEXT_2 "(%s)" COLOR_CLEAR ,
-                        i, q->name, q->level, NAME_STR(q->area_data));
+                        i, NAME_STR(q), q->level, NAME_STR(q->area_data));
                 if (qs->amount > 0) {
                     addf_buf(world, " " COLOR_INFO "(%d/%d)" COLOR_EOL, qs->progress, qs->amount);
                 }

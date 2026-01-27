@@ -58,6 +58,7 @@ typedef enum {
     OBJ_MOB_PROTO       = 109,
     OBJ_FACTION         = 110,
     OBJ_RECIPE          = 111,
+    OBJ_QUEST           = 112,
 } ObjType;
 
 struct Obj {
@@ -96,6 +97,7 @@ struct Obj {
 #define IS_MOBILE(value)        is_obj_type(value, OBJ_MOB)
 #define IS_MOB_PROTO(value)     is_obj_type(value, OBJ_MOB_PROTO)
 #define IS_FACTION(value)       is_obj_type(value, OBJ_FACTION)
+#define IS_QUEST(value)         is_obj_type(value, OBJ_QUEST)
 #define IS_ENTITY(value)        (IS_OBJ(value) && AS_OBJ(value)->type >= 100)   
 
 #define AS_ARRAY(value)         ((ValueArray*)AS_OBJ(value))
@@ -128,6 +130,7 @@ struct Obj {
 #define AS_MOBILE(value)        ((Mobile*)AS_OBJ(value))
 #define AS_MOB_PROTO(value)     ((MobPrototype*)AS_OBJ(value))
 #define AS_FACTION(value)       ((Faction*)AS_OBJ(value))
+#define AS_QUEST(value)         ((Quest*)AS_OBJ(value))
 
 typedef enum {
     RAW_OBJ,

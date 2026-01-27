@@ -16,7 +16,7 @@
 #include <handler.h>
 #include <lookup.h>
 #include <magic.h>
-#include <data/quest.h>
+#include <entities/quest.h>
 #include <data/race.h>
 #include <data/tutorial.h>
 #include <recycle.h>
