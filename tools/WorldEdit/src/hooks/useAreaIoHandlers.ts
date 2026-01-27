@@ -113,25 +113,11 @@ export function useAreaIoHandlers({
     [repository, setErrorMessage]
   );
 
-  useEffect(() => {
-    if (!areaDirectory) {
-      return;
-    }
-    void warnLegacyAreaFiles(areaDirectory);
-  }, [areaDirectory, warnLegacyAreaFiles]);
-
-  const handleOpenProject = useCallback(async () => {
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      const cfgPath = await repository.pickConfigFile(
-        areaDirectory ?? dataDirectory
-      );
-      if (!cfgPath) {
-        return;
-      }
+  const loadProjectConfigFromPath = useCallback(
+    async (cfgPath: string) => {
       const config = await repository.loadProjectConfig(cfgPath);
       setProjectConfig(config);
+      localStorage.setItem("worldedit.projectPath", cfgPath);
       if (config.areaDir) {
         setAreaDirectory(config.areaDir);
         localStorage.setItem("worldedit.areaDir", config.areaDir);
@@ -146,6 +132,67 @@ export function useAreaIoHandlers({
         setReferenceData(refs);
       }
       setStatusMessage(`Loaded project ${fileNameFromPath(cfgPath)}`);
+    },
+    [
+      fileNameFromPath,
+      repository,
+      setAreaDirectory,
+      setDataDirectory,
+      setProjectConfig,
+      setReferenceData,
+      setStatusMessage,
+      warnLegacyAreaFiles
+    ]
+  );
+
+  useEffect(() => {
+    if (!areaDirectory) {
+      return;
+    }
+    void warnLegacyAreaFiles(areaDirectory);
+  }, [areaDirectory, warnLegacyAreaFiles]);
+
+  useEffect(() => {
+    if (projectConfig) {
+      return;
+    }
+    const storedPath = localStorage.getItem("worldedit.projectPath");
+    if (!storedPath) {
+      return;
+    }
+    let cancelled = false;
+    const load = async () => {
+      setErrorMessage(null);
+      setIsBusy(true);
+      try {
+        await loadProjectConfigFromPath(storedPath);
+      } catch (error) {
+        if (!cancelled) {
+          setErrorMessage(`Failed to load config. ${String(error)}`);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsBusy(false);
+        }
+      }
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [loadProjectConfigFromPath, projectConfig, setErrorMessage, setIsBusy]);
+
+  const handleOpenProject = useCallback(async () => {
+    setErrorMessage(null);
+    setIsBusy(true);
+    try {
+      const cfgPath = await repository.pickConfigFile(
+        areaDirectory ?? dataDirectory
+      );
+      if (!cfgPath) {
+        return;
+      }
+      await loadProjectConfigFromPath(cfgPath);
     } catch (error) {
       setErrorMessage(`Failed to load config. ${String(error)}`);
     } finally {
@@ -154,16 +201,10 @@ export function useAreaIoHandlers({
   }, [
     areaDirectory,
     dataDirectory,
-    fileNameFromPath,
+    loadProjectConfigFromPath,
     repository,
-    setAreaDirectory,
-    setDataDirectory,
     setErrorMessage,
-    setIsBusy,
-    setProjectConfig,
-    setReferenceData,
-    setStatusMessage,
-    warnLegacyAreaFiles
+    setIsBusy
   ]);
 
   const handleOpenArea = useCallback(async () => {

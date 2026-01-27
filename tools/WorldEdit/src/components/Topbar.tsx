@@ -8,7 +8,6 @@ type TopbarProps = {
   onOpenProject: () => void;
   onOpenArea: () => void;
   onSetAreaDirectory: () => void;
-  onLoadReferenceData: () => void;
   onSaveArea: () => void;
   onSaveEditorMeta: () => void;
   onSaveAreaAs: () => void;
@@ -24,7 +23,6 @@ export function Topbar({
   onOpenProject,
   onOpenArea,
   onSetAreaDirectory,
-  onLoadReferenceData,
   onSaveArea,
   onSaveEditorMeta,
   onSaveAreaAs
@@ -72,14 +70,6 @@ export function Topbar({
           disabled={isBusy}
         >
           Set Area Dir
-        </button>
-        <button
-          className="action-button"
-          type="button"
-          onClick={onLoadReferenceData}
-          disabled={isBusy}
-        >
-          Load Ref Data
         </button>
         <button
           className="action-button action-button--primary"

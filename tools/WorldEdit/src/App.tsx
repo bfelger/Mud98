@@ -2917,8 +2917,7 @@ export default function App({ repository }: AppProps) {
     handleSaveArea,
     handleSaveAreaAs,
     handleSaveEditorMeta,
-    handleSetAreaDirectory,
-    handleLoadReferenceData
+    handleSetAreaDirectory
   } = useAreaIoHandlers({
     areaDirectory,
     dataDirectory,
@@ -8324,7 +8323,6 @@ export default function App({ repository }: AppProps) {
         onOpenProject={handleOpenProject}
         onOpenArea={handleOpenArea}
         onSetAreaDirectory={handleSetAreaDirectory}
-        onLoadReferenceData={handleLoadReferenceData}
         onSaveArea={handleSaveArea}
         onSaveEditorMeta={handleSaveEditorMeta}
         onSaveAreaAs={handleSaveAreaAs}
