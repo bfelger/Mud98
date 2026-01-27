@@ -16,7 +16,6 @@ import {
   type Node,
   useStore
 } from "reactflow";
-import { message } from "@tauri-apps/plugin-dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   useFieldArray,
@@ -147,15 +146,11 @@ import {
 } from "./utils/globalNormalizers";
 import { digRoom, linkRooms } from "./map/roomOps";
 import {
-  extractRoomLayout,
   roomNodeTypes,
   type RoomLayoutMap,
   type RoomNodeData
 } from "./map/roomNodes";
-import {
-  extractAreaLayout,
-  type AreaLayoutMap
-} from "./map/areaNodes";
+import { type AreaLayoutMap } from "./map/areaNodes";
 import {
   buildOrthogonalEdgePath,
   offsetPoint
@@ -210,6 +205,8 @@ import { useAreaGraphState } from "./hooks/useAreaGraphState";
 import { useRoomMapState, type RoomContextMenuState } from "./hooks/useRoomMapState";
 import { useAreaCrudHandlers } from "./hooks/useAreaCrudHandlers";
 import { useGlobalCrudHandlers } from "./hooks/useGlobalCrudHandlers";
+import { useAreaIoHandlers } from "./hooks/useAreaIoHandlers";
+import { useGlobalIoHandlers } from "./hooks/useGlobalIoHandlers";
 import {
   containerFlagEnum,
   containerFlags,
@@ -2544,7 +2541,6 @@ export default function App({ repository }: AppProps) {
   >("All");
   const [areaIndex, setAreaIndex] = useState<AreaIndexEntry[]>([]);
   const [areaGraphLinks, setAreaGraphLinks] = useState<AreaGraphLink[]>([]);
-  const legacyScanDirRef = useRef<string | null>(null);
   const roomGridApi = useRef<GridApi | null>(null);
   const mobileGridApi = useRef<GridApi | null>(null);
   const objectGridApi = useRef<GridApi | null>(null);
@@ -2761,6 +2757,116 @@ export default function App({ repository }: AppProps) {
     setSelectedLootIndex,
     setActiveTab,
     setStatusMessage
+  });
+  const {
+    handleLoadClassesData,
+    handleSaveClassesData,
+    handleLoadRacesData,
+    handleSaveRacesData,
+    handleLoadSkillsData,
+    handleSaveSkillsData,
+    handleLoadGroupsData,
+    handleSaveGroupsData,
+    handleLoadCommandsData,
+    handleSaveCommandsData,
+    handleLoadSocialsData,
+    handleSaveSocialsData,
+    handleLoadTutorialsData,
+    handleSaveTutorialsData,
+    handleLoadLootData,
+    handleSaveLootData
+  } = useGlobalIoHandlers({
+    dataDirectory,
+    projectConfig,
+    referenceData,
+    repository,
+    classData,
+    classDataFormat,
+    raceData,
+    raceDataFormat,
+    skillData,
+    skillDataFormat,
+    groupData,
+    groupDataFormat,
+    commandData,
+    commandDataFormat,
+    socialData,
+    socialDataFormat,
+    tutorialData,
+    tutorialDataFormat,
+    lootData,
+    lootDataFormat,
+    setClassData,
+    setClassDataPath,
+    setClassDataFormat,
+    setClassDataDir,
+    setRaceData,
+    setRaceDataPath,
+    setRaceDataFormat,
+    setRaceDataDir,
+    setSkillData,
+    setSkillDataPath,
+    setSkillDataFormat,
+    setSkillDataDir,
+    setGroupData,
+    setGroupDataPath,
+    setGroupDataFormat,
+    setGroupDataDir,
+    setCommandData,
+    setCommandDataPath,
+    setCommandDataFormat,
+    setCommandDataDir,
+    setSocialData,
+    setSocialDataPath,
+    setSocialDataFormat,
+    setSocialDataDir,
+    setTutorialData,
+    setTutorialDataPath,
+    setTutorialDataFormat,
+    setTutorialDataDir,
+    setLootData,
+    setLootDataPath,
+    setLootDataFormat,
+    setLootDataDir,
+    setStatusMessage,
+    setErrorMessage,
+    setIsBusy
+  });
+  const {
+    handleOpenProject,
+    handleOpenArea,
+    handleSaveArea,
+    handleSaveAreaAs,
+    handleSaveEditorMeta,
+    handleSetAreaDirectory,
+    handleLoadReferenceData
+  } = useAreaIoHandlers({
+    areaDirectory,
+    dataDirectory,
+    projectConfig,
+    areaPath,
+    areaData,
+    editorMeta,
+    activeTab,
+    selectedEntity,
+    roomLayout,
+    areaLayout,
+    repository,
+    setProjectConfig,
+    setAreaDirectory,
+    setDataDirectory,
+    setReferenceData,
+    setAreaPath,
+    setAreaData,
+    setEditorMeta,
+    setEditorMetaPath,
+    setStatusMessage,
+    setErrorMessage,
+    setIsBusy,
+    applyLoadedRoomLayout,
+    applyLoadedAreaLayout,
+    buildEditorMeta,
+    fileNameFromPath
   });
   const areaForm = useForm<AreaFormValues>({
     resolver: zodResolver(areaFormSchema),
@@ -3387,555 +3493,6 @@ export default function App({ repository }: AppProps) {
     control: objectForm.control,
     name: "itemType"
   });
-  const handleLoadClassesData = useCallback(
-    async (overrideDir?: string) => {
-      const targetDir =
-        typeof overrideDir === "string" ? overrideDir : dataDirectory;
-      if (!targetDir) {
-        setErrorMessage("No data directory set for classes.");
-        return;
-      }
-      const classesFile = projectConfig?.dataFiles.classes;
-      const defaultFormat = projectConfig?.defaultFormat;
-      setErrorMessage(null);
-      setIsBusy(true);
-      try {
-        const source = await repository.loadClassesData(
-          targetDir,
-          classesFile,
-          defaultFormat
-        );
-        setClassData(source.data);
-        setClassDataPath(source.path);
-        setClassDataFormat(source.format);
-        setClassDataDir(targetDir);
-        setStatusMessage(`Loaded classes (${source.format})`);
-      } catch (error) {
-        setErrorMessage(`Failed to load classes. ${String(error)}`);
-      } finally {
-        setIsBusy(false);
-      }
-    },
-    [dataDirectory, projectConfig, repository]
-  );
-  const handleSaveClassesData = useCallback(async () => {
-    if (!classData) {
-      setErrorMessage("No classes loaded to save.");
-      return;
-    }
-    if (!dataDirectory) {
-      setErrorMessage("No data directory set for classes.");
-      return;
-    }
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      const format = classDataFormat ?? projectConfig?.defaultFormat ?? "json";
-      const classesFile = projectConfig?.dataFiles.classes;
-      const path = await repository.saveClassesData(
-        dataDirectory,
-        classData,
-        format,
-        classesFile
-      );
-      setClassDataPath(path);
-      setClassDataFormat(format);
-      setClassDataDir(dataDirectory);
-      setStatusMessage(`Saved classes (${format})`);
-    } catch (error) {
-      setErrorMessage(`Failed to save classes. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  }, [classData, classDataFormat, dataDirectory, projectConfig, repository]);
-
-  const handleLoadRacesData = useCallback(
-    async (overrideDir?: string) => {
-      const targetDir =
-        typeof overrideDir === "string" ? overrideDir : dataDirectory;
-      if (!targetDir) {
-        setErrorMessage("No data directory set for races.");
-        return;
-      }
-      const racesFile = projectConfig?.dataFiles.races;
-      const defaultFormat = projectConfig?.defaultFormat;
-      setErrorMessage(null);
-      setIsBusy(true);
-      try {
-        const source = await repository.loadRacesData(
-          targetDir,
-          racesFile,
-          defaultFormat
-        );
-        setRaceData(source.data);
-        setRaceDataPath(source.path);
-        setRaceDataFormat(source.format);
-        setRaceDataDir(targetDir);
-        setStatusMessage(`Loaded races (${source.format})`);
-      } catch (error) {
-        setErrorMessage(`Failed to load races. ${String(error)}`);
-      } finally {
-        setIsBusy(false);
-      }
-    },
-    [dataDirectory, projectConfig, repository]
-  );
-
-  const handleSaveRacesData = useCallback(async () => {
-    if (!raceData) {
-      setErrorMessage("No races loaded to save.");
-      return;
-    }
-    if (!dataDirectory) {
-      setErrorMessage("No data directory set for races.");
-      return;
-    }
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      const format = raceDataFormat ?? projectConfig?.defaultFormat ?? "json";
-      const racesFile = projectConfig?.dataFiles.races;
-      const classNames = referenceData?.classes ?? [];
-      const path = await repository.saveRacesData(
-        dataDirectory,
-        raceData,
-        format,
-        racesFile,
-        classNames
-      );
-      setRaceDataPath(path);
-      setRaceDataFormat(format);
-      setRaceDataDir(dataDirectory);
-      setStatusMessage(`Saved races (${format})`);
-    } catch (error) {
-      setErrorMessage(`Failed to save races. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  }, [
-    dataDirectory,
-    projectConfig,
-    raceData,
-    raceDataFormat,
-    referenceData,
-    repository
-  ]);
-
-  const handleLoadSkillsData = useCallback(
-    async (overrideDir?: string) => {
-      const targetDir =
-        typeof overrideDir === "string" ? overrideDir : dataDirectory;
-      if (!targetDir) {
-        setErrorMessage("No data directory set for skills.");
-        return;
-      }
-      const skillsFile = projectConfig?.dataFiles.skills;
-      const defaultFormat = projectConfig?.defaultFormat;
-      setErrorMessage(null);
-      setIsBusy(true);
-      try {
-        const source = await repository.loadSkillsData(
-          targetDir,
-          skillsFile,
-          defaultFormat
-        );
-        setSkillData(source.data);
-        setSkillDataPath(source.path);
-        setSkillDataFormat(source.format);
-        setSkillDataDir(targetDir);
-        setStatusMessage(`Loaded skills (${source.format})`);
-      } catch (error) {
-        setErrorMessage(`Failed to load skills. ${String(error)}`);
-      } finally {
-        setIsBusy(false);
-      }
-    },
-    [dataDirectory, projectConfig, repository]
-  );
-
-  const handleSaveSkillsData = useCallback(async () => {
-    if (!skillData) {
-      setErrorMessage("No skills loaded to save.");
-      return;
-    }
-    if (!dataDirectory) {
-      setErrorMessage("No data directory set for skills.");
-      return;
-    }
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      const format = skillDataFormat ?? projectConfig?.defaultFormat ?? "json";
-      const skillsFile = projectConfig?.dataFiles.skills;
-      const classNames = referenceData?.classes ?? [];
-      const path = await repository.saveSkillsData(
-        dataDirectory,
-        skillData,
-        format,
-        skillsFile,
-        classNames
-      );
-      setSkillDataPath(path);
-      setSkillDataFormat(format);
-      setSkillDataDir(dataDirectory);
-      setStatusMessage(`Saved skills (${format})`);
-    } catch (error) {
-      setErrorMessage(`Failed to save skills. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  }, [
-    dataDirectory,
-    projectConfig,
-    referenceData,
-    repository,
-    skillData,
-    skillDataFormat
-  ]);
-
-  const handleLoadGroupsData = useCallback(
-    async (overrideDir?: string) => {
-      const targetDir =
-        typeof overrideDir === "string" ? overrideDir : dataDirectory;
-      if (!targetDir) {
-        setErrorMessage("No data directory set for groups.");
-        return;
-      }
-      const groupsFile = projectConfig?.dataFiles.groups;
-      const defaultFormat = projectConfig?.defaultFormat;
-      setErrorMessage(null);
-      setIsBusy(true);
-      try {
-        const source = await repository.loadGroupsData(
-          targetDir,
-          groupsFile,
-          defaultFormat
-        );
-        setGroupData(source.data);
-        setGroupDataPath(source.path);
-        setGroupDataFormat(source.format);
-        setGroupDataDir(targetDir);
-        setStatusMessage(`Loaded groups (${source.format})`);
-      } catch (error) {
-        setErrorMessage(`Failed to load groups. ${String(error)}`);
-      } finally {
-        setIsBusy(false);
-      }
-    },
-    [dataDirectory, projectConfig, repository]
-  );
-
-  const handleSaveGroupsData = useCallback(async () => {
-    if (!groupData) {
-      setErrorMessage("No groups loaded to save.");
-      return;
-    }
-    if (!dataDirectory) {
-      setErrorMessage("No data directory set for groups.");
-      return;
-    }
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      const format = groupDataFormat ?? projectConfig?.defaultFormat ?? "json";
-      const groupsFile = projectConfig?.dataFiles.groups;
-      const classNames = referenceData?.classes ?? [];
-      const path = await repository.saveGroupsData(
-        dataDirectory,
-        groupData,
-        format,
-        groupsFile,
-        classNames
-      );
-      setGroupDataPath(path);
-      setGroupDataFormat(format);
-      setGroupDataDir(dataDirectory);
-      setStatusMessage(`Saved groups (${format})`);
-    } catch (error) {
-      setErrorMessage(`Failed to save groups. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  }, [
-    dataDirectory,
-    groupData,
-    groupDataFormat,
-    projectConfig,
-    referenceData,
-    repository
-  ]);
-
-  const handleLoadCommandsData = useCallback(
-    async (overrideDir?: string) => {
-      const targetDir =
-        typeof overrideDir === "string" ? overrideDir : dataDirectory;
-      if (!targetDir) {
-        setErrorMessage("No data directory set for commands.");
-        return;
-      }
-      const commandsFile = projectConfig?.dataFiles.commands;
-      const defaultFormat = projectConfig?.defaultFormat;
-      setErrorMessage(null);
-      setIsBusy(true);
-      try {
-        const source = await repository.loadCommandsData(
-          targetDir,
-          commandsFile,
-          defaultFormat
-        );
-        setCommandData(source.data);
-        setCommandDataPath(source.path);
-        setCommandDataFormat(source.format);
-        setCommandDataDir(targetDir);
-        setStatusMessage(`Loaded commands (${source.format})`);
-      } catch (error) {
-        setErrorMessage(`Failed to load commands. ${String(error)}`);
-      } finally {
-        setIsBusy(false);
-      }
-    },
-    [dataDirectory, projectConfig, repository]
-  );
-
-  const handleSaveCommandsData = useCallback(async () => {
-    if (!commandData) {
-      setErrorMessage("No commands loaded to save.");
-      return;
-    }
-    if (!dataDirectory) {
-      setErrorMessage("No data directory set for commands.");
-      return;
-    }
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      const format =
-        commandDataFormat ?? projectConfig?.defaultFormat ?? "json";
-      const commandsFile = projectConfig?.dataFiles.commands;
-      const path = await repository.saveCommandsData(
-        dataDirectory,
-        commandData,
-        format,
-        commandsFile
-      );
-      setCommandDataPath(path);
-      setCommandDataFormat(format);
-      setCommandDataDir(dataDirectory);
-      setStatusMessage(`Saved commands (${format})`);
-    } catch (error) {
-      setErrorMessage(`Failed to save commands. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  }, [
-    commandData,
-    commandDataFormat,
-    dataDirectory,
-    projectConfig,
-    repository
-  ]);
-
-  const handleLoadSocialsData = useCallback(
-    async (overrideDir?: string) => {
-      const targetDir =
-        typeof overrideDir === "string" ? overrideDir : dataDirectory;
-      if (!targetDir) {
-        setErrorMessage("No data directory set for socials.");
-        return;
-      }
-      const socialsFile = projectConfig?.dataFiles.socials;
-      const defaultFormat = projectConfig?.defaultFormat;
-      setErrorMessage(null);
-      setIsBusy(true);
-      try {
-        const source = await repository.loadSocialsData(
-          targetDir,
-          socialsFile,
-          defaultFormat
-        );
-        setSocialData(source.data);
-        setSocialDataPath(source.path);
-        setSocialDataFormat(source.format);
-        setSocialDataDir(targetDir);
-        setStatusMessage(`Loaded socials (${source.format})`);
-      } catch (error) {
-        setErrorMessage(`Failed to load socials. ${String(error)}`);
-      } finally {
-        setIsBusy(false);
-      }
-    },
-    [dataDirectory, projectConfig, repository]
-  );
-
-  const handleSaveSocialsData = useCallback(async () => {
-    if (!socialData) {
-      setErrorMessage("No socials loaded to save.");
-      return;
-    }
-    if (!dataDirectory) {
-      setErrorMessage("No data directory set for socials.");
-      return;
-    }
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      const format = socialDataFormat ?? projectConfig?.defaultFormat ?? "json";
-      const socialsFile = projectConfig?.dataFiles.socials;
-      const path = await repository.saveSocialsData(
-        dataDirectory,
-        socialData,
-        format,
-        socialsFile
-      );
-      setSocialDataPath(path);
-      setSocialDataFormat(format);
-      setSocialDataDir(dataDirectory);
-      setStatusMessage(`Saved socials (${format})`);
-    } catch (error) {
-      setErrorMessage(`Failed to save socials. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  }, [
-    dataDirectory,
-    projectConfig,
-    repository,
-    socialData,
-    socialDataFormat
-  ]);
-
-  const handleLoadTutorialsData = useCallback(
-    async (overrideDir?: string) => {
-      const targetDir =
-        typeof overrideDir === "string" ? overrideDir : dataDirectory;
-      if (!targetDir) {
-        setErrorMessage("No data directory set for tutorials.");
-        return;
-      }
-      const tutorialsFile = projectConfig?.dataFiles.tutorials;
-      const defaultFormat = projectConfig?.defaultFormat;
-      setErrorMessage(null);
-      setIsBusy(true);
-      try {
-        const source = await repository.loadTutorialsData(
-          targetDir,
-          tutorialsFile,
-          defaultFormat
-        );
-        setTutorialData(source.data);
-        setTutorialDataPath(source.path);
-        setTutorialDataFormat(source.format);
-        setTutorialDataDir(targetDir);
-        setStatusMessage(`Loaded tutorials (${source.format})`);
-      } catch (error) {
-        setErrorMessage(`Failed to load tutorials. ${String(error)}`);
-      } finally {
-        setIsBusy(false);
-      }
-    },
-    [dataDirectory, projectConfig, repository]
-  );
-
-  const handleSaveTutorialsData = useCallback(async () => {
-    if (!tutorialData) {
-      setErrorMessage("No tutorials loaded to save.");
-      return;
-    }
-    if (!dataDirectory) {
-      setErrorMessage("No data directory set for tutorials.");
-      return;
-    }
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      const format =
-        tutorialDataFormat ?? projectConfig?.defaultFormat ?? "json";
-      const tutorialsFile = projectConfig?.dataFiles.tutorials;
-      const path = await repository.saveTutorialsData(
-        dataDirectory,
-        tutorialData,
-        format,
-        tutorialsFile
-      );
-      setTutorialDataPath(path);
-      setTutorialDataFormat(format);
-      setTutorialDataDir(dataDirectory);
-      setStatusMessage(`Saved tutorials (${format})`);
-    } catch (error) {
-      setErrorMessage(`Failed to save tutorials. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  }, [
-    dataDirectory,
-    projectConfig,
-    repository,
-    tutorialData,
-    tutorialDataFormat
-  ]);
-
-  const handleLoadLootData = useCallback(
-    async (overrideDir?: string) => {
-      const targetDir =
-        typeof overrideDir === "string" ? overrideDir : dataDirectory;
-      if (!targetDir) {
-        setErrorMessage("No data directory set for loot.");
-        return;
-      }
-      const lootFile = projectConfig?.dataFiles.loot;
-      const defaultFormat = projectConfig?.defaultFormat;
-      setErrorMessage(null);
-      setIsBusy(true);
-      try {
-        const source = await repository.loadLootData(
-          targetDir,
-          lootFile,
-          defaultFormat
-        );
-        setLootData(source.data);
-        setLootDataPath(source.path);
-        setLootDataFormat(source.format);
-        setLootDataDir(targetDir);
-        setStatusMessage(`Loaded loot (${source.format})`);
-      } catch (error) {
-        setErrorMessage(`Failed to load loot. ${String(error)}`);
-      } finally {
-        setIsBusy(false);
-      }
-    },
-    [dataDirectory, projectConfig, repository]
-  );
-
-  const handleSaveLootData = useCallback(async () => {
-    if (!lootData) {
-      setErrorMessage("No loot loaded to save.");
-      return;
-    }
-    if (!dataDirectory) {
-      setErrorMessage("No data directory set for loot.");
-      return;
-    }
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      const format = lootDataFormat ?? projectConfig?.defaultFormat ?? "json";
-      const lootFile = projectConfig?.dataFiles.loot;
-      const path = await repository.saveLootData(
-        dataDirectory,
-        lootData,
-        format,
-        lootFile
-      );
-      setLootDataPath(path);
-      setLootDataFormat(format);
-      setLootDataDir(dataDirectory);
-      setStatusMessage(`Saved loot (${format})`);
-    } catch (error) {
-      setErrorMessage(`Failed to save loot. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  }, [dataDirectory, lootData, lootDataFormat, projectConfig, repository]);
 
   useEffect(() => {
     const nextRoom = getDefaultSelection(areaData, "Rooms", selectedRoomVnum);
@@ -7391,262 +6948,6 @@ export default function App({ repository }: AppProps) {
       return { ...current, tables: nextTables };
     });
     setStatusMessage(`Updated loot table ${name} (unsaved)`);
-  };
-
-  const warnLegacyAreaFiles = useCallback(
-    async (areaDir: string | null) => {
-      if (!areaDir) {
-        return;
-      }
-      if (legacyScanDirRef.current === areaDir) {
-        return;
-      }
-      legacyScanDirRef.current = areaDir;
-      try {
-        const legacyFiles = await repository.listLegacyAreaFiles(areaDir);
-        if (!legacyFiles.length) {
-          return;
-        }
-        const warningMessage = [
-          `Legacy ROM-OLC area files found in ${areaDir}:`,
-          "",
-          ...legacyFiles.map((file) => `- ${file}`),
-          "",
-          "WorldEdit edits JSON only. Load these areas in Mud98 and save to convert them to JSON before editing."
-        ].join("\n");
-        await message(warningMessage, {
-          title: "Legacy .are files detected",
-          kind: "warning"
-        });
-      } catch (error) {
-        setErrorMessage(`Failed to scan area directory. ${String(error)}`);
-      }
-    },
-    [repository]
-  );
-
-  const handleOpenProject = async () => {
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      const cfgPath = await repository.pickConfigFile(
-        areaDirectory ?? dataDirectory
-      );
-      if (!cfgPath) {
-        return;
-      }
-      const config = await repository.loadProjectConfig(cfgPath);
-      setProjectConfig(config);
-      if (config.areaDir) {
-        setAreaDirectory(config.areaDir);
-        localStorage.setItem("worldedit.areaDir", config.areaDir);
-        await warnLegacyAreaFiles(config.areaDir);
-      }
-      if (config.dataDir) {
-        setDataDirectory(config.dataDir);
-        const refs = await repository.loadReferenceData(
-          config.dataDir,
-          config.dataFiles
-        );
-        setReferenceData(refs);
-      }
-      setStatusMessage(`Loaded project ${fileNameFromPath(cfgPath)}`);
-    } catch (error) {
-      setErrorMessage(`Failed to load config. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!areaDirectory) {
-      return;
-    }
-    void warnLegacyAreaFiles(areaDirectory);
-  }, [areaDirectory, warnLegacyAreaFiles]);
-
-  const handleOpenArea = async () => {
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      const path = await repository.pickAreaFile(areaDirectory);
-      if (!path) {
-        return;
-      }
-      const areaDir = await repository.resolveAreaDirectory(path);
-      await warnLegacyAreaFiles(areaDir);
-      const loaded = await repository.loadArea(path);
-      const metaPath = repository.editorMetaPathForArea(path);
-      let loadedMeta: EditorMeta | null = null;
-      setAreaPath(path);
-      setAreaData(loaded);
-      setEditorMetaPath(metaPath);
-      try {
-        loadedMeta = await repository.loadEditorMeta(metaPath);
-      } catch (error) {
-        setErrorMessage(`Failed to load editor meta. ${String(error)}`);
-      }
-      setEditorMeta(loadedMeta);
-      applyLoadedRoomLayout(extractRoomLayout(loadedMeta?.layout));
-      applyLoadedAreaLayout(extractAreaLayout(loadedMeta?.layout));
-      setStatusMessage(
-        loadedMeta
-          ? `Loaded ${fileNameFromPath(path)} + editor meta`
-          : `Loaded ${fileNameFromPath(path)}`
-      );
-      try {
-        const resolvedDataDir =
-          projectConfig?.dataDir ??
-          (await repository.resolveDataDirectory(path, areaDirectory));
-        if (resolvedDataDir) {
-          const refs = await repository.loadReferenceData(
-            resolvedDataDir,
-            projectConfig?.dataFiles
-          );
-          setReferenceData(refs);
-          setDataDirectory(resolvedDataDir);
-          setStatusMessage(
-            `Loaded ${fileNameFromPath(path)} + reference data`
-          );
-        }
-      } catch (error) {
-        setErrorMessage(`Failed to load reference data. ${String(error)}`);
-      }
-    } catch (error) {
-      setErrorMessage(`Failed to load area JSON. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  };
-
-  const saveToPath = async (path: string) => {
-    if (!areaData) {
-      return;
-    }
-    await repository.saveArea(path, areaData);
-    setStatusMessage(`Saved ${fileNameFromPath(path)}`);
-  };
-
-  const saveEditorMetaToPath = async (path: string) => {
-    const metaPath = repository.editorMetaPathForArea(path);
-    const nextMeta = buildEditorMeta(
-      editorMeta,
-      activeTab,
-      selectedEntity,
-      roomLayout,
-      areaLayout
-    );
-    await repository.saveEditorMeta(metaPath, nextMeta);
-    setEditorMeta(nextMeta);
-    setEditorMetaPath(metaPath);
-    setStatusMessage(`Saved editor meta ${fileNameFromPath(metaPath)}`);
-  };
-
-  const handleSaveArea = async () => {
-    if (!areaData) {
-      setErrorMessage("No area loaded to save.");
-      return;
-    }
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      let targetPath = areaPath;
-      if (!targetPath) {
-        targetPath = await repository.pickSaveFile(areaDirectory);
-      }
-      if (!targetPath) {
-        return;
-      }
-      setAreaPath(targetPath);
-      setEditorMetaPath(repository.editorMetaPathForArea(targetPath));
-      await saveToPath(targetPath);
-    } catch (error) {
-      setErrorMessage(`Failed to save area JSON. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  };
-
-  const handleSaveAreaAs = async () => {
-    if (!areaData) {
-      setErrorMessage("No area loaded to save.");
-      return;
-    }
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      const targetPath = await repository.pickSaveFile(areaPath ?? areaDirectory);
-      if (!targetPath) {
-        return;
-      }
-      setAreaPath(targetPath);
-      setEditorMetaPath(repository.editorMetaPathForArea(targetPath));
-      await saveToPath(targetPath);
-    } catch (error) {
-      setErrorMessage(`Failed to save area JSON. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  };
-
-  const handleSaveEditorMeta = async () => {
-    if (!areaPath) {
-      setErrorMessage("No area loaded to save editor metadata.");
-      return;
-    }
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      await saveEditorMetaToPath(areaPath);
-    } catch (error) {
-      setErrorMessage(`Failed to save editor meta. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  };
-
-  const handleSetAreaDirectory = async () => {
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      const selected = await repository.pickAreaDirectory(areaDirectory);
-      if (!selected) {
-        return;
-      }
-      setAreaDirectory(selected);
-      localStorage.setItem("worldedit.areaDir", selected);
-      setStatusMessage(`Area directory set to ${selected}`);
-      await warnLegacyAreaFiles(selected);
-    } catch (error) {
-      setErrorMessage(`Failed to set area directory. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  };
-
-  const handleLoadReferenceData = async () => {
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      const resolvedDataDir =
-        projectConfig?.dataDir ??
-        (await repository.resolveDataDirectory(areaPath, areaDirectory));
-      if (!resolvedDataDir) {
-        setErrorMessage("Unable to resolve data directory.");
-        return;
-      }
-      const refs = await repository.loadReferenceData(
-        resolvedDataDir,
-        projectConfig?.dataFiles
-      );
-      setReferenceData(refs);
-      setDataDirectory(resolvedDataDir);
-      setStatusMessage(`Loaded reference data from ${resolvedDataDir}`);
-    } catch (error) {
-      setErrorMessage(`Failed to load reference data. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
   };
 
   const areaFormNode = (
