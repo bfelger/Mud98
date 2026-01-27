@@ -945,7 +945,7 @@
       "name": "findorian forestspeaker",
       "shortDescr": "Findorian, the Forestspeaker",
       "longDescr": "Findorian, the Forestspeaker, kneels in the grassy clearing, gazing intently at the dark woods surrounding you.\n\r",
-      "description": "",
+      "description": "Findorian stands over two meters tall, and exudes an aura of command and authority. You know from experience that his lithe appearance belies an unmatched strength and fortitude. His leather armor is worn and plain, but his outer vestments mark him as Servant of Nature.\n\r  Once, he was a member of the Tetyeyath, the hallowed counsel of elders that rule Tauremar. There, he was your leader and mentor. But intrigue and disfavor have seen him banished him here, the the World Below.\n\r  Why does he seem more in place here than he did back home?",
       "race": "elf",
       "actFlags": [
         "npc",
@@ -965,7 +965,7 @@
       "vulnFlags": [
         "iron"
       ],
-      "alignment": 0,
+      "alignment": 800,
       "group": 0,
       "level": 20,
       "hitroll": 0,
@@ -1853,6 +1853,46 @@
           "callback": "on_greet"
         }
       ]
+    },
+    {
+      "vnum": 12001,
+      "name": "elf refugee",
+      "shortDescr": "a refugee",
+      "longDescr": "A displaced elf refugee is here, begging for supplies.",
+      "description": "This elf woman is begging for supplies for what's left of her poor family.\n\r",
+      "race": "elf",
+      "alignment": 100,
+      "level": 1,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 333
+      },
+      "manaDice": {
+        "number": 20,
+        "type": 12,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 5
+      },
+      "damType": "none",
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "size": "medium",
+      "factionVnum": 12000,
+      "loxScript": "on_random() {\n\r    var i = dice(1,6)\n\r    if (i == 1) {\n\r        say(\"Please. Are you sure you don't have anymore blankets?\")\n\r    }\n\r    else if (i == 2) {\n\r        echo(\"$n sniffles.\")\n\r    }\n\r    else if (i == 3) {\n\r        say(\"It's okay, my love. I know they'll find something for us.\")\n\r        echo(\"$n pats $s daughter on the shoulder.\")\n\r    }\n\r    else if (i == 4) {\n\r        echo(\"$n coughs.\")\n\r    }\n\r    else if (i == 5) {\n\r        echo(\"$n sighs heavily.\")\n\r    }\n\r    else {\n\r        say(\"We're so tired. Will you please check the back? You have to have something.\")\n\r    }\n\r}",
+      "events": [
+        {
+          "trigger": "random",
+          "callback": "on_random",
+          "criteria": 10
+        }
+      ]
     }
   ],
   "objects": [
@@ -2311,6 +2351,13 @@
       "mobVnum": 12026,
       "maxInArea": -1,
       "roomVnum": 12036,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 12001,
+      "maxInArea": 1,
+      "roomVnum": 12006,
       "maxInRoom": 1,
       "commandName": "loadMob"
     }

@@ -28,6 +28,9 @@ type RoomFormProps = {
   }>;
   selectedRoomResetIndex: number | null;
   onSelectRoomReset: (index: number) => void;
+  onCreateRoomReset: () => void;
+  onDeleteRoomReset: () => void;
+  canDeleteRoomReset: boolean;
   roomResetEditor: ReactNode;
   canEditScript: boolean;
   scriptEventEntity: EventEntityKey | null;
@@ -53,6 +56,9 @@ export function RoomForm({
   roomResets,
   selectedRoomResetIndex,
   onSelectRoomReset,
+  onCreateRoomReset,
+  onDeleteRoomReset,
+  canDeleteRoomReset,
   roomResetEditor,
   canEditScript,
   scriptEventEntity,
@@ -279,6 +285,23 @@ export function RoomForm({
                     } tied to this room`
                   : "No resets point to this room"}
               </div>
+            </div>
+            <div className="form-header-actions">
+              <button
+                className="ghost-button"
+                type="button"
+                onClick={onCreateRoomReset}
+              >
+                New Reset
+              </button>
+              <button
+                className="ghost-button"
+                type="button"
+                onClick={onDeleteRoomReset}
+                disabled={!canDeleteRoomReset}
+              >
+                Delete Reset
+              </button>
             </div>
           </div>
           <div className="block-list">

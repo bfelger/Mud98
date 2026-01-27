@@ -85,6 +85,8 @@ import {
 } from "./crud/area/objectsCrud";
 import {
   buildResetRows,
+  createReset,
+  deleteReset,
   resetColumns as resetColumnsDef
 } from "./crud/area/resetsCrud";
 import {
@@ -5811,6 +5813,60 @@ export default function App({ repository }: AppProps) {
     [setSelectedResetIndex]
   );
 
+  const handleCreateRoomReset = useCallback(() => {
+    if (!areaData) {
+      setStatusMessage("Load an area before creating resets.");
+      return;
+    }
+    if (selectedRoomVnum === null) {
+      setStatusMessage("Select a room to add a reset.");
+      return;
+    }
+    const result = createReset(areaData);
+    if (!result.ok) {
+      setStatusMessage(result.message);
+      return;
+    }
+    const resets = getEntityList(result.data.areaData, "Resets");
+    const nextResets = resets.map((reset, index) => {
+      if (index !== result.data.index) {
+        return reset as Record<string, unknown>;
+      }
+      return {
+        ...(reset as Record<string, unknown>),
+        roomVnum: selectedRoomVnum
+      };
+    });
+    const nextAreaData = {
+      ...(result.data.areaData as Record<string, unknown>),
+      resets: nextResets
+    } as AreaJson;
+    setAreaData(nextAreaData);
+    setSelectedResetIndex(result.data.index);
+    setStatusMessage(
+      `Created reset #${result.data.index + 1} for room ${selectedRoomVnum} (unsaved)`
+    );
+  }, [areaData, selectedRoomVnum, setAreaData, setSelectedResetIndex, setStatusMessage]);
+
+  const handleDeleteRoomReset = useCallback(() => {
+    if (!areaData) {
+      setStatusMessage("Load an area before deleting resets.");
+      return;
+    }
+    if (selectedRoomResetIndex === null) {
+      setStatusMessage("Select a room reset to delete.");
+      return;
+    }
+    const result = deleteReset(areaData, selectedRoomResetIndex);
+    if (!result.ok) {
+      setStatusMessage(result.message);
+      return;
+    }
+    setAreaData(result.data.areaData);
+    setSelectedResetIndex(null);
+    setStatusMessage(`Deleted reset #${result.data.deletedIndex + 1} (unsaved)`);
+  }, [areaData, selectedRoomResetIndex, setAreaData, setSelectedResetIndex, setStatusMessage]);
+
   const handleDigRoom = useCallback(
     (fromVnum: number, direction: string) => {
       const sourceNode =
@@ -7163,6 +7219,9 @@ export default function App({ repository }: AppProps) {
       roomResets={roomResetItems}
       selectedRoomResetIndex={selectedRoomResetIndex}
       onSelectRoomReset={handleSelectRoomReset}
+      onCreateRoomReset={handleCreateRoomReset}
+      onDeleteRoomReset={handleDeleteRoomReset}
+      canDeleteRoomReset={selectedRoomResetIndex !== null}
       roomResetEditor={roomResetEditorNode}
       canEditScript={canEditScript}
       scriptEventEntity={scriptEventEntity}
