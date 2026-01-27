@@ -16,6 +16,7 @@ type MobileFormProps = {
   damageTypes: string[];
   mobActFlags: string[];
   attackFlags: string[];
+  raceOptions: string[];
   canEditScript: boolean;
   scriptEventEntity: EventEntityKey | null;
   eventBindings: EventBinding[];
@@ -34,6 +35,7 @@ export function MobileForm({
   damageTypes,
   mobActFlags,
   attackFlags,
+  raceOptions,
   canEditScript,
   scriptEventEntity,
   eventBindings,
@@ -106,12 +108,14 @@ export function MobileForm({
             <label className="form-label" htmlFor="mob-race">
               Race
             </label>
-            <input
-              id="mob-race"
-              className="form-input"
-              type="text"
-              {...register("race")}
-            />
+            <select id="mob-race" className="form-select" {...register("race")}>
+              <option value="">Select</option>
+              {raceOptions.map((race) => (
+                <option key={race} value={race}>
+                  {race}
+                </option>
+              ))}
+            </select>
             {errors.race?.message ? (
               <span className="form-error">{errors.race.message}</span>
             ) : null}

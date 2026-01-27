@@ -7252,6 +7252,7 @@ export default function App({ repository }: AppProps) {
       damageTypes={damageTypes}
       mobActFlags={[...actFlags]}
       attackFlags={[...offFlags]}
+      raceOptions={referenceData?.races ?? []}
       canEditScript={canEditScript}
       scriptEventEntity={scriptEventEntity}
       eventBindings={eventBindings}
