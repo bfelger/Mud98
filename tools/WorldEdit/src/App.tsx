@@ -230,6 +230,7 @@ import {
   skillTargets,
   logFlags,
   showFlags,
+  actFlagEnum,
   extraFlagEnum,
   extraFlags,
   furnitureFlagEnum,
@@ -240,6 +241,7 @@ import {
   portalFlags,
   positionEnum,
   positions,
+  offFlagEnum,
   roomFlagEnum,
   roomFlags as roomFlagOptions,
   sectorEnum,
@@ -566,7 +568,9 @@ const mobileFormSchema = z.object({
   lootTable: z.string().optional(),
   hitDice: diceFormSchema,
   manaDice: diceFormSchema,
-  damageDice: diceFormSchema
+  damageDice: diceFormSchema,
+  actFlags: z.array(actFlagEnum).optional(),
+  atkFlags: z.array(offFlagEnum).optional()
 });
 
 const weaponFormSchema = z
@@ -5044,6 +5048,12 @@ export default function App({ repository }: AppProps) {
           : "",
       lootTable:
         typeof record?.lootTable === "string" ? record.lootTable : "",
+      actFlags: Array.isArray(record?.actFlags)
+        ? record.actFlags.filter((flag) => typeof flag === "string")
+        : [],
+      atkFlags: Array.isArray(record?.atkFlags)
+        ? record.atkFlags.filter((flag) => typeof flag === "string")
+        : [],
       hitDice: resolveDice(record?.hitDice),
       manaDice: resolveDice(record?.manaDice),
       damageDice: resolveDice(record?.damageDice)
@@ -6124,6 +6134,8 @@ export default function App({ repository }: AppProps) {
           damageNoun: normalizeOptionalText(data.damageNoun),
           offensiveSpell: normalizeOptionalText(data.offensiveSpell),
           lootTable: cleanOptionalString(data.lootTable),
+          actFlags: data.actFlags?.length ? data.actFlags : undefined,
+          atkFlags: data.atkFlags?.length ? data.atkFlags : undefined,
           hitDice,
           manaDice,
           damageDice
@@ -7239,6 +7251,8 @@ export default function App({ repository }: AppProps) {
       sexes={sexes}
       sizes={sizes}
       damageTypes={damageTypes}
+      mobActFlags={[...actFlags]}
+      attackFlags={[...offFlags]}
       canEditScript={canEditScript}
       scriptEventEntity={scriptEventEntity}
       eventBindings={eventBindings}

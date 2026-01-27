@@ -1857,10 +1857,14 @@
     {
       "vnum": 12001,
       "name": "elf refugee",
-      "shortDescr": "a refugee",
+      "shortDescr": "an elf refugee",
       "longDescr": "A displaced elf refugee is here, begging for supplies.",
       "description": "This elf woman is begging for supplies for what's left of her poor family.\n\r",
       "race": "elf",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
       "alignment": 100,
       "level": 1,
       "hitroll": 0,

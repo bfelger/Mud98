@@ -14,6 +14,8 @@ type MobileFormProps = {
   sexes: string[];
   sizes: string[];
   damageTypes: string[];
+  mobActFlags: string[];
+  attackFlags: string[];
   canEditScript: boolean;
   scriptEventEntity: EventEntityKey | null;
   eventBindings: EventBinding[];
@@ -30,6 +32,8 @@ export function MobileForm({
   sexes,
   sizes,
   damageTypes,
+  mobActFlags,
+  attackFlags,
   canEditScript,
   scriptEventEntity,
   eventBindings,
@@ -299,6 +303,46 @@ export function MobileForm({
           {errors.description?.message ? (
             <span className="form-error">{errors.description.message}</span>
           ) : null}
+        </div>
+        <div className="form-field form-field--full">
+          <div className="form-section-header">
+            <div>
+              <div className="form-label">Act Flags</div>
+              <div className="form-hint">Mobile behavior flags.</div>
+            </div>
+          </div>
+          <div className="form-checkboxes">
+            {mobActFlags.map((flag) => (
+              <label key={flag} className="checkbox-pill">
+                <input
+                  type="checkbox"
+                  value={flag}
+                  {...register("actFlags")}
+                />
+                <span>{flag}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+        <div className="form-field form-field--full">
+          <div className="form-section-header">
+            <div>
+              <div className="form-label">Attack Flags</div>
+              <div className="form-hint">Combat abilities and assists.</div>
+            </div>
+          </div>
+          <div className="form-checkboxes">
+            {attackFlags.map((flag) => (
+              <label key={flag} className="checkbox-pill">
+                <input
+                  type="checkbox"
+                  value={flag}
+                  {...register("atkFlags")}
+                />
+                <span>{flag}</span>
+              </label>
+            ))}
+          </div>
         </div>
         <div className="form-field form-field--full">
           <div className="form-section-header">
