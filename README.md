@@ -136,6 +136,7 @@ Mud98 adds OLC editors for the following:
 ## Documentation
 
 - [Mud98 docs index](doc/mud98/index.md)
+- [WorldEdit builder guide](doc/mud98/WorldEdit/index.md)
 - [Project map](doc/mud98/project-map.md)
 - [Coding guide](doc/mud98/coding-guide.md)
 - [Glossary](doc/mud98/glossary.md)

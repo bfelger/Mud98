@@ -18,6 +18,9 @@ Mud98 isn't a MUD; it's a codebase. These docs outline how to take Mud98 and, wi
 - [Player's Guide to Crafting](crafting.md)
 - [Builder's Guide to Crafting](crafting-olc.md)
 
+## WorldEdit
+- [WorldEdit builder guide](WorldEdit/index.md): Rapid desktop-based world-building with a graphical map.
+
 ## Engineering reference
 
 - [Project Map](project-map.md): Repo layout, build/run/test at a glance.
