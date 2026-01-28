@@ -350,6 +350,12 @@ void load_struct(FILE* fp, uintptr_t base_type, const SaveTableEntry* table, con
                         found = true, cnt++;
                         break;
                     }
+                case FIELD_LOX_STRING: {
+                        String** p_lox_str = (String**)(temp->field_ptr - base_type + pointer);
+                        *p_lox_str = fread_lox_string(fp);
+                        found = true, cnt++;
+                        break;
+                    }
 
                 } // switch
                 if (found == true)
@@ -521,6 +527,14 @@ void save_struct(FILE* fp, uintptr_t base_type, const SaveTableEntry* table, con
             }
 
         case FIELD_LOX_CLOSURE: {
+                String** lox_str = (String**)(temp->field_ptr - base_type + pointer);
+                if (*lox_str == NULL)
+                    break;
+                char* str = (*lox_str)->chars;
+                fprintf(fp, "%s %s~\n", temp->field_name, !IS_NULLSTR(str) ? fix_string(str) : "");
+                break;
+            }
+        case FIELD_LOX_STRING: {
                 String** lox_str = (String**)(temp->field_ptr - base_type + pointer);
                 if (*lox_str == NULL)
                     break;

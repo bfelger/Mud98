@@ -21,7 +21,7 @@
 #include <entities/reset.h>
 #include <entities/room.h>
 
-#include <data/quest.h>
+#include <entities/quest.h>
 #include <data/loot.h>
 
 #include <lox/memory.h>

@@ -155,6 +155,26 @@ static Value has_skill_lox(Value receiver, int arg_count, Value* args)
     return BOOL_VAL(mob->pcdata->learned[sn] > 0);
 }
 
+static Value set_recall_lox(Value receiver, int arg_count, Value* args)
+{
+    if (arg_count != 1 || !IS_INT(args[0])) {
+        runtime_error("set_recall() requires one argument: a room vnum.");
+        return FALSE_VAL;
+    }
+
+    if (!IS_MOBILE(receiver) || AS_MOBILE(receiver)->pcdata == NULL) {
+        runtime_error("set_recall() called from a non-player.");
+        return FALSE_VAL;
+    }
+
+    Mobile* mob = AS_MOBILE(receiver);
+    PlayerData* pcdata = mob->pcdata;
+    VNUM recall_vnum = AS_INT(args[0]);
+
+    pcdata->recall = recall_vnum;
+    return TRUE_VAL;
+}
+
 const NativeMethodEntry native_method_entries[] = {
     { "is_area",            is_area_lox                     },
     { "is_area_data",       is_area_data_lox                },
@@ -179,5 +199,6 @@ const NativeMethodEntry native_method_entries[] = {
     { "is_ally",            faction_is_ally_lox             },
     { "grant_skill",        grant_skill_lox                 },
     { "has_skill",          has_skill_lox                   },
+    { "set_recall",         set_recall_lox                  },
     { NULL,                 NULL                            },
 };

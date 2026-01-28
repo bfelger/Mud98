@@ -8,7 +8,7 @@
 
 #include <craft/recipe.h>
 
-#include <data/quest.h>
+#include <entities/quest.h>
 
 #include <entities/faction.h>
 #include <entities/reset.h>
@@ -72,14 +72,14 @@ static int test_aedit_movevnums_shifts_references()
 
     Quest* quest = new_quest();
     quest->area_data = area_b;
-    quest->vnum = 910006;
+    VNUM_FIELD(quest) = 910006;
     quest->end = 900000;
     quest->target = 900001;
     quest->target_upper = 900001;
     quest->reward_faction_vnum = 900004;
     quest->reward_obj_vnum[0] = 900002;
     quest->reward_obj_count[0] = 1;
-    ORDERED_INSERT(Quest, quest, area_b->quests, vnum);
+    ordered_table_set_vnum(&area_b->quests, VNUM_FIELD(quest), OBJ_VAL(quest));
 
     Reset* reset = new_reset();
     reset->command = 'M';
@@ -96,6 +96,13 @@ static int test_aedit_movevnums_shifts_references()
     test_socket_output_enabled = true;
     aedit(ch, "movevnums 920000");
     test_socket_output_enabled = false;
+
+    Value val;
+    bool ret = ordered_table_get_vnum(&area_b->quests, 910006, &val);
+    ASSERT_OR_GOTO(ret == true, end_test);
+    ASSERT_OR_GOTO(IS_QUEST(val), end_test);
+
+    quest = AS_QUEST(val);
 
     ASSERT(area_a->min_vnum == 920000);
     ASSERT(area_a->max_vnum == 920009);
@@ -126,6 +133,7 @@ static int test_aedit_movevnums_shifts_references()
     ASSERT(quest->reward_faction_vnum == 920004);
     ASSERT_OUTPUT_CONTAINS("Area VNUMs moved");
 
+end_test:
     test_output_buffer = NIL_VAL;
     edit_done(ch);
     return 0;

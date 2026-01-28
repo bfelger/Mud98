@@ -9,8 +9,9 @@
 #include <entities/faction.h>
 #include <entities/obj_prototype.h>
 #include <entities/player_data.h>
+#include <entities/quest.h>
 
-#include <data/quest.h>
+#include <lox/table.h>
 
 #include <comm.h>
 #include <db.h>
@@ -29,27 +30,27 @@ Quest xQuest;
 
 const OlcCmdEntry quest_olc_comm_table[] =
 {
-    { "create",     0,                      ed_olded,           U(qedit_create)     },
-    { "type",       U(&xQuest.type),        ed_flag_set_sh,     U(quest_type_table) },
-    { "xp",         U(&xQuest.xp),          ed_number_pos,      0                   },
-    { "level",      U(&xQuest.level),       ed_number_level,    0                   },
-    { "target",     U(&xQuest.target),      ed_olded,           U(qedit_target)     },
-    { "upper",      U(&xQuest.target_upper),ed_olded,           U(qedit_upper)      },
-    { "amount",     U(&xQuest.amount),      ed_number_s_pos,    0                   },
-    { "end",        U(&xQuest.end),         ed_number_pos,      U(qedit_end)        },
-    { "faction",    0,                      ed_olded,           U(qedit_faction)    },
-    { "rewardrep",      0,                  ed_olded,           U(qedit_reward_reputation) },
-    { "rewardgold", U(&xQuest.reward_gold),   ed_number_s_pos,  0                   },
-    { "rewardsilver", U(&xQuest.reward_silver), ed_number_s_pos,0                   },
-    { "rewardcopper", U(&xQuest.reward_copper), ed_number_s_pos,0                   },
-    { "rewarditem",    0,                  ed_olded,           U(qedit_reward_item) },
-    { "name",       U(&xQuest.name),        ed_line_string,     0                   },
-    { "entry",      U(&xQuest.entry),       ed_desc,            0                   },
-    { "show",       0,                      ed_olded,           U(qedit_show)       },
-    { "commands",   0,                      ed_olded,           U(show_commands)    },
-    { "?",          0,                      ed_olded,           U(show_help)        },
-    { "version",    0,                      ed_olded,           U(show_version)     },
-    { NULL,         0,                      0,                  0                   }
+    { "create",         0,                      ed_olded,           U(qedit_create)     },
+    { "type",           U(&xQuest.type),        ed_flag_set_sh,     U(quest_type_table) },
+    { "xp",             U(&xQuest.xp),          ed_number_pos,      0                   },
+    { "level",          U(&xQuest.level),       ed_number_level,    0                   },
+    { "target",         U(&xQuest.target),      ed_olded,           U(qedit_target)     },
+    { "upper",          U(&xQuest.target_upper),ed_olded,           U(qedit_upper)      },
+    { "amount",         U(&xQuest.amount),      ed_number_s_pos,    0                   },
+    { "end",            U(&xQuest.end),         ed_number_pos,      U(qedit_end)        },
+    { "faction",        0,                      ed_olded,           U(qedit_faction)    },
+    { "rewardrep",      0,                      ed_olded,           U(qedit_reward_reputation) },
+    { "rewardgold",     U(&xQuest.reward_gold),   ed_number_s_pos,  0                   },
+    { "rewardsilver",   U(&xQuest.reward_silver), ed_number_s_pos,  0                   },
+    { "rewardcopper",   U(&xQuest.reward_copper), ed_number_s_pos,  0                   },
+    { "rewarditem",     0,                      ed_olded,           U(qedit_reward_item)},
+    { "name",           U(&xQuest.header.name), ed_line_lox_string, 0                   },
+    { "entry",          U(&xQuest.entry),       ed_desc,            0                   },
+    { "show",           0,                      ed_olded,           U(qedit_show)       },
+    { "commands",       0,                      ed_olded,           U(show_commands)    },
+    { "?",              0,                      ed_olded,           U(show_help)        },
+    { "version",        0,                      ed_olded,           U(show_version)     },
+    { NULL,             0,                      0,                  0                   }
 };
 
 void qedit(Mobile* ch, char* argument)
@@ -66,6 +67,9 @@ void qedit(Mobile* ch, char* argument)
     }
 
     if (!str_cmp(argument, "done")) {
+        Quest* quest;
+        EDIT_QUEST(ch, quest);
+        table_set(&global_quests, NAME_FIELD(quest), OBJ_VAL(quest));
         edit_done(ch);
         return;
     }
@@ -161,11 +165,12 @@ QEDIT(qedit_create)
     }
 
     quest = new_quest();
-    quest->vnum = vnum;
+    
+    VNUM_FIELD(quest) = vnum;
     quest->area_data = area_data;
     quest->level = area_data->low_range;
 
-    ORDERED_INSERT(Quest, quest, area_data->quests, vnum);
+    ordered_table_set_vnum(&area_data->quests, vnum, OBJ_VAL(quest));
 
     set_editor(ch->desc, ED_QUEST, U(quest));
 
@@ -222,7 +227,7 @@ QEDIT(qedit_show)
         end_name = "(none)";
     }
 
-    olc_print_num_str(ch, "Quest", quest->vnum, quest->name && quest->name[0] ? quest->name : "(none)");
+    olc_print_num_str(ch, "Quest", VNUM_FIELD(quest), IS_NULLSTR(NAME_STR(quest)) ? "(none)" : NAME_STR(quest));
     olc_print_str(ch, "Area", NAME_STR(quest->area_data));
     olc_print_flags(ch, "Type", quest_type_table, quest->type);
     olc_print_num(ch, "Level", quest->level);

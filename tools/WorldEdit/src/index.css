@@ -677,6 +677,12 @@ body::before {
   margin-bottom: 8px;
 }
 
+.form-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .checkbox-pill {
   display: inline-flex;
   align-items: center;

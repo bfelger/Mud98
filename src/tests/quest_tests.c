@@ -6,7 +6,7 @@
 #include "test_registry.h"
 #include "mock.h"
 
-#include <data/quest.h>
+#include <entities/quest.h>
 
 #include <config.h>
 #include <db.h>
@@ -34,7 +34,7 @@ static AreaData* quest_tests_area()
         initialized = true;
     }
 
-    area->quests = NULL;
+    ordered_table_init(&area->quests);
     return area;
 }
 
@@ -43,7 +43,7 @@ static Quest* make_quest(
 {
     Quest* quest = new_quest();
     quest->area_data = quest_tests_area();
-    quest->vnum = vnum;
+    VNUM_FIELD(quest) = vnum;
     quest->target = target;
     quest->target_upper = target_upper;
     quest->end = end;
@@ -52,7 +52,7 @@ static Quest* make_quest(
     quest->level = 30;
     quest->xp = 0;
 
-    ORDERED_INSERT(Quest, quest, quest->area_data->quests, vnum);
+    ordered_table_set_vnum(&quest->area_data->quests, vnum, OBJ_VAL(quest));
 
     return quest;
 }
@@ -73,13 +73,13 @@ static int test_quest_add_targets()
 
     QuestTarget* end = player->pcdata->quest_log->target_ends;
     ASSERT(end != NULL);
-    ASSERT(end->quest_vnum == quest->vnum);
+    ASSERT(end->quest_vnum == VNUM_FIELD(quest));
     ASSERT(end->target_vnum == quest->end);
 
     int count = 0;
     for (QuestTarget* target = player->pcdata->quest_log->target_mobs;
          target != NULL; target = target->next) {
-        ASSERT(target->quest_vnum == quest->vnum);
+        ASSERT(target->quest_vnum == VNUM_FIELD(quest));
         ASSERT(target->type == quest->type);
         ASSERT(target->target_vnum == quest->target + count);
         count++;
@@ -97,7 +97,7 @@ static int test_get_quest_target_mob()
 
     QuestTarget* found = get_quest_targ_mob(player, 9202);
     ASSERT(found != NULL);
-    ASSERT(found->quest_vnum == quest->vnum);
+    ASSERT(found->quest_vnum == VNUM_FIELD(quest));
     ASSERT(found->target_vnum == 9202);
 
     QuestTarget* missing = get_quest_targ_mob(player, 9199);
@@ -114,7 +114,7 @@ static int test_get_quest_target_obj()
 
     QuestTarget* found = get_quest_targ_obj(player, 9401);
     ASSERT(found != NULL);
-    ASSERT(found->quest_vnum == quest->vnum);
+    ASSERT(found->quest_vnum == VNUM_FIELD(quest));
 
     QuestTarget* missing = get_quest_targ_obj(player, 9501);
     ASSERT(missing == NULL);
@@ -128,13 +128,13 @@ static int test_quest_level_req()
     Quest* quest = make_quest(QUEST_KILL_MOB, 800130, 9600, 9601, 9700, 2);
 
     player->level = quest->level - 1;
-    ASSERT(!can_quest(player, quest->vnum));
+    ASSERT(!can_quest(player, VNUM_FIELD(quest)));
 
     player->level = quest->level;
-    ASSERT(can_quest(player, quest->vnum));
+    ASSERT(can_quest(player, VNUM_FIELD(quest)));
 
     add_quest_to_log(player->pcdata->quest_log, quest, QSTAT_ACCEPTED, 0);
-    ASSERT(!can_quest(player, quest->vnum));
+    ASSERT(!can_quest(player, VNUM_FIELD(quest)));
 
     return 0;
 }
@@ -144,15 +144,15 @@ static int test_quest_completion()
     Mobile* player = mock_player("Artemis");
     Quest* quest = make_quest(QUEST_KILL_MOB, 800140, 9800, 9801, 9900, 2);
 
-    ASSERT(!has_quest(player, quest->vnum));
+    ASSERT(!has_quest(player, VNUM_FIELD(quest)));
 
     add_quest_to_log(player->pcdata->quest_log, quest, QSTAT_ACCEPTED, 0);
-    ASSERT(has_quest(player, quest->vnum));
+    ASSERT(has_quest(player, VNUM_FIELD(quest)));
 
-    QuestStatus* status = get_quest_status(player, quest->vnum);
+    QuestStatus* status = get_quest_status(player, VNUM_FIELD(quest));
     ASSERT(status != NULL);
     status->state = QSTAT_COMPLETE;
-    ASSERT(!has_quest(player, quest->vnum));
+    ASSERT(!has_quest(player, VNUM_FIELD(quest)));
 
     return 0;
 }
@@ -165,13 +165,13 @@ static int test_quest_complete_visit()
 
     Quest* quest = make_quest(QUEST_VISIT_MOB, 800150, 10000, 10000, 10100, 1);
     add_quest_to_log(player->pcdata->quest_log, quest, QSTAT_ACCEPTED, 0);
-    ASSERT(!can_finish_quest(player, quest->vnum));
+    ASSERT(!can_finish_quest(player, VNUM_FIELD(quest)));
 
     MobPrototype* proto = mock_mob_proto(quest->target);
     Mobile* target = mock_mob("Guide", quest->target, proto);
     mob_to_room(target, room);
 
-    ASSERT(can_finish_quest(player, quest->vnum));
+    ASSERT(can_finish_quest(player, VNUM_FIELD(quest)));
 
     return 0;
 }
@@ -182,13 +182,13 @@ static int test_quest_complete_kill()
     Quest* quest = make_quest(QUEST_KILL_MOB, 800160, 10200, 10202, 10300, 3);
     add_quest_to_log(player->pcdata->quest_log, quest, QSTAT_ACCEPTED, 0);
 
-    QuestStatus* status = get_quest_status(player, quest->vnum);
+    QuestStatus* status = get_quest_status(player, VNUM_FIELD(quest));
     ASSERT(status != NULL);
     status->progress = quest->amount - 1;
-    ASSERT(!can_finish_quest(player, quest->vnum));
+    ASSERT(!can_finish_quest(player, VNUM_FIELD(quest)));
 
     status->progress = quest->amount;
-    ASSERT(can_finish_quest(player, quest->vnum));
+    ASSERT(can_finish_quest(player, VNUM_FIELD(quest)));
 
     return 0;
 }
@@ -199,7 +199,7 @@ static int test_quest_clear_targs()
     Quest* quest = make_quest(QUEST_KILL_MOB, 800170, 10400, 10401, 10500, 2);
     add_quest_to_log(player->pcdata->quest_log, quest, QSTAT_ACCEPTED, quest->amount);
 
-    QuestStatus* status = get_quest_status(player, quest->vnum);
+    QuestStatus* status = get_quest_status(player, VNUM_FIELD(quest));
     ASSERT(status != NULL);
 
     ASSERT(get_quest_targ_mob(player, quest->target) != NULL);
@@ -232,7 +232,7 @@ static int test_quest_reward_currency_and_items()
     global_obj_proto_set(proto);
 
     add_quest_to_log(player->pcdata->quest_log, quest, QSTAT_ACCEPTED, quest->amount);
-    QuestStatus* status = get_quest_status(player, quest->vnum);
+    QuestStatus* status = get_quest_status(player, VNUM_FIELD(quest));
     ASSERT(status != NULL);
 
     finish_quest(player, quest, status);
@@ -265,7 +265,7 @@ static int test_quest_reward_reputation()
     quest->reward_reputation = 250;
 
     add_quest_to_log(player->pcdata->quest_log, quest, QSTAT_ACCEPTED, quest->amount);
-    QuestStatus* status = get_quest_status(player, quest->vnum);
+    QuestStatus* status = get_quest_status(player, VNUM_FIELD(quest));
     ASSERT(status != NULL);
 
     finish_quest(player, quest, status);

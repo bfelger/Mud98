@@ -8,19 +8,14 @@ import {
 } from "react";
 import type { ColDef, GridApi } from "ag-grid-community";
 import {
-  applyNodeChanges,
   BaseEdge,
   EdgeLabelRenderer,
-  Handle,
   Position,
   type Edge,
-  type NodeChange,
   type EdgeProps,
   type Node,
-  type NodeProps,
   useStore
 } from "reactflow";
-import { message } from "@tauri-apps/plugin-dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   useFieldArray,
@@ -36,6 +31,7 @@ import { RoomForm } from "./components/RoomForm";
 import { MobileForm } from "./components/MobileForm";
 import { ObjectForm } from "./components/ObjectForm";
 import { ResetForm } from "./components/ResetForm";
+import { ResetEditorFields } from "./components/ResetEditorFields";
 import { ShopForm } from "./components/ShopForm";
 import { QuestForm } from "./components/QuestForm";
 import { FactionForm } from "./components/FactionForm";
@@ -67,6 +63,102 @@ import { ViewCardHeader } from "./components/ViewCardHeader";
 import { ViewTabs } from "./components/ViewTabs";
 import { MapView } from "./components/MapView";
 import { ViewBody } from "./components/ViewBody";
+import {
+  classTitleCount,
+  defaultSkillLevel,
+  defaultSkillRating,
+  groupSkillCount,
+  raceSkillCount,
+  raceStatKeys
+} from "./constants/globalDefaults";
+import {
+  buildRoomRows,
+  roomColumns as roomColumnsDef
+} from "./crud/area/roomsCrud";
+import {
+  buildMobileRows,
+  mobileColumns as mobileColumnsDef
+} from "./crud/area/mobilesCrud";
+import {
+  buildObjectRows,
+  objectColumns as objectColumnsDef
+} from "./crud/area/objectsCrud";
+import {
+  buildResetRows,
+  createReset,
+  deleteReset,
+  resetColumns as resetColumnsDef
+} from "./crud/area/resetsCrud";
+import {
+  buildShopRows,
+  shopColumns as shopColumnsDef
+} from "./crud/area/shopsCrud";
+import {
+  buildFactionRows,
+  factionColumns as factionColumnsDef
+} from "./crud/area/factionsCrud";
+import {
+  buildQuestRows,
+  questColumns as questColumnsDef
+} from "./crud/area/questsCrud";
+import {
+  buildRecipeRows,
+  recipeColumns as recipeColumnsDef
+} from "./crud/area/recipesCrud";
+import {
+  buildGatherSpawnRows,
+  gatherSpawnColumns as gatherSpawnColumnsDef
+} from "./crud/area/gatherSpawnsCrud";
+import { extractAreaLootData } from "./crud/area/areaLootCrud";
+import { buildLootRows, lootColumns as lootColumnsDef } from "./crud/loot/lootRows";
+import {
+  buildClassRows,
+  classColumns as classColumnsDef
+} from "./crud/global/classesCrud";
+import {
+  buildRaceRows,
+  raceColumns as raceColumnsDef
+} from "./crud/global/racesCrud";
+import {
+  buildSkillRows,
+  skillColumns as skillColumnsDef
+} from "./crud/global/skillsCrud";
+import {
+  buildGroupRows,
+  groupColumns as groupColumnsDef
+} from "./crud/global/groupsCrud";
+import {
+  buildCommandRows,
+  commandColumns as commandColumnsDef
+} from "./crud/global/commandsCrud";
+import {
+  buildSocialRows,
+  socialColumns as socialColumnsDef
+} from "./crud/global/socialsCrud";
+import {
+  buildTutorialRows,
+  tutorialColumns as tutorialColumnsDef
+} from "./crud/global/tutorialsCrud";
+import {
+  buildTitlePairs,
+  normalizeGroupSkills,
+  normalizeRaceClassMap,
+  normalizeRaceSkills,
+  normalizeRaceStats,
+  titlesToText
+} from "./utils/globalNormalizers";
+import { digRoom, linkRooms } from "./map/roomOps";
+import {
+  roomNodeTypes,
+  type RoomLayoutMap,
+  type RoomNodeData
+} from "./map/roomNodes";
+import { type AreaLayoutMap } from "./map/areaNodes";
+import {
+  buildOrthogonalEdgePath,
+  offsetPoint
+} from "./map/edgeRouting";
+import { buildExitTargetValidation, findAreaForVnum } from "./map/roomEdges";
 import type { VnumOption } from "./components/VnumPicker";
 import type { EventBinding } from "./data/eventTypes";
 import type {
@@ -77,7 +169,6 @@ import type {
   ClassDefinition,
   CommandDataFile,
   CommandDefinition,
-  AreaLayoutEntry,
   EditorLayout,
   EditorMeta,
   GroupDataFile,
@@ -98,8 +189,7 @@ import type {
   TutorialDefinition,
   SkillDataFile,
   SkillDefinition,
-  ReferenceData,
-  RoomLayoutEntry
+  ReferenceData
 } from "./repository/types";
 import type { WorldRepository } from "./repository/worldRepository";
 import type {
@@ -113,12 +203,13 @@ import {
   loadValidationConfig
 } from "./validation/registry";
 import { loadPluginRules } from "./validation/plugins";
-import {
-  layoutAreaGraphNodes,
-  layoutRoomNodes,
-  areaNodeSize,
-  roomNodeSize
-} from "./map/graphLayout";
+import { areaNodeSize, roomNodeSize } from "./map/graphLayout";
+import { useAreaGraphState } from "./hooks/useAreaGraphState";
+import { useRoomMapState, type RoomContextMenuState } from "./hooks/useRoomMapState";
+import { useAreaCrudHandlers } from "./hooks/useAreaCrudHandlers";
+import { useGlobalCrudHandlers } from "./hooks/useGlobalCrudHandlers";
+import { useAreaIoHandlers } from "./hooks/useAreaIoHandlers";
+import { useGlobalIoHandlers } from "./hooks/useGlobalIoHandlers";
 import {
   containerFlagEnum,
   containerFlags,
@@ -134,21 +225,25 @@ import {
   immFlags,
   resFlags,
   vulnFlags,
-  formFlags,
-  partFlags,
   skillTargets,
   logFlags,
   showFlags,
+  actFlagEnum,
   extraFlagEnum,
   extraFlags,
   furnitureFlagEnum,
   furnitureFlags,
+  formFlagEnum,
+  formFlags,
   liquidEnum,
   liquids,
   portalFlagEnum,
   portalFlags,
   positionEnum,
   positions,
+  partFlagEnum,
+  partFlags,
+  offFlagEnum,
   roomFlagEnum,
   roomFlags as roomFlagOptions,
   sectorEnum,
@@ -229,13 +324,7 @@ const globalEntityOrder = [
 
 const primeStatOptions = ["str", "int", "wis", "dex", "con"] as const;
 const armorProfOptions = ["old_style", "cloth", "light", "medium", "heavy"] as const;
-const classTitleCount = 61;
 const classGuildCount = 2;
-const raceSkillCount = 5;
-const raceStatKeys = ["str", "int", "wis", "dex", "con"] as const;
-const defaultSkillLevel = 53;
-const defaultSkillRating = 0;
-const groupSkillCount = 15;
 const lootEntryTypeOptions = ["item", "cp"] as const;
 const lootOpTypeOptions = [
   "use_group",
@@ -317,12 +406,6 @@ const resetCommandLabels: Record<ResetCommand, string> = {
   randomizeExits: "Randomize Exits"
 };
 
-const directionHandleMap: Record<string, { source: string; target: string }> = {
-  north: { source: "north-out", target: "south-in" },
-  east: { source: "east-out", target: "west-in" },
-  south: { source: "south-out", target: "north-in" },
-  west: { source: "west-out", target: "east-in" }
-};
 const areaDirectionHandleMap: Record<string, { source: string; target: string }> =
   {
     north: { source: "north-out", target: "south-in" },
@@ -332,18 +415,6 @@ const areaDirectionHandleMap: Record<string, { source: string; target: string }>
     up: { source: "north-out", target: "south-in" },
     down: { source: "south-out", target: "north-in" }
   };
-const oppositeDirectionMap: Record<string, string> = {
-  north: "south",
-  east: "west",
-  south: "north",
-  west: "east",
-  up: "down",
-  down: "up"
-};
-const externalSourceHandles: Record<string, string> = {
-  up: "north-out",
-  down: "south-out"
-};
 const externalDirectionMap: Record<string, Position> = {
   north: Position.Top,
   south: Position.Bottom,
@@ -374,199 +445,11 @@ type TabId = (typeof tabs)[number]["id"];
 type EntityKey = (typeof entityOrder)[number];
 type GlobalEntityKey = (typeof globalEntityOrder)[number];
 type EditorMode = "Area" | "Global";
-type RoomRow = {
-  vnum: number;
-  name: string;
-  sector: string;
-  exits: number;
-  flags: string;
-};
-
-type MobileRow = {
-  vnum: number;
-  name: string;
-  level: number;
-  race: string;
-  alignment: number;
-};
-
-type ObjectRow = {
-  vnum: number;
-  name: string;
-  itemType: string;
-  level: number;
-};
-
-type ResetRow = {
-  index: number;
-  command: string;
-  entityVnum: string;
-  roomVnum: string;
-  details: string;
-};
-
-type ClassRow = {
-  index: number;
-  name: string;
-  whoName: string;
-  primeStat: string;
-  armorProf: string;
-  weaponVnum: number;
-  startLoc: number;
-};
-
-type RaceRow = {
-  index: number;
-  name: string;
-  whoName: string;
-  pc: string;
-  points: number;
-  size: string;
-  startLoc: number;
-};
-
-type SkillRow = {
-  index: number;
-  name: string;
-  target: string;
-  minPosition: string;
-  spell: string;
-  slot: number;
-};
-
-type GroupRow = {
-  index: number;
-  name: string;
-  ratingSummary: string;
-  skills: number;
-};
-
-type CommandRow = {
-  index: number;
-  name: string;
-  function: string;
-  position: string;
-  level: number;
-  log: string;
-  category: string;
-  loxFunction: string;
-};
-
-type SocialRow = {
-  index: number;
-  name: string;
-  noTarget: string;
-  target: string;
-  self: string;
-};
-
-type TutorialRow = {
-  index: number;
-  name: string;
-  minLevel: number;
-  steps: number;
-};
-
-type LootRow = {
-  id: string;
-  kind: "group" | "table";
-  index: number;
-  name: string;
-  details: string;
-};
-
-type RecipeRow = {
-  vnum: number;
-  name: string;
-  skill: string;
-  inputs: string;
-  output: string;
-};
-
-type GatherSpawnRow = {
-  index: number;
-  vnum: number;
-  sector: string;
-  quantity: number;
-  respawnTimer: number;
-};
-
-type ShopRow = {
-  keeper: number;
-  buyTypes: string;
-  profitBuy: number;
-  profitSell: number;
-  hours: string;
-};
-
-type QuestRow = {
-  vnum: number;
-  name: string;
-  type: string;
-  level: number;
-  target: string;
-  rewards: string;
-};
-
-type FactionRow = {
-  vnum: number;
-  name: string;
-  defaultStanding: number;
-  allies: string;
-  opposing: string;
-};
-
-type ExternalExit = {
-  fromVnum: number;
-  fromName: string;
-  direction: string;
-  toVnum: number;
-  areaName: string | null;
-};
-
-type RoomLayoutMap = Record<string, RoomLayoutEntry>;
-type AreaLayoutMap = Record<string, AreaLayoutEntry>;
-
-type AreaGraphEntry = {
-  id: string;
-  name: string;
-  vnumRange: [number, number] | null;
-};
-
-type AreaGraphNodeData = {
-  label: string;
-  range: string;
-  isCurrent?: boolean;
-  isMatch?: boolean;
-  locked?: boolean;
-  dirty?: boolean;
-};
-
-type ExitValidationResult = {
-  issues: ValidationIssueBase[];
-  invalidEdgeIds: Set<string>;
-};
 
 type RoomContextMenuState = {
   vnum: number;
   x: number;
   y: number;
-};
-
-type RoomNodeData = {
-  vnum: number;
-  label: string;
-  sector: string;
-  dirty?: boolean;
-  locked?: boolean;
-  upExitTargets?: number[];
-  downExitTargets?: number[];
-  onNavigate?: (vnum: number) => void;
-  onContextMenu?: (event: MouseEvent<HTMLDivElement>, vnum: number) => void;
-  grid?: {
-    x: number;
-    y: number;
-  };
 };
 
 const optionalIntSchema = z.preprocess((value) => {
@@ -687,7 +570,11 @@ const mobileFormSchema = z.object({
   lootTable: z.string().optional(),
   hitDice: diceFormSchema,
   manaDice: diceFormSchema,
-  damageDice: diceFormSchema
+  damageDice: diceFormSchema,
+  actFlags: z.array(actFlagEnum).optional(),
+  atkFlags: z.array(offFlagEnum).optional(),
+  formFlags: z.array(formFlagEnum).optional(),
+  partFlags: z.array(partFlagEnum).optional()
 });
 
 const weaponFormSchema = z
@@ -1150,6 +1037,11 @@ type AreaFormValues = z.infer<typeof areaFormSchema>;
 type MobileFormValues = z.infer<typeof mobileFormSchema>;
 type ObjectFormValues = z.infer<typeof objectFormSchema>;
 type ResetFormValues = z.infer<typeof resetFormSchema>;
+type RoomResetItem = {
+  index: number;
+  command: string;
+  label: string;
+};
 type ShopFormValues = z.infer<typeof shopFormSchema>;
 type QuestFormValues = z.infer<typeof questFormSchema>;
 type FactionFormValues = z.infer<typeof factionFormSchema>;
@@ -1444,6 +1336,73 @@ function resolveResetCommand(record: Record<string, unknown> | null): string {
   return mapped ?? command;
 }
 
+function isResetForRoom(
+  record: Record<string, unknown>,
+  roomVnum: number
+): boolean {
+  const target = parseVnum(record.roomVnum);
+  return target !== null && target === roomVnum;
+}
+
+function formatVnumLabel(
+  vnum: number | null,
+  map: Map<number, VnumOption>
+): string {
+  if (vnum === null) {
+    return "?";
+  }
+  const option = map.get(vnum);
+  if (option?.label) {
+    return `${vnum} ${option.label}`;
+  }
+  return String(vnum);
+}
+
+function formatResetSummary(
+  record: Record<string, unknown>,
+  command: string,
+  roomMap: Map<number, VnumOption>,
+  mobMap: Map<number, VnumOption>,
+  objMap: Map<number, VnumOption>
+): string {
+  const roomVnum = parseVnum(record.roomVnum);
+  const mobVnum = parseVnum(record.mobVnum);
+  const objVnum = parseVnum(record.objVnum);
+  const direction =
+    typeof record.direction === "string" ? record.direction : null;
+  const state = parseVnum(record.state);
+  const exits = parseVnum(record.exits);
+  switch (command) {
+    case "loadMob":
+      return `Load ${formatVnumLabel(mobVnum, mobMap)} in ${formatVnumLabel(
+        roomVnum,
+        roomMap
+      )}`;
+    case "placeObj":
+      return `Place ${formatVnumLabel(objVnum, objMap)} in ${formatVnumLabel(
+        roomVnum,
+        roomMap
+      )}`;
+    case "setDoor":
+      return `Set door ${direction ?? "?"} (${formatVnumLabel(
+        roomVnum,
+        roomMap
+      )}) state ${state ?? "?"}`;
+    case "randomizeExits":
+      return `Randomize exits (${formatVnumLabel(roomVnum, roomMap)}: ${
+        exits ?? "?"
+      })`;
+    default:
+      if (roomVnum !== null) {
+        return `${command || "Reset"} in ${formatVnumLabel(
+          roomVnum,
+          roomMap
+        )}`;
+      }
+      return command || "Reset";
+  }
+}
+
 function getDefaultSelection(
   areaData: AreaJson | null,
   entity: EntityKey,
@@ -1590,401 +1549,6 @@ function getFirstString(value: unknown, fallback: string): string {
   return typeof value === "string" && value.trim().length ? value : fallback;
 }
 
-function normalizeDirectionKey(value: unknown): string {
-  return typeof value === "string" ? value.trim().toLowerCase() : "";
-}
-
-function hasExitDirection(exits: unknown[], dirKey: string): boolean {
-  return exits.some((exit) => {
-    if (!exit || typeof exit !== "object") {
-      return false;
-    }
-    const exitRecord = exit as Record<string, unknown>;
-    return normalizeDirectionKey(exitRecord.dir) === dirKey;
-  });
-}
-
-function RoomNode({ data, selected }: NodeProps<RoomNodeData>) {
-  const upTargets = data.upExitTargets ?? [];
-  const downTargets = data.downExitTargets ?? [];
-  const handleNavigate =
-    (targets: number[]) => (event: MouseEvent<HTMLButtonElement>) => {
-      event.stopPropagation();
-      if (!targets.length) {
-        return;
-      }
-      data.onNavigate?.(targets[0]);
-    };
-  const handleContextMenu = (event: MouseEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-    data.onContextMenu?.(event, data.vnum);
-  };
-  const buildTitle = (label: string, targets: number[]) =>
-    targets.length
-      ? `${label} to ${targets.join(", ")}`
-      : `${label} exit`;
-  return (
-    <div
-      className={`room-node${selected ? " room-node--selected" : ""}`}
-      onContextMenu={handleContextMenu}
-    >
-      {data.dirty ? (
-        <div className="room-node__dirty" title="Position moved but not locked">
-          Dirty
-        </div>
-      ) : null}
-      <Handle
-        id="north-out"
-        type="source"
-        position={Position.Top}
-        className="room-node__handle"
-      />
-      <Handle
-        id="north-in"
-        type="target"
-        position={Position.Top}
-        className="room-node__handle"
-      />
-      <Handle
-        id="east-out"
-        type="source"
-        position={Position.Right}
-        className="room-node__handle"
-      />
-      <Handle
-        id="east-in"
-        type="target"
-        position={Position.Right}
-        className="room-node__handle"
-      />
-      <Handle
-        id="south-out"
-        type="source"
-        position={Position.Bottom}
-        className="room-node__handle"
-      />
-      <Handle
-        id="south-in"
-        type="target"
-        position={Position.Bottom}
-        className="room-node__handle"
-      />
-      <Handle
-        id="west-out"
-        type="source"
-        position={Position.Left}
-        className="room-node__handle"
-      />
-      <Handle
-        id="west-in"
-        type="target"
-        position={Position.Left}
-        className="room-node__handle"
-      />
-      {upTargets.length || downTargets.length ? (
-        <div className="room-node__exits">
-          {upTargets.length ? (
-            <button
-              className="room-node__exit-button room-node__exit-button--up"
-              type="button"
-              onClick={handleNavigate(upTargets)}
-              title={buildTitle("Up exit", upTargets)}
-            >
-              <span className="room-node__exit-icon">⬆</span>
-              {upTargets.length > 1 ? (
-                <span className="room-node__exit-count">{upTargets.length}</span>
-              ) : null}
-            </button>
-          ) : null}
-          {downTargets.length ? (
-            <button
-              className="room-node__exit-button room-node__exit-button--down"
-              type="button"
-              onClick={handleNavigate(downTargets)}
-              title={buildTitle("Down exit", downTargets)}
-            >
-              <span className="room-node__exit-icon">⬇</span>
-              {downTargets.length > 1 ? (
-                <span className="room-node__exit-count">{downTargets.length}</span>
-              ) : null}
-            </button>
-          ) : null}
-        </div>
-      ) : null}
-      <div className="room-node__vnum">{data.vnum}</div>
-      <div className="room-node__name">{data.label}</div>
-      <div className="room-node__sector">{data.sector}</div>
-    </div>
-  );
-}
-
-const roomNodeTypes = { room: RoomNode };
-
-type Point = { x: number; y: number };
-type NodeBounds = {
-  id: string;
-  left: number;
-  right: number;
-  top: number;
-  bottom: number;
-};
-type OrthogonalPath = {
-  points: Point[];
-  orientation: "horizontal" | "vertical";
-};
-
-function offsetPoint(point: Point, direction: Position, distance: number): Point {
-  switch (direction) {
-    case Position.Left:
-      return { x: point.x - distance, y: point.y };
-    case Position.Right:
-      return { x: point.x + distance, y: point.y };
-    case Position.Top:
-      return { x: point.x, y: point.y - distance };
-    case Position.Bottom:
-      return { x: point.x, y: point.y + distance };
-    default:
-      return point;
-  }
-}
-
-function pointsToPath(points: Point[]): string {
-  if (!points.length) {
-    return "";
-  }
-  return points
-    .map((point, index) =>
-      `${index === 0 ? "M" : "L"}${point.x} ${point.y}`
-    )
-    .join(" ");
-}
-
-function getPathLength(points: Point[]): number {
-  let length = 0;
-  for (let index = 1; index < points.length; index += 1) {
-    const prev = points[index - 1];
-    const next = points[index];
-    length += Math.abs(next.x - prev.x) + Math.abs(next.y - prev.y);
-  }
-  return length;
-}
-
-function getPathMidpoint(points: Point[]): Point {
-  if (!points.length) {
-    return { x: 0, y: 0 };
-  }
-  const total = getPathLength(points);
-  if (total === 0) {
-    return points[0];
-  }
-  let remaining = total / 2;
-  for (let index = 1; index < points.length; index += 1) {
-    const prev = points[index - 1];
-    const next = points[index];
-    const segmentLength = Math.abs(next.x - prev.x) + Math.abs(next.y - prev.y);
-    if (segmentLength >= remaining) {
-      const ratio = segmentLength === 0 ? 0 : remaining / segmentLength;
-      return {
-        x: prev.x + (next.x - prev.x) * ratio,
-        y: prev.y + (next.y - prev.y) * ratio
-      };
-    }
-    remaining -= segmentLength;
-  }
-  return points[points.length - 1];
-}
-
-function segmentIntersectsRect(
-  start: Point,
-  end: Point,
-  rect: NodeBounds,
-  padding: number
-): boolean {
-  const left = rect.left - padding;
-  const right = rect.right + padding;
-  const top = rect.top - padding;
-  const bottom = rect.bottom + padding;
-  if (start.x === end.x) {
-    const x = start.x;
-    const minY = Math.min(start.y, end.y);
-    const maxY = Math.max(start.y, end.y);
-    return x >= left && x <= right && maxY >= top && minY <= bottom;
-  }
-  if (start.y === end.y) {
-    const y = start.y;
-    const minX = Math.min(start.x, end.x);
-    const maxX = Math.max(start.x, end.x);
-    return y >= top && y <= bottom && maxX >= left && minX <= right;
-  }
-  return false;
-}
-
-function countPathIntersections(
-  points: Point[],
-  obstacles: NodeBounds[],
-  padding: number
-): number {
-  let count = 0;
-  for (let index = 1; index < points.length; index += 1) {
-    const start = points[index - 1];
-    const end = points[index];
-    for (const obstacle of obstacles) {
-      if (segmentIntersectsRect(start, end, obstacle, padding)) {
-        count += 1;
-        break;
-      }
-    }
-  }
-  return count;
-}
-
-function createOrthogonalPath(
-  start: Point,
-  end: Point,
-  sourceDirection: Position,
-  targetDirection: Position,
-  orientation: "horizontal" | "vertical"
-): OrthogonalPath {
-  const sourceStub = offsetPoint(start, sourceDirection, edgeStubSize);
-  const targetStub = offsetPoint(end, targetDirection, edgeStubSize);
-  if (orientation === "horizontal") {
-    const midX = (sourceStub.x + targetStub.x) / 2;
-    return {
-      orientation,
-      points: [
-        start,
-        sourceStub,
-        { x: midX, y: sourceStub.y },
-        { x: midX, y: targetStub.y },
-        targetStub,
-        end
-      ]
-    };
-  }
-  const midY = (sourceStub.y + targetStub.y) / 2;
-  return {
-    orientation,
-    points: [
-      start,
-      sourceStub,
-      { x: sourceStub.x, y: midY },
-      { x: targetStub.x, y: midY },
-      targetStub,
-      end
-    ]
-  };
-}
-
-function adjustOrthogonalPath(
-  path: OrthogonalPath,
-  obstacles: NodeBounds[]
-): OrthogonalPath {
-  if (path.points.length < 4) {
-    return path;
-  }
-  const points = [...path.points];
-  if (path.orientation === "horizontal") {
-    const start = points[2];
-    const end = points[3];
-    const blockers = obstacles.filter((obstacle) =>
-      segmentIntersectsRect(start, end, obstacle, edgeClearance)
-    );
-    if (!blockers.length) {
-      return path;
-    }
-    const candidateXs = new Set<number>([start.x]);
-    blockers.forEach((blocker) => {
-      candidateXs.add(blocker.left - edgeClearance * 2);
-      candidateXs.add(blocker.right + edgeClearance * 2);
-    });
-    const sortedCandidates = [...candidateXs].sort(
-      (a, b) => Math.abs(a - start.x) - Math.abs(b - start.x)
-    );
-    for (const candidate of sortedCandidates) {
-      points[2] = { x: candidate, y: points[2].y };
-      points[3] = { x: candidate, y: points[3].y };
-      if (!countPathIntersections(points, obstacles, edgeClearance)) {
-        return { ...path, points };
-      }
-    }
-    return path;
-  }
-  const start = points[2];
-  const end = points[3];
-  const blockers = obstacles.filter((obstacle) =>
-    segmentIntersectsRect(start, end, obstacle, edgeClearance)
-  );
-  if (!blockers.length) {
-    return path;
-  }
-  const candidateYs = new Set<number>([start.y]);
-  blockers.forEach((blocker) => {
-    candidateYs.add(blocker.top - edgeClearance * 2);
-    candidateYs.add(blocker.bottom + edgeClearance * 2);
-  });
-  const sortedCandidates = [...candidateYs].sort(
-    (a, b) => Math.abs(a - start.y) - Math.abs(b - start.y)
-  );
-  for (const candidate of sortedCandidates) {
-    points[2] = { x: points[2].x, y: candidate };
-    points[3] = { x: points[3].x, y: candidate };
-    if (!countPathIntersections(points, obstacles, edgeClearance)) {
-      return { ...path, points };
-    }
-  }
-  return path;
-}
-
-function buildOrthogonalEdgePath(
-  start: Point,
-  end: Point,
-  sourceDirection: Position,
-  targetDirection: Position,
-  obstacles: NodeBounds[]
-): { path: string; labelPoint: Point } {
-  const preferred = edgeDirectionPriority[sourceDirection] ?? "horizontal";
-  const alternate = preferred === "horizontal" ? "vertical" : "horizontal";
-  const primaryPath = createOrthogonalPath(
-    start,
-    end,
-    sourceDirection,
-    targetDirection,
-    preferred
-  );
-  const secondaryPath = createOrthogonalPath(
-    start,
-    end,
-    sourceDirection,
-    targetDirection,
-    alternate
-  );
-  const primaryScore = countPathIntersections(
-    primaryPath.points,
-    obstacles,
-    edgeClearance
-  );
-  const secondaryScore = countPathIntersections(
-    secondaryPath.points,
-    obstacles,
-    edgeClearance
-  );
-  let chosen =
-    primaryScore < secondaryScore
-      ? primaryPath
-      : secondaryScore < primaryScore
-        ? secondaryPath
-        : getPathLength(primaryPath.points) <=
-            getPathLength(secondaryPath.points)
-          ? primaryPath
-          : secondaryPath;
-  chosen = adjustOrthogonalPath(chosen, obstacles);
-  return {
-    path: pointsToPath(chosen.points),
-    labelPoint: getPathMidpoint(chosen.points)
-  };
-}
-
 function RoomEdge({
   id,
   sourceX,
@@ -2043,13 +1607,16 @@ function RoomEdge({
   const safeTargetPosition = targetPosition ?? Position.Left;
   const { path, labelPoint } = useMemo(
     () =>
-      buildOrthogonalEdgePath(
-        { x: sourceX, y: sourceY },
-        { x: targetX, y: targetY },
-        safeSourcePosition,
-        safeTargetPosition,
-        filteredObstacles
-      ),
+      buildOrthogonalEdgePath({
+        start: { x: sourceX, y: sourceY },
+        end: { x: targetX, y: targetY },
+        sourceDirection: safeSourcePosition,
+        targetDirection: safeTargetPosition,
+        obstacles: filteredObstacles,
+        edgeStubSize,
+        edgeClearance,
+        edgeDirectionPriority
+      }),
     [
       sourceX,
       sourceY,
@@ -2515,92 +2082,6 @@ function validateDuplicateVnums(
   return issues;
 }
 
-function buildExitTargetValidation(
-  areaData: AreaJson | null,
-  areaIndex: AreaIndexEntry[]
-): ExitValidationResult {
-  const empty = { issues: [], invalidEdgeIds: new Set<string>() };
-  if (!areaData) {
-    return empty;
-  }
-  const rooms = getEntityList(areaData, "Rooms");
-  if (!rooms.length) {
-    return empty;
-  }
-  const bounds = getAreaVnumBounds(areaData);
-  const roomVnums = new Set<number>();
-  rooms.forEach((room) => {
-    if (!room || typeof room !== "object") {
-      return;
-    }
-    const vnum = parseVnum((room as Record<string, unknown>).vnum);
-    if (vnum !== null) {
-      roomVnums.add(vnum);
-    }
-  });
-  const issues: ValidationIssueBase[] = [];
-  const invalidEdgeIds = new Set<string>();
-  rooms.forEach((room, index) => {
-    if (!room || typeof room !== "object") {
-      return;
-    }
-    const record = room as Record<string, unknown>;
-    const fromVnum = parseVnum(record.vnum);
-    if (fromVnum === null) {
-      return;
-    }
-    const exits = Array.isArray(record.exits) ? record.exits : [];
-    exits.forEach((exit, exitIndex) => {
-      if (!exit || typeof exit !== "object") {
-        return;
-      }
-      const exitRecord = exit as Record<string, unknown>;
-      const toVnum = parseVnum(exitRecord.toVnum);
-      const dir =
-        typeof exitRecord.dir === "string" && exitRecord.dir.trim().length
-          ? exitRecord.dir.trim()
-          : "exit";
-      if (toVnum === null) {
-        issues.push({
-          id: `exit-target-${fromVnum}-${dir}-${index}-${exitIndex}`,
-          severity: "error",
-          entityType: "Rooms",
-          vnum: fromVnum,
-          message: `Exit ${dir} from room ${fromVnum} has no target vnum`
-        });
-        return;
-      }
-      if (roomVnums.has(toVnum)) {
-        return;
-      }
-      const internalEdgeId = `exit-${fromVnum}-${dir}-${toVnum}-${exitIndex}`;
-      const externalEdgeId = `external-${fromVnum}-${dir}-${toVnum}-${exitIndex}`;
-      if (bounds && (toVnum < bounds.min || toVnum > bounds.max)) {
-        if (areaIndex.length && !findAreaForVnum(areaIndex, toVnum)) {
-          issues.push({
-            id: `exit-target-${fromVnum}-${dir}-${toVnum}-${index}-${exitIndex}`,
-            severity: "error",
-            entityType: "Rooms",
-            vnum: fromVnum,
-            message: `Exit ${dir} from room ${fromVnum} targets unknown area vnum ${toVnum}`
-          });
-          invalidEdgeIds.add(externalEdgeId);
-        }
-        return;
-      }
-      issues.push({
-        id: `exit-target-${fromVnum}-${dir}-${toVnum}-${index}-${exitIndex}`,
-        severity: "error",
-        entityType: "Rooms",
-        vnum: fromVnum,
-        message: `Exit ${dir} from room ${fromVnum} targets missing room ${toVnum}`
-      });
-      invalidEdgeIds.add(internalEdgeId);
-    });
-  });
-  return { issues, invalidEdgeIds };
-}
-
 function validateResetReferences(
   areaData: AreaJson | null
 ): ValidationIssueBase[] {
@@ -2968,214 +2449,6 @@ function buildAreaDebugSummary(areaData: AreaJson | null): {
   return { keys, arrayCounts };
 }
 
-function buildRoomNodes(areaData: AreaJson | null): Node<RoomNodeData>[] {
-  if (!areaData) {
-    return [];
-  }
-  const rooms = getEntityList(areaData, "Rooms");
-  if (!rooms.length) {
-    return [];
-  }
-  const roomVnums = new Set<number>();
-  rooms.forEach((room) => {
-    if (!room || typeof room !== "object") {
-      return;
-    }
-    const vnum = parseVnum((room as Record<string, unknown>).vnum);
-    if (vnum !== null) {
-      roomVnums.add(vnum);
-    }
-  });
-  const columns = 6;
-  const spacingX = 220;
-  const spacingY = 140;
-  return rooms.map((room, index) => {
-    const record = room as Record<string, unknown>;
-    const vnum = parseVnum(record.vnum);
-    const name = getFirstString(record.name, "(unnamed room)");
-    const sector =
-      typeof record.sectorType === "string"
-        ? record.sectorType
-        : typeof record.sector === "string"
-          ? record.sector
-          : "unknown";
-    const exits = Array.isArray(record.exits) ? record.exits : [];
-    const upExitTargets: number[] = [];
-    const downExitTargets: number[] = [];
-    exits.forEach((exit) => {
-      if (!exit || typeof exit !== "object") {
-        return;
-      }
-      const exitRecord = exit as Record<string, unknown>;
-      const dir = typeof exitRecord.dir === "string" ? exitRecord.dir : "";
-      const dirKey = dir.trim().toLowerCase();
-      if (dirKey !== "up" && dirKey !== "down") {
-        return;
-      }
-      const targetVnum = parseVnum(exitRecord.toVnum);
-      if (targetVnum === null || !roomVnums.has(targetVnum)) {
-        return;
-      }
-      if (dirKey === "up") {
-        upExitTargets.push(targetVnum);
-      } else {
-        downExitTargets.push(targetVnum);
-      }
-    });
-    const col = index % columns;
-    const row = Math.floor(index / columns);
-    return {
-      id: vnum !== null ? String(vnum) : `room-${index}`,
-      type: "room",
-      position: { x: col * spacingX, y: row * spacingY },
-      data: {
-        vnum: vnum ?? -1,
-        label: name,
-        sector,
-        upExitTargets,
-        downExitTargets
-      }
-    };
-  });
-}
-
-function applyRoomSelection(
-  nodes: Node<RoomNodeData>[],
-  selectedVnum: number | null
-): Node<RoomNodeData>[] {
-  if (selectedVnum === null) {
-    return nodes.map((node) => ({ ...node, selected: false }));
-  }
-  return nodes.map((node) => ({
-    ...node,
-    selected: node.data.vnum === selectedVnum
-  }));
-}
-
-function extractRoomLayout(layout: EditorLayout | null | undefined): RoomLayoutMap {
-  const rooms =
-    layout && typeof layout === "object" && "rooms" in layout
-      ? layout.rooms
-      : undefined;
-  if (!rooms || typeof rooms !== "object") {
-    return {};
-  }
-  const entries: RoomLayoutMap = {};
-  Object.entries(rooms).forEach(([key, value]) => {
-    if (!value || typeof value !== "object") {
-      return;
-    }
-    const record = value as Record<string, unknown>;
-    const x = record.x;
-    const y = record.y;
-    if (typeof x !== "number" || typeof y !== "number") {
-      return;
-    }
-    if (!Number.isFinite(x) || !Number.isFinite(y)) {
-      return;
-    }
-    if (!record.locked) {
-      return;
-    }
-    entries[key] = {
-      x,
-      y,
-      locked: true
-    };
-  });
-  return entries;
-}
-
-function extractAreaLayout(layout: EditorLayout | null | undefined): AreaLayoutMap {
-  const areas =
-    layout && typeof layout === "object" && "areas" in layout
-      ? layout.areas
-      : undefined;
-  if (!areas || typeof areas !== "object") {
-    return {};
-  }
-  const entries: AreaLayoutMap = {};
-  Object.entries(areas).forEach(([key, value]) => {
-    if (!value || typeof value !== "object") {
-      return;
-    }
-    const record = value as Record<string, unknown>;
-    const x = record.x;
-    const y = record.y;
-    if (typeof x !== "number" || typeof y !== "number") {
-      return;
-    }
-    if (!Number.isFinite(x) || !Number.isFinite(y)) {
-      return;
-    }
-    if (!record.locked) {
-      return;
-    }
-    entries[key] = {
-      x,
-      y,
-      locked: true
-    };
-  });
-  return entries;
-}
-
-function applyRoomLayoutOverrides(
-  nodes: Node<RoomNodeData>[],
-  layout: RoomLayoutMap
-): Node<RoomNodeData>[] {
-  if (!Object.keys(layout).length) {
-    return nodes.map((node) => ({
-      ...node,
-      draggable: true,
-      data: {
-        ...node.data,
-        locked: false
-      }
-    }));
-  }
-  return nodes.map((node) => {
-    const override = layout[node.id];
-    const isLocked = override?.locked === true;
-    return {
-      ...node,
-      position: isLocked ? { x: override.x, y: override.y } : node.position,
-      draggable: !isLocked,
-      data: {
-        ...node.data,
-        locked: isLocked
-      }
-    };
-  });
-}
-
-function applyAreaLayoutOverrides(
-  nodes: Node<AreaGraphNodeData>[],
-  layout: AreaLayoutMap,
-  dirtyNodes: Set<string>
-): Node<AreaGraphNodeData>[] {
-  return nodes.map((node) => {
-    const override = layout[node.id];
-    const isLocked = override?.locked === true;
-    const isDirty = dirtyNodes.has(node.id);
-    return {
-      ...node,
-      position: isLocked
-        ? {
-            x: override.x,
-            y: override.y
-          }
-        : node.position,
-      draggable: !isLocked,
-      data: {
-        ...node.data,
-        locked: isLocked,
-        dirty: isDirty
-      }
-    };
-  });
-}
-
 function getDominantExitDirection(
   directionCounts: Partial<Record<string, number>> | null | undefined
 ): string | null {
@@ -3196,740 +2469,6 @@ function getDominantExitDirection(
     }
   });
   return best;
-}
-
-function buildRoomEdges(
-  areaData: AreaJson | null,
-  includeVerticalEdges: boolean,
-  includeExternalEdges: boolean,
-  invalidEdgeIds?: Set<string>
-): Edge[] {
-  if (!areaData) {
-    return [];
-  }
-  const rooms = getEntityList(areaData, "Rooms");
-  if (!rooms.length) {
-    return [];
-  }
-  const roomVnums = new Set<number>();
-  for (const room of rooms) {
-    if (!room || typeof room !== "object") {
-      continue;
-    }
-    const vnum = parseVnum((room as Record<string, unknown>).vnum);
-    if (vnum !== null) {
-      roomVnums.add(vnum);
-    }
-  }
-  const edges: Edge[] = [];
-  for (const room of rooms) {
-    if (!room || typeof room !== "object") {
-      continue;
-    }
-    const record = room as Record<string, unknown>;
-    const fromVnum = parseVnum(record.vnum);
-    if (fromVnum === null) {
-      continue;
-    }
-    const exits = Array.isArray(record.exits) ? record.exits : [];
-    exits.forEach((exit, index) => {
-      if (!exit || typeof exit !== "object") {
-        return;
-      }
-      const exitRecord = exit as Record<string, unknown>;
-      const toVnum = parseVnum(exitRecord.toVnum);
-      if (toVnum === null) {
-        return;
-      }
-      const dir =
-        typeof exitRecord.dir === "string" ? exitRecord.dir : "exit";
-      const dirKey = dir.trim().toLowerCase();
-      const handles = directionHandleMap[dirKey];
-      const isVertical = dirKey === "up" || dirKey === "down";
-      const isInternal = roomVnums.has(toVnum);
-      const exitFlags = Array.isArray(exitRecord.flags)
-        ? exitRecord.flags
-            .filter((flag) => typeof flag === "string")
-            .map((flag) => flag.trim().toLowerCase())
-        : [];
-      if (!isInternal && includeExternalEdges) {
-        const externalHandle =
-          handles?.source ?? externalSourceHandles[dirKey];
-        const edgeId = `external-${fromVnum}-${dir}-${toVnum}-${index}`;
-        const isInvalid = invalidEdgeIds?.has(edgeId) ?? false;
-        edges.push({
-          id: edgeId,
-          source: String(fromVnum),
-          target: String(fromVnum),
-          sourceHandle: externalHandle,
-          type: "external",
-          data: { dirKey, exitFlags, targetVnum: toVnum, invalid: isInvalid }
-        });
-        return;
-      }
-      if (!isInternal) {
-        return;
-      }
-      if (!handles) {
-        if (includeVerticalEdges && isVertical) {
-          const edgeId = `exit-${fromVnum}-${dir}-${toVnum}-${index}`;
-          const isInvalid = invalidEdgeIds?.has(edgeId) ?? false;
-          edges.push({
-            id: edgeId,
-            source: String(fromVnum),
-            target: String(toVnum),
-            type: "vertical",
-            data: { dirKey, exitFlags, invalid: isInvalid }
-          });
-        }
-        return;
-      }
-      const edgeId = `exit-${fromVnum}-${dir}-${toVnum}-${index}`;
-      const isInvalid = invalidEdgeIds?.has(edgeId) ?? false;
-      edges.push({
-        id: edgeId,
-        source: String(fromVnum),
-        target: String(toVnum),
-        label: dir,
-        sourceHandle: handles.source,
-        targetHandle: handles.target,
-        type: "room",
-        data: { dirKey, exitFlags, invalid: isInvalid }
-      });
-    });
-  }
-  return edges;
-}
-
-function findAreaForVnum(
-  areaIndex: AreaIndexEntry[],
-  vnum: number
-): AreaIndexEntry | null {
-  for (const entry of areaIndex) {
-    if (!entry.vnumRange) {
-      continue;
-    }
-    const [start, end] = entry.vnumRange;
-    if (vnum >= start && vnum <= end) {
-      return entry;
-    }
-  }
-  return null;
-}
-
-function buildExternalExits(
-  areaData: AreaJson | null,
-  areaIndex: AreaIndexEntry[]
-): ExternalExit[] {
-  if (!areaData) {
-    return [];
-  }
-  const rooms = getEntityList(areaData, "Rooms");
-  if (!rooms.length) {
-    return [];
-  }
-  const roomVnums = new Set<number>();
-  const roomNames = new Map<number, string>();
-  rooms.forEach((room) => {
-    if (!room || typeof room !== "object") {
-      return;
-    }
-    const record = room as Record<string, unknown>;
-    const vnum = parseVnum(record.vnum);
-    if (vnum === null) {
-      return;
-    }
-    roomVnums.add(vnum);
-    roomNames.set(vnum, getFirstString(record.name, "(unnamed room)"));
-  });
-  const externals: ExternalExit[] = [];
-  const seen = new Set<string>();
-  rooms.forEach((room) => {
-    if (!room || typeof room !== "object") {
-      return;
-    }
-    const record = room as Record<string, unknown>;
-    const fromVnum = parseVnum(record.vnum);
-    if (fromVnum === null) {
-      return;
-    }
-    const exits = Array.isArray(record.exits) ? record.exits : [];
-    exits.forEach((exit) => {
-      if (!exit || typeof exit !== "object") {
-        return;
-      }
-      const exitRecord = exit as Record<string, unknown>;
-      const toVnum = parseVnum(exitRecord.toVnum);
-      if (toVnum === null || roomVnums.has(toVnum)) {
-        return;
-      }
-      const dir =
-        typeof exitRecord.dir === "string" ? exitRecord.dir : "exit";
-      const key = `${fromVnum}-${dir}-${toVnum}`;
-      if (seen.has(key)) {
-        return;
-      }
-      seen.add(key);
-      const area = findAreaForVnum(areaIndex, toVnum);
-      externals.push({
-        fromVnum,
-        fromName: roomNames.get(fromVnum) ?? "(unnamed room)",
-        direction: dir.trim() ? dir.trim() : "exit",
-        toVnum,
-        areaName: area?.name ?? null
-      });
-    });
-  });
-  return externals.sort((a, b) => {
-    if (a.fromVnum !== b.fromVnum) {
-      return a.fromVnum - b.fromVnum;
-    }
-    return a.direction.localeCompare(b.direction);
-  });
-}
-
-function buildRoomRows(areaData: AreaJson | null): RoomRow[] {
-  if (!areaData) {
-    return [];
-  }
-  const rooms = (areaData as { rooms?: unknown }).rooms;
-  if (!Array.isArray(rooms)) {
-    return [];
-  }
-  return rooms.map((room) => {
-    const data = room as Record<string, unknown>;
-    const vnum = parseVnum(data.vnum) ?? -1;
-    const name = typeof data.name === "string" ? data.name : "(unnamed room)";
-    const sectorType =
-      typeof data.sectorType === "string"
-        ? data.sectorType
-        : typeof data.sector === "string"
-          ? data.sector
-          : "inside";
-    const roomFlags = Array.isArray(data.roomFlags)
-      ? data.roomFlags.filter((flag) => typeof flag === "string")
-      : [];
-    const exits = Array.isArray(data.exits) ? data.exits.length : 0;
-    return {
-      vnum,
-      name,
-      sector: sectorType,
-      exits,
-      flags: roomFlags.length ? roomFlags.join(", ") : "—"
-    };
-  });
-}
-
-function buildMobileRows(areaData: AreaJson | null): MobileRow[] {
-  if (!areaData) {
-    return [];
-  }
-  const mobiles = (areaData as { mobiles?: unknown }).mobiles;
-  if (!Array.isArray(mobiles)) {
-    return [];
-  }
-  return mobiles.map((mob) => {
-    const data = mob as Record<string, unknown>;
-    const vnum = parseVnum(data.vnum) ?? -1;
-    const name = getFirstString(data.shortDescr, "(unnamed mobile)");
-    const level = parseVnum(data.level) ?? 0;
-    const race = getFirstString(data.race, "unknown");
-    const alignment = parseVnum(data.alignment) ?? 0;
-    return { vnum, name, level, race, alignment };
-  });
-}
-
-function buildObjectRows(areaData: AreaJson | null): ObjectRow[] {
-  if (!areaData) {
-    return [];
-  }
-  const objects = (areaData as { objects?: unknown }).objects;
-  if (!Array.isArray(objects)) {
-    return [];
-  }
-  return objects.map((obj) => {
-    const data = obj as Record<string, unknown>;
-    const vnum = parseVnum(data.vnum) ?? -1;
-    const name = getFirstString(data.shortDescr, "(unnamed object)");
-    const itemType = getFirstString(data.itemType, "unknown");
-    const level = parseVnum(data.level) ?? 0;
-    return { vnum, name, itemType, level };
-  });
-}
-
-function buildResetRows(areaData: AreaJson | null): ResetRow[] {
-  if (!areaData) {
-    return [];
-  }
-  const resets = (areaData as { resets?: unknown }).resets;
-  if (!Array.isArray(resets)) {
-    return [];
-  }
-  return resets.map((reset, index) => {
-    const data = reset as Record<string, unknown>;
-    const command = getFirstString(data.commandName, getFirstString(data.command, "reset"));
-    const mobVnum = parseVnum(data.mobVnum);
-    const objVnum = parseVnum(data.objVnum);
-    const containerVnum = parseVnum(data.containerVnum);
-    const entityVnum =
-      mobVnum !== null
-        ? String(mobVnum)
-        : objVnum !== null
-          ? String(objVnum)
-          : containerVnum !== null
-            ? String(containerVnum)
-            : "—";
-    const roomVnum = parseVnum(data.roomVnum);
-    const toVnum = parseVnum(data.toVnum);
-    const roomLabel =
-      roomVnum !== null ? String(roomVnum) : toVnum !== null ? String(toVnum) : "—";
-    const count = parseVnum(data.count);
-    const maxInArea = parseVnum(data.maxInArea);
-    const maxInRoom = parseVnum(data.maxInRoom);
-    const maxInContainer = parseVnum(data.maxInContainer);
-    const wearLoc = getFirstString(data.wearLoc, "");
-    const direction = getFirstString(data.direction, "");
-    const state = parseVnum(data.state);
-    const exits = parseVnum(data.exits);
-    const detailsParts: string[] = [];
-    if (count !== null) {
-      detailsParts.push(`count ${count}`);
-    }
-    if (maxInArea !== null) {
-      detailsParts.push(`max area ${maxInArea}`);
-    }
-    if (maxInRoom !== null) {
-      detailsParts.push(`max room ${maxInRoom}`);
-    }
-    if (maxInContainer !== null) {
-      detailsParts.push(`max container ${maxInContainer}`);
-    }
-    if (wearLoc) {
-      detailsParts.push(`wear ${wearLoc}`);
-    }
-    if (direction) {
-      detailsParts.push(`dir ${direction}`);
-    }
-    if (state !== null) {
-      detailsParts.push(`state ${state}`);
-    }
-    if (exits !== null) {
-      detailsParts.push(`exits ${exits}`);
-    }
-    const details = detailsParts.length ? detailsParts.join(", ") : "—";
-    return {
-      index,
-      command,
-      entityVnum,
-      roomVnum: roomLabel,
-      details
-    };
-  });
-}
-
-function buildShopRows(areaData: AreaJson | null): ShopRow[] {
-  if (!areaData) {
-    return [];
-  }
-  const shops = getEntityList(areaData, "Shops");
-  if (!shops.length) {
-    return [];
-  }
-  return shops.map((shop) => {
-    const record = shop as Record<string, unknown>;
-    const keeper = parseVnum(record.keeper) ?? -1;
-    const buyTypes = Array.isArray(record.buyTypes)
-      ? record.buyTypes
-          .map((value) => parseVnum(value))
-          .filter((value): value is number => value !== null)
-          .join(", ")
-      : "—";
-    const profitBuy = parseVnum(record.profitBuy) ?? 0;
-    const profitSell = parseVnum(record.profitSell) ?? 0;
-    const openHour = parseVnum(record.openHour);
-    const closeHour = parseVnum(record.closeHour);
-    const hours =
-      openHour !== null && closeHour !== null
-        ? `${openHour}-${closeHour}`
-        : "—";
-    return {
-      keeper,
-      buyTypes,
-      profitBuy,
-      profitSell,
-      hours
-    };
-  });
-}
-
-function buildQuestRows(areaData: AreaJson | null): QuestRow[] {
-  if (!areaData) {
-    return [];
-  }
-  const quests = getEntityList(areaData, "Quests");
-  if (!quests.length) {
-    return [];
-  }
-  return quests.map((quest) => {
-    const record = quest as Record<string, unknown>;
-    const vnum = parseVnum(record.vnum) ?? -1;
-    const name = getFirstString(record.name, "(unnamed quest)");
-    const type = getFirstString(record.type, "—");
-    const level = parseVnum(record.level) ?? 0;
-    const target = parseVnum(record.target);
-    const end = parseVnum(record.end);
-    const targetLabel =
-      target !== null && end !== null ? `${target} -> ${end}` : "—";
-    const rewardGold = parseVnum(record.rewardGold) ?? 0;
-    const rewardSilver = parseVnum(record.rewardSilver) ?? 0;
-    const rewardCopper = parseVnum(record.rewardCopper) ?? 0;
-    const rewards = `G:${rewardGold} S:${rewardSilver} C:${rewardCopper}`;
-    return {
-      vnum,
-      name,
-      type,
-      level,
-      target: targetLabel,
-      rewards
-    };
-  });
-}
-
-function buildFactionRows(areaData: AreaJson | null): FactionRow[] {
-  if (!areaData) {
-    return [];
-  }
-  const factions = getEntityList(areaData, "Factions");
-  if (!factions.length) {
-    return [];
-  }
-  return factions.map((faction) => {
-    const record = faction as Record<string, unknown>;
-    const vnum = parseVnum(record.vnum) ?? -1;
-    const name = getFirstString(record.name, "(unnamed faction)");
-    const defaultStanding = parseVnum(record.defaultStanding) ?? 0;
-    const allies = Array.isArray(record.allies)
-      ? String(record.allies.length)
-      : "0";
-    const opposing = Array.isArray(record.opposing)
-      ? String(record.opposing.length)
-      : "0";
-    return {
-      vnum,
-      name,
-      defaultStanding,
-      allies,
-      opposing
-    };
-  });
-}
-
-function buildClassRows(classData: ClassDataFile | null): ClassRow[] {
-  if (!classData) {
-    return [];
-  }
-  return classData.classes.map((cls, index) => ({
-    index,
-    name: cls.name ?? "(unnamed)",
-    whoName: cls.whoName ?? "",
-    primeStat: cls.primeStat ?? "default",
-    armorProf: cls.armorProf ?? "default",
-    weaponVnum: cls.weaponVnum ?? 0,
-    startLoc: cls.startLoc ?? 0
-  }));
-}
-
-function normalizeRaceStats(
-  value: RaceDefinition["stats"] | RaceDefinition["maxStats"]
-): Record<string, number> {
-  const stats: Record<string, number> = {
-    str: 0,
-    int: 0,
-    wis: 0,
-    dex: 0,
-    con: 0
-  };
-  if (Array.isArray(value)) {
-    raceStatKeys.forEach((key, index) => {
-      const parsed = Number(value[index]);
-      if (Number.isFinite(parsed)) {
-        stats[key] = parsed;
-      }
-    });
-    return stats;
-  }
-  if (value && typeof value === "object") {
-    raceStatKeys.forEach((key) => {
-      const record = value as Record<string, unknown>;
-      const parsed = Number(record[key]);
-      if (Number.isFinite(parsed)) {
-        stats[key] = parsed;
-      }
-    });
-  }
-  return stats;
-}
-
-function normalizeRaceClassMap(
-  value: Record<string, number> | number[] | undefined,
-  classNames: string[],
-  defaultValue: number
-): Record<string, number> {
-  const result: Record<string, number> = {};
-  if (!classNames.length) {
-    return result;
-  }
-  classNames.forEach((name, index) => {
-    let parsed: number | null = null;
-    if (Array.isArray(value)) {
-      parsed = Number(value[index]);
-    } else if (value && typeof value === "object") {
-      parsed = Number((value as Record<string, unknown>)[name]);
-    }
-    result[name] = Number.isFinite(parsed) ? Math.trunc(parsed) : defaultValue;
-  });
-  return result;
-}
-
-function normalizeRaceSkills(value: string[] | undefined): string[] {
-  return Array.from({ length: raceSkillCount }).map((_, index) => {
-    const entry = value?.[index];
-    return typeof entry === "string" ? entry : "";
-  });
-}
-
-function buildRaceRows(raceData: RaceDataFile | null): RaceRow[] {
-  if (!raceData) {
-    return [];
-  }
-  return raceData.races.map((race, index) => ({
-    index,
-    name: race.name ?? "(unnamed)",
-    whoName: race.whoName ?? "",
-    pc: race.pc ? "yes" : "no",
-    points: race.points ?? 0,
-    size: race.size ?? "medium",
-    startLoc: race.startLoc ?? 0
-  }));
-}
-
-function buildSkillRows(skillData: SkillDataFile | null): SkillRow[] {
-  if (!skillData) {
-    return [];
-  }
-  return skillData.skills.map((skill, index) => ({
-    index,
-    name: skill.name ?? "(unnamed)",
-    target: skill.target ?? "tar_ignore",
-    minPosition: skill.minPosition ?? "dead",
-    spell: skill.spell ?? "",
-    slot: skill.slot ?? 0
-  }));
-}
-
-function normalizeGroupSkills(value: string[] | undefined): string[] {
-  return Array.from({ length: groupSkillCount }).map((_, index) => {
-    const entry = value?.[index];
-    return typeof entry === "string" ? entry : "";
-  });
-}
-
-function buildGroupRows(groupData: GroupDataFile | null): GroupRow[] {
-  if (!groupData) {
-    return [];
-  }
-  return groupData.groups.map((group, index) => ({
-    index,
-    name: group.name ?? "(unnamed)",
-    ratingSummary: Array.isArray(group.ratings)
-      ? `${group.ratings.length} ratings`
-      : group.ratings
-        ? `${Object.keys(group.ratings).length} ratings`
-        : "default",
-    skills: group.skills?.length ?? 0
-  }));
-}
-
-function buildCommandRows(commandData: CommandDataFile | null): CommandRow[] {
-  if (!commandData) {
-    return [];
-  }
-  return commandData.commands.map((command, index) => ({
-    index,
-    name: command.name ?? "(unnamed)",
-    function: command.function ?? "do_nothing",
-    position: command.position ?? "dead",
-    level: command.level ?? 0,
-    log: command.log ?? "log_normal",
-    category: command.category ?? "undef",
-    loxFunction: command.loxFunction ?? ""
-  }));
-}
-
-function buildSocialRows(socialData: SocialDataFile | null): SocialRow[] {
-  if (!socialData) {
-    return [];
-  }
-  return socialData.socials.map((social, index) => {
-    const noTargetCount = [
-      social.charNoArg,
-      social.othersNoArg
-    ].filter((value) => typeof value === "string" && value.trim().length)
-      .length;
-    const targetCount = [
-      social.charFound,
-      social.othersFound,
-      social.victFound
-    ].filter((value) => typeof value === "string" && value.trim().length)
-      .length;
-    const selfCount = [
-      social.charAuto,
-      social.othersAuto
-    ].filter((value) => typeof value === "string" && value.trim().length)
-      .length;
-    return {
-      index,
-      name: social.name ?? "(unnamed)",
-      noTarget: `${noTargetCount}/2`,
-      target: `${targetCount}/3`,
-      self: `${selfCount}/2`
-    };
-  });
-}
-
-function buildTutorialRows(
-  tutorialData: TutorialDataFile | null
-): TutorialRow[] {
-  if (!tutorialData) {
-    return [];
-  }
-  return tutorialData.tutorials.map((tutorial, index) => ({
-    index,
-    name: tutorial.name ?? "(unnamed)",
-    minLevel: tutorial.minLevel ?? 0,
-    steps: tutorial.steps?.length ?? 0
-  }));
-}
-
-function buildLootRows(lootData: LootDataFile | null): LootRow[] {
-  if (!lootData) {
-    return [];
-  }
-  const rows: LootRow[] = [];
-  lootData.groups.forEach((group, index) => {
-    rows.push({
-      id: `group:${index}`,
-      kind: "group",
-      index,
-      name: group.name ?? "(unnamed group)",
-      details: `rolls ${group.rolls ?? 1} · entries ${
-        group.entries?.length ?? 0
-      }`
-    });
-  });
-  lootData.tables.forEach((table, index) => {
-    const parent = table.parent ? `parent ${table.parent}` : "no parent";
-    rows.push({
-      id: `table:${index}`,
-      kind: "table",
-      index,
-      name: table.name ?? "(unnamed table)",
-      details: `${parent} · ops ${table.ops?.length ?? 0}`
-    });
-  });
-  return rows;
-}
-
-function extractAreaLootData(areaData: AreaJson | null): LootDataFile | null {
-  if (!areaData) {
-    return null;
-  }
-  const loot = (areaData as Record<string, unknown>).loot;
-  if (!loot || typeof loot !== "object") {
-    return null;
-  }
-  const record = loot as Record<string, unknown>;
-  const groups = Array.isArray(record.groups)
-    ? (record.groups as LootGroup[])
-    : [];
-  const tables = Array.isArray(record.tables)
-    ? (record.tables as LootTable[])
-    : [];
-  return {
-    formatVersion: 1,
-    groups,
-    tables
-  };
-}
-
-function buildRecipeRows(areaData: AreaJson | null): RecipeRow[] {
-  const recipes = getEntityList(areaData, "Recipes");
-  return recipes
-    .filter((entry): entry is Record<string, unknown> =>
-      Boolean(entry && typeof entry === "object")
-    )
-    .map((record) => {
-      const vnum = parseVnum(record.vnum) ?? 0;
-      const inputs = Array.isArray(record.inputs) ? record.inputs : [];
-      const outputVnum = parseVnum(record.outputVnum);
-      const outputQty = parseVnum(record.outputQuantity) ?? 1;
-      return {
-        vnum,
-        name: getFirstString(record.name, "(unnamed recipe)"),
-        skill: getFirstString(record.skill, "—"),
-        inputs: `${inputs.length} input${inputs.length === 1 ? "" : "s"}`,
-        output:
-          outputVnum !== null
-            ? `${outputVnum}${outputQty > 1 ? ` x${outputQty}` : ""}`
-            : "—"
-      };
-    });
-}
-
-function buildGatherSpawnRows(areaData: AreaJson | null): GatherSpawnRow[] {
-  const spawns = getEntityList(areaData, "Gather Spawns");
-  return spawns
-    .filter((entry): entry is Record<string, unknown> =>
-      Boolean(entry && typeof entry === "object")
-    )
-    .map((record, index) => {
-      const vnum = parseVnum(record.vnum) ?? 0;
-      const sector =
-        typeof record.spawnSector === "string" ? record.spawnSector : "—";
-      return {
-        index,
-        vnum,
-        sector,
-        quantity: parseVnum(record.quantity) ?? 0,
-        respawnTimer: parseVnum(record.respawnTimer) ?? 0
-      };
-    });
-}
-
-function titlesToText(titles: string[][] | undefined, column: 0 | 1): string {
-  const lines: string[] = [];
-  for (let i = 0; i < classTitleCount; i += 1) {
-    const value = titles?.[i]?.[column] ?? "";
-    lines.push(value);
-  }
-  return lines.join("\n");
-}
-
-function normalizeTitleLines(value: string | undefined): string[] {
-  if (!value) {
-    return [];
-  }
-  return value.split(/\r?\n/).map((line) => line.trim());
-}
-
-function buildTitlePairs(maleText: string, femaleText: string): string[][] {
-  const maleLines = normalizeTitleLines(maleText);
-  const femaleLines = normalizeTitleLines(femaleText);
-  const pairs: string[][] = [];
-  for (let i = 0; i < classTitleCount; i += 1) {
-    pairs.push([maleLines[i] ?? "", femaleLines[i] ?? ""]);
-  }
-  return pairs;
 }
 
 function cleanOptionalString(value: string | undefined): string | undefined {
@@ -3991,15 +2530,6 @@ export default function App({ repository }: AppProps) {
   const [selectedLootIndex, setSelectedLootIndex] = useState<number | null>(
     null
   );
-  const [roomContextMenu, setRoomContextMenu] =
-    useState<RoomContextMenuState | null>(null);
-  const [roomLinkPanel, setRoomLinkPanel] =
-    useState<RoomContextMenuState | null>(null);
-  const [roomLinkDirection, setRoomLinkDirection] = useState<string>(
-    directions[0]
-  );
-  const [roomLinkTarget, setRoomLinkTarget] = useState<string>("");
-  const [selectedRoomVnum, setSelectedRoomVnum] = useState<number | null>(null);
   const [selectedMobileVnum, setSelectedMobileVnum] = useState<number | null>(
     null
   );
@@ -4089,46 +2619,11 @@ export default function App({ repository }: AppProps) {
   const [areaDirectory, setAreaDirectory] = useState<string | null>(() =>
     localStorage.getItem("worldedit.areaDir")
   );
-  const [layoutNodes, setLayoutNodes] = useState<Node<RoomNodeData>[]>([]);
-  const [roomLayout, setRoomLayout] = useState<RoomLayoutMap>({});
-  const [areaLayout, setAreaLayout] = useState<AreaLayoutMap>({});
-  const [dirtyRoomNodes, setDirtyRoomNodes] = useState<Set<string>>(
-    () => new Set()
-  );
-  const [dirtyAreaNodes, setDirtyAreaNodes] = useState<Set<string>>(
-    () => new Set()
-  );
   const [diagnosticFilter, setDiagnosticFilter] = useState<
     "All" | EntityKey
   >("All");
-  const [autoLayoutEnabled, setAutoLayoutEnabled] = useState(true);
-  const [preferCardinalLayout, setPreferCardinalLayout] = useState(() => {
-    const stored = localStorage.getItem("worldedit.preferCardinalLayout");
-    return stored ? stored === "true" : true;
-  });
-  const [preferAreaCardinalLayout, setPreferAreaCardinalLayout] = useState(
-    () => {
-      const stored = localStorage.getItem(
-        "worldedit.preferAreaCardinalLayout"
-      );
-      return stored ? stored === "true" : true;
-    }
-  );
-  const [showVerticalEdges, setShowVerticalEdges] = useState(() => {
-    const stored = localStorage.getItem("worldedit.showVerticalEdges");
-    return stored ? stored === "true" : false;
-  });
-  const [areaGraphFilter, setAreaGraphFilter] = useState("");
-  const [areaGraphVnumQuery, setAreaGraphVnumQuery] = useState("");
   const [areaIndex, setAreaIndex] = useState<AreaIndexEntry[]>([]);
   const [areaGraphLinks, setAreaGraphLinks] = useState<AreaGraphLink[]>([]);
-  const [areaGraphLayoutNodes, setAreaGraphLayoutNodes] = useState<
-    Node<AreaGraphNodeData>[]
-  >([]);
-  const [layoutNonce, setLayoutNonce] = useState(0);
-  const roomLayoutRef = useRef<RoomLayoutMap>({});
-  const roomNodesWithLayoutRef = useRef<Node<RoomNodeData>[]>([]);
-  const legacyScanDirRef = useRef<string | null>(null);
   const roomGridApi = useRef<GridApi | null>(null);
   const mobileGridApi = useRef<GridApi | null>(null);
   const objectGridApi = useRef<GridApi | null>(null);
@@ -4147,6 +2642,314 @@ export default function App({ repository }: AppProps) {
   const socialGridApi = useRef<GridApi | null>(null);
   const tutorialGridApi = useRef<GridApi | null>(null);
   const lootGridApi = useRef<GridApi | null>(null);
+  const exitValidation = useMemo(
+    () => buildExitTargetValidation(areaData, areaIndex),
+    [areaData, areaIndex]
+  );
+  const {
+    selectedRoomVnum,
+    setSelectedRoomVnum,
+    roomContextMenu,
+    setRoomContextMenu,
+    roomLinkPanel,
+    setRoomLinkPanel,
+    roomLinkDirection,
+    setRoomLinkDirection,
+    roomLinkTarget,
+    setRoomLinkTarget,
+    mapNodes,
+    roomEdges,
+    externalExits,
+    selectedRoomNode,
+    selectedRoomLocked,
+    dirtyRoomCount,
+    hasRoomLayout,
+    roomLayout,
+    roomNodesWithLayoutRef,
+    applyLoadedRoomLayout,
+    autoLayoutEnabled,
+    setAutoLayoutEnabled,
+    preferCardinalLayout,
+    showVerticalEdges,
+    setShowVerticalEdges,
+    handleRelayout,
+    handleTogglePreferGrid,
+    handleMapNavigate,
+    handleMapNodeClick,
+    handleRoomContextMenu,
+    closeRoomContextOverlays,
+    handleClearRoomLayout,
+    handleLockSelectedRoom,
+    handleUnlockSelectedRoom,
+    handleNodesChange,
+    handleNodeDragStop,
+    appendLayoutNode,
+    removeLayoutNode: removeRoomLayout
+  } = useRoomMapState({
+    areaData,
+    areaIndex,
+    exitInvalidEdgeIds: exitValidation.invalidEdgeIds,
+    activeTab,
+    selectedEntity,
+    setSelectedEntity,
+    parseVnum
+  });
+  const {
+    areaGraphFilter,
+    setAreaGraphFilter,
+    areaGraphVnumQuery,
+    setAreaGraphVnumQuery,
+    areaGraphMatchLabel,
+    areaGraphEdges,
+    worldMapNodes,
+    selectedAreaNode,
+    selectedAreaLocked,
+    dirtyAreaCount,
+    hasAreaLayout,
+    areaLayout,
+    preferAreaCardinalLayout,
+    applyLoadedAreaLayout,
+    handleTogglePreferAreaGrid,
+    handleLockSelectedArea,
+    handleUnlockSelectedArea,
+    handleLockDirtyAreas,
+    handleClearAreaLayout,
+    handleRelayoutArea,
+    handleAreaGraphNodesChange,
+    handleAreaGraphNodeDragStop
+  } = useAreaGraphState({
+    areaIndex,
+    areaData,
+    areaPath,
+    areaGraphLinks,
+    externalExits,
+    areaDirectionHandleMap,
+    getAreaVnumBounds,
+    getFirstString,
+    fileNameFromPath,
+    parseVnum,
+    formatVnumRange,
+    getDominantExitDirection,
+    findAreaForVnum
+  });
+  const {
+    handleCreateRoom,
+    handleDeleteRoom,
+    handleCreateMobile,
+    handleDeleteMobile,
+    handleCreateObject,
+    handleDeleteObject,
+    handleCreateReset,
+    handleDeleteReset,
+    handleCreateShop,
+    handleDeleteShop,
+    handleCreateQuest,
+    handleDeleteQuest,
+    handleCreateFaction,
+    handleDeleteFaction,
+    handleCreateAreaLoot,
+    handleDeleteAreaLoot,
+    handleCreateRecipe,
+    handleDeleteRecipe,
+    handleCreateGatherSpawn,
+    handleDeleteGatherSpawn
+  } = useAreaCrudHandlers({
+    areaData,
+    referenceData,
+    selectedRoomVnum,
+    selectedMobileVnum,
+    selectedObjectVnum,
+    selectedResetIndex,
+    selectedShopKeeper,
+    selectedQuestVnum,
+    selectedFactionVnum,
+    selectedAreaLootKind,
+    selectedAreaLootIndex,
+    selectedRecipeVnum,
+    selectedGatherVnum,
+    setAreaData,
+    setSelectedEntity,
+    setSelectedRoomVnum,
+    setSelectedMobileVnum,
+    setSelectedObjectVnum,
+    setSelectedResetIndex,
+    setSelectedShopKeeper,
+    setSelectedQuestVnum,
+    setSelectedFactionVnum,
+    setSelectedAreaLootKind,
+    setSelectedAreaLootIndex,
+    setSelectedRecipeVnum,
+    setSelectedGatherVnum,
+    setActiveTab,
+    setStatusMessage,
+    removeRoomLayout
+  });
+  const {
+    handleCreateClass,
+    handleDeleteClass,
+    handleCreateRace,
+    handleDeleteRace,
+    handleCreateSkill,
+    handleDeleteSkill,
+    handleCreateGroup,
+    handleDeleteGroup,
+    handleCreateCommand,
+    handleDeleteCommand,
+    handleCreateSocial,
+    handleDeleteSocial,
+    handleCreateTutorial,
+    handleDeleteTutorial,
+    handleCreateLoot,
+    handleDeleteLoot
+  } = useGlobalCrudHandlers({
+    classData,
+    raceData,
+    skillData,
+    groupData,
+    commandData,
+    socialData,
+    tutorialData,
+    lootData,
+    referenceData,
+    selectedClassIndex,
+    selectedRaceIndex,
+    selectedSkillIndex,
+    selectedGroupIndex,
+    selectedCommandIndex,
+    selectedSocialIndex,
+    selectedTutorialIndex,
+    selectedLootKind,
+    selectedLootIndex,
+    setClassData,
+    setRaceData,
+    setSkillData,
+    setGroupData,
+    setCommandData,
+    setSocialData,
+    setTutorialData,
+    setLootData,
+    setSelectedGlobalEntity,
+    setSelectedClassIndex,
+    setSelectedRaceIndex,
+    setSelectedSkillIndex,
+    setSelectedGroupIndex,
+    setSelectedCommandIndex,
+    setSelectedSocialIndex,
+    setSelectedTutorialIndex,
+    setSelectedLootKind,
+    setSelectedLootIndex,
+    setActiveTab,
+    setStatusMessage
+  });
+  const {
+    handleLoadClassesData,
+    handleSaveClassesData,
+    handleLoadRacesData,
+    handleSaveRacesData,
+    handleLoadSkillsData,
+    handleSaveSkillsData,
+    handleLoadGroupsData,
+    handleSaveGroupsData,
+    handleLoadCommandsData,
+    handleSaveCommandsData,
+    handleLoadSocialsData,
+    handleSaveSocialsData,
+    handleLoadTutorialsData,
+    handleSaveTutorialsData,
+    handleLoadLootData,
+    handleSaveLootData
+  } = useGlobalIoHandlers({
+    dataDirectory,
+    projectConfig,
+    referenceData,
+    repository,
+    classData,
+    classDataFormat,
+    raceData,
+    raceDataFormat,
+    skillData,
+    skillDataFormat,
+    groupData,
+    groupDataFormat,
+    commandData,
+    commandDataFormat,
+    socialData,
+    socialDataFormat,
+    tutorialData,
+    tutorialDataFormat,
+    lootData,
+    lootDataFormat,
+    setClassData,
+    setClassDataPath,
+    setClassDataFormat,
+    setClassDataDir,
+    setRaceData,
+    setRaceDataPath,
+    setRaceDataFormat,
+    setRaceDataDir,
+    setSkillData,
+    setSkillDataPath,
+    setSkillDataFormat,
+    setSkillDataDir,
+    setGroupData,
+    setGroupDataPath,
+    setGroupDataFormat,
+    setGroupDataDir,
+    setCommandData,
+    setCommandDataPath,
+    setCommandDataFormat,
+    setCommandDataDir,
+    setSocialData,
+    setSocialDataPath,
+    setSocialDataFormat,
+    setSocialDataDir,
+    setTutorialData,
+    setTutorialDataPath,
+    setTutorialDataFormat,
+    setTutorialDataDir,
+    setLootData,
+    setLootDataPath,
+    setLootDataFormat,
+    setLootDataDir,
+    setStatusMessage,
+    setErrorMessage,
+    setIsBusy
+  });
+  const {
+    handleOpenProject,
+    handleOpenArea,
+    handleSaveArea,
+    handleSaveAreaAs,
+    handleSaveEditorMeta,
+    handleSetAreaDirectory
+  } = useAreaIoHandlers({
+    areaDirectory,
+    dataDirectory,
+    projectConfig,
+    areaPath,
+    areaData,
+    editorMeta,
+    activeTab,
+    selectedEntity,
+    roomLayout,
+    areaLayout,
+    repository,
+    setProjectConfig,
+    setAreaDirectory,
+    setDataDirectory,
+    setReferenceData,
+    setAreaPath,
+    setAreaData,
+    setEditorMeta,
+    setEditorMetaPath,
+    setStatusMessage,
+    setErrorMessage,
+    setIsBusy,
+    applyLoadedRoomLayout,
+    applyLoadedAreaLayout,
+    buildEditorMeta,
+    fileNameFromPath
+  });
   const areaForm = useForm<AreaFormValues>({
     resolver: zodResolver(areaFormSchema),
     defaultValues: {
@@ -4245,8 +3048,12 @@ export default function App({ repository }: AppProps) {
   const {
     register: registerMobile,
     handleSubmit: handleMobileSubmitForm,
-    formState: mobileFormState
+    formState: mobileFormState,
+    setValue: setMobileFormValue,
+    getValues: getMobileFormValues
   } = mobileForm;
+  const [overrideMobileFormFlags, setOverrideMobileFormFlags] = useState(false);
+  const [overrideMobilePartFlags, setOverrideMobilePartFlags] = useState(false);
   const objectForm = useForm<ObjectFormValues>({
     resolver: zodResolver(objectFormSchema),
     defaultValues: {
@@ -4772,555 +3579,6 @@ export default function App({ repository }: AppProps) {
     control: objectForm.control,
     name: "itemType"
   });
-  const handleLoadClassesData = useCallback(
-    async (overrideDir?: string) => {
-      const targetDir =
-        typeof overrideDir === "string" ? overrideDir : dataDirectory;
-      if (!targetDir) {
-        setErrorMessage("No data directory set for classes.");
-        return;
-      }
-      const classesFile = projectConfig?.dataFiles.classes;
-      const defaultFormat = projectConfig?.defaultFormat;
-      setErrorMessage(null);
-      setIsBusy(true);
-      try {
-        const source = await repository.loadClassesData(
-          targetDir,
-          classesFile,
-          defaultFormat
-        );
-        setClassData(source.data);
-        setClassDataPath(source.path);
-        setClassDataFormat(source.format);
-        setClassDataDir(targetDir);
-        setStatusMessage(`Loaded classes (${source.format})`);
-      } catch (error) {
-        setErrorMessage(`Failed to load classes. ${String(error)}`);
-      } finally {
-        setIsBusy(false);
-      }
-    },
-    [dataDirectory, projectConfig, repository]
-  );
-  const handleSaveClassesData = useCallback(async () => {
-    if (!classData) {
-      setErrorMessage("No classes loaded to save.");
-      return;
-    }
-    if (!dataDirectory) {
-      setErrorMessage("No data directory set for classes.");
-      return;
-    }
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      const format = classDataFormat ?? projectConfig?.defaultFormat ?? "json";
-      const classesFile = projectConfig?.dataFiles.classes;
-      const path = await repository.saveClassesData(
-        dataDirectory,
-        classData,
-        format,
-        classesFile
-      );
-      setClassDataPath(path);
-      setClassDataFormat(format);
-      setClassDataDir(dataDirectory);
-      setStatusMessage(`Saved classes (${format})`);
-    } catch (error) {
-      setErrorMessage(`Failed to save classes. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  }, [classData, classDataFormat, dataDirectory, projectConfig, repository]);
-
-  const handleLoadRacesData = useCallback(
-    async (overrideDir?: string) => {
-      const targetDir =
-        typeof overrideDir === "string" ? overrideDir : dataDirectory;
-      if (!targetDir) {
-        setErrorMessage("No data directory set for races.");
-        return;
-      }
-      const racesFile = projectConfig?.dataFiles.races;
-      const defaultFormat = projectConfig?.defaultFormat;
-      setErrorMessage(null);
-      setIsBusy(true);
-      try {
-        const source = await repository.loadRacesData(
-          targetDir,
-          racesFile,
-          defaultFormat
-        );
-        setRaceData(source.data);
-        setRaceDataPath(source.path);
-        setRaceDataFormat(source.format);
-        setRaceDataDir(targetDir);
-        setStatusMessage(`Loaded races (${source.format})`);
-      } catch (error) {
-        setErrorMessage(`Failed to load races. ${String(error)}`);
-      } finally {
-        setIsBusy(false);
-      }
-    },
-    [dataDirectory, projectConfig, repository]
-  );
-
-  const handleSaveRacesData = useCallback(async () => {
-    if (!raceData) {
-      setErrorMessage("No races loaded to save.");
-      return;
-    }
-    if (!dataDirectory) {
-      setErrorMessage("No data directory set for races.");
-      return;
-    }
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      const format = raceDataFormat ?? projectConfig?.defaultFormat ?? "json";
-      const racesFile = projectConfig?.dataFiles.races;
-      const classNames = referenceData?.classes ?? [];
-      const path = await repository.saveRacesData(
-        dataDirectory,
-        raceData,
-        format,
-        racesFile,
-        classNames
-      );
-      setRaceDataPath(path);
-      setRaceDataFormat(format);
-      setRaceDataDir(dataDirectory);
-      setStatusMessage(`Saved races (${format})`);
-    } catch (error) {
-      setErrorMessage(`Failed to save races. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  }, [
-    dataDirectory,
-    projectConfig,
-    raceData,
-    raceDataFormat,
-    referenceData,
-    repository
-  ]);
-
-  const handleLoadSkillsData = useCallback(
-    async (overrideDir?: string) => {
-      const targetDir =
-        typeof overrideDir === "string" ? overrideDir : dataDirectory;
-      if (!targetDir) {
-        setErrorMessage("No data directory set for skills.");
-        return;
-      }
-      const skillsFile = projectConfig?.dataFiles.skills;
-      const defaultFormat = projectConfig?.defaultFormat;
-      setErrorMessage(null);
-      setIsBusy(true);
-      try {
-        const source = await repository.loadSkillsData(
-          targetDir,
-          skillsFile,
-          defaultFormat
-        );
-        setSkillData(source.data);
-        setSkillDataPath(source.path);
-        setSkillDataFormat(source.format);
-        setSkillDataDir(targetDir);
-        setStatusMessage(`Loaded skills (${source.format})`);
-      } catch (error) {
-        setErrorMessage(`Failed to load skills. ${String(error)}`);
-      } finally {
-        setIsBusy(false);
-      }
-    },
-    [dataDirectory, projectConfig, repository]
-  );
-
-  const handleSaveSkillsData = useCallback(async () => {
-    if (!skillData) {
-      setErrorMessage("No skills loaded to save.");
-      return;
-    }
-    if (!dataDirectory) {
-      setErrorMessage("No data directory set for skills.");
-      return;
-    }
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      const format = skillDataFormat ?? projectConfig?.defaultFormat ?? "json";
-      const skillsFile = projectConfig?.dataFiles.skills;
-      const classNames = referenceData?.classes ?? [];
-      const path = await repository.saveSkillsData(
-        dataDirectory,
-        skillData,
-        format,
-        skillsFile,
-        classNames
-      );
-      setSkillDataPath(path);
-      setSkillDataFormat(format);
-      setSkillDataDir(dataDirectory);
-      setStatusMessage(`Saved skills (${format})`);
-    } catch (error) {
-      setErrorMessage(`Failed to save skills. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  }, [
-    dataDirectory,
-    projectConfig,
-    referenceData,
-    repository,
-    skillData,
-    skillDataFormat
-  ]);
-
-  const handleLoadGroupsData = useCallback(
-    async (overrideDir?: string) => {
-      const targetDir =
-        typeof overrideDir === "string" ? overrideDir : dataDirectory;
-      if (!targetDir) {
-        setErrorMessage("No data directory set for groups.");
-        return;
-      }
-      const groupsFile = projectConfig?.dataFiles.groups;
-      const defaultFormat = projectConfig?.defaultFormat;
-      setErrorMessage(null);
-      setIsBusy(true);
-      try {
-        const source = await repository.loadGroupsData(
-          targetDir,
-          groupsFile,
-          defaultFormat
-        );
-        setGroupData(source.data);
-        setGroupDataPath(source.path);
-        setGroupDataFormat(source.format);
-        setGroupDataDir(targetDir);
-        setStatusMessage(`Loaded groups (${source.format})`);
-      } catch (error) {
-        setErrorMessage(`Failed to load groups. ${String(error)}`);
-      } finally {
-        setIsBusy(false);
-      }
-    },
-    [dataDirectory, projectConfig, repository]
-  );
-
-  const handleSaveGroupsData = useCallback(async () => {
-    if (!groupData) {
-      setErrorMessage("No groups loaded to save.");
-      return;
-    }
-    if (!dataDirectory) {
-      setErrorMessage("No data directory set for groups.");
-      return;
-    }
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      const format = groupDataFormat ?? projectConfig?.defaultFormat ?? "json";
-      const groupsFile = projectConfig?.dataFiles.groups;
-      const classNames = referenceData?.classes ?? [];
-      const path = await repository.saveGroupsData(
-        dataDirectory,
-        groupData,
-        format,
-        groupsFile,
-        classNames
-      );
-      setGroupDataPath(path);
-      setGroupDataFormat(format);
-      setGroupDataDir(dataDirectory);
-      setStatusMessage(`Saved groups (${format})`);
-    } catch (error) {
-      setErrorMessage(`Failed to save groups. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  }, [
-    dataDirectory,
-    groupData,
-    groupDataFormat,
-    projectConfig,
-    referenceData,
-    repository
-  ]);
-
-  const handleLoadCommandsData = useCallback(
-    async (overrideDir?: string) => {
-      const targetDir =
-        typeof overrideDir === "string" ? overrideDir : dataDirectory;
-      if (!targetDir) {
-        setErrorMessage("No data directory set for commands.");
-        return;
-      }
-      const commandsFile = projectConfig?.dataFiles.commands;
-      const defaultFormat = projectConfig?.defaultFormat;
-      setErrorMessage(null);
-      setIsBusy(true);
-      try {
-        const source = await repository.loadCommandsData(
-          targetDir,
-          commandsFile,
-          defaultFormat
-        );
-        setCommandData(source.data);
-        setCommandDataPath(source.path);
-        setCommandDataFormat(source.format);
-        setCommandDataDir(targetDir);
-        setStatusMessage(`Loaded commands (${source.format})`);
-      } catch (error) {
-        setErrorMessage(`Failed to load commands. ${String(error)}`);
-      } finally {
-        setIsBusy(false);
-      }
-    },
-    [dataDirectory, projectConfig, repository]
-  );
-
-  const handleSaveCommandsData = useCallback(async () => {
-    if (!commandData) {
-      setErrorMessage("No commands loaded to save.");
-      return;
-    }
-    if (!dataDirectory) {
-      setErrorMessage("No data directory set for commands.");
-      return;
-    }
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      const format =
-        commandDataFormat ?? projectConfig?.defaultFormat ?? "json";
-      const commandsFile = projectConfig?.dataFiles.commands;
-      const path = await repository.saveCommandsData(
-        dataDirectory,
-        commandData,
-        format,
-        commandsFile
-      );
-      setCommandDataPath(path);
-      setCommandDataFormat(format);
-      setCommandDataDir(dataDirectory);
-      setStatusMessage(`Saved commands (${format})`);
-    } catch (error) {
-      setErrorMessage(`Failed to save commands. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  }, [
-    commandData,
-    commandDataFormat,
-    dataDirectory,
-    projectConfig,
-    repository
-  ]);
-
-  const handleLoadSocialsData = useCallback(
-    async (overrideDir?: string) => {
-      const targetDir =
-        typeof overrideDir === "string" ? overrideDir : dataDirectory;
-      if (!targetDir) {
-        setErrorMessage("No data directory set for socials.");
-        return;
-      }
-      const socialsFile = projectConfig?.dataFiles.socials;
-      const defaultFormat = projectConfig?.defaultFormat;
-      setErrorMessage(null);
-      setIsBusy(true);
-      try {
-        const source = await repository.loadSocialsData(
-          targetDir,
-          socialsFile,
-          defaultFormat
-        );
-        setSocialData(source.data);
-        setSocialDataPath(source.path);
-        setSocialDataFormat(source.format);
-        setSocialDataDir(targetDir);
-        setStatusMessage(`Loaded socials (${source.format})`);
-      } catch (error) {
-        setErrorMessage(`Failed to load socials. ${String(error)}`);
-      } finally {
-        setIsBusy(false);
-      }
-    },
-    [dataDirectory, projectConfig, repository]
-  );
-
-  const handleSaveSocialsData = useCallback(async () => {
-    if (!socialData) {
-      setErrorMessage("No socials loaded to save.");
-      return;
-    }
-    if (!dataDirectory) {
-      setErrorMessage("No data directory set for socials.");
-      return;
-    }
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      const format = socialDataFormat ?? projectConfig?.defaultFormat ?? "json";
-      const socialsFile = projectConfig?.dataFiles.socials;
-      const path = await repository.saveSocialsData(
-        dataDirectory,
-        socialData,
-        format,
-        socialsFile
-      );
-      setSocialDataPath(path);
-      setSocialDataFormat(format);
-      setSocialDataDir(dataDirectory);
-      setStatusMessage(`Saved socials (${format})`);
-    } catch (error) {
-      setErrorMessage(`Failed to save socials. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  }, [
-    dataDirectory,
-    projectConfig,
-    repository,
-    socialData,
-    socialDataFormat
-  ]);
-
-  const handleLoadTutorialsData = useCallback(
-    async (overrideDir?: string) => {
-      const targetDir =
-        typeof overrideDir === "string" ? overrideDir : dataDirectory;
-      if (!targetDir) {
-        setErrorMessage("No data directory set for tutorials.");
-        return;
-      }
-      const tutorialsFile = projectConfig?.dataFiles.tutorials;
-      const defaultFormat = projectConfig?.defaultFormat;
-      setErrorMessage(null);
-      setIsBusy(true);
-      try {
-        const source = await repository.loadTutorialsData(
-          targetDir,
-          tutorialsFile,
-          defaultFormat
-        );
-        setTutorialData(source.data);
-        setTutorialDataPath(source.path);
-        setTutorialDataFormat(source.format);
-        setTutorialDataDir(targetDir);
-        setStatusMessage(`Loaded tutorials (${source.format})`);
-      } catch (error) {
-        setErrorMessage(`Failed to load tutorials. ${String(error)}`);
-      } finally {
-        setIsBusy(false);
-      }
-    },
-    [dataDirectory, projectConfig, repository]
-  );
-
-  const handleSaveTutorialsData = useCallback(async () => {
-    if (!tutorialData) {
-      setErrorMessage("No tutorials loaded to save.");
-      return;
-    }
-    if (!dataDirectory) {
-      setErrorMessage("No data directory set for tutorials.");
-      return;
-    }
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      const format =
-        tutorialDataFormat ?? projectConfig?.defaultFormat ?? "json";
-      const tutorialsFile = projectConfig?.dataFiles.tutorials;
-      const path = await repository.saveTutorialsData(
-        dataDirectory,
-        tutorialData,
-        format,
-        tutorialsFile
-      );
-      setTutorialDataPath(path);
-      setTutorialDataFormat(format);
-      setTutorialDataDir(dataDirectory);
-      setStatusMessage(`Saved tutorials (${format})`);
-    } catch (error) {
-      setErrorMessage(`Failed to save tutorials. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  }, [
-    dataDirectory,
-    projectConfig,
-    repository,
-    tutorialData,
-    tutorialDataFormat
-  ]);
-
-  const handleLoadLootData = useCallback(
-    async (overrideDir?: string) => {
-      const targetDir =
-        typeof overrideDir === "string" ? overrideDir : dataDirectory;
-      if (!targetDir) {
-        setErrorMessage("No data directory set for loot.");
-        return;
-      }
-      const lootFile = projectConfig?.dataFiles.loot;
-      const defaultFormat = projectConfig?.defaultFormat;
-      setErrorMessage(null);
-      setIsBusy(true);
-      try {
-        const source = await repository.loadLootData(
-          targetDir,
-          lootFile,
-          defaultFormat
-        );
-        setLootData(source.data);
-        setLootDataPath(source.path);
-        setLootDataFormat(source.format);
-        setLootDataDir(targetDir);
-        setStatusMessage(`Loaded loot (${source.format})`);
-      } catch (error) {
-        setErrorMessage(`Failed to load loot. ${String(error)}`);
-      } finally {
-        setIsBusy(false);
-      }
-    },
-    [dataDirectory, projectConfig, repository]
-  );
-
-  const handleSaveLootData = useCallback(async () => {
-    if (!lootData) {
-      setErrorMessage("No loot loaded to save.");
-      return;
-    }
-    if (!dataDirectory) {
-      setErrorMessage("No data directory set for loot.");
-      return;
-    }
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      const format = lootDataFormat ?? projectConfig?.defaultFormat ?? "json";
-      const lootFile = projectConfig?.dataFiles.loot;
-      const path = await repository.saveLootData(
-        dataDirectory,
-        lootData,
-        format,
-        lootFile
-      );
-      setLootDataPath(path);
-      setLootDataFormat(format);
-      setLootDataDir(dataDirectory);
-      setStatusMessage(`Saved loot (${format})`);
-    } catch (error) {
-      setErrorMessage(`Failed to save loot. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  }, [dataDirectory, lootData, lootDataFormat, projectConfig, repository]);
 
   useEffect(() => {
     const nextRoom = getDefaultSelection(areaData, "Rooms", selectedRoomVnum);
@@ -6132,10 +4390,6 @@ export default function App({ repository }: AppProps) {
   ]);
   const validationConfig = useMemo(() => loadValidationConfig(), []);
   const pluginValidationRules = useMemo(() => loadPluginRules(), []);
-  const exitValidation = useMemo(
-    () => buildExitTargetValidation(areaData, areaIndex),
-    [areaData, areaIndex]
-  );
   const coreValidationRules = useMemo<ValidationRule[]>(
     () => [
       {
@@ -6317,646 +4571,6 @@ export default function App({ repository }: AppProps) {
   const shopRows = useMemo(() => buildShopRows(areaData), [areaData]);
   const questRows = useMemo(() => buildQuestRows(areaData), [areaData]);
   const factionRows = useMemo(() => buildFactionRows(areaData), [areaData]);
-  const baseRoomNodes = useMemo(() => buildRoomNodes(areaData), [areaData]);
-  const layoutSourceNodes = useMemo(
-    () => (layoutNodes.length ? layoutNodes : baseRoomNodes),
-    [layoutNodes, baseRoomNodes]
-  );
-  const roomNodesWithLayout = useMemo(
-    () => applyRoomLayoutOverrides(layoutSourceNodes, roomLayout),
-    [layoutSourceNodes, roomLayout]
-  );
-  const roomEdges = useMemo(
-    () =>
-      buildRoomEdges(
-        areaData,
-        showVerticalEdges,
-        true,
-        exitValidation.invalidEdgeIds
-      ),
-    [areaData, showVerticalEdges, exitValidation.invalidEdgeIds]
-  );
-  const externalExits = useMemo(
-    () => buildExternalExits(areaData, areaIndex),
-    [areaData, areaIndex]
-  );
-  const areaGraphContext = useMemo(() => {
-    const entries: AreaGraphEntry[] = areaIndex.map((entry) => ({
-      id: entry.fileName,
-      name: entry.name,
-      vnumRange: entry.vnumRange ?? null
-    }));
-    let currentId: string | null = null;
-    if (areaData) {
-      const currentFile = areaPath ? fileNameFromPath(areaPath) : null;
-      const bounds = getAreaVnumBounds(areaData);
-      if (currentFile) {
-        const match = entries.find((entry) => entry.id === currentFile);
-        if (match) {
-          currentId = match.id;
-        } else {
-          const areadata =
-            (areaData as Record<string, unknown>).areadata &&
-            typeof (areaData as Record<string, unknown>).areadata === "object"
-              ? ((areaData as Record<string, unknown>).areadata as Record<
-                  string,
-                  unknown
-                >)
-              : {};
-          const name = getFirstString(areadata.name, currentFile);
-          const syntheticId = `current:${currentFile}`;
-          entries.unshift({
-            id: syntheticId,
-            name,
-            vnumRange: bounds ? [bounds.min, bounds.max] : null
-          });
-          currentId = syntheticId;
-        }
-      } else {
-        const areadata =
-          (areaData as Record<string, unknown>).areadata &&
-          typeof (areaData as Record<string, unknown>).areadata === "object"
-            ? ((areaData as Record<string, unknown>).areadata as Record<
-                string,
-                unknown
-              >)
-            : {};
-        entries.unshift({
-          id: "current-area",
-          name: getFirstString(areadata.name, "Current area"),
-          vnumRange: bounds ? [bounds.min, bounds.max] : null
-        });
-        currentId = "current-area";
-      }
-    }
-    return { entries, currentId };
-  }, [areaIndex, areaData, areaPath]);
-  const areaGraphFilterValue = areaGraphFilter.trim().toLowerCase();
-  const areaGraphFilteredEntries = useMemo(() => {
-    if (!areaGraphFilterValue) {
-      return areaGraphContext.entries;
-    }
-    return areaGraphContext.entries.filter((entry) => {
-      const name = entry.name.toLowerCase();
-      const id = entry.id.toLowerCase();
-      return name.includes(areaGraphFilterValue) || id.includes(areaGraphFilterValue);
-    });
-  }, [areaGraphContext.entries, areaGraphFilterValue]);
-  const areaGraphMatch = useMemo(() => {
-    const vnum = parseVnum(areaGraphVnumQuery);
-    if (vnum === null) {
-      return null;
-    }
-    return (
-      areaGraphContext.entries.find((entry) => {
-        if (!entry.vnumRange) {
-          return false;
-        }
-        const [start, end] = entry.vnumRange;
-        return vnum >= start && vnum <= end;
-      }) ?? null
-    );
-  }, [areaGraphContext.entries, areaGraphVnumQuery]);
-  const areaGraphMatchLabel = useMemo(() => {
-    if (!areaGraphMatch) {
-      return null;
-    }
-    return `${areaGraphMatch.name} (${formatVnumRange(areaGraphMatch.vnumRange)})`;
-  }, [areaGraphMatch]);
-  const areaGraphNodes = useMemo(() => {
-    if (!areaGraphFilteredEntries.length) {
-      return [];
-    }
-    return areaGraphFilteredEntries.map((entry, index) => ({
-      id: entry.id,
-      type: "area",
-      position: {
-        x: 0,
-        y: index * 10
-      },
-      data: {
-        label: entry.name || entry.id,
-        range: formatVnumRange(entry.vnumRange),
-        isCurrent: entry.id === areaGraphContext.currentId,
-        isMatch: entry.id === areaGraphMatch?.id
-      }
-    }));
-  }, [areaGraphFilteredEntries, areaGraphContext.currentId, areaGraphMatch]);
-  const areaGraphEdges = useMemo(() => {
-    const visible = new Set(areaGraphFilteredEntries.map((entry) => entry.id));
-    const edges: Edge[] = [];
-    for (const link of areaGraphLinks) {
-      if (!visible.has(link.fromFile) || !visible.has(link.toFile)) {
-        continue;
-      }
-      const dirKey = getDominantExitDirection(link.directionCounts);
-      const handles = dirKey ? areaDirectionHandleMap[dirKey] : null;
-      const edgeData = {
-        nodeType: "area",
-        ...(dirKey ? { dirKey } : {})
-      };
-      edges.push({
-        id: `area-link-${link.fromFile}-${link.toFile}`,
-        source: link.fromFile,
-        target: link.toFile,
-        label: link.count === 1 ? "1 exit" : `${link.count} exits`,
-        animated: false,
-        type: "area",
-        sourceHandle: handles?.source,
-        targetHandle: handles?.target,
-        data: edgeData
-      });
-    }
-
-    const currentId = areaGraphContext.currentId;
-    if (!currentId) {
-      return edges;
-    }
-    const indexIds = new Set(areaIndex.map((entry) => entry.fileName));
-    const shouldUseExternal =
-      !areaGraphLinks.length || !indexIds.has(currentId);
-    if (!shouldUseExternal) {
-      return edges;
-    }
-    const counts = new Map<string, number>();
-    const directions = new Map<string, Record<string, number>>();
-    for (const exit of externalExits) {
-      const target = findAreaForVnum(areaIndex, exit.toVnum);
-      if (!target) {
-        continue;
-      }
-      const targetId = target.fileName;
-      if (targetId === currentId) {
-        continue;
-      }
-      counts.set(targetId, (counts.get(targetId) ?? 0) + 1);
-      const dirKey = exit.direction.trim().toLowerCase();
-      if (dirKey) {
-        if (!directions.has(targetId)) {
-          directions.set(targetId, {});
-        }
-        const record = directions.get(targetId);
-        if (record) {
-          record[dirKey] = (record[dirKey] ?? 0) + 1;
-        }
-      }
-    }
-    for (const [targetId, count] of counts.entries()) {
-      if (!visible.has(currentId) || !visible.has(targetId)) {
-        continue;
-      }
-      const dirKey = getDominantExitDirection(directions.get(targetId));
-      const handles = dirKey ? areaDirectionHandleMap[dirKey] : null;
-      const edgeData = {
-        nodeType: "area",
-        ...(dirKey ? { dirKey } : {})
-      };
-      edges.push({
-        id: `area-link-${currentId}-${targetId}`,
-        source: currentId,
-        target: targetId,
-        label: count === 1 ? "1 exit" : `${count} exits`,
-        animated: false,
-        type: "area",
-        sourceHandle: handles?.source,
-        targetHandle: handles?.target,
-        data: edgeData
-      });
-    }
-    return edges;
-  }, [
-    areaGraphContext.currentId,
-    areaGraphFilteredEntries,
-    areaGraphLinks,
-    areaIndex,
-    externalExits
-  ]);
-  const closeRoomContextOverlays = useCallback(() => {
-    setRoomContextMenu(null);
-    setRoomLinkPanel(null);
-  }, []);
-
-  const handleRoomContextMenu = useCallback(
-    (event: MouseEvent<HTMLDivElement>, vnum: number) => {
-      setRoomContextMenu({ vnum, x: event.clientX, y: event.clientY });
-      setRoomLinkPanel(null);
-      setSelectedRoomVnum(vnum);
-      setSelectedEntity("Rooms");
-    },
-    [setSelectedEntity, setSelectedRoomVnum]
-  );
-  const handleMapNavigate = useCallback(
-    (vnum: number) => {
-      closeRoomContextOverlays();
-      setSelectedRoomVnum(vnum);
-      setSelectedEntity("Rooms");
-    },
-    [closeRoomContextOverlays, setSelectedRoomVnum, setSelectedEntity]
-  );
-  const handleMapNodeClick = useCallback(
-    (node: Node<RoomNodeData>) => {
-      closeRoomContextOverlays();
-      const vnum =
-        typeof node.data?.vnum === "number"
-          ? node.data.vnum
-          : parseVnum(node.id);
-      if (vnum !== null && vnum >= 0) {
-        setSelectedRoomVnum(vnum);
-        setSelectedEntity("Rooms");
-      }
-    },
-    [closeRoomContextOverlays, setSelectedRoomVnum, setSelectedEntity]
-  );
-  const handleRelayout = useCallback(
-    () => setLayoutNonce((value) => value + 1),
-    []
-  );
-  const handleTogglePreferGrid = useCallback(
-    (nextValue: boolean) => {
-      setPreferCardinalLayout(nextValue);
-      if (!autoLayoutEnabled) {
-        setLayoutNonce((value) => value + 1);
-      }
-    },
-    [autoLayoutEnabled]
-  );
-  const handleTogglePreferAreaGrid = useCallback((nextValue: boolean) => {
-    setPreferAreaCardinalLayout(nextValue);
-  }, []);
-  const roomNodesWithHandlers = useMemo(
-    () =>
-      roomNodesWithLayout.map((node) => ({
-        ...node,
-        data: {
-          ...node.data,
-          onNavigate: handleMapNavigate,
-          onContextMenu: handleRoomContextMenu,
-          dirty: dirtyRoomNodes.has(node.id)
-        }
-      })),
-    [
-      roomNodesWithLayout,
-      handleMapNavigate,
-      handleRoomContextMenu,
-      dirtyRoomNodes
-    ]
-  );
-  const mapNodes = useMemo(
-    () => applyRoomSelection(roomNodesWithHandlers, selectedRoomVnum),
-    [roomNodesWithHandlers, selectedRoomVnum]
-  );
-  const selectedRoomNode = useMemo(() => {
-    if (selectedRoomVnum === null) {
-      return null;
-    }
-    return mapNodes.find((node) => node.data.vnum === selectedRoomVnum) ?? null;
-  }, [mapNodes, selectedRoomVnum]);
-  const selectedRoomLocked = Boolean(selectedRoomNode?.data.locked);
-  const dirtyRoomCount = dirtyRoomNodes.size;
-  const hasRoomLayout = Object.keys(roomLayout).length > 0;
-  const worldMapNodes = useMemo(
-    () =>
-      applyAreaLayoutOverrides(
-        areaGraphLayoutNodes.length ? areaGraphLayoutNodes : areaGraphNodes,
-        areaLayout,
-        dirtyAreaNodes
-      ),
-    [areaGraphLayoutNodes, areaGraphNodes, areaLayout, dirtyAreaNodes]
-  );
-  const selectedAreaNode = useMemo(
-    () => worldMapNodes.find((node) => node.selected) ?? null,
-    [worldMapNodes]
-  );
-  const selectedAreaLocked = Boolean(
-    selectedAreaNode && areaLayout[selectedAreaNode.id]?.locked
-  );
-  const dirtyAreaCount = dirtyAreaNodes.size;
-  const hasAreaLayout = Object.keys(areaLayout).length > 0;
-  const handleLockSelectedRoom = useCallback(() => {
-    if (!selectedRoomNode) {
-      return;
-    }
-    setRoomLayout((current) => ({
-      ...current,
-      [selectedRoomNode.id]: {
-        x: selectedRoomNode.position.x,
-        y: selectedRoomNode.position.y,
-        locked: true
-      }
-    }));
-    setDirtyRoomNodes((current) => {
-      if (!current.has(selectedRoomNode.id)) {
-        return current;
-      }
-      const next = new Set(current);
-      next.delete(selectedRoomNode.id);
-      return next;
-    });
-  }, [selectedRoomNode]);
-  const handleUnlockSelectedRoom = useCallback(() => {
-    if (!selectedRoomNode) {
-      return;
-    }
-    setLayoutNodes((current) => {
-      const source = current.length ? current : roomNodesWithLayout;
-      return source.map((node) =>
-        node.id === selectedRoomNode.id
-          ? { ...node, position: selectedRoomNode.position }
-          : node
-      );
-    });
-    setRoomLayout((current) => {
-      if (!current[selectedRoomNode.id]) {
-        return current;
-      }
-      const next = { ...current };
-      delete next[selectedRoomNode.id];
-      return next;
-    });
-    setDirtyRoomNodes((current) => {
-      if (current.has(selectedRoomNode.id)) {
-        return current;
-      }
-      const next = new Set(current);
-      next.add(selectedRoomNode.id);
-      return next;
-    });
-  }, [selectedRoomNode, roomNodesWithLayout]);
-  const runAreaGraphLayout = useCallback(
-    async (cancelRef?: { current: boolean }) => {
-      if (!areaGraphNodes.length) {
-        if (!cancelRef?.current) {
-          setAreaGraphLayoutNodes([]);
-        }
-        return;
-      }
-      try {
-        const nextNodes = await layoutAreaGraphNodes(
-          areaGraphNodes,
-          areaGraphEdges,
-          preferAreaCardinalLayout
-        );
-        if (!cancelRef?.current) {
-          setAreaGraphLayoutNodes(nextNodes);
-          setDirtyAreaNodes(new Set());
-        }
-      } catch {
-        if (!cancelRef?.current) {
-          setAreaGraphLayoutNodes(areaGraphNodes);
-          setDirtyAreaNodes(new Set());
-        }
-      }
-    },
-    [areaGraphNodes, areaGraphEdges, preferAreaCardinalLayout]
-  );
-  const handleLockSelectedArea = useCallback(() => {
-    if (!selectedAreaNode) {
-      return;
-    }
-    setAreaLayout((current) => ({
-      ...current,
-      [selectedAreaNode.id]: {
-        x: selectedAreaNode.position.x,
-        y: selectedAreaNode.position.y,
-        locked: true
-      }
-    }));
-    setDirtyAreaNodes((current) => {
-      if (!current.has(selectedAreaNode.id)) {
-        return current;
-      }
-      const next = new Set(current);
-      next.delete(selectedAreaNode.id);
-      return next;
-    });
-  }, [selectedAreaNode]);
-  const handleUnlockSelectedArea = useCallback(() => {
-    if (!selectedAreaNode) {
-      return;
-    }
-    setAreaGraphLayoutNodes((current) => {
-      const source = current.length ? current : areaGraphNodes;
-      return source.map((node) =>
-        node.id === selectedAreaNode.id
-          ? { ...node, position: selectedAreaNode.position }
-          : node
-      );
-    });
-    setAreaLayout((current) => {
-      if (!current[selectedAreaNode.id]) {
-        return current;
-      }
-      const next = { ...current };
-      delete next[selectedAreaNode.id];
-      return next;
-    });
-    setDirtyAreaNodes((current) => {
-      if (current.has(selectedAreaNode.id)) {
-        return current;
-      }
-      const next = new Set(current);
-      next.add(selectedAreaNode.id);
-      return next;
-    });
-  }, [selectedAreaNode, areaGraphNodes]);
-  const handleLockDirtyAreas = useCallback(() => {
-    if (!dirtyAreaNodes.size) {
-      return;
-    }
-    setAreaLayout((current) => {
-      const next = { ...current };
-      dirtyAreaNodes.forEach((id) => {
-        const node = worldMapNodes.find((entry) => entry.id === id);
-        if (!node) {
-          return;
-        }
-        next[id] = {
-          x: node.position.x,
-          y: node.position.y,
-          locked: true
-        };
-      });
-      return next;
-    });
-    setDirtyAreaNodes(new Set());
-  }, [dirtyAreaNodes, worldMapNodes]);
-  const handleClearAreaLayout = useCallback(() => {
-    setAreaLayout({});
-    setDirtyAreaNodes(new Set());
-    void runAreaGraphLayout();
-  }, [runAreaGraphLayout]);
-  const handleRelayoutArea = useCallback(() => {
-    void runAreaGraphLayout();
-  }, [runAreaGraphLayout]);
-  const handleClearRoomLayout = useCallback(() => {
-    setRoomLayout({});
-    setLayoutNodes([]);
-    setDirtyRoomNodes(new Set());
-    if (autoLayoutEnabled) {
-      setLayoutNonce((value) => value + 1);
-    }
-  }, [autoLayoutEnabled]);
-  const handleNodesChange = useCallback(
-    (changes: NodeChange[]) => {
-      setLayoutNodes((current) => {
-        const source = current.length ? current : roomNodesWithLayout;
-        return applyNodeChanges(changes, source);
-      });
-      const movedIds = changes
-        .filter((change) => change.type === "position")
-        .map((change) => change.id);
-      if (movedIds.length) {
-        setDirtyRoomNodes((current) => {
-          let changed = false;
-          const next = new Set(current);
-          movedIds.forEach((id) => {
-            if (!next.has(id)) {
-              next.add(id);
-              changed = true;
-            }
-          });
-          return changed ? next : current;
-        });
-      }
-    },
-    [roomNodesWithLayout]
-  );
-  const handleNodeDragStop = useCallback(
-    (_: unknown, node: Node<RoomNodeData>) => {
-      setLayoutNodes((current) => {
-        const source = current.length ? current : roomNodesWithLayout;
-        return source.map((entry) =>
-          entry.id === node.id
-            ? { ...entry, position: node.position }
-            : entry
-        );
-      });
-      setDirtyRoomNodes((current) => {
-        if (current.has(node.id)) {
-          return current;
-        }
-        const next = new Set(current);
-        next.add(node.id);
-        return next;
-      });
-    },
-    [roomNodesWithLayout]
-  );
-  const handleAreaGraphNodesChange = useCallback(
-    (changes: NodeChange[]) => {
-      setAreaGraphLayoutNodes((current) => {
-        const source = current.length ? current : areaGraphNodes;
-        return applyNodeChanges(changes, source);
-      });
-      const movedIds = changes
-        .filter((change) => change.type === "position")
-        .map((change) => change.id);
-      if (movedIds.length) {
-        setDirtyAreaNodes((current) => {
-          let changed = false;
-          const next = new Set(current);
-          movedIds.forEach((id) => {
-            if (!next.has(id)) {
-              next.add(id);
-              changed = true;
-            }
-          });
-          return changed ? next : current;
-        });
-      }
-    },
-    [areaGraphNodes]
-  );
-  const handleAreaGraphNodeDragStop = useCallback(
-    (_: unknown, node: Node<AreaGraphNodeData>) => {
-      setAreaGraphLayoutNodes((current) => {
-        const source = current.length ? current : areaGraphNodes;
-        return source.map((entry) =>
-          entry.id === node.id ? { ...entry, position: node.position } : entry
-        );
-      });
-      setDirtyAreaNodes((current) => {
-        if (current.has(node.id)) {
-          return current;
-        }
-        const next = new Set(current);
-        next.add(node.id);
-        return next;
-      });
-    },
-    [areaGraphNodes]
-  );
-  useEffect(() => {
-    const cancelRef = { current: false };
-    runAreaGraphLayout(cancelRef);
-    return () => {
-      cancelRef.current = true;
-    };
-  }, [runAreaGraphLayout]);
-  const runRoomLayout = useCallback(
-    async (cancelRef?: { current: boolean }) => {
-      if (activeTab !== "Map") {
-        return;
-      }
-      if (!baseRoomNodes.length) {
-        if (!cancelRef?.current) {
-          setLayoutNodes([]);
-          setDirtyRoomNodes(new Set());
-        }
-        return;
-      }
-      try {
-        const nextNodes = await layoutRoomNodes(
-          baseRoomNodes,
-          roomEdges,
-          preferCardinalLayout
-        );
-        if (!cancelRef?.current) {
-          setLayoutNodes(
-            applyRoomLayoutOverrides(nextNodes, roomLayoutRef.current)
-          );
-          setDirtyRoomNodes(new Set());
-        }
-      } catch (error) {
-        if (!cancelRef?.current) {
-          setLayoutNodes(
-            applyRoomLayoutOverrides(baseRoomNodes, roomLayoutRef.current)
-          );
-          setDirtyRoomNodes(new Set());
-        }
-      }
-    },
-    [activeTab, baseRoomNodes, preferCardinalLayout, roomEdges]
-  );
-
-  useEffect(() => {
-    roomLayoutRef.current = roomLayout;
-  }, [roomLayout]);
-
-  useEffect(() => {
-    roomNodesWithLayoutRef.current = roomNodesWithLayout;
-  }, [roomNodesWithLayout]);
-
-  useEffect(() => {
-    localStorage.setItem(
-      "worldedit.preferCardinalLayout",
-      String(preferCardinalLayout)
-    );
-  }, [preferCardinalLayout]);
-
-  useEffect(() => {
-    localStorage.setItem(
-      "worldedit.preferAreaCardinalLayout",
-      String(preferAreaCardinalLayout)
-    );
-  }, [preferAreaCardinalLayout]);
-
-  useEffect(() => {
-    localStorage.setItem(
-      "worldedit.showVerticalEdges",
-      String(showVerticalEdges)
-    );
-  }, [showVerticalEdges]);
 
   useEffect(() => {
     let cancelled = false;
@@ -7441,6 +5055,18 @@ export default function App({ repository }: AppProps) {
           : "",
       lootTable:
         typeof record?.lootTable === "string" ? record.lootTable : "",
+      actFlags: Array.isArray(record?.actFlags)
+        ? record.actFlags.filter((flag) => typeof flag === "string")
+        : [],
+      atkFlags: Array.isArray(record?.atkFlags)
+        ? record.atkFlags.filter((flag) => typeof flag === "string")
+        : [],
+      formFlags: Array.isArray(record?.formFlags)
+        ? record.formFlags.filter((flag) => typeof flag === "string")
+        : [],
+      partFlags: Array.isArray(record?.partFlags)
+        ? record.partFlags.filter((flag) => typeof flag === "string")
+        : [],
       hitDice: resolveDice(record?.hitDice),
       manaDice: resolveDice(record?.manaDice),
       damageDice: resolveDice(record?.damageDice)
@@ -7801,10 +5427,64 @@ export default function App({ repository }: AppProps) {
     () => buildVnumOptions(areaData, "Mobiles"),
     [areaData]
   );
+  const mobileVnumOptionMap = useMemo(() => {
+    const map = new Map<number, VnumOption>();
+    mobileVnumOptions.forEach((option) => {
+      map.set(option.vnum, option);
+    });
+    return map;
+  }, [mobileVnumOptions]);
   const objectVnumOptions = useMemo(
     () => buildVnumOptions(areaData, "Objects"),
     [areaData]
   );
+  const objectVnumOptionMap = useMemo(() => {
+    const map = new Map<number, VnumOption>();
+    objectVnumOptions.forEach((option) => {
+      map.set(option.vnum, option);
+    });
+    return map;
+  }, [objectVnumOptions]);
+  const roomResetItems = useMemo<RoomResetItem[]>(() => {
+    if (!areaData || selectedRoomVnum === null) {
+      return [];
+    }
+    const resets = getEntityList(areaData, "Resets");
+    const items: RoomResetItem[] = [];
+    resets.forEach((reset, index) => {
+      if (!reset || typeof reset !== "object") {
+        return;
+      }
+      const record = reset as Record<string, unknown>;
+      if (!isResetForRoom(record, selectedRoomVnum)) {
+        return;
+      }
+      const command = resolveResetCommand(record);
+      const label = formatResetSummary(
+        record,
+        command,
+        roomVnumOptionMap,
+        mobileVnumOptionMap,
+        objectVnumOptionMap
+      );
+      items.push({ index, command, label });
+    });
+    return items;
+  }, [
+    areaData,
+    selectedRoomVnum,
+    roomVnumOptionMap,
+    mobileVnumOptionMap,
+    objectVnumOptionMap
+  ]);
+  const selectedRoomResetIndex = useMemo(() => {
+    if (selectedResetIndex === null) {
+      return null;
+    }
+    return roomResetItems.some((item) => item.index === selectedResetIndex)
+      ? selectedResetIndex
+      : null;
+  }, [roomResetItems, selectedResetIndex]);
   const lootTableOptions = useMemo(() => {
     if (!areaData) {
       return [];
@@ -7836,180 +5516,23 @@ export default function App({ repository }: AppProps) {
       .toLowerCase();
     return itemTypeBlockMap[key] ?? null;
   }, [objectFormDefaults.itemType, watchedObjectItemType]);
-  const classColumns = useMemo<ColDef<ClassRow>[]>(
-    () => [
-      { headerName: "#", field: "index", width: 80, sort: "asc" },
-      { headerName: "Name", field: "name", flex: 2, minWidth: 200 },
-      { headerName: "Who", field: "whoName", width: 110 },
-      { headerName: "Prime", field: "primeStat", width: 100 },
-      { headerName: "Armor", field: "armorProf", width: 120 },
-      { headerName: "Weapon", field: "weaponVnum", width: 120 },
-      { headerName: "Start", field: "startLoc", width: 110 }
-    ],
-    []
-  );
-  const raceColumns = useMemo<ColDef<RaceRow>[]>(
-    () => [
-      { headerName: "#", field: "index", width: 80, sort: "asc" },
-      { headerName: "Name", field: "name", flex: 2, minWidth: 200 },
-      { headerName: "Who", field: "whoName", width: 120 },
-      { headerName: "PC", field: "pc", width: 80 },
-      { headerName: "Points", field: "points", width: 110 },
-      { headerName: "Size", field: "size", width: 110 },
-      { headerName: "Start", field: "startLoc", width: 110 }
-    ],
-    []
-  );
-  const skillColumns = useMemo<ColDef<SkillRow>[]>(
-    () => [
-      { headerName: "#", field: "index", width: 80, sort: "asc" },
-      { headerName: "Name", field: "name", flex: 2, minWidth: 220 },
-      { headerName: "Target", field: "target", width: 150 },
-      { headerName: "Position", field: "minPosition", width: 140 },
-      { headerName: "Spell", field: "spell", flex: 1, minWidth: 160 },
-      { headerName: "Slot", field: "slot", width: 110 }
-    ],
-    []
-  );
-  const groupColumns = useMemo<ColDef<GroupRow>[]>(
-    () => [
-      { headerName: "#", field: "index", width: 80, sort: "asc" },
-      { headerName: "Name", field: "name", flex: 2, minWidth: 220 },
-      { headerName: "Ratings", field: "ratingSummary", width: 140 },
-      { headerName: "Skills", field: "skills", width: 110 }
-    ],
-    []
-  );
-  const commandColumns = useMemo<ColDef<CommandRow>[]>(
-    () => [
-      { headerName: "#", field: "index", width: 80, sort: "asc" },
-      { headerName: "Name", field: "name", flex: 1, minWidth: 180 },
-      { headerName: "Function", field: "function", flex: 1, minWidth: 180 },
-      { headerName: "Position", field: "position", width: 140 },
-      { headerName: "Level", field: "level", width: 110 },
-      { headerName: "Log", field: "log", width: 130 },
-      { headerName: "Category", field: "category", width: 140 },
-      { headerName: "Lox", field: "loxFunction", flex: 1, minWidth: 160 }
-    ],
-    []
-  );
-  const socialColumns = useMemo<ColDef<SocialRow>[]>(
-    () => [
-      { headerName: "#", field: "index", width: 80, sort: "asc" },
-      { headerName: "Name", field: "name", flex: 2, minWidth: 220 },
-      { headerName: "No Target", field: "noTarget", width: 120 },
-      { headerName: "Targeted", field: "target", width: 120 },
-      { headerName: "Self", field: "self", width: 100 }
-    ],
-    []
-  );
-  const tutorialColumns = useMemo<ColDef<TutorialRow>[]>(
-    () => [
-      { headerName: "#", field: "index", width: 80, sort: "asc" },
-      { headerName: "Name", field: "name", flex: 2, minWidth: 220 },
-      { headerName: "Min Level", field: "minLevel", width: 120 },
-      { headerName: "Steps", field: "steps", width: 110 }
-    ],
-    []
-  );
-  const lootColumns = useMemo<ColDef<LootRow>[]>(
-    () => [
-      { headerName: "Type", field: "kind", width: 110, sort: "asc" },
-      { headerName: "Name", field: "name", flex: 2, minWidth: 220 },
-      { headerName: "Details", field: "details", flex: 2, minWidth: 240 }
-    ],
-    []
-  );
-  const roomColumns = useMemo<ColDef<RoomRow>[]>(
-    () => [
-      { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
-      { headerName: "Name", field: "name", flex: 2, minWidth: 200 },
-      { headerName: "Sector", field: "sector", flex: 1, minWidth: 140 },
-      { headerName: "Exits", field: "exits", width: 110 },
-      { headerName: "Room Flags", field: "flags", flex: 2, minWidth: 220 }
-    ],
-    []
-  );
-  const mobileColumns = useMemo<ColDef<MobileRow>[]>(
-    () => [
-      { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
-      { headerName: "Name", field: "name", flex: 2, minWidth: 200 },
-      { headerName: "Level", field: "level", width: 110 },
-      { headerName: "Race", field: "race", flex: 1, minWidth: 140 },
-      { headerName: "Alignment", field: "alignment", width: 130 }
-    ],
-    []
-  );
-  const objectColumns = useMemo<ColDef<ObjectRow>[]>(
-    () => [
-      { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
-      { headerName: "Name", field: "name", flex: 2, minWidth: 200 },
-      { headerName: "Item Type", field: "itemType", flex: 1, minWidth: 160 },
-      { headerName: "Level", field: "level", width: 110 }
-    ],
-    []
-  );
-  const resetColumns = useMemo<ColDef<ResetRow>[]>(
-    () => [
-      { headerName: "#", field: "index", width: 80, sort: "asc" },
-      { headerName: "Type", field: "command", flex: 1, minWidth: 160 },
-      { headerName: "Entity VNUM", field: "entityVnum", width: 140 },
-      { headerName: "Room VNUM", field: "roomVnum", width: 140 },
-      { headerName: "Details", field: "details", flex: 2, minWidth: 220 }
-    ],
-    []
-  );
-  const shopColumns = useMemo<ColDef<ShopRow>[]>(
-    () => [
-      { headerName: "Keeper", field: "keeper", width: 120, sort: "asc" },
-      { headerName: "Buy Types", field: "buyTypes", flex: 2, minWidth: 220 },
-      { headerName: "Profit Buy", field: "profitBuy", width: 120 },
-      { headerName: "Profit Sell", field: "profitSell", width: 120 },
-      { headerName: "Hours", field: "hours", width: 120 }
-    ],
-    []
-  );
-  const questColumns = useMemo<ColDef<QuestRow>[]>(
-    () => [
-      { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
-      { headerName: "Name", field: "name", flex: 2, minWidth: 200 },
-      { headerName: "Type", field: "type", flex: 1, minWidth: 140 },
-      { headerName: "Level", field: "level", width: 110 },
-      { headerName: "Target", field: "target", flex: 1, minWidth: 160 },
-      { headerName: "Rewards", field: "rewards", flex: 1, minWidth: 160 }
-    ],
-    []
-  );
-  const factionColumns = useMemo<ColDef<FactionRow>[]>(
-    () => [
-      { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
-      { headerName: "Name", field: "name", flex: 2, minWidth: 200 },
-      { headerName: "Default", field: "defaultStanding", width: 120 },
-      { headerName: "Allies", field: "allies", width: 110 },
-      { headerName: "Opposing", field: "opposing", width: 120 }
-    ],
-    []
-  );
-  const recipeColumns = useMemo<ColDef<RecipeRow>[]>(
-    () => [
-      { headerName: "VNUM", field: "vnum", width: 110, sort: "asc" },
-      { headerName: "Name", field: "name", flex: 2, minWidth: 200 },
-      { headerName: "Skill", field: "skill", width: 160 },
-      { headerName: "Inputs", field: "inputs", width: 130 },
-      { headerName: "Output", field: "output", width: 140 }
-    ],
-    []
-  );
-  const gatherSpawnColumns = useMemo<ColDef<GatherSpawnRow>[]>(
-    () => [
-      { headerName: "#", field: "index", width: 80, sort: "asc" },
-      { headerName: "VNUM", field: "vnum", width: 120 },
-      { headerName: "Sector", field: "sector", width: 140 },
-      { headerName: "Qty", field: "quantity", width: 110 },
-      { headerName: "Respawn", field: "respawnTimer", width: 120 }
-    ],
-    []
-  );
+  const classColumns = classColumnsDef;
+  const raceColumns = raceColumnsDef;
+  const skillColumns = skillColumnsDef;
+  const groupColumns = groupColumnsDef;
+  const commandColumns = commandColumnsDef;
+  const socialColumns = socialColumnsDef;
+  const tutorialColumns = tutorialColumnsDef;
+  const lootColumns = lootColumnsDef;
+  const roomColumns = roomColumnsDef;
+  const mobileColumns = mobileColumnsDef;
+  const objectColumns = objectColumnsDef;
+  const resetColumns = resetColumnsDef;
+  const shopColumns = shopColumnsDef;
+  const questColumns = questColumnsDef;
+  const factionColumns = factionColumnsDef;
+  const recipeColumns = recipeColumnsDef;
+  const gatherSpawnColumns = gatherSpawnColumnsDef;
   const roomDefaultColDef = useMemo<ColDef>(
     () => ({
       sortable: true,
@@ -8042,6 +5565,12 @@ export default function App({ repository }: AppProps) {
   useEffect(() => {
     mobileForm.reset(mobileFormDefaults);
   }, [mobileForm, mobileFormDefaults]);
+
+  useEffect(() => {
+    const record = selectedMobileRecord;
+    setOverrideMobileFormFlags(Array.isArray(record?.formFlags));
+    setOverrideMobilePartFlags(Array.isArray(record?.partFlags));
+  }, [selectedMobileRecord]);
 
   useEffect(() => {
     objectForm.reset(objectFormDefaults);
@@ -8292,1329 +5821,6 @@ export default function App({ repository }: AppProps) {
     lootRows
   ]);
 
-  useEffect(() => {
-    if (activeTab === "Map" && selectedEntity !== "Rooms") {
-      setSelectedEntity("Rooms");
-    }
-  }, [activeTab, selectedEntity]);
-
-  useEffect(() => {
-    if (!autoLayoutEnabled) {
-      return;
-    }
-    const cancelRef = { current: false };
-    runRoomLayout(cancelRef);
-    return () => {
-      cancelRef.current = true;
-    };
-  }, [autoLayoutEnabled, runRoomLayout]);
-
-  useEffect(() => {
-    if (layoutNonce === 0) {
-      return;
-    }
-    const cancelRef = { current: false };
-    runRoomLayout(cancelRef);
-    return () => {
-      cancelRef.current = true;
-    };
-  }, [layoutNonce, runRoomLayout]);
-
-  const handleCreateRoom = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before creating rooms.");
-      return;
-    }
-    const nextVnum = getNextEntityVnum(areaData, "Rooms");
-    if (nextVnum === null) {
-      setStatusMessage("No available room VNUMs in the area range.");
-      return;
-    }
-    const areadata = (areaData as Record<string, unknown>).areadata;
-    const areaSector =
-      areadata && typeof areadata === "object"
-        ? (areadata as Record<string, unknown>).sector
-        : null;
-    const sectorType =
-      typeof areaSector === "string" && areaSector.trim().length
-        ? areaSector
-        : "inside";
-    const newRoom: Record<string, unknown> = {
-      vnum: nextVnum,
-      name: "New Room",
-      description: "An unfinished room.\n\r",
-      sectorType,
-      roomFlags: [],
-      exits: []
-    };
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const rooms = Array.isArray((current as Record<string, unknown>).rooms)
-        ? [...((current as Record<string, unknown>).rooms as unknown[])]
-        : [];
-      rooms.push(newRoom);
-      return {
-        ...current,
-        rooms
-      };
-    });
-    setSelectedEntity("Rooms");
-    setSelectedRoomVnum(nextVnum);
-    setActiveTab("Form");
-    setStatusMessage(`Created room ${nextVnum} (unsaved)`);
-  }, [areaData, setStatusMessage, setSelectedEntity, setSelectedRoomVnum, setActiveTab]);
-
-  const handleCreateMobile = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before creating mobiles.");
-      return;
-    }
-    const nextVnum = getNextEntityVnum(areaData, "Mobiles");
-    if (nextVnum === null) {
-      setStatusMessage("No available mobile VNUMs in the area range.");
-      return;
-    }
-    const defaultRace =
-      referenceData?.races?.[0] ? referenceData.races[0] : "human";
-    const newMobile: Record<string, unknown> = {
-      vnum: nextVnum,
-      name: "new mobile",
-      shortDescr: "a new mobile",
-      longDescr: "A new mobile is here.\n\r",
-      description: "It looks unfinished.\n\r",
-      race: defaultRace,
-      level: 1,
-      alignment: 0
-    };
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const mobiles = Array.isArray((current as Record<string, unknown>).mobiles)
-        ? [...((current as Record<string, unknown>).mobiles as unknown[])]
-        : [];
-      mobiles.push(newMobile);
-      return {
-        ...current,
-        mobiles
-      };
-    });
-    setSelectedEntity("Mobiles");
-    setSelectedMobileVnum(nextVnum);
-    setActiveTab("Form");
-    setStatusMessage(`Created mobile ${nextVnum} (unsaved)`);
-  }, [
-    areaData,
-    referenceData,
-    setStatusMessage,
-    setSelectedEntity,
-    setSelectedMobileVnum,
-    setActiveTab
-  ]);
-
-  const handleDeleteMobile = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before deleting mobiles.");
-      return;
-    }
-    if (selectedMobileVnum === null) {
-      setStatusMessage("Select a mobile to delete.");
-      return;
-    }
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const mobiles = Array.isArray((current as Record<string, unknown>).mobiles)
-        ? ((current as Record<string, unknown>).mobiles as unknown[])
-        : [];
-      const nextMobiles = mobiles.filter((mob) => {
-        if (!mob || typeof mob !== "object") {
-          return true;
-        }
-        const vnum = parseVnum((mob as Record<string, unknown>).vnum);
-        return vnum !== selectedMobileVnum;
-      });
-      return {
-        ...current,
-        mobiles: nextMobiles
-      };
-    });
-    setSelectedMobileVnum(null);
-    setStatusMessage(`Deleted mobile ${selectedMobileVnum} (unsaved)`);
-  }, [areaData, selectedMobileVnum, setStatusMessage]);
-
-  const handleCreateObject = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before creating objects.");
-      return;
-    }
-    const nextVnum = getNextEntityVnum(areaData, "Objects");
-    if (nextVnum === null) {
-      setStatusMessage("No available object VNUMs in the area range.");
-      return;
-    }
-    const newObject: Record<string, unknown> = {
-      vnum: nextVnum,
-      name: "new object",
-      shortDescr: "a new object",
-      description: "An unfinished object sits here.\n\r",
-      material: "wood",
-      itemType: "trash",
-      level: 1,
-      weight: 1,
-      cost: 0,
-      extraFlags: [],
-      wearFlags: []
-    };
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const objects = Array.isArray((current as Record<string, unknown>).objects)
-        ? [...((current as Record<string, unknown>).objects as unknown[])]
-        : [];
-      objects.push(newObject);
-      return {
-        ...current,
-        objects
-      };
-    });
-    setSelectedEntity("Objects");
-    setSelectedObjectVnum(nextVnum);
-    setActiveTab("Form");
-    setStatusMessage(`Created object ${nextVnum} (unsaved)`);
-  }, [
-    areaData,
-    setStatusMessage,
-    setSelectedEntity,
-    setSelectedObjectVnum,
-    setActiveTab
-  ]);
-
-  const handleDeleteObject = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before deleting objects.");
-      return;
-    }
-    if (selectedObjectVnum === null) {
-      setStatusMessage("Select an object to delete.");
-      return;
-    }
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const objects = Array.isArray((current as Record<string, unknown>).objects)
-        ? ((current as Record<string, unknown>).objects as unknown[])
-        : [];
-      const nextObjects = objects.filter((obj) => {
-        if (!obj || typeof obj !== "object") {
-          return true;
-        }
-        const vnum = parseVnum((obj as Record<string, unknown>).vnum);
-        return vnum !== selectedObjectVnum;
-      });
-      return {
-        ...current,
-        objects: nextObjects
-      };
-    });
-    setSelectedObjectVnum(null);
-    setStatusMessage(`Deleted object ${selectedObjectVnum} (unsaved)`);
-  }, [areaData, selectedObjectVnum, setStatusMessage]);
-
-  const handleCreateShop = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before creating shops.");
-      return;
-    }
-    const mobiles = getEntityList(areaData, "Mobiles");
-    const shops = getEntityList(areaData, "Shops");
-    const usedKeepers = new Set<number>();
-    shops.forEach((shop) => {
-      if (!shop || typeof shop !== "object") {
-        return;
-      }
-      const keeper = parseVnum((shop as Record<string, unknown>).keeper);
-      if (keeper !== null) {
-        usedKeepers.add(keeper);
-      }
-    });
-    let keeper: number | null = null;
-    for (const mob of mobiles) {
-      if (!mob || typeof mob !== "object") {
-        continue;
-      }
-      const vnum = parseVnum((mob as Record<string, unknown>).vnum);
-      if (vnum !== null && !usedKeepers.has(vnum)) {
-        keeper = vnum;
-        break;
-      }
-    }
-    if (keeper === null && mobiles.length) {
-      const fallback = mobiles.find((mob) => mob && typeof mob === "object");
-      keeper = fallback
-        ? parseVnum((fallback as Record<string, unknown>).vnum)
-        : null;
-    }
-    if (keeper === null) {
-      keeper = 0;
-    }
-    const newShop: Record<string, unknown> = {
-      keeper,
-      buyTypes: [0, 0, 0, 0, 0],
-      profitBuy: 100,
-      profitSell: 100,
-      openHour: 0,
-      closeHour: 23
-    };
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const nextShops = Array.isArray(
-        (current as Record<string, unknown>).shops
-      )
-        ? [...((current as Record<string, unknown>).shops as unknown[])]
-        : [];
-      nextShops.push(newShop);
-      return {
-        ...current,
-        shops: nextShops
-      };
-    });
-    setSelectedEntity("Shops");
-    setSelectedShopKeeper(keeper);
-    setActiveTab("Form");
-    setStatusMessage(`Created shop ${keeper} (unsaved)`);
-  }, [
-    areaData,
-    setStatusMessage,
-    setSelectedEntity,
-    setSelectedShopKeeper,
-    setActiveTab
-  ]);
-
-  const handleDeleteShop = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before deleting shops.");
-      return;
-    }
-    if (selectedShopKeeper === null) {
-      setStatusMessage("Select a shop to delete.");
-      return;
-    }
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const shops = getEntityList(current, "Shops");
-      if (!shops.length) {
-        return current;
-      }
-      const nextShops = shops.filter((shop) => {
-        if (!shop || typeof shop !== "object") {
-          return true;
-        }
-        const keeper = parseVnum((shop as Record<string, unknown>).keeper);
-        return keeper !== selectedShopKeeper;
-      });
-      return {
-        ...(current as Record<string, unknown>),
-        shops: nextShops
-      };
-    });
-    setSelectedShopKeeper(null);
-    setStatusMessage(`Deleted shop ${selectedShopKeeper} (unsaved)`);
-  }, [areaData, selectedShopKeeper, setStatusMessage]);
-
-  const handleCreateQuest = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before creating quests.");
-      return;
-    }
-    const nextVnum = getNextEntityVnum(areaData, "Quests");
-    if (nextVnum === null) {
-      setStatusMessage("No available quest VNUMs in the area range.");
-      return;
-    }
-    const newQuest: Record<string, unknown> = {
-      vnum: nextVnum,
-      name: "New Quest",
-      entry: "",
-      type: "",
-      xp: 0,
-      level: 1,
-      rewardObjs: [0, 0, 0],
-      rewardCounts: [0, 0, 0]
-    };
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const quests = Array.isArray((current as Record<string, unknown>).quests)
-        ? [...((current as Record<string, unknown>).quests as unknown[])]
-        : [];
-      quests.push(newQuest);
-      return {
-        ...current,
-        quests
-      };
-    });
-    setSelectedEntity("Quests");
-    setSelectedQuestVnum(nextVnum);
-    setActiveTab("Form");
-    setStatusMessage(`Created quest ${nextVnum} (unsaved)`);
-  }, [
-    areaData,
-    setStatusMessage,
-    setSelectedEntity,
-    setSelectedQuestVnum,
-    setActiveTab
-  ]);
-
-  const handleDeleteQuest = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before deleting quests.");
-      return;
-    }
-    if (selectedQuestVnum === null) {
-      setStatusMessage("Select a quest to delete.");
-      return;
-    }
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const quests = Array.isArray((current as Record<string, unknown>).quests)
-        ? ((current as Record<string, unknown>).quests as unknown[])
-        : [];
-      const nextQuests = quests.filter((quest) => {
-        if (!quest || typeof quest !== "object") {
-          return true;
-        }
-        const vnum = parseVnum((quest as Record<string, unknown>).vnum);
-        return vnum !== selectedQuestVnum;
-      });
-      return {
-        ...current,
-        quests: nextQuests
-      };
-    });
-    setSelectedQuestVnum(null);
-    setStatusMessage(`Deleted quest ${selectedQuestVnum} (unsaved)`);
-  }, [areaData, selectedQuestVnum, setStatusMessage]);
-
-  const handleCreateFaction = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before creating factions.");
-      return;
-    }
-    const nextVnum = getNextEntityVnum(areaData, "Factions");
-    if (nextVnum === null) {
-      setStatusMessage("No available faction VNUMs in the area range.");
-      return;
-    }
-    const newFaction: Record<string, unknown> = {
-      vnum: nextVnum,
-      name: "New Faction",
-      defaultStanding: 0,
-      allies: [],
-      opposing: []
-    };
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const factions = Array.isArray(
-        (current as Record<string, unknown>).factions
-      )
-        ? [...((current as Record<string, unknown>).factions as unknown[])]
-        : [];
-      factions.push(newFaction);
-      return {
-        ...current,
-        factions
-      };
-    });
-    setSelectedEntity("Factions");
-    setSelectedFactionVnum(nextVnum);
-    setActiveTab("Form");
-    setStatusMessage(`Created faction ${nextVnum} (unsaved)`);
-  }, [
-    areaData,
-    setStatusMessage,
-    setSelectedEntity,
-    setSelectedFactionVnum,
-    setActiveTab
-  ]);
-
-  const handleDeleteFaction = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before deleting factions.");
-      return;
-    }
-    if (selectedFactionVnum === null) {
-      setStatusMessage("Select a faction to delete.");
-      return;
-    }
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const factions = Array.isArray(
-        (current as Record<string, unknown>).factions
-      )
-        ? ((current as Record<string, unknown>).factions as unknown[])
-        : [];
-      const nextFactions = factions.filter((faction) => {
-        if (!faction || typeof faction !== "object") {
-          return true;
-        }
-        const vnum = parseVnum((faction as Record<string, unknown>).vnum);
-        return vnum !== selectedFactionVnum;
-      });
-      return {
-        ...current,
-        factions: nextFactions
-      };
-    });
-    setSelectedFactionVnum(null);
-    setStatusMessage(`Deleted faction ${selectedFactionVnum} (unsaved)`);
-  }, [areaData, selectedFactionVnum, setStatusMessage]);
-
-  const handleCreateAreaLoot = useCallback((kind: "group" | "table") => {
-    if (!areaData) {
-      setStatusMessage("Load an area before creating loot.");
-      return;
-    }
-    const currentLoot = extractAreaLootData(areaData);
-    const nextGroups = currentLoot ? [...currentLoot.groups] : [];
-    const nextTables = currentLoot ? [...currentLoot.tables] : [];
-    let nextIndex = 0;
-    if (kind === "group") {
-      nextGroups.push({
-        name: "New Loot Group",
-        rolls: 1,
-        entries: [],
-        ops: []
-      });
-      nextIndex = nextGroups.length - 1;
-    } else {
-      nextTables.push({
-        name: "New Loot Table",
-        parent: "",
-        ops: []
-      });
-      nextIndex = nextTables.length - 1;
-    }
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      return {
-        ...(current as Record<string, unknown>),
-        loot: {
-          groups: nextGroups,
-          tables: nextTables
-        }
-      };
-    });
-    setSelectedEntity("Loot");
-    setSelectedAreaLootKind(kind);
-    setSelectedAreaLootIndex(nextIndex);
-    setActiveTab("Form");
-    setStatusMessage(
-      `Created loot ${kind} ${nextIndex} (unsaved)`
-    );
-  }, [
-    areaData,
-    setStatusMessage,
-    setSelectedEntity,
-    setSelectedAreaLootKind,
-    setSelectedAreaLootIndex,
-    setActiveTab
-  ]);
-
-  const handleDeleteAreaLoot = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before deleting loot.");
-      return;
-    }
-    if (selectedAreaLootKind === null || selectedAreaLootIndex === null) {
-      setStatusMessage("Select a loot entry to delete.");
-      return;
-    }
-    const currentLoot = extractAreaLootData(areaData);
-    if (!currentLoot) {
-      setStatusMessage("No loot data loaded.");
-      return;
-    }
-    const nextGroups = [...currentLoot.groups];
-    const nextTables = [...currentLoot.tables];
-    if (selectedAreaLootKind === "group") {
-      nextGroups.splice(selectedAreaLootIndex, 1);
-    } else {
-      nextTables.splice(selectedAreaLootIndex, 1);
-    }
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      return {
-        ...(current as Record<string, unknown>),
-        loot: {
-          groups: nextGroups,
-          tables: nextTables
-        }
-      };
-    });
-    setSelectedAreaLootKind(null);
-    setSelectedAreaLootIndex(null);
-    setStatusMessage(
-      `Deleted loot ${selectedAreaLootKind} ${selectedAreaLootIndex} (unsaved)`
-    );
-  }, [
-    areaData,
-    selectedAreaLootKind,
-    selectedAreaLootIndex,
-    setStatusMessage
-  ]);
-
-  const handleCreateRecipe = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before creating recipes.");
-      return;
-    }
-    const nextVnum = getNextEntityVnum(areaData, "Recipes");
-    if (nextVnum === null) {
-      setStatusMessage("No available recipe VNUMs in the area range.");
-      return;
-    }
-    const newRecipe: Record<string, unknown> = {
-      vnum: nextVnum,
-      name: "New Recipe",
-      skill: "",
-      minSkill: 0,
-      minLevel: 1,
-      stationType: [],
-      inputs: [],
-      outputs: []
-    };
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const recipes = Array.isArray((current as Record<string, unknown>).recipes)
-        ? [...((current as Record<string, unknown>).recipes as unknown[])]
-        : [];
-      recipes.push(newRecipe);
-      return {
-        ...current,
-        recipes
-      };
-    });
-    setSelectedEntity("Recipes");
-    setSelectedRecipeVnum(nextVnum);
-    setActiveTab("Form");
-    setStatusMessage(`Created recipe ${nextVnum} (unsaved)`);
-  }, [
-    areaData,
-    setStatusMessage,
-    setSelectedEntity,
-    setSelectedRecipeVnum,
-    setActiveTab
-  ]);
-
-  const handleDeleteRecipe = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before deleting recipes.");
-      return;
-    }
-    if (selectedRecipeVnum === null) {
-      setStatusMessage("Select a recipe to delete.");
-      return;
-    }
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const recipes = Array.isArray((current as Record<string, unknown>).recipes)
-        ? ((current as Record<string, unknown>).recipes as unknown[])
-        : [];
-      const nextRecipes = recipes.filter((recipe) => {
-        if (!recipe || typeof recipe !== "object") {
-          return true;
-        }
-        const vnum = parseVnum((recipe as Record<string, unknown>).vnum);
-        return vnum !== selectedRecipeVnum;
-      });
-      return {
-        ...current,
-        recipes: nextRecipes
-      };
-    });
-    setSelectedRecipeVnum(null);
-    setStatusMessage(`Deleted recipe ${selectedRecipeVnum} (unsaved)`);
-  }, [areaData, selectedRecipeVnum, setStatusMessage]);
-
-  const handleCreateGatherSpawn = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before creating gather spawns.");
-      return;
-    }
-    const nextVnum = getNextEntityVnum(areaData, "Gather Spawns");
-    if (nextVnum === null) {
-      setStatusMessage("No available gather spawn VNUMs in the area range.");
-      return;
-    }
-    const newSpawn: Record<string, unknown> = {
-      vnum: nextVnum,
-      name: "New Gather Spawn",
-      skill: "",
-      roomVnum: getFirstEntityVnum(areaData, "Rooms") ?? 0,
-      successTable: "",
-      failureTable: "",
-      minSkill: 0,
-      minLevel: 1
-    };
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const spawns = Array.isArray(
-        (current as Record<string, unknown>).gatherSpawns
-      )
-        ? [...((current as Record<string, unknown>).gatherSpawns as unknown[])]
-        : [];
-      spawns.push(newSpawn);
-      return {
-        ...current,
-        gatherSpawns: spawns
-      };
-    });
-    setSelectedEntity("Gather Spawns");
-    setSelectedGatherVnum(nextVnum);
-    setActiveTab("Form");
-    setStatusMessage(`Created gather spawn ${nextVnum} (unsaved)`);
-  }, [
-    areaData,
-    setStatusMessage,
-    setSelectedEntity,
-    setSelectedGatherVnum,
-    setActiveTab
-  ]);
-
-  const handleDeleteGatherSpawn = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before deleting gather spawns.");
-      return;
-    }
-    if (selectedGatherVnum === null) {
-      setStatusMessage("Select a gather spawn to delete.");
-      return;
-    }
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const spawns = Array.isArray(
-        (current as Record<string, unknown>).gatherSpawns
-      )
-        ? ((current as Record<string, unknown>).gatherSpawns as unknown[])
-        : [];
-      const nextSpawns = spawns.filter((spawn) => {
-        if (!spawn || typeof spawn !== "object") {
-          return true;
-        }
-        const vnum = parseVnum((spawn as Record<string, unknown>).vnum);
-        return vnum !== selectedGatherVnum;
-      });
-      return {
-        ...current,
-        gatherSpawns: nextSpawns
-      };
-    });
-    setSelectedGatherVnum(null);
-    setStatusMessage(`Deleted gather spawn ${selectedGatherVnum} (unsaved)`);
-  }, [areaData, selectedGatherVnum, setStatusMessage]);
-
-  const handleCreateClass = useCallback(() => {
-    if (!classData) {
-      setStatusMessage("Load classes before creating classes.");
-      return;
-    }
-    const nextIndex = classData.classes.length;
-    const newRecord: ClassDefinition = {
-      name: `New Class ${nextIndex + 1}`,
-      whoName: "",
-      baseGroup: "",
-      defaultGroup: "",
-      weaponVnum: 0,
-      armorProf: "",
-      guilds: new Array(classGuildCount).fill(0),
-      primeStat: "",
-      skillCap: 0,
-      thac0_00: 0,
-      thac0_32: 0,
-      hpMin: 0,
-      hpMax: 0,
-      manaUser: false,
-      startLoc: 0,
-      titles: []
-    };
-    setClassData((current) => {
-      if (!current) {
-        return current;
-      }
-      return {
-        ...current,
-        classes: [...current.classes, newRecord]
-      };
-    });
-    setSelectedGlobalEntity("Classes");
-    setSelectedClassIndex(nextIndex);
-    setActiveTab("Form");
-    setStatusMessage(`Created class ${newRecord.name} (unsaved)`);
-  }, [
-    classData,
-    setStatusMessage,
-    setSelectedGlobalEntity,
-    setSelectedClassIndex,
-    setActiveTab
-  ]);
-
-  const handleDeleteClass = useCallback(() => {
-    if (!classData) {
-      setStatusMessage("Load classes before deleting classes.");
-      return;
-    }
-    if (selectedClassIndex === null) {
-      setStatusMessage("Select a class to delete.");
-      return;
-    }
-    const deletedName =
-      classData.classes[selectedClassIndex]?.name ?? "class";
-    setClassData((current) => {
-      if (!current) {
-        return current;
-      }
-      const nextClasses = current.classes.filter(
-        (_, index) => index !== selectedClassIndex
-      );
-      return {
-        ...current,
-        classes: nextClasses
-      };
-    });
-    setSelectedClassIndex(null);
-    setStatusMessage(`Deleted ${deletedName} (unsaved)`);
-  }, [classData, selectedClassIndex, setStatusMessage]);
-
-  const handleCreateRace = useCallback(() => {
-    if (!raceData) {
-      setStatusMessage("Load races before creating races.");
-      return;
-    }
-    const nextIndex = raceData.races.length;
-    const classNames = referenceData?.classes ?? [];
-    const classMult = Object.fromEntries(
-      classNames.map((name) => [name, 100])
-    );
-    const classStart = Object.fromEntries(
-      classNames.map((name) => [name, 0])
-    );
-    const newRace: RaceDefinition = {
-      name: `New Race ${nextIndex + 1}`,
-      whoName: "",
-      pc: false,
-      points: 0,
-      size: "",
-      startLoc: 0,
-      stats: {
-        str: 0,
-        int: 0,
-        wis: 0,
-        dex: 0,
-        con: 0
-      },
-      maxStats: {
-        str: 0,
-        int: 0,
-        wis: 0,
-        dex: 0,
-        con: 0
-      },
-      actFlags: [],
-      affectFlags: [],
-      offFlags: [],
-      immFlags: [],
-      resFlags: [],
-      vulnFlags: [],
-      formFlags: [],
-      partFlags: [],
-      classMult,
-      classStart,
-      skills: new Array(raceSkillCount).fill("")
-    };
-    setRaceData((current) => {
-      if (!current) {
-        return current;
-      }
-      return {
-        ...current,
-        races: [...current.races, newRace]
-      };
-    });
-    setSelectedGlobalEntity("Races");
-    setSelectedRaceIndex(nextIndex);
-    setActiveTab("Form");
-    setStatusMessage(`Created race ${newRace.name} (unsaved)`);
-  }, [
-    raceData,
-    referenceData,
-    setStatusMessage,
-    setSelectedGlobalEntity,
-    setSelectedRaceIndex,
-    setActiveTab
-  ]);
-
-  const handleDeleteRace = useCallback(() => {
-    if (!raceData) {
-      setStatusMessage("Load races before deleting races.");
-      return;
-    }
-    if (selectedRaceIndex === null) {
-      setStatusMessage("Select a race to delete.");
-      return;
-    }
-    const deletedName = raceData.races[selectedRaceIndex]?.name ?? "race";
-    setRaceData((current) => {
-      if (!current) {
-        return current;
-      }
-      const nextRaces = current.races.filter(
-        (_, index) => index !== selectedRaceIndex
-      );
-      return {
-        ...current,
-        races: nextRaces
-      };
-    });
-    setSelectedRaceIndex(null);
-    setStatusMessage(`Deleted ${deletedName} (unsaved)`);
-  }, [raceData, selectedRaceIndex, setStatusMessage]);
-
-  const handleCreateSkill = useCallback(() => {
-    if (!skillData) {
-      setStatusMessage("Load skills before creating skills.");
-      return;
-    }
-    const nextIndex = skillData.skills.length;
-    const classNames = referenceData?.classes ?? [];
-    const levels = Object.fromEntries(
-      classNames.map((name) => [name, defaultSkillLevel])
-    );
-    const ratings = Object.fromEntries(
-      classNames.map((name) => [name, defaultSkillRating])
-    );
-    const newSkill: SkillDefinition = {
-      name: `New Skill ${nextIndex + 1}`,
-      levels,
-      ratings,
-      spell: "",
-      loxSpell: "",
-      target: "",
-      minPosition: "",
-      gsn: "",
-      slot: 0,
-      minMana: 0,
-      beats: 0,
-      nounDamage: "",
-      msgOff: "",
-      msgObj: ""
-    };
-    setSkillData((current) => {
-      if (!current) {
-        return current;
-      }
-      return {
-        ...current,
-        skills: [...current.skills, newSkill]
-      };
-    });
-    setSelectedGlobalEntity("Skills");
-    setSelectedSkillIndex(nextIndex);
-    setActiveTab("Form");
-    setStatusMessage(`Created skill ${newSkill.name} (unsaved)`);
-  }, [
-    skillData,
-    referenceData,
-    setStatusMessage,
-    setSelectedGlobalEntity,
-    setSelectedSkillIndex,
-    setActiveTab
-  ]);
-
-  const handleDeleteSkill = useCallback(() => {
-    if (!skillData) {
-      setStatusMessage("Load skills before deleting skills.");
-      return;
-    }
-    if (selectedSkillIndex === null) {
-      setStatusMessage("Select a skill to delete.");
-      return;
-    }
-    const deletedName = skillData.skills[selectedSkillIndex]?.name ?? "skill";
-    setSkillData((current) => {
-      if (!current) {
-        return current;
-      }
-      const nextSkills = current.skills.filter(
-        (_, index) => index !== selectedSkillIndex
-      );
-      return {
-        ...current,
-        skills: nextSkills
-      };
-    });
-    setSelectedSkillIndex(null);
-    setStatusMessage(`Deleted ${deletedName} (unsaved)`);
-  }, [skillData, selectedSkillIndex, setStatusMessage]);
-
-  const handleCreateGroup = useCallback(() => {
-    if (!groupData) {
-      setStatusMessage("Load groups before creating groups.");
-      return;
-    }
-    const nextIndex = groupData.groups.length;
-    const classNames = referenceData?.classes ?? [];
-    const ratings = Object.fromEntries(
-      classNames.map((name) => [name, defaultSkillRating])
-    );
-    const newGroup: GroupDefinition = {
-      name: `New Group ${nextIndex + 1}`,
-      ratings,
-      skills: new Array(groupSkillCount).fill("")
-    };
-    setGroupData((current) => {
-      if (!current) {
-        return current;
-      }
-      return {
-        ...current,
-        groups: [...current.groups, newGroup]
-      };
-    });
-    setSelectedGlobalEntity("Groups");
-    setSelectedGroupIndex(nextIndex);
-    setActiveTab("Form");
-    setStatusMessage(`Created group ${newGroup.name} (unsaved)`);
-  }, [
-    groupData,
-    referenceData,
-    setStatusMessage,
-    setSelectedGlobalEntity,
-    setSelectedGroupIndex,
-    setActiveTab
-  ]);
-
-  const handleDeleteGroup = useCallback(() => {
-    if (!groupData) {
-      setStatusMessage("Load groups before deleting groups.");
-      return;
-    }
-    if (selectedGroupIndex === null) {
-      setStatusMessage("Select a group to delete.");
-      return;
-    }
-    const deletedName = groupData.groups[selectedGroupIndex]?.name ?? "group";
-    setGroupData((current) => {
-      if (!current) {
-        return current;
-      }
-      const nextGroups = current.groups.filter(
-        (_, index) => index !== selectedGroupIndex
-      );
-      return {
-        ...current,
-        groups: nextGroups
-      };
-    });
-    setSelectedGroupIndex(null);
-    setStatusMessage(`Deleted ${deletedName} (unsaved)`);
-  }, [groupData, selectedGroupIndex, setStatusMessage]);
-
-  const handleCreateCommand = useCallback(() => {
-    if (!commandData) {
-      setStatusMessage("Load commands before creating commands.");
-      return;
-    }
-    const nextIndex = commandData.commands.length;
-    const newCommand: CommandDefinition = {
-      name: `newcommand${nextIndex + 1}`,
-      function: "",
-      position: "",
-      level: 0,
-      log: "",
-      category: "",
-      loxFunction: ""
-    };
-    setCommandData((current) => {
-      if (!current) {
-        return current;
-      }
-      return {
-        ...current,
-        commands: [...current.commands, newCommand]
-      };
-    });
-    setSelectedGlobalEntity("Commands");
-    setSelectedCommandIndex(nextIndex);
-    setActiveTab("Form");
-    setStatusMessage(`Created command ${newCommand.name} (unsaved)`);
-  }, [
-    commandData,
-    setStatusMessage,
-    setSelectedGlobalEntity,
-    setSelectedCommandIndex,
-    setActiveTab
-  ]);
-
-  const handleDeleteCommand = useCallback(() => {
-    if (!commandData) {
-      setStatusMessage("Load commands before deleting commands.");
-      return;
-    }
-    if (selectedCommandIndex === null) {
-      setStatusMessage("Select a command to delete.");
-      return;
-    }
-    const deletedName =
-      commandData.commands[selectedCommandIndex]?.name ?? "command";
-    setCommandData((current) => {
-      if (!current) {
-        return current;
-      }
-      const nextCommands = current.commands.filter(
-        (_, index) => index !== selectedCommandIndex
-      );
-      return {
-        ...current,
-        commands: nextCommands
-      };
-    });
-    setSelectedCommandIndex(null);
-    setStatusMessage(`Deleted ${deletedName} (unsaved)`);
-  }, [commandData, selectedCommandIndex, setStatusMessage]);
-
-  const handleCreateSocial = useCallback(() => {
-    if (!socialData) {
-      setStatusMessage("Load socials before creating socials.");
-      return;
-    }
-    const nextIndex = socialData.socials.length;
-    const newSocial: SocialDefinition = {
-      name: `newsocial${nextIndex + 1}`,
-      charNoArg: "",
-      othersNoArg: "",
-      charFound: "",
-      othersFound: "",
-      victFound: "",
-      charAuto: "",
-      othersAuto: ""
-    };
-    setSocialData((current) => {
-      if (!current) {
-        return current;
-      }
-      return {
-        ...current,
-        socials: [...current.socials, newSocial]
-      };
-    });
-    setSelectedGlobalEntity("Socials");
-    setSelectedSocialIndex(nextIndex);
-    setActiveTab("Form");
-    setStatusMessage(`Created social ${newSocial.name} (unsaved)`);
-  }, [
-    socialData,
-    setStatusMessage,
-    setSelectedGlobalEntity,
-    setSelectedSocialIndex,
-    setActiveTab
-  ]);
-
-  const handleDeleteSocial = useCallback(() => {
-    if (!socialData) {
-      setStatusMessage("Load socials before deleting socials.");
-      return;
-    }
-    if (selectedSocialIndex === null) {
-      setStatusMessage("Select a social to delete.");
-      return;
-    }
-    const deletedName = socialData.socials[selectedSocialIndex]?.name ?? "social";
-    setSocialData((current) => {
-      if (!current) {
-        return current;
-      }
-      const nextSocials = current.socials.filter(
-        (_, index) => index !== selectedSocialIndex
-      );
-      return {
-        ...current,
-        socials: nextSocials
-      };
-    });
-    setSelectedSocialIndex(null);
-    setStatusMessage(`Deleted ${deletedName} (unsaved)`);
-  }, [socialData, selectedSocialIndex, setStatusMessage]);
-
-  const handleCreateTutorial = useCallback(() => {
-    if (!tutorialData) {
-      setStatusMessage("Load tutorials before creating tutorials.");
-      return;
-    }
-    const nextIndex = tutorialData.tutorials.length;
-    const newTutorial: TutorialDefinition = {
-      name: `New Tutorial ${nextIndex + 1}`,
-      blurb: "",
-      finish: "",
-      minLevel: 0,
-      steps: []
-    };
-    setTutorialData((current) => {
-      if (!current) {
-        return current;
-      }
-      return {
-        ...current,
-        tutorials: [...current.tutorials, newTutorial]
-      };
-    });
-    setSelectedGlobalEntity("Tutorials");
-    setSelectedTutorialIndex(nextIndex);
-    setActiveTab("Form");
-    setStatusMessage(`Created tutorial ${newTutorial.name} (unsaved)`);
-  }, [
-    tutorialData,
-    setStatusMessage,
-    setSelectedGlobalEntity,
-    setSelectedTutorialIndex,
-    setActiveTab
-  ]);
-
-  const handleDeleteTutorial = useCallback(() => {
-    if (!tutorialData) {
-      setStatusMessage("Load tutorials before deleting tutorials.");
-      return;
-    }
-    if (selectedTutorialIndex === null) {
-      setStatusMessage("Select a tutorial to delete.");
-      return;
-    }
-    const deletedName =
-      tutorialData.tutorials[selectedTutorialIndex]?.name ?? "tutorial";
-    setTutorialData((current) => {
-      if (!current) {
-        return current;
-      }
-      const nextTutorials = current.tutorials.filter(
-        (_, index) => index !== selectedTutorialIndex
-      );
-      return {
-        ...current,
-        tutorials: nextTutorials
-      };
-    });
-    setSelectedTutorialIndex(null);
-    setStatusMessage(`Deleted ${deletedName} (unsaved)`);
-  }, [tutorialData, selectedTutorialIndex, setStatusMessage]);
-
-  const handleCreateLoot = useCallback((kind: "group" | "table") => {
-    if (!lootData) {
-      setStatusMessage("Load loot before creating loot entries.");
-      return;
-    }
-    const nextGroups = [...lootData.groups];
-    const nextTables = [...lootData.tables];
-    let nextIndex = 0;
-    if (kind === "group") {
-      nextGroups.push({
-        name: "New Loot Group",
-        rolls: 1,
-        entries: []
-      });
-      nextIndex = nextGroups.length - 1;
-    } else {
-      nextTables.push({
-        name: "New Loot Table",
-        parent: "",
-        ops: []
-      });
-      nextIndex = nextTables.length - 1;
-    }
-    setLootData((current) => {
-      if (!current) {
-        return current;
-      }
-      return {
-        ...current,
-        groups: nextGroups,
-        tables: nextTables
-      };
-    });
-    setSelectedGlobalEntity("Loot");
-    setSelectedLootKind(kind);
-    setSelectedLootIndex(nextIndex);
-    setActiveTab("Form");
-    setStatusMessage(`Created loot ${kind} ${nextIndex} (unsaved)`);
-  }, [
-    lootData,
-    setStatusMessage,
-    setSelectedGlobalEntity,
-    setSelectedLootKind,
-    setSelectedLootIndex,
-    setActiveTab
-  ]);
-
-  const handleDeleteLoot = useCallback(() => {
-    if (!lootData) {
-      setStatusMessage("Load loot before deleting loot entries.");
-      return;
-    }
-    if (selectedLootKind === null || selectedLootIndex === null) {
-      setStatusMessage("Select a loot entry to delete.");
-      return;
-    }
-    const nextGroups = [...lootData.groups];
-    const nextTables = [...lootData.tables];
-    if (selectedLootKind === "group") {
-      nextGroups.splice(selectedLootIndex, 1);
-    } else {
-      nextTables.splice(selectedLootIndex, 1);
-    }
-    setLootData((current) => {
-      if (!current) {
-        return current;
-      }
-      return {
-        ...current,
-        groups: nextGroups,
-        tables: nextTables
-      };
-    });
-    setSelectedLootKind(null);
-    setSelectedLootIndex(null);
-    setStatusMessage(
-      `Deleted loot ${selectedLootKind} ${selectedLootIndex} (unsaved)`
-    );
-  }, [lootData, selectedLootKind, selectedLootIndex, setStatusMessage]);
-
   const handleOpenRoomLinkPanel = useCallback(
     (menu: RoomContextMenuState) => {
       setRoomLinkPanel({
@@ -9629,140 +5835,111 @@ export default function App({ repository }: AppProps) {
     []
   );
 
+  const handleSelectRoomReset = useCallback(
+    (index: number) => {
+      setSelectedResetIndex(index);
+    },
+    [setSelectedResetIndex]
+  );
+
+  const handleCreateRoomReset = useCallback(() => {
+    if (!areaData) {
+      setStatusMessage("Load an area before creating resets.");
+      return;
+    }
+    if (selectedRoomVnum === null) {
+      setStatusMessage("Select a room to add a reset.");
+      return;
+    }
+    const result = createReset(areaData);
+    if (!result.ok) {
+      setStatusMessage(result.message);
+      return;
+    }
+    const resets = getEntityList(result.data.areaData, "Resets");
+    const nextResets = resets.map((reset, index) => {
+      if (index !== result.data.index) {
+        return reset as Record<string, unknown>;
+      }
+      return {
+        ...(reset as Record<string, unknown>),
+        roomVnum: selectedRoomVnum
+      };
+    });
+    const nextAreaData = {
+      ...(result.data.areaData as Record<string, unknown>),
+      resets: nextResets
+    } as AreaJson;
+    setAreaData(nextAreaData);
+    setSelectedResetIndex(result.data.index);
+    setStatusMessage(
+      `Created reset #${result.data.index + 1} for room ${selectedRoomVnum} (unsaved)`
+    );
+  }, [areaData, selectedRoomVnum, setAreaData, setSelectedResetIndex, setStatusMessage]);
+
+  const handleDeleteRoomReset = useCallback(() => {
+    if (!areaData) {
+      setStatusMessage("Load an area before deleting resets.");
+      return;
+    }
+    if (selectedRoomResetIndex === null) {
+      setStatusMessage("Select a room reset to delete.");
+      return;
+    }
+    const result = deleteReset(areaData, selectedRoomResetIndex);
+    if (!result.ok) {
+      setStatusMessage(result.message);
+      return;
+    }
+    setAreaData(result.data.areaData);
+    setSelectedResetIndex(null);
+    setStatusMessage(`Deleted reset #${result.data.deletedIndex + 1} (unsaved)`);
+  }, [areaData, selectedRoomResetIndex, setAreaData, setSelectedResetIndex, setStatusMessage]);
+
   const handleDigRoom = useCallback(
     (fromVnum: number, direction: string) => {
-      if (!areaData) {
-        setStatusMessage("Load an area before digging rooms.");
-        return;
-      }
-      const dirKey = normalizeDirectionKey(direction);
-      const backDir = oppositeDirectionMap[dirKey];
-      if (!backDir) {
-        setStatusMessage(`Unknown direction: ${direction}`);
-        return;
-      }
-      const rooms = getEntityList(areaData, "Rooms");
-      const source = findByVnum(rooms, fromVnum);
-      if (!source) {
-        setStatusMessage(`Room ${fromVnum} not found.`);
-        return;
-      }
-      const sourceExits = Array.isArray(source.exits) ? source.exits : [];
-      if (hasExitDirection(sourceExits, dirKey)) {
-        setStatusMessage(
-          `Room ${fromVnum} already has a ${dirKey} exit.`
-        );
-        return;
-      }
-      const nextVnum = getNextEntityVnum(areaData, "Rooms");
-      if (nextVnum === null) {
-        setStatusMessage("No available room VNUMs in the area range.");
-        return;
-      }
-      const areadata = (areaData as Record<string, unknown>).areadata;
-      const areaSector =
-        areadata && typeof areadata === "object"
-          ? (areadata as Record<string, unknown>).sector
-          : null;
-      const sectorType =
-        typeof areaSector === "string" && areaSector.trim().length
-          ? areaSector
-          : "inside";
-      const newRoom: Record<string, unknown> = {
-        vnum: nextVnum,
-        name: "New Room",
-        description: "An unfinished room.\n\r",
-        sectorType,
-        roomFlags: [],
-        exits: [{ dir: backDir, toVnum: fromVnum }]
-      };
-      const nextSourceExits = [...sourceExits, { dir: dirKey, toVnum: nextVnum }];
-      setAreaData((current) => {
-        if (!current) {
-          return current;
-        }
-        const currentRooms = Array.isArray(
-          (current as Record<string, unknown>).rooms
-        )
-          ? [...((current as Record<string, unknown>).rooms as unknown[])]
-          : [];
-        const nextRooms = currentRooms.map((room) => {
-          if (!room || typeof room !== "object") {
-            return room;
-          }
-          const record = room as Record<string, unknown>;
-          const vnum = parseVnum(record.vnum);
-          if (vnum !== fromVnum) {
-            return record;
-          }
-          return {
-            ...record,
-            exits: nextSourceExits
-          };
-        });
-        nextRooms.push(newRoom);
-        return {
-          ...current,
-          rooms: nextRooms
-        };
+      const sourceNode =
+        roomNodesWithLayoutRef.current.find(
+          (node) => node.data.vnum === fromVnum
+        ) ?? null;
+      const result = digRoom({
+        areaData,
+        fromVnum,
+        direction,
+        autoLayoutEnabled,
+        roomNodeSize,
+        sourceNodePosition: sourceNode ? sourceNode.position : null,
+        parseVnum,
+        getEntityList,
+        findByVnum,
+        getNextEntityVnum
       });
-      if (!autoLayoutEnabled) {
-        const stepX = roomNodeSize.width + 110;
-        const stepY = roomNodeSize.height + 110;
-        const sourceNode =
-          roomNodesWithLayoutRef.current.find(
-            (node) => node.data.vnum === fromVnum
-          ) ?? null;
-        if (sourceNode) {
-          const offset =
-            dirKey === "north" || dirKey === "up"
-              ? { x: 0, y: -stepY }
-              : dirKey === "south" || dirKey === "down"
-                ? { x: 0, y: stepY }
-                : dirKey === "east"
-                  ? { x: stepX, y: 0 }
-                  : dirKey === "west"
-                    ? { x: -stepX, y: 0 }
-                    : { x: 0, y: 0 };
-          setLayoutNodes((current) => {
-            const sourceList =
-              current.length ? current : roomNodesWithLayoutRef.current;
-            return [
-              ...sourceList,
-              {
-                id: String(nextVnum),
-                type: "room",
-                position: {
-                  x: sourceNode.position.x + offset.x,
-                  y: sourceNode.position.y + offset.y
-                },
-                data: {
-                  vnum: nextVnum,
-                  label: "New Room",
-                  sector: sectorType,
-                  upExitTargets: dirKey === "down" ? [fromVnum] : [],
-                  downExitTargets: dirKey === "up" ? [fromVnum] : []
-                }
-              }
-            ];
-          });
-          setDirtyRoomNodes((current) => {
-            const next = new Set(current);
-            next.add(String(nextVnum));
-            return next;
-          });
-        }
+      if (!result.ok) {
+        setStatusMessage(result.message);
+        return;
       }
-      setSelectedRoomVnum(nextVnum);
+      setAreaData(result.areaData);
+      if (result.layoutNode) {
+        appendLayoutNode(result.layoutNode);
+      }
+      setSelectedRoomVnum(result.nextVnum);
       setSelectedEntity("Rooms");
-      setStatusMessage(`Dug ${dirKey} to room ${nextVnum} (unsaved)`);
+      setStatusMessage(result.message);
     },
     [
       areaData,
       autoLayoutEnabled,
+      roomNodeSize,
+      parseVnum,
+      getEntityList,
+      findByVnum,
+      getNextEntityVnum,
+      setAreaData,
+      appendLayoutNode,
       setSelectedEntity,
       setSelectedRoomVnum,
-      setStatusMessage
+      setStatusMessage,
+      digRoom
     ]
   );
 
@@ -9770,217 +5947,41 @@ export default function App({ repository }: AppProps) {
     if (!roomLinkPanel) {
       return;
     }
-    if (!areaData) {
-      setStatusMessage("Load an area before linking rooms.");
-      return;
-    }
-    const dirKey = normalizeDirectionKey(roomLinkDirection);
-    const backDir = oppositeDirectionMap[dirKey];
-    if (!backDir) {
-      setStatusMessage(`Unknown direction: ${roomLinkDirection}`);
-      return;
-    }
-    const targetVnum = Number.parseInt(roomLinkTarget, 10);
-    if (!Number.isFinite(targetVnum)) {
-      setStatusMessage("Enter a valid target room VNUM.");
-      return;
-    }
-    if (targetVnum === roomLinkPanel.vnum) {
-      setStatusMessage("Target room must be different from source.");
-      return;
-    }
-    const rooms = getEntityList(areaData, "Rooms");
-    const source = findByVnum(rooms, roomLinkPanel.vnum);
-    const target = findByVnum(rooms, targetVnum);
-    if (!source || !target) {
-      setStatusMessage("Both source and target rooms must exist.");
-      return;
-    }
-    const sourceExits = Array.isArray(source.exits) ? source.exits : [];
-    const targetExits = Array.isArray(target.exits) ? target.exits : [];
-    if (hasExitDirection(sourceExits, dirKey)) {
-      setStatusMessage(
-        `Room ${roomLinkPanel.vnum} already has a ${dirKey} exit.`
-      );
-      return;
-    }
-    if (hasExitDirection(targetExits, backDir)) {
-      setStatusMessage(
-        `Room ${targetVnum} already has a ${backDir} exit.`
-      );
-      return;
-    }
-    const nextSourceExits = [...sourceExits, { dir: dirKey, toVnum: targetVnum }];
-    const nextTargetExits = [...targetExits, { dir: backDir, toVnum: roomLinkPanel.vnum }];
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const currentRooms = Array.isArray(
-        (current as Record<string, unknown>).rooms
-      )
-        ? [...((current as Record<string, unknown>).rooms as unknown[])]
-        : [];
-      const nextRooms = currentRooms.map((room) => {
-        if (!room || typeof room !== "object") {
-          return room;
-        }
-        const record = room as Record<string, unknown>;
-        const vnum = parseVnum(record.vnum);
-        if (vnum === roomLinkPanel.vnum) {
-          return {
-            ...record,
-            exits: nextSourceExits
-          };
-        }
-        if (vnum === targetVnum) {
-          return {
-            ...record,
-            exits: nextTargetExits
-          };
-        }
-        return record;
-      });
-      return {
-        ...current,
-        rooms: nextRooms
-      };
+    const result = linkRooms({
+      areaData,
+      fromVnum: roomLinkPanel.vnum,
+      direction: roomLinkDirection,
+      targetVnumInput: roomLinkTarget,
+      parseVnum,
+      getEntityList,
+      findByVnum
     });
+    if (!result.ok) {
+      setStatusMessage(result.message);
+      return;
+    }
+    setAreaData(result.areaData);
     setSelectedRoomVnum(roomLinkPanel.vnum);
     setSelectedEntity("Rooms");
     setRoomLinkPanel(null);
     setRoomLinkTarget("");
-    setStatusMessage(
-      `Linked room ${roomLinkPanel.vnum} ${dirKey} to ${targetVnum} (unsaved)`
-    );
+    setStatusMessage(result.message);
   }, [
     roomLinkPanel,
     areaData,
     roomLinkDirection,
     roomLinkTarget,
+    parseVnum,
+    getEntityList,
+    findByVnum,
+    setAreaData,
     setSelectedEntity,
     setSelectedRoomVnum,
-    setStatusMessage
-  ]);
-
-  const handleCreateReset = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before creating resets.");
-      return;
-    }
-    const roomVnum = getFirstEntityVnum(areaData, "Rooms") ?? 0;
-    const mobVnum = getFirstEntityVnum(areaData, "Mobiles") ?? 0;
-    const resets = getEntityList(areaData, "Resets");
-    const nextIndex = resets.length;
-    const newReset: Record<string, unknown> = {
-      commandName: "loadMob",
-      mobVnum,
-      roomVnum,
-      maxInArea: 1,
-      maxInRoom: 1
-    };
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const nextResets = Array.isArray(
-        (current as Record<string, unknown>).resets
-      )
-        ? [...((current as Record<string, unknown>).resets as unknown[])]
-        : [];
-      nextResets.push(newReset);
-      return {
-        ...current,
-        resets: nextResets
-      };
-    });
-    setSelectedEntity("Resets");
-    setSelectedResetIndex(nextIndex);
-    setActiveTab("Form");
-    setStatusMessage(`Created reset #${nextIndex} (unsaved)`);
-  }, [
-    areaData,
     setStatusMessage,
-    setSelectedEntity,
-    setSelectedResetIndex,
-    setActiveTab
+    setRoomLinkPanel,
+    setRoomLinkTarget,
+    linkRooms
   ]);
-
-  const handleDeleteReset = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before deleting resets.");
-      return;
-    }
-    if (selectedResetIndex === null) {
-      setStatusMessage("Select a reset to delete.");
-      return;
-    }
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const resets = Array.isArray((current as Record<string, unknown>).resets)
-        ? ((current as Record<string, unknown>).resets as unknown[])
-        : [];
-      const nextResets = resets.filter((_, index) => index !== selectedResetIndex);
-      return {
-        ...current,
-        resets: nextResets
-      };
-    });
-    setSelectedResetIndex(null);
-    setStatusMessage(`Deleted reset #${selectedResetIndex} (unsaved)`);
-  }, [areaData, selectedResetIndex, setStatusMessage]);
-
-  const handleDeleteRoom = useCallback(() => {
-    if (!areaData) {
-      setStatusMessage("Load an area before deleting rooms.");
-      return;
-    }
-    if (selectedRoomVnum === null) {
-      setStatusMessage("Select a room to delete.");
-      return;
-    }
-    const roomId = String(selectedRoomVnum);
-    setAreaData((current) => {
-      if (!current) {
-        return current;
-      }
-      const rooms = Array.isArray((current as Record<string, unknown>).rooms)
-        ? ((current as Record<string, unknown>).rooms as unknown[])
-        : [];
-      const nextRooms = rooms.filter((room) => {
-        if (!room || typeof room !== "object") {
-          return true;
-        }
-        const vnum = parseVnum((room as Record<string, unknown>).vnum);
-        return vnum !== selectedRoomVnum;
-      });
-      return {
-        ...current,
-        rooms: nextRooms
-      };
-    });
-    setRoomLayout((current) => {
-      if (!current[roomId]) {
-        return current;
-      }
-      const next = { ...current };
-      delete next[roomId];
-      return next;
-    });
-    setLayoutNodes((current) => current.filter((node) => node.id !== roomId));
-    setDirtyRoomNodes((current) => {
-      if (!current.has(roomId)) {
-        return current;
-      }
-      const next = new Set(current);
-      next.delete(roomId);
-      return next;
-    });
-    setSelectedRoomVnum(null);
-    setStatusMessage(`Deleted room ${selectedRoomVnum} (unsaved)`);
-  }, [areaData, selectedRoomVnum, setStatusMessage]);
 
   const handleAreaSubmit = (data: AreaFormValues) => {
     if (!areaData) {
@@ -10152,6 +6153,14 @@ export default function App({ repository }: AppProps) {
           damageNoun: normalizeOptionalText(data.damageNoun),
           offensiveSpell: normalizeOptionalText(data.offensiveSpell),
           lootTable: cleanOptionalString(data.lootTable),
+          actFlags: data.actFlags?.length ? data.actFlags : undefined,
+          atkFlags: data.atkFlags?.length ? data.atkFlags : undefined,
+          formFlags: overrideMobileFormFlags
+            ? data.formFlags ?? []
+            : undefined,
+          partFlags: overrideMobilePartFlags
+            ? data.partFlags ?? []
+            : undefined,
           hitDice,
           manaDice,
           damageDice
@@ -10458,6 +6467,10 @@ export default function App({ repository }: AppProps) {
     });
     setStatusMessage(`Updated reset #${data.index} (unsaved)`);
   };
+
+  const handleApplyRoomReset = useCallback(() => {
+    void handleResetSubmitForm(handleResetSubmit)();
+  }, [handleResetSubmitForm, handleResetSubmit]);
 
   const handleShopSubmit = (data: ShopFormValues) => {
     if (!areaData || selectedShopKeeper === null) {
@@ -11168,264 +7181,6 @@ export default function App({ repository }: AppProps) {
     setStatusMessage(`Updated loot table ${name} (unsaved)`);
   };
 
-  const warnLegacyAreaFiles = useCallback(
-    async (areaDir: string | null) => {
-      if (!areaDir) {
-        return;
-      }
-      if (legacyScanDirRef.current === areaDir) {
-        return;
-      }
-      legacyScanDirRef.current = areaDir;
-      try {
-        const legacyFiles = await repository.listLegacyAreaFiles(areaDir);
-        if (!legacyFiles.length) {
-          return;
-        }
-        const warningMessage = [
-          `Legacy ROM-OLC area files found in ${areaDir}:`,
-          "",
-          ...legacyFiles.map((file) => `- ${file}`),
-          "",
-          "WorldEdit edits JSON only. Load these areas in Mud98 and save to convert them to JSON before editing."
-        ].join("\n");
-        await message(warningMessage, {
-          title: "Legacy .are files detected",
-          kind: "warning"
-        });
-      } catch (error) {
-        setErrorMessage(`Failed to scan area directory. ${String(error)}`);
-      }
-    },
-    [repository]
-  );
-
-  const handleOpenProject = async () => {
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      const cfgPath = await repository.pickConfigFile(
-        areaDirectory ?? dataDirectory
-      );
-      if (!cfgPath) {
-        return;
-      }
-      const config = await repository.loadProjectConfig(cfgPath);
-      setProjectConfig(config);
-      if (config.areaDir) {
-        setAreaDirectory(config.areaDir);
-        localStorage.setItem("worldedit.areaDir", config.areaDir);
-        await warnLegacyAreaFiles(config.areaDir);
-      }
-      if (config.dataDir) {
-        setDataDirectory(config.dataDir);
-        const refs = await repository.loadReferenceData(
-          config.dataDir,
-          config.dataFiles
-        );
-        setReferenceData(refs);
-      }
-      setStatusMessage(`Loaded project ${fileNameFromPath(cfgPath)}`);
-    } catch (error) {
-      setErrorMessage(`Failed to load config. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!areaDirectory) {
-      return;
-    }
-    void warnLegacyAreaFiles(areaDirectory);
-  }, [areaDirectory, warnLegacyAreaFiles]);
-
-  const handleOpenArea = async () => {
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      const path = await repository.pickAreaFile(areaDirectory);
-      if (!path) {
-        return;
-      }
-      const areaDir = await repository.resolveAreaDirectory(path);
-      await warnLegacyAreaFiles(areaDir);
-      const loaded = await repository.loadArea(path);
-      const metaPath = repository.editorMetaPathForArea(path);
-      let loadedMeta: EditorMeta | null = null;
-      setAreaPath(path);
-      setAreaData(loaded);
-      setEditorMetaPath(metaPath);
-      try {
-        loadedMeta = await repository.loadEditorMeta(metaPath);
-      } catch (error) {
-        setErrorMessage(`Failed to load editor meta. ${String(error)}`);
-      }
-      setEditorMeta(loadedMeta);
-      setRoomLayout(extractRoomLayout(loadedMeta?.layout));
-      setAreaLayout(extractAreaLayout(loadedMeta?.layout));
-      setDirtyRoomNodes(new Set());
-      setDirtyAreaNodes(new Set());
-      setStatusMessage(
-        loadedMeta
-          ? `Loaded ${fileNameFromPath(path)} + editor meta`
-          : `Loaded ${fileNameFromPath(path)}`
-      );
-      try {
-        const resolvedDataDir =
-          projectConfig?.dataDir ??
-          (await repository.resolveDataDirectory(path, areaDirectory));
-        if (resolvedDataDir) {
-          const refs = await repository.loadReferenceData(
-            resolvedDataDir,
-            projectConfig?.dataFiles
-          );
-          setReferenceData(refs);
-          setDataDirectory(resolvedDataDir);
-          setStatusMessage(
-            `Loaded ${fileNameFromPath(path)} + reference data`
-          );
-        }
-      } catch (error) {
-        setErrorMessage(`Failed to load reference data. ${String(error)}`);
-      }
-    } catch (error) {
-      setErrorMessage(`Failed to load area JSON. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  };
-
-  const saveToPath = async (path: string) => {
-    if (!areaData) {
-      return;
-    }
-    await repository.saveArea(path, areaData);
-    setStatusMessage(`Saved ${fileNameFromPath(path)}`);
-  };
-
-  const saveEditorMetaToPath = async (path: string) => {
-    const metaPath = repository.editorMetaPathForArea(path);
-    const nextMeta = buildEditorMeta(
-      editorMeta,
-      activeTab,
-      selectedEntity,
-      roomLayout,
-      areaLayout
-    );
-    await repository.saveEditorMeta(metaPath, nextMeta);
-    setEditorMeta(nextMeta);
-    setEditorMetaPath(metaPath);
-    setStatusMessage(`Saved editor meta ${fileNameFromPath(metaPath)}`);
-  };
-
-  const handleSaveArea = async () => {
-    if (!areaData) {
-      setErrorMessage("No area loaded to save.");
-      return;
-    }
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      let targetPath = areaPath;
-      if (!targetPath) {
-        targetPath = await repository.pickSaveFile(areaDirectory);
-      }
-      if (!targetPath) {
-        return;
-      }
-      setAreaPath(targetPath);
-      setEditorMetaPath(repository.editorMetaPathForArea(targetPath));
-      await saveToPath(targetPath);
-    } catch (error) {
-      setErrorMessage(`Failed to save area JSON. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  };
-
-  const handleSaveAreaAs = async () => {
-    if (!areaData) {
-      setErrorMessage("No area loaded to save.");
-      return;
-    }
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      const targetPath = await repository.pickSaveFile(areaPath ?? areaDirectory);
-      if (!targetPath) {
-        return;
-      }
-      setAreaPath(targetPath);
-      setEditorMetaPath(repository.editorMetaPathForArea(targetPath));
-      await saveToPath(targetPath);
-    } catch (error) {
-      setErrorMessage(`Failed to save area JSON. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  };
-
-  const handleSaveEditorMeta = async () => {
-    if (!areaPath) {
-      setErrorMessage("No area loaded to save editor metadata.");
-      return;
-    }
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      await saveEditorMetaToPath(areaPath);
-    } catch (error) {
-      setErrorMessage(`Failed to save editor meta. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  };
-
-  const handleSetAreaDirectory = async () => {
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      const selected = await repository.pickAreaDirectory(areaDirectory);
-      if (!selected) {
-        return;
-      }
-      setAreaDirectory(selected);
-      localStorage.setItem("worldedit.areaDir", selected);
-      setStatusMessage(`Area directory set to ${selected}`);
-      await warnLegacyAreaFiles(selected);
-    } catch (error) {
-      setErrorMessage(`Failed to set area directory. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  };
-
-  const handleLoadReferenceData = async () => {
-    setErrorMessage(null);
-    setIsBusy(true);
-    try {
-      const resolvedDataDir =
-        projectConfig?.dataDir ??
-        (await repository.resolveDataDirectory(areaPath, areaDirectory));
-      if (!resolvedDataDir) {
-        setErrorMessage("Unable to resolve data directory.");
-        return;
-      }
-      const refs = await repository.loadReferenceData(
-        resolvedDataDir,
-        projectConfig?.dataFiles
-      );
-      setReferenceData(refs);
-      setDataDirectory(resolvedDataDir);
-      setStatusMessage(`Loaded reference data from ${resolvedDataDir}`);
-    } catch (error) {
-      setErrorMessage(`Failed to load reference data. ${String(error)}`);
-    } finally {
-      setIsBusy(false);
-    }
-  };
-
   const areaFormNode = (
     <AreaForm
       onSubmit={handleAreaSubmitForm(handleAreaSubmit)}
@@ -11443,6 +7198,46 @@ export default function App({ repository }: AppProps) {
       lootTableOptions={lootTableOptions}
     />
   );
+  const roomResetEditorNode =
+    selectedRoomResetIndex === null ? (
+      <div className="placeholder-block">
+        <div className="placeholder-title">Select a reset to edit</div>
+        <p>Choose a reset above to edit its details.</p>
+      </div>
+    ) : (
+      <div className="block-card">
+        <div className="block-card__header">
+          <span>Reset #{selectedRoomResetIndex + 1}</span>
+        </div>
+        <ResetEditorFields
+          idPrefix="room-reset"
+          register={resetForm.register}
+          control={resetFormControl}
+          errors={resetFormState.errors}
+          activeResetCommand={activeResetCommand}
+          resetCommandOptions={resetCommandOptions}
+          resetCommandLabels={resetCommandLabels}
+          directions={directions}
+          wearLocations={wearLocations}
+          roomVnumOptions={roomVnumOptions}
+          objectVnumOptions={objectVnumOptions}
+          mobileVnumOptions={mobileVnumOptions}
+        />
+        <div className="form-actions">
+          <button
+            className="action-button action-button--primary"
+            type="button"
+            onClick={handleApplyRoomReset}
+            disabled={!resetFormState.isDirty}
+          >
+            Apply Reset Changes
+          </button>
+          <span className="form-hint">
+            {resetFormState.isDirty ? "Unsaved changes" : "Up to date"}
+          </span>
+        </div>
+      </div>
+    );
   const roomFormNode = (
     <RoomForm
       onSubmit={handleRoomSubmitForm(handleRoomSubmit)}
@@ -11458,6 +7253,13 @@ export default function App({ repository }: AppProps) {
       exitFlags={exitFlags}
       roomVnumOptions={roomVnumOptions}
       objectVnumOptions={objectVnumOptions}
+      roomResets={roomResetItems}
+      selectedRoomResetIndex={selectedRoomResetIndex}
+      onSelectRoomReset={handleSelectRoomReset}
+      onCreateRoomReset={handleCreateRoomReset}
+      onDeleteRoomReset={handleDeleteRoomReset}
+      canDeleteRoomReset={selectedRoomResetIndex !== null}
+      roomResetEditor={roomResetEditorNode}
       canEditScript={canEditScript}
       scriptEventEntity={scriptEventEntity}
       eventBindings={eventBindings}
@@ -11474,6 +7276,33 @@ export default function App({ repository }: AppProps) {
       sexes={sexes}
       sizes={sizes}
       damageTypes={damageTypes}
+      mobActFlags={[...actFlags]}
+      attackFlags={[...offFlags]}
+      formFlagsOptions={[...formFlags]}
+      partFlagsOptions={[...partFlags]}
+      overrideFormFlags={overrideMobileFormFlags}
+      overridePartFlags={overrideMobilePartFlags}
+      onEnableFormFlagsOverride={() => {
+        setOverrideMobileFormFlags(true);
+        if (!getMobileFormValues("formFlags")?.length) {
+          setMobileFormValue("formFlags", []);
+        }
+      }}
+      onDisableFormFlagsOverride={() => {
+        setOverrideMobileFormFlags(false);
+        setMobileFormValue("formFlags", []);
+      }}
+      onEnablePartFlagsOverride={() => {
+        setOverrideMobilePartFlags(true);
+        if (!getMobileFormValues("partFlags")?.length) {
+          setMobileFormValue("partFlags", []);
+        }
+      }}
+      onDisablePartFlagsOverride={() => {
+        setOverrideMobilePartFlags(false);
+        setMobileFormValue("partFlags", []);
+      }}
+      raceOptions={referenceData?.races ?? []}
       canEditScript={canEditScript}
       scriptEventEntity={scriptEventEntity}
       eventBindings={eventBindings}
@@ -12545,7 +8374,6 @@ export default function App({ repository }: AppProps) {
         onOpenProject={handleOpenProject}
         onOpenArea={handleOpenArea}
         onSetAreaDirectory={handleSetAreaDirectory}
-        onLoadReferenceData={handleLoadReferenceData}
         onSaveArea={handleSaveArea}
         onSaveEditorMeta={handleSaveEditorMeta}
         onSaveAreaAs={handleSaveAreaAs}

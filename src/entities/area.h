@@ -21,11 +21,13 @@ typedef struct checklist_item_t ChecklistItem;
 #include "room.h"
 
 #include <data/direction.h>
-#include <data/quest.h>
+
+#include <entities/quest.h>
 
 #include <craft/gather.h>
 
 #include <lox/lox.h>
+#include <lox/ordered_table.h>
 
 #include <stdint.h>
 #include <stdio.h>
@@ -83,7 +85,7 @@ typedef struct area_data_t {
     AreaData* next;
     List instances;
     HelpArea* helps;
-    Quest* quests;
+    OrderedTable quests;
     GatherSpawnArray gather_spawns;
     char* file_name;
     char* credits;

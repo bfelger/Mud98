@@ -4,25 +4,10 @@ import type {
   EdgeTypes,
   Node,
   NodeChange,
-  NodeProps,
-  NodeTypes,
   ReactFlowInstance
 } from "reactflow";
-import ReactFlow, {
-  Background,
-  Controls,
-  Handle,
-  Position
-} from "reactflow";
-
-type AreaGraphNodeData = {
-  label: string;
-  range: string;
-  isCurrent?: boolean;
-  isMatch?: boolean;
-  locked?: boolean;
-  dirty?: boolean;
-};
+import ReactFlow, { Background, Controls } from "reactflow";
+import { areaNodeTypes, type AreaGraphNodeData } from "../map/areaNodes";
 
 type AreaGraphViewProps = {
   nodes: Node<AreaGraphNodeData>[];
@@ -48,75 +33,6 @@ type AreaGraphViewProps = {
   onLockDirty?: () => void;
   onClearLayout?: () => void;
 };
-
-function AreaGraphNode({ data, selected }: NodeProps<AreaGraphNodeData>) {
-  const classes = [
-    "area-node",
-    data.isCurrent ? "area-node--current" : "",
-    data.isMatch ? "area-node--match" : "",
-    data.locked ? "area-node--locked" : "",
-    data.dirty ? "area-node--dirty" : "",
-    selected ? "area-node--selected" : ""
-  ]
-    .filter(Boolean)
-    .join(" ");
-  return (
-    <div className={classes}>
-      <Handle
-        type="target"
-        id="north-in"
-        position={Position.Top}
-        className="area-node__handle"
-      />
-      <Handle
-        type="source"
-        id="north-out"
-        position={Position.Top}
-        className="area-node__handle"
-      />
-      <Handle
-        type="target"
-        id="east-in"
-        position={Position.Right}
-        className="area-node__handle"
-      />
-      <Handle
-        type="source"
-        id="east-out"
-        position={Position.Right}
-        className="area-node__handle"
-      />
-      <div className="area-node__title">{data.label}</div>
-      <div className="area-node__range">{data.range}</div>
-      <Handle
-        type="source"
-        id="south-out"
-        position={Position.Bottom}
-        className="area-node__handle"
-      />
-      <Handle
-        type="target"
-        id="south-in"
-        position={Position.Bottom}
-        className="area-node__handle"
-      />
-      <Handle
-        type="target"
-        id="west-in"
-        position={Position.Left}
-        className="area-node__handle"
-      />
-      <Handle
-        type="source"
-        id="west-out"
-        position={Position.Left}
-        className="area-node__handle"
-      />
-    </div>
-  );
-}
-
-const nodeTypes: NodeTypes = { area: AreaGraphNode };
 
 export function AreaGraphView({
   nodes,
@@ -252,7 +168,7 @@ export function AreaGraphView({
           id="world-graph"
           nodes={safeNodes}
           edges={safeEdges}
-          nodeTypes={nodeTypes}
+          nodeTypes={areaNodeTypes}
           edgeTypes={edgeTypes}
           defaultEdgeOptions={{
             style: { stroke: "rgba(47, 108, 106, 0.55)", strokeWidth: 1.4 }

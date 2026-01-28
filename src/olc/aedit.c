@@ -44,7 +44,7 @@
 
 #include <data/loot.h>
 #include <data/class.h>
-#include <data/quest.h>
+#include <entities/quest.h>
 #include <data/race.h>
 #include <mob_prog.h>
 
@@ -1467,32 +1467,37 @@ static QuestStatus* shift_quest_status_list(QuestStatus* head, VNUM lower, VNUM 
     return new_head;
 }
 
-static Quest* shift_quest_list(Quest* head, VNUM lower, VNUM upper, int32_t delta, bool* changed)
+static void shift_quest_list(OrderedTable* quests, VNUM lower, VNUM upper, int32_t delta, bool* changed)
 {
-    Quest* new_head = NULL;
-    Quest* current = head;
+    OrderedTable new_table;
+    ordered_table_init(&new_table);
 
-    while (current != NULL) {
-        Quest* next = current->next;
+    OrderedTableIter it = ordered_table_iter(quests);
+    Value val;
+
+    while (ordered_table_iter_next(&it, NULL, &val)) {
+        Quest* quest = AS_QUEST(val);
+
         bool updated = false;
 
-        updated |= shift_vnum_field(&current->vnum, lower, upper, delta);
-        updated |= shift_vnum_field(&current->end, lower, upper, delta);
-        updated |= shift_vnum_field(&current->target, lower, upper, delta);
-        updated |= shift_vnum_field(&current->target_upper, lower, upper, delta);
-        updated |= shift_vnum_field(&current->reward_faction_vnum, lower, upper, delta);
-        updated |= shift_vnum_array(current->reward_obj_vnum, QUEST_MAX_REWARD_ITEMS,
+        updated |= shift_vnum_field(&VNUM_FIELD(quest), lower, upper, delta);
+        updated |= shift_vnum_field(&quest->end, lower, upper, delta);
+        updated |= shift_vnum_field(&quest->target, lower, upper, delta);
+        updated |= shift_vnum_field(&quest->target_upper, lower, upper, delta);
+        updated |= shift_vnum_field(&quest->reward_faction_vnum, lower, upper, delta);
+        updated |= shift_vnum_array(quest->reward_obj_vnum, QUEST_MAX_REWARD_ITEMS,
             lower, upper, delta);
 
-        if (updated && changed != NULL)
-            *changed = true;
-
-        current->next = NULL;
-        ORDERED_INSERT(Quest, current, new_head, vnum);
-        current = next;
+        if (updated) {
+            ordered_table_set_vnum(&new_table, VNUM_FIELD(quest), OBJ_VAL(quest));
+            if (changed != NULL)
+                *changed = true;
+        }
+    };
+    if (changed && *changed) {
+        ordered_table_free(quests);
+        *quests = new_table;
     }
-
-    return new_head;
 }
 
 static void recompute_top_vnums(void)
@@ -1641,7 +1646,7 @@ static void aedit_apply_movevnums(AreaData* area, VNUM old_min, VNUM old_max, in
     AreaData* area_data;
     FOR_EACH_AREA(area_data) {
         bool changed = false;
-        area_data->quests = shift_quest_list(area_data->quests, old_min, old_max, delta, &changed);
+        shift_quest_list(&area_data->quests, old_min, old_max, delta, &changed);
         if (changed)
             mark_area_changed(area_data);
     }

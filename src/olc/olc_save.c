@@ -48,7 +48,7 @@
 #include <entities/player_data.h>
 
 #include <data/mobile_data.h>
-#include <data/quest.h>
+#include <entities/quest.h>
 #include <data/race.h>
 #include <data/skill.h>
 #include <data/loot.h>

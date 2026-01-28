@@ -102,7 +102,7 @@
       "name": "The Awakening",
       "description": "You stand next to the great old trunk of Cuivealda. The light is dim, as the dense, high canopy that forms Tauremar covers the sky. There is little ground cover, and the forest floor is a desolate place of perpetual twilight.\n\r",
       "roomFlags": [
-        "no_recall"
+        "recall"
       ],
       "sectorType": "forest",
       "timePeriods": [
@@ -126,7 +126,7 @@
           "toVnum": 12002
         }
       ],
-      "loxScript": "// This function gets called the first time a character logs in as an elf, \n\r// after character creation.\n\ron_login(vch) {\n\r    // Only newly-created characters\n\r    if (vch.level > 1 or vch.race != Race.Elf)\n\r        return;\n\r        \n\r    vch.send(\n\r        \"^*You step off the end of an old rope ladder at the base of \"\n\r        \"Cuivealda, the Tree of Awakening. Your years in the nurturing \"\n\r        \"hands of the Tetyayath have come to an end.^/^/\"\n\r        \"Now you must go out into the world and find your destiny...^/^x\")\n\r\n\r    if (vch.can_quest(12000)) {\n\r        delay(1, () -> {\n\r            vch.send(\"^jYou have instructions to meet your old mentor in a \"\n\r                \"clearing just to the east. There you will continue your \"\n\r                \"training. Type '^*EXITS^j' to see what lies in that \"\n\r                \"direction. Type '^*EAST^j' to go there.^x\")\n\r            vch.grant_quest(12000)\n\r            vch.send(\"^jType '^*QUEST^j' to view your quest log.^x\")\n\r        })\n\r    }\n\r}\n\r",
+      "loxScript": "// This function gets called the first time a character logs in as an elf, \n\r// after character creation.\n\ron_login(vch) {\n\r    // Only newly-created characters\n\r    if (vch.level > 1 or vch.race != Race.Elf)\n\r        return;\n\r    vch.set_recall(12000)\n\r    vch.send(\n\r        \"^*You step off the end of an old rope ladder at the base of \"\n\r        \"Cuivealda, the Tree of Awakening. Your years in the nurturing \"\n\r        \"hands of the Tetyayath have come to an end.^/^/\"\n\r        \"Now you must go out into the world and find your destiny...^/^x\")\n\r\n\r    if (vch.can_quest(\"An Old Friend\")) {\n\r        delay(1, () -> {\n\r            vch.send(\"^jYou have instructions to meet your old mentor in a \"\n\r                \"clearing just to the east. There you will continue your \"\n\r                \"training. Type '^*EXITS^j' to see what lies in that \"\n\r                \"direction. Type '^*EAST^j' to go there.^x\")\n\r            vch.grant_quest(\"An Old Friend\")\n\r            vch.send(\"^jType '^*QUEST^j' to view your quest log.^x\")\n\r        })\n\r    }\n\r}\n\r",
       "events": [
         {
           "trigger": "login",
@@ -138,9 +138,6 @@
       "vnum": 12001,
       "name": "Watcher's Platform",
       "description": "This rough platform is suspended above Verdant Watch. It is tied to tree trunks on all corners, and is densely camouflaged. The rope ladder extends upward.\n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
       "sectorType": "forest",
       "exits": [
         {
@@ -157,9 +154,6 @@
       "vnum": 12002,
       "name": "A Dark Path Through the Woods",
       "description": "  This path through the forest is just out of sight of Cuivealda to the west.  The trees are densely packed on all sides except on the path, which continues east.  \n\r  There is a hand-written note posted to a tree.\n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
       "sectorType": "forest",
       "exits": [
         {
@@ -189,9 +183,6 @@
       "vnum": 12003,
       "name": "A Dark Path Through the Woods",
       "description": "  The path through the dark woods continues.  The way west leads back to Cuivealda, while the path continuing east leads to sunlight.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
       "sectorType": "forest",
       "exits": [
         {
@@ -214,15 +205,33 @@
     {
       "vnum": 12004,
       "name": "Verdant Refuge",
-      "description": "Here in the tree canopy high above Verdant Watch, dense foliage conceals a cluster of buildings suspended upon thick branches. Their entrances in are each direction.\n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "Here in the tree canopy high above Verdant Watch, dense foliage conceals a cluster of buildings suspended upon thick branches. The are connected by the wooden gangways upon which you now stand. Their entrances in are each direction.\n\r",
       "sectorType": "forest",
       "exits": [
         {
           "dir": "down",
-          "toVnum": 12001
+          "toVnum": 12001,
+          "description": "A knotted rope dangles through from one of the suspended gangways. It leads down into darkness."
+        },
+        {
+          "dir": "north",
+          "toVnum": 12006,
+          "description": "This large hut has an open portal, through which you can see a small gathering of weary refugees."
+        },
+        {
+          "dir": "east",
+          "toVnum": 12007,
+          "description": "Warmth and the flow of a forge emenates from the doorway to this hut. It also has a stone chimney, billowing smoke."
+        },
+        {
+          "dir": "south",
+          "toVnum": 12008,
+          "description": "The outside of this hut has metal hooks for hanging animal carcasses, but there is nothing on them at the moment."
+        },
+        {
+          "dir": "west",
+          "toVnum": 12019,
+          "description": "A unearthly light emenates from this small hut's open portal; strange, but also calming and welcoming."
         }
       ]
     },
@@ -231,8 +240,7 @@
       "name": "The Training Ground",
       "description": "  Dappled sunlight breaks through the canopy in this clearing.  A patch of grass grows, green and vibrant, in the center.  Dark pathways through the trees go out in all directions.  \n\r",
       "roomFlags": [
-        "safe",
-        "no_recall"
+        "safe"
       ],
       "sectorType": "forest",
       "exits": [
@@ -253,10 +261,7 @@
     {
       "vnum": 12010,
       "name": "The Poisoned Woods",
-      "description": "  There is only a glimmer of light from the clearing to the south. Otherwise, the forest floor is almost completely obscured by the high canopy of trees.  You can see signs of some sort of blight that is infecting plant\n\rand animal alike.  Tree trunks are turning ashen white, and there are carcasses of hairless creatures strewn about.\n\r  The sickened forest extends in all directions.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "  There is only a glimmer of light from the clearing to the south. Otherwise, the forest floor is almost completely obscured by the high canopy of trees.  You can see signs of some sort of blight that is infecting plant and animal alike.  Tree trunks are turning ashen white, and there are carcasses of hairless creatures strewn about.\n\r  The sickened forest extends in all directions.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -281,9 +286,6 @@
       "vnum": 12011,
       "name": "The Poisoned Woods",
       "description": "The woods grow more dark and impenetrable in this direction.  Signs of the blight are much clearer here than to the east.  It's hard to believe that the very trees that hold Tauremar aloft are rotting like this.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
       "sectorType": "forest",
       "exits": [
         {
@@ -300,9 +302,6 @@
       "vnum": 12012,
       "name": "The Poisoned Woods",
       "description": "The woods grow even darker here.  You can hear the strange, agonizing cries of blighted forest creatures all around you.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
       "sectorType": "forest",
       "exits": [
         {
@@ -322,10 +321,7 @@
     {
       "vnum": 12013,
       "name": "The Poisoned Woods",
-      "description": "This is the farthest end of the poisoned forest.  The trees grow too\n\rdensely to proceed in any other direction by east or south.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "This is the farthest end of the poisoned forest.  The trees grow too densely to proceed in any other direction by east or south.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -341,10 +337,7 @@
     {
       "vnum": 12014,
       "name": "The Poisoned Woods",
-      "description": "The horrible blight has turned these tree trunks completely white.  The\n\rnormal twilight of the Faladrin Forest has turned even darker, as if they\n\rsickness of the forest is making it worse, somehow.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "The horrible blight has turned these tree trunks completely white.  The normal twilight of the Faladrin Forest has turned even darker, as if they sickness of the forest is making it worse, somehow.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -364,10 +357,7 @@
     {
       "vnum": 12015,
       "name": "The Poisoned Woods",
-      "description": "This is as far back as the navigable portion this area of the Faladrin\n\rForest goes.  Beyond, the trees are too dense to proceed.  This area has\n\rmore sickened trees, many covered in what appear to be... blisters?  Fleshy\n\rpustules that grow and then seem to burst with effluent.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "This is as far back as the navigable portion this area of the Faladrin Forest goes.  Beyond, the trees are too dense to proceed.  This area has more sickened trees, many covered in what appear to be... blisters?  Fleshy pustules that grow and then seem to burst with effluent.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -383,10 +373,7 @@
     {
       "vnum": 12016,
       "name": "The Poisoned Woods",
-      "description": "The ground and tree trunks here are covered in strange black mushrooms. \n\rIt seems ill-advised to come in contact with them.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "The ground and tree trunks here are covered in strange black mushrooms. It seems ill-advised to come in contact with them.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -406,10 +393,7 @@
     {
       "vnum": 12017,
       "name": "The Poisoned Woods",
-      "description": "The blighted trees here are covered in some sort of sticky ichor.  The\n\rarea has a distinctly unpleasant odor.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "The blighted trees here are covered in some sort of sticky ichor.  The area has a distinctly unpleasant odor.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -425,10 +409,7 @@
     {
       "vnum": 12018,
       "name": "The Poisoned Woods",
-      "description": "The poison infecting the forest has twisted the trees here.  Branches\n\rseem limp and soft, and yet still hold themselves up somehow.  When you turn\n\ryour head, you can see them start to undulate as they pass beyond your\n\rsight.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "The poison infecting the forest has twisted the trees here.  Branches seem limp and soft, and yet still hold themselves up somehow.  When you turn your head, you can see them start to undulate as they pass beyond your sight.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -452,10 +433,7 @@
     {
       "vnum": 12020,
       "name": "Threshold of Needles",
-      "description": "The rope causeway leading from Cuivealda narrows into a strip of woven needles.\n\rSplinters hang in the air like pollen and sting your lungs with the bite of resin.\n\rFrom the east you hear a hornbeat smothered beneath a wall of strained silence.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "The rope causeway leading from Cuivealda narrows into a strip of woven needles. Splinters hang in the air like pollen and sting your lungs with the bite of resin. From the east you hear a hornbeat smothered beneath a wall of strained silence.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -478,10 +456,9 @@
     {
       "vnum": 12021,
       "name": "Verdant Watch",
-      "description": "A lattice of branches rises here into a rough platform where scouts nest between the trunks.\n\rStrips of woven bark hang like banners, their sigils muted by ash drifting through the air.\n\rEvery creak of rope or armor is quickly smothered by the oppressive quiet of the diseased woods.  \n\r",
+      "description": "A lattice of branches rises here into a rough platform where scouts nest between the trunks. Strips of woven bark hang like banners, their sigils muted by ash drifting through the air. Every creak of rope or armor is quickly smothered by the oppressive quiet of the diseased woods.  \n\r",
       "roomFlags": [
-        "safe",
-        "no_recall"
+        "safe"
       ],
       "sectorType": "forest",
       "exits": [
@@ -510,10 +487,7 @@
     {
       "vnum": 12022,
       "name": "Splintered Causeway",
-      "description": "The narrow path twists between half-dead trunks that cling to one another for support.\n\rResinous ropes snap beneath your boots and reform moments later, as though the forest refuses to choose a shape.\n\rSickly green steam seeps from cracks in the bark and drifts toward the south.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "The narrow path twists between half-dead trunks that cling to one another for support. Resinous ropes snap beneath your boots and reform moments later, as though the forest refuses to choose a shape. Sickly green steam seeps from cracks in the bark and drifts toward the south.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -533,10 +507,7 @@
     {
       "vnum": 12023,
       "name": "Sagging Canopy",
-      "description": "Here the canopy droops low enough to brush your shoulders, each leaf slick with a humming sheen of blight.\n\rVines crackle underfoot like old bone, and currents of cold air leak up from the south.\n\rEvery breath tastes faintly of copper and smoke.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "Here the canopy droops low enough to brush your shoulders, each leaf slick with a humming sheen of blight. Vines crackle underfoot like old bone, and currents of cold air leak up from the south. Every breath tastes faintly of copper and smoke.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -556,10 +527,7 @@
     {
       "vnum": 12024,
       "name": "Ember-Scorched Hollow",
-      "description": "The trunks around this hollow are charred black, yet no ember ever truly dies; heat shivers in the air without flame.\n\rA dozen shattered idols of the Tetyayath litter the ground, their stone hearts sluiced in tar.\n\rThe hollow opens east toward a deeper glow and up toward a silent watch ledge.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "The trunks around this hollow are charred black, yet no ember ever truly dies; heat shivers in the air without flame. A dozen shattered idols of the Tetyayath litter the ground, their stone hearts sluiced in tar. The hollow opens east toward a deeper glow and up toward a silent watch ledge.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -579,10 +547,7 @@
     {
       "vnum": 12025,
       "name": "Resin Chasm",
-      "description": "The forest floor opens into a sink where rivers of molten sap cascade and harden in jagged sheets.\n\rBones of beasts and elves alike are trapped within the amber, mouths frozen mid-warning.\n\rThe chasm continues east beneath a line of weeping trees and south into a choking mire.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "The forest floor opens into a sink where rivers of molten sap cascade and harden in jagged sheets. Bones of beasts and elves alike are trapped within the amber, mouths frozen mid-warning. The chasm continues east beneath a line of weeping trees and south into a choking mire.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -602,10 +567,7 @@
     {
       "vnum": 12026,
       "name": "Weeping Copse",
-      "description": "A tight stand of trees sobs thick strings of black resin that stitch the air like harp strings.\n\rEach impact against the earth produces a dull, painful thrum that lingers in your teeth.\n\rThe path east descends into a carved reliquary pulsing with distant chants.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "A tight stand of trees sobs thick strings of black resin that stitch the air like harp strings. Each impact against the earth produces a dull, painful thrum that lingers in your teeth. The path east descends into a carved reliquary pulsing with distant chants.",
       "sectorType": "forest",
       "exits": [
         {
@@ -625,10 +587,9 @@
     {
       "vnum": 12027,
       "name": "Watcher's Ledge",
-      "description": "This elevated platform connects several guardian trees and offers a sweeping look over the blighted approaches.\n\rLanterns of pale fungus glow softly, illuminating maps carved into the bark beneath your hands.\n\rThe ledge drops south to the Verdant Watch and down into the scorched hollow below.  \n\r",
+      "description": "This elevated platform connects several guardian trees and offers a sweeping look over the blighted approaches. Lanterns of pale fungus glow softly, illuminating maps carved into the bark beneath your hands. The ledge drops south to the Verdant Watch and down into the scorched hollow below.  \n\r",
       "roomFlags": [
-        "safe",
-        "no_recall"
+        "safe"
       ],
       "sectorType": "forest",
       "exits": [
@@ -645,10 +606,7 @@
     {
       "vnum": 12028,
       "name": "Shadowed Mustering",
-      "description": "Low platforms jut from the trunks here, chewed by claws and acid as though armies have paced in frustration.\n\rTattered cords and discarded charms hint at scouts who broke and ran before finishing their watch.\n\rThe muttering of unseen creatures rises from the east like fevers.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "Low platforms jut from the trunks here, chewed by claws and acid as though armies have paced in frustration. Tattered cords and discarded charms hint at scouts who broke and ran before finishing their watch. The muttering of unseen creatures rises from the east like fevers.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -664,10 +622,7 @@
     {
       "vnum": 12029,
       "name": "Needle Spiral",
-      "description": "A spiral ramp of braided pine needles descends here, anchored by spears of amber jutting from the soil.\n\rEach step puffs a haze of spores that drift toward the east, hungry for warm lungs.\n\rThe ramp connects west to the staging ground and east to a yawning fungal den.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "A spiral ramp of braided pine needles descends here, anchored by spears of amber jutting from the soil. Each step puffs a haze of spores that drift toward the east, hungry for warm lungs. The ramp connects west to the staging ground and east to a yawning fungal den.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -687,10 +642,7 @@
     {
       "vnum": 12030,
       "name": "Mycelial Den",
-      "description": "Thick curtains of fungus narrow this den into a maze of damp chambers.\n\rEach curtain shivers even when no wind touches it, responding instead to distant heartbeats.\n\rThreads of pallid light drift east into a mire of bile and rot.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "Thick curtains of fungus narrow this den into a maze of damp chambers. Each curtain shivers even when no wind touches it, responding instead to distant heartbeats. Threads of pallid light drift east into a mire of bile and rot.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -710,10 +662,7 @@
     {
       "vnum": 12031,
       "name": "Suffocating Mire",
-      "description": "This mire clings to your boots with every step, exhaling bubbles of venomous vapor.\n\rSlender reeds have been cut into whistles that now wheeze endlessly in the fetid air.\n\rYou can climb north back toward the resin chasm or west into the mycelial den.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "This mire clings to your boots with every step, exhaling bubbles of venomous vapor. Slender reeds have been cut into whistles that now wheeze endlessly in the fetid air. You can climb north back toward the resin chasm or west into the mycelial den.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -729,10 +678,7 @@
     {
       "vnum": 12032,
       "name": "Hollow Reliquary",
-      "description": "Roots arch overhead to form a half-circle reliquary carved with the Creeds, now gouged and repainted in tar.\n\rThe air hums with layered chanting that bleeds from the east, each voice twisted with pain.\n\rStagnant pools reflect you as a stranger with bark for skin.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "Roots arch overhead to form a half-circle reliquary carved with the Creeds, now gouged and repainted in tar. The air hums with layered chanting that bleeds from the east, each voice twisted with pain. Stagnant pools reflect you as a stranger with bark for skin.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -748,10 +694,7 @@
     {
       "vnum": 12033,
       "name": "Bilefall Hollow",
-      "description": "A waterfall of bile pours from the canopy here, evaporating before it ever touches the ground.\n\rThe hiss it produces masks the shuffle of creatures lurking just beyond sight.\n\rOnly the path north through the crying copse remains safe to traverse.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "A waterfall of bile pours from the canopy here, evaporating before it ever touches the ground. The hiss it produces masks the shuffle of creatures lurking just beyond sight. Only the path north through the crying copse remains safe to traverse.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -763,10 +706,7 @@
     {
       "vnum": 12034,
       "name": "Vorenthas' Rotunda",
-      "description": "A circular chamber has been carved wholesale from the heartwood, polished until it mirrors the sky.\n\rChains of bone and iron dangle from the ceiling, each hooked into the veins of the tree.\n\rA lone dais of blackened roots waits for the exile who dares to crown himself judge of the forest.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "A circular chamber has been carved wholesale from the heartwood, polished until it mirrors the sky. Chains of bone and iron dangle from the ceiling, each hooked into the veins of the tree. A lone dais of blackened roots waits for the exile who dares to crown himself judge of the forest.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
@@ -782,10 +722,7 @@
     {
       "vnum": 12035,
       "name": "Fractured Lifeline",
-      "description": "Frayed lifelines of braided silk snap back and forth across this gap, severed during Vorenthas' ritual.\n\rThe forest around you groans, struggling to knit the wound faster than the blight can widen it.\n\rEastward, sunlight breaks through, hinting at the border and whoever might answer your plea.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "Frayed lifelines of braided silk snap back and forth across this gap, severed during Vorenthas' ritual. The forest around you groans, struggling to knit the wound faster than the blight can widen it. Eastward, sunlight breaks through, hinting at the border and whoever might answer your plea.",
       "sectorType": "forest",
       "exits": [
         {
@@ -801,10 +738,9 @@
     {
       "vnum": 12036,
       "name": "Edge of Faladrin",
-      "description": "The canopy finally parts, revealing distant human watchfires flickering beyond the low hills of Valewyn.\n\rA narrow bridge of woven bark reaches east, unfinished yet thrumming with stored power.\n\rEnvoy Calendor keeps vigil here, ready to guide messengers through the breach.  \n\r",
+      "description": "The canopy finally parts, revealing distant human watchfires flickering beyond the low hills of Valewyn. A narrow bridge of woven bark reaches east, unfinished yet thrumming with stored power. Envoy Calendor keeps vigil here, ready to guide messengers through the breach.  \n\r",
       "roomFlags": [
-        "safe",
-        "no_recall"
+        "safe"
       ],
       "sectorType": "forest",
       "exits": [
@@ -828,15 +764,123 @@
     {
       "vnum": 12099,
       "name": "Road to Valewyn",
-      "description": "The path ahead dips toward misty foothills where the banners of Valewyn wait to receive Tauremar's plea.\n\rFor now the bridge ends here, its final span unfinished until the treaty is sealed.\n\rYou can still look west and see the glow of Faladrin clinging stubbornly to life.  \n\r",
-      "roomFlags": [
-        "no_recall"
-      ],
+      "description": "The path ahead dips toward misty foothills where the banners of Valewyn wait to receive Tauremar's plea. For now the bridge ends here, its final span unfinished until the treaty is sealed. You can still look west and see the glow of Faladrin clinging stubbornly to life.  \n\r",
       "sectorType": "forest",
       "exits": [
         {
           "dir": "west",
           "toVnum": 12036
+        }
+      ]
+    },
+    {
+      "vnum": 12006,
+      "name": "The Aid Station",
+      "description": "This hut is filled with boxes and satchels, but a cursory glance reveals they are mostly empty. This is the commissary for Verdant Refuge, though it seems there is not much left to provide. There are no furnishings save a few overturned crates.\n\r  An open portal to the south leads back outside, while a portal to the north leads to another room in this hut.",
+      "roomFlags": [
+        "indoors",
+        "safe"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 12004,
+          "description": "The open portal to the south leads out into Verdant Refuge."
+        },
+        {
+          "dir": "north",
+          "toVnum": 12037
+        }
+      ]
+    },
+    {
+      "vnum": 12007,
+      "name": "The Smithy",
+      "description": "This hut contains a makeshift smithy. A crude smelter made of small stones cemented together sits next to a similarly-fashioned forge. An anvil sits unattended.",
+      "roomFlags": [
+        "indoors",
+        "safe"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "west",
+          "toVnum": 12004,
+          "description": "This portal leads back to the gangways of Verdant Refuge."
+        }
+      ]
+    },
+    {
+      "vnum": 12008,
+      "name": "The Butcher",
+      "description": "This hut has a large table for cleaning and cutting animal carcasses, but it appears clean. Numerous metal hooks hang from ceiling joists. They seem intended for hanging of said carcasses, but are currently barren.\n\r  There is another room to the south, through a portal of hide curtains.\n\r",
+      "roomFlags": [
+        "indoors",
+        "safe"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 12004,
+          "description": "This portal opens up to the suspended gangways of Verdant Refuge."
+        },
+        {
+          "dir": "south",
+          "toVnum": 12009
+        }
+      ]
+    },
+    {
+      "vnum": 12009,
+      "name": "The Tannery",
+      "description": "This side of the hut is overpowered by the smell of sulphur, emenating from various jars and pots. The walls are lined with empty tanning racks.\n\r  To the north is a portal to the butcher, loosely sealed by long strips of hide.\n\r",
+      "roomFlags": [
+        "indoors",
+        "safe"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "north",
+          "toVnum": 12008,
+          "description": "This portal to the butcher is covered by hide strips."
+        }
+      ]
+    },
+    {
+      "vnum": 12019,
+      "name": "The Chapel",
+      "description": "This hut is a makeship temple to Nature. Despite its cramped, sparsely furnished interior, it feels immediately comfortable and relaxing.",
+      "roomFlags": [
+        "indoors",
+        "safe",
+        "recall"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "east",
+          "toVnum": 12004,
+          "description": "This portal leads back out onto the suspended gangways of Verdant Refuge."
+        }
+      ]
+    },
+    {
+      "vnum": 12037,
+      "name": "The Clothier",
+      "description": "This room has an unused spinning wheel and a rack of empty spindles. A set of wicker shelves looks intended to hold bolts of cloth, but currently stands barren.\n\r  The only exit, to the south, leads back to refugee aid supply.\n\r",
+      "roomFlags": [
+        "indoors",
+        "safe"
+      ],
+      "sectorType": "inside",
+      "exits": [
+        {
+          "dir": "south",
+          "toVnum": 12006,
+          "description": "This portal lead back to the refugee aid supply office."
         }
       ]
     }
@@ -901,7 +945,7 @@
       "name": "findorian forestspeaker",
       "shortDescr": "Findorian, the Forestspeaker",
       "longDescr": "Findorian, the Forestspeaker, kneels in the grassy clearing, gazing intently at the dark woods surrounding you.\n\r",
-      "description": "",
+      "description": "Findorian stands over two meters tall, and exudes an aura of command and authority. You know from experience that his lithe appearance belies an unmatched strength and fortitude. His leather armor is worn and plain, but his outer vestments mark him as Servant of Nature.\n\r  Once, he was a member of the Tetyeyath, the hallowed counsel of elders that rule Tauremar. There, he was your leader and mentor. But intrigue and disfavor have seen him banished him here, the the World Below.\n\r  Why does he seem more in place here than he did back home?",
       "race": "elf",
       "actFlags": [
         "npc",
@@ -921,7 +965,7 @@
       "vulnFlags": [
         "iron"
       ],
-      "alignment": 0,
+      "alignment": 800,
       "group": 0,
       "level": 20,
       "hitroll": 0,
@@ -954,7 +998,7 @@
       "size": "medium",
       "material": "unknown",
       "factionVnum": 12000,
-      "loxScript": "on_greet(vch) {\n\r    if (vch.can_finish_quest(12000)) {\n\r        say(\"There you are, ${vch.name}; I'm glad to see you. I wish I could ease you into the brutal World Below, but we have no such luck.\");\n\r        echo(\"$n sighs.\");\n\r        say(\"I need your help with something, and it's not going to be pleasant.\");\n\r        vch.finish_quest(12000);\n\r        say(\n\r            \"There is a blight in this region of the forest infecting flora and fauna alike. I want to get to the root of it, but for now there is great suffering that must be dealt with.\",\n\r            \"This is the burden of a Forestspeaker; there is only one way to stop the spread of the disease and bring peace to the afflicted, and that is by death.\",\n\r            \"The Tetyayath have taught you the Creeds, and you have spoken them. Now you must pay the terrible cost of following them.\",\n\r            \"Go north. Bring those poor animals mercy. They have suffered long enough.\");\n\r        vch.grant_quest(12006);\n\r        return;\n\r    }\n\r    else if (vch.can_finish_quest(12006)) {\n\r        say(\"Bloody business, that. I'm sorry.\");\n\r        echo(vch, \"$n places his hand on $S shoulder.\");\n\r        say(\n\r            \"What you have done here important. Preservation is about protecting what we can, and mitigating when we can't.\",\n\r            \"You have honored the Creeds. You have honored the Forest.\");\n\r        vch.finish_quest(12006);\n\r        say(\"I cannot leave this clearing, but Lethariel watches from the Verdant Watch east of here. Go to her.\");\n\r        if (vch.can_quest(12020))\n\r            vch.grant_quest(12020);\n\r        return;\n\r    }\n\r    else if (vch.can_finish_quest(12040)) {\n\r        say(\"You silenced Vorenthas? Good. The reliquary will heal, but his madness proved what I feared.\");\n\r        say(\"He believed isolation would save us. Instead it blinded him to the danger creeping through our own roots.\");\n\r        vch.finish_quest(12040);\n\r        say(\"Take this writ east to Envoy Calendor at the edge of Faladrin. He will carry our plea to Valewyn.\");\n\r        if (vch.can_quest(12050))\n\r            vch.grant_quest(12050);\n\r        return;\n\r    }\n\r    else if (vch.has_quest(12050)) {\n\r        say(\"Envoy Calendor waits where the forest opens to the human watchfires. Give him my writ when you are ready to leave.\");\n\r        return;\n\r    }\n\r    else if (vch.has_quest(12040)) {\n\r        say(\"Follow the hollow reliquary east. Vorenthas is bound to it by pride and poison; end both.\");\n\r        return;\n\r    }\n\r    else if (vch.has_quest(12020)) {\n\r        say(\"Lethariel will know how the forest whispers now. She is due east beyond the watch.\");\n\r        return;\n\r    }\n\r    else if (vch.has_quest(12006)) {\n\r        say(\"Grant mercy to the creatures north of here. Their suffering feeds something worse.\");\n\r        return;\n\r    }\n\r}\n\r",
+      "loxScript": "on_greet(vch) {\n\r    if (vch.can_finish_quest(\"An Old Friend\")) {\n\r        say(\"There you are, ${vch.name}; I'm glad to see you. I wish I could ease you into the brutal World Below, but we have no such luck.\");\n\r        echo(\"$n sighs.\");\n\r        say(\"I need your help with something, and it's not going to be pleasant.\");\n\r        vch.finish_quest(\"An Old Friend\");\n\r        say(\n\r            \"There is a blight in this region of the forest infecting flora and fauna alike. I want to get to the root of it, but for now there is great suffering that must be dealt with.\",\n\r            \"This is the burden of a Forestspeaker; there is only one way to stop the spread of the disease and bring peace to the afflicted, and that is by death.\",\n\r            \"The Tetyayath have taught you the Creeds, and you have spoken them. Now you must pay the terrible cost of following them.\",\n\r            \"Go north. Bring those poor animals mercy. They have suffered long enough.\");\n\r        vch.grant_quest(\"A Preserver's Burden\");\n\r        return;\n\r    }\n\r    else if (vch.can_finish_quest(\"A Preserver's Burden\")) {\n\r        say(\"Bloody business, that. I'm sorry.\");\n\r        echo(vch, \"$n places his hand on $S shoulder.\");\n\r        say(\n\r            \"What you have done here important. Preservation is about protecting what we can, and mitigating when we can't.\",\n\r            \"You have honored the Creeds. You have honored the Forest.\");\n\r        vch.finish_quest(\"A Preserver's Burden\");\n\r        say(\"I cannot leave this clearing, but Lethariel watches from the Verdant Watch east of here. Go to her.\");\n\r        if (vch.can_quest(\"Scout's Counsel\"))\n\r            vch.grant_quest(\"Scout's Counsel\");\n\r        return;\n\r    }\n\r    else if (vch.can_finish_quest(12040)) {\n\r        say(\"You silenced Vorenthas? Good. The reliquary will heal, but his madness proved what I feared.\");\n\r        say(\"He believed isolation would save us. Instead it blinded him to the danger creeping through our own roots.\");\n\r        vch.finish_quest(12040);\n\r        say(\"Take this writ east to Envoy Calendor at the edge of Faladrin. He will carry our plea to Valewyn.\");\n\r        if (vch.can_quest(12050))\n\r            vch.grant_quest(12050);\n\r        return;\n\r    }\n\r    else if (vch.has_quest(12050)) {\n\r        say(\"Envoy Calendor waits where the forest opens to the human watchfires. Give him my writ when you are ready to leave.\");\n\r        return;\n\r    }\n\r    else if (vch.has_quest(12040)) {\n\r        say(\"Follow the hollow reliquary east. Vorenthas is bound to it by pride and poison; end both.\");\n\r        return;\n\r    }\n\r    else if (vch.has_quest(\"Scout's Counsel\")) {\n\r        say(\"Lethariel will know how the forest whispers now. She is due east beyond the watch.\");\n\r        return;\n\r    }\n\r    else if (vch.has_quest(\"A Preserver's Burden\")) {\n\r        say(\"Grant mercy to the creatures north of here. Their suffering feeds something worse.\");\n\r        return;\n\r    }\n\r}\n\r",
       "events": [
         {
           "trigger": "greet",
@@ -1450,7 +1494,7 @@
       "name": "lethariel verdant scout",
       "shortDescr": "Lethariel, Verdant Scout",
       "longDescr": "Lethariel crouches amid woven watchposts, eyes never leaving the darkened forest.\n\r",
-      "description": "Lethariel wears barkbound armor slick with sap and fresh soot.\n\rHer hands rest on a slender spear etched with travel routes leading toward human lands.  \n\r",
+      "description": "Lethariel wears barkbound armor slick with sap and fresh soot. Her hands rest on a slender spear etched with travel routes leading toward human lands.  \n\r",
       "race": "elf",
       "actFlags": [
         "npc",
@@ -1495,7 +1539,7 @@
       "size": "medium",
       "material": "flesh",
       "factionVnum": 12000,
-      "loxScript": "on_greet(vch) {\n\r    if (vch.can_finish_quest(12020)) {\n\r        say(\"Findorian trusts you, and so do I. Walk with care.\");\n\r        say(\"Bring me a sample from the weeping husk east of here; I need proof that this rot thinks for itself.\");\n\r        vch.finish_quest(12020);\n\r        vch.grant_quest(12030);\n\r        return;\n\r    }\n\r    if (vch.can_finish_quest(12030)) {\n\r        say(\"This resin hums like a voice.\");\n\r        echo(vch, \"$n uncorks a vial, capturing a thread of resin from ${vch.name}.\");\n\r        say(\"The pattern points to Vorenthas. He still squats in the hollow reliquary ahead, feeding the blight.\");\n\r        vch.finish_quest(12030);\n\r        say(\"Cut him free so the forest can heal.\");\n\r        vch.grant_quest(12040);\n\r        return;\n\r    }\n\r    if (vch.has_quest(12030)) {\n\r        say(\"The sample we need clings to the weeping husk in the copse east of the resin chasm.\");\n\r        return;\n\r    }\n\r    if (vch.has_quest(12040)) {\n\r        say(\"Vorenthas carved himself a throne in the reliquary. Do not let his doubts infect you.\");\n\r        return;\n\r    }\n\r    if (vch.has_quest(12020)) {\n\r        say(\"Keep moving, ${vch.name}. The watch survives because we act before the rot does.\");\n\r    }\n\r}\n\r",
+      "loxScript": "on_greet(vch) {\n\r    if (vch.can_finish_quest(\"Scout's Counsel\")) {\n\r        say(\"Findorian trusts you, and so do I. Walk with care.\");\n\r        say(\"Bring me a sample from the weeping husk east of here; I need proof that this rot thinks for itself.\");\n\r        vch.finish_quest(\"Scout's Counsel\");\n\r        vch.grant_quest(\"Proof of Rot\");\n\r        return;\n\r    }\n\r    if (vch.can_finish_quest(\"Proof of Rot\")) {\n\r        say(\"This resin hums like a voice.\");\n\r        echo(vch, \"$n uncorks a vial, capturing a thread of resin from ${vch.name}.\");\n\r        say(\"The pattern points to Vorenthas. He still squats in the hollow reliquary ahead, feeding the blight.\");\n\r        vch.finish_quest(\"Proof of Rot\");\n\r        say(\"Cut him free so the forest can heal.\");\n\r        vch.grant_quest(\"The Hollowed Exile\");\n\r        return;\n\r    }\n\r    if (vch.has_quest(\"Proof of Rot\")) {\n\r        say(\"The sample we need clings to the weeping husk in the copse east of the resin chasm.\");\n\r        return;\n\r    }\n\r    if (vch.has_quest(\"The Hollowed Exile\")) {\n\r        say(\"Vorenthas carved himself a throne in the reliquary. Do not let his doubts infect you.\");\n\r        return;\n\r    }\n\r}\n\r",
       "events": [
         {
           "trigger": "greet",
@@ -1700,7 +1744,7 @@
       "name": "vorenthas hollowed exile",
       "shortDescr": "Vorenthas the Hollowed",
       "longDescr": "Vorenthas the Hollowed stands on a dais of blackened roots, eyes fever-bright.\n\r",
-      "description": "Vorenthas' once-silver hair is threaded with resin cords that pull against his skull.\n\rHe clutches a thornlash grown from the very reliquary he seeks to command.  \n\r",
+      "description": "Vorenthas' once-silver hair is threaded with resin cords that pull against his skull. He clutches a thornlash grown from the very reliquary he seeks to command.  \n\r",
       "race": "elf",
       "actFlags": [
         "npc",
@@ -1807,6 +1851,50 @@
         {
           "trigger": "greet",
           "callback": "on_greet"
+        }
+      ]
+    },
+    {
+      "vnum": 12001,
+      "name": "elf refugee",
+      "shortDescr": "an elf refugee",
+      "longDescr": "A displaced elf refugee is here, begging for supplies.",
+      "description": "This elf woman is begging for supplies for what's left of her poor family.\n\r",
+      "race": "elf",
+      "actFlags": [
+        "npc",
+        "sentinel"
+      ],
+      "alignment": 100,
+      "level": 1,
+      "hitroll": 0,
+      "hitDice": {
+        "number": 3,
+        "type": 9,
+        "bonus": 333
+      },
+      "manaDice": {
+        "number": 20,
+        "type": 12,
+        "bonus": 100
+      },
+      "damageDice": {
+        "number": 2,
+        "type": 8,
+        "bonus": 5
+      },
+      "damType": "none",
+      "startPos": "standing",
+      "defaultPos": "standing",
+      "sex": "female",
+      "size": "medium",
+      "factionVnum": 12000,
+      "loxScript": "on_random() {\n\r    var i = dice(1,6)\n\r    if (i == 1) {\n\r        say(\"Please. Are you sure you don't have anymore blankets?\")\n\r    }\n\r    else if (i == 2) {\n\r        echo(\"$n sniffles.\")\n\r    }\n\r    else if (i == 3) {\n\r        say(\"It's okay, my love. I know they'll find something for us.\")\n\r        echo(\"$n pats $s daughter on the shoulder.\")\n\r    }\n\r    else if (i == 4) {\n\r        echo(\"$n coughs.\")\n\r    }\n\r    else if (i == 5) {\n\r        echo(\"$n sighs heavily.\")\n\r    }\n\r    else {\n\r        say(\"We're so tired. Will you please check the back? You have to have something.\")\n\r    }\n\r}",
+      "events": [
+        {
+          "trigger": "random",
+          "callback": "on_random",
+          "criteria": 10
         }
       ]
     }
@@ -2269,6 +2357,13 @@
       "roomVnum": 12036,
       "maxInRoom": 1,
       "commandName": "loadMob"
+    },
+    {
+      "mobVnum": 12001,
+      "maxInArea": 1,
+      "roomVnum": 12006,
+      "maxInRoom": 1,
+      "commandName": "loadMob"
     }
   ],
   "factions": [
@@ -2392,7 +2487,7 @@
     {
       "vnum": 12040,
       "name": "The Hollowed Exile",
-      "entry": "The resin sings for Vorenthas, the exile who refuses to let Tauremar seek help. Track him to the hollow reliquary and end his ritual\n\rbefore he feeds the entire forest to the blight. Return to Findorian once the deed is done.  \n\r",
+      "entry": "The resin sings for Vorenthas, the exile who refuses to let Tauremar seek help. Track him to the hollow reliquary and end his ritual before he feeds the entire forest to the blight. Return to Findorian once the deed is done.  \n\r",
       "type": "kill_mob",
       "xp": 350,
       "level": 3,

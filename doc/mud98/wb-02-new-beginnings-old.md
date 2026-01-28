@@ -1,6 +1,6 @@
 # Worldcrafting from Scratch Pt. 2 &mdash; New Beginnings (Legacy MobProgs)
 
-Previous: [Worldcrafting from Scratch Pt. 1 &mdash; Getting Started](wb-01-getting-started)
+Previous: [Worldcrafting from Scratch Pt. 1 &mdash; Getting Started](wb-01-getting-started.md)
 
 ### Table of Contents
 - [Worldcrafting from Scratch Pt. 2 — New Beginnings (Legacy MobProgs)](#worldcrafting-from-scratch-pt-2--new-beginnings-legacy-mobprogs)
@@ -1447,4 +1447,4 @@ You have been awarded 180 xp.
 
 With just those two quest types, we can do a lot of narrative world expansion. The task of completing this area, and of making other racial (or even class) starting areas is up to you.
 
-Home: [Documentation](index)
+Home: [Documentation](index.md)

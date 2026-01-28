@@ -29,7 +29,7 @@ typedef struct faction_reputation_list_t {
 
 #include <data/item.h>
 #include <data/player.h>
-#include <data/quest.h>
+#include <entities/quest.h>
 
 typedef struct Tutorial Tutorial;
 

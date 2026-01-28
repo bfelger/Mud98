@@ -12,7 +12,7 @@
 #include <entities/area.h>
 #include <entities/help_data.h>
 
-#include <data/quest.h>
+#include <entities/quest.h>
 
 #include <tablesave.h>
 

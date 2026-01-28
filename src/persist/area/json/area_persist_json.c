@@ -14,7 +14,7 @@
 #include <data/events.h>
 #include <data/item.h>
 #include <data/mobile_data.h>
-#include <data/quest.h>
+#include <entities/quest.h>
 #include <data/race.h>
 #include <data/skill.h>
 
@@ -1958,11 +1958,15 @@ static PersistResult parse_mobprogs(json_t* root)
 static json_t* build_quests(const AreaData* area)
 {
     json_t* arr = json_array();
-    Quest* q;
-    FOR_EACH(q, area->quests) {
+    Value val;
+    OrderedTableIter it = ordered_table_iter(&area->quests);
+    while(ordered_table_iter_next(&it, NULL, &val)) {
+        Quest* q = AS_QUEST(val);
         json_t* obj = json_object();
-        JSON_SET_INT(obj, "vnum", q->vnum);
-        JSON_SET_STRING(obj, "name", q->name ? q->name : "");
+        JSON_SET_INT(obj, "vnum", VNUM_FIELD(q));
+        const char* name = JSON_STRING(obj, "name");
+        if (name)
+            SET_NAME(q, lox_string(name));
         JSON_SET_STRING(obj, "entry", q->entry ? q->entry : "");
         JSON_SET_STRING(obj, "type", flag_string(quest_type_table, q->type));
         JSON_SET_INT(obj, "xp", q->xp);
@@ -2004,7 +2008,8 @@ static PersistResult parse_quests(json_t* root, AreaData* area)
         quest->area_data = area;
 
         const char* name = JSON_STRING(q, "name");
-        JSON_INTERN(name, quest->name)
+        if (name)
+            SET_NAME(quest, lox_string(name));
         const char* entry = JSON_STRING(q, "entry");
         JSON_INTERN(entry, quest->entry)
         const char* type = JSON_STRING(q, "type");
@@ -2036,9 +2041,10 @@ static PersistResult parse_quests(json_t* root, AreaData* area)
             }
         }
 
-        quest->vnum = (VNUM)json_int_or_default(q, "vnum", quest->vnum);
+        VNUM_FIELD(quest) = (VNUM)json_int_or_default(q, "vnum", VNUM_FIELD(quest));
 
-        ORDERED_INSERT(Quest, quest, area->quests, vnum);
+        ordered_table_set_vnum(&area->quests, VNUM_FIELD(quest), OBJ_VAL(quest));
+        table_set(&global_quests, NAME_FIELD(quest), OBJ_VAL(quest));
     }
 
     return (PersistResult){ PERSIST_OK, NULL, -1 };

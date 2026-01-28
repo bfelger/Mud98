@@ -1,4 +1,4 @@
-import type { FormEventHandler } from "react";
+import type { FormEventHandler, ReactNode } from "react";
 import type { Control, FieldPath, UseFormRegister } from "react-hook-form";
 import { EventBindingsView } from "./EventBindingsView";
 import { VnumPicker, type VnumOption } from "./VnumPicker";
@@ -21,6 +21,17 @@ type RoomFormProps = {
   exitFlags: string[];
   roomVnumOptions: VnumOption[];
   objectVnumOptions: VnumOption[];
+  roomResets: Array<{
+    index: number;
+    command: string;
+    label: string;
+  }>;
+  selectedRoomResetIndex: number | null;
+  onSelectRoomReset: (index: number) => void;
+  onCreateRoomReset: () => void;
+  onDeleteRoomReset: () => void;
+  canDeleteRoomReset: boolean;
+  roomResetEditor: ReactNode;
   canEditScript: boolean;
   scriptEventEntity: EventEntityKey | null;
   eventBindings: EventBinding[];
@@ -42,6 +53,13 @@ export function RoomForm({
   exitFlags,
   roomVnumOptions,
   objectVnumOptions,
+  roomResets,
+  selectedRoomResetIndex,
+  onSelectRoomReset,
+  onCreateRoomReset,
+  onDeleteRoomReset,
+  canDeleteRoomReset,
+  roomResetEditor,
   canEditScript,
   scriptEventEntity,
   eventBindings,
@@ -255,6 +273,71 @@ export function RoomForm({
               </div>
             ))}
           </div>
+        </div>
+        <div className="form-field form-field--full">
+          <div className="form-section-header">
+            <div>
+              <div className="form-label">Room Resets</div>
+              <div className="form-hint">
+                {roomResets.length
+                  ? `${roomResets.length} reset${
+                      roomResets.length === 1 ? "" : "s"
+                    } tied to this room`
+                  : "No resets point to this room"}
+              </div>
+            </div>
+            <div className="form-header-actions">
+              <button
+                className="ghost-button"
+                type="button"
+                onClick={onCreateRoomReset}
+              >
+                New Reset
+              </button>
+              <button
+                className="ghost-button"
+                type="button"
+                onClick={onDeleteRoomReset}
+                disabled={!canDeleteRoomReset}
+              >
+                Delete Reset
+              </button>
+            </div>
+          </div>
+          <div className="block-list">
+            {roomResets.length === 0 ? (
+              <div className="placeholder-block">
+                <div className="placeholder-title">No room resets</div>
+                <p>Create a reset and target this room to edit it here.</p>
+              </div>
+            ) : (
+              roomResets.map((reset) => {
+                const isSelected = reset.index === selectedRoomResetIndex;
+                return (
+                  <div key={reset.index} className="block-card">
+                    <div className="block-card__header">
+                      <span>
+                        #{reset.index + 1} {reset.command || "Reset"}
+                      </span>
+                      <button
+                        className="ghost-button"
+                        type="button"
+                        onClick={() => onSelectRoomReset(reset.index)}
+                      >
+                        {isSelected ? "Editing" : "Edit"}
+                      </button>
+                    </div>
+                    <div className="block-card__body">
+                      <div className="form-hint">{reset.label}</div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+          {roomResetEditor ? (
+            <div className="block-list">{roomResetEditor}</div>
+          ) : null}
         </div>
         <div className="form-field form-field--full">
           <EventBindingsView

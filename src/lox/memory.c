@@ -19,6 +19,7 @@
 #include <entities/room.h>
 #include <entities/room_exit.h>
 #include <entities/faction.h>
+#include <entities/quest.h>
 
 #include <craft/recipe.h>
 
@@ -354,6 +355,12 @@ static void blacken_object(Obj* object)
         mark_entity(entity);
         break;
     }
+    case OBJ_QUEST: {
+        // Quest header contains Entity fields that need marking
+        Entity* entity = (Entity*)object;
+        mark_entity(entity);
+        break;
+    }
     } // end switch
 }
 
@@ -457,6 +464,7 @@ static void free_obj_value(Obj* object)
     case OBJ_MOB_PROTO:
     case OBJ_FACTION:
     case OBJ_RECIPE:
+    case OBJ_QUEST:
         break;
     } // end switch
 }
