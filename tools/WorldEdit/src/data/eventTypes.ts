@@ -1,4 +1,4 @@
-export type EventEntityKey = "Rooms" | "Mobiles" | "Objects";
+export type EventEntityKey = "Area" | "Rooms" | "Mobiles" | "Objects";
 
 export type EventCriteriaKind = "none" | "int" | "string" | "intOrString";
 
@@ -17,11 +17,11 @@ export type EventTypeInfo = {
   criteriaHint?: string;
 };
 
-const allEntities: EventEntityKey[] = ["Rooms", "Mobiles", "Objects"];
-const roomEntities: EventEntityKey[] = ["Rooms"];
+const allEntities: EventEntityKey[] = ["Area", "Rooms", "Mobiles", "Objects"];
+const roomEntities: EventEntityKey[] = ["Area", "Rooms"];
 const mobEntities: EventEntityKey[] = ["Mobiles"];
 const objEntities: EventEntityKey[] = ["Objects"];
-const placeEntities: EventEntityKey[] = ["Rooms"];
+const placeEntities: EventEntityKey[] = ["Area", "Rooms"];
 
 export const eventTypes: EventTypeInfo[] = [
   {

@@ -4712,6 +4712,17 @@ export default function App({ repository }: AppProps) {
     return lootData.tables[selectedLootIndex] ?? null;
   }, [lootData, selectedLootKind, selectedLootIndex]);
   const scriptContext = useMemo(() => {
+    if (selectedEntity === "Area") {
+      const areadata =
+        areaData && typeof (areaData as Record<string, unknown>).areadata === "object"
+          ? ((areaData as Record<string, unknown>).areadata as Record<string, unknown>)
+          : null;
+      return {
+        entity: "Area" as const,
+        vnum: null,
+        record: areadata
+      };
+    }
     if (selectedEntity === "Rooms") {
       return {
         entity: "Rooms" as const,
@@ -4736,6 +4747,7 @@ export default function App({ repository }: AppProps) {
     return null;
   }, [
     selectedEntity,
+    areaData,
     selectedRoomVnum,
     selectedRoomRecord,
     selectedMobileVnum,
@@ -4753,6 +4765,11 @@ export default function App({ repository }: AppProps) {
   const scriptTitle = useMemo(() => {
     if (!scriptContext) {
       return "Script View";
+    }
+    if (scriptContext.entity === "Area") {
+      const record = scriptContext.record as Record<string, unknown> | null;
+      const name = record && typeof record.name === "string" ? record.name : "";
+      return name ? `Area: ${name}` : "Area";
     }
     if (scriptContext.vnum === null) {
       return entityKindLabels[scriptContext.entity];
@@ -4772,6 +4789,9 @@ export default function App({ repository }: AppProps) {
     }
     if (scriptContext.entity === "Objects") {
       return getFirstString(record.shortDescr, "");
+    }
+    if (scriptContext.entity === "Area") {
+      return getFirstString(record.credits, "");
     }
     return "";
   }, [scriptContext]);
@@ -4802,18 +4822,36 @@ export default function App({ repository }: AppProps) {
       });
   }, [scriptContext]);
   const canEditScript = Boolean(
-    scriptContext?.record && scriptContext?.vnum !== null
+    scriptContext?.record &&
+      (scriptContext.entity === "Area" || scriptContext?.vnum !== null)
   );
   const scriptEventEntity = scriptContext?.entity ?? null;
   const handleApplyScript = useCallback(
     (nextScript: string) => {
-      if (!scriptContext || scriptContext.vnum === null) {
+      if (!scriptContext) {
         return;
       }
       const normalized = normalizeOptionalScript(nextScript);
       setAreaData((current) => {
         if (!current) {
           return current;
+        }
+        if (scriptContext.entity === "Area") {
+          const areadata =
+            typeof (current as Record<string, unknown>).areadata === "object"
+              ? ((current as Record<string, unknown>)
+                  .areadata as Record<string, unknown>)
+              : {};
+          const nextArea: Record<string, unknown> = { ...areadata };
+          if (normalized) {
+            nextArea.loxScript = normalized;
+          } else {
+            delete nextArea.loxScript;
+          }
+          return {
+            ...(current as Record<string, unknown>),
+            areadata: nextArea
+          };
         }
         const list = getEntityList(current, scriptContext.entity);
         if (!list.length) {
@@ -4841,22 +4879,52 @@ export default function App({ repository }: AppProps) {
           [entityDataKeys[scriptContext.entity]]: nextList
         };
       });
-      setStatusMessage(
-        `Updated ${entityKindLabels[scriptContext.entity].toLowerCase()} ${
-          scriptContext.vnum
-        } script (unsaved)`
-      );
+      const statusTarget =
+        scriptContext.entity === "Area"
+          ? "area"
+          : `${entityKindLabels[scriptContext.entity].toLowerCase()} ${
+              scriptContext.vnum
+            }`;
+      setStatusMessage(`Updated ${statusTarget} script (unsaved)`);
     },
     [scriptContext]
   );
   const handleEventBindingsChange = useCallback(
     (nextEvents: EventBinding[]) => {
-      if (!scriptContext || scriptContext.vnum === null) {
+      if (!scriptContext) {
         return;
       }
       setAreaData((current) => {
         if (!current) {
           return current;
+        }
+        if (scriptContext.entity === "Area") {
+          const areadata =
+            typeof (current as Record<string, unknown>).areadata === "object"
+              ? ((current as Record<string, unknown>)
+                  .areadata as Record<string, unknown>)
+              : {};
+          const nextArea: Record<string, unknown> = { ...areadata };
+          if (nextEvents.length) {
+            nextArea.events = nextEvents.map((event) => {
+              const trigger = event.trigger.trim();
+              const callback = event.callback.trim();
+              const nextEvent: Record<string, unknown> = {
+                trigger,
+                callback
+              };
+              if (event.criteria !== undefined && event.criteria !== "") {
+                nextEvent.criteria = event.criteria;
+              }
+              return nextEvent;
+            });
+          } else {
+            delete nextArea.events;
+          }
+          return {
+            ...(current as Record<string, unknown>),
+            areadata: nextArea
+          };
         }
         const list = getEntityList(current, scriptContext.entity);
         if (!list.length) {
@@ -4895,11 +4963,13 @@ export default function App({ repository }: AppProps) {
           [entityDataKeys[scriptContext.entity]]: nextList
         };
       });
-      setStatusMessage(
-        `Updated ${entityKindLabels[scriptContext.entity].toLowerCase()} ${
-          scriptContext.vnum
-        } events (unsaved)`
-      );
+      const statusTarget =
+        scriptContext.entity === "Area"
+          ? "area"
+          : `${entityKindLabels[scriptContext.entity].toLowerCase()} ${
+              scriptContext.vnum
+            }`;
+      setStatusMessage(`Updated ${statusTarget} events (unsaved)`);
     },
     [scriptContext]
   );
@@ -7196,6 +7266,11 @@ export default function App({ repository }: AppProps) {
       removeChecklist={removeChecklist}
       moveChecklist={moveChecklist}
       lootTableOptions={lootTableOptions}
+      eventBindings={eventBindings}
+      scriptValue={scriptValue}
+      canEditScript={canEditScript}
+      scriptEventEntity={scriptEventEntity}
+      onEventBindingsChange={handleEventBindingsChange}
     />
   );
   const roomResetEditorNode =
@@ -8206,7 +8281,7 @@ export default function App({ repository }: AppProps) {
       subtitle={scriptSubtitle}
       value={scriptValue}
       canEdit={canEditScript}
-      emptyState="Select a room, mobile, or object to edit its Lox script."
+      emptyState="Select an area, room, mobile, or object to edit its Lox script."
       onApply={handleApplyScript}
     />
   );

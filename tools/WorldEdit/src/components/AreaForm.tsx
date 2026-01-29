@@ -1,5 +1,7 @@
 import type { FormEventHandler } from "react";
 import type { UseFormRegister } from "react-hook-form";
+import { EventBindingsView } from "./EventBindingsView";
+import type { EventBinding, EventEntityKey } from "../data/eventTypes";
 
 type AreaFormProps = {
   onSubmit: FormEventHandler<HTMLFormElement>;
@@ -18,6 +20,11 @@ type AreaFormProps = {
   removeChecklist: (index: number) => void;
   moveChecklist: (from: number, to: number) => void;
   lootTableOptions: string[];
+  eventBindings: EventBinding[];
+  scriptValue: string;
+  canEditScript: boolean;
+  scriptEventEntity: EventEntityKey | null;
+  onEventBindingsChange: (events: EventBinding[]) => void;
 };
 
 const checklistStatusOptions = ["todo", "inProgress", "done"] as const;
@@ -35,7 +42,12 @@ export function AreaForm({
   appendChecklist,
   removeChecklist,
   moveChecklist,
-  lootTableOptions
+  lootTableOptions,
+  eventBindings,
+  scriptValue,
+  canEditScript,
+  scriptEventEntity,
+  onEventBindingsChange
 }: AreaFormProps) {
   const errors = formState.errors as Record<string, any>;
   const lootListId = "area-loot-table-options";
@@ -219,6 +231,15 @@ export function AreaForm({
               <span>Enabled</span>
             </label>
           </div>
+        </div>
+        <div className="form-field form-field--full">
+          <EventBindingsView
+            entityType={canEditScript ? scriptEventEntity : null}
+            events={eventBindings}
+            script={scriptValue}
+            canEdit={canEditScript}
+            onChange={onEventBindingsChange}
+          />
         </div>
         <div className="form-field form-field--full">
           <div className="form-section-header">
