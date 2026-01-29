@@ -26,6 +26,7 @@ type RoomFormProps = {
   appendTimePeriod: (value: Record<string, unknown>) => void;
   removeTimePeriod: (index: number) => void;
   moveTimePeriod: (from: number, to: number) => void;
+  onAddDefaultPeriods: () => void;
   roomResets: Array<{
     index: number;
     command: string;
@@ -62,6 +63,7 @@ export function RoomForm({
   appendTimePeriod,
   removeTimePeriod,
   moveTimePeriod,
+  onAddDefaultPeriods,
   roomResets,
   selectedRoomResetIndex,
   onSelectRoomReset,
@@ -164,6 +166,7 @@ export function RoomForm({
           movePeriod={moveTimePeriod}
           suppressField="suppressDaycycleMessages"
           suppressLabel="Suppress base daycycle messages"
+          onAddDefaults={onAddDefaultPeriods}
         />
         <div className="form-field form-field--full">
           <div className="form-section-header">

@@ -10,6 +10,8 @@ type DaycyclePeriodsEditorProps = {
   movePeriod?: (from: number, to: number) => void;
   suppressField?: string;
   suppressLabel?: string;
+  onAddDefaults?: () => void;
+  showDescription?: boolean;
 };
 
 export function DaycyclePeriodsEditor({
@@ -21,7 +23,9 @@ export function DaycyclePeriodsEditor({
   removePeriod,
   movePeriod,
   suppressField,
-  suppressLabel
+  suppressLabel,
+  onAddDefaults,
+  showDescription = true
 }: DaycyclePeriodsEditorProps) {
   const handleAdd = () =>
     appendPeriod({
@@ -44,9 +48,16 @@ export function DaycyclePeriodsEditor({
               : "No periods defined"}
           </div>
         </div>
-        <button className="ghost-button" type="button" onClick={handleAdd}>
-          Add Period
-        </button>
+        <div className="block-actions">
+          {fields.length === 0 && onAddDefaults ? (
+            <button className="ghost-button" type="button" onClick={onAddDefaults}>
+              Add Default Periods
+            </button>
+          ) : null}
+          <button className="ghost-button" type="button" onClick={handleAdd}>
+            Add Period
+          </button>
+        </div>
       </div>
       {suppressField ? (
         <label className="checkbox-pill">
@@ -136,20 +147,22 @@ export function DaycyclePeriodsEditor({
                   })}
                 />
               </div>
-              <div className="form-field form-field--full">
-                <label
-                  className="form-label"
-                  htmlFor={`period-desc-${field.id}`}
-                >
-                  Description
-                </label>
-                <textarea
-                  id={`period-desc-${field.id}`}
-                  className="form-textarea"
-                  rows={3}
-                  {...register(`${namePrefix}.${index}.description`)}
-                />
-              </div>
+              {showDescription ? (
+                <div className="form-field form-field--full">
+                  <label
+                    className="form-label"
+                    htmlFor={`period-desc-${field.id}`}
+                  >
+                    Description
+                  </label>
+                  <textarea
+                    id={`period-desc-${field.id}`}
+                    className="form-textarea"
+                    rows={3}
+                    {...register(`${namePrefix}.${index}.description`)}
+                  />
+                </div>
+              ) : null}
               <div className="form-field form-field--full">
                 <label
                   className="form-label"

@@ -482,6 +482,12 @@ const optionalDamageTypeSchema = optionalEnumSchema(damageTypeEnum);
 const optionalDirectionSchema = optionalEnumSchema(directionEnum);
 const optionalWearLocationSchema = optionalEnumSchema(wearLocationEnum);
 const checklistStatusOptions = ["todo", "inProgress", "done"] as const;
+const defaultDaycyclePeriods = [
+  { name: "day", fromHour: 6, toHour: 18 },
+  { name: "dusk", fromHour: 19, toHour: 19 },
+  { name: "night", fromHour: 20, toHour: 4 },
+  { name: "dawn", fromHour: 5, toHour: 5 }
+] as const;
 
 const areaFormSchema = z.object({
   name: z.string().min(1, "Name is required."),
@@ -3063,6 +3069,14 @@ export default function App({ repository }: AppProps) {
     control: roomFormControl,
     name: "timePeriods"
   });
+  const handleAddDefaultAreaPeriods = () => {
+    appendDaycycle(defaultDaycyclePeriods as unknown as Record<string, unknown>[]);
+  };
+  const handleAddDefaultRoomPeriods = () => {
+    appendTimePeriod(
+      defaultDaycyclePeriods as unknown as Record<string, unknown>[]
+    );
+  };
   const mobileForm = useForm<MobileFormValues>({
     resolver: zodResolver(mobileFormSchema),
     defaultValues: {
@@ -7434,6 +7448,7 @@ export default function App({ repository }: AppProps) {
       appendDaycycle={appendDaycycle}
       removeDaycycle={removeDaycycle}
       moveDaycycle={moveDaycycle}
+      onAddDefaultDaycycle={handleAddDefaultAreaPeriods}
       lootTableOptions={lootTableOptions}
       eventBindings={eventBindings}
       scriptValue={scriptValue}
@@ -7501,6 +7516,7 @@ export default function App({ repository }: AppProps) {
       appendTimePeriod={appendTimePeriod}
       removeTimePeriod={removeTimePeriod}
       moveTimePeriod={moveTimePeriod}
+      onAddDefaultPeriods={handleAddDefaultRoomPeriods}
       roomResets={roomResetItems}
       selectedRoomResetIndex={selectedRoomResetIndex}
       onSelectRoomReset={handleSelectRoomReset}

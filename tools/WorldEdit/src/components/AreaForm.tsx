@@ -24,6 +24,7 @@ type AreaFormProps = {
   appendDaycycle: (value: Record<string, unknown>) => void;
   removeDaycycle: (index: number) => void;
   moveDaycycle: (from: number, to: number) => void;
+  onAddDefaultDaycycle: () => void;
   lootTableOptions: string[];
   eventBindings: EventBinding[];
   scriptValue: string;
@@ -51,6 +52,7 @@ export function AreaForm({
   appendDaycycle,
   removeDaycycle,
   moveDaycycle,
+  onAddDefaultDaycycle,
   lootTableOptions,
   eventBindings,
   scriptValue,
@@ -261,6 +263,8 @@ export function AreaForm({
             movePeriod={moveDaycycle}
             suppressField="daycycleSuppress"
             suppressLabel="Suppress base daycycle messages"
+            onAddDefaults={onAddDefaultDaycycle}
+            showDescription={false}
           />
         </div>
         <div className="form-field form-field--full">
