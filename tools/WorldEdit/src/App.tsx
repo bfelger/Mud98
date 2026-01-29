@@ -498,6 +498,17 @@ const areaFormSchema = z.object({
   reset: optionalIntSchema,
   alwaysReset: z.boolean().optional(),
   instType: z.enum(["single", "multi"]),
+  daycycleSuppress: z.boolean().optional(),
+  daycyclePeriods: z.array(
+    z.object({
+      name: z.string().optional(),
+      fromHour: optionalIntSchema,
+      toHour: optionalIntSchema,
+      description: z.string().optional(),
+      enterMessage: z.string().optional(),
+      exitMessage: z.string().optional()
+    })
+  ),
   storyBeats: z.array(
     z.object({
       title: z.string().min(1, "Title is required."),
@@ -538,6 +549,15 @@ const exitFormSchema = z.object({
     (value) => (typeof value === "string" ? value : ""),
     z.string().optional()
   )
+});
+
+const daycyclePeriodFormSchema = z.object({
+  name: z.string().optional(),
+  fromHour: optionalIntSchema,
+  toHour: optionalIntSchema,
+  description: z.string().optional(),
+  enterMessage: z.string().optional(),
+  exitMessage: z.string().optional()
 });
 
 const diceFormSchema = z
@@ -827,6 +847,8 @@ const roomFormSchema = z.object({
   description: z.string().min(1, "Description is required."),
   sectorType: optionalSectorSchema,
   roomFlags: z.array(roomFlagEnum).optional(),
+  suppressDaycycleMessages: z.boolean().optional(),
+  timePeriods: z.array(daycyclePeriodFormSchema).optional(),
   exits: z.array(exitFormSchema).optional()
 });
 
@@ -2966,6 +2988,8 @@ export default function App({ repository }: AppProps) {
       reset: undefined,
       alwaysReset: false,
       instType: "single",
+      daycycleSuppress: false,
+      daycyclePeriods: [],
       storyBeats: [],
       checklist: []
     }
@@ -2994,6 +3018,15 @@ export default function App({ repository }: AppProps) {
     control: areaFormControl,
     name: "checklist"
   });
+  const {
+    fields: daycycleFields,
+    append: appendDaycycle,
+    remove: removeDaycycle,
+    move: moveDaycycle
+  } = useFieldArray({
+    control: areaFormControl,
+    name: "daycyclePeriods"
+  });
   const roomForm = useForm<RoomFormValues>({
     resolver: zodResolver(roomFormSchema),
     defaultValues: {
@@ -3002,6 +3035,8 @@ export default function App({ repository }: AppProps) {
       description: "",
       sectorType: undefined,
       roomFlags: [],
+      suppressDaycycleMessages: false,
+      timePeriods: [],
       exits: []
     }
   });
@@ -3018,6 +3053,15 @@ export default function App({ repository }: AppProps) {
   } = useFieldArray({
     control: roomFormControl,
     name: "exits"
+  });
+  const {
+    fields: timePeriodFields,
+    append: appendTimePeriod,
+    remove: removeTimePeriod,
+    move: moveTimePeriod
+  } = useFieldArray({
+    control: roomFormControl,
+    name: "timePeriods"
   });
   const mobileForm = useForm<MobileFormValues>({
     resolver: zodResolver(mobileFormSchema),
@@ -4978,6 +5022,10 @@ export default function App({ repository }: AppProps) {
       areaData && typeof (areaData as Record<string, unknown>).areadata === "object"
         ? ((areaData as Record<string, unknown>).areadata as Record<string, unknown>)
         : {};
+    const daycycle =
+      areaData && typeof (areaData as Record<string, unknown>).daycycle === "object"
+        ? ((areaData as Record<string, unknown>).daycycle as Record<string, unknown>)
+        : {};
     const vnumRange = Array.isArray(areadata.vnumRange) ? areadata.vnumRange : [];
     const vnumRangeStart = parseVnum(vnumRange[0]) ?? 0;
     const vnumRangeEnd = parseVnum(vnumRange[1]) ?? 0;
@@ -5010,6 +5058,30 @@ export default function App({ repository }: AppProps) {
             };
           })
       : [];
+    const daycyclePeriods = Array.isArray(daycycle.periods)
+      ? (daycycle.periods as unknown[])
+          .filter((entry) => entry && typeof entry === "object")
+          .map((entry) => {
+            const record = entry as Record<string, unknown>;
+            return {
+              name: typeof record.name === "string" ? record.name : "",
+              fromHour: parseVnum(record.fromHour) ?? undefined,
+              toHour: parseVnum(record.toHour) ?? undefined,
+              description:
+                typeof record.description === "string"
+                  ? normalizeLineEndingsForDisplay(record.description)
+                  : "",
+              enterMessage:
+                typeof record.enterMessage === "string"
+                  ? normalizeLineEndingsForDisplay(record.enterMessage)
+                  : "",
+              exitMessage:
+                typeof record.exitMessage === "string"
+                  ? normalizeLineEndingsForDisplay(record.exitMessage)
+                  : ""
+            };
+          })
+      : [];
     return {
       name: typeof areadata.name === "string" ? areadata.name : "",
       version: parseVnum(areadata.version) ?? 1,
@@ -5027,6 +5099,11 @@ export default function App({ repository }: AppProps) {
       alwaysReset:
         typeof areadata.alwaysReset === "boolean" ? areadata.alwaysReset : false,
       instType: areadata.instType === "multi" ? "multi" : "single",
+      daycycleSuppress:
+        typeof daycycle.suppressDaycycleMessages === "boolean"
+          ? daycycle.suppressDaycycleMessages
+          : false,
+      daycyclePeriods,
       storyBeats,
       checklist
     };
@@ -5044,6 +5121,27 @@ export default function App({ repository }: AppProps) {
     const roomFlags = Array.isArray(record?.roomFlags)
       ? record.roomFlags.filter((flag) => typeof flag === "string")
       : [];
+    const timePeriods = Array.isArray(record?.timePeriods)
+      ? record.timePeriods
+          .filter((entry: unknown) => entry && typeof entry === "object")
+          .map((entry: Record<string, unknown>) => ({
+            name: typeof entry.name === "string" ? entry.name : "",
+            fromHour: parseVnum(entry.fromHour) ?? undefined,
+            toHour: parseVnum(entry.toHour) ?? undefined,
+            description:
+              typeof entry.description === "string"
+                ? normalizeLineEndingsForDisplay(entry.description)
+                : "",
+            enterMessage:
+              typeof entry.enterMessage === "string"
+                ? normalizeLineEndingsForDisplay(entry.enterMessage)
+                : "",
+            exitMessage:
+              typeof entry.exitMessage === "string"
+                ? normalizeLineEndingsForDisplay(entry.exitMessage)
+                : ""
+          }))
+      : [];
     return {
       vnum,
       name: typeof record?.name === "string" ? record.name : "",
@@ -5053,6 +5151,11 @@ export default function App({ repository }: AppProps) {
           : "",
       sectorType,
       roomFlags,
+      suppressDaycycleMessages:
+        typeof record?.suppressDaycycleMessages === "boolean"
+          ? record.suppressDaycycleMessages
+          : false,
+      timePeriods,
       exits: Array.isArray(record?.exits)
         ? record.exits
             .filter((exit): exit is Record<string, unknown> =>
@@ -6057,6 +6160,29 @@ export default function App({ repository }: AppProps) {
     if (!areaData) {
       return;
     }
+    const nextDaycyclePeriods = (data.daycyclePeriods ?? [])
+      .map((period) => {
+        const name = (period.name ?? "").trim();
+        const description = normalizeOptionalMudText(period.description);
+        const enterMessage = normalizeOptionalMudText(period.enterMessage);
+        const exitMessage = normalizeOptionalMudText(period.exitMessage);
+        const nextPeriod: Record<string, unknown> = {
+          name,
+          fromHour: period.fromHour ?? 0,
+          toHour: period.toHour ?? period.fromHour ?? 0
+        };
+        if (description) {
+          nextPeriod.description = description;
+        }
+        if (enterMessage) {
+          nextPeriod.enterMessage = enterMessage;
+        }
+        if (exitMessage) {
+          nextPeriod.exitMessage = exitMessage;
+        }
+        return nextPeriod;
+      })
+      .filter((period) => Boolean(period.name));
     const nextStoryBeats = (data.storyBeats ?? [])
       .map((beat) => {
         const title = beat.title.trim();
@@ -6109,9 +6235,19 @@ export default function App({ repository }: AppProps) {
         alwaysReset: data.alwaysReset ? true : undefined,
         instType: data.instType === "multi" ? "multi" : undefined
       };
+      const daycycle =
+        data.daycycleSuppress || nextDaycyclePeriods.length
+          ? {
+              suppressDaycycleMessages: data.daycycleSuppress ? true : undefined,
+              periods: nextDaycyclePeriods.length
+                ? nextDaycyclePeriods
+                : undefined
+            }
+          : undefined;
       return {
         ...record,
         areadata: nextAreadata,
+        daycycle,
         storyBeats: nextStoryBeats.length ? nextStoryBeats : undefined,
         checklist: nextChecklist.length ? nextChecklist : undefined
       };
@@ -6123,6 +6259,29 @@ export default function App({ repository }: AppProps) {
     if (!areaData || selectedRoomVnum === null) {
       return;
     }
+    const normalizedTimePeriods = (data.timePeriods ?? [])
+      .map((period) => {
+        const name = (period.name ?? "").trim();
+        const description = normalizeOptionalMudText(period.description);
+        const enterMessage = normalizeOptionalMudText(period.enterMessage);
+        const exitMessage = normalizeOptionalMudText(period.exitMessage);
+        const nextPeriod: Record<string, unknown> = {
+          name,
+          fromHour: period.fromHour ?? 0,
+          toHour: period.toHour ?? period.fromHour ?? 0
+        };
+        if (description) {
+          nextPeriod.description = description;
+        }
+        if (enterMessage) {
+          nextPeriod.enterMessage = enterMessage;
+        }
+        if (exitMessage) {
+          nextPeriod.exitMessage = exitMessage;
+        }
+        return nextPeriod;
+      })
+      .filter((period) => Boolean(period.name));
     const normalizedExits = (data.exits ?? []).map((exit) => {
       const nextExit: Record<string, unknown> = {
         dir: exit.dir,
@@ -6163,6 +6322,12 @@ export default function App({ repository }: AppProps) {
           description: normalizeLineEndingsForMud(data.description),
           sectorType: data.sectorType ?? undefined,
           roomFlags: data.roomFlags?.length ? data.roomFlags : undefined,
+          suppressDaycycleMessages: data.suppressDaycycleMessages
+            ? true
+            : undefined,
+          timePeriods: normalizedTimePeriods.length
+            ? normalizedTimePeriods
+            : undefined,
           manaRate: undefined,
           healRate: undefined,
           clan: undefined,
@@ -7265,6 +7430,10 @@ export default function App({ repository }: AppProps) {
       appendChecklist={appendChecklist}
       removeChecklist={removeChecklist}
       moveChecklist={moveChecklist}
+      daycycleFields={daycycleFields}
+      appendDaycycle={appendDaycycle}
+      removeDaycycle={removeDaycycle}
+      moveDaycycle={moveDaycycle}
       lootTableOptions={lootTableOptions}
       eventBindings={eventBindings}
       scriptValue={scriptValue}
@@ -7328,6 +7497,10 @@ export default function App({ repository }: AppProps) {
       exitFlags={exitFlags}
       roomVnumOptions={roomVnumOptions}
       objectVnumOptions={objectVnumOptions}
+      timePeriodFields={timePeriodFields}
+      appendTimePeriod={appendTimePeriod}
+      removeTimePeriod={removeTimePeriod}
+      moveTimePeriod={moveTimePeriod}
       roomResets={roomResetItems}
       selectedRoomResetIndex={selectedRoomResetIndex}
       onSelectRoomReset={handleSelectRoomReset}

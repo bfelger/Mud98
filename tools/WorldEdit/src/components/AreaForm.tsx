@@ -2,6 +2,7 @@ import type { FormEventHandler } from "react";
 import type { UseFormRegister } from "react-hook-form";
 import { EventBindingsView } from "./EventBindingsView";
 import type { EventBinding, EventEntityKey } from "../data/eventTypes";
+import { DaycyclePeriodsEditor } from "./DaycyclePeriodsEditor";
 
 type AreaFormProps = {
   onSubmit: FormEventHandler<HTMLFormElement>;
@@ -19,6 +20,10 @@ type AreaFormProps = {
   appendChecklist: (value: Record<string, unknown>) => void;
   removeChecklist: (index: number) => void;
   moveChecklist: (from: number, to: number) => void;
+  daycycleFields: Array<{ id: string }>;
+  appendDaycycle: (value: Record<string, unknown>) => void;
+  removeDaycycle: (index: number) => void;
+  moveDaycycle: (from: number, to: number) => void;
   lootTableOptions: string[];
   eventBindings: EventBinding[];
   scriptValue: string;
@@ -42,6 +47,10 @@ export function AreaForm({
   appendChecklist,
   removeChecklist,
   moveChecklist,
+  daycycleFields,
+  appendDaycycle,
+  removeDaycycle,
+  moveDaycycle,
   lootTableOptions,
   eventBindings,
   scriptValue,
@@ -239,6 +248,19 @@ export function AreaForm({
             script={scriptValue}
             canEdit={canEditScript}
             onChange={onEventBindingsChange}
+          />
+        </div>
+        <div className="form-field form-field--full">
+          <DaycyclePeriodsEditor
+            title="Daycycle Periods"
+            fields={daycycleFields}
+            register={register}
+            namePrefix="daycyclePeriods"
+            appendPeriod={appendDaycycle}
+            removePeriod={removeDaycycle}
+            movePeriod={moveDaycycle}
+            suppressField="daycycleSuppress"
+            suppressLabel="Suppress base daycycle messages"
           />
         </div>
         <div className="form-field form-field--full">
