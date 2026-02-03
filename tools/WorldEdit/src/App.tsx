@@ -8,13 +8,8 @@ import {
 } from "react";
 import type { ColDef, GridApi } from "ag-grid-community";
 import {
-  BaseEdge,
-  EdgeLabelRenderer,
-  Position,
   type Edge,
-  type EdgeProps,
-  type Node,
-  useStore
+  type Node
 } from "reactflow";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -24,6 +19,9 @@ import {
   type FieldPath,
 } from "react-hook-form";
 import { z } from "zod";
+import { useSelectionStore } from "./stores/useSelectionStore";
+import { useEditorUiStore } from "./stores/useEditorUiStore";
+import { useGlobalDataStore } from "./stores/useGlobalDataStore";
 import { ScriptView } from "./components/ScriptView";
 import { AreaForm } from "./components/AreaForm";
 import { AreaGraphView } from "./components/AreaGraphView";
@@ -387,7 +385,10 @@ import {
   resetCommandMap,
   resetCommandLabels,
   areaDirectionHandleMap,
-  externalDirectionLabels
+  externalDirectionLabels,
+  type EntityKey,
+  type GlobalEntityKey,
+  type EditorMode
 } from "./constants/appConfig";
 
 type AppProps = {
@@ -395,9 +396,6 @@ type AppProps = {
 };
 
 type TabId = (typeof tabs)[number]["id"];
-type EntityKey = (typeof entityOrder)[number];
-type GlobalEntityKey = (typeof globalEntityOrder)[number];
-type EditorMode = "Area" | "Global";
 
 type RoomContextMenuState = {
   vnum: number;
@@ -724,131 +722,163 @@ function syncGridSelection(
 }
 
 export default function App({ repository }: AppProps) {
-  const [activeTab, setActiveTab] = useState<TabId>(tabs[0].id);
-  const [editorMode, setEditorMode] = useState<EditorMode>("Area");
-  const [selectedEntity, setSelectedEntity] =
-    useState<EntityKey>("Rooms");
-  const [selectedGlobalEntity, setSelectedGlobalEntity] =
-    useState<GlobalEntityKey>("Classes");
-  const [selectedClassIndex, setSelectedClassIndex] = useState<number | null>(
-    null
-  );
-  const [selectedRaceIndex, setSelectedRaceIndex] = useState<number | null>(
-    null
-  );
-  const [selectedSkillIndex, setSelectedSkillIndex] = useState<number | null>(
-    null
-  );
-  const [selectedGroupIndex, setSelectedGroupIndex] = useState<number | null>(
-    null
-  );
-  const [selectedCommandIndex, setSelectedCommandIndex] = useState<number | null>(
-    null
-  );
-  const [selectedSocialIndex, setSelectedSocialIndex] = useState<number | null>(
-    null
-  );
-  const [selectedTutorialIndex, setSelectedTutorialIndex] = useState<
-    number | null
-  >(null);
-  const [selectedLootKind, setSelectedLootKind] = useState<
-    "group" | "table" | null
-  >(null);
-  const [selectedLootIndex, setSelectedLootIndex] = useState<number | null>(
-    null
-  );
-  const [selectedMobileVnum, setSelectedMobileVnum] = useState<number | null>(
-    null
-  );
-  const [selectedObjectVnum, setSelectedObjectVnum] = useState<number | null>(
-    null
-  );
-  const [selectedResetIndex, setSelectedResetIndex] = useState<number | null>(
-    null
-  );
-  const [selectedShopKeeper, setSelectedShopKeeper] = useState<number | null>(
-    null
-  );
-  const [selectedQuestVnum, setSelectedQuestVnum] = useState<number | null>(null);
-  const [selectedFactionVnum, setSelectedFactionVnum] = useState<number | null>(
-    null
-  );
-  const [selectedAreaLootKind, setSelectedAreaLootKind] = useState<
-    "group" | "table" | null
-  >(null);
-  const [selectedAreaLootIndex, setSelectedAreaLootIndex] = useState<
-    number | null
-  >(null);
-  const [selectedRecipeVnum, setSelectedRecipeVnum] = useState<number | null>(
-    null
-  );
-  const [selectedGatherVnum, setSelectedGatherVnum] = useState<number | null>(
-    null
-  );
+  // UI state from Zustand store
+  const {
+    activeTab,
+    setActiveTab,
+    statusMessage,
+    setStatusMessage,
+    errorMessage,
+    setErrorMessage,
+    isBusy,
+    setIsBusy,
+    diagnosticFilter,
+    setDiagnosticFilter
+  } = useEditorUiStore();
+
+  // Selection state from Zustand store
+  const {
+    editorMode,
+    setEditorMode,
+    selectedEntity,
+    setSelectedEntity,
+    selectedGlobalEntity,
+    setSelectedGlobalEntity,
+    selectedClassIndex,
+    setSelectedClassIndex,
+    selectedRaceIndex,
+    setSelectedRaceIndex,
+    selectedSkillIndex,
+    setSelectedSkillIndex,
+    selectedGroupIndex,
+    setSelectedGroupIndex,
+    selectedCommandIndex,
+    setSelectedCommandIndex,
+    selectedSocialIndex,
+    setSelectedSocialIndex,
+    selectedTutorialIndex,
+    setSelectedTutorialIndex,
+    selectedGlobalLoot,
+    setSelectedGlobalLoot,
+    selectedMobileVnum,
+    setSelectedMobileVnum,
+    selectedObjectVnum,
+    setSelectedObjectVnum,
+    selectedResetIndex,
+    setSelectedResetIndex,
+    selectedShopKeeper,
+    setSelectedShopKeeper,
+    selectedQuestVnum,
+    setSelectedQuestVnum,
+    selectedFactionVnum,
+    setSelectedFactionVnum,
+    selectedAreaLoot,
+    setSelectedAreaLoot,
+    selectedRecipeVnum,
+    setSelectedRecipeVnum,
+    selectedGatherVnum,
+    setSelectedGatherVnum,
+    clearAreaSelections
+  } = useSelectionStore();
+
+  // Global data state from Zustand store
+  const {
+    classData,
+    setClassData,
+    classDataPath,
+    setClassDataPath,
+    classDataFormat,
+    setClassDataFormat,
+    classDataDir,
+    setClassDataDir,
+    raceData,
+    setRaceData,
+    raceDataPath,
+    setRaceDataPath,
+    raceDataFormat,
+    setRaceDataFormat,
+    raceDataDir,
+    setRaceDataDir,
+    skillData,
+    setSkillData,
+    skillDataPath,
+    setSkillDataPath,
+    skillDataFormat,
+    setSkillDataFormat,
+    skillDataDir,
+    setSkillDataDir,
+    groupData,
+    setGroupData,
+    groupDataPath,
+    setGroupDataPath,
+    groupDataFormat,
+    setGroupDataFormat,
+    groupDataDir,
+    setGroupDataDir,
+    commandData,
+    setCommandData,
+    commandDataPath,
+    setCommandDataPath,
+    commandDataFormat,
+    setCommandDataFormat,
+    commandDataDir,
+    setCommandDataDir,
+    socialData,
+    setSocialData,
+    socialDataPath,
+    setSocialDataPath,
+    socialDataFormat,
+    setSocialDataFormat,
+    socialDataDir,
+    setSocialDataDir,
+    tutorialData,
+    setTutorialData,
+    tutorialDataPath,
+    setTutorialDataPath,
+    tutorialDataFormat,
+    setTutorialDataFormat,
+    tutorialDataDir,
+    setTutorialDataDir,
+    lootData,
+    setLootData,
+    lootDataPath,
+    setLootDataPath,
+    lootDataFormat,
+    setLootDataFormat,
+    lootDataDir,
+    setLootDataDir,
+    referenceData,
+    setReferenceData,
+    projectConfig,
+    setProjectConfig,
+    editorMeta,
+    setEditorMeta,
+    editorMetaPath,
+    setEditorMetaPath,
+    dataDirectory,
+    setDataDirectory
+  } = useGlobalDataStore();
+
+  // Aliases for backward compatibility with existing code
+  const selectedLootKind = selectedGlobalLoot.kind;
+  const selectedLootIndex = selectedGlobalLoot.index;
+  const setSelectedLootKind = (kind: "group" | "table" | null) =>
+    setSelectedGlobalLoot({ ...selectedGlobalLoot, kind });
+  const setSelectedLootIndex = (index: number | null) =>
+    setSelectedGlobalLoot({ ...selectedGlobalLoot, index });
+  const selectedAreaLootKind = selectedAreaLoot.kind;
+  const selectedAreaLootIndex = selectedAreaLoot.index;
+  const setSelectedAreaLootKind = (kind: "group" | "table" | null) =>
+    setSelectedAreaLoot({ ...selectedAreaLoot, kind });
+  const setSelectedAreaLootIndex = (index: number | null) =>
+    setSelectedAreaLoot({ ...selectedAreaLoot, index });
+
+  // Area data (still local - will be migrated to area store)
   const [areaPath, setAreaPath] = useState<string | null>(null);
   const [areaData, setAreaData] = useState<AreaJson | null>(null);
-  const [classData, setClassData] = useState<ClassDataFile | null>(null);
-  const [classDataPath, setClassDataPath] = useState<string | null>(null);
-  const [classDataFormat, setClassDataFormat] = useState<
-    "json" | "olc" | null
-  >(null);
-  const [classDataDir, setClassDataDir] = useState<string | null>(null);
-  const [raceData, setRaceData] = useState<RaceDataFile | null>(null);
-  const [raceDataPath, setRaceDataPath] = useState<string | null>(null);
-  const [raceDataFormat, setRaceDataFormat] = useState<
-    "json" | "olc" | null
-  >(null);
-  const [raceDataDir, setRaceDataDir] = useState<string | null>(null);
-  const [skillData, setSkillData] = useState<SkillDataFile | null>(null);
-  const [skillDataPath, setSkillDataPath] = useState<string | null>(null);
-  const [skillDataFormat, setSkillDataFormat] = useState<
-    "json" | "olc" | null
-  >(null);
-  const [skillDataDir, setSkillDataDir] = useState<string | null>(null);
-  const [groupData, setGroupData] = useState<GroupDataFile | null>(null);
-  const [groupDataPath, setGroupDataPath] = useState<string | null>(null);
-  const [groupDataFormat, setGroupDataFormat] = useState<
-    "json" | "olc" | null
-  >(null);
-  const [groupDataDir, setGroupDataDir] = useState<string | null>(null);
-  const [commandData, setCommandData] = useState<CommandDataFile | null>(null);
-  const [commandDataPath, setCommandDataPath] = useState<string | null>(null);
-  const [commandDataFormat, setCommandDataFormat] = useState<
-    "json" | "olc" | null
-  >(null);
-  const [commandDataDir, setCommandDataDir] = useState<string | null>(null);
-  const [socialData, setSocialData] = useState<SocialDataFile | null>(null);
-  const [socialDataPath, setSocialDataPath] = useState<string | null>(null);
-  const [socialDataFormat, setSocialDataFormat] = useState<
-    "json" | "olc" | null
-  >(null);
-  const [socialDataDir, setSocialDataDir] = useState<string | null>(null);
-  const [tutorialData, setTutorialData] = useState<TutorialDataFile | null>(null);
-  const [tutorialDataPath, setTutorialDataPath] = useState<string | null>(null);
-  const [tutorialDataFormat, setTutorialDataFormat] = useState<
-    "json" | "olc" | null
-  >(null);
-  const [tutorialDataDir, setTutorialDataDir] = useState<string | null>(null);
-  const [lootData, setLootData] = useState<LootDataFile | null>(null);
-  const [lootDataPath, setLootDataPath] = useState<string | null>(null);
-  const [lootDataFormat, setLootDataFormat] = useState<
-    "json" | "olc" | null
-  >(null);
-  const [lootDataDir, setLootDataDir] = useState<string | null>(null);
-  const [projectConfig, setProjectConfig] = useState<ProjectConfig | null>(null);
-  const [editorMeta, setEditorMeta] = useState<EditorMeta | null>(null);
-  const [editorMetaPath, setEditorMetaPath] = useState<string | null>(null);
-  const [referenceData, setReferenceData] = useState<ReferenceData | null>(null);
-  const [dataDirectory, setDataDirectory] = useState<string | null>(null);
-  const [statusMessage, setStatusMessage] = useState("No area loaded");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isBusy, setIsBusy] = useState(false);
   const [areaDirectory, setAreaDirectory] = useState<string | null>(() =>
     localStorage.getItem("worldedit.areaDir")
   );
-  const [diagnosticFilter, setDiagnosticFilter] = useState<
-    "All" | EntityKey
-  >("All");
   const [areaIndex, setAreaIndex] = useState<AreaIndexEntry[]>([]);
   const [areaGraphLinks, setAreaGraphLinks] = useState<AreaGraphLink[]>([]);
   const roomGridApi = useRef<GridApi | null>(null);
