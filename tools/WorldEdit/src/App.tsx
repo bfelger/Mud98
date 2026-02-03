@@ -250,6 +250,7 @@ import { useAreaIoHandlers } from "./hooks/useAreaIoHandlers";
 import { useGlobalIoHandlers } from "./hooks/useGlobalIoHandlers";
 import { useGlobalDataLazyLoad } from "./hooks/useGlobalDataLazyLoad";
 import { useGlobalIndexClamp } from "./hooks/useGlobalIndexClamp";
+import { useFormResetOnDefaultsChange } from "./hooks/useFormResetOnDefaultsChange";
 import {
   containerFlagEnum,
   containerFlags,
@@ -3701,51 +3702,24 @@ export default function App({ repository }: AppProps) {
   const recipeDefaultColDef = roomDefaultColDef;
   const gatherSpawnDefaultColDef = roomDefaultColDef;
 
-  useEffect(() => {
-    areaForm.reset(areaFormDefaults);
-  }, [areaForm, areaFormDefaults]);
+  // Reset forms when their defaults change
+  useFormResetOnDefaultsChange(areaForm, areaFormDefaults);
+  useFormResetOnDefaultsChange(roomForm, roomFormDefaults);
+  useFormResetOnDefaultsChange(mobileForm, mobileFormDefaults);
+  useFormResetOnDefaultsChange(objectForm, objectFormDefaults);
+  useFormResetOnDefaultsChange(resetForm, resetFormDefaults);
+  useFormResetOnDefaultsChange(shopForm, shopFormDefaults);
+  useFormResetOnDefaultsChange(questForm, questFormDefaults);
+  useFormResetOnDefaultsChange(factionForm, factionFormDefaults);
+  useFormResetOnDefaultsChange(recipeForm, recipeFormDefaults);
+  useFormResetOnDefaultsChange(gatherSpawnForm, gatherSpawnFormDefaults);
 
-  useEffect(() => {
-    roomForm.reset(roomFormDefaults);
-  }, [roomForm, roomFormDefaults]);
-
-  useEffect(() => {
-    mobileForm.reset(mobileFormDefaults);
-  }, [mobileForm, mobileFormDefaults]);
-
+  // Mobile form has additional flag override logic
   useEffect(() => {
     const record = selectedMobileRecord;
     setOverrideMobileFormFlags(Array.isArray(record?.formFlags));
     setOverrideMobilePartFlags(Array.isArray(record?.partFlags));
   }, [selectedMobileRecord]);
-
-  useEffect(() => {
-    objectForm.reset(objectFormDefaults);
-  }, [objectForm, objectFormDefaults]);
-
-  useEffect(() => {
-    resetForm.reset(resetFormDefaults);
-  }, [resetForm, resetFormDefaults]);
-
-  useEffect(() => {
-    shopForm.reset(shopFormDefaults);
-  }, [shopForm, shopFormDefaults]);
-
-  useEffect(() => {
-    questForm.reset(questFormDefaults);
-  }, [questForm, questFormDefaults]);
-
-  useEffect(() => {
-    factionForm.reset(factionFormDefaults);
-  }, [factionForm, factionFormDefaults]);
-
-  useEffect(() => {
-    recipeForm.reset(recipeFormDefaults);
-  }, [recipeForm, recipeFormDefaults]);
-
-  useEffect(() => {
-    gatherSpawnForm.reset(gatherSpawnFormDefaults);
-  }, [gatherSpawnForm, gatherSpawnFormDefaults]);
 
   useEffect(() => {
     if (activeTab !== "Table" || selectedEntity !== "Rooms") {
