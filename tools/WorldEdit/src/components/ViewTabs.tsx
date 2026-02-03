@@ -1,14 +1,16 @@
+import { useEditorUiStore } from "../stores/useEditorUiStore";
+
 type ViewTab = {
   id: string;
 };
 
 type ViewTabsProps = {
   tabs: ViewTab[];
-  activeTab: string;
-  onSelectTab: (tabId: string) => void;
 };
 
-export function ViewTabs({ tabs, activeTab, onSelectTab }: ViewTabsProps) {
+export function ViewTabs({ tabs }: ViewTabsProps) {
+  const { activeTab, setActiveTab } = useEditorUiStore();
+  
   return (
     <nav className="tabs" aria-label="View tabs">
       {tabs.map((tab) => (
@@ -17,7 +19,7 @@ export function ViewTabs({ tabs, activeTab, onSelectTab }: ViewTabsProps) {
           type="button"
           className={`tab${tab.id === activeTab ? " tab--active" : ""}`}
           aria-pressed={tab.id === activeTab}
-          onClick={() => onSelectTab(tab.id)}
+          onClick={() => setActiveTab(tab.id)}
         >
           {tab.id}
         </button>

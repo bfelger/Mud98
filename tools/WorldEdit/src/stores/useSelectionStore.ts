@@ -6,6 +6,7 @@
  */
 
 import { create } from "zustand";
+import { devtools } from "zustand/middleware";
 import type { EntityKey, GlobalEntityKey } from "../constants/appConfig";
 
 /** Selection state for loot editor (used in both area and global contexts). */
@@ -92,7 +93,8 @@ const defaultLootSelection: LootSelection = { kind: null, index: null };
  * const { selectedEntity, setSelectedEntity } = useSelectionStore();
  * ```
  */
-export const useSelectionStore = create<SelectionState>((set, get) => ({
+export const useSelectionStore = create<SelectionState>()(devtools(
+  (set, get) => ({
   // Initial state - Editor mode
   editorMode: "Area",
 
@@ -196,7 +198,7 @@ export const useSelectionStore = create<SelectionState>((set, get) => ({
         return null;
     }
   }
-}));
+}), { name: "SelectionStore" }));
 
 /**
  * Hook to get the selected VNUM map (for passing to components that need all vnums).

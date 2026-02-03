@@ -12,6 +12,7 @@
  */
 
 import { create } from "zustand";
+import { devtools } from "zustand/middleware";
 import type {
   ClassDataFile,
   RaceDataFile,
@@ -178,7 +179,8 @@ const nullFileState = <T>(): DataFileState<T> => ({
 /**
  * Zustand store for global data files.
  */
-export const useGlobalDataStore = create<GlobalDataState>((set) => ({
+export const useGlobalDataStore = create<GlobalDataState>()(devtools(
+  (set) => ({
   // Initial state
   classData: null,
   classDataPath: null,
@@ -374,4 +376,4 @@ export const useGlobalDataStore = create<GlobalDataState>((set) => ({
       lootDataDir: null,
       referenceData: null
     })
-}));
+}), { name: "GlobalDataStore" }));

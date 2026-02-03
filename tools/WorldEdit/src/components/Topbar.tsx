@@ -1,10 +1,7 @@
+import { useEditorUiStore } from "../stores/useEditorUiStore";
+import { useAreaStore } from "../stores/useAreaStore";
+
 type TopbarProps = {
-  areaName: string;
-  errorMessage: string | null;
-  statusMessage: string;
-  isBusy: boolean;
-  hasArea: boolean;
-  hasAreaPath: boolean;
   onOpenProject: () => void;
   onOpenArea: () => void;
   onSetAreaDirectory: () => void;
@@ -14,12 +11,6 @@ type TopbarProps = {
 };
 
 export function Topbar({
-  areaName,
-  errorMessage,
-  statusMessage,
-  isBusy,
-  hasArea,
-  hasAreaPath,
   onOpenProject,
   onOpenArea,
   onSetAreaDirectory,
@@ -27,6 +18,14 @@ export function Topbar({
   onSaveEditorMeta,
   onSaveAreaAs
 }: TopbarProps) {
+  // Get state from stores
+  const { errorMessage, statusMessage, isBusy } = useEditorUiStore();
+  const { areaPath, areaData } = useAreaStore();
+
+  const hasArea = areaData !== null;
+  const hasAreaPath = areaPath !== null;
+  const areaName = areaData?.name ?? "(no area)";
+
   return (
     <header className="topbar">
       <div className="brand">

@@ -9,6 +9,7 @@
  */
 
 import { create } from "zustand";
+import { devtools } from "zustand/middleware";
 import type { EntityKey } from "../constants/appConfig";
 import { tabs } from "../constants/appConfig";
 
@@ -47,7 +48,8 @@ export interface EditorUiState {
 /**
  * Zustand store for editor UI state.
  */
-export const useEditorUiStore = create<EditorUiState>((set, get) => ({
+export const useEditorUiStore = create<EditorUiState>()(devtools(
+  (set, get) => ({
   // Initial state
   activeTab: tabs[0].id,
   statusMessage: "No area loaded",
@@ -78,4 +80,4 @@ export const useEditorUiStore = create<EditorUiState>((set, get) => ({
       set({ isBusy: false });
     }
   }
-}));
+}), { name: "EditorUiStore" }));

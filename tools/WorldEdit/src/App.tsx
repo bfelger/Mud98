@@ -22,6 +22,7 @@ import { z } from "zod";
 import { useSelectionStore } from "./stores/useSelectionStore";
 import { useEditorUiStore } from "./stores/useEditorUiStore";
 import { useGlobalDataStore } from "./stores/useGlobalDataStore";
+import { useAreaStore } from "./stores/useAreaStore";
 import { ScriptView } from "./components/ScriptView";
 import { AreaForm } from "./components/AreaForm";
 import { AreaGraphView } from "./components/AreaGraphView";
@@ -873,14 +874,20 @@ export default function App({ repository }: AppProps) {
   const setSelectedAreaLootIndex = (index: number | null) =>
     setSelectedAreaLoot({ ...selectedAreaLoot, index });
 
-  // Area data (still local - will be migrated to area store)
-  const [areaPath, setAreaPath] = useState<string | null>(null);
-  const [areaData, setAreaData] = useState<AreaJson | null>(null);
-  const [areaDirectory, setAreaDirectory] = useState<string | null>(() =>
-    localStorage.getItem("worldedit.areaDir")
-  );
-  const [areaIndex, setAreaIndex] = useState<AreaIndexEntry[]>([]);
-  const [areaGraphLinks, setAreaGraphLinks] = useState<AreaGraphLink[]>([]);
+  // Area data from Zustand store
+  const {
+    areaPath,
+    setAreaPath,
+    areaData,
+    setAreaData,
+    areaDirectory,
+    setAreaDirectory,
+    areaIndex,
+    setAreaIndex,
+    areaGraphLinks,
+    setAreaGraphLinks
+  } = useAreaStore();
+
   const roomGridApi = useRef<GridApi | null>(null);
   const mobileGridApi = useRef<GridApi | null>(null);
   const objectGridApi = useRef<GridApi | null>(null);
@@ -6858,12 +6865,6 @@ export default function App({ repository }: AppProps) {
   return (
     <div className="app-shell">
       <Topbar
-        areaName={areaName}
-        errorMessage={errorMessage}
-        statusMessage={statusMessage}
-        isBusy={isBusy}
-        hasArea={Boolean(areaData)}
-        hasAreaPath={Boolean(areaPath)}
         onOpenProject={handleOpenProject}
         onOpenArea={handleOpenArea}
         onSetAreaDirectory={handleSetAreaDirectory}
@@ -6873,20 +6874,10 @@ export default function App({ repository }: AppProps) {
       />
 
       <section className="workspace">
-        <EntityTree
-          mode={editorMode}
-          onModeChange={setEditorMode}
-          items={treeItems}
-          selectedEntity={treeSelection}
-          onSelectEntity={handleTreeSelect}
-        />
+        <EntityTree items={treeItems} />
 
         <main className="center">
-          <ViewTabs
-            tabs={visibleTabs}
-            activeTab={activeTab}
-            onSelectTab={setActiveTab}
-          />
+          <ViewTabs tabs={visibleTabs} />
 
           <div className="view-card">
             <ViewCardHeader
@@ -6981,14 +6972,7 @@ export default function App({ repository }: AppProps) {
       </section>
 
       <Statusbar
-        errorMessage={errorMessage}
-        statusMessage={statusMessage}
-        areaPath={areaPath}
-        editorMetaPath={editorMetaPath}
-        areaDirectory={areaDirectory}
-        dataDirectory={dataDirectory}
         projectPath={projectConfig?.path ?? null}
-        selectedEntity={statusSelection}
         referenceSummary={referenceSummary}
       />
     </div>
