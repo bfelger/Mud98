@@ -171,7 +171,7 @@ export function EventBindingsView({
     return (
       <div className="event-panel event-panel__empty">
         <h3>No event target selected</h3>
-        <p>Select a room, mobile, or object to edit event bindings.</p>
+        <p>Select an area, room, mobile, or object to edit event bindings.</p>
       </div>
     );
   }

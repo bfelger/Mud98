@@ -1,6 +1,7 @@
 import type { FormEventHandler, ReactNode } from "react";
 import type { Control, FieldPath, UseFormRegister } from "react-hook-form";
 import { EventBindingsView } from "./EventBindingsView";
+import { DaycyclePeriodsEditor } from "./DaycyclePeriodsEditor";
 import { VnumPicker, type VnumOption } from "./VnumPicker";
 import type { EventBinding, EventEntityKey } from "../data/eventTypes";
 
@@ -21,6 +22,11 @@ type RoomFormProps = {
   exitFlags: string[];
   roomVnumOptions: VnumOption[];
   objectVnumOptions: VnumOption[];
+  timePeriodFields: Array<{ id: string }>;
+  appendTimePeriod: (value: Record<string, unknown>) => void;
+  removeTimePeriod: (index: number) => void;
+  moveTimePeriod: (from: number, to: number) => void;
+  onAddDefaultPeriods: () => void;
   roomResets: Array<{
     index: number;
     command: string;
@@ -53,6 +59,11 @@ export function RoomForm({
   exitFlags,
   roomVnumOptions,
   objectVnumOptions,
+  timePeriodFields,
+  appendTimePeriod,
+  removeTimePeriod,
+  moveTimePeriod,
+  onAddDefaultPeriods,
   roomResets,
   selectedRoomResetIndex,
   onSelectRoomReset,
@@ -145,6 +156,18 @@ export function RoomForm({
             ))}
           </div>
         </div>
+        <DaycyclePeriodsEditor
+          title="Daycycle Periods"
+          fields={timePeriodFields}
+          register={register}
+          namePrefix="timePeriods"
+          appendPeriod={appendTimePeriod}
+          removePeriod={removeTimePeriod}
+          movePeriod={moveTimePeriod}
+          suppressField="suppressDaycycleMessages"
+          suppressLabel="Suppress base daycycle messages"
+          onAddDefaults={onAddDefaultPeriods}
+        />
         <div className="form-field form-field--full">
           <div className="form-section-header">
             <div>

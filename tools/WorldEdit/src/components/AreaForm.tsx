@@ -1,5 +1,8 @@
 import type { FormEventHandler } from "react";
 import type { UseFormRegister } from "react-hook-form";
+import { EventBindingsView } from "./EventBindingsView";
+import type { EventBinding, EventEntityKey } from "../data/eventTypes";
+import { DaycyclePeriodsEditor } from "./DaycyclePeriodsEditor";
 
 type AreaFormProps = {
   onSubmit: FormEventHandler<HTMLFormElement>;
@@ -17,7 +20,17 @@ type AreaFormProps = {
   appendChecklist: (value: Record<string, unknown>) => void;
   removeChecklist: (index: number) => void;
   moveChecklist: (from: number, to: number) => void;
+  daycycleFields: Array<{ id: string }>;
+  appendDaycycle: (value: Record<string, unknown>) => void;
+  removeDaycycle: (index: number) => void;
+  moveDaycycle: (from: number, to: number) => void;
+  onAddDefaultDaycycle: () => void;
   lootTableOptions: string[];
+  eventBindings: EventBinding[];
+  scriptValue: string;
+  canEditScript: boolean;
+  scriptEventEntity: EventEntityKey | null;
+  onEventBindingsChange: (events: EventBinding[]) => void;
 };
 
 const checklistStatusOptions = ["todo", "inProgress", "done"] as const;
@@ -35,7 +48,17 @@ export function AreaForm({
   appendChecklist,
   removeChecklist,
   moveChecklist,
-  lootTableOptions
+  daycycleFields,
+  appendDaycycle,
+  removeDaycycle,
+  moveDaycycle,
+  onAddDefaultDaycycle,
+  lootTableOptions,
+  eventBindings,
+  scriptValue,
+  canEditScript,
+  scriptEventEntity,
+  onEventBindingsChange
 }: AreaFormProps) {
   const errors = formState.errors as Record<string, any>;
   const lootListId = "area-loot-table-options";
@@ -219,6 +242,30 @@ export function AreaForm({
               <span>Enabled</span>
             </label>
           </div>
+        </div>
+        <div className="form-field form-field--full">
+          <EventBindingsView
+            entityType={canEditScript ? scriptEventEntity : null}
+            events={eventBindings}
+            script={scriptValue}
+            canEdit={canEditScript}
+            onChange={onEventBindingsChange}
+          />
+        </div>
+        <div className="form-field form-field--full">
+          <DaycyclePeriodsEditor
+            title="Daycycle Periods"
+            fields={daycycleFields}
+            register={register}
+            namePrefix="daycyclePeriods"
+            appendPeriod={appendDaycycle}
+            removePeriod={removeDaycycle}
+            movePeriod={moveDaycycle}
+            suppressField="daycycleSuppress"
+            suppressLabel="Suppress base daycycle messages"
+            onAddDefaults={onAddDefaultDaycycle}
+            showDescription={false}
+          />
         </div>
         <div className="form-field form-field--full">
           <div className="form-section-header">

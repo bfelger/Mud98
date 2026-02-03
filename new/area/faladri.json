@@ -110,14 +110,14 @@
           "name": "night",
           "fromHour": 20,
           "toHour": 4,
-          "description": "  The night-time forest is obscured by gloomy darkness. Nevertheless, you can\n\rhear the sounds of life around you. The path through the forest continues east;\n\rbut impenetrable darkness hides the way.\n\r"
+          "description": "  The night-time forest is obscured by gloomy darkness. Nevertheless, you can hear the sounds of life around you. The path through the forest continues east; but impenetrable darkness hides the way.\n\r"
         },
         {
           "name": "dusk",
           "fromHour": 19,
           "toHour": 19,
-          "description": "  It's hard to see past the closest trees in the waning light. You can still\n\rmake out a path leading east.\n",
-          "enterMessage": "The ambient light dims as the smattering of sunlight turns a dark orange.\n"
+          "description": "  It's hard to see past the closest trees in the waning light. You can still make out a path leading east.\n\r",
+          "enterMessage": "The ambient light dims as the smattering of sunlight turns a dark orange.\n\r"
         }
       ],
       "exits": [

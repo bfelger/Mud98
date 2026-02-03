@@ -8,13 +8,8 @@ import {
 } from "react";
 import type { ColDef, GridApi } from "ag-grid-community";
 import {
-  BaseEdge,
-  EdgeLabelRenderer,
-  Position,
   type Edge,
-  type EdgeProps,
-  type Node,
-  useStore
+  type Node
 } from "reactflow";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -24,6 +19,10 @@ import {
   type FieldPath,
 } from "react-hook-form";
 import { z } from "zod";
+import { useSelectionStore } from "./stores/useSelectionStore";
+import { useEditorUiStore } from "./stores/useEditorUiStore";
+import { useGlobalDataStore } from "./stores/useGlobalDataStore";
+import { useAreaStore } from "./stores/useAreaStore";
 import { ScriptView } from "./components/ScriptView";
 import { AreaForm } from "./components/AreaForm";
 import { AreaGraphView } from "./components/AreaGraphView";
@@ -71,6 +70,48 @@ import {
   raceSkillCount,
   raceStatKeys
 } from "./constants/globalDefaults";
+import {
+  entityDataKeys,
+  entityKindLabels
+} from "./constants/appConfig";
+import {
+  parseVnum,
+  parseNumberList,
+  formatNumberList,
+  formatVnumLabel,
+  formatVnumRange,
+  normalizeOptionalText,
+  normalizeLineEndingsForDisplay,
+  normalizeLineEndingsForMud,
+  normalizeOptionalMudText,
+  normalizeOptionalScript,
+  normalizeDice,
+  normalizeChecklistStatus,
+  getEntityList,
+  findByVnum,
+  findShopByKeeper,
+  getFirstString,
+  getAreaVnumRange,
+  getAreaVnumBounds,
+  getNextEntityVnum,
+  getFirstEntityVnum,
+  getDefaultSelection,
+  resolveResetCommand,
+  isResetForRoom,
+  formatResetSummary,
+  itemTypeBlockMap,
+  type DiceFormInput,
+  type ObjectBlockKey
+} from "./utils/areaUtils";
+import {
+  validateVnumRanges,
+  validateDuplicateVnums,
+  validateResetReferences,
+  validateOneWayExits,
+  validateOrphanRooms,
+  buildValidationSummary,
+  buildAreaDebugSummary
+} from "./validation/areaValidation";
 import {
   buildRoomRows,
   roomColumns as roomColumnsDef
@@ -154,10 +195,7 @@ import {
   type RoomNodeData
 } from "./map/roomNodes";
 import { type AreaLayoutMap } from "./map/areaNodes";
-import {
-  buildOrthogonalEdgePath,
-  offsetPoint
-} from "./map/edgeRouting";
+import { roomEdgeTypes, areaEdgeTypes } from "./map/edgeComponents";
 import { buildExitTargetValidation, findAreaForVnum } from "./map/roomEdges";
 import type { VnumOption } from "./components/VnumPicker";
 import type { EventBinding } from "./data/eventTypes";
@@ -210,6 +248,25 @@ import { useAreaCrudHandlers } from "./hooks/useAreaCrudHandlers";
 import { useGlobalCrudHandlers } from "./hooks/useGlobalCrudHandlers";
 import { useAreaIoHandlers } from "./hooks/useAreaIoHandlers";
 import { useGlobalIoHandlers } from "./hooks/useGlobalIoHandlers";
+import { useGlobalDataLazyLoad } from "./hooks/useGlobalDataLazyLoad";
+import { useGlobalIndexClamp } from "./hooks/useGlobalIndexClamp";
+import { useFormResetOnDefaultsChange } from "./hooks/useFormResetOnDefaultsChange";
+import {
+  useAreaGridSync,
+  useGlobalGridSync,
+  type AreaGridRefs,
+  type GlobalGridRefs
+} from "./hooks/useGridSelectionSync";
+import {
+  fileNameFromPath,
+  buildEditorMeta,
+  buildVnumOptions,
+  buildVnumOptionMap,
+  buildSelectionSummary,
+  buildTableToolbar,
+  getDominantExitDirection,
+  cleanOptionalString
+} from "./utils/appUtils";
 import {
   containerFlagEnum,
   containerFlags,
@@ -263,188 +320,102 @@ import {
   workstationTypes,
   discoveryTypes
 } from "./schemas/enums";
-
-const tabs = [
-  {
-    id: "Table",
-    title: "Table View",
-    description: "Filterable grid for Rooms, Mobiles, Objects, Resets."
-  },
-  {
-    id: "Form",
-    title: "Form View",
-    description: "Schema-driven editor with validation and pickers."
-  },
-  {
-    id: "Map",
-    title: "Map View",
-    description: "Orthogonal room layout with exit routing."
-  },
-  {
-    id: "World",
-    title: "World Graph",
-    description: "Project-level view of area links."
-  },
-  {
-    id: "Script",
-    title: "Script View",
-    description: "Lox script editing with events panel."
-  }
-] as const;
+import {
+  optionalIntSchema,
+  optionalEnumSchema,
+  optionalSectorSchema,
+  optionalPositionSchema,
+  optionalSexSchema,
+  optionalSizeSchema,
+  optionalDamageTypeSchema,
+  optionalDirectionSchema,
+  optionalWearLocationSchema,
+  checklistStatusOptions,
+  defaultDaycyclePeriods,
+  areaFormSchema,
+  exitFormSchema,
+  daycyclePeriodFormSchema,
+  diceFormSchema,
+  mobileFormSchema,
+  weaponFormSchema,
+  armorFormSchema,
+  containerFormSchema,
+  lightFormSchema,
+  drinkFormSchema,
+  foodFormSchema,
+  moneyFormSchema,
+  wandFormSchema,
+  spellsFormSchema,
+  portalFormSchema,
+  furnitureFormSchema,
+  objectFormSchema,
+  resetFormSchema,
+  roomFormSchema,
+  shopFormSchema,
+  questFormSchema,
+  factionFormSchema,
+  classFormSchema,
+  raceFormSchema,
+  skillFormSchema,
+  groupFormSchema,
+  commandFormSchema,
+  socialFormSchema,
+  tutorialFormSchema,
+  lootEntryFormSchema,
+  lootOpFormSchema,
+  lootFormSchema,
+  recipeInputFormSchema,
+  recipeFormSchema,
+  gatherSpawnFormSchema
+} from "./schemas/formSchemas";
+import type {
+  RoomFormValues,
+  AreaFormValues,
+  MobileFormValues,
+  ObjectFormValues,
+  ResetFormValues,
+  RoomResetItem,
+  ShopFormValues,
+  QuestFormValues,
+  FactionFormValues,
+  ClassFormValues,
+  RaceFormValues,
+  SkillFormValues,
+  GroupFormValues,
+  CommandFormValues,
+  SocialFormValues,
+  TutorialFormValues,
+  LootFormValues,
+  RecipeFormValues,
+  GatherSpawnFormValues
+} from "./schemas/formTypes";
+import {
+  tabs,
+  entityOrder,
+  globalEntityOrder,
+  primeStatOptions,
+  armorProfOptions,
+  classGuildCount,
+  lootEntryTypeOptions,
+  lootOpTypeOptions,
+  itemTypeOptions,
+  resetCommandOptions,
+  questTypeOptions,
+  type ResetCommand,
+  resetCommandMap,
+  resetCommandLabels,
+  areaDirectionHandleMap,
+  externalDirectionLabels,
+  type EntityKey,
+  type GlobalEntityKey,
+  type EditorMode
+} from "./constants/appConfig";
 
 type AppProps = {
   repository: WorldRepository;
 };
 
-const entityOrder = [
-  "Area",
-  "Rooms",
-  "Mobiles",
-  "Objects",
-  "Resets",
-  "Shops",
-  "Quests",
-  "Factions",
-  "Loot",
-  "Recipes",
-  "Gather Spawns",
-  "Helps"
-] as const;
-
-const globalEntityOrder = [
-  "Classes",
-  "Races",
-  "Skills",
-  "Groups",
-  "Commands",
-  "Socials",
-  "Tutorials",
-  "Loot"
-] as const;
-
-const primeStatOptions = ["str", "int", "wis", "dex", "con"] as const;
-const armorProfOptions = ["old_style", "cloth", "light", "medium", "heavy"] as const;
-const classGuildCount = 2;
-const lootEntryTypeOptions = ["item", "cp"] as const;
-const lootOpTypeOptions = [
-  "use_group",
-  "add_item",
-  "add_cp",
-  "mul_cp",
-  "mul_all_chances",
-  "remove_item",
-  "remove_group"
-] as const;
-
-const itemTypeOptions = [
-  "none",
-  "light",
-  "scroll",
-  "wand",
-  "staff",
-  "weapon",
-  "gather",
-  "treasure",
-  "armor",
-  "potion",
-  "clothing",
-  "furniture",
-  "trash",
-  "container",
-  "drink",
-  "key",
-  "food",
-  "money",
-  "boat",
-  "npc_corpse",
-  "pc_corpse",
-  "fountain",
-  "pill",
-  "protect",
-  "map",
-  "portal",
-  "warp_stone",
-  "room_key",
-  "gem",
-  "jewelry",
-  "jukebox",
-  "material",
-  "workstation"
-] as const;
-
-const resetCommandOptions = [
-  "loadMob",
-  "placeObj",
-  "putObj",
-  "giveObj",
-  "equipObj",
-  "setDoor",
-  "randomizeExits"
-] as const;
-
-const questTypeOptions = ["visit_mob", "kill_mob", "get_obj"] as const;
-
-type ResetCommand = (typeof resetCommandOptions)[number];
-
-const resetCommandMap: Record<string, ResetCommand> = {
-  M: "loadMob",
-  O: "placeObj",
-  P: "putObj",
-  G: "giveObj",
-  E: "equipObj",
-  D: "setDoor",
-  R: "randomizeExits"
-};
-
-const resetCommandLabels: Record<ResetCommand, string> = {
-  loadMob: "Load Mobile",
-  placeObj: "Place Object",
-  putObj: "Put Object",
-  giveObj: "Give Object",
-  equipObj: "Equip Object",
-  setDoor: "Set Door",
-  randomizeExits: "Randomize Exits"
-};
-
-const areaDirectionHandleMap: Record<string, { source: string; target: string }> =
-  {
-    north: { source: "north-out", target: "south-in" },
-    east: { source: "east-out", target: "west-in" },
-    south: { source: "south-out", target: "north-in" },
-    west: { source: "west-out", target: "east-in" },
-    up: { source: "north-out", target: "south-in" },
-    down: { source: "south-out", target: "north-in" }
-  };
-const externalDirectionMap: Record<string, Position> = {
-  north: Position.Top,
-  south: Position.Bottom,
-  east: Position.Right,
-  west: Position.Left,
-  up: Position.Top,
-  down: Position.Bottom
-};
-const externalDirectionLabels: Record<string, string> = {
-  north: "N",
-  south: "S",
-  east: "E",
-  west: "W",
-  up: "U",
-  down: "D"
-};
-const edgeStubSize = 22;
-const edgeClearance = 10;
-const externalStubSize = 34;
-const edgeDirectionPriority: Record<Position, "horizontal" | "vertical"> = {
-  [Position.Left]: "horizontal",
-  [Position.Right]: "horizontal",
-  [Position.Top]: "vertical",
-  [Position.Bottom]: "vertical"
-};
-
 type TabId = (typeof tabs)[number]["id"];
-type EntityKey = (typeof entityOrder)[number];
-type GlobalEntityKey = (typeof globalEntityOrder)[number];
-type EditorMode = "Area" | "Global";
 
 type RoomContextMenuState = {
   vnum: number;
@@ -452,2178 +423,173 @@ type RoomContextMenuState = {
   y: number;
 };
 
-const optionalIntSchema = z.preprocess((value) => {
-  if (value === "" || value === null || value === undefined) {
-    return undefined;
-  }
-  if (typeof value === "number" && Number.isNaN(value)) {
-    return undefined;
-  }
-  if (typeof value === "string") {
-    const parsed = Number(value);
-    return Number.isFinite(parsed) ? parsed : value;
-  }
-  return value;
-}, z.number().int().optional());
-
-const optionalEnumSchema = <T extends z.ZodTypeAny>(schema: T) =>
-  z.preprocess((value) => {
-    if (value === "" || value === null || value === undefined) {
-      return undefined;
-    }
-    return value;
-  }, schema.optional());
-
-const optionalSectorSchema = optionalEnumSchema(sectorEnum);
-const optionalPositionSchema = optionalEnumSchema(positionEnum);
-const optionalSexSchema = optionalEnumSchema(sexEnum);
-const optionalSizeSchema = optionalEnumSchema(sizeEnum);
-const optionalDamageTypeSchema = optionalEnumSchema(damageTypeEnum);
-const optionalDirectionSchema = optionalEnumSchema(directionEnum);
-const optionalWearLocationSchema = optionalEnumSchema(wearLocationEnum);
-const checklistStatusOptions = ["todo", "inProgress", "done"] as const;
-
-const areaFormSchema = z.object({
-  name: z.string().min(1, "Name is required."),
-  version: z.number().int(),
-  vnumRangeStart: z.number().int(),
-  vnumRangeEnd: z.number().int(),
-  builders: z.string().optional(),
-  credits: z.string().optional(),
-  lootTable: z.string().optional(),
-  security: optionalIntSchema,
-  sector: optionalSectorSchema,
-  lowLevel: optionalIntSchema,
-  highLevel: optionalIntSchema,
-  reset: optionalIntSchema,
-  alwaysReset: z.boolean().optional(),
-  instType: z.enum(["single", "multi"]),
-  storyBeats: z.array(
-    z.object({
-      title: z.string().min(1, "Title is required."),
-      description: z.string().optional()
-    })
-  ),
-  checklist: z.array(
-    z.object({
-      title: z.string().min(1, "Title is required."),
-      status: z.enum(checklistStatusOptions),
-      description: z.string().optional()
-    })
-  )
-});
-
-const exitFormSchema = z.object({
-  dir: directionEnum,
-  toVnum: z.preprocess(
-    (value) => {
-      if (value === "" || value === null || value === undefined) {
-        return value;
-      }
-      if (typeof value === "string") {
-        const parsed = Number(value);
-        return Number.isFinite(parsed) ? parsed : value;
-      }
-      return value;
-    },
-    z.number().int()
-  ),
-  key: optionalIntSchema,
-  flags: z.array(exitFlagEnum).optional(),
-  description: z.preprocess(
-    (value) => (typeof value === "string" ? value : ""),
-    z.string().optional()
-  ),
-  keyword: z.preprocess(
-    (value) => (typeof value === "string" ? value : ""),
-    z.string().optional()
-  )
-});
-
-const diceFormSchema = z
-  .object({
-    number: optionalIntSchema,
-    type: optionalIntSchema,
-    bonus: optionalIntSchema
-  })
-  .optional();
-
-const mobileFormSchema = z.object({
-  vnum: z.number().int(),
-  name: z.string().min(1, "Name is required."),
-  shortDescr: z.string().min(1, "Short description is required."),
-  longDescr: z.string().min(1, "Long description is required."),
-  description: z.string().min(1, "Description is required."),
-  race: z.string().min(1, "Race is required."),
-  level: optionalIntSchema,
-  hitroll: optionalIntSchema,
-  alignment: optionalIntSchema,
-  damType: optionalDamageTypeSchema,
-  startPos: optionalPositionSchema,
-  defaultPos: optionalPositionSchema,
-  sex: optionalSexSchema,
-  size: optionalSizeSchema,
-  material: z.string().optional(),
-  factionVnum: optionalIntSchema,
-  damageNoun: z.string().optional(),
-  offensiveSpell: z.string().optional(),
-  lootTable: z.string().optional(),
-  hitDice: diceFormSchema,
-  manaDice: diceFormSchema,
-  damageDice: diceFormSchema,
-  actFlags: z.array(actFlagEnum).optional(),
-  atkFlags: z.array(offFlagEnum).optional(),
-  formFlags: z.array(formFlagEnum).optional(),
-  partFlags: z.array(partFlagEnum).optional()
-});
-
-const weaponFormSchema = z
-  .object({
-    class: optionalEnumSchema(weaponClassEnum),
-    diceNumber: optionalIntSchema,
-    diceType: optionalIntSchema,
-    damageType: optionalDamageTypeSchema,
-    flags: z.array(weaponFlagEnum).optional()
-  })
-  .optional();
-
-const armorFormSchema = z
-  .object({
-    acPierce: optionalIntSchema,
-    acBash: optionalIntSchema,
-    acSlash: optionalIntSchema,
-    acExotic: optionalIntSchema
-  })
-  .optional();
-
-const containerFormSchema = z
-  .object({
-    capacity: optionalIntSchema,
-    flags: z.array(containerFlagEnum).optional(),
-    keyVnum: optionalIntSchema,
-    maxWeight: optionalIntSchema,
-    weightMult: optionalIntSchema
-  })
-  .optional();
-
-const lightFormSchema = z
-  .object({
-    hours: optionalIntSchema
-  })
-  .optional();
-
-const drinkFormSchema = z
-  .object({
-    capacity: optionalIntSchema,
-    remaining: optionalIntSchema,
-    liquid: optionalEnumSchema(liquidEnum),
-    poisoned: z.boolean().optional()
-  })
-  .optional();
-
-const foodFormSchema = z
-  .object({
-    foodHours: optionalIntSchema,
-    fullHours: optionalIntSchema,
-    poisoned: z.boolean().optional()
-  })
-  .optional();
-
-const moneyFormSchema = z
-  .object({
-    gold: optionalIntSchema,
-    silver: optionalIntSchema
-  })
-  .optional();
-
-const wandFormSchema = z
-  .object({
-    level: optionalIntSchema,
-    totalCharges: optionalIntSchema,
-    chargesLeft: optionalIntSchema,
-    spell: z.string().optional()
-  })
-  .optional();
-
-const spellsFormSchema = z
-  .object({
-    level: optionalIntSchema,
-    spell1: z.string().optional(),
-    spell2: z.string().optional(),
-    spell3: z.string().optional(),
-    spell4: z.string().optional()
-  })
-  .optional();
-
-const portalFormSchema = z
-  .object({
-    charges: optionalIntSchema,
-    exitFlags: z.array(exitFlagEnum).optional(),
-    portalFlags: z.array(portalFlagEnum).optional(),
-    toVnum: optionalIntSchema
-  })
-  .optional();
-
-const furnitureFormSchema = z
-  .object({
-    slots: optionalIntSchema,
-    weight: optionalIntSchema,
-    flags: z.array(furnitureFlagEnum).optional(),
-    healBonus: optionalIntSchema,
-    manaBonus: optionalIntSchema,
-    maxPeople: optionalIntSchema
-  })
-  .optional();
-
-const objectFormSchema = z.object({
-  vnum: z.number().int(),
-  name: z.string().min(1, "Name is required."),
-  shortDescr: z.string().min(1, "Short description is required."),
-  description: z.string().min(1, "Description is required."),
-  material: z.string().min(1, "Material is required."),
-  itemType: z.string().min(1, "Item type is required."),
-  extraFlags: z.array(extraFlagEnum).optional(),
-  wearFlags: z.array(wearFlagEnum).optional(),
-  level: optionalIntSchema,
-  weight: optionalIntSchema,
-  cost: optionalIntSchema,
-  condition: optionalIntSchema,
-  weapon: weaponFormSchema,
-  armor: armorFormSchema,
-  container: containerFormSchema,
-  light: lightFormSchema,
-  drink: drinkFormSchema,
-  fountain: drinkFormSchema,
-  food: foodFormSchema,
-  money: moneyFormSchema,
-  wand: wandFormSchema,
-  staff: wandFormSchema,
-  spells: spellsFormSchema,
-  portal: portalFormSchema,
-  furniture: furnitureFormSchema
-});
-
-const resetFormSchema = z
-  .object({
-    index: z.number().int(),
-    commandName: z.string().min(1, "Command is required."),
-    mobVnum: optionalIntSchema,
-    objVnum: optionalIntSchema,
-    roomVnum: optionalIntSchema,
-    containerVnum: optionalIntSchema,
-    maxInArea: optionalIntSchema,
-    maxInRoom: optionalIntSchema,
-    count: optionalIntSchema,
-    maxInContainer: optionalIntSchema,
-    wearLoc: optionalWearLocationSchema,
-    direction: optionalDirectionSchema,
-    state: optionalIntSchema,
-    exits: optionalIntSchema
-  })
-  .superRefine((value, ctx) => {
-    const command = value.commandName as ResetCommand;
-    const requireField = (
-      condition: boolean,
-      field: keyof typeof value,
-      message: string
-    ) => {
-      if (!condition) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: [field],
-          message
-        });
-      }
-    };
-    if (command === "loadMob") {
-      requireField(
-        value.mobVnum !== undefined,
-        "mobVnum",
-        "Mob VNUM is required."
-      );
-      requireField(
-        value.roomVnum !== undefined,
-        "roomVnum",
-        "Room VNUM is required."
-      );
-    }
-    if (command === "placeObj") {
-      requireField(
-        value.objVnum !== undefined,
-        "objVnum",
-        "Object VNUM is required."
-      );
-      requireField(
-        value.roomVnum !== undefined,
-        "roomVnum",
-        "Room VNUM is required."
-      );
-    }
-    if (command === "putObj") {
-      requireField(
-        value.objVnum !== undefined,
-        "objVnum",
-        "Object VNUM is required."
-      );
-      requireField(
-        value.containerVnum !== undefined,
-        "containerVnum",
-        "Container VNUM is required."
-      );
-    }
-    if (command === "giveObj") {
-      requireField(
-        value.objVnum !== undefined,
-        "objVnum",
-        "Object VNUM is required."
-      );
-    }
-    if (command === "equipObj") {
-      requireField(
-        value.objVnum !== undefined,
-        "objVnum",
-        "Object VNUM is required."
-      );
-      requireField(
-        value.wearLoc !== undefined,
-        "wearLoc",
-        "Wear location is required."
-      );
-    }
-    if (command === "setDoor") {
-      requireField(
-        value.roomVnum !== undefined,
-        "roomVnum",
-        "Room VNUM is required."
-      );
-      requireField(
-        value.direction !== undefined,
-        "direction",
-        "Direction is required."
-      );
-      requireField(
-        value.state !== undefined,
-        "state",
-        "State is required."
-      );
-    }
-    if (command === "randomizeExits") {
-      requireField(
-        value.roomVnum !== undefined,
-        "roomVnum",
-        "Room VNUM is required."
-      );
-      requireField(
-        value.exits !== undefined,
-        "exits",
-        "Exit count is required."
-      );
-    }
-  });
-
-const roomFormSchema = z.object({
-  vnum: z.number().int(),
-  name: z.string().min(1, "Name is required."),
-  description: z.string().min(1, "Description is required."),
-  sectorType: optionalSectorSchema,
-  roomFlags: z.array(roomFlagEnum).optional(),
-  exits: z.array(exitFormSchema).optional()
-});
-
-const shopFormSchema = z.object({
-  keeper: optionalIntSchema,
-  buyTypes: z.array(optionalIntSchema).length(5),
-  profitBuy: optionalIntSchema,
-  profitSell: optionalIntSchema,
-  openHour: optionalIntSchema,
-  closeHour: optionalIntSchema
-});
-
-const questFormSchema = z.object({
-  vnum: z.number().int(),
-  name: z.string().optional(),
-  entry: z.string().optional(),
-  type: z.string().optional(),
-  xp: optionalIntSchema,
-  level: optionalIntSchema,
-  end: optionalIntSchema,
-  target: optionalIntSchema,
-  upper: optionalIntSchema,
-  count: optionalIntSchema,
-  rewardFaction: optionalIntSchema,
-  rewardReputation: optionalIntSchema,
-  rewardGold: optionalIntSchema,
-  rewardSilver: optionalIntSchema,
-  rewardCopper: optionalIntSchema,
-  rewardObjs: z.array(optionalIntSchema).length(3),
-  rewardCounts: z.array(optionalIntSchema).length(3)
-});
-
-const factionFormSchema = z.object({
-  vnum: z.number().int(),
-  name: z.string().optional(),
-  defaultStanding: optionalIntSchema,
-  alliesCsv: z.string().optional(),
-  opposingCsv: z.string().optional()
-});
-
-const classFormSchema = z.object({
-  name: z.string().min(1),
-  whoName: z.string().optional(),
-  baseGroup: z.string().optional(),
-  defaultGroup: z.string().optional(),
-  weaponVnum: z.number().int(),
-  armorProf: z.string().optional(),
-  guilds: z.array(z.number().int()).length(classGuildCount),
-  primeStat: z.string().optional(),
-  skillCap: z.number().int(),
-  thac0_00: z.number().int(),
-  thac0_32: z.number().int(),
-  hpMin: z.number().int(),
-  hpMax: z.number().int(),
-  manaUser: z.boolean(),
-  startLoc: z.number().int(),
-  titlesMale: z.string().optional(),
-  titlesFemale: z.string().optional()
-});
-
-const raceFormSchema = z.object({
-  name: z.string().min(1),
-  whoName: z.string().optional(),
-  pc: z.boolean(),
-  points: z.number().int(),
-  size: z.string().optional(),
-  startLoc: z.number().int(),
-  stats: z.object({
-    str: z.number().int(),
-    int: z.number().int(),
-    wis: z.number().int(),
-    dex: z.number().int(),
-    con: z.number().int()
-  }),
-  maxStats: z.object({
-    str: z.number().int(),
-    int: z.number().int(),
-    wis: z.number().int(),
-    dex: z.number().int(),
-    con: z.number().int()
-  }),
-  actFlags: z.array(z.string()).optional(),
-  affectFlags: z.array(z.string()).optional(),
-  offFlags: z.array(z.string()).optional(),
-  immFlags: z.array(z.string()).optional(),
-  resFlags: z.array(z.string()).optional(),
-  vulnFlags: z.array(z.string()).optional(),
-  formFlags: z.array(z.string()).optional(),
-  partFlags: z.array(z.string()).optional(),
-  classMult: z.record(z.number().int()).optional(),
-  classStart: z.record(z.number().int()).optional(),
-  skills: z.array(z.string()).length(raceSkillCount)
-});
-
-const skillFormSchema = z.object({
-  name: z.string().min(1),
-  levels: z.record(z.number().int()),
-  ratings: z.record(z.number().int()),
-  spell: z.string().optional(),
-  loxSpell: z.string().optional(),
-  target: z.string().optional(),
-  minPosition: z.string().optional(),
-  gsn: z.string().optional(),
-  slot: z.number().int(),
-  minMana: z.number().int(),
-  beats: z.number().int(),
-  nounDamage: z.string().optional(),
-  msgOff: z.string().optional(),
-  msgObj: z.string().optional()
-});
-
-const groupFormSchema = z.object({
-  name: z.string().min(1),
-  ratings: z.record(z.number().int()),
-  skills: z.array(z.string()).length(groupSkillCount)
-});
-
-const commandFormSchema = z.object({
-  name: z.string().min(1),
-  function: z.string().optional(),
-  position: z.string().optional(),
-  level: z.number().int(),
-  log: z.string().optional(),
-  category: z.string().optional(),
-  loxFunction: z.string().optional()
-});
-
-const socialFormSchema = z.object({
-  name: z.string().min(1),
-  charNoArg: z.string().optional(),
-  othersNoArg: z.string().optional(),
-  charFound: z.string().optional(),
-  othersFound: z.string().optional(),
-  victFound: z.string().optional(),
-  charAuto: z.string().optional(),
-  othersAuto: z.string().optional()
-});
-
-const tutorialFormSchema = z.object({
-  name: z.string().min(1),
-  blurb: z.string().optional(),
-  finish: z.string().optional(),
-  minLevel: z.number().int(),
-  steps: z.array(
-    z.object({
-      prompt: z.string().optional(),
-      match: z.string().optional()
-    })
-  )
-});
-
-const lootEntryFormSchema = z.object({
-  type: z.enum(lootEntryTypeOptions),
-  vnum: optionalIntSchema,
-  minQty: z.number().int().min(0).optional(),
-  maxQty: z.number().int().min(0).optional(),
-  weight: z.number().int().min(0).optional()
-});
-
-const lootOpFormSchema = z.object({
-  op: z.enum(lootOpTypeOptions),
-  group: z.string().optional(),
-  vnum: optionalIntSchema,
-  chance: z.number().int().min(0).optional(),
-  minQty: z.number().int().min(0).optional(),
-  maxQty: z.number().int().min(0).optional(),
-  multiplier: z.number().int().min(0).optional()
-});
-
-const lootFormSchema = z.object({
-  kind: z.enum(["group", "table"]),
-  name: z.string().min(1),
-  rolls: z.number().int().min(0).optional(),
-  entries: z.array(lootEntryFormSchema).optional(),
-  parent: z.string().optional(),
-  ops: z.array(lootOpFormSchema).optional()
-});
-
-const recipeInputFormSchema = z.object({
-  vnum: optionalIntSchema,
-  quantity: optionalIntSchema
-});
-
-const recipeFormSchema = z.object({
-  vnum: z.number().int(),
-  name: z.string().optional(),
-  skill: z.string().optional(),
-  minSkill: optionalIntSchema,
-  minSkillPct: optionalIntSchema,
-  minLevel: optionalIntSchema,
-  stationType: z.array(z.enum(workstationTypes)).optional(),
-  stationVnum: optionalIntSchema,
-  discovery: optionalEnumSchema(z.enum(discoveryTypes)),
-  inputs: z.array(recipeInputFormSchema).optional(),
-  outputVnum: optionalIntSchema,
-  outputQuantity: optionalIntSchema
-});
-
-const gatherSpawnFormSchema = z.object({
-  spawnSector: optionalSectorSchema,
-  vnum: optionalIntSchema,
-  quantity: optionalIntSchema,
-  respawnTimer: optionalIntSchema
-});
-
-type RoomFormValues = z.infer<typeof roomFormSchema>;
-type AreaFormValues = z.infer<typeof areaFormSchema>;
-type MobileFormValues = z.infer<typeof mobileFormSchema>;
-type ObjectFormValues = z.infer<typeof objectFormSchema>;
-type ResetFormValues = z.infer<typeof resetFormSchema>;
-type RoomResetItem = {
-  index: number;
-  command: string;
-  label: string;
-};
-type ShopFormValues = z.infer<typeof shopFormSchema>;
-type QuestFormValues = z.infer<typeof questFormSchema>;
-type FactionFormValues = z.infer<typeof factionFormSchema>;
-type ClassFormValues = z.infer<typeof classFormSchema>;
-type RaceFormValues = z.infer<typeof raceFormSchema>;
-type SkillFormValues = z.infer<typeof skillFormSchema>;
-type GroupFormValues = z.infer<typeof groupFormSchema>;
-type CommandFormValues = z.infer<typeof commandFormSchema>;
-type SocialFormValues = z.infer<typeof socialFormSchema>;
-type TutorialFormValues = z.infer<typeof tutorialFormSchema>;
-type LootFormValues = z.infer<typeof lootFormSchema>;
-type RecipeFormValues = z.infer<typeof recipeFormSchema>;
-type GatherSpawnFormValues = z.infer<typeof gatherSpawnFormSchema>;
-
-const entityKindLabels: Record<EntityKey, string> = {
-  Area: "Area",
-  Rooms: "Room",
-  Mobiles: "Mobile",
-  Objects: "Object",
-  Resets: "Reset",
-  Shops: "Shop",
-  Quests: "Quest",
-  Factions: "Faction",
-  Loot: "Loot",
-  Recipes: "Recipe",
-  "Gather Spawns": "Gather Spawn",
-  Helps: "Help"
-};
-
-const entityDataKeys: Record<EntityKey, string> = {
-  Area: "areadata",
-  Rooms: "rooms",
-  Mobiles: "mobiles",
-  Objects: "objects",
-  Resets: "resets",
-  Shops: "shops",
-  Quests: "quests",
-  Factions: "factions",
-  Loot: "loot",
-  Recipes: "recipes",
-  "Gather Spawns": "gatherSpawns",
-  Helps: "helps"
-};
-
-function fileNameFromPath(path: string | null): string {
-  if (!path) {
-    return "No area loaded";
-  }
-  const normalized = path.replace(/[/\\\\]+/g, "/");
-  return normalized.split("/").pop() ?? path;
-}
-
-function buildEditorMeta(
-  existing: EditorMeta | null,
-  activeTab: string,
-  selectedEntity: string,
-  roomLayout: RoomLayoutMap,
-  areaLayout: AreaLayoutMap
-): EditorMeta {
-  const now = new Date().toISOString();
-  const base: EditorMeta = existing ?? {
-    version: 1,
-    updatedAt: now,
-    view: { activeTab },
-    selection: { entityType: selectedEntity },
-    layout: {}
-  };
-  const nextLayout: EditorLayout = {
-    ...(base.layout ?? {}),
-    rooms: roomLayout,
-    areas: areaLayout
-  };
-
-  return {
-    ...base,
-    version: 1,
-    updatedAt: now,
-    view: {
-      ...base.view,
-      activeTab
-    },
-    selection: {
-      ...base.selection,
-      entityType: selectedEntity
-    },
-    layout: nextLayout
-  };
-}
-
-function parseVnum(value: unknown): number | null {
-  if (typeof value === "number") {
-    return value;
-  }
-  if (typeof value === "string" && value.trim().length) {
-    const parsed = Number(value);
-    return Number.isFinite(parsed) ? parsed : null;
-  }
-  return null;
-}
-
-function parseNumberList(value: string | undefined): number[] {
-  if (!value) {
-    return [];
-  }
-  return value
-    .split(/[,\\s]+/)
-    .map((token) => Number(token.trim()))
-    .filter((num) => Number.isFinite(num));
-}
-
-function formatNumberList(values: unknown): string {
-  if (!Array.isArray(values)) {
-    return "";
-  }
-  return values
-    .map((value) => parseVnum(value))
-    .filter((num): num is number => num !== null)
-    .join(", ");
-}
-
-type DiceFormInput = {
-  number?: number;
-  type?: number;
-  bonus?: number;
-};
-
-function normalizeDice(dice: DiceFormInput | undefined) {
-  if (!dice) {
-    return undefined;
-  }
-  if (dice.number === undefined || dice.type === undefined) {
-    return undefined;
-  }
-  const next: Record<string, number> = {
-    number: dice.number,
-    type: dice.type
-  };
-  if (dice.bonus !== undefined) {
-    next.bonus = dice.bonus;
-  }
-  return next;
-}
-
-function normalizeOptionalText(value: string | undefined) {
-  if (!value) {
-    return undefined;
-  }
-  const trimmed = value.trim();
-  return trimmed.length ? trimmed : undefined;
-}
-
-function normalizeChecklistStatus(
-  value: unknown
-): "todo" | "inProgress" | "done" {
-  if (value === "todo" || value === "inProgress" || value === "done") {
-    return value;
-  }
-  if (typeof value === "number") {
-    if (value === 1) {
-      return "inProgress";
-    }
-    if (value === 2) {
-      return "done";
-    }
-    return "todo";
-  }
-  if (typeof value === "string") {
-    const trimmed = value.trim().toLowerCase();
-    if (trimmed === "inprogress") {
-      return "inProgress";
-    }
-    if (trimmed === "done") {
-      return "done";
-    }
-    const numeric = Number(trimmed);
-    if (Number.isFinite(numeric)) {
-      return normalizeChecklistStatus(numeric);
-    }
-  }
-  return "todo";
-}
-
-function normalizeLineEndingsForDisplay(value: string | undefined) {
-  if (typeof value !== "string") {
-    return "";
-  }
-  return value.replace(/\r\n/g, "\n").replace(/\n\r/g, "\n").replace(/\r/g, "\n");
-}
-
-function normalizeLineEndingsForMud(value: string) {
-  const normalized = value
-    .replace(/\r\n/g, "\n")
-    .replace(/\n\r/g, "\n")
-    .replace(/\r/g, "\n");
-  return normalized.replace(/\n/g, "\n\r");
-}
-
-function normalizeOptionalMudText(value: string | undefined) {
-  if (value === undefined) {
-    return undefined;
-  }
-  if (!value.trim().length) {
-    return undefined;
-  }
-  return normalizeLineEndingsForMud(value);
-}
-
-function normalizeOptionalScript(value: string | undefined) {
-  if (value === undefined) {
-    return undefined;
-  }
-  const normalized = normalizeLineEndingsForMud(value);
-  return normalized.trim().length ? normalized : undefined;
-}
-
-type ObjectBlockKey =
-  | "weapon"
-  | "armor"
-  | "container"
-  | "light"
-  | "drink"
-  | "fountain"
-  | "food"
-  | "money"
-  | "wand"
-  | "staff"
-  | "spells"
-  | "portal"
-  | "furniture";
-
-const itemTypeBlockMap: Record<string, ObjectBlockKey> = {
-  weapon: "weapon",
-  armor: "armor",
-  container: "container",
-  light: "light",
-  drink: "drink",
-  fountain: "fountain",
-  food: "food",
-  money: "money",
-  wand: "wand",
-  staff: "staff",
-  scroll: "spells",
-  potion: "spells",
-  pill: "spells",
-  portal: "portal",
-  furniture: "furniture"
-};
-
-function findByVnum(list: unknown[], vnum: number): Record<string, unknown> | null {
-  for (const entry of list) {
-    if (!entry || typeof entry !== "object") {
-      continue;
-    }
-    const record = entry as Record<string, unknown>;
-    const entryVnum = parseVnum(record.vnum);
-    if (entryVnum === vnum) {
-      return record;
-    }
-  }
-  return null;
-}
-
-function findShopByKeeper(
-  list: unknown[],
-  keeper: number
-): Record<string, unknown> | null {
-  for (const entry of list) {
-    if (!entry || typeof entry !== "object") {
-      continue;
-    }
-    const record = entry as Record<string, unknown>;
-    const entryKeeper = parseVnum(record.keeper);
-    if (entryKeeper === keeper) {
-      return record;
-    }
-  }
-  return null;
-}
-
-function resolveResetCommand(record: Record<string, unknown> | null): string {
-  if (record && typeof record.commandName === "string") {
-    const trimmed = record.commandName.trim();
-    if (trimmed) {
-      return trimmed;
-    }
-  }
-  const command = record && typeof record.command === "string" ? record.command : "";
-  if (!command) {
-    return "";
-  }
-  const mapped = resetCommandMap[command.toUpperCase()];
-  return mapped ?? command;
-}
-
-function isResetForRoom(
-  record: Record<string, unknown>,
-  roomVnum: number
-): boolean {
-  const target = parseVnum(record.roomVnum);
-  return target !== null && target === roomVnum;
-}
-
-function formatVnumLabel(
-  vnum: number | null,
-  map: Map<number, VnumOption>
-): string {
-  if (vnum === null) {
-    return "?";
-  }
-  const option = map.get(vnum);
-  if (option?.label) {
-    return `${vnum} ${option.label}`;
-  }
-  return String(vnum);
-}
-
-function formatResetSummary(
-  record: Record<string, unknown>,
-  command: string,
-  roomMap: Map<number, VnumOption>,
-  mobMap: Map<number, VnumOption>,
-  objMap: Map<number, VnumOption>
-): string {
-  const roomVnum = parseVnum(record.roomVnum);
-  const mobVnum = parseVnum(record.mobVnum);
-  const objVnum = parseVnum(record.objVnum);
-  const direction =
-    typeof record.direction === "string" ? record.direction : null;
-  const state = parseVnum(record.state);
-  const exits = parseVnum(record.exits);
-  switch (command) {
-    case "loadMob":
-      return `Load ${formatVnumLabel(mobVnum, mobMap)} in ${formatVnumLabel(
-        roomVnum,
-        roomMap
-      )}`;
-    case "placeObj":
-      return `Place ${formatVnumLabel(objVnum, objMap)} in ${formatVnumLabel(
-        roomVnum,
-        roomMap
-      )}`;
-    case "setDoor":
-      return `Set door ${direction ?? "?"} (${formatVnumLabel(
-        roomVnum,
-        roomMap
-      )}) state ${state ?? "?"}`;
-    case "randomizeExits":
-      return `Randomize exits (${formatVnumLabel(roomVnum, roomMap)}: ${
-        exits ?? "?"
-      })`;
-    default:
-      if (roomVnum !== null) {
-        return `${command || "Reset"} in ${formatVnumLabel(
-          roomVnum,
-          roomMap
-        )}`;
-      }
-      return command || "Reset";
-  }
-}
-
-function getDefaultSelection(
-  areaData: AreaJson | null,
-  entity: EntityKey,
-  current: number | null
-): number | null {
-  const list = getEntityList(areaData, entity);
-  if (!list.length) {
-    return null;
-  }
-  if (entity === "Resets") {
-    if (current !== null && current >= 0 && current < list.length) {
-      return current;
-    }
-    return 0;
-  }
-  if (entity === "Shops") {
-    if (current !== null && findShopByKeeper(list, current)) {
-      return current;
-    }
-    const first = list[0] as Record<string, unknown>;
-    return parseVnum(first?.keeper);
-  }
-  if (current !== null && findByVnum(list, current)) {
-    return current;
-  }
-  const first = list[0] as Record<string, unknown>;
-  return parseVnum(first?.vnum);
-}
-
-function getEntityList(areaData: AreaJson | null, key: EntityKey): unknown[] {
-  if (!areaData) {
-    return [];
-  }
-  if (key === "Area") {
-    const areadata = (areaData as Record<string, unknown>).areadata;
-    return areadata && typeof areadata === "object" ? [areadata] : [];
-  }
-  if (key === "Loot") {
-    const loot = (areaData as Record<string, unknown>).loot;
-    if (!loot || typeof loot !== "object") {
-      return [];
-    }
-    const record = loot as Record<string, unknown>;
-    const groups = Array.isArray(record.groups) ? record.groups : [];
-    const tables = Array.isArray(record.tables) ? record.tables : [];
-    return [...groups, ...tables];
-  }
-  const list = (areaData as Record<string, unknown>)[entityDataKeys[key]];
-  return Array.isArray(list) ? list : [];
-}
-
-function getAreaVnumRange(areaData: AreaJson | null): string | null {
-  if (!areaData) {
-    return null;
-  }
-  const areadata = (areaData as Record<string, unknown>).areadata;
-  if (!areadata || typeof areadata !== "object") {
-    return null;
-  }
-  const vnumRange = (areadata as Record<string, unknown>).vnumRange;
-  if (
-    Array.isArray(vnumRange) &&
-    vnumRange.length === 2 &&
-    typeof vnumRange[0] === "number" &&
-    typeof vnumRange[1] === "number"
-  ) {
-    return `${vnumRange[0]}-${vnumRange[1]}`;
-  }
-  return null;
-}
-
-function formatVnumRange(range: [number, number] | null): string {
-  if (!range) {
-    return "n/a";
-  }
-  return `${range[0]}-${range[1]}`;
-}
-
-function getAreaVnumBounds(
-  areaData: AreaJson | null
-): { min: number; max: number } | null {
-  if (!areaData) {
-    return null;
-  }
-  const areadata = (areaData as Record<string, unknown>).areadata;
-  if (!areadata || typeof areadata !== "object") {
-    return null;
-  }
-  const vnumRange = (areadata as Record<string, unknown>).vnumRange;
-  if (
-    Array.isArray(vnumRange) &&
-    vnumRange.length === 2 &&
-    typeof vnumRange[0] === "number" &&
-    typeof vnumRange[1] === "number"
-  ) {
-    return { min: vnumRange[0], max: vnumRange[1] };
-  }
-  return null;
-}
-
-function getNextEntityVnum(areaData: AreaJson, entity: EntityKey): number | null {
-  const entries = getEntityList(areaData, entity);
-  const used = new Set<number>();
-  entries.forEach((entry) => {
-    if (!entry || typeof entry !== "object") {
-      return;
-    }
-    const vnum = parseVnum((entry as Record<string, unknown>).vnum);
-    if (vnum !== null) {
-      used.add(vnum);
-    }
-  });
-  const bounds = getAreaVnumBounds(areaData);
-  if (bounds) {
-    const { min, max } = bounds;
-    for (let candidate = min; candidate <= max; candidate += 1) {
-      if (!used.has(candidate)) {
-        return candidate;
-      }
-    }
-    return null;
-  }
-  if (!used.size) {
-    return 1;
-  }
-  return Math.max(...used) + 1;
-}
-
-function getFirstEntityVnum(areaData: AreaJson, entity: EntityKey): number | null {
-  const entries = getEntityList(areaData, entity);
-  for (const entry of entries) {
-    if (!entry || typeof entry !== "object") {
-      continue;
-    }
-    const vnum = parseVnum((entry as Record<string, unknown>).vnum);
-    if (vnum !== null) {
-      return vnum;
-    }
-  }
-  return null;
-}
-
-function getFirstString(value: unknown, fallback: string): string {
-  return typeof value === "string" && value.trim().length ? value : fallback;
-}
-
-function RoomEdge({
-  id,
-  sourceX,
-  sourceY,
-  targetX,
-  targetY,
-  source,
-  target,
-  sourcePosition,
-  targetPosition,
-  data,
-  label,
-  selected,
-  markerEnd,
-  interactionWidth
-}: EdgeProps<{
-  dirKey?: string;
-  exitFlags?: string[];
-  invalid?: boolean;
-  nodeType?: string;
-  nodeSize?: { width: number; height: number };
-}>) {
-  const nodeInternals = useStore((state) => state.nodeInternals);
-  const nodeType =
-    data?.nodeType && typeof data.nodeType === "string"
-      ? data.nodeType
-      : "room";
-  const fallbackSize =
-    data?.nodeSize ??
-    (nodeType === "area" ? areaNodeSize : roomNodeSize);
-  const obstacles = useMemo(() => {
-    const entries = Array.from(nodeInternals.values());
-    return entries
-      .filter((node) => node.type === nodeType)
-      .map((node) => {
-        const width = node.width ?? fallbackSize.width;
-        const height = node.height ?? fallbackSize.height;
-        const position = node.positionAbsolute ?? node.position;
-        return {
-          id: node.id,
-          left: position.x,
-          right: position.x + width,
-          top: position.y,
-          bottom: position.y + height
-        };
-      });
-  }, [nodeInternals, nodeType, fallbackSize]);
-  const filteredObstacles = useMemo(
-    () =>
-      obstacles.filter(
-        (obstacle) => obstacle.id !== source && obstacle.id !== target
-      ),
-    [obstacles, source, target]
-  );
-  const safeSourcePosition = sourcePosition ?? Position.Right;
-  const safeTargetPosition = targetPosition ?? Position.Left;
-  const { path, labelPoint } = useMemo(
-    () =>
-      buildOrthogonalEdgePath({
-        start: { x: sourceX, y: sourceY },
-        end: { x: targetX, y: targetY },
-        sourceDirection: safeSourcePosition,
-        targetDirection: safeTargetPosition,
-        obstacles: filteredObstacles,
-        edgeStubSize,
-        edgeClearance,
-        edgeDirectionPriority
-      }),
-    [
-      sourceX,
-      sourceY,
-      targetX,
-      targetY,
-      safeSourcePosition,
-      safeTargetPosition,
-      filteredObstacles
-    ]
-  );
-  const exitFlags = Array.isArray(data?.exitFlags) ? data.exitFlags : [];
-  const isInvalid = data?.invalid === true;
-  const isLocked = exitFlags.includes("locked");
-  const isDoor = isLocked || exitFlags.includes("door") || exitFlags.includes("closed");
-  const stroke = isInvalid
-    ? "rgba(167, 60, 60, 0.9)"
-    : isLocked
-      ? "rgba(167, 60, 60, 0.85)"
-      : isDoor
-        ? "rgba(138, 92, 34, 0.75)"
-        : "rgba(47, 108, 106, 0.55)";
-  const edgeStyle = {
-    stroke,
-    strokeWidth: selected
-      ? 2.4
-      : isInvalid
-        ? 2.2
-        : isLocked
-          ? 2.1
-          : isDoor
-            ? 1.8
-            : 1.4,
-    strokeDasharray: isInvalid
-      ? "3 3"
-      : isLocked
-        ? "4 3"
-        : isDoor
-          ? "6 4"
-          : undefined
-  };
-  const labelClass = isInvalid
-    ? "room-edge__label room-edge__label--invalid"
-    : isLocked
-      ? "room-edge__label room-edge__label--locked"
-      : isDoor
-        ? "room-edge__label room-edge__label--door"
-        : "room-edge__label";
-  return (
-    <>
-      <BaseEdge
-        id={id}
-        path={path}
-        markerEnd={markerEnd}
-        style={edgeStyle}
-        interactionWidth={interactionWidth}
-      />
-      {typeof label === "string" && label.length ? (
-        <EdgeLabelRenderer>
-          <div
-            className={labelClass}
-            style={{
-              transform: `translate(-50%, -50%) translate(${labelPoint.x}px, ${labelPoint.y}px)`
-            }}
-          >
-            {label}
-          </div>
-        </EdgeLabelRenderer>
-      ) : null}
-    </>
-  );
-}
-
-function VerticalEdge({
-  id,
-  sourceX,
-  sourceY,
-  targetX,
-  targetY,
-  markerEnd,
-  interactionWidth
-}: EdgeProps<{ dirKey?: string }>) {
-  const path = `M${sourceX} ${sourceY} L${targetX} ${targetY}`;
-  return (
-    <BaseEdge
-      id={id}
-      path={path}
-      markerEnd={markerEnd}
-      interactionWidth={interactionWidth}
-      style={{
-        stroke: "rgba(47, 108, 106, 0.4)",
-        strokeWidth: 1.2,
-        strokeDasharray: "4 5"
-      }}
-    />
-  );
-}
-
-function ExternalStubEdge({
-  id,
-  sourceX,
-  sourceY,
-  sourcePosition,
-  data,
-  markerEnd,
-  interactionWidth
-}: EdgeProps<{ dirKey?: string; targetVnum?: number; invalid?: boolean }>) {
-  const dirKey = data?.dirKey ?? "";
-  const rawLabel =
-    externalDirectionLabels[dirKey] ?? dirKey.trim().toUpperCase();
-  const labelCode = rawLabel.length ? rawLabel : "X";
-  const labelSuffix =
-    typeof data?.targetVnum === "number" ? ` ${data.targetVnum}` : "";
-  const isInvalid = data?.invalid === true;
-  const direction =
-    externalDirectionMap[dirKey] ?? sourcePosition ?? Position.Right;
-  const start = { x: sourceX, y: sourceY };
-  const end = offsetPoint(start, direction, externalStubSize);
-  const labelPoint = offsetPoint(start, direction, externalStubSize + 16);
-  const path = `M${start.x} ${start.y} L${end.x} ${end.y}`;
-  return (
-    <>
-      <BaseEdge
-        id={id}
-        path={path}
-        markerEnd={markerEnd}
-        interactionWidth={interactionWidth}
-        style={{
-          stroke: isInvalid ? "rgba(167, 60, 60, 0.7)" : "rgba(47, 108, 106, 0.35)",
-          strokeWidth: isInvalid ? 1.6 : 1.1,
-          strokeDasharray: isInvalid ? "3 4" : "2 6"
-        }}
-      />
-      <EdgeLabelRenderer>
-        <div
-          className={`room-edge__label room-edge__label--external${
-            isInvalid ? " room-edge__label--invalid" : ""
-          }`}
-          style={{
-            transform: `translate(-50%, -50%) translate(${labelPoint.x}px, ${labelPoint.y}px)`
-          }}
-        >
-          {labelCode}
-          {labelSuffix}
-        </div>
-      </EdgeLabelRenderer>
-    </>
-  );
-}
-
-const roomEdgeTypes = {
-  room: RoomEdge,
-  vertical: VerticalEdge,
-  external: ExternalStubEdge
-};
-const areaEdgeTypes = { area: RoomEdge };
-
-function buildVnumOptions(
-  areaData: AreaJson | null,
-  entity: "Rooms" | "Mobiles" | "Objects"
-): VnumOption[] {
-  if (!areaData) {
-    return [];
-  }
-  const list = getEntityList(areaData, entity);
-  const options: VnumOption[] = [];
-  const entityLabel =
-    entity === "Rooms" ? "Room" : entity === "Mobiles" ? "Mobile" : "Object";
-  for (const entry of list) {
-    if (!entry || typeof entry !== "object") {
-      continue;
-    }
-    const record = entry as Record<string, unknown>;
-    const vnum = parseVnum(record.vnum);
-    if (vnum === null) {
-      continue;
-    }
-    let name = "VNUM";
-    if (entity === "Rooms") {
-      name = getFirstString(record.name, "(unnamed room)");
-    } else if (entity === "Mobiles") {
-      name = getFirstString(record.shortDescr, "(unnamed mobile)");
-    } else {
-      name = getFirstString(record.shortDescr, "(unnamed object)");
-    }
-    options.push({
-      vnum,
-      label: `${entityLabel} · ${name}`,
-      entityType: entityLabel,
-      name
-    });
-  }
-  return options;
-}
-
-function buildSelectionSummary(
-  selectedEntity: EntityKey,
-  areaData: AreaJson | null,
-  selectedVnums: Partial<Record<EntityKey, number | null>>,
-  lootContext?: {
-    data: LootDataFile | null;
-    kind: "group" | "table" | null;
-    index: number | null;
-  }
-) {
-  const list = getEntityList(areaData, selectedEntity);
-  const count = list.length;
-  const selectedValue =
-    selectedVnums[selectedEntity] !== null &&
-    selectedVnums[selectedEntity] !== undefined
-      ? (selectedVnums[selectedEntity] as number)
-      : null;
-  const selected =
-    selectedValue !== null
-      ? selectedEntity === "Resets"
-        ? (list[selectedValue] as Record<string, unknown> | undefined) ?? null
-        : selectedEntity === "Shops"
-          ? findShopByKeeper(list, selectedValue)
-          : findByVnum(list, selectedValue)
-      : null;
-  const first = (selected ?? list[0] ?? {}) as Record<string, unknown>;
-  const vnumRange = getAreaVnumRange(areaData);
-  const vnum = parseVnum(first.vnum);
-  const emptyLabel = `No ${selectedEntity.toLowerCase()} loaded`;
-
-  let selectionLabel = emptyLabel;
-  let flags: string[] = [];
-  let exits = "n/a";
-  const lootData = lootContext?.data ?? null;
-  const lootKind = lootContext?.kind ?? null;
-  const lootIndex = lootContext?.index ?? null;
-
-  switch (selectedEntity) {
-    case "Area": {
-      selectionLabel = count
-        ? getFirstString(first.name, "Area data")
-        : emptyLabel;
-      exits = "n/a";
-      break;
-    }
-    case "Rooms": {
-      selectionLabel =
-        vnum !== null
-          ? `${vnum} - ${getFirstString(first.name, "(unnamed room)")}`
-          : emptyLabel;
-      flags = Array.isArray(first.roomFlags)
-        ? first.roomFlags.filter((flag) => typeof flag === "string")
-        : [];
-      const exitList = Array.isArray(first.exits) ? first.exits : [];
-      exits =
-        exitList.length > 0
-          ? exitList
-              .map((exit) =>
-                typeof exit === "object" && exit
-                  ? (exit as Record<string, unknown>).dir
-                  : null
-              )
-              .filter((dir): dir is string => typeof dir === "string")
-              .join(", ")
-          : "none";
-      break;
-    }
-    case "Mobiles": {
-      selectionLabel =
-        vnum !== null
-          ? `${vnum} - ${getFirstString(first.shortDescr, "(unnamed mobile)")}`
-          : emptyLabel;
-      flags = Array.isArray(first.actFlags)
-        ? first.actFlags.filter((flag) => typeof flag === "string")
-        : [];
-      break;
-    }
-    case "Objects": {
-      selectionLabel =
-        vnum !== null
-          ? `${vnum} - ${getFirstString(first.shortDescr, "(unnamed object)")}`
-          : emptyLabel;
-      flags = Array.isArray(first.wearFlags)
-        ? first.wearFlags.filter((flag) => typeof flag === "string")
-        : [];
-      break;
-    }
-    case "Resets": {
-      const commandName = getFirstString(first.commandName, "reset");
-      const roomVnum = parseVnum(first.roomVnum);
-      selectionLabel =
-        roomVnum !== null
-          ? `${commandName} -> room ${roomVnum}`
-          : count
-            ? commandName
-            : emptyLabel;
-      break;
-    }
-    case "Shops": {
-      const keeper = parseVnum(first.keeper);
-      selectionLabel =
-        keeper !== null ? `Keeper ${keeper}` : count ? "Shop entry" : emptyLabel;
-      break;
-    }
-    case "Quests": {
-      selectionLabel =
-        vnum !== null
-          ? `${vnum} - ${getFirstString(first.name, "Quest")}`
-          : count
-            ? "Quest entry"
-            : emptyLabel;
-      break;
-    }
-    case "Factions": {
-      selectionLabel =
-        vnum !== null
-          ? `${vnum} - ${getFirstString(first.name, "Faction")}`
-          : count
-            ? "Faction entry"
-            : emptyLabel;
-      break;
-    }
-    case "Loot": {
-      if (!lootData || lootKind === null || lootIndex === null) {
-        selectionLabel = count ? "Loot entry" : emptyLabel;
-        break;
-      }
-      if (lootKind === "group") {
-        const group = lootData.groups[lootIndex];
-        selectionLabel = group
-          ? `Group: ${getFirstString(group.name, "(unnamed)")}`
-          : emptyLabel;
-        break;
-      }
-      const table = lootData.tables[lootIndex];
-      selectionLabel = table
-        ? `Table: ${getFirstString(table.name, "(unnamed)")}`
-        : emptyLabel;
-      break;
-    }
-    case "Recipes": {
-      selectionLabel =
-        vnum !== null
-          ? `${vnum} - ${getFirstString(first.name, "Recipe")}`
-          : count
-            ? "Recipe entry"
-            : emptyLabel;
-      break;
-    }
-    case "Gather Spawns": {
-      selectionLabel =
-        vnum !== null
-          ? `${vnum} - ${getFirstString(first.spawnSector, "spawn")}`
-          : count
-            ? "Gather spawn entry"
-            : emptyLabel;
-      break;
-    }
-    case "Helps": {
-      const keyword = getFirstString(first.keyword, "help");
-      selectionLabel = count ? `help: ${keyword}` : emptyLabel;
-      break;
-    }
-    default:
-      break;
-  }
-
-  const range =
-    selectedEntity === "Rooms" ||
-    selectedEntity === "Mobiles" ||
-    selectedEntity === "Objects" ||
-    selectedEntity === "Area"
-      ? vnumRange ?? "n/a"
-      : "n/a";
-
-  return {
-    kindLabel: entityKindLabels[selectedEntity],
-    selectionLabel,
-    vnumRange: range,
-    lastSave: areaData ? "loaded" : "n/a",
-    flags,
-    exits,
-    validation: "validation not run"
-  };
-}
-
-function validateVnumRanges(
-  areaData: AreaJson | null
-): ValidationIssueBase[] {
-  if (!areaData) {
-    return [];
-  }
-  const bounds = getAreaVnumBounds(areaData);
-  if (!bounds) {
-    return [];
-  }
-  const { min, max } = bounds;
-  const issues: ValidationIssueBase[] = [];
-  const checkEntity = (entity: EntityKey) => {
-    const list = getEntityList(areaData, entity);
-    list.forEach((entry, index) => {
-      if (!entry || typeof entry !== "object") {
-        return;
-      }
-      const record = entry as Record<string, unknown>;
-      const vnum = parseVnum(record.vnum);
-      if (vnum === null) {
-        return;
-      }
-      if (vnum < min || vnum > max) {
-        const kindLabel = entityKindLabels[entity] ?? "Entity";
-        issues.push({
-          id: `vnum-range-${entity}-${vnum}-${index}`,
-          severity: "error",
-          entityType: entity,
-          vnum,
-          message: `${kindLabel} vnum ${vnum} outside area range ${min}-${max}`
-        });
-      }
-    });
-  };
-
-  checkEntity("Rooms");
-  checkEntity("Mobiles");
-  checkEntity("Objects");
-
-  return issues;
-}
-
-function validateDuplicateVnums(
-  areaData: AreaJson | null
-): ValidationIssueBase[] {
-  if (!areaData) {
-    return [];
-  }
-  const issues: ValidationIssueBase[] = [];
-  const checkEntity = (entity: EntityKey) => {
-    const list = getEntityList(areaData, entity);
-    const counts = new Map<number, number>();
-    list.forEach((entry) => {
-      if (!entry || typeof entry !== "object") {
-        return;
-      }
-      const vnum = parseVnum((entry as Record<string, unknown>).vnum);
-      if (vnum === null) {
-        return;
-      }
-      counts.set(vnum, (counts.get(vnum) ?? 0) + 1);
-    });
-    counts.forEach((count, vnum) => {
-      if (count <= 1) {
-        return;
-      }
-      const kindLabel = entityKindLabels[entity] ?? "Entity";
-      issues.push({
-        id: `duplicate-${entity}-${vnum}`,
-        severity: "error",
-        entityType: entity,
-        vnum,
-        message: `${kindLabel} vnum ${vnum} is duplicated (${count} entries)`
-      });
-    });
-  };
-
-  checkEntity("Rooms");
-  checkEntity("Mobiles");
-  checkEntity("Objects");
-
-  return issues;
-}
-
-function validateResetReferences(
-  areaData: AreaJson | null
-): ValidationIssueBase[] {
-  if (!areaData) {
-    return [];
-  }
-  const resets = getEntityList(areaData, "Resets");
-  if (!resets.length) {
-    return [];
-  }
-  const mobiles = getEntityList(areaData, "Mobiles");
-  const objects = getEntityList(areaData, "Objects");
-  const mobVnums = new Set<number>();
-  const objVnums = new Set<number>();
-
-  mobiles.forEach((entry) => {
-    if (!entry || typeof entry !== "object") {
-      return;
-    }
-    const vnum = parseVnum((entry as Record<string, unknown>).vnum);
-    if (vnum !== null) {
-      mobVnums.add(vnum);
-    }
-  });
-
-  objects.forEach((entry) => {
-    if (!entry || typeof entry !== "object") {
-      return;
-    }
-    const vnum = parseVnum((entry as Record<string, unknown>).vnum);
-    if (vnum !== null) {
-      objVnums.add(vnum);
-    }
-  });
-
-  const issues: ValidationIssueBase[] = [];
-  const addIssue = (
-    message: string,
-    index: number,
-    vnum?: number
-  ) => {
-    issues.push({
-      id: `reset-ref-${index}-${issues.length}`,
-      severity: "error",
-      entityType: "Resets",
-      resetIndex: index,
-      vnum,
-      message
-    });
-  };
-
-  resets.forEach((reset, index) => {
-    if (!reset || typeof reset !== "object") {
-      return;
-    }
-    const record = reset as Record<string, unknown>;
-    const command = resolveResetCommand(record);
-    const label = `Reset #${index + 1}`;
-    if (command === "loadMob") {
-      const mobVnum = parseVnum(record.mobVnum);
-      if (mobVnum === null) {
-        addIssue(`${label} loadMob missing mob vnum`, index);
-        return;
-      }
-      if (!mobVnums.has(mobVnum)) {
-        addIssue(
-          `${label} loadMob references missing mob ${mobVnum}`,
-          index,
-          mobVnum
-        );
-      }
-    } else if (command === "placeObj") {
-      const objVnum = parseVnum(record.objVnum);
-      if (objVnum === null) {
-        addIssue(`${label} placeObj missing object vnum`, index);
-        return;
-      }
-      if (!objVnums.has(objVnum)) {
-        addIssue(
-          `${label} placeObj references missing object ${objVnum}`,
-          index,
-          objVnum
-        );
-      }
-    } else if (command === "putObj") {
-      const objVnum = parseVnum(record.objVnum);
-      const containerVnum = parseVnum(record.containerVnum);
-      if (objVnum === null) {
-        addIssue(`${label} putObj missing object vnum`, index);
-      } else if (!objVnums.has(objVnum)) {
-        addIssue(
-          `${label} putObj references missing object ${objVnum}`,
-          index,
-          objVnum
-        );
-      }
-      if (containerVnum === null) {
-        addIssue(`${label} putObj missing container vnum`, index);
-      } else if (!objVnums.has(containerVnum)) {
-        addIssue(
-          `${label} putObj references missing container ${containerVnum}`,
-          index,
-          containerVnum
-        );
-      }
-    } else if (command === "giveObj") {
-      const objVnum = parseVnum(record.objVnum);
-      if (objVnum === null) {
-        addIssue(`${label} giveObj missing object vnum`, index);
-        return;
-      }
-      if (!objVnums.has(objVnum)) {
-        addIssue(
-          `${label} giveObj references missing object ${objVnum}`,
-          index,
-          objVnum
-        );
-      }
-    } else if (command === "equipObj") {
-      const objVnum = parseVnum(record.objVnum);
-      if (objVnum === null) {
-        addIssue(`${label} equipObj missing object vnum`, index);
-        return;
-      }
-      if (!objVnums.has(objVnum)) {
-        addIssue(
-          `${label} equipObj references missing object ${objVnum}`,
-          index,
-          objVnum
-        );
-      }
-    }
-  });
-
-  return issues;
-}
-
-function validateOneWayExits(
-  areaData: AreaJson | null
-): ValidationIssueBase[] {
-  if (!areaData) {
-    return [];
-  }
-  const rooms = getEntityList(areaData, "Rooms");
-  if (!rooms.length) {
-    return [];
-  }
-  const roomVnums = new Set<number>();
-  const roomExitMap = new Map<number, Set<string>>();
-  rooms.forEach((room) => {
-    if (!room || typeof room !== "object") {
-      return;
-    }
-    const record = room as Record<string, unknown>;
-    const vnum = parseVnum(record.vnum);
-    if (vnum === null) {
-      return;
-    }
-    roomVnums.add(vnum);
-    const exits = Array.isArray(record.exits) ? record.exits : [];
-    const exitSet = new Set<string>();
-    exits.forEach((exit) => {
-      if (!exit || typeof exit !== "object") {
-        return;
-      }
-      const exitRecord = exit as Record<string, unknown>;
-      const toVnum = parseVnum(exitRecord.toVnum);
-      if (toVnum === null) {
-        return;
-      }
-      const dirKey =
-        typeof exitRecord.dir === "string"
-          ? exitRecord.dir.trim().toLowerCase()
-          : "";
-      if (!dirKey) {
-        return;
-      }
-      exitSet.add(`${dirKey}:${toVnum}`);
-    });
-    if (exitSet.size) {
-      roomExitMap.set(vnum, exitSet);
-    }
-  });
-
-  const oppositeMap: Record<string, string> = {
-    north: "south",
-    south: "north",
-    east: "west",
-    west: "east",
-    up: "down",
-    down: "up"
-  };
-  const issues: ValidationIssueBase[] = [];
-  rooms.forEach((room, index) => {
-    if (!room || typeof room !== "object") {
-      return;
-    }
-    const record = room as Record<string, unknown>;
-    const fromVnum = parseVnum(record.vnum);
-    if (fromVnum === null) {
-      return;
-    }
-    const exits = Array.isArray(record.exits) ? record.exits : [];
-    exits.forEach((exit, exitIndex) => {
-      if (!exit || typeof exit !== "object") {
-        return;
-      }
-      const exitRecord = exit as Record<string, unknown>;
-      const toVnum = parseVnum(exitRecord.toVnum);
-      if (toVnum === null || !roomVnums.has(toVnum)) {
-        return;
-      }
-      const dirKey =
-        typeof exitRecord.dir === "string"
-          ? exitRecord.dir.trim().toLowerCase()
-          : "";
-      if (!dirKey) {
-        return;
-      }
-      const opposite = oppositeMap[dirKey];
-      if (!opposite) {
-        return;
-      }
-      const targetExits = roomExitMap.get(toVnum);
-      const reciprocalKey = `${opposite}:${fromVnum}`;
-      if (targetExits && targetExits.has(reciprocalKey)) {
-        return;
-      }
-      issues.push({
-        id: `one-way-${fromVnum}-${dirKey}-${toVnum}-${index}-${exitIndex}`,
-        severity: "warning",
-        entityType: "Rooms",
-        vnum: fromVnum,
-        message: `One-way exit: ${dirKey} from room ${fromVnum} to ${toVnum} has no ${opposite} return`
-      });
-    });
-  });
-
-  return issues;
-}
-
-function validateOrphanRooms(
-  areaData: AreaJson | null
-): ValidationIssueBase[] {
-  if (!areaData) {
-    return [];
-  }
-  const rooms = getEntityList(areaData, "Rooms");
-  if (!rooms.length) {
-    return [];
-  }
-  const roomVnums = new Set<number>();
-  const incomingCounts = new Map<number, number>();
-  rooms.forEach((room) => {
-    if (!room || typeof room !== "object") {
-      return;
-    }
-    const record = room as Record<string, unknown>;
-    const vnum = parseVnum(record.vnum);
-    if (vnum === null) {
-      return;
-    }
-    roomVnums.add(vnum);
-    incomingCounts.set(vnum, 0);
-  });
-
-  rooms.forEach((room) => {
-    if (!room || typeof room !== "object") {
-      return;
-    }
-    const record = room as Record<string, unknown>;
-    const exits = Array.isArray(record.exits) ? record.exits : [];
-    exits.forEach((exit) => {
-      if (!exit || typeof exit !== "object") {
-        return;
-      }
-      const exitRecord = exit as Record<string, unknown>;
-      const toVnum = parseVnum(exitRecord.toVnum);
-      if (toVnum === null || !roomVnums.has(toVnum)) {
-        return;
-      }
-      incomingCounts.set(toVnum, (incomingCounts.get(toVnum) ?? 0) + 1);
-    });
-  });
-
-  const issues: ValidationIssueBase[] = [];
-  incomingCounts.forEach((count, vnum) => {
-    if (count > 0) {
-      return;
-    }
-    issues.push({
-      id: `orphan-${vnum}`,
-      severity: "warning",
-      entityType: "Rooms",
-      vnum,
-      message: `Orphan room ${vnum} has no incoming exits`
-    });
-  });
-
-  return issues;
-}
-
-function buildValidationSummary(
-  issues: ValidationIssue[],
-  selectedEntity: EntityKey,
-  selectedVnum: number | null,
-  selectedResetIndex: number | null
-): string {
-  if (!issues.length) {
-    return "No validation issues";
-  }
-  if (selectedEntity === "Resets" && selectedResetIndex !== null) {
-    const selectedIssue = issues.find(
-      (issue) =>
-        issue.entityType === "Resets" &&
-        issue.resetIndex === selectedResetIndex
-    );
-    if (selectedIssue) {
-      return selectedIssue.message;
-    }
-  } else if (selectedVnum !== null) {
-    const selectedIssue = issues.find(
-      (issue) =>
-        issue.entityType === selectedEntity && issue.vnum === selectedVnum
-    );
-    if (selectedIssue) {
-      return selectedIssue.message;
-    }
-  }
-  const countsByEntity = issues.reduce<Record<string, number>>((acc, issue) => {
-    acc[issue.entityType] = (acc[issue.entityType] ?? 0) + 1;
-    return acc;
-  }, {});
-  const severityCounts = issues.reduce<Record<string, number>>((acc, issue) => {
-    acc[issue.severity] = (acc[issue.severity] ?? 0) + 1;
-    return acc;
-  }, {});
-  const severityParts = Object.entries(severityCounts).map(
-    ([severity, count]) =>
-      `${severity === "error" ? "Errors" : "Warnings"} ${count}`
-  );
-  const entityParts = Object.entries(countsByEntity).map(
-    ([entity, count]) => `${entity} ${count}`
-  );
-  const severitySummary = severityParts.length
-    ? ` (${severityParts.join(", ")})`
-    : "";
-  return `Validation issues${severitySummary}: ${entityParts.join(", ")}`;
-}
-
-function buildAreaDebugSummary(areaData: AreaJson | null): {
-  keys: string[];
-  arrayCounts: Array<{ key: string; count: number }>;
-} {
-  if (!areaData || typeof areaData !== "object") {
-    return { keys: [], arrayCounts: [] };
-  }
-  const keys = Object.keys(areaData as Record<string, unknown>).sort();
-  const arrayCounts = keys
-    .map((key) => {
-      const value = (areaData as Record<string, unknown>)[key];
-      return Array.isArray(value) ? { key, count: value.length } : null;
-    })
-    .filter((entry): entry is { key: string; count: number } => entry !== null);
-  return { keys, arrayCounts };
-}
-
-function getDominantExitDirection(
-  directionCounts: Partial<Record<string, number>> | null | undefined
-): string | null {
-  if (!directionCounts) {
-    return null;
-  }
-  const order = ["north", "east", "south", "west", "up", "down"];
-  let best: string | null = null;
-  let bestCount = -1;
-  order.forEach((dir) => {
-    const count = directionCounts[dir];
-    if (typeof count !== "number") {
-      return;
-    }
-    if (count > bestCount) {
-      best = dir;
-      bestCount = count;
-    }
-  });
-  return best;
-}
-
-function cleanOptionalString(value: string | undefined): string | undefined {
-  if (!value) {
-    return undefined;
-  }
-  const trimmed = value.trim();
-  return trimmed.length ? trimmed : undefined;
-}
-
-function syncGridSelection(
-  api: GridApi | null,
-  rowId: number | string | null
-) {
-  if (!api) {
-    return;
-  }
-  api.deselectAll();
-  if (rowId === null) {
-    return;
-  }
-  const node = api.getRowNode(String(rowId));
-  if (node) {
-    node.setSelected(true);
-  }
-}
-
 export default function App({ repository }: AppProps) {
-  const [activeTab, setActiveTab] = useState<TabId>(tabs[0].id);
-  const [editorMode, setEditorMode] = useState<EditorMode>("Area");
-  const [selectedEntity, setSelectedEntity] =
-    useState<EntityKey>("Rooms");
-  const [selectedGlobalEntity, setSelectedGlobalEntity] =
-    useState<GlobalEntityKey>("Classes");
-  const [selectedClassIndex, setSelectedClassIndex] = useState<number | null>(
-    null
-  );
-  const [selectedRaceIndex, setSelectedRaceIndex] = useState<number | null>(
-    null
-  );
-  const [selectedSkillIndex, setSelectedSkillIndex] = useState<number | null>(
-    null
-  );
-  const [selectedGroupIndex, setSelectedGroupIndex] = useState<number | null>(
-    null
-  );
-  const [selectedCommandIndex, setSelectedCommandIndex] = useState<number | null>(
-    null
-  );
-  const [selectedSocialIndex, setSelectedSocialIndex] = useState<number | null>(
-    null
-  );
-  const [selectedTutorialIndex, setSelectedTutorialIndex] = useState<
-    number | null
-  >(null);
-  const [selectedLootKind, setSelectedLootKind] = useState<
-    "group" | "table" | null
-  >(null);
-  const [selectedLootIndex, setSelectedLootIndex] = useState<number | null>(
-    null
-  );
-  const [selectedMobileVnum, setSelectedMobileVnum] = useState<number | null>(
-    null
-  );
-  const [selectedObjectVnum, setSelectedObjectVnum] = useState<number | null>(
-    null
-  );
-  const [selectedResetIndex, setSelectedResetIndex] = useState<number | null>(
-    null
-  );
-  const [selectedShopKeeper, setSelectedShopKeeper] = useState<number | null>(
-    null
-  );
-  const [selectedQuestVnum, setSelectedQuestVnum] = useState<number | null>(null);
-  const [selectedFactionVnum, setSelectedFactionVnum] = useState<number | null>(
-    null
-  );
-  const [selectedAreaLootKind, setSelectedAreaLootKind] = useState<
-    "group" | "table" | null
-  >(null);
-  const [selectedAreaLootIndex, setSelectedAreaLootIndex] = useState<
-    number | null
-  >(null);
-  const [selectedRecipeVnum, setSelectedRecipeVnum] = useState<number | null>(
-    null
-  );
-  const [selectedGatherVnum, setSelectedGatherVnum] = useState<number | null>(
-    null
-  );
-  const [areaPath, setAreaPath] = useState<string | null>(null);
-  const [areaData, setAreaData] = useState<AreaJson | null>(null);
-  const [classData, setClassData] = useState<ClassDataFile | null>(null);
-  const [classDataPath, setClassDataPath] = useState<string | null>(null);
-  const [classDataFormat, setClassDataFormat] = useState<
-    "json" | "olc" | null
-  >(null);
-  const [classDataDir, setClassDataDir] = useState<string | null>(null);
-  const [raceData, setRaceData] = useState<RaceDataFile | null>(null);
-  const [raceDataPath, setRaceDataPath] = useState<string | null>(null);
-  const [raceDataFormat, setRaceDataFormat] = useState<
-    "json" | "olc" | null
-  >(null);
-  const [raceDataDir, setRaceDataDir] = useState<string | null>(null);
-  const [skillData, setSkillData] = useState<SkillDataFile | null>(null);
-  const [skillDataPath, setSkillDataPath] = useState<string | null>(null);
-  const [skillDataFormat, setSkillDataFormat] = useState<
-    "json" | "olc" | null
-  >(null);
-  const [skillDataDir, setSkillDataDir] = useState<string | null>(null);
-  const [groupData, setGroupData] = useState<GroupDataFile | null>(null);
-  const [groupDataPath, setGroupDataPath] = useState<string | null>(null);
-  const [groupDataFormat, setGroupDataFormat] = useState<
-    "json" | "olc" | null
-  >(null);
-  const [groupDataDir, setGroupDataDir] = useState<string | null>(null);
-  const [commandData, setCommandData] = useState<CommandDataFile | null>(null);
-  const [commandDataPath, setCommandDataPath] = useState<string | null>(null);
-  const [commandDataFormat, setCommandDataFormat] = useState<
-    "json" | "olc" | null
-  >(null);
-  const [commandDataDir, setCommandDataDir] = useState<string | null>(null);
-  const [socialData, setSocialData] = useState<SocialDataFile | null>(null);
-  const [socialDataPath, setSocialDataPath] = useState<string | null>(null);
-  const [socialDataFormat, setSocialDataFormat] = useState<
-    "json" | "olc" | null
-  >(null);
-  const [socialDataDir, setSocialDataDir] = useState<string | null>(null);
-  const [tutorialData, setTutorialData] = useState<TutorialDataFile | null>(null);
-  const [tutorialDataPath, setTutorialDataPath] = useState<string | null>(null);
-  const [tutorialDataFormat, setTutorialDataFormat] = useState<
-    "json" | "olc" | null
-  >(null);
-  const [tutorialDataDir, setTutorialDataDir] = useState<string | null>(null);
-  const [lootData, setLootData] = useState<LootDataFile | null>(null);
-  const [lootDataPath, setLootDataPath] = useState<string | null>(null);
-  const [lootDataFormat, setLootDataFormat] = useState<
-    "json" | "olc" | null
-  >(null);
-  const [lootDataDir, setLootDataDir] = useState<string | null>(null);
-  const [projectConfig, setProjectConfig] = useState<ProjectConfig | null>(null);
-  const [editorMeta, setEditorMeta] = useState<EditorMeta | null>(null);
-  const [editorMetaPath, setEditorMetaPath] = useState<string | null>(null);
-  const [referenceData, setReferenceData] = useState<ReferenceData | null>(null);
-  const [dataDirectory, setDataDirectory] = useState<string | null>(null);
-  const [statusMessage, setStatusMessage] = useState("No area loaded");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isBusy, setIsBusy] = useState(false);
-  const [areaDirectory, setAreaDirectory] = useState<string | null>(() =>
-    localStorage.getItem("worldedit.areaDir")
-  );
-  const [diagnosticFilter, setDiagnosticFilter] = useState<
-    "All" | EntityKey
-  >("All");
-  const [areaIndex, setAreaIndex] = useState<AreaIndexEntry[]>([]);
-  const [areaGraphLinks, setAreaGraphLinks] = useState<AreaGraphLink[]>([]);
+  // UI state from Zustand store
+  const {
+    activeTab,
+    setActiveTab,
+    statusMessage,
+    setStatusMessage,
+    errorMessage,
+    setErrorMessage,
+    isBusy,
+    setIsBusy,
+    diagnosticFilter,
+    setDiagnosticFilter
+  } = useEditorUiStore();
+
+  // Selection state from Zustand store
+  const {
+    editorMode,
+    setEditorMode,
+    selectedEntity,
+    setSelectedEntity,
+    selectedGlobalEntity,
+    setSelectedGlobalEntity,
+    selectedClassIndex,
+    setSelectedClassIndex,
+    selectedRaceIndex,
+    setSelectedRaceIndex,
+    selectedSkillIndex,
+    setSelectedSkillIndex,
+    selectedGroupIndex,
+    setSelectedGroupIndex,
+    selectedCommandIndex,
+    setSelectedCommandIndex,
+    selectedSocialIndex,
+    setSelectedSocialIndex,
+    selectedTutorialIndex,
+    setSelectedTutorialIndex,
+    selectedGlobalLoot,
+    setSelectedGlobalLoot,
+    selectedMobileVnum,
+    setSelectedMobileVnum,
+    selectedObjectVnum,
+    setSelectedObjectVnum,
+    selectedResetIndex,
+    setSelectedResetIndex,
+    selectedShopKeeper,
+    setSelectedShopKeeper,
+    selectedQuestVnum,
+    setSelectedQuestVnum,
+    selectedFactionVnum,
+    setSelectedFactionVnum,
+    selectedAreaLoot,
+    setSelectedAreaLoot,
+    selectedRecipeVnum,
+    setSelectedRecipeVnum,
+    selectedGatherVnum,
+    setSelectedGatherVnum,
+    clearAreaSelections
+  } = useSelectionStore();
+
+  // Global data state from Zustand store
+  const {
+    classData,
+    setClassData,
+    classDataPath,
+    setClassDataPath,
+    classDataFormat,
+    setClassDataFormat,
+    classDataDir,
+    setClassDataDir,
+    raceData,
+    setRaceData,
+    raceDataPath,
+    setRaceDataPath,
+    raceDataFormat,
+    setRaceDataFormat,
+    raceDataDir,
+    setRaceDataDir,
+    skillData,
+    setSkillData,
+    skillDataPath,
+    setSkillDataPath,
+    skillDataFormat,
+    setSkillDataFormat,
+    skillDataDir,
+    setSkillDataDir,
+    groupData,
+    setGroupData,
+    groupDataPath,
+    setGroupDataPath,
+    groupDataFormat,
+    setGroupDataFormat,
+    groupDataDir,
+    setGroupDataDir,
+    commandData,
+    setCommandData,
+    commandDataPath,
+    setCommandDataPath,
+    commandDataFormat,
+    setCommandDataFormat,
+    commandDataDir,
+    setCommandDataDir,
+    socialData,
+    setSocialData,
+    socialDataPath,
+    setSocialDataPath,
+    socialDataFormat,
+    setSocialDataFormat,
+    socialDataDir,
+    setSocialDataDir,
+    tutorialData,
+    setTutorialData,
+    tutorialDataPath,
+    setTutorialDataPath,
+    tutorialDataFormat,
+    setTutorialDataFormat,
+    tutorialDataDir,
+    setTutorialDataDir,
+    lootData,
+    setLootData,
+    lootDataPath,
+    setLootDataPath,
+    lootDataFormat,
+    setLootDataFormat,
+    lootDataDir,
+    setLootDataDir,
+    referenceData,
+    setReferenceData,
+    projectConfig,
+    setProjectConfig,
+    editorMeta,
+    setEditorMeta,
+    editorMetaPath,
+    setEditorMetaPath,
+    dataDirectory,
+    setDataDirectory
+  } = useGlobalDataStore();
+
+  // Aliases for backward compatibility with existing code
+  const selectedLootKind = selectedGlobalLoot.kind;
+  const selectedLootIndex = selectedGlobalLoot.index;
+  const setSelectedLootKind = (kind: "group" | "table" | null) =>
+    setSelectedGlobalLoot({ ...selectedGlobalLoot, kind });
+  const setSelectedLootIndex = (index: number | null) =>
+    setSelectedGlobalLoot({ ...selectedGlobalLoot, index });
+  const selectedAreaLootKind = selectedAreaLoot.kind;
+  const selectedAreaLootIndex = selectedAreaLoot.index;
+  const setSelectedAreaLootKind = (kind: "group" | "table" | null) =>
+    setSelectedAreaLoot({ ...selectedAreaLoot, kind });
+  const setSelectedAreaLootIndex = (index: number | null) =>
+    setSelectedAreaLoot({ ...selectedAreaLoot, index });
+
+  // Area data from Zustand store
+  const {
+    areaPath,
+    setAreaPath,
+    areaData,
+    setAreaData,
+    areaDirectory,
+    setAreaDirectory,
+    areaIndex,
+    setAreaIndex,
+    areaGraphLinks,
+    setAreaGraphLinks
+  } = useAreaStore();
+
+  // Grid API refs for area entities
   const roomGridApi = useRef<GridApi | null>(null);
   const mobileGridApi = useRef<GridApi | null>(null);
   const objectGridApi = useRef<GridApi | null>(null);
@@ -2634,6 +600,8 @@ export default function App({ repository }: AppProps) {
   const areaLootGridApi = useRef<GridApi | null>(null);
   const recipeGridApi = useRef<GridApi | null>(null);
   const gatherGridApi = useRef<GridApi | null>(null);
+
+  // Grid API refs for global entities
   const classGridApi = useRef<GridApi | null>(null);
   const raceGridApi = useRef<GridApi | null>(null);
   const skillGridApi = useRef<GridApi | null>(null);
@@ -2642,6 +610,32 @@ export default function App({ repository }: AppProps) {
   const socialGridApi = useRef<GridApi | null>(null);
   const tutorialGridApi = useRef<GridApi | null>(null);
   const lootGridApi = useRef<GridApi | null>(null);
+
+  // Grouped refs for grid sync hooks
+  const areaGridRefs: AreaGridRefs = useMemo(() => ({
+    Rooms: roomGridApi,
+    Mobiles: mobileGridApi,
+    Objects: objectGridApi,
+    Resets: resetGridApi,
+    Shops: shopGridApi,
+    Quests: questGridApi,
+    Factions: factionGridApi,
+    Loot: areaLootGridApi,
+    Recipes: recipeGridApi,
+    "Gather Spawns": gatherGridApi
+  }), []);
+
+  const globalGridRefs: GlobalGridRefs = useMemo(() => ({
+    Classes: classGridApi,
+    Races: raceGridApi,
+    Skills: skillGridApi,
+    Groups: groupGridApi,
+    Commands: commandGridApi,
+    Socials: socialGridApi,
+    Tutorials: tutorialGridApi,
+    Loot: lootGridApi
+  }), []);
+
   const exitValidation = useMemo(
     () => buildExitTargetValidation(areaData, areaIndex),
     [areaData, areaIndex]
@@ -2966,6 +960,8 @@ export default function App({ repository }: AppProps) {
       reset: undefined,
       alwaysReset: false,
       instType: "single",
+      daycycleSuppress: false,
+      daycyclePeriods: [],
       storyBeats: [],
       checklist: []
     }
@@ -2994,6 +990,15 @@ export default function App({ repository }: AppProps) {
     control: areaFormControl,
     name: "checklist"
   });
+  const {
+    fields: daycycleFields,
+    append: appendDaycycle,
+    remove: removeDaycycle,
+    move: moveDaycycle
+  } = useFieldArray({
+    control: areaFormControl,
+    name: "daycyclePeriods"
+  });
   const roomForm = useForm<RoomFormValues>({
     resolver: zodResolver(roomFormSchema),
     defaultValues: {
@@ -3002,6 +1007,8 @@ export default function App({ repository }: AppProps) {
       description: "",
       sectorType: undefined,
       roomFlags: [],
+      suppressDaycycleMessages: false,
+      timePeriods: [],
       exits: []
     }
   });
@@ -3019,6 +1026,23 @@ export default function App({ repository }: AppProps) {
     control: roomFormControl,
     name: "exits"
   });
+  const {
+    fields: timePeriodFields,
+    append: appendTimePeriod,
+    remove: removeTimePeriod,
+    move: moveTimePeriod
+  } = useFieldArray({
+    control: roomFormControl,
+    name: "timePeriods"
+  });
+  const handleAddDefaultAreaPeriods = () => {
+    appendDaycycle(defaultDaycyclePeriods as unknown as Record<string, unknown>[]);
+  };
+  const handleAddDefaultRoomPeriods = () => {
+    appendTimePeriod(
+      defaultDaycyclePeriods as unknown as Record<string, unknown>[]
+    );
+  };
   const mobileForm = useForm<MobileFormValues>({
     resolver: zodResolver(mobileFormSchema),
     defaultValues: {
@@ -3719,298 +1743,20 @@ export default function App({ repository }: AppProps) {
     }
   }, [editorMode, activeTab]);
 
-  useEffect(() => {
-    if (editorMode !== "Global" || selectedGlobalEntity !== "Classes") {
-      return;
-    }
-    if (!dataDirectory) {
-      return;
-    }
-    if (classData && classDataDir === dataDirectory) {
-      return;
-    }
-    void handleLoadClassesData(dataDirectory);
-  }, [
-    editorMode,
-    selectedGlobalEntity,
-    dataDirectory,
-    classData,
-    classDataDir,
-    handleLoadClassesData
-  ]);
-
-  useEffect(() => {
-    if (editorMode !== "Global" || selectedGlobalEntity !== "Races") {
-      return;
-    }
-    if (!dataDirectory) {
-      return;
-    }
-    if (raceData && raceDataDir === dataDirectory) {
-      return;
-    }
-    void handleLoadRacesData(dataDirectory);
-  }, [
-    editorMode,
-    selectedGlobalEntity,
-    dataDirectory,
-    raceData,
-    raceDataDir,
-    handleLoadRacesData
-  ]);
-
-  useEffect(() => {
-    if (editorMode !== "Global" || selectedGlobalEntity !== "Skills") {
-      return;
-    }
-    if (!dataDirectory) {
-      return;
-    }
-    if (skillData && skillDataDir === dataDirectory) {
-      return;
-    }
-    void handleLoadSkillsData(dataDirectory);
-  }, [
-    editorMode,
-    selectedGlobalEntity,
-    dataDirectory,
-    skillData,
-    skillDataDir,
-    handleLoadSkillsData
-  ]);
-
-  useEffect(() => {
-    if (editorMode !== "Global" || selectedGlobalEntity !== "Groups") {
-      return;
-    }
-    if (!dataDirectory) {
-      return;
-    }
-    if (groupData && groupDataDir === dataDirectory) {
-      return;
-    }
-    void handleLoadGroupsData(dataDirectory);
-  }, [
-    editorMode,
-    selectedGlobalEntity,
-    dataDirectory,
-    groupData,
-    groupDataDir,
-    handleLoadGroupsData
-  ]);
-
-  useEffect(() => {
-    if (editorMode !== "Global" || selectedGlobalEntity !== "Commands") {
-      return;
-    }
-    if (!dataDirectory) {
-      return;
-    }
-    if (commandData && commandDataDir === dataDirectory) {
-      return;
-    }
-    void handleLoadCommandsData(dataDirectory);
-  }, [
-    editorMode,
-    selectedGlobalEntity,
-    dataDirectory,
-    commandData,
-    commandDataDir,
-    handleLoadCommandsData
-  ]);
-
-  useEffect(() => {
-    if (editorMode !== "Global" || selectedGlobalEntity !== "Socials") {
-      return;
-    }
-    if (!dataDirectory) {
-      return;
-    }
-    if (socialData && socialDataDir === dataDirectory) {
-      return;
-    }
-    void handleLoadSocialsData(dataDirectory);
-  }, [
-    editorMode,
-    selectedGlobalEntity,
-    dataDirectory,
-    socialData,
-    socialDataDir,
-    handleLoadSocialsData
-  ]);
-
-  useEffect(() => {
-    if (editorMode !== "Global" || selectedGlobalEntity !== "Tutorials") {
-      return;
-    }
-    if (!dataDirectory) {
-      return;
-    }
-    if (tutorialData && tutorialDataDir === dataDirectory) {
-      return;
-    }
-    void handleLoadTutorialsData(dataDirectory);
-  }, [
-    editorMode,
-    selectedGlobalEntity,
-    dataDirectory,
-    tutorialData,
-    tutorialDataDir,
-    handleLoadTutorialsData
-  ]);
-
-  useEffect(() => {
-    if (editorMode !== "Global" || selectedGlobalEntity !== "Loot") {
-      return;
-    }
-    if (!dataDirectory) {
-      return;
-    }
-    if (lootData && lootDataDir === dataDirectory) {
-      return;
-    }
-    void handleLoadLootData(dataDirectory);
-  }, [
-    editorMode,
-    selectedGlobalEntity,
-    dataDirectory,
-    lootData,
-    lootDataDir,
+  // Lazy-load global data when entity is selected
+  useGlobalDataLazyLoad({
+    handleLoadClassesData,
+    handleLoadRacesData,
+    handleLoadSkillsData,
+    handleLoadGroupsData,
+    handleLoadCommandsData,
+    handleLoadSocialsData,
+    handleLoadTutorialsData,
     handleLoadLootData
-  ]);
+  });
 
-  useEffect(() => {
-    if (!classData || classData.classes.length === 0) {
-      if (selectedClassIndex !== null) {
-        setSelectedClassIndex(null);
-      }
-      return;
-    }
-    if (
-      selectedClassIndex === null ||
-      selectedClassIndex >= classData.classes.length
-    ) {
-      setSelectedClassIndex(0);
-    }
-  }, [classData, selectedClassIndex]);
-
-  useEffect(() => {
-    if (!raceData || raceData.races.length === 0) {
-      if (selectedRaceIndex !== null) {
-        setSelectedRaceIndex(null);
-      }
-      return;
-    }
-    if (
-      selectedRaceIndex === null ||
-      selectedRaceIndex >= raceData.races.length
-    ) {
-      setSelectedRaceIndex(0);
-    }
-  }, [raceData, selectedRaceIndex]);
-
-  useEffect(() => {
-    if (!skillData || skillData.skills.length === 0) {
-      if (selectedSkillIndex !== null) {
-        setSelectedSkillIndex(null);
-      }
-      return;
-    }
-    if (
-      selectedSkillIndex === null ||
-      selectedSkillIndex >= skillData.skills.length
-    ) {
-      setSelectedSkillIndex(0);
-    }
-  }, [skillData, selectedSkillIndex]);
-
-  useEffect(() => {
-    if (!groupData || groupData.groups.length === 0) {
-      if (selectedGroupIndex !== null) {
-        setSelectedGroupIndex(null);
-      }
-      return;
-    }
-    if (
-      selectedGroupIndex === null ||
-      selectedGroupIndex >= groupData.groups.length
-    ) {
-      setSelectedGroupIndex(0);
-    }
-  }, [groupData, selectedGroupIndex]);
-
-  useEffect(() => {
-    if (!commandData || commandData.commands.length === 0) {
-      if (selectedCommandIndex !== null) {
-        setSelectedCommandIndex(null);
-      }
-      return;
-    }
-    if (
-      selectedCommandIndex === null ||
-      selectedCommandIndex >= commandData.commands.length
-    ) {
-      setSelectedCommandIndex(0);
-    }
-  }, [commandData, selectedCommandIndex]);
-
-  useEffect(() => {
-    if (!socialData || socialData.socials.length === 0) {
-      if (selectedSocialIndex !== null) {
-        setSelectedSocialIndex(null);
-      }
-      return;
-    }
-    if (
-      selectedSocialIndex === null ||
-      selectedSocialIndex >= socialData.socials.length
-    ) {
-      setSelectedSocialIndex(0);
-    }
-  }, [socialData, selectedSocialIndex]);
-
-  useEffect(() => {
-    if (!tutorialData || tutorialData.tutorials.length === 0) {
-      if (selectedTutorialIndex !== null) {
-        setSelectedTutorialIndex(null);
-      }
-      return;
-    }
-    if (
-      selectedTutorialIndex === null ||
-      selectedTutorialIndex >= tutorialData.tutorials.length
-    ) {
-      setSelectedTutorialIndex(0);
-    }
-  }, [tutorialData, selectedTutorialIndex]);
-
-  useEffect(() => {
-    const groupCount = lootData?.groups.length ?? 0;
-    const tableCount = lootData?.tables.length ?? 0;
-    if (!lootData || (groupCount === 0 && tableCount === 0)) {
-      if (selectedLootKind !== null || selectedLootIndex !== null) {
-        setSelectedLootKind(null);
-        setSelectedLootIndex(null);
-      }
-      return;
-    }
-    if (selectedLootKind === "group") {
-      if (selectedLootIndex === null || selectedLootIndex >= groupCount) {
-        setSelectedLootKind(groupCount ? "group" : "table");
-        setSelectedLootIndex(0);
-      }
-      return;
-    }
-    if (selectedLootKind === "table") {
-      if (selectedLootIndex === null || selectedLootIndex >= tableCount) {
-        setSelectedLootKind(groupCount ? "group" : "table");
-        setSelectedLootIndex(0);
-      }
-      return;
-    }
-    setSelectedLootKind(groupCount ? "group" : "table");
-    setSelectedLootIndex(0);
-  }, [lootData, selectedLootKind, selectedLootIndex]);
+  // Auto-clamp selection indices when global data changes
+  useGlobalIndexClamp();
 
   useEffect(() => {
     if (!classData || selectedClassIndex === null) {
@@ -4712,6 +2458,17 @@ export default function App({ repository }: AppProps) {
     return lootData.tables[selectedLootIndex] ?? null;
   }, [lootData, selectedLootKind, selectedLootIndex]);
   const scriptContext = useMemo(() => {
+    if (selectedEntity === "Area") {
+      const areadata =
+        areaData && typeof (areaData as Record<string, unknown>).areadata === "object"
+          ? ((areaData as Record<string, unknown>).areadata as Record<string, unknown>)
+          : null;
+      return {
+        entity: "Area" as const,
+        vnum: null,
+        record: areadata
+      };
+    }
     if (selectedEntity === "Rooms") {
       return {
         entity: "Rooms" as const,
@@ -4736,6 +2493,7 @@ export default function App({ repository }: AppProps) {
     return null;
   }, [
     selectedEntity,
+    areaData,
     selectedRoomVnum,
     selectedRoomRecord,
     selectedMobileVnum,
@@ -4753,6 +2511,11 @@ export default function App({ repository }: AppProps) {
   const scriptTitle = useMemo(() => {
     if (!scriptContext) {
       return "Script View";
+    }
+    if (scriptContext.entity === "Area") {
+      const record = scriptContext.record as Record<string, unknown> | null;
+      const name = record && typeof record.name === "string" ? record.name : "";
+      return name ? `Area: ${name}` : "Area";
     }
     if (scriptContext.vnum === null) {
       return entityKindLabels[scriptContext.entity];
@@ -4772,6 +2535,9 @@ export default function App({ repository }: AppProps) {
     }
     if (scriptContext.entity === "Objects") {
       return getFirstString(record.shortDescr, "");
+    }
+    if (scriptContext.entity === "Area") {
+      return getFirstString(record.credits, "");
     }
     return "";
   }, [scriptContext]);
@@ -4802,18 +2568,36 @@ export default function App({ repository }: AppProps) {
       });
   }, [scriptContext]);
   const canEditScript = Boolean(
-    scriptContext?.record && scriptContext?.vnum !== null
+    scriptContext?.record &&
+      (scriptContext.entity === "Area" || scriptContext?.vnum !== null)
   );
   const scriptEventEntity = scriptContext?.entity ?? null;
   const handleApplyScript = useCallback(
     (nextScript: string) => {
-      if (!scriptContext || scriptContext.vnum === null) {
+      if (!scriptContext) {
         return;
       }
       const normalized = normalizeOptionalScript(nextScript);
       setAreaData((current) => {
         if (!current) {
           return current;
+        }
+        if (scriptContext.entity === "Area") {
+          const areadata =
+            typeof (current as Record<string, unknown>).areadata === "object"
+              ? ((current as Record<string, unknown>)
+                  .areadata as Record<string, unknown>)
+              : {};
+          const nextArea: Record<string, unknown> = { ...areadata };
+          if (normalized) {
+            nextArea.loxScript = normalized;
+          } else {
+            delete nextArea.loxScript;
+          }
+          return {
+            ...(current as Record<string, unknown>),
+            areadata: nextArea
+          };
         }
         const list = getEntityList(current, scriptContext.entity);
         if (!list.length) {
@@ -4841,22 +2625,52 @@ export default function App({ repository }: AppProps) {
           [entityDataKeys[scriptContext.entity]]: nextList
         };
       });
-      setStatusMessage(
-        `Updated ${entityKindLabels[scriptContext.entity].toLowerCase()} ${
-          scriptContext.vnum
-        } script (unsaved)`
-      );
+      const statusTarget =
+        scriptContext.entity === "Area"
+          ? "area"
+          : `${entityKindLabels[scriptContext.entity].toLowerCase()} ${
+              scriptContext.vnum
+            }`;
+      setStatusMessage(`Updated ${statusTarget} script (unsaved)`);
     },
     [scriptContext]
   );
   const handleEventBindingsChange = useCallback(
     (nextEvents: EventBinding[]) => {
-      if (!scriptContext || scriptContext.vnum === null) {
+      if (!scriptContext) {
         return;
       }
       setAreaData((current) => {
         if (!current) {
           return current;
+        }
+        if (scriptContext.entity === "Area") {
+          const areadata =
+            typeof (current as Record<string, unknown>).areadata === "object"
+              ? ((current as Record<string, unknown>)
+                  .areadata as Record<string, unknown>)
+              : {};
+          const nextArea: Record<string, unknown> = { ...areadata };
+          if (nextEvents.length) {
+            nextArea.events = nextEvents.map((event) => {
+              const trigger = event.trigger.trim();
+              const callback = event.callback.trim();
+              const nextEvent: Record<string, unknown> = {
+                trigger,
+                callback
+              };
+              if (event.criteria !== undefined && event.criteria !== "") {
+                nextEvent.criteria = event.criteria;
+              }
+              return nextEvent;
+            });
+          } else {
+            delete nextArea.events;
+          }
+          return {
+            ...(current as Record<string, unknown>),
+            areadata: nextArea
+          };
         }
         const list = getEntityList(current, scriptContext.entity);
         if (!list.length) {
@@ -4895,11 +2709,13 @@ export default function App({ repository }: AppProps) {
           [entityDataKeys[scriptContext.entity]]: nextList
         };
       });
-      setStatusMessage(
-        `Updated ${entityKindLabels[scriptContext.entity].toLowerCase()} ${
-          scriptContext.vnum
-        } events (unsaved)`
-      );
+      const statusTarget =
+        scriptContext.entity === "Area"
+          ? "area"
+          : `${entityKindLabels[scriptContext.entity].toLowerCase()} ${
+              scriptContext.vnum
+            }`;
+      setStatusMessage(`Updated ${statusTarget} events (unsaved)`);
     },
     [scriptContext]
   );
@@ -4907,6 +2723,10 @@ export default function App({ repository }: AppProps) {
     const areadata =
       areaData && typeof (areaData as Record<string, unknown>).areadata === "object"
         ? ((areaData as Record<string, unknown>).areadata as Record<string, unknown>)
+        : {};
+    const daycycle =
+      areaData && typeof (areaData as Record<string, unknown>).daycycle === "object"
+        ? ((areaData as Record<string, unknown>).daycycle as Record<string, unknown>)
         : {};
     const vnumRange = Array.isArray(areadata.vnumRange) ? areadata.vnumRange : [];
     const vnumRangeStart = parseVnum(vnumRange[0]) ?? 0;
@@ -4940,6 +2760,30 @@ export default function App({ repository }: AppProps) {
             };
           })
       : [];
+    const daycyclePeriods = Array.isArray(daycycle.periods)
+      ? (daycycle.periods as unknown[])
+          .filter((entry) => entry && typeof entry === "object")
+          .map((entry) => {
+            const record = entry as Record<string, unknown>;
+            return {
+              name: typeof record.name === "string" ? record.name : "",
+              fromHour: parseVnum(record.fromHour) ?? undefined,
+              toHour: parseVnum(record.toHour) ?? undefined,
+              description:
+                typeof record.description === "string"
+                  ? normalizeLineEndingsForDisplay(record.description)
+                  : "",
+              enterMessage:
+                typeof record.enterMessage === "string"
+                  ? normalizeLineEndingsForDisplay(record.enterMessage)
+                  : "",
+              exitMessage:
+                typeof record.exitMessage === "string"
+                  ? normalizeLineEndingsForDisplay(record.exitMessage)
+                  : ""
+            };
+          })
+      : [];
     return {
       name: typeof areadata.name === "string" ? areadata.name : "",
       version: parseVnum(areadata.version) ?? 1,
@@ -4957,6 +2801,11 @@ export default function App({ repository }: AppProps) {
       alwaysReset:
         typeof areadata.alwaysReset === "boolean" ? areadata.alwaysReset : false,
       instType: areadata.instType === "multi" ? "multi" : "single",
+      daycycleSuppress:
+        typeof daycycle.suppressDaycycleMessages === "boolean"
+          ? daycycle.suppressDaycycleMessages
+          : false,
+      daycyclePeriods,
       storyBeats,
       checklist
     };
@@ -4974,6 +2823,27 @@ export default function App({ repository }: AppProps) {
     const roomFlags = Array.isArray(record?.roomFlags)
       ? record.roomFlags.filter((flag) => typeof flag === "string")
       : [];
+    const timePeriods = Array.isArray(record?.timePeriods)
+      ? record.timePeriods
+          .filter((entry: unknown) => entry && typeof entry === "object")
+          .map((entry: Record<string, unknown>) => ({
+            name: typeof entry.name === "string" ? entry.name : "",
+            fromHour: parseVnum(entry.fromHour) ?? undefined,
+            toHour: parseVnum(entry.toHour) ?? undefined,
+            description:
+              typeof entry.description === "string"
+                ? normalizeLineEndingsForDisplay(entry.description)
+                : "",
+            enterMessage:
+              typeof entry.enterMessage === "string"
+                ? normalizeLineEndingsForDisplay(entry.enterMessage)
+                : "",
+            exitMessage:
+              typeof entry.exitMessage === "string"
+                ? normalizeLineEndingsForDisplay(entry.exitMessage)
+                : ""
+          }))
+      : [];
     return {
       vnum,
       name: typeof record?.name === "string" ? record.name : "",
@@ -4983,6 +2853,11 @@ export default function App({ repository }: AppProps) {
           : "",
       sectorType,
       roomFlags,
+      suppressDaycycleMessages:
+        typeof record?.suppressDaycycleMessages === "boolean"
+          ? record.suppressDaycycleMessages
+          : false,
+      timePeriods,
       exits: Array.isArray(record?.exits)
         ? record.exits
             .filter((exit): exit is Record<string, unknown> =>
@@ -5416,35 +3291,26 @@ export default function App({ repository }: AppProps) {
     () => buildVnumOptions(areaData, "Rooms"),
     [areaData]
   );
-  const roomVnumOptionMap = useMemo(() => {
-    const map = new Map<number, VnumOption>();
-    roomVnumOptions.forEach((option) => {
-      map.set(option.vnum, option);
-    });
-    return map;
-  }, [roomVnumOptions]);
+  const roomVnumOptionMap = useMemo(
+    () => buildVnumOptionMap(roomVnumOptions),
+    [roomVnumOptions]
+  );
   const mobileVnumOptions = useMemo(
     () => buildVnumOptions(areaData, "Mobiles"),
     [areaData]
   );
-  const mobileVnumOptionMap = useMemo(() => {
-    const map = new Map<number, VnumOption>();
-    mobileVnumOptions.forEach((option) => {
-      map.set(option.vnum, option);
-    });
-    return map;
-  }, [mobileVnumOptions]);
+  const mobileVnumOptionMap = useMemo(
+    () => buildVnumOptionMap(mobileVnumOptions),
+    [mobileVnumOptions]
+  );
   const objectVnumOptions = useMemo(
     () => buildVnumOptions(areaData, "Objects"),
     [areaData]
   );
-  const objectVnumOptionMap = useMemo(() => {
-    const map = new Map<number, VnumOption>();
-    objectVnumOptions.forEach((option) => {
-      map.set(option.vnum, option);
-    });
-    return map;
-  }, [objectVnumOptions]);
+  const objectVnumOptionMap = useMemo(
+    () => buildVnumOptionMap(objectVnumOptions),
+    [objectVnumOptions]
+  );
   const roomResetItems = useMemo<RoomResetItem[]>(() => {
     if (!areaData || selectedRoomVnum === null) {
       return [];
@@ -5554,272 +3420,92 @@ export default function App({ repository }: AppProps) {
   const recipeDefaultColDef = roomDefaultColDef;
   const gatherSpawnDefaultColDef = roomDefaultColDef;
 
-  useEffect(() => {
-    areaForm.reset(areaFormDefaults);
-  }, [areaForm, areaFormDefaults]);
+  // Reset forms when their defaults change
+  useFormResetOnDefaultsChange(areaForm, areaFormDefaults);
+  useFormResetOnDefaultsChange(roomForm, roomFormDefaults);
+  useFormResetOnDefaultsChange(mobileForm, mobileFormDefaults);
+  useFormResetOnDefaultsChange(objectForm, objectFormDefaults);
+  useFormResetOnDefaultsChange(resetForm, resetFormDefaults);
+  useFormResetOnDefaultsChange(shopForm, shopFormDefaults);
+  useFormResetOnDefaultsChange(questForm, questFormDefaults);
+  useFormResetOnDefaultsChange(factionForm, factionFormDefaults);
+  useFormResetOnDefaultsChange(recipeForm, recipeFormDefaults);
+  useFormResetOnDefaultsChange(gatherSpawnForm, gatherSpawnFormDefaults);
 
-  useEffect(() => {
-    roomForm.reset(roomFormDefaults);
-  }, [roomForm, roomFormDefaults]);
-
-  useEffect(() => {
-    mobileForm.reset(mobileFormDefaults);
-  }, [mobileForm, mobileFormDefaults]);
-
+  // Mobile form has additional flag override logic
   useEffect(() => {
     const record = selectedMobileRecord;
     setOverrideMobileFormFlags(Array.isArray(record?.formFlags));
     setOverrideMobilePartFlags(Array.isArray(record?.partFlags));
   }, [selectedMobileRecord]);
 
-  useEffect(() => {
-    objectForm.reset(objectFormDefaults);
-  }, [objectForm, objectFormDefaults]);
-
-  useEffect(() => {
-    resetForm.reset(resetFormDefaults);
-  }, [resetForm, resetFormDefaults]);
-
-  useEffect(() => {
-    shopForm.reset(shopFormDefaults);
-  }, [shopForm, shopFormDefaults]);
-
-  useEffect(() => {
-    questForm.reset(questFormDefaults);
-  }, [questForm, questFormDefaults]);
-
-  useEffect(() => {
-    factionForm.reset(factionFormDefaults);
-  }, [factionForm, factionFormDefaults]);
-
-  useEffect(() => {
-    recipeForm.reset(recipeFormDefaults);
-  }, [recipeForm, recipeFormDefaults]);
-
-  useEffect(() => {
-    gatherSpawnForm.reset(gatherSpawnFormDefaults);
-  }, [gatherSpawnForm, gatherSpawnFormDefaults]);
-
-  useEffect(() => {
-    if (activeTab !== "Table" || selectedEntity !== "Rooms") {
-      return;
+  // Area grid selection sync
+  const areaLootRowId = useMemo(() => {
+    if (selectedAreaLootKind && selectedAreaLootIndex !== null) {
+      return `${selectedAreaLootKind}:${selectedAreaLootIndex}`;
     }
-    syncGridSelection(roomGridApi.current, selectedRoomVnum);
-  }, [activeTab, selectedEntity, selectedRoomVnum, roomRows]);
+    return null;
+  }, [selectedAreaLootKind, selectedAreaLootIndex]);
 
-  useEffect(() => {
-    if (activeTab !== "Table" || selectedEntity !== "Mobiles") {
-      return;
-    }
-    syncGridSelection(mobileGridApi.current, selectedMobileVnum);
-  }, [activeTab, selectedEntity, selectedMobileVnum, mobileRows]);
+  useAreaGridSync({
+    gridRefs: areaGridRefs,
+    selectionValues: {
+      Rooms: selectedRoomVnum,
+      Mobiles: selectedMobileVnum,
+      Objects: selectedObjectVnum,
+      Resets: selectedResetIndex,
+      Shops: selectedShopKeeper,
+      Quests: selectedQuestVnum,
+      Factions: selectedFactionVnum,
+      Loot: areaLootRowId,
+      Recipes: selectedRecipeVnum,
+      "Gather Spawns": selectedGatherVnum
+    },
+    rowsDeps: [
+      roomRows,
+      mobileRows,
+      objectRows,
+      resetRows,
+      shopRows,
+      questRows,
+      factionRows,
+      areaLootRows,
+      recipeRows,
+      gatherSpawnRows
+    ]
+  });
 
-  useEffect(() => {
-    if (activeTab !== "Table" || selectedEntity !== "Objects") {
-      return;
+  // Global grid selection sync
+  const globalLootRowId = useMemo(() => {
+    if (selectedLootKind && selectedLootIndex !== null) {
+      return `${selectedLootKind}:${selectedLootIndex}`;
     }
-    syncGridSelection(objectGridApi.current, selectedObjectVnum);
-  }, [activeTab, selectedEntity, selectedObjectVnum, objectRows]);
+    return null;
+  }, [selectedLootKind, selectedLootIndex]);
 
-  useEffect(() => {
-    if (activeTab !== "Table" || selectedEntity !== "Resets") {
-      return;
-    }
-    syncGridSelection(resetGridApi.current, selectedResetIndex);
-  }, [activeTab, selectedEntity, selectedResetIndex, resetRows]);
-
-  useEffect(() => {
-    if (activeTab !== "Table" || selectedEntity !== "Shops") {
-      return;
-    }
-    syncGridSelection(shopGridApi.current, selectedShopKeeper);
-  }, [activeTab, selectedEntity, selectedShopKeeper, shopRows]);
-
-  useEffect(() => {
-    if (activeTab !== "Table" || selectedEntity !== "Quests") {
-      return;
-    }
-    syncGridSelection(questGridApi.current, selectedQuestVnum);
-  }, [activeTab, selectedEntity, selectedQuestVnum, questRows]);
-
-  useEffect(() => {
-    if (activeTab !== "Table" || selectedEntity !== "Factions") {
-      return;
-    }
-    syncGridSelection(factionGridApi.current, selectedFactionVnum);
-  }, [activeTab, selectedEntity, selectedFactionVnum, factionRows]);
-
-  useEffect(() => {
-    if (activeTab !== "Table" || selectedEntity !== "Loot") {
-      return;
-    }
-    const rowId =
-      selectedAreaLootKind && selectedAreaLootIndex !== null
-        ? `${selectedAreaLootKind}:${selectedAreaLootIndex}`
-        : null;
-    syncGridSelection(areaLootGridApi.current, rowId);
-  }, [
-    activeTab,
-    selectedEntity,
-    selectedAreaLootKind,
-    selectedAreaLootIndex,
-    areaLootRows
-  ]);
-
-  useEffect(() => {
-    if (activeTab !== "Table" || selectedEntity !== "Recipes") {
-      return;
-    }
-    syncGridSelection(recipeGridApi.current, selectedRecipeVnum);
-  }, [activeTab, selectedEntity, selectedRecipeVnum, recipeRows]);
-
-  useEffect(() => {
-    if (activeTab !== "Table" || selectedEntity !== "Gather Spawns") {
-      return;
-    }
-    syncGridSelection(gatherGridApi.current, selectedGatherVnum);
-  }, [activeTab, selectedEntity, selectedGatherVnum, gatherSpawnRows]);
-
-  useEffect(() => {
-    if (
-      editorMode !== "Global" ||
-      selectedGlobalEntity !== "Classes" ||
-      activeTab !== "Table"
-    ) {
-      return;
-    }
-    syncGridSelection(classGridApi.current, selectedClassIndex);
-  }, [
-    editorMode,
-    selectedGlobalEntity,
-    activeTab,
-    selectedClassIndex,
-    classRows
-  ]);
-
-  useEffect(() => {
-    if (
-      editorMode !== "Global" ||
-      selectedGlobalEntity !== "Races" ||
-      activeTab !== "Table"
-    ) {
-      return;
-    }
-    syncGridSelection(raceGridApi.current, selectedRaceIndex);
-  }, [
-    editorMode,
-    selectedGlobalEntity,
-    activeTab,
-    selectedRaceIndex,
-    raceRows
-  ]);
-
-  useEffect(() => {
-    if (
-      editorMode !== "Global" ||
-      selectedGlobalEntity !== "Skills" ||
-      activeTab !== "Table"
-    ) {
-      return;
-    }
-    syncGridSelection(skillGridApi.current, selectedSkillIndex);
-  }, [
-    editorMode,
-    selectedGlobalEntity,
-    activeTab,
-    selectedSkillIndex,
-    skillRows
-  ]);
-
-  useEffect(() => {
-    if (
-      editorMode !== "Global" ||
-      selectedGlobalEntity !== "Groups" ||
-      activeTab !== "Table"
-    ) {
-      return;
-    }
-    syncGridSelection(groupGridApi.current, selectedGroupIndex);
-  }, [
-    editorMode,
-    selectedGlobalEntity,
-    activeTab,
-    selectedGroupIndex,
-    groupRows
-  ]);
-
-  useEffect(() => {
-    if (
-      editorMode !== "Global" ||
-      selectedGlobalEntity !== "Commands" ||
-      activeTab !== "Table"
-    ) {
-      return;
-    }
-    syncGridSelection(commandGridApi.current, selectedCommandIndex);
-  }, [
-    editorMode,
-    selectedGlobalEntity,
-    activeTab,
-    selectedCommandIndex,
-    commandRows
-  ]);
-
-  useEffect(() => {
-    if (
-      editorMode !== "Global" ||
-      selectedGlobalEntity !== "Socials" ||
-      activeTab !== "Table"
-    ) {
-      return;
-    }
-    syncGridSelection(socialGridApi.current, selectedSocialIndex);
-  }, [
-    editorMode,
-    selectedGlobalEntity,
-    activeTab,
-    selectedSocialIndex,
-    socialRows
-  ]);
-
-  useEffect(() => {
-    if (
-      editorMode !== "Global" ||
-      selectedGlobalEntity !== "Tutorials" ||
-      activeTab !== "Table"
-    ) {
-      return;
-    }
-    syncGridSelection(tutorialGridApi.current, selectedTutorialIndex);
-  }, [
-    editorMode,
-    selectedGlobalEntity,
-    activeTab,
-    selectedTutorialIndex,
-    tutorialRows
-  ]);
-
-  useEffect(() => {
-    if (
-      editorMode !== "Global" ||
-      selectedGlobalEntity !== "Loot" ||
-      activeTab !== "Table"
-    ) {
-      return;
-    }
-    const rowId =
-      selectedLootKind && selectedLootIndex !== null
-        ? `${selectedLootKind}:${selectedLootIndex}`
-        : null;
-    syncGridSelection(lootGridApi.current, rowId);
-  }, [
-    editorMode,
-    selectedGlobalEntity,
-    activeTab,
-    selectedLootKind,
-    selectedLootIndex,
-    lootRows
-  ]);
+  useGlobalGridSync({
+    gridRefs: globalGridRefs,
+    selectionValues: {
+      Classes: selectedClassIndex,
+      Races: selectedRaceIndex,
+      Skills: selectedSkillIndex,
+      Groups: selectedGroupIndex,
+      Commands: selectedCommandIndex,
+      Socials: selectedSocialIndex,
+      Tutorials: selectedTutorialIndex,
+      Loot: globalLootRowId
+    },
+    rowsDeps: [
+      classRows,
+      raceRows,
+      skillRows,
+      groupRows,
+      commandRows,
+      socialRows,
+      tutorialRows,
+      lootRows
+    ]
+  });
 
   const handleOpenRoomLinkPanel = useCallback(
     (menu: RoomContextMenuState) => {
@@ -5987,6 +3673,29 @@ export default function App({ repository }: AppProps) {
     if (!areaData) {
       return;
     }
+    const nextDaycyclePeriods = (data.daycyclePeriods ?? [])
+      .map((period) => {
+        const name = (period.name ?? "").trim();
+        const description = normalizeOptionalMudText(period.description);
+        const enterMessage = normalizeOptionalMudText(period.enterMessage);
+        const exitMessage = normalizeOptionalMudText(period.exitMessage);
+        const nextPeriod: Record<string, unknown> = {
+          name,
+          fromHour: period.fromHour ?? 0,
+          toHour: period.toHour ?? period.fromHour ?? 0
+        };
+        if (description) {
+          nextPeriod.description = description;
+        }
+        if (enterMessage) {
+          nextPeriod.enterMessage = enterMessage;
+        }
+        if (exitMessage) {
+          nextPeriod.exitMessage = exitMessage;
+        }
+        return nextPeriod;
+      })
+      .filter((period) => Boolean(period.name));
     const nextStoryBeats = (data.storyBeats ?? [])
       .map((beat) => {
         const title = beat.title.trim();
@@ -6039,9 +3748,19 @@ export default function App({ repository }: AppProps) {
         alwaysReset: data.alwaysReset ? true : undefined,
         instType: data.instType === "multi" ? "multi" : undefined
       };
+      const daycycle =
+        data.daycycleSuppress || nextDaycyclePeriods.length
+          ? {
+              suppressDaycycleMessages: data.daycycleSuppress ? true : undefined,
+              periods: nextDaycyclePeriods.length
+                ? nextDaycyclePeriods
+                : undefined
+            }
+          : undefined;
       return {
         ...record,
         areadata: nextAreadata,
+        daycycle,
         storyBeats: nextStoryBeats.length ? nextStoryBeats : undefined,
         checklist: nextChecklist.length ? nextChecklist : undefined
       };
@@ -6053,6 +3772,29 @@ export default function App({ repository }: AppProps) {
     if (!areaData || selectedRoomVnum === null) {
       return;
     }
+    const normalizedTimePeriods = (data.timePeriods ?? [])
+      .map((period) => {
+        const name = (period.name ?? "").trim();
+        const description = normalizeOptionalMudText(period.description);
+        const enterMessage = normalizeOptionalMudText(period.enterMessage);
+        const exitMessage = normalizeOptionalMudText(period.exitMessage);
+        const nextPeriod: Record<string, unknown> = {
+          name,
+          fromHour: period.fromHour ?? 0,
+          toHour: period.toHour ?? period.fromHour ?? 0
+        };
+        if (description) {
+          nextPeriod.description = description;
+        }
+        if (enterMessage) {
+          nextPeriod.enterMessage = enterMessage;
+        }
+        if (exitMessage) {
+          nextPeriod.exitMessage = exitMessage;
+        }
+        return nextPeriod;
+      })
+      .filter((period) => Boolean(period.name));
     const normalizedExits = (data.exits ?? []).map((exit) => {
       const nextExit: Record<string, unknown> = {
         dir: exit.dir,
@@ -6093,6 +3835,12 @@ export default function App({ repository }: AppProps) {
           description: normalizeLineEndingsForMud(data.description),
           sectorType: data.sectorType ?? undefined,
           roomFlags: data.roomFlags?.length ? data.roomFlags : undefined,
+          suppressDaycycleMessages: data.suppressDaycycleMessages
+            ? true
+            : undefined,
+          timePeriods: normalizedTimePeriods.length
+            ? normalizedTimePeriods
+            : undefined,
           manaRate: undefined,
           healRate: undefined,
           clan: undefined,
@@ -7195,7 +4943,17 @@ export default function App({ repository }: AppProps) {
       appendChecklist={appendChecklist}
       removeChecklist={removeChecklist}
       moveChecklist={moveChecklist}
+      daycycleFields={daycycleFields}
+      appendDaycycle={appendDaycycle}
+      removeDaycycle={removeDaycycle}
+      moveDaycycle={moveDaycycle}
+      onAddDefaultDaycycle={handleAddDefaultAreaPeriods}
       lootTableOptions={lootTableOptions}
+      eventBindings={eventBindings}
+      scriptValue={scriptValue}
+      canEditScript={canEditScript}
+      scriptEventEntity={scriptEventEntity}
+      onEventBindingsChange={handleEventBindingsChange}
     />
   );
   const roomResetEditorNode =
@@ -7253,6 +5011,11 @@ export default function App({ repository }: AppProps) {
       exitFlags={exitFlags}
       roomVnumOptions={roomVnumOptions}
       objectVnumOptions={objectVnumOptions}
+      timePeriodFields={timePeriodFields}
+      appendTimePeriod={appendTimePeriod}
+      removeTimePeriod={removeTimePeriod}
+      moveTimePeriod={moveTimePeriod}
+      onAddDefaultPeriods={handleAddDefaultRoomPeriods}
       roomResets={roomResetItems}
       selectedRoomResetIndex={selectedRoomResetIndex}
       onSelectRoomReset={handleSelectRoomReset}
@@ -7763,23 +5526,15 @@ export default function App({ repository }: AppProps) {
     />
   );
   const classTableToolbar = useMemo(
-    () => ({
-      title: "Classes",
-      count: classRows.length,
-      newLabel: "New Class",
-      deleteLabel: "Delete Class",
-      canCreate: Boolean(classData),
-      canDelete: selectedClassIndex !== null,
-      onCreate: handleCreateClass,
-      onDelete: handleDeleteClass
-    }),
-    [
+    () => buildTableToolbar(
+      "Classes",
       classRows.length,
       classData,
       selectedClassIndex,
       handleCreateClass,
       handleDeleteClass
-    ]
+    ),
+    [classRows.length, classData, selectedClassIndex, handleCreateClass, handleDeleteClass]
   );
   const classTableViewNode = (
     <ClassTableView
@@ -7792,23 +5547,15 @@ export default function App({ repository }: AppProps) {
     />
   );
   const raceTableToolbar = useMemo(
-    () => ({
-      title: "Races",
-      count: raceRows.length,
-      newLabel: "New Race",
-      deleteLabel: "Delete Race",
-      canCreate: Boolean(raceData),
-      canDelete: selectedRaceIndex !== null,
-      onCreate: handleCreateRace,
-      onDelete: handleDeleteRace
-    }),
-    [
+    () => buildTableToolbar(
+      "Races",
       raceRows.length,
       raceData,
       selectedRaceIndex,
       handleCreateRace,
       handleDeleteRace
-    ]
+    ),
+    [raceRows.length, raceData, selectedRaceIndex, handleCreateRace, handleDeleteRace]
   );
   const raceTableViewNode = (
     <RaceTableView
@@ -7821,23 +5568,15 @@ export default function App({ repository }: AppProps) {
     />
   );
   const skillTableToolbar = useMemo(
-    () => ({
-      title: "Skills",
-      count: skillRows.length,
-      newLabel: "New Skill",
-      deleteLabel: "Delete Skill",
-      canCreate: Boolean(skillData),
-      canDelete: selectedSkillIndex !== null,
-      onCreate: handleCreateSkill,
-      onDelete: handleDeleteSkill
-    }),
-    [
+    () => buildTableToolbar(
+      "Skills",
       skillRows.length,
       skillData,
       selectedSkillIndex,
       handleCreateSkill,
       handleDeleteSkill
-    ]
+    ),
+    [skillRows.length, skillData, selectedSkillIndex, handleCreateSkill, handleDeleteSkill]
   );
   const skillTableViewNode = (
     <SkillTableView
@@ -7850,23 +5589,15 @@ export default function App({ repository }: AppProps) {
     />
   );
   const groupTableToolbar = useMemo(
-    () => ({
-      title: "Groups",
-      count: groupRows.length,
-      newLabel: "New Group",
-      deleteLabel: "Delete Group",
-      canCreate: Boolean(groupData),
-      canDelete: selectedGroupIndex !== null,
-      onCreate: handleCreateGroup,
-      onDelete: handleDeleteGroup
-    }),
-    [
+    () => buildTableToolbar(
+      "Groups",
       groupRows.length,
       groupData,
       selectedGroupIndex,
       handleCreateGroup,
       handleDeleteGroup
-    ]
+    ),
+    [groupRows.length, groupData, selectedGroupIndex, handleCreateGroup, handleDeleteGroup]
   );
   const groupTableViewNode = (
     <GroupTableView
@@ -7879,23 +5610,15 @@ export default function App({ repository }: AppProps) {
     />
   );
   const commandTableToolbar = useMemo(
-    () => ({
-      title: "Commands",
-      count: commandRows.length,
-      newLabel: "New Command",
-      deleteLabel: "Delete Command",
-      canCreate: Boolean(commandData),
-      canDelete: selectedCommandIndex !== null,
-      onCreate: handleCreateCommand,
-      onDelete: handleDeleteCommand
-    }),
-    [
+    () => buildTableToolbar(
+      "Commands",
       commandRows.length,
       commandData,
       selectedCommandIndex,
       handleCreateCommand,
       handleDeleteCommand
-    ]
+    ),
+    [commandRows.length, commandData, selectedCommandIndex, handleCreateCommand, handleDeleteCommand]
   );
   const commandTableViewNode = (
     <CommandTableView
@@ -7908,23 +5631,15 @@ export default function App({ repository }: AppProps) {
     />
   );
   const socialTableToolbar = useMemo(
-    () => ({
-      title: "Socials",
-      count: socialRows.length,
-      newLabel: "New Social",
-      deleteLabel: "Delete Social",
-      canCreate: Boolean(socialData),
-      canDelete: selectedSocialIndex !== null,
-      onCreate: handleCreateSocial,
-      onDelete: handleDeleteSocial
-    }),
-    [
+    () => buildTableToolbar(
+      "Socials",
       socialRows.length,
       socialData,
       selectedSocialIndex,
       handleCreateSocial,
       handleDeleteSocial
-    ]
+    ),
+    [socialRows.length, socialData, selectedSocialIndex, handleCreateSocial, handleDeleteSocial]
   );
   const socialTableViewNode = (
     <SocialTableView
@@ -7937,23 +5652,15 @@ export default function App({ repository }: AppProps) {
     />
   );
   const tutorialTableToolbar = useMemo(
-    () => ({
-      title: "Tutorials",
-      count: tutorialRows.length,
-      newLabel: "New Tutorial",
-      deleteLabel: "Delete Tutorial",
-      canCreate: Boolean(tutorialData),
-      canDelete: selectedTutorialIndex !== null,
-      onCreate: handleCreateTutorial,
-      onDelete: handleDeleteTutorial
-    }),
-    [
+    () => buildTableToolbar(
+      "Tutorials",
       tutorialRows.length,
       tutorialData,
       selectedTutorialIndex,
       handleCreateTutorial,
       handleDeleteTutorial
-    ]
+    ),
+    [tutorialRows.length, tutorialData, selectedTutorialIndex, handleCreateTutorial, handleDeleteTutorial]
   );
   const tutorialTableViewNode = (
     <TutorialTableView
@@ -8206,52 +5913,28 @@ export default function App({ repository }: AppProps) {
       subtitle={scriptSubtitle}
       value={scriptValue}
       canEdit={canEditScript}
-      emptyState="Select a room, mobile, or object to edit its Lox script."
+      emptyState="Select an area, room, mobile, or object to edit its Lox script."
       onApply={handleApplyScript}
     />
   );
   const referenceSummary = referenceData
     ? `classes ${referenceData.classes.length}, races ${referenceData.races.length}, skills ${referenceData.skills.length}, groups ${referenceData.groups.length}, commands ${referenceData.commands.length}, socials ${referenceData.socials.length}, tutorials ${referenceData.tutorials.length}`
     : "not loaded";
-  const classFileLabel = classDataPath
-    ? fileNameFromPath(classDataPath)
-    : "not loaded";
-  const raceFileLabel = raceDataPath
-    ? fileNameFromPath(raceDataPath)
-    : "not loaded";
-  const skillFileLabel = skillDataPath
-    ? fileNameFromPath(skillDataPath)
-    : "not loaded";
-  const groupFileLabel = groupDataPath
-    ? fileNameFromPath(groupDataPath)
-    : "not loaded";
-  const commandFileLabel = commandDataPath
-    ? fileNameFromPath(commandDataPath)
-    : "not loaded";
-  const socialFileLabel = socialDataPath
-    ? fileNameFromPath(socialDataPath)
-    : "not loaded";
-  const tutorialFileLabel = tutorialDataPath
-    ? fileNameFromPath(tutorialDataPath)
-    : "not loaded";
-  const lootFileLabel = lootDataPath
-    ? fileNameFromPath(lootDataPath)
-    : "not loaded";
   const globalFileLabels: Record<GlobalEntityKey, string> = {
-    Classes: classFileLabel,
-    Races: raceFileLabel,
-    Skills: skillFileLabel,
-    Groups: groupFileLabel,
-    Commands: commandFileLabel,
-    Socials: socialFileLabel,
-    Tutorials: tutorialFileLabel,
-    Loot: lootFileLabel
+    Classes: classDataPath ? fileNameFromPath(classDataPath) : "not loaded",
+    Races: raceDataPath ? fileNameFromPath(raceDataPath) : "not loaded",
+    Skills: skillDataPath ? fileNameFromPath(skillDataPath) : "not loaded",
+    Groups: groupDataPath ? fileNameFromPath(groupDataPath) : "not loaded",
+    Commands: commandDataPath ? fileNameFromPath(commandDataPath) : "not loaded",
+    Socials: socialDataPath ? fileNameFromPath(socialDataPath) : "not loaded",
+    Tutorials: tutorialDataPath ? fileNameFromPath(tutorialDataPath) : "not loaded",
+    Loot: lootDataPath ? fileNameFromPath(lootDataPath) : "not loaded"
   };
   const dataFileLabel = globalFileLabels[selectedGlobalEntity] ?? "not loaded";
   const classActionsNode = (
     <GlobalFormActions
       label="Classes"
-      dataFileLabel={classFileLabel}
+      dataFileLabel={globalFileLabels.Classes}
       loadDisabled={!dataDirectory || isBusy}
       saveDisabled={!classData || isBusy}
       onLoad={handleLoadClassesData}
@@ -8261,7 +5944,7 @@ export default function App({ repository }: AppProps) {
   const raceActionsNode = (
     <GlobalFormActions
       label="Races"
-      dataFileLabel={raceFileLabel}
+      dataFileLabel={globalFileLabels.Races}
       loadDisabled={!dataDirectory || isBusy}
       saveDisabled={!raceData || isBusy}
       onLoad={handleLoadRacesData}
@@ -8271,7 +5954,7 @@ export default function App({ repository }: AppProps) {
   const skillActionsNode = (
     <GlobalFormActions
       label="Skills"
-      dataFileLabel={skillFileLabel}
+      dataFileLabel={globalFileLabels.Skills}
       loadDisabled={!dataDirectory || isBusy}
       saveDisabled={!skillData || isBusy}
       onLoad={handleLoadSkillsData}
@@ -8281,7 +5964,7 @@ export default function App({ repository }: AppProps) {
   const groupActionsNode = (
     <GlobalFormActions
       label="Groups"
-      dataFileLabel={groupFileLabel}
+      dataFileLabel={globalFileLabels.Groups}
       loadDisabled={!dataDirectory || isBusy}
       saveDisabled={!groupData || isBusy}
       onLoad={handleLoadGroupsData}
@@ -8291,7 +5974,7 @@ export default function App({ repository }: AppProps) {
   const commandActionsNode = (
     <GlobalFormActions
       label="Commands"
-      dataFileLabel={commandFileLabel}
+      dataFileLabel={globalFileLabels.Commands}
       loadDisabled={!dataDirectory || isBusy}
       saveDisabled={!commandData || isBusy}
       onLoad={handleLoadCommandsData}
@@ -8301,7 +5984,7 @@ export default function App({ repository }: AppProps) {
   const socialActionsNode = (
     <GlobalFormActions
       label="Socials"
-      dataFileLabel={socialFileLabel}
+      dataFileLabel={globalFileLabels.Socials}
       loadDisabled={!dataDirectory || isBusy}
       saveDisabled={!socialData || isBusy}
       onLoad={handleLoadSocialsData}
@@ -8311,7 +5994,7 @@ export default function App({ repository }: AppProps) {
   const tutorialActionsNode = (
     <GlobalFormActions
       label="Tutorials"
-      dataFileLabel={tutorialFileLabel}
+      dataFileLabel={globalFileLabels.Tutorials}
       loadDisabled={!dataDirectory || isBusy}
       saveDisabled={!tutorialData || isBusy}
       onLoad={handleLoadTutorialsData}
@@ -8321,7 +6004,7 @@ export default function App({ repository }: AppProps) {
   const lootActionsNode = (
     <GlobalFormActions
       label="Loot"
-      dataFileLabel={lootFileLabel}
+      dataFileLabel={globalFileLabels.Loot}
       loadDisabled={!dataDirectory || isBusy}
       saveDisabled={!lootData || isBusy}
       onLoad={handleLoadLootData}
@@ -8365,12 +6048,6 @@ export default function App({ repository }: AppProps) {
   return (
     <div className="app-shell">
       <Topbar
-        areaName={areaName}
-        errorMessage={errorMessage}
-        statusMessage={statusMessage}
-        isBusy={isBusy}
-        hasArea={Boolean(areaData)}
-        hasAreaPath={Boolean(areaPath)}
         onOpenProject={handleOpenProject}
         onOpenArea={handleOpenArea}
         onSetAreaDirectory={handleSetAreaDirectory}
@@ -8380,20 +6057,10 @@ export default function App({ repository }: AppProps) {
       />
 
       <section className="workspace">
-        <EntityTree
-          mode={editorMode}
-          onModeChange={setEditorMode}
-          items={treeItems}
-          selectedEntity={treeSelection}
-          onSelectEntity={handleTreeSelect}
-        />
+        <EntityTree items={treeItems} />
 
         <main className="center">
-          <ViewTabs
-            tabs={visibleTabs}
-            activeTab={activeTab}
-            onSelectTab={setActiveTab}
-          />
+          <ViewTabs tabs={visibleTabs} />
 
           <div className="view-card">
             <ViewCardHeader
@@ -8488,14 +6155,7 @@ export default function App({ repository }: AppProps) {
       </section>
 
       <Statusbar
-        errorMessage={errorMessage}
-        statusMessage={statusMessage}
-        areaPath={areaPath}
-        editorMetaPath={editorMetaPath}
-        areaDirectory={areaDirectory}
-        dataDirectory={dataDirectory}
         projectPath={projectConfig?.path ?? null}
-        selectedEntity={statusSelection}
         referenceSummary={referenceSummary}
       />
     </div>
