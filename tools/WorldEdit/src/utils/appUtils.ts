@@ -358,3 +358,45 @@ export function syncGridSelection(
     node.setSelected(true);
   }
 }
+
+/** Build a Map from vnum to VnumOption for fast lookups. */
+export function buildVnumOptionMap(options: VnumOption[]): Map<number, VnumOption> {
+  const map = new Map<number, VnumOption>();
+  for (const option of options) {
+    map.set(option.vnum, option);
+  }
+  return map;
+}
+
+/** Table toolbar configuration. */
+export interface TableToolbarConfig {
+  title: string;
+  count: number;
+  newLabel: string;
+  deleteLabel: string;
+  canCreate: boolean;
+  canDelete: boolean;
+  onCreate: () => void;
+  onDelete: () => void;
+}
+
+/** Build a table toolbar config for global entity views. */
+export function buildTableToolbar(
+  entityName: string,
+  rowCount: number,
+  data: unknown | null,
+  selectedIndex: number | null,
+  onCreate: () => void,
+  onDelete: () => void
+): TableToolbarConfig {
+  return {
+    title: entityName,
+    count: rowCount,
+    newLabel: `New ${entityName.slice(0, -1)}`, // Remove trailing 's'
+    deleteLabel: `Delete ${entityName.slice(0, -1)}`,
+    canCreate: Boolean(data),
+    canDelete: selectedIndex !== null,
+    onCreate,
+    onDelete
+  };
+}

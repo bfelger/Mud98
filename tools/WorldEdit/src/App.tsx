@@ -252,13 +252,20 @@ import { useGlobalDataLazyLoad } from "./hooks/useGlobalDataLazyLoad";
 import { useGlobalIndexClamp } from "./hooks/useGlobalIndexClamp";
 import { useFormResetOnDefaultsChange } from "./hooks/useFormResetOnDefaultsChange";
 import {
+  useAreaGridSync,
+  useGlobalGridSync,
+  type AreaGridRefs,
+  type GlobalGridRefs
+} from "./hooks/useGridSelectionSync";
+import {
   fileNameFromPath,
   buildEditorMeta,
   buildVnumOptions,
+  buildVnumOptionMap,
   buildSelectionSummary,
+  buildTableToolbar,
   getDominantExitDirection,
-  cleanOptionalString,
-  syncGridSelection
+  cleanOptionalString
 } from "./utils/appUtils";
 import {
   containerFlagEnum,
@@ -582,6 +589,7 @@ export default function App({ repository }: AppProps) {
     setAreaGraphLinks
   } = useAreaStore();
 
+  // Grid API refs for area entities
   const roomGridApi = useRef<GridApi | null>(null);
   const mobileGridApi = useRef<GridApi | null>(null);
   const objectGridApi = useRef<GridApi | null>(null);
@@ -592,6 +600,8 @@ export default function App({ repository }: AppProps) {
   const areaLootGridApi = useRef<GridApi | null>(null);
   const recipeGridApi = useRef<GridApi | null>(null);
   const gatherGridApi = useRef<GridApi | null>(null);
+
+  // Grid API refs for global entities
   const classGridApi = useRef<GridApi | null>(null);
   const raceGridApi = useRef<GridApi | null>(null);
   const skillGridApi = useRef<GridApi | null>(null);
@@ -600,6 +610,32 @@ export default function App({ repository }: AppProps) {
   const socialGridApi = useRef<GridApi | null>(null);
   const tutorialGridApi = useRef<GridApi | null>(null);
   const lootGridApi = useRef<GridApi | null>(null);
+
+  // Grouped refs for grid sync hooks
+  const areaGridRefs: AreaGridRefs = useMemo(() => ({
+    Rooms: roomGridApi,
+    Mobiles: mobileGridApi,
+    Objects: objectGridApi,
+    Resets: resetGridApi,
+    Shops: shopGridApi,
+    Quests: questGridApi,
+    Factions: factionGridApi,
+    Loot: areaLootGridApi,
+    Recipes: recipeGridApi,
+    "Gather Spawns": gatherGridApi
+  }), []);
+
+  const globalGridRefs: GlobalGridRefs = useMemo(() => ({
+    Classes: classGridApi,
+    Races: raceGridApi,
+    Skills: skillGridApi,
+    Groups: groupGridApi,
+    Commands: commandGridApi,
+    Socials: socialGridApi,
+    Tutorials: tutorialGridApi,
+    Loot: lootGridApi
+  }), []);
+
   const exitValidation = useMemo(
     () => buildExitTargetValidation(areaData, areaIndex),
     [areaData, areaIndex]
@@ -3255,35 +3291,26 @@ export default function App({ repository }: AppProps) {
     () => buildVnumOptions(areaData, "Rooms"),
     [areaData]
   );
-  const roomVnumOptionMap = useMemo(() => {
-    const map = new Map<number, VnumOption>();
-    roomVnumOptions.forEach((option) => {
-      map.set(option.vnum, option);
-    });
-    return map;
-  }, [roomVnumOptions]);
+  const roomVnumOptionMap = useMemo(
+    () => buildVnumOptionMap(roomVnumOptions),
+    [roomVnumOptions]
+  );
   const mobileVnumOptions = useMemo(
     () => buildVnumOptions(areaData, "Mobiles"),
     [areaData]
   );
-  const mobileVnumOptionMap = useMemo(() => {
-    const map = new Map<number, VnumOption>();
-    mobileVnumOptions.forEach((option) => {
-      map.set(option.vnum, option);
-    });
-    return map;
-  }, [mobileVnumOptions]);
+  const mobileVnumOptionMap = useMemo(
+    () => buildVnumOptionMap(mobileVnumOptions),
+    [mobileVnumOptions]
+  );
   const objectVnumOptions = useMemo(
     () => buildVnumOptions(areaData, "Objects"),
     [areaData]
   );
-  const objectVnumOptionMap = useMemo(() => {
-    const map = new Map<number, VnumOption>();
-    objectVnumOptions.forEach((option) => {
-      map.set(option.vnum, option);
-    });
-    return map;
-  }, [objectVnumOptions]);
+  const objectVnumOptionMap = useMemo(
+    () => buildVnumOptionMap(objectVnumOptions),
+    [objectVnumOptions]
+  );
   const roomResetItems = useMemo<RoomResetItem[]>(() => {
     if (!areaData || selectedRoomVnum === null) {
       return [];
@@ -3412,226 +3439,73 @@ export default function App({ repository }: AppProps) {
     setOverrideMobilePartFlags(Array.isArray(record?.partFlags));
   }, [selectedMobileRecord]);
 
-  useEffect(() => {
-    if (activeTab !== "Table" || selectedEntity !== "Rooms") {
-      return;
+  // Area grid selection sync
+  const areaLootRowId = useMemo(() => {
+    if (selectedAreaLootKind && selectedAreaLootIndex !== null) {
+      return `${selectedAreaLootKind}:${selectedAreaLootIndex}`;
     }
-    syncGridSelection(roomGridApi.current, selectedRoomVnum);
-  }, [activeTab, selectedEntity, selectedRoomVnum, roomRows]);
+    return null;
+  }, [selectedAreaLootKind, selectedAreaLootIndex]);
 
-  useEffect(() => {
-    if (activeTab !== "Table" || selectedEntity !== "Mobiles") {
-      return;
-    }
-    syncGridSelection(mobileGridApi.current, selectedMobileVnum);
-  }, [activeTab, selectedEntity, selectedMobileVnum, mobileRows]);
+  useAreaGridSync({
+    gridRefs: areaGridRefs,
+    selectionValues: {
+      Rooms: selectedRoomVnum,
+      Mobiles: selectedMobileVnum,
+      Objects: selectedObjectVnum,
+      Resets: selectedResetIndex,
+      Shops: selectedShopKeeper,
+      Quests: selectedQuestVnum,
+      Factions: selectedFactionVnum,
+      Loot: areaLootRowId,
+      Recipes: selectedRecipeVnum,
+      "Gather Spawns": selectedGatherVnum
+    },
+    rowsDeps: [
+      roomRows,
+      mobileRows,
+      objectRows,
+      resetRows,
+      shopRows,
+      questRows,
+      factionRows,
+      areaLootRows,
+      recipeRows,
+      gatherSpawnRows
+    ]
+  });
 
-  useEffect(() => {
-    if (activeTab !== "Table" || selectedEntity !== "Objects") {
-      return;
+  // Global grid selection sync
+  const globalLootRowId = useMemo(() => {
+    if (selectedLootKind && selectedLootIndex !== null) {
+      return `${selectedLootKind}:${selectedLootIndex}`;
     }
-    syncGridSelection(objectGridApi.current, selectedObjectVnum);
-  }, [activeTab, selectedEntity, selectedObjectVnum, objectRows]);
+    return null;
+  }, [selectedLootKind, selectedLootIndex]);
 
-  useEffect(() => {
-    if (activeTab !== "Table" || selectedEntity !== "Resets") {
-      return;
-    }
-    syncGridSelection(resetGridApi.current, selectedResetIndex);
-  }, [activeTab, selectedEntity, selectedResetIndex, resetRows]);
-
-  useEffect(() => {
-    if (activeTab !== "Table" || selectedEntity !== "Shops") {
-      return;
-    }
-    syncGridSelection(shopGridApi.current, selectedShopKeeper);
-  }, [activeTab, selectedEntity, selectedShopKeeper, shopRows]);
-
-  useEffect(() => {
-    if (activeTab !== "Table" || selectedEntity !== "Quests") {
-      return;
-    }
-    syncGridSelection(questGridApi.current, selectedQuestVnum);
-  }, [activeTab, selectedEntity, selectedQuestVnum, questRows]);
-
-  useEffect(() => {
-    if (activeTab !== "Table" || selectedEntity !== "Factions") {
-      return;
-    }
-    syncGridSelection(factionGridApi.current, selectedFactionVnum);
-  }, [activeTab, selectedEntity, selectedFactionVnum, factionRows]);
-
-  useEffect(() => {
-    if (activeTab !== "Table" || selectedEntity !== "Loot") {
-      return;
-    }
-    const rowId =
-      selectedAreaLootKind && selectedAreaLootIndex !== null
-        ? `${selectedAreaLootKind}:${selectedAreaLootIndex}`
-        : null;
-    syncGridSelection(areaLootGridApi.current, rowId);
-  }, [
-    activeTab,
-    selectedEntity,
-    selectedAreaLootKind,
-    selectedAreaLootIndex,
-    areaLootRows
-  ]);
-
-  useEffect(() => {
-    if (activeTab !== "Table" || selectedEntity !== "Recipes") {
-      return;
-    }
-    syncGridSelection(recipeGridApi.current, selectedRecipeVnum);
-  }, [activeTab, selectedEntity, selectedRecipeVnum, recipeRows]);
-
-  useEffect(() => {
-    if (activeTab !== "Table" || selectedEntity !== "Gather Spawns") {
-      return;
-    }
-    syncGridSelection(gatherGridApi.current, selectedGatherVnum);
-  }, [activeTab, selectedEntity, selectedGatherVnum, gatherSpawnRows]);
-
-  useEffect(() => {
-    if (
-      editorMode !== "Global" ||
-      selectedGlobalEntity !== "Classes" ||
-      activeTab !== "Table"
-    ) {
-      return;
-    }
-    syncGridSelection(classGridApi.current, selectedClassIndex);
-  }, [
-    editorMode,
-    selectedGlobalEntity,
-    activeTab,
-    selectedClassIndex,
-    classRows
-  ]);
-
-  useEffect(() => {
-    if (
-      editorMode !== "Global" ||
-      selectedGlobalEntity !== "Races" ||
-      activeTab !== "Table"
-    ) {
-      return;
-    }
-    syncGridSelection(raceGridApi.current, selectedRaceIndex);
-  }, [
-    editorMode,
-    selectedGlobalEntity,
-    activeTab,
-    selectedRaceIndex,
-    raceRows
-  ]);
-
-  useEffect(() => {
-    if (
-      editorMode !== "Global" ||
-      selectedGlobalEntity !== "Skills" ||
-      activeTab !== "Table"
-    ) {
-      return;
-    }
-    syncGridSelection(skillGridApi.current, selectedSkillIndex);
-  }, [
-    editorMode,
-    selectedGlobalEntity,
-    activeTab,
-    selectedSkillIndex,
-    skillRows
-  ]);
-
-  useEffect(() => {
-    if (
-      editorMode !== "Global" ||
-      selectedGlobalEntity !== "Groups" ||
-      activeTab !== "Table"
-    ) {
-      return;
-    }
-    syncGridSelection(groupGridApi.current, selectedGroupIndex);
-  }, [
-    editorMode,
-    selectedGlobalEntity,
-    activeTab,
-    selectedGroupIndex,
-    groupRows
-  ]);
-
-  useEffect(() => {
-    if (
-      editorMode !== "Global" ||
-      selectedGlobalEntity !== "Commands" ||
-      activeTab !== "Table"
-    ) {
-      return;
-    }
-    syncGridSelection(commandGridApi.current, selectedCommandIndex);
-  }, [
-    editorMode,
-    selectedGlobalEntity,
-    activeTab,
-    selectedCommandIndex,
-    commandRows
-  ]);
-
-  useEffect(() => {
-    if (
-      editorMode !== "Global" ||
-      selectedGlobalEntity !== "Socials" ||
-      activeTab !== "Table"
-    ) {
-      return;
-    }
-    syncGridSelection(socialGridApi.current, selectedSocialIndex);
-  }, [
-    editorMode,
-    selectedGlobalEntity,
-    activeTab,
-    selectedSocialIndex,
-    socialRows
-  ]);
-
-  useEffect(() => {
-    if (
-      editorMode !== "Global" ||
-      selectedGlobalEntity !== "Tutorials" ||
-      activeTab !== "Table"
-    ) {
-      return;
-    }
-    syncGridSelection(tutorialGridApi.current, selectedTutorialIndex);
-  }, [
-    editorMode,
-    selectedGlobalEntity,
-    activeTab,
-    selectedTutorialIndex,
-    tutorialRows
-  ]);
-
-  useEffect(() => {
-    if (
-      editorMode !== "Global" ||
-      selectedGlobalEntity !== "Loot" ||
-      activeTab !== "Table"
-    ) {
-      return;
-    }
-    const rowId =
-      selectedLootKind && selectedLootIndex !== null
-        ? `${selectedLootKind}:${selectedLootIndex}`
-        : null;
-    syncGridSelection(lootGridApi.current, rowId);
-  }, [
-    editorMode,
-    selectedGlobalEntity,
-    activeTab,
-    selectedLootKind,
-    selectedLootIndex,
-    lootRows
-  ]);
+  useGlobalGridSync({
+    gridRefs: globalGridRefs,
+    selectionValues: {
+      Classes: selectedClassIndex,
+      Races: selectedRaceIndex,
+      Skills: selectedSkillIndex,
+      Groups: selectedGroupIndex,
+      Commands: selectedCommandIndex,
+      Socials: selectedSocialIndex,
+      Tutorials: selectedTutorialIndex,
+      Loot: globalLootRowId
+    },
+    rowsDeps: [
+      classRows,
+      raceRows,
+      skillRows,
+      groupRows,
+      commandRows,
+      socialRows,
+      tutorialRows,
+      lootRows
+    ]
+  });
 
   const handleOpenRoomLinkPanel = useCallback(
     (menu: RoomContextMenuState) => {
@@ -5652,23 +5526,15 @@ export default function App({ repository }: AppProps) {
     />
   );
   const classTableToolbar = useMemo(
-    () => ({
-      title: "Classes",
-      count: classRows.length,
-      newLabel: "New Class",
-      deleteLabel: "Delete Class",
-      canCreate: Boolean(classData),
-      canDelete: selectedClassIndex !== null,
-      onCreate: handleCreateClass,
-      onDelete: handleDeleteClass
-    }),
-    [
+    () => buildTableToolbar(
+      "Classes",
       classRows.length,
       classData,
       selectedClassIndex,
       handleCreateClass,
       handleDeleteClass
-    ]
+    ),
+    [classRows.length, classData, selectedClassIndex, handleCreateClass, handleDeleteClass]
   );
   const classTableViewNode = (
     <ClassTableView
@@ -5681,23 +5547,15 @@ export default function App({ repository }: AppProps) {
     />
   );
   const raceTableToolbar = useMemo(
-    () => ({
-      title: "Races",
-      count: raceRows.length,
-      newLabel: "New Race",
-      deleteLabel: "Delete Race",
-      canCreate: Boolean(raceData),
-      canDelete: selectedRaceIndex !== null,
-      onCreate: handleCreateRace,
-      onDelete: handleDeleteRace
-    }),
-    [
+    () => buildTableToolbar(
+      "Races",
       raceRows.length,
       raceData,
       selectedRaceIndex,
       handleCreateRace,
       handleDeleteRace
-    ]
+    ),
+    [raceRows.length, raceData, selectedRaceIndex, handleCreateRace, handleDeleteRace]
   );
   const raceTableViewNode = (
     <RaceTableView
@@ -5710,23 +5568,15 @@ export default function App({ repository }: AppProps) {
     />
   );
   const skillTableToolbar = useMemo(
-    () => ({
-      title: "Skills",
-      count: skillRows.length,
-      newLabel: "New Skill",
-      deleteLabel: "Delete Skill",
-      canCreate: Boolean(skillData),
-      canDelete: selectedSkillIndex !== null,
-      onCreate: handleCreateSkill,
-      onDelete: handleDeleteSkill
-    }),
-    [
+    () => buildTableToolbar(
+      "Skills",
       skillRows.length,
       skillData,
       selectedSkillIndex,
       handleCreateSkill,
       handleDeleteSkill
-    ]
+    ),
+    [skillRows.length, skillData, selectedSkillIndex, handleCreateSkill, handleDeleteSkill]
   );
   const skillTableViewNode = (
     <SkillTableView
@@ -5739,23 +5589,15 @@ export default function App({ repository }: AppProps) {
     />
   );
   const groupTableToolbar = useMemo(
-    () => ({
-      title: "Groups",
-      count: groupRows.length,
-      newLabel: "New Group",
-      deleteLabel: "Delete Group",
-      canCreate: Boolean(groupData),
-      canDelete: selectedGroupIndex !== null,
-      onCreate: handleCreateGroup,
-      onDelete: handleDeleteGroup
-    }),
-    [
+    () => buildTableToolbar(
+      "Groups",
       groupRows.length,
       groupData,
       selectedGroupIndex,
       handleCreateGroup,
       handleDeleteGroup
-    ]
+    ),
+    [groupRows.length, groupData, selectedGroupIndex, handleCreateGroup, handleDeleteGroup]
   );
   const groupTableViewNode = (
     <GroupTableView
@@ -5768,23 +5610,15 @@ export default function App({ repository }: AppProps) {
     />
   );
   const commandTableToolbar = useMemo(
-    () => ({
-      title: "Commands",
-      count: commandRows.length,
-      newLabel: "New Command",
-      deleteLabel: "Delete Command",
-      canCreate: Boolean(commandData),
-      canDelete: selectedCommandIndex !== null,
-      onCreate: handleCreateCommand,
-      onDelete: handleDeleteCommand
-    }),
-    [
+    () => buildTableToolbar(
+      "Commands",
       commandRows.length,
       commandData,
       selectedCommandIndex,
       handleCreateCommand,
       handleDeleteCommand
-    ]
+    ),
+    [commandRows.length, commandData, selectedCommandIndex, handleCreateCommand, handleDeleteCommand]
   );
   const commandTableViewNode = (
     <CommandTableView
@@ -5797,23 +5631,15 @@ export default function App({ repository }: AppProps) {
     />
   );
   const socialTableToolbar = useMemo(
-    () => ({
-      title: "Socials",
-      count: socialRows.length,
-      newLabel: "New Social",
-      deleteLabel: "Delete Social",
-      canCreate: Boolean(socialData),
-      canDelete: selectedSocialIndex !== null,
-      onCreate: handleCreateSocial,
-      onDelete: handleDeleteSocial
-    }),
-    [
+    () => buildTableToolbar(
+      "Socials",
       socialRows.length,
       socialData,
       selectedSocialIndex,
       handleCreateSocial,
       handleDeleteSocial
-    ]
+    ),
+    [socialRows.length, socialData, selectedSocialIndex, handleCreateSocial, handleDeleteSocial]
   );
   const socialTableViewNode = (
     <SocialTableView
@@ -5826,23 +5652,15 @@ export default function App({ repository }: AppProps) {
     />
   );
   const tutorialTableToolbar = useMemo(
-    () => ({
-      title: "Tutorials",
-      count: tutorialRows.length,
-      newLabel: "New Tutorial",
-      deleteLabel: "Delete Tutorial",
-      canCreate: Boolean(tutorialData),
-      canDelete: selectedTutorialIndex !== null,
-      onCreate: handleCreateTutorial,
-      onDelete: handleDeleteTutorial
-    }),
-    [
+    () => buildTableToolbar(
+      "Tutorials",
       tutorialRows.length,
       tutorialData,
       selectedTutorialIndex,
       handleCreateTutorial,
       handleDeleteTutorial
-    ]
+    ),
+    [tutorialRows.length, tutorialData, selectedTutorialIndex, handleCreateTutorial, handleDeleteTutorial]
   );
   const tutorialTableViewNode = (
     <TutorialTableView
@@ -6102,45 +5920,21 @@ export default function App({ repository }: AppProps) {
   const referenceSummary = referenceData
     ? `classes ${referenceData.classes.length}, races ${referenceData.races.length}, skills ${referenceData.skills.length}, groups ${referenceData.groups.length}, commands ${referenceData.commands.length}, socials ${referenceData.socials.length}, tutorials ${referenceData.tutorials.length}`
     : "not loaded";
-  const classFileLabel = classDataPath
-    ? fileNameFromPath(classDataPath)
-    : "not loaded";
-  const raceFileLabel = raceDataPath
-    ? fileNameFromPath(raceDataPath)
-    : "not loaded";
-  const skillFileLabel = skillDataPath
-    ? fileNameFromPath(skillDataPath)
-    : "not loaded";
-  const groupFileLabel = groupDataPath
-    ? fileNameFromPath(groupDataPath)
-    : "not loaded";
-  const commandFileLabel = commandDataPath
-    ? fileNameFromPath(commandDataPath)
-    : "not loaded";
-  const socialFileLabel = socialDataPath
-    ? fileNameFromPath(socialDataPath)
-    : "not loaded";
-  const tutorialFileLabel = tutorialDataPath
-    ? fileNameFromPath(tutorialDataPath)
-    : "not loaded";
-  const lootFileLabel = lootDataPath
-    ? fileNameFromPath(lootDataPath)
-    : "not loaded";
   const globalFileLabels: Record<GlobalEntityKey, string> = {
-    Classes: classFileLabel,
-    Races: raceFileLabel,
-    Skills: skillFileLabel,
-    Groups: groupFileLabel,
-    Commands: commandFileLabel,
-    Socials: socialFileLabel,
-    Tutorials: tutorialFileLabel,
-    Loot: lootFileLabel
+    Classes: classDataPath ? fileNameFromPath(classDataPath) : "not loaded",
+    Races: raceDataPath ? fileNameFromPath(raceDataPath) : "not loaded",
+    Skills: skillDataPath ? fileNameFromPath(skillDataPath) : "not loaded",
+    Groups: groupDataPath ? fileNameFromPath(groupDataPath) : "not loaded",
+    Commands: commandDataPath ? fileNameFromPath(commandDataPath) : "not loaded",
+    Socials: socialDataPath ? fileNameFromPath(socialDataPath) : "not loaded",
+    Tutorials: tutorialDataPath ? fileNameFromPath(tutorialDataPath) : "not loaded",
+    Loot: lootDataPath ? fileNameFromPath(lootDataPath) : "not loaded"
   };
   const dataFileLabel = globalFileLabels[selectedGlobalEntity] ?? "not loaded";
   const classActionsNode = (
     <GlobalFormActions
       label="Classes"
-      dataFileLabel={classFileLabel}
+      dataFileLabel={globalFileLabels.Classes}
       loadDisabled={!dataDirectory || isBusy}
       saveDisabled={!classData || isBusy}
       onLoad={handleLoadClassesData}
@@ -6150,7 +5944,7 @@ export default function App({ repository }: AppProps) {
   const raceActionsNode = (
     <GlobalFormActions
       label="Races"
-      dataFileLabel={raceFileLabel}
+      dataFileLabel={globalFileLabels.Races}
       loadDisabled={!dataDirectory || isBusy}
       saveDisabled={!raceData || isBusy}
       onLoad={handleLoadRacesData}
@@ -6160,7 +5954,7 @@ export default function App({ repository }: AppProps) {
   const skillActionsNode = (
     <GlobalFormActions
       label="Skills"
-      dataFileLabel={skillFileLabel}
+      dataFileLabel={globalFileLabels.Skills}
       loadDisabled={!dataDirectory || isBusy}
       saveDisabled={!skillData || isBusy}
       onLoad={handleLoadSkillsData}
@@ -6170,7 +5964,7 @@ export default function App({ repository }: AppProps) {
   const groupActionsNode = (
     <GlobalFormActions
       label="Groups"
-      dataFileLabel={groupFileLabel}
+      dataFileLabel={globalFileLabels.Groups}
       loadDisabled={!dataDirectory || isBusy}
       saveDisabled={!groupData || isBusy}
       onLoad={handleLoadGroupsData}
@@ -6180,7 +5974,7 @@ export default function App({ repository }: AppProps) {
   const commandActionsNode = (
     <GlobalFormActions
       label="Commands"
-      dataFileLabel={commandFileLabel}
+      dataFileLabel={globalFileLabels.Commands}
       loadDisabled={!dataDirectory || isBusy}
       saveDisabled={!commandData || isBusy}
       onLoad={handleLoadCommandsData}
@@ -6190,7 +5984,7 @@ export default function App({ repository }: AppProps) {
   const socialActionsNode = (
     <GlobalFormActions
       label="Socials"
-      dataFileLabel={socialFileLabel}
+      dataFileLabel={globalFileLabels.Socials}
       loadDisabled={!dataDirectory || isBusy}
       saveDisabled={!socialData || isBusy}
       onLoad={handleLoadSocialsData}
@@ -6200,7 +5994,7 @@ export default function App({ repository }: AppProps) {
   const tutorialActionsNode = (
     <GlobalFormActions
       label="Tutorials"
-      dataFileLabel={tutorialFileLabel}
+      dataFileLabel={globalFileLabels.Tutorials}
       loadDisabled={!dataDirectory || isBusy}
       saveDisabled={!tutorialData || isBusy}
       onLoad={handleLoadTutorialsData}
@@ -6210,7 +6004,7 @@ export default function App({ repository }: AppProps) {
   const lootActionsNode = (
     <GlobalFormActions
       label="Loot"
-      dataFileLabel={lootFileLabel}
+      dataFileLabel={globalFileLabels.Loot}
       loadDisabled={!dataDirectory || isBusy}
       saveDisabled={!lootData || isBusy}
       onLoad={handleLoadLootData}
